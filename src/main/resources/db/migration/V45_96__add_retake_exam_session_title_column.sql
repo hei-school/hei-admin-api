@@ -1,2 +1,2 @@
-alter table "retake_exam_session"
-    add column if not exists title varchar not null;
+ALTER TABLE "retake_exam_session"
+    ADD COLUMN IF NOT EXISTS title varchar NOT NULL DEFAULT 'default session';
