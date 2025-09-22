@@ -114,7 +114,7 @@ class MpbsVerificationTest {
             computeVerifiedMobilePaymentMock);
 
     var pendingCreationDatetime = now().minus(1, DAYS);
-    var failedCreationDatetime = now().minus(4, DAYS);
+    var failedCreationDatetime = now().minus(6, DAYS);
     var student = User.builder().email("email@gmail.com").build();
     var fee = Fee.builder().id("feeId").student(student).build();
     var badMpbs = someMpbs("bad", failedCreationDatetime, fee, student, null);

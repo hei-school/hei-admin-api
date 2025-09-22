@@ -37,7 +37,7 @@ class UnverifiedMobilePaymentHandlerTest {
     var mpbsMock1 = somePendingMpbs(now());
     var mpbsMock2 = somePendingMpbs(now().minus(1, DAYS));
     var mpbsMock3 = somePendingMpbs(now().minus(2, DAYS));
-    var mpbsMock4 = somePendingMpbs(now().minus(3, DAYS));
+    var mpbsMock4 = somePendingMpbs(now().minus(6, DAYS));
     var mpbsMock5 = somePendingMpbs(now().minus(25, DAYS));
 
     assertDoesNotThrow(
@@ -108,7 +108,7 @@ class UnverifiedMobilePaymentHandlerTest {
             .status(PENDING)
             .statusHistory(
                 List.of(
-                    someStatusAt(PENDING, now().minus(4, DAYS)),
+                    someStatusAt(PENDING, now().minus(6, DAYS)),
                     someStatusAt(FAILED, now().minus(10, DAYS)),
                     someStatusAt(PENDING, now().minus(25, DAYS))))
             .build();
