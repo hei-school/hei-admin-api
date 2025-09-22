@@ -27,6 +27,7 @@ public class YearlyResultGenerationService {
   private final YearlyResultGenerationRequestRepository yearlyResultGenerationRequestRepository;
   private final ClassPathResourceResolver classPathResourceResolver;
   private static final String YEARLY_RESULT_FILENAME_PREFIX = "Bulletin-";
+  private static final String TOTAL_YEARLY_CREDITS = "60";
 
   public File generateYearlyResultTranscript(User student, YearlyResult yearlyResult) {
     Context context = loadContext(student, yearlyResult);
@@ -64,7 +65,7 @@ public class YearlyResultGenerationService {
     context.setVariable("promotion", studentPromotionString);
     context.setVariable("course_results", yearlyResult.getCourseResults());
     context.setVariable("obtained_credits", yearlyResult.getObtainedCredits());
-    context.setVariable("total_credits", yearlyResult.getTotalCredits());
+    context.setVariable("total_credits", TOTAL_YEARLY_CREDITS);
     context.setVariable(
         "yearly_average", yearlyResult.getWeightedAverage().round(new MathContext(4)));
     context.setVariable("current_date", instantToCommonDate(now()));
