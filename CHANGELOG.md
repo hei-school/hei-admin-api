@@ -1,3 +1,22 @@
+# [1.119.0](https://github.com/hei-school/hei-admin-api/compare/v1.118.1...v1.119.0) (2025-09-23)
+
+
+### Bug Fixes
+
+* find user group at instant ([518500f](https://github.com/hei-school/hei-admin-api/commit/518500f5cdec09b17ad652792a25ffba5248b38a))
+* in progress course status ([7aefae4](https://github.com/hei-school/hei-admin-api/commit/7aefae4edcc80d54de6b5dbaf41c3c8e66e51c8e))
+* mask retake exams for existing ones ([61f8a40](https://github.com/hei-school/hei-admin-api/commit/61f8a403c6dcacc9af619a86842d0bd082bee367))
+* mpbs xlsx verification fail on duplicate reference ([c5f2cf3](https://github.com/hei-school/hei-admin-api/commit/c5f2cf346053d19d6090ca9af431de7c443943c7))
+* yearly result transcript generation ([4247e1f](https://github.com/hei-school/hei-admin-api/commit/4247e1ff351e7080dea201e5d77552c52ead613d))
+* yearly result transcript unavailable average on incomplete course result ([0dcfc7f](https://github.com/hei-school/hei-admin-api/commit/0dcfc7fbca5d5714b7f1e4ee2207a2bcc4e241d3))
+
+
+### Features
+
+* **not-implemented:** COR ([e33e6b3](https://github.com/hei-school/hei-admin-api/commit/e33e6b3890d936b8a1dd63f92a457c1de801411c))
+
+
+
 ## [1.118.1](https://github.com/hei-school/hei-admin-api/compare/v1.118.0...v1.118.1) (2025-09-18)
 
 
@@ -93,23 +112,6 @@
 
 * add missing type query parameter to getAdvancedFeeStats ([6f13992](https://github.com/hei-school/hei-admin-api/commit/6f139924eb119a32659058f786898977a6ce6093))
 * handle runtime exceptions in mpbs verifications ([6e94e2b](https://github.com/hei-school/hei-admin-api/commit/6e94e2bb9df7c4530c2b92354ac3d597e866e014))
-
-
-
-# [1.113.0](https://github.com/hei-school/hei-admin-api/compare/v1.111.0...v1.113.0) (2025-08-29)
-
-
-### Bug Fixes
-
-* exam participants pagination ([96cea02](https://github.com/hei-school/hei-admin-api/commit/96cea0211225fab2326f210c09ea9c09bf3027bc))
-* **SecurityConf:** antMacher(GET, "/students/*/attendance") ([16664ef](https://github.com/hei-school/hei-admin-api/commit/16664ef63663b3d4a3afc58c4840e4eb2e2cfcb4))
-
-
-### Features
-
-* add receipt advanced fee stats ([cf9d4a8](https://github.com/hei-school/hei-admin-api/commit/cf9d4a81d01948fef8708d4ebbd89cb09e9464d0))
-* GET /students/{id}/attendance ([445aed9](https://github.com/hei-school/hei-admin-api/commit/445aed91fb2dff43e3a8ff5ac3980d68c90221da))
-* **not-implemented:** pend failed mpbs ([e5db94d](https://github.com/hei-school/hei-admin-api/commit/e5db94dd834f59f4d770a2d764edf2b786effbdb))
 
 
 
