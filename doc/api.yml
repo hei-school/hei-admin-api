@@ -6348,6 +6348,11 @@ paths:
       parameters:
         - $ref: '#/components/parameters/Page'
         - $ref: '#/components/parameters/PageSize'
+        - $ref: '#/components/parameters/DatetimeFromFilter'
+        - $ref: '#/components/parameters/DatetimeToFilter'
+        - $ref: '#/components/parameters/StudentRef'
+        - $ref: '#/components/parameters/GroupRef'
+        - $ref: '#/components/parameters/CorStatuses'
       responses:
         '200':
           description: List of COR
@@ -6397,7 +6402,7 @@ paths:
       tags:
         - Cor
       operationId: commentCorById
-      description: Change the status of the COR and add some comment about the change
+      summary: Change the status of the COR and add some comment about the change
       parameters:
         - $ref: '#/components/parameters/PathCorId'
       responses:
@@ -6462,24 +6467,21 @@ paths:
           required: true
           schema:
             type: string
+      summary: Create cor or update cor information for the current student
       requestBody:
-        description: List of CORs to Crupdate
+        description: CORs to Crupdate
         required: true
         content:
           application/json:
             schema:
-              type: array
-              items:
-                $ref: "#/components/schemas/CrupdateCor"
+              $ref: "#/components/schemas/CrupdateCor"
       responses:
         '200':
-          description: List of Crupdated CORs
+          description: Crupdated COR
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/Cor"
+                $ref: "#/components/schemas/Cor"
         '400':
           $ref: '#/components/responses/400'
         '403':
@@ -6543,6 +6545,15 @@ components:
       description: Filter by group ref
       schema:
         type: string
+    CorStatuses:
+      name: cor_status
+      in: query
+      required: false
+      description: Filter by cor actual status
+      schema:
+        type: array
+        items:
+          $ref: '#/components/schemas/CorStatus'
     StudentRef:
       name: student_ref
       in: query
