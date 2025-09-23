@@ -261,7 +261,7 @@ public class UserMapper {
   }
 
   public User toDomain(CrupdateManager manager) {
-    return User.builder()
+    return User.builder(manager.getCoordinates())
         .role(User.Role.MANAGER)
         .id(manager.getId())
         .firstName(manager.getFirstName())
@@ -276,14 +276,12 @@ public class UserMapper {
         .address(manager.getAddress())
         .nic(manager.getNic())
         .birthPlace(manager.getBirthPlace())
-        .longitude(manager.getCoordinates().getLongitude())
-        .latitude(manager.getCoordinates().getLatitude())
         .highSchoolOrigin(manager.getHighSchoolOrigin())
         .build();
   }
 
   public User toDomain(CrupdateTeacher teacher) {
-    return User.builder()
+    return User.builder(teacher.getCoordinates())
         .role(User.Role.TEACHER)
         .id(teacher.getId())
         .firstName(teacher.getFirstName())
@@ -298,14 +296,12 @@ public class UserMapper {
         .address(teacher.getAddress())
         .nic(teacher.getNic())
         .birthPlace(teacher.getBirthPlace())
-        .longitude(teacher.getCoordinates().getLongitude())
-        .latitude(teacher.getCoordinates().getLatitude())
         .highSchoolOrigin(teacher.getHighSchoolOrigin())
         .build();
   }
 
   public User toDomain(StaffMember teacher) {
-    return User.builder()
+    return User.builder(teacher.getCoordinates())
         .role(User.Role.STAFF_MEMBER)
         .id(teacher.getId())
         .firstName(teacher.getFirstName())
@@ -320,8 +316,6 @@ public class UserMapper {
         .address(teacher.getAddress())
         .nic(teacher.getNic())
         .birthPlace(teacher.getBirthPlace())
-        .longitude(teacher.getCoordinates().getLongitude())
-        .latitude(teacher.getCoordinates().getLatitude())
         .highSchoolOrigin(teacher.getHighSchoolOrigin())
         .degree(teacher.getDegree())
         .function(teacher.getFunction())
@@ -332,32 +326,24 @@ public class UserMapper {
   }
 
   public User toDomain(CrupdateStudent student) {
-    var user =
-        User.builder()
-            .role(User.Role.STUDENT)
-            .id(student.getId())
-            .firstName(student.getFirstName())
-            .lastName(student.getLastName())
-            .email(student.getEmail())
-            .ref(student.getRef())
-            .status(statusEnumMapper.toDomainStatus(student.getStatus()))
-            .phone(student.getPhone())
-            .entranceDatetime(student.getEntranceDatetime())
-            .birthDate(student.getBirthDate())
-            .sex(sexEnumMapper.toDomainSexEnum(student.getSex()))
-            .address(student.getAddress())
-            .birthPlace(student.getBirthPlace())
-            .nic(student.getNic())
-            .specializationField(student.getSpecializationField())
-            .highSchoolOrigin(student.getHighSchoolOrigin())
-            .build();
-    var coordinates = student.getCoordinates();
-    if (coordinates != null)
-      return user.toBuilder()
-          .longitude(coordinates.getLongitude())
-          .latitude(coordinates.getLatitude())
-          .build();
-    return user;
+    return User.builder(student.getCoordinates())
+        .role(User.Role.STUDENT)
+        .id(student.getId())
+        .firstName(student.getFirstName())
+        .lastName(student.getLastName())
+        .email(student.getEmail())
+        .ref(student.getRef())
+        .status(statusEnumMapper.toDomainStatus(student.getStatus()))
+        .phone(student.getPhone())
+        .entranceDatetime(student.getEntranceDatetime())
+        .birthDate(student.getBirthDate())
+        .sex(sexEnumMapper.toDomainSexEnum(student.getSex()))
+        .address(student.getAddress())
+        .birthPlace(student.getBirthPlace())
+        .nic(student.getNic())
+        .specializationField(student.getSpecializationField())
+        .highSchoolOrigin(student.getHighSchoolOrigin())
+        .build();
   }
 
   public HashMap<User, PaymentFrequency> toMapDomain(List<CrupdateStudent> students) {
@@ -369,7 +355,7 @@ public class UserMapper {
   }
 
   public User toDomain(CrupdateMonitor monitor) {
-    return User.builder()
+    return User.builder(monitor.getCoordinates())
         .role(User.Role.MONITOR)
         .id(monitor.getId())
         .firstName(monitor.getFirstName())
@@ -384,14 +370,12 @@ public class UserMapper {
         .address(monitor.getAddress())
         .nic(monitor.getNic())
         .birthPlace(monitor.getBirthPlace())
-        .longitude(monitor.getCoordinates().getLongitude())
-        .latitude(monitor.getCoordinates().getLatitude())
         .highSchoolOrigin(monitor.getHighSchoolOrigin())
         .build();
   }
 
   public User toDomain(CrupdateOrganizer organizer) {
-    return User.builder()
+    return User.builder(organizer.getCoordinates())
         .role(ORGANIZER)
         .id(organizer.getId())
         .firstName(organizer.getFirstName())
@@ -406,14 +390,12 @@ public class UserMapper {
         .address(organizer.getAddress())
         .nic(organizer.getNic())
         .birthPlace(organizer.getBirthPlace())
-        .longitude(organizer.getCoordinates().getLongitude())
-        .latitude(organizer.getCoordinates().getLatitude())
         .highSchoolOrigin(organizer.getHighSchoolOrigin())
         .build();
   }
 
   public User toDomain(Student student) {
-    return User.builder()
+    return User.builder(student.getCoordinates())
         .role(User.Role.MONITOR)
         .id(student.getId())
         .firstName(student.getFirstName())
@@ -428,8 +410,6 @@ public class UserMapper {
         .address(student.getAddress())
         .nic(student.getNic())
         .birthPlace(student.getBirthPlace())
-        .longitude(student.getCoordinates().getLongitude())
-        .latitude(student.getCoordinates().getLatitude())
         .highSchoolOrigin(student.getHighSchoolOrigin())
         .build();
   }
