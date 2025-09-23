@@ -6392,30 +6392,6 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
-    delete:
-      tags:
-        - Cor
-      operationId: deleteCorById
-      summary: Delete COR by id
-      parameters:
-        - $ref: '#/components/parameters/PathCorId'
-      responses:
-        '200':
-          description: The deleted COR
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Cor"
-        '400':
-          $ref: '#/components/responses/400'
-        '403':
-          $ref: '#/components/responses/403'
-        '404':
-          $ref: '#/components/responses/404'
-        '429':
-          $ref: '#/components/responses/429'
-        '500':
-          $ref: '#/components/responses/500'
   '/students/{student_id}/cors':
     get:
       tags:
