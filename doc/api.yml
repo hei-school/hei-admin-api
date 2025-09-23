@@ -6411,7 +6411,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/CorComment'
+                $ref: '#/components/schemas/CorCommentInfo'
         '400':
           $ref: '#/components/responses/400'
         '403':
@@ -8193,7 +8193,7 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/CorComment'
-    CorComment:
+    CorCommentInfo:
       type: object
       properties:
         status:
@@ -8201,6 +8201,14 @@ components:
         comment:
           type: string
           description: explanation of the reason or comment on change of status
+    CorComment:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/CorCommentInfo'
+      properties: 
+        creation_date:
+          type: string
+          format: date-time
     CorStatus:
       type: string
       enum:
