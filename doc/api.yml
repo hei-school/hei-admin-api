@@ -8124,23 +8124,55 @@ components:
       enum:
         - YEARLY
         - MONTHLY
-    CrupdateCor:
+    CorBase:
       type: object
       properties:
         id:
           type: string
-        creation_datetime:
+        description:
+          type: string
+        interview_date:
           type: string
           format: date-time
-        description:
+    CrupdateCor:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/CorBase'
+      properties:
+        concerned_student_id:
           type: string
     Cor:
       type: object
       allOf:
-        - $ref: "#/components/schemas/CrupdateCor"
+        - $ref: "#/components/schemas/CorBase"
       properties:
         concerned_student:
-          $ref: "#/components/schemas/Student"
+          $ref: "#/components/schemas/UserIdentifier"
+        creation_datetime:
+          type: string
+          format: date-time
+        status:
+          $ref: '#/components/schemas/CorStatus'
+        comments:
+          type: array
+          items:
+            $ref: '#/components/schemas/CorComment'
+    CorComment:
+      type: object
+      properties:
+        status:
+          $ref: '#/components/schemas/CorStatus'
+        comment:
+          type: string
+          description: explanation of the reason or comment on change of status
+    CorStatus:
+      type: string
+      enum:
+        - IN_PROGRESS
+        - STAY
+        - CANCELED
+        - LEAVE
+        - NO_SHOW
     UpdateLettersStatus:
       type: object
       properties:
