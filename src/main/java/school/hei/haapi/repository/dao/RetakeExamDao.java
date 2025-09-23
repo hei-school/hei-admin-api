@@ -15,10 +15,14 @@ import school.hei.haapi.model.RetakeExam;
 public class RetakeExamDao {
   private final EntityManager entityManager;
 
-  public List<RetakeExam> filterByCriteria(String sessionId, Pageable pageable) {
+  public List<RetakeExam> filterByCriteria(String sessionId, String studentId, Pageable pageable) {
     CriteriaBuilder builder = entityManager.getCriteriaBuilder();
     CriteriaQuery<RetakeExam> query = builder.createQuery(RetakeExam.class);
     Root<RetakeExam> root = query.from(RetakeExam.class);
+
+    if (studentId != null) {
+      query.where(builder.equal(root.get("student").get("id"), studentId));
+    }
 
     if (sessionId != null) {
       query.where(builder.equal(root.get("session").get("id"), sessionId));

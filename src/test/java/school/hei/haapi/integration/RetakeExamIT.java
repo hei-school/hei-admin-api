@@ -6,7 +6,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 import static school.hei.haapi.endpoint.rest.model.ResultOverviewStatus.INVALIDATED;
 import static school.hei.haapi.endpoint.rest.model.StudentLevel.L1;
@@ -32,6 +31,7 @@ import school.hei.haapi.endpoint.rest.client.ApiException;
 import school.hei.haapi.endpoint.rest.model.CourseResult;
 import school.hei.haapi.endpoint.rest.model.CourseResultStatus;
 import school.hei.haapi.endpoint.rest.model.CrupdateRetakeExam;
+import school.hei.haapi.endpoint.rest.model.ResultSummary;
 import school.hei.haapi.endpoint.rest.model.YearlyResult;
 import school.hei.haapi.integration.conf.FacadeITMockedThirdParties;
 import school.hei.haapi.integration.conf.TestUtils;
@@ -54,18 +54,21 @@ public class RetakeExamIT extends FacadeITMockedThirdParties {
     setUpCognito(cognitoComponentMock);
     setUpS3Service(fileService, student1());
 
-    when(gradeResultService.getLeveledYearlyResultByStudentId(eq(L1), anyString()))
+    when(gradeResultService.getStudentResultSummary(anyString()))
         .thenReturn(
-            new YearlyResult()
-                .level(L1)
-                .status(INVALIDATED)
-                .totalCredits(TEN)
-                .courseResults(
+            new ResultSummary()
+                .yearlyResults(
                     List.of(
-                        new CourseResult()
-                            .course(course1())
-                            .status(CourseResultStatus.INCOMPLETE)
-                            .weightedAverage(ONE))));
+                        new YearlyResult()
+                            .level(L1)
+                            .status(INVALIDATED)
+                            .totalCredits(TEN)
+                            .courseResults(
+                                List.of(
+                                    new CourseResult()
+                                        .course(course1())
+                                        .status(CourseResultStatus.INCOMPLETE)
+                                        .weightedAverage(ONE))))));
     when(retakeExamRepository.saveAll(anyList())).thenAnswer(i -> i.getArgument(0));
   }
 

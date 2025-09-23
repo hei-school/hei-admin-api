@@ -4,8 +4,6 @@ import static school.hei.haapi.endpoint.rest.model.CourseResultStatus.INCOMPLETE
 
 import java.util.List;
 import java.util.Objects;
-import java.util.Set;
-import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -15,10 +13,8 @@ import school.hei.haapi.endpoint.rest.mapper.RetakeExamMapper;
 import school.hei.haapi.endpoint.rest.model.Course;
 import school.hei.haapi.endpoint.rest.model.CourseResult;
 import school.hei.haapi.endpoint.rest.model.CrupdateRetakeExam;
-import school.hei.haapi.endpoint.rest.model.StudentLevel;
 import school.hei.haapi.endpoint.rest.model.YearlyResult;
 import school.hei.haapi.model.BoundedPageSize;
-import school.hei.haapi.model.CourseAssignment;
 import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.model.RetakeExam;
 import school.hei.haapi.model.RetakeExamSession;
@@ -32,7 +28,6 @@ public class RetakeExamService {
   private final RetakeExamSessionService retakeExamSessionService;
   private final RetakeExamMapper retakeExamMapper;
   private final GradeResultService gradeResultService;
-  private final CourseAssignmentService courseAssignmentService;
   private final CourseMapper courseMapper;
   private final RetakeExamDao retakeExamDao;
 
@@ -62,7 +57,7 @@ public class RetakeExamService {
 
   public List<RetakeExam> getStudentRetakeExams(String sessionId, String studentId) {
     var session = retakeExamSessionService.getById(sessionId);
-    var coursesToRetake = getCourseResultToRetake(studentId);
+    var coursesToRetake = getCourseResultToRetake(studentId, session);
 
     return coursesToRetake.stream()
         .map(courseResult -> courseResultAndSessionToRetake(courseResult, session))
@@ -81,31 +76,32 @@ public class RetakeExamService {
     return retakeExam;
   }
 
-  private List<CourseResult> getCourseResultToRetake(String studentId) {
-    List<CourseAssignment> courses = courseAssignmentService.getByStudentId(studentId);
-    Set<StudentLevel> studentLevels =
-        courses.stream()
-            .map(course -> course.getCourse().getStudentLevel())
-            .collect(Collectors.toSet());
-
+  private List<CourseResult> getCourseResultToRetake(String studentId, RetakeExamSession session) {
     List<YearlyResult> yearlyResults =
-        studentLevels.stream()
-            .map(level -> gradeResultService.getLeveledYearlyResultByStudentId(level, studentId))
+        gradeResultService.getStudentResultSummary(studentId).getYearlyResults();
+    List<CourseResult> toRetakeCourse =
+        yearlyResults.stream()
             .filter(Objects::nonNull)
+            .map(YearlyResult::getCourseResults)
+            .filter(Objects::nonNull)
+            .flatMap(List::stream)
+            .filter(courseResult -> INCOMPLETE.equals(courseResult.getStatus()))
+            .toList();
+    List<String> alreadyRetakenCourseIds =
+        retakeExamRepository
+            .findRetakeExamsBySession_IdAndStudent_Id(session.getId(), studentId)
+            .stream()
+            .map(r -> r.getCourse().getId())
             .toList();
 
-    return yearlyResults.stream()
-        .filter(Objects::nonNull)
-        .map(YearlyResult::getCourseResults)
-        .filter(Objects::nonNull)
-        .flatMap(List::stream)
-        .filter(courseResult -> INCOMPLETE.equals(courseResult.getStatus()))
+    return toRetakeCourse.stream()
+        .filter(courseResult -> !alreadyRetakenCourseIds.contains(courseResult.getCourse().getId()))
         .toList();
   }
 
   public List<RetakeExam> getAllRetakeExamBySessionId(
       String sessionId, PageFromOne page, BoundedPageSize pageSize) {
     Pageable pageable = PageRequest.of(page.getValue() - 1, pageSize.getValue());
-    return retakeExamDao.filterByCriteria(sessionId, pageable);
+    return retakeExamDao.filterByCriteria(sessionId, null, pageable);
   }
 }
