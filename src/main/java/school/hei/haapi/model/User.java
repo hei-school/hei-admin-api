@@ -41,6 +41,7 @@ import org.hibernate.Hibernate;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
+import school.hei.haapi.endpoint.rest.model.Coordinates;
 import school.hei.haapi.endpoint.rest.model.SpecializationField;
 import school.hei.haapi.model.exception.ApiException;
 
@@ -284,5 +285,18 @@ public class User implements Serializable {
       case EL -> "Écosystème Logiciel";
       default -> throw new ApiException(SERVER_EXCEPTION, "Invalid specialization field");
     };
+  }
+
+  public static User.UserBuilder builder() {
+    return new User.UserBuilder();
+  }
+
+  public static User.UserBuilder builder(Coordinates coordinates) {
+    var builder = User.builder();
+
+    if (coordinates != null)
+      builder.longitude(coordinates.getLongitude()).latitude(coordinates.getLatitude());
+
+    return builder;
   }
 }

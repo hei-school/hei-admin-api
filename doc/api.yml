@@ -6403,7 +6403,159 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
-
+  '/cors':
+    get:
+      tags:
+        - Cor
+      operationId: getCor
+      summary: Get all CORs
+      parameters:
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PageSize'
+        - $ref: '#/components/parameters/DatetimeFromFilter'
+        - $ref: '#/components/parameters/DatetimeToFilter'
+        - $ref: '#/components/parameters/StudentRef'
+        - $ref: '#/components/parameters/GroupRef'
+        - $ref: '#/components/parameters/CorStatuses'
+      responses:
+        '200':
+          description: List of COR
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Cor"
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+  '/cors/{cor_id}':
+    get:
+      tags:
+        - Cor
+      operationId: getCorById
+      summary: Get COR by id
+      parameters:
+        - $ref: '#/components/parameters/PathCorId'
+      responses:
+        '200':
+          description: The COR with the corresponding id
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Cor'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+  '/cors/{cor_id}/comment':
+    post:
+      tags:
+        - Cor
+      operationId: commentCorById
+      summary: Change the status of the COR and add some comment about the change
+      parameters:
+        - $ref: '#/components/parameters/PathCorId'
+      responses:
+        '200':
+          description: The COR with the corresponding id
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CorCommentInfo'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+  '/students/{student_id}/cors':
+    get:
+      tags:
+        - Cor
+        - User
+      operationId: getStudentCors
+      summary: Get all CORs for the given student_id
+      parameters:
+        - in: path
+          name: student_id
+          required: true
+          schema:
+            type: string
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PageSize'
+      responses:
+        '200':
+          description: List of COR for the given student_id
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Cor"
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+    put:
+      tags:
+        - Cor
+        - User
+      operationId: crupdateStudentCors
+      parameters:
+        - in: path
+          name: student_id
+          required: true
+          schema:
+            type: string
+      summary: Create cor or update cor information for the current student
+      requestBody:
+        description: CORs to Crupdate
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CrupdateCor"
+      responses:
+        '200':
+          description: Crupdated COR
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Cor"
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
 components:
   securitySchemes:
     BearerAuth:
@@ -6457,6 +6609,15 @@ components:
       description: Filter by group ref
       schema:
         type: string
+    CorStatuses:
+      name: cor_status
+      in: query
+      required: false
+      description: Filter by cor actual status
+      schema:
+        type: array
+        items:
+          $ref: '#/components/schemas/CorStatus'
     StudentRef:
       name: student_ref
       in: query
@@ -6504,6 +6665,12 @@ components:
         type: string
     PathMpbsId:
       name: mpbs_id
+      in: path
+      required: true
+      schema:
+        type: string
+    PathCorId:
+      name: cor_id
       in: path
       required: true
       schema:
@@ -8076,6 +8243,63 @@ components:
       enum:
         - YEARLY
         - MONTHLY
+    CorBase:
+      type: object
+      properties:
+        id:
+          type: string
+        description:
+          type: string
+        interview_date:
+          type: string
+          format: date-time
+    CrupdateCor:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/CorBase'
+      properties:
+        concerned_student_id:
+          type: string
+    Cor:
+      type: object
+      allOf:
+        - $ref: "#/components/schemas/CorBase"
+      properties:
+        concerned_student:
+          $ref: "#/components/schemas/UserIdentifier"
+        creation_datetime:
+          type: string
+          format: date-time
+        status:
+          $ref: '#/components/schemas/CorStatus'
+        comments:
+          type: array
+          items:
+            $ref: '#/components/schemas/CorComment'
+    CorCommentInfo:
+      type: object
+      properties:
+        status:
+          $ref: '#/components/schemas/CorStatus'
+        comment:
+          type: string
+          description: explanation of the reason or comment on change of status
+    CorComment:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/CorCommentInfo'
+      properties: 
+        creation_date:
+          type: string
+          format: date-time
+    CorStatus:
+      type: string
+      enum:
+        - IN_PROGRESS
+        - STAY
+        - CANCELED
+        - LEAVE
+        - NO_SHOW
     UpdateLettersStatus:
       type: object
       properties:
