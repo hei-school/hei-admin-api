@@ -2,6 +2,7 @@ package school.hei.haapi.service;
 
 import static school.hei.haapi.endpoint.rest.model.CourseResultStatus.INCOMPLETE;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import lombok.AllArgsConstructor;
@@ -38,15 +39,15 @@ public class RetakeExamService {
       crupdateRetakeExams.forEach(
           crupdateRetakeExam -> crupdateRetakeExam.sessionId(retakeExamSession.getId()));
     }
-    List<CrupdateRetakeExam> crupdateRetakeExamsNotExisted =
+    List<CrupdateRetakeExam> crupdateRetakeExamsNotExisting =
         crupdateRetakeExams.stream()
-            .filter(crupdateRetakeExam -> !isExisted(crupdateRetakeExam))
+            .filter(crupdateRetakeExam -> !isExisting(crupdateRetakeExam))
             .toList();
     return retakeExamRepository.saveAll(
-        retakeExamMapper.toDoMainList(crupdateRetakeExamsNotExisted));
+        retakeExamMapper.toDoMainList(crupdateRetakeExamsNotExisting));
   }
 
-  private Boolean isExisted(CrupdateRetakeExam crupdateRetakeExam) {
+  private Boolean isExisting(CrupdateRetakeExam crupdateRetakeExam) {
     return retakeExamRepository
         .findByCourse_IdAndStudent_IdAndSession_Id(
             crupdateRetakeExam.getStudentId(),
@@ -58,10 +59,15 @@ public class RetakeExamService {
   public List<RetakeExam> getStudentRetakeExams(String sessionId, String studentId) {
     var session = retakeExamSessionService.getById(sessionId);
     var coursesToRetake = getCourseResultToRetake(studentId, session);
-
-    return coursesToRetake.stream()
-        .map(courseResult -> courseResultAndSessionToRetake(courseResult, session))
-        .toList();
+    var existingRetakeExams =
+        retakeExamRepository.findRetakeExamsBySession_IdAndStudent_Id(session.getId(), studentId);
+    var retakeExams =
+        new ArrayList<>(
+            coursesToRetake.stream()
+                .map(courseResult -> courseResultAndSessionToRetake(courseResult, session))
+                .toList());
+    retakeExams.addAll(existingRetakeExams);
+    return retakeExams;
   }
 
   private RetakeExam courseResultAndSessionToRetake(
@@ -87,16 +93,8 @@ public class RetakeExamService {
             .flatMap(List::stream)
             .filter(courseResult -> INCOMPLETE.equals(courseResult.getStatus()))
             .toList();
-    List<String> alreadyRetakenCourseIds =
-        retakeExamRepository
-            .findRetakeExamsBySession_IdAndStudent_Id(session.getId(), studentId)
-            .stream()
-            .map(r -> r.getCourse().getId())
-            .toList();
 
-    return toRetakeCourse.stream()
-        .filter(courseResult -> !alreadyRetakenCourseIds.contains(courseResult.getCourse().getId()))
-        .toList();
+    return toRetakeCourse;
   }
 
   public List<RetakeExam> getAllRetakeExamBySessionId(

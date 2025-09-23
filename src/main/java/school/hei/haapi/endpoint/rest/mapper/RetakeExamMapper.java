@@ -1,5 +1,6 @@
 package school.hei.haapi.endpoint.rest.mapper;
 
+import java.time.Instant;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -33,6 +34,7 @@ public class RetakeExamMapper {
         .student(studentUser)
         .session(retakeExamSession)
         .course(course)
+        .registrationDate(crupdateRetakeExam.getRegistrationDate())
         .build();
   }
 
@@ -40,7 +42,8 @@ public class RetakeExamMapper {
     return new RetakeExam()
         .id(retakeExam.getId())
         .course(courseMapper.toRest(retakeExam.getCourse()))
-        .session(retakeExamSessionMapper.toRest(retakeExam.getSession()));
+        .session(retakeExamSessionMapper.toRest(retakeExam.getSession()))
+        .registrationDate(retakeExam.getRegistrationDate());
   }
 
   public school.hei.haapi.model.RetakeExam toDomain(RetakeExam retakeExam) {
@@ -48,6 +51,7 @@ public class RetakeExamMapper {
         .id(retakeExam.getId())
         .course(courseMapper.toDomain(retakeExam.getCourse()))
         .session(retakeExamSessionMapper.toDomain(retakeExam.getSession()))
+        .registrationDate(Instant.now())
         .build();
   }
 
@@ -64,6 +68,7 @@ public class RetakeExamMapper {
     return new StudentRetakeExam()
         .studentIdentifier(userMapper.toIdentifier(retakeExam.getStudent()))
         .course(courseMapper.toRest(retakeExam.getCourse()))
-        .session(retakeExamSessionMapper.toRest(retakeExam.getSession()));
+        .session(retakeExamSessionMapper.toRest(retakeExam.getSession()))
+        .registrationDate(retakeExam.getRegistrationDate());
   }
 }
