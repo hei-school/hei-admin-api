@@ -6381,7 +6381,32 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Cor"
+                $ref: '#/components/schemas/Cor'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+  '/cors/{cor_id}/comment':
+    post:
+      tags:
+        - Cor
+      operationId: commentCorById
+      description: Change the status of the COR and add some comment about the change
+      parameters:
+        - $ref: '#/components/parameters/PathCorId'
+      responses:
+        '200':
+          description: The COR with the corresponding id
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Cor'
         '400':
           $ref: '#/components/responses/400'
         '403':
