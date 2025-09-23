@@ -26,7 +26,6 @@ import org.springframework.security.web.util.matcher.OrRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.web.servlet.HandlerExceptionResolver;
 import school.hei.haapi.model.exception.ForbiddenException;
-import school.hei.haapi.repository.CorRepository;
 import school.hei.haapi.service.CourseAssignmentService;
 import school.hei.haapi.service.MonitoringStudentService;
 
@@ -39,20 +38,17 @@ public class SecurityConf {
   private final MonitoringStudentService monitoringStudentService;
   private final AbstractUserDetailsAuthenticationProvider authProvider;
   private final HandlerExceptionResolver exceptionResolver;
-  private final CorRepository corRepository;
 
   public SecurityConf(
       CasdoorAuthProvider authProvider,
       // InternalToExternalErrorHandler behind
       @Qualifier("handlerExceptionResolver") HandlerExceptionResolver exceptionResolver,
       CourseAssignmentService courseAssignmentService,
-      MonitoringStudentService monitoringStudentService,
-      CorRepository corRepository) {
+      MonitoringStudentService monitoringStudentService) {
     this.authProvider = authProvider;
     this.exceptionResolver = exceptionResolver;
     this.courseAssignmentService = courseAssignmentService;
     this.monitoringStudentService = monitoringStudentService;
-    this.corRepository = corRepository;
   }
 
   @Bean
@@ -131,8 +127,6 @@ public class SecurityConf {
                     antMatcher(PUT, "/fees/payments/receipts/raw"),
                     antMatcher(GET, "/fees/*"),
                     antMatcher(POST, "/mpbs/verify"),
-                    antMatcher(GET, "/students/*/cors"),
-                    antMatcher(PUT, "/students/*/cors"),
                     antMatcher(PUT, "/students/*/fees/*/mpbs"),
                     antMatcher(GET, "/students/*/fees/*/mpbs"),
                     antMatcher(GET, "/students/*/fees/*/mpbs/verifications"),
@@ -906,17 +900,6 @@ public class SecurityConf {
                     .requestMatchers(GET, "/promotions/*/students")
                     .hasAnyRole(MANAGER.getRole(), TEACHER.getRole(), ADMIN.getRole())
                     .requestMatchers(PUT, "/promotions/*/groups")
-                    .hasAnyRole(MANAGER.getRole(), ADMIN.getRole())
-
-                    //
-                    // Cors resources
-                    //
-                    .requestMatchers(
-                        new StudentCorMatcher(GET, "/students/*/cors", "students", corRepository))
-                    .hasAnyRole(STUDENT.getRole())
-                    .requestMatchers(GET, "/students/*/cors")
-                    .hasAnyRole(TEACHER.getRole(), MANAGER.getRole(), ADMIN.getRole())
-                    .requestMatchers(PUT, "/students/*/cors")
                     .hasAnyRole(MANAGER.getRole(), ADMIN.getRole())
                     //
                     // Attendances resources

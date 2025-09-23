@@ -332,26 +332,32 @@ public class UserMapper {
   }
 
   public User toDomain(CrupdateStudent student) {
-    return User.builder()
-        .role(User.Role.STUDENT)
-        .id(student.getId())
-        .firstName(student.getFirstName())
-        .lastName(student.getLastName())
-        .email(student.getEmail())
-        .ref(student.getRef())
-        .status(statusEnumMapper.toDomainStatus(student.getStatus()))
-        .phone(student.getPhone())
-        .entranceDatetime(student.getEntranceDatetime())
-        .birthDate(student.getBirthDate())
-        .sex(sexEnumMapper.toDomainSexEnum(student.getSex()))
-        .address(student.getAddress())
-        .birthPlace(student.getBirthPlace())
-        .nic(student.getNic())
-        .specializationField(student.getSpecializationField())
-        .longitude(student.getCoordinates().getLongitude())
-        .latitude(student.getCoordinates().getLatitude())
-        .highSchoolOrigin(student.getHighSchoolOrigin())
-        .build();
+    var user =
+        User.builder()
+            .role(User.Role.STUDENT)
+            .id(student.getId())
+            .firstName(student.getFirstName())
+            .lastName(student.getLastName())
+            .email(student.getEmail())
+            .ref(student.getRef())
+            .status(statusEnumMapper.toDomainStatus(student.getStatus()))
+            .phone(student.getPhone())
+            .entranceDatetime(student.getEntranceDatetime())
+            .birthDate(student.getBirthDate())
+            .sex(sexEnumMapper.toDomainSexEnum(student.getSex()))
+            .address(student.getAddress())
+            .birthPlace(student.getBirthPlace())
+            .nic(student.getNic())
+            .specializationField(student.getSpecializationField())
+            .highSchoolOrigin(student.getHighSchoolOrigin())
+            .build();
+    var coordinates = student.getCoordinates();
+    if (coordinates != null)
+      return user.toBuilder()
+          .longitude(coordinates.getLongitude())
+          .latitude(coordinates.getLatitude())
+          .build();
+    return user;
   }
 
   public HashMap<User, PaymentFrequency> toMapDomain(List<CrupdateStudent> students) {

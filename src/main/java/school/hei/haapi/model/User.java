@@ -48,7 +48,7 @@ import school.hei.haapi.model.exception.ApiException;
 @Table(name = "\"user\"")
 @Getter
 @Setter
-@Builder
+@Builder(toBuilder = true)
 @AllArgsConstructor
 @NoArgsConstructor
 @SQLDelete(sql = "update \"user\" set is_deleted = true where id = ?")
