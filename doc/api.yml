@@ -1514,14 +1514,12 @@ paths:
           required: true
           schema:
             type: string
-        - $ref: '#/components/parameters/TeacherId'
         - name: course_code
           in: query
           required: false
           example: PROG1
           schema:
             type: string
-        - $ref: "#/components/parameters/GroupRef"
         - $ref: '#/components/parameters/DatetimeFromFilter'
         - $ref: '#/components/parameters/DatetimeToFilter'
         - $ref: '#/components/parameters/Page'
@@ -7360,6 +7358,9 @@ components:
           $ref: "#/components/schemas/Course"
         session:
           $ref: "#/components/schemas/RetakeExamSession"
+        registration_date:
+          type: string
+          format: date-time
     CrupdateRetakeExam:
       type: object
       properties:
@@ -7371,6 +7372,9 @@ components:
           type: string
         student_id:
           type: string
+        registration_date:
+          type: string
+          format: date-time
     StudentRetakeExam:
       type: object
       allOf:
