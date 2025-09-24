@@ -13,7 +13,6 @@ import static school.hei.haapi.endpoint.rest.model.YearlyResultGenerationStatus.
 import static school.hei.haapi.endpoint.rest.model.YearlyResultGenerationStatus.GENERATING;
 import static school.hei.haapi.service.utils.FileUtils.multipartFileFromFile;
 
-import java.io.File;
 import java.math.BigDecimal;
 import java.time.Duration;
 import java.util.Arrays;
@@ -31,6 +30,7 @@ import school.hei.haapi.endpoint.rest.model.StudentLevel;
 import school.hei.haapi.endpoint.rest.model.YearlyResult;
 import school.hei.haapi.endpoint.rest.model.YearlyResultGenerationTranscript;
 import school.hei.haapi.file.bucket.BucketComponent;
+import school.hei.haapi.model.FileInfo;
 import school.hei.haapi.model.User;
 import school.hei.haapi.model.YearlyResultGenerationRequest;
 import school.hei.haapi.model.exception.BadRequestException;
@@ -191,26 +191,40 @@ public class GradeResultService {
   }
 
   public void uploadYearlyResultTranscript(String studentId, YearlyResult yearlyResult) {
-    User student = userService.findById(studentId);
-    String fileName =
+    var student = userService.findById(studentId);
+    var fileName =
         String.format(TRANSCRIPT_FILENAME_FORMAT, student.getRef(), yearlyResult.getLevel());
+    Optional<FileInfo> availableFileInfo = fileInfoService.findTranscriptInfoByName(fileName);
     yearlyResultGenerationService.saveGenerationRequest(
         YearlyResultGenerationRequest.builder()
             .datetime(now())
             .fileName(fileName)
             .status(GENERATING)
             .build());
-    File yearlyResultTranscript =
+    var yearlyResultTranscript =
         yearlyResultGenerationService.generateYearlyResultTranscript(student, yearlyResult);
-    var uploadedTranscriptFileInfo =
-        fileInfoService.uploadFile(
-            fileName, TRANSCRIPT, student.getId(), multipartFileFromFile(yearlyResultTranscript));
+    if (availableFileInfo.isPresent()) {
+      bucketComponent.upload(yearlyResultTranscript, availableFileInfo.get().getFilePath());
+    } else {
+      var uploadedFileInfo =
+          fileInfoService.uploadFile(
+              fileName, TRANSCRIPT, student.getId(), multipartFileFromFile(yearlyResultTranscript));
+      yearlyResultGenerationService.saveGenerationRequest(
+          YearlyResultGenerationRequest.builder()
+              .datetime(now())
+              .fileName(fileName)
+              .status(AVAILABLE)
+              .fileInfo(uploadedFileInfo)
+              .build());
+      return;
+    }
+
     yearlyResultGenerationService.saveGenerationRequest(
         YearlyResultGenerationRequest.builder()
             .datetime(now())
             .fileName(fileName)
             .status(AVAILABLE)
-            .fileInfo(uploadedTranscriptFileInfo)
+            .fileInfo(availableFileInfo.get())
             .build());
   }
 }
