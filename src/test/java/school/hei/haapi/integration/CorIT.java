@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.when;
+import static school.hei.haapi.endpoint.rest.model.CorStatus.LEAVE;
 import static school.hei.haapi.integration.conf.FakeDataProvider.someCor;
 import static school.hei.haapi.integration.conf.FakeDataProvider.someStudent;
 import static school.hei.haapi.integration.conf.TestUtils.MANAGER1_TOKEN;
@@ -24,10 +25,12 @@ import school.hei.haapi.endpoint.rest.api.CorApi;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
 import school.hei.haapi.endpoint.rest.mapper.CorMapper;
+import school.hei.haapi.endpoint.rest.model.CorCommentInfo;
 import school.hei.haapi.endpoint.rest.model.CrupdateCor;
 import school.hei.haapi.integration.conf.FacadeITMockedThirdParties;
 import school.hei.haapi.integration.conf.TestUtils;
 import school.hei.haapi.model.Cor;
+import school.hei.haapi.model.CorComment;
 import school.hei.haapi.model.User;
 import school.hei.haapi.repository.CorRepository;
 import school.hei.haapi.repository.UserRepository;
@@ -110,6 +113,21 @@ public class CorIT extends FacadeITMockedThirdParties {
     assertTrue(cors.contains(corMapper.toRest(corAxel)));
     assertFalse(
         cors.contains(corMapper.toRest(Cor.builder().concernedStudent(tolotraWithoutCor).build())));
+  }
+
+  @Test
+  public void manager_comment_cor_ok() throws ApiException {
+    var api = new CorApi(anApiClient(MANAGER1_TOKEN));
+
+    api.commentCorById(
+        axelWithCor.getId(), new CorCommentInfo().comment("You must leave now").status(LEAVE));
+
+    var findCor = corRepository.findById(axelWithCor.getId());
+    assertTrue(findCor.isPresent());
+    var cor = findCor.get();
+    assertEquals(CorComment.CorStatus.LEAVE, cor.getStatus());
+    assertEquals(1, cor.getComments().size());
+    assertEquals("You must leave now", cor.getComments().getFirst().getComment());
   }
 
   private ApiClient anApiClient(String token) {

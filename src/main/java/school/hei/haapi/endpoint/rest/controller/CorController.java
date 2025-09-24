@@ -5,12 +5,14 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import school.hei.haapi.endpoint.rest.mapper.CorMapper;
 import school.hei.haapi.endpoint.rest.model.Cor;
+import school.hei.haapi.endpoint.rest.model.CorCommentInfo;
 import school.hei.haapi.endpoint.rest.model.CorStatus;
 import school.hei.haapi.endpoint.rest.model.CrupdateCor;
 import school.hei.haapi.model.BoundedPageSize;
@@ -39,7 +41,7 @@ public class CorController {
   @PutMapping("/students/{student_id}/cors")
   public Cor updateStudentCors(
       @PathVariable(name = "student_id") String studentId, @RequestBody CrupdateCor cors) {
-    return corMapper.toRest(corService.sava(corMapper.toDomain(cors, studentId)));
+    return corMapper.toRest(corService.save(corMapper.toDomain(cors, studentId)));
   }
 
   @GetMapping("/cors")
@@ -60,5 +62,11 @@ public class CorController {
             groupRef,
             status,
             paginationFromPageAndPageSize.apply(page, pageSize)));
+  }
+
+  @PostMapping("/cors/{cor_id}/comment")
+  public Cor commentCorById(
+      @PathVariable("cor_id") String corId, @RequestBody CorCommentInfo corCommentInfo) {
+    return corMapper.toRest(corService.addComment(corId, corMapper.toDomain(corCommentInfo)));
   }
 }

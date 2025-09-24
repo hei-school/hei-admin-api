@@ -10,10 +10,8 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import java.time.Instant;
-import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
@@ -23,42 +21,38 @@ import lombok.Setter;
 import lombok.ToString;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.JdbcTypeCode;
-import school.hei.haapi.model.CorComment.CorStatus;
 
 @Entity
-@Table(name = "\"cor\"")
+@Table(name = "\"cor_comment\"")
 @Getter
 @Setter
 @ToString
-@Builder(toBuilder = true)
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor
 @EqualsAndHashCode
-public class Cor {
+public class CorComment {
   @Id
   @GeneratedValue(strategy = IDENTITY)
   private String id;
 
-  private String description;
-
-  @ManyToOne
-  @JoinColumn(name = "concerned_student_id", updatable = false)
-  private User concernedStudent;
-
-  @EqualsAndHashCode.Exclude @CreationTimestamp private Instant creationDatetime;
-
-  private Instant interviewDatetime;
-
-  @OneToMany(mappedBy = "cor")
-  @EqualsAndHashCode.Exclude
-  private List<CorComment> comments;
+  @CreationTimestamp Instant creationDatetime;
 
   @Enumerated(STRING)
   @JdbcTypeCode(NAMED_ENUM)
   private CorStatus status;
 
-  public void addComment(CorComment comment) {
-    comments.add(comment);
-    status = comment.getStatus();
+  private String comment;
+
+  @ManyToOne
+  @JoinColumn(name = "cor_id", updatable = false)
+  private Cor cor;
+
+  public enum CorStatus {
+    IN_PROGRESS,
+    STAY,
+    CANCELED,
+    LEAVE,
+    NO_SHOW
   }
 }

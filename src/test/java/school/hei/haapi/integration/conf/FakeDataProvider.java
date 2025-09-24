@@ -11,6 +11,7 @@ import static school.hei.haapi.endpoint.rest.model.FeeTypeEnum.TUITION;
 import static school.hei.haapi.integration.conf.TestUtils.COURSE1_ID;
 import static school.hei.haapi.integration.conf.TestUtils.MANAGER_ID;
 import static school.hei.haapi.integration.conf.TestUtils.group1;
+import static school.hei.haapi.model.CorComment.CorStatus.IN_PROGRESS;
 import static school.hei.haapi.model.Event.PlaceName.IVANDRY;
 import static school.hei.haapi.model.Event.RoomName.UNKNOWN;
 import static school.hei.haapi.model.User.Role.STUDENT;
@@ -217,6 +218,7 @@ public class FakeDataProvider {
         .interviewDatetime(interviewDatetime)
         .concernedStudent(user)
         .description(faker.lorem().paragraph())
+        .status(IN_PROGRESS)
         .build();
   }
 }
