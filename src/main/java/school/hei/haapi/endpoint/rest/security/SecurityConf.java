@@ -131,6 +131,7 @@ public class SecurityConf {
                     antMatcher(PUT, "/fees/payments/receipts/raw"),
                     antMatcher(GET, "/fees/*"),
                     antMatcher(POST, "/mpbs/verify"),
+                    antMatcher(GET, "/cors"),
                     antMatcher(GET, "/students/*/cors"),
                     antMatcher(PUT, "/students/*/cors"),
                     antMatcher(PUT, "/students/*/fees/*/mpbs"),
@@ -930,6 +931,8 @@ public class SecurityConf {
                     //
                     // Cors resources
                     //
+                    .requestMatchers(GET, "/cors")
+                    .hasAnyRole(TEACHER.getRole(), MANAGER.getRole(), ADMIN.getRole())
                     .requestMatchers(new SelfMatcher(GET, "/students/*/cors", "students"))
                     .hasAnyRole(STUDENT.getRole())
                     .requestMatchers(GET, "/students/*/cors")

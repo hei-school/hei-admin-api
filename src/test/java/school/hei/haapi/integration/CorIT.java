@@ -1,6 +1,8 @@
 package school.hei.haapi.integration;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.when;
 import static school.hei.haapi.integration.conf.FakeDataProvider.someCor;
 import static school.hei.haapi.integration.conf.FakeDataProvider.someStudent;
@@ -97,6 +99,17 @@ public class CorIT extends FacadeITMockedThirdParties {
     assertEquals(
         corMapper.toRest(corMapper.toDomain(cor, tolotraWithoutCor.getId())),
         createdCor.id(null).creationDatetime(null));
+  }
+
+  @Test
+  public void manager_filter_cor_ok() throws ApiException {
+    var api = new CorApi(anApiClient(MANAGER1_TOKEN));
+
+    var cors = api.getCor(null, null, null, null, axelWithCor.getRef(), null, null);
+
+    assertTrue(cors.contains(corMapper.toRest(corAxel)));
+    assertFalse(
+        cors.contains(corMapper.toRest(Cor.builder().concernedStudent(tolotraWithoutCor).build())));
   }
 
   private ApiClient anApiClient(String token) {

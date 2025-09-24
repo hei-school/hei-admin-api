@@ -1,5 +1,6 @@
 package school.hei.haapi.endpoint.rest.controller;
 
+import java.time.Instant;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -10,9 +11,12 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import school.hei.haapi.endpoint.rest.mapper.CorMapper;
 import school.hei.haapi.endpoint.rest.model.Cor;
+import school.hei.haapi.endpoint.rest.model.CorStatus;
 import school.hei.haapi.endpoint.rest.model.CrupdateCor;
 import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.PageFromOne;
+import school.hei.haapi.model.pagination.PaginationFromPageAndPageSize;
+import school.hei.haapi.repository.dao.CorDao;
 import school.hei.haapi.service.CorService;
 
 @RestController
@@ -20,6 +24,8 @@ import school.hei.haapi.service.CorService;
 public class CorController {
   private final CorService corService;
   private final CorMapper corMapper;
+  private final CorDao corDao;
+  private final PaginationFromPageAndPageSize paginationFromPageAndPageSize;
 
   @GetMapping("/students/{student_id}/cors")
   public List<Cor> getStudentCors(
@@ -34,5 +40,25 @@ public class CorController {
   public Cor updateStudentCors(
       @PathVariable(name = "student_id") String studentId, @RequestBody CrupdateCor cors) {
     return corMapper.toRest(corService.sava(corMapper.toDomain(cors, studentId)));
+  }
+
+  @GetMapping("/cors")
+  public List<Cor> getCors(
+      @RequestParam(required = false) Instant from,
+      @RequestParam(required = false) Instant to,
+      @RequestParam(name = "student_ref", required = false) String studentRef,
+      @RequestParam(name = "group_ref", required = false) String groupRef,
+      @RequestParam(required = false) CorStatus status,
+      @RequestParam(name = "page", required = false, defaultValue = "1") PageFromOne page,
+      @RequestParam(name = "page_size", required = false, defaultValue = "15")
+          BoundedPageSize pageSize) {
+    return corMapper.toRest(
+        corDao.findByCriteria(
+            from,
+            to,
+            studentRef,
+            groupRef,
+            status,
+            paginationFromPageAndPageSize.apply(page, pageSize)));
   }
 }
