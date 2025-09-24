@@ -42,8 +42,19 @@ public class RetakeExamSessionIT extends FacadeITMockedThirdParties {
   }
 
   @Test
-  void read_all_retake_exam_by_student_ok() throws ApiException {
+  void read_all_retake_exam_sessions_by_student_ok() throws ApiException {
     ApiClient apiClient = anApiClient(STUDENT1_TOKEN);
+    RetakeExamApi api = new RetakeExamApi(apiClient);
+
+    var retakeAxamSessions = api.getRetakeExamSessions(null, null, null, null, null);
+
+    assertNotNull(retakeAxamSessions);
+    assertEquals(3, retakeAxamSessions.size());
+  }
+
+  @Test
+  void read_all_retake_exam_sessions_by_admin_ok() throws ApiException {
+    ApiClient apiClient = anApiClient(ADMIN1_TOKEN);
     RetakeExamApi api = new RetakeExamApi(apiClient);
 
     var retakeAxamSessions = api.getRetakeExamSessions(null, null, null, null, null);

@@ -3,6 +3,7 @@ package school.hei.haapi.model;
 import static jakarta.persistence.GenerationType.IDENTITY;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
@@ -10,6 +11,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import java.io.Serializable;
+import java.time.Instant;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
@@ -17,6 +19,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import org.hibernate.annotations.CreationTimestamp;
 
 @Entity
 @Table(name = "\"retake_exam\"")
@@ -44,4 +47,8 @@ public class RetakeExam implements Serializable {
   @ManyToOne
   @JoinColumn(name = "student_id", nullable = false)
   private User student;
+
+  @CreationTimestamp
+  @Column(name = "registration_date", nullable = false, updatable = false)
+  private Instant registrationDate;
 }

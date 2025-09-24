@@ -40,7 +40,8 @@ public class RetakeExamMapper {
     return new RetakeExam()
         .id(retakeExam.getId())
         .course(courseMapper.toRest(retakeExam.getCourse()))
-        .session(retakeExamSessionMapper.toRest(retakeExam.getSession()));
+        .session(retakeExamSessionMapper.toRest(retakeExam.getSession()))
+        .registrationDate(retakeExam.getRegistrationDate());
   }
 
   public school.hei.haapi.model.RetakeExam toDomain(RetakeExam retakeExam) {
@@ -64,6 +65,7 @@ public class RetakeExamMapper {
     return new StudentRetakeExam()
         .studentIdentifier(userMapper.toIdentifier(retakeExam.getStudent()))
         .course(courseMapper.toRest(retakeExam.getCourse()))
-        .session(retakeExamSessionMapper.toRest(retakeExam.getSession()));
+        .session(retakeExamSessionMapper.toRest(retakeExam.getSession()))
+        .registrationDate(retakeExam.getRegistrationDate());
   }
 }

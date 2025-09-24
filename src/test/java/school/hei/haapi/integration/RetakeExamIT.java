@@ -94,6 +94,7 @@ public class RetakeExamIT extends FacadeITMockedThirdParties {
     retakeExam.setSessionId(session1().getId());
 
     var retakeExamsCreated = api.createOrUpdateRetakeExam(session1().getId(), List.of(retakeExam));
+
     assertNotNull(retakeExamsCreated);
     assertEquals(1, retakeExamsCreated.size());
     var retakeExamCreated = retakeExamsCreated.getFirst();
