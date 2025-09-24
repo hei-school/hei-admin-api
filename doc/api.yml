@@ -7372,9 +7372,6 @@ components:
           type: string
         student_id:
           type: string
-        registration_date:
-          type: string
-          format: date-time
     StudentRetakeExam:
       type: object
       allOf:
