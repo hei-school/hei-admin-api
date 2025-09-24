@@ -1,6 +1,5 @@
 package school.hei.haapi.endpoint.rest.mapper;
 
-import java.time.Instant;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -34,7 +33,6 @@ public class RetakeExamMapper {
         .student(studentUser)
         .session(retakeExamSession)
         .course(course)
-        .registrationDate(crupdateRetakeExam.getRegistrationDate())
         .build();
   }
 
@@ -51,7 +49,6 @@ public class RetakeExamMapper {
         .id(retakeExam.getId())
         .course(courseMapper.toDomain(retakeExam.getCourse()))
         .session(retakeExamSessionMapper.toDomain(retakeExam.getSession()))
-        .registrationDate(Instant.now())
         .build();
   }
 

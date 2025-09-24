@@ -18,7 +18,6 @@ import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
 import static school.hei.haapi.integration.conf.TestUtils.setUpS3Service;
 import static school.hei.haapi.integration.test_data.RetakeExamSessionTestData.session1;
 
-import java.time.Instant;
 import java.util.List;
 import java.util.Objects;
 import org.junit.jupiter.api.BeforeEach;
@@ -93,7 +92,6 @@ public class RetakeExamIT extends FacadeITMockedThirdParties {
     retakeExam.setStudentId(student1().getId());
     retakeExam.setCourseId(course1().getId());
     retakeExam.setSessionId(session1().getId());
-    retakeExam.setRegistrationDate(Instant.now());
 
     var retakeExamsCreated = api.createOrUpdateRetakeExam(session1().getId(), List.of(retakeExam));
 
