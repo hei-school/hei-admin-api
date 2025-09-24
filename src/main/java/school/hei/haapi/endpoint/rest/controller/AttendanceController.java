@@ -24,7 +24,7 @@ public class AttendanceController {
       @RequestParam Instant from,
       @RequestParam Instant to,
       @RequestParam AttendanceStatus attendanceStatus,
-      @RequestParam List<String> titles) {
+      @RequestParam("title") List<String> titles) {
     var studentAttendances =
         attendanceService.getStudentAttendanceByStudentId(
             studentId, attendanceStatus, from, to, titles);
