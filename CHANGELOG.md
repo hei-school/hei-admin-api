@@ -1,3 +1,13 @@
+## [1.120.1](https://github.com/hei-school/hei-admin-api/compare/v1.120.0...v1.120.1) (2025-09-24)
+
+
+### Bug Fixes
+
+* **doc:** remove registration date in crupdateExam ([61520a5](https://github.com/hei-school/hei-admin-api/commit/61520a5f84ff231cd624884a1285d396ccf97397))
+* transcript generation failed to initialize proxy ([1cc671e](https://github.com/hei-school/hei-admin-api/commit/1cc671ec1309fbc3afe5bf1d019c94fe39283231))
+
+
+
 # [1.120.0](https://github.com/hei-school/hei-admin-api/compare/v1.119.0...v1.120.0) (2025-09-24)
 
 
@@ -102,20 +112,6 @@
 ### Features
 
 * filter exam grades by student ref ([a1320f2](https://github.com/hei-school/hei-admin-api/commit/a1320f2b334d0eab968f30ca52e0fb259380fc95))
-
-
-
-# [1.114.0](https://github.com/hei-school/hei-admin-api/compare/v1.113.1...v1.114.0) (2025-09-05)
-
-
-### Bug Fixes
-
-* result summary computation ([be8119b](https://github.com/hei-school/hei-admin-api/commit/be8119ba92000785225343b4f90e67ab974a9a39))
-
-
-### Features
-
-* filter exam by teacher id ([44e68de](https://github.com/hei-school/hei-admin-api/commit/44e68def3e5be2214d49ed682fc3fb55ac512314))
 
 
 
