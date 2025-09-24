@@ -48,6 +48,7 @@ public class GradeResultService {
   private final EventProducer<YearlyResultTranscriptGeneration> eventProducer;
   private static final String TRANSCRIPT_FILENAME_FORMAT = "Bulletin - %s - %s";
   private static final Duration TRANSCRIPT_GENERATION_TIMEOUT = Duration.ofMinutes(5);
+  private static final Duration TRANSCRIPT_VALIDATION_DURATION = Duration.ofHours(12);
 
   public YearlyResult getLeveledYearlyResultByStudentId(StudentLevel level, String studentId) {
     var courseResults = courseResultService.getCourseResultsForLevelOfStudent(level, studentId);
@@ -152,11 +153,7 @@ public class GradeResultService {
     if (studentTranscriptRequestInfo.isPresent()) {
       var request = studentTranscriptRequestInfo.get();
       if (AVAILABLE.equals(request.getStatus())) {
-        var presignedTranscriptUrl =
-            bucketComponent.presign(request.getFileInfo().getFilePath(), Duration.of(10, MINUTES));
-        return new YearlyResultGenerationTranscript()
-            .status(AVAILABLE)
-            .link(presignedTranscriptUrl.toString());
+        return handleAvailableGenerationRequest(request, studentYearlyResult);
       }
       if (Duration.between(request.getDatetime(), now())
           .minus(TRANSCRIPT_GENERATION_TIMEOUT)
@@ -165,6 +162,23 @@ public class GradeResultService {
       }
     } else generateTranscript(studentId, studentYearlyResult);
     return new YearlyResultGenerationTranscript().status(GENERATING);
+  }
+
+  private YearlyResultGenerationTranscript handleAvailableGenerationRequest(
+      YearlyResultGenerationRequest request, YearlyResult yearlyResult) {
+    var requestDatetime = request.getDatetime();
+
+    if (Duration.between(requestDatetime, now())
+        .minus(TRANSCRIPT_VALIDATION_DURATION)
+        .isPositive()) {
+      generateTranscript(request.getFileInfo().getUser().getId(), yearlyResult);
+      return new YearlyResultGenerationTranscript().status(GENERATING);
+    }
+    var presignedTranscriptUrl =
+        bucketComponent.presign(request.getFileInfo().getFilePath(), Duration.of(10, MINUTES));
+    return new YearlyResultGenerationTranscript()
+        .status(AVAILABLE)
+        .link(presignedTranscriptUrl.toString());
   }
 
   private void generateTranscript(String studentId, YearlyResult studentYearlyResult) {

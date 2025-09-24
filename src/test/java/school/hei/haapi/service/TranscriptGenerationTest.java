@@ -1,5 +1,6 @@
 package school.hei.haapi.service;
 
+import static java.time.Instant.now;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
@@ -91,7 +92,7 @@ public class TranscriptGenerationTest extends FacadeITMockedThirdParties {
         .status(AVAILABLE)
         .fileInfo(fileInfo)
         .fileName(String.format(TRANSCRIPT_FILENAME_FORMAT, STUDENT_REF, L1))
-        .datetime(Instant.parse("2024-05-10T00:00:40.000Z"))
+        .datetime(now())
         .build();
   }
 
