@@ -1,3 +1,17 @@
+# [1.120.0](https://github.com/hei-school/hei-admin-api/compare/v1.119.0...v1.120.0) (2025-09-24)
+
+
+### Bug Fixes
+
+* wrong result overview status computation ([e5e2db1](https://github.com/hei-school/hei-admin-api/commit/e5e2db1c70ff2745a0c25716b9d7ffe639b46131))
+
+
+### Features
+
+* **doc:** add retake exam registration date ([8c6c3b5](https://github.com/hei-school/hei-admin-api/commit/8c6c3b5b5fec723423dfbcd4d75760728ba91e84))
+
+
+
 # [1.119.0](https://github.com/hei-school/hei-admin-api/compare/v1.118.1...v1.119.0) (2025-09-23)
 
 
@@ -102,16 +116,6 @@
 ### Features
 
 * filter exam by teacher id ([44e68de](https://github.com/hei-school/hei-admin-api/commit/44e68def3e5be2214d49ed682fc3fb55ac512314))
-
-
-
-## [1.113.1](https://github.com/hei-school/hei-admin-api/compare/v1.113.0...v1.113.1) (2025-08-29)
-
-
-### Bug Fixes
-
-* add missing type query parameter to getAdvancedFeeStats ([6f13992](https://github.com/hei-school/hei-admin-api/commit/6f139924eb119a32659058f786898977a6ce6093))
-* handle runtime exceptions in mpbs verifications ([6e94e2b](https://github.com/hei-school/hei-admin-api/commit/6e94e2bb9df7c4530c2b92354ac3d597e866e014))
 
 
 
