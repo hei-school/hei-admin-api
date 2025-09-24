@@ -50,7 +50,7 @@ public class EventMapper {
                     ? null
                     : courseService.getById(createEvent.getCourseId()))
             .groups(mappedGroup)
-            .planner(userService.findById(createEvent.getPlannerId()))
+            .planner(userService.getById(createEvent.getPlannerId()))
             .type(createEvent.getEventType())
             .title(createEvent.getTitle());
 

@@ -42,11 +42,11 @@ public class CommentService {
     Pageable pageable =
         PageRequest.of(page.getValue() - 1, pageSize.getValue(), Sort.by(DESC, "creationDatetime"));
 
-    User subject = userService.findById(subjectId);
+    User subject = userService.getById(subjectId);
     if (Objects.isNull(observerId)) {
       return commentRepository.findAllBySubject(subject, pageable);
     }
-    User observer = userService.findById(observerId);
+    User observer = userService.getById(observerId);
     return commentRepository.findAllBySubjectAndObserver(subject, observer, pageable);
   }
 

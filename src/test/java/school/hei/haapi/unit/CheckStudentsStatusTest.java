@@ -118,7 +118,7 @@ public class CheckStudentsStatusTest extends MockedThirdParties {
 
     // here, we check if the enabled student has paid all their fees
     suspendStudentsWithOverdueFeesService.suspendStudentsWithUnpaidOrLateFee();
-    User suspendedStudent2 = userService.findById(student2.getId());
+    User suspendedStudent2 = userService.getById(student2.getId());
     assertEquals(SUSPENDED, suspendedStudent2.getStatus());
 
     paymentService.computeRemainingAmount(FEE4_ID, 5000);
@@ -126,7 +126,7 @@ public class CheckStudentsStatusTest extends MockedThirdParties {
 
     // here, we check if the suspended student has paid all their fees
     checkSuspendedStudentsStatusService.updateStatusBasedOnPayment();
-    User suspendedStudentChecked = userService.findById(student2.getId());
+    User suspendedStudentChecked = userService.getById(student2.getId());
     assertEquals(ENABLED, suspendedStudentChecked.getStatus());
   }
 
@@ -139,7 +139,7 @@ public class CheckStudentsStatusTest extends MockedThirdParties {
     PayingApi studentPayingApi = new PayingApi(studentClient);
 
     // Student2 must enable
-    assertEquals(ENABLED, userService.findById(STUDENT2_ID).getStatus());
+    assertEquals(ENABLED, userService.getById(STUDENT2_ID).getStatus());
 
     // Create student 2 fee
     Fee student2Fee =
@@ -154,11 +154,11 @@ public class CheckStudentsStatusTest extends MockedThirdParties {
 
     // student2 have unpaid or late fee
     assertTrue(
-        userService.getStudentsWithUnpaidOrLateFee().contains(userService.findById(STUDENT2_ID)));
+        userService.getStudentsWithUnpaidOrLateFee().contains(userService.getById(STUDENT2_ID)));
 
     // student2 is still ENABLE, because of the pending Mbps
     assertEquals(1, mpbsService.countPendingOfStudent(STUDENT2_ID));
-    assertEquals(ENABLED, userService.findById(STUDENT2_ID).getStatus());
+    assertEquals(ENABLED, userService.getById(STUDENT2_ID).getStatus());
   }
 
   @Test

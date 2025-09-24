@@ -19,16 +19,18 @@ public class CorMapper {
         .id(cor.getId())
         .creationDatetime(cor.getCreationDatetime())
         .concernedStudent(userMapper.toIdentifier(cor.getConcernedStudent()))
-        .description(cor.getDescription());
+        .description(cor.getDescription()).interviewDate(cor.getInterviewDatetime());
   }
 
   public school.hei.haapi.model.Cor toDomain(Cor cor) {
     var concernedStudent = Optional.ofNullable(cor.getConcernedStudent());
     return new school.hei.haapi.model.Cor()
         .toBuilder()
+            .id(cor.getId())
             .concernedStudent(concernedStudent.map(userMapper::toDomain).orElse(null))
             .description(cor.getDescription())
             .creationDatetime(cor.getCreationDatetime())
+            .interviewDatetime(cor.getInterviewDate())
             .build();
   }
 
@@ -36,9 +38,9 @@ public class CorMapper {
     return new school.hei.haapi.model.Cor()
         .toBuilder()
             .id(cor.getId())
-            .concernedStudent(userService.findById(studentId))
+            .concernedStudent(userService.getById(studentId))
             .description(cor.getDescription())
-            .interviewDateTime(cor.getInterviewDate())
+            .interviewDatetime(cor.getInterviewDate())
             .build();
   }
 

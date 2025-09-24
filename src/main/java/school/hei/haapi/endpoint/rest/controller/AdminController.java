@@ -22,7 +22,7 @@ public class AdminController {
   // code comment to trigger redepl
   @GetMapping(value = "/admins/{id}")
   public Admin getAdminById(@PathVariable String id) {
-    return userMapper.toRestAdmin(userService.findById(id));
+    return userMapper.toRestAdmin(userService.getById(id));
   }
 
   @PutMapping("/admins/{id}")
@@ -37,6 +37,6 @@ public class AdminController {
       @RequestPart("file_to_upload") MultipartFile profilePictureAsMultipartFile,
       @PathVariable String id) {
     userService.uploadUserProfilePicture(profilePictureAsMultipartFile, id);
-    return userMapper.toRestAdmin(userService.findById(id));
+    return userMapper.toRestAdmin(userService.getById(id));
   }
 }

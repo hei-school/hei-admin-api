@@ -40,5 +40,7 @@ public class Cor {
 
   @CreationTimestamp private Instant creationDatetime;
 
-  private Instant interviewDateTime;
+  private Instant interviewDatetime;
+
+  // TODO: add comments
 }

@@ -42,7 +42,7 @@ public class CourseAssignmentMapper {
   @NotNull
   private school.hei.haapi.model.CourseAssignment toDomain(
       CrupdateCourseAssignment crupdateCourseAssignment, Course course) {
-    User teacher = userService.findById(crupdateCourseAssignment.getMainTeacherId());
+    User teacher = userService.getById(crupdateCourseAssignment.getMainTeacherId());
     List<Group> groups = groupService.getAllById(crupdateCourseAssignment.getGroupIds());
     var domainCourseAssignment =
         school.hei.haapi.model.CourseAssignment.builder()
@@ -80,7 +80,7 @@ public class CourseAssignmentMapper {
   public CourseAssignment toRest(CrupdateCourseAssignment crupdateCourseAssignment) {
     List<Group> groups = groupService.getAllById(crupdateCourseAssignment.getGroupIds());
     Course course = courseService.getById(crupdateCourseAssignment.getCourseId());
-    User teacher = userService.findById(crupdateCourseAssignment.getMainTeacherId());
+    User teacher = userService.getById(crupdateCourseAssignment.getMainTeacherId());
 
     return new CourseAssignment()
         .id(crupdateCourseAssignment.getId())

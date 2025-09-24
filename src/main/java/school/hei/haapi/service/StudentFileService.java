@@ -100,7 +100,7 @@ public class StudentFileService {
   private Context loadContext(String studentId) {
     Resource logo = classPathResourceResolver.apply("HEI_logo", ".png");
     Resource signature = classPathResourceResolver.apply("signature", ".png");
-    User student = userService.findById(studentId);
+    User student = userService.getById(studentId);
     Context context = new Context();
 
     context.setVariable("student", student);

@@ -415,6 +415,6 @@ public class UserMapper {
   }
 
   public User toDomain(UserIdentifier userIdentifier) {
-    return userService.findById(userIdentifier.getId());
+    return userService.getById(userIdentifier.getId());
   }
 }

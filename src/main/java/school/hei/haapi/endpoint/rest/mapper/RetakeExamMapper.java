@@ -24,7 +24,7 @@ public class RetakeExamMapper {
   private final UserMapper userMapper;
 
   public school.hei.haapi.model.RetakeExam toDomainCrupDate(CrupdateRetakeExam crupdateRetakeExam) {
-    User studentUser = userService.findById(crupdateRetakeExam.getStudentId());
+    User studentUser = userService.getById(crupdateRetakeExam.getStudentId());
     RetakeExamSession retakeExamSession =
         retakeExamSessionService.getById(crupdateRetakeExam.getSessionId());
     Course course = courseService.getById(crupdateRetakeExam.getCourseId());

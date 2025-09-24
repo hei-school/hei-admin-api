@@ -45,12 +45,12 @@ public class StudentController {
       @RequestPart("file_to_upload") MultipartFile profilePictureAsMultipartFile,
       @PathVariable String id) {
     userService.uploadUserProfilePicture(profilePictureAsMultipartFile, id);
-    return userMapper.toRestStudent(userService.findById(id));
+    return userMapper.toRestStudent(userService.getById(id));
   }
 
   @GetMapping("/students/{id}")
   public Student getStudentById(@PathVariable String id) {
-    return userMapper.toRestStudent(userService.findById(id));
+    return userMapper.toRestStudent(userService.getById(id));
   }
 
   @GetMapping("/groups/{groupId}/students")

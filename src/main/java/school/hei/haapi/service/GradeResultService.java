@@ -146,7 +146,7 @@ public class GradeResultService {
       throw new BadRequestException(
           "Cannot generate transcript for this level. This level has not yet been started");
 
-    User student = userService.findById(studentId);
+    User student = userService.getById(studentId);
     var fileName = String.format(TRANSCRIPT_FILENAME_FORMAT, student.getRef(), level);
     Optional<YearlyResultGenerationRequest> studentTranscriptRequestInfo =
         yearlyResultGenerationService.findGenerationRequestByFileName(fileName);
@@ -191,7 +191,7 @@ public class GradeResultService {
   }
 
   public void uploadYearlyResultTranscript(String studentId, YearlyResult yearlyResult) {
-    var student = userService.findById(studentId);
+    var student = userService.getById(studentId);
     var fileName =
         String.format(TRANSCRIPT_FILENAME_FORMAT, student.getRef(), yearlyResult.getLevel());
     Optional<FileInfo> availableFileInfo = fileInfoService.findTranscriptInfoByName(fileName);
