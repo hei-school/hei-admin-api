@@ -930,8 +930,7 @@ public class SecurityConf {
                     //
                     // Cors resources
                     //
-                    .requestMatchers(
-                        new StudentCorMatcher(GET, "/students/*/cors", "students", corRepository))
+                    .requestMatchers(new SelfMatcher(GET, "/students/*/cors", "students"))
                     .hasAnyRole(STUDENT.getRole())
                     .requestMatchers(GET, "/students/*/cors")
                     .hasAnyRole(TEACHER.getRole(), MANAGER.getRole(), ADMIN.getRole())

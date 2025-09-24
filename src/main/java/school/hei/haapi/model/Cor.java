@@ -38,7 +38,7 @@ public class Cor {
   @JoinColumn(name = "concerned_student_id")
   private User concernedStudent;
 
-  @CreationTimestamp private Instant creationDatetime;
+  @EqualsAndHashCode.Exclude @CreationTimestamp private Instant creationDatetime;
 
   private Instant interviewDatetime;
 

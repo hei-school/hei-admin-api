@@ -19,7 +19,8 @@ public class CorMapper {
         .id(cor.getId())
         .creationDatetime(cor.getCreationDatetime())
         .concernedStudent(userMapper.toIdentifier(cor.getConcernedStudent()))
-        .description(cor.getDescription()).interviewDate(cor.getInterviewDatetime());
+        .description(cor.getDescription())
+        .interviewDate(cor.getInterviewDatetime());
   }
 
   public school.hei.haapi.model.Cor toDomain(Cor cor) {

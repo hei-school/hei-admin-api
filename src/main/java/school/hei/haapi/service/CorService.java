@@ -22,7 +22,7 @@ public class CorService {
     return corRepository.findAllByConcernedStudentId(studentId, pageable);
   }
 
-  public List<Cor> savaAll(List<Cor> cors) {
-    return corRepository.saveAll(cors);
+  public Cor sava(Cor cor) {
+    return corRepository.save(cor);
   }
 }

@@ -31,8 +31,8 @@ public class CorController {
   }
 
   @PutMapping("/students/{student_id}/cors")
-  public List<Cor> updateStudentCors(
-      @PathVariable(name = "student_id") String studentId, @RequestBody List<CrupdateCor> cors) {
-    return corMapper.toRest(corService.savaAll(corMapper.toDomain(cors, studentId)));
+  public Cor updateStudentCors(
+      @PathVariable(name = "student_id") String studentId, @RequestBody CrupdateCor cors) {
+    return corMapper.toRest(corService.sava(corMapper.toDomain(cors, studentId)));
   }
 }
