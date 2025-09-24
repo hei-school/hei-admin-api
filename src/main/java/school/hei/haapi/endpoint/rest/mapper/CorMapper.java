@@ -1,6 +1,7 @@
 package school.hei.haapi.endpoint.rest.mapper;
 
 import java.util.List;
+import java.util.Optional;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 import school.hei.haapi.endpoint.rest.model.Cor;
@@ -17,14 +18,15 @@ public class CorMapper {
     return new Cor()
         .id(cor.getId())
         .creationDatetime(cor.getCreationDatetime())
-        .concernedStudent(userMapper.toRestStudent(cor.getConcernedStudent()))
+        .concernedStudent(userMapper.toIdentifier(cor.getConcernedStudent()))
         .description(cor.getDescription());
   }
 
   public school.hei.haapi.model.Cor toDomain(Cor cor) {
+    var concernedStudent = Optional.ofNullable(cor.getConcernedStudent());
     return new school.hei.haapi.model.Cor()
         .toBuilder()
-            .concernedStudent(userMapper.toDomain(cor.getConcernedStudent()))
+            .concernedStudent(concernedStudent.map(userMapper::toDomain).orElse(null))
             .description(cor.getDescription())
             .creationDatetime(cor.getCreationDatetime())
             .build();
@@ -33,17 +35,18 @@ public class CorMapper {
   public school.hei.haapi.model.Cor toDomain(CrupdateCor cor, String studentId) {
     return new school.hei.haapi.model.Cor()
         .toBuilder()
+            .id(cor.getId())
             .concernedStudent(userService.findById(studentId))
             .description(cor.getDescription())
-            .creationDatetime(cor.getCreationDatetime())
+            .interviewDateTime(cor.getInterviewDate())
             .build();
   }
 
-  public List<Cor> toRestList(List<school.hei.haapi.model.Cor> cors) {
+  public List<Cor> toRest(List<school.hei.haapi.model.Cor> cors) {
     return cors.stream().map(this::toRest).toList();
   }
 
-  public List<school.hei.haapi.model.Cor> toDomainList(List<CrupdateCor> cors, String studentId) {
+  public List<school.hei.haapi.model.Cor> toDomain(List<CrupdateCor> cors, String studentId) {
     return cors.stream().map(cor -> toDomain(cor, studentId)).toList();
   }
 }
