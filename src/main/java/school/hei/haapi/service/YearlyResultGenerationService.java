@@ -5,6 +5,7 @@ import static school.hei.haapi.endpoint.rest.model.ResultOverviewStatus.VALIDATE
 import static school.hei.haapi.service.utils.DataFormatterUtils.instantToCommonDate;
 import static school.hei.haapi.service.utils.FileUtils.createFileFromBytes;
 
+import jakarta.transaction.Transactional;
 import java.io.File;
 import java.math.MathContext;
 import java.util.Optional;
@@ -29,6 +30,7 @@ public class YearlyResultGenerationService {
   private static final String YEARLY_RESULT_FILENAME_PREFIX = "Bulletin-";
   private static final String TOTAL_YEARLY_CREDITS = "60";
 
+  @Transactional
   public File generateYearlyResultTranscript(User student, YearlyResult yearlyResult) {
     Context context = loadContext(student, yearlyResult);
     String html = htmlParser.apply("yearlyResult", context);
