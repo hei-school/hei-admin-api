@@ -43,6 +43,9 @@ public class CourseResultService {
   private final UserService userService;
   private final CollectionUtils collectionUtils;
 
+  private static final BigDecimal VALIDATED_YEAR_CREDIT = BigDecimal.valueOf(30);
+  private static final BigDecimal VALIDATED_YEAR_AVERAGE = TEN;
+
   private List<Group> findStudentGroupByExams(User student, List<Exam> exams) {
     return collectionUtils
         .filterDistinctByField(
@@ -147,28 +150,33 @@ public class CourseResultService {
             .divide(BigDecimal.valueOf(sumCredits), DECIMAL128));
   }
 
-  public Optional<ResultOverviewStatus> courseValidationFromCourseResult(
-      List<CourseResult> courseResults) {
+  public ResultOverviewStatus courseValidationFromCourseResult(List<CourseResult> courseResults) {
     var coursesResultStatus = courseResults.parallelStream().map(CourseResult::getStatus).toList();
     var courseResultCount = coursesResultStatus.size();
 
     var notStartedCount =
         coursesResultStatus.stream().filter(CourseResultStatus.NOT_STARTED::equals).count();
-    var validatedCount =
-        coursesResultStatus.stream().filter(CourseResultStatus.VALIDATED::equals).count();
-    var invalidatedCount =
-        coursesResultStatus.stream().filter(CourseResultStatus.INCOMPLETE::equals).count();
     var inProgressCount =
         coursesResultStatus.stream().filter(CourseResultStatus.IN_PROGRESS::equals).count();
 
-    if (courseResultCount == 0) return Optional.of(NOT_STARTED);
-    if (inProgressCount > 0) return Optional.of(IN_PROGRESS);
-    if (notStartedCount == courseResultCount) return Optional.of(NOT_STARTED);
-    if (notStartedCount > 0) return Optional.of(IN_PROGRESS);
-    if (validatedCount == courseResultCount) return Optional.of(VALIDATED);
-    if (invalidatedCount > 0) return Optional.of(INVALIDATED);
+    var validated = isValidated(courseResults);
 
-    return Optional.empty();
+    if (courseResultCount == 0) return NOT_STARTED;
+    if (inProgressCount > 0) return IN_PROGRESS;
+    if (notStartedCount == courseResultCount) return NOT_STARTED;
+    if (notStartedCount > 0) return IN_PROGRESS;
+    if (validated) return VALIDATED;
+    return INVALIDATED;
+  }
+
+  public boolean isValidated(List<CourseResult> courseResults) {
+    var obtainedCredits = obtainedCreditsOfCourseResults(courseResults);
+    var courseResultsWeightedAverage = weightedSumOfCourseResults(courseResults);
+
+    return obtainedCredits.compareTo(VALIDATED_YEAR_CREDIT) >= 0
+        && courseResultsWeightedAverage
+            .map(avg -> avg.compareTo(VALIDATED_YEAR_AVERAGE) >= 0)
+            .orElse(false);
   }
 
   public int getSumCredits(List<CourseResult> courses) {

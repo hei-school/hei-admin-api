@@ -59,7 +59,7 @@ public class GradeResultService {
         .weightedAverage(courseResultService.weightedSumOfCourseResults(courseResults).orElse(null))
         .obtainedCredits(courseResultService.obtainedCreditsOfCourseResults(courseResults))
         .courseResults(courseResults)
-        .status(courseResultService.courseValidationFromCourseResult(courseResults).orElse(null))
+        .status(courseResultService.courseValidationFromCourseResult(courseResults))
         .totalCredits(BigDecimal.valueOf(courseResultService.getSumCredits(courseResults)));
   }
 
