@@ -39,7 +39,7 @@ public class CorController {
   }
 
   @PutMapping("/students/{student_id}/cors")
-  public Cor updateStudentCors(
+  public Cor crupdateStudentCors(
       @PathVariable(name = "student_id") String studentId, @RequestBody CrupdateCor cors) {
     return corMapper.toRest(corService.save(corMapper.toDomain(cors, studentId)));
   }

@@ -3,7 +3,9 @@ package school.hei.haapi.model;
 import static jakarta.persistence.EnumType.STRING;
 import static jakarta.persistence.GenerationType.IDENTITY;
 import static org.hibernate.type.SqlTypes.NAMED_ENUM;
+import static school.hei.haapi.model.CorComment.CorStatus.IN_PROGRESS;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
@@ -55,7 +57,9 @@ public class Cor {
 
   @Enumerated(STRING)
   @JdbcTypeCode(NAMED_ENUM)
-  private CorStatus status;
+  @Builder.Default
+  @Column(nullable = false)
+  private CorStatus status = IN_PROGRESS;
 
   public void addComment(CorComment comment) {
     comments.add(comment);

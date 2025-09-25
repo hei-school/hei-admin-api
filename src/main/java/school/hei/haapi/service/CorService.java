@@ -24,12 +24,11 @@ public class CorService {
     return corRepository.findAllByConcernedStudentId(studentId, pageable);
   }
 
+  /** Cor status cannot be manually changed by this function, must add comment to change it */
   public Cor save(Cor cor) {
-    var savedCor = corRepository.findById(cor.getId());
+    var id = cor.getId();
 
-    if (savedCor.isPresent() && !cor.getStatus().equals(savedCor.get().getStatus()))
-      throw new IllegalArgumentException(
-          "Cor status cannot be manually changed, must add comment to change it");
+    if (id != null) corRepository.findById(id).ifPresent(value -> cor.setStatus(value.getStatus()));
 
     return corRepository.save(cor);
   }
