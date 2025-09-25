@@ -39,20 +39,17 @@ public class SecurityConf {
   private final MonitoringStudentService monitoringStudentService;
   private final AbstractUserDetailsAuthenticationProvider authProvider;
   private final HandlerExceptionResolver exceptionResolver;
-  private final CorRepository corRepository;
 
   public SecurityConf(
       CasdoorAuthProvider authProvider,
       // InternalToExternalErrorHandler behind
       @Qualifier("handlerExceptionResolver") HandlerExceptionResolver exceptionResolver,
       CourseAssignmentService courseAssignmentService,
-      MonitoringStudentService monitoringStudentService,
-      CorRepository corRepository) {
+      MonitoringStudentService monitoringStudentService) {
     this.authProvider = authProvider;
     this.exceptionResolver = exceptionResolver;
     this.courseAssignmentService = courseAssignmentService;
     this.monitoringStudentService = monitoringStudentService;
-    this.corRepository = corRepository;
   }
 
   @Bean
