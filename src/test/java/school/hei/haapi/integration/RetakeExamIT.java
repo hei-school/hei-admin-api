@@ -15,7 +15,6 @@ import static school.hei.haapi.integration.conf.TestUtils.course1;
 import static school.hei.haapi.integration.conf.TestUtils.setUpCasdoor;
 import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
 import static school.hei.haapi.integration.conf.TestUtils.setUpS3Service;
-import static school.hei.haapi.integration.test_data.RetakeExamSessionTestData.session1;
 
 import java.util.List;
 import java.util.Objects;
@@ -103,8 +102,7 @@ public class RetakeExamIT extends FacadeITMockedThirdParties {
     ApiClient apiClient = anApiClient(ADMIN1_TOKEN);
     RetakeExamApi api = new RetakeExamApi(apiClient);
 
-    var retakeExams =
-        api.getRetakeExamBySessionId(session1().getId(), null, null, null, null, null);
+    var retakeExams = api.getRetakeExamBySessionId("session1_id", null, null, null, null, null);
 
     assertNotNull(retakeExams);
     assertEquals(

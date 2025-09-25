@@ -33,6 +33,9 @@ public class RetakeExamSessionService {
   }
 
   public RetakeExamSession save(RetakeExamSession retakeExamSession) {
+    if (retakeExamSession.getDateFrom().isAfter(retakeExamSession.getDateTo())) {
+      throw new IllegalArgumentException("Session start date must be before end date");
+    }
     return retakeExamSessionRepository.save(retakeExamSession);
   }
 }
