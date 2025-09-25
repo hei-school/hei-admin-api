@@ -2,8 +2,6 @@ package school.hei.haapi.integration;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
 import static school.hei.haapi.integration.StudentIT.student1;
 import static school.hei.haapi.integration.conf.TestUtils.ADMIN1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_TOKEN;
@@ -15,7 +13,6 @@ import static school.hei.haapi.integration.test_data.RetakeExamSessionTestData.s
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import school.hei.haapi.endpoint.rest.api.RetakeExamApi;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
@@ -35,7 +32,6 @@ public class RetakeExamSessionIT extends FacadeITMockedThirdParties {
     setUpCasdoor(casdoorAuthServiceMock, certificateLoaderMock);
     setUpCognito(cognitoComponentMock);
     setUpS3Service(fileService, student1());
-
   }
 
   @Test

@@ -32,10 +32,10 @@ public class RetakeExamSessionService {
     return retakeExamSessionDao.filterByCriteria(title, pageable, from, to);
   }
 
-  public RetakeExamSession save(RetakeExamSession retakeExamSession){
-      if(!retakeExamSession.getDateFrom().isBefore(retakeExamSession.getDateTo())){
-          throw new IllegalArgumentException("Session start date must be before end date");
-      }
+  public RetakeExamSession save(RetakeExamSession retakeExamSession) {
+    if (!retakeExamSession.getDateFrom().isBefore(retakeExamSession.getDateTo())) {
+      throw new IllegalArgumentException("Session start date must be before end date");
+    }
     return retakeExamSessionRepository.save(retakeExamSession);
   }
 }
