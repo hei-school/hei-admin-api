@@ -41,11 +41,11 @@ public class RetakeExamController {
   }
 
   @GetMapping("/retake_exam_sessions/{session_id}/retakeExams")
-  public List<RetakeExam> getRetakeExamBySessionId(
+  public List<StudentRetakeExam> getRetakeExamBySessionId(
       @PathVariable("session_id") String sessionId,
       @RequestParam(value = "page", defaultValue = "1") PageFromOne page,
       @RequestParam(value = "pageSize", defaultValue = "15") BoundedPageSize pageSize) {
-    return retakeExamMapper.toRestList(
+    return retakeExamMapper.toStudentRetakeRestList(
         retakeExamService.getAllRetakeExamBySessionId(sessionId, page, pageSize));
   }
 }
