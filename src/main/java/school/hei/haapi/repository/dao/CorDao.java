@@ -45,7 +45,7 @@ public class CorDao {
 
     if (groupRef != null) throw new NotImplementedException("Filter by status not implemented");
 
-    if (status != null) throw new NotImplementedException("Filter by status not implemented");
+    if (status != null) predicates.add(builder.equal(root.get("status"), status));
 
     query.where(predicates.toArray(new Predicate[0]));
 

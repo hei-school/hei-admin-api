@@ -1,9 +1,11 @@
 package school.hei.haapi.integration;
 
+import static java.util.Collections.singletonList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.when;
+import static school.hei.haapi.endpoint.rest.model.CorStatus.IN_PROGRESS;
 import static school.hei.haapi.endpoint.rest.model.CorStatus.LEAVE;
 import static school.hei.haapi.integration.conf.FakeDataProvider.someCor;
 import static school.hei.haapi.integration.conf.FakeDataProvider.someStudent;
@@ -108,11 +110,16 @@ public class CorIT extends FacadeITMockedThirdParties {
   public void manager_filter_cor_ok() throws ApiException {
     var api = new CorApi(anApiClient(MANAGER1_TOKEN));
 
-    var cors = api.getCor(null, null, null, null, axelWithCor.getRef(), null, null);
-
-    assertTrue(cors.contains(corMapper.toRest(corAxel)));
+    var corsFilterByStudentRef =
+        api.getCor(null, null, null, null, axelWithCor.getRef(), null, null);
+    assertTrue(corsFilterByStudentRef.contains(corMapper.toRest(corAxel)));
     assertFalse(
-        cors.contains(corMapper.toRest(Cor.builder().concernedStudent(tolotraWithoutCor).build())));
+        corsFilterByStudentRef.contains(
+            corMapper.toRest(Cor.builder().concernedStudent(tolotraWithoutCor).build())));
+
+    var corsFilterByStatus =
+        api.getCor(null, null, null, null, null, null, singletonList(IN_PROGRESS));
+    assertTrue(corsFilterByStatus.stream().allMatch(cor -> IN_PROGRESS.equals(cor.getStatus())));
   }
 
   @Test
