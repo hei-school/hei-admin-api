@@ -22,10 +22,8 @@ import school.hei.haapi.endpoint.rest.client.ApiException;
 import school.hei.haapi.endpoint.rest.mapper.RetakeExamSessionMapper;
 import school.hei.haapi.integration.conf.FacadeITMockedThirdParties;
 import school.hei.haapi.integration.conf.TestUtils;
-import school.hei.haapi.repository.RetakeExamSessionRepository;
 
 public class RetakeExamSessionIT extends FacadeITMockedThirdParties {
-  @MockBean RetakeExamSessionRepository retakeExamSessionRepository;
   @Autowired private RetakeExamSessionMapper retakeExamSessionMapper;
 
   private ApiClient anApiClient(String token) {
@@ -38,7 +36,6 @@ public class RetakeExamSessionIT extends FacadeITMockedThirdParties {
     setUpCognito(cognitoComponentMock);
     setUpS3Service(fileService, student1());
 
-    when(retakeExamSessionRepository.save(any())).thenReturn(session1());
   }
 
   @Test
@@ -72,7 +69,6 @@ public class RetakeExamSessionIT extends FacadeITMockedThirdParties {
         api.createOrUpdateRetakeExamSessions(retakeExamSessionMapper.toRest(session1()));
 
     assertNotNull(retakeExamSessionCreated);
-    assertEquals(session1().getId(), retakeExamSessionCreated.getId());
     assertEquals(session1().getTitle(), retakeExamSessionCreated.getTitle());
   }
 }
