@@ -101,6 +101,14 @@ public class CourseResultService {
     var courseExams = examService.getExamsByCourseId(course.getId());
     var studentGrades = gradeDao.getStudentGradesByCourseId(course.getId(), student.getId());
     var examsOfTheCourse = examService.getExamsByCourseId(course.getId());
+    var studentGroupInExam = findStudentGroupByExams(student, examsOfTheCourse);
+    var examOfTheStudent =
+        examsOfTheCourse.stream()
+            .filter(
+                e ->
+                    e.getCourseAssignment().getGroups().stream()
+                        .anyMatch(studentGroupInExam::contains))
+            .toList();
     var courseResult = new CourseResult().course(courseMapper.toRest(course));
 
     if (courseExams.isEmpty()) {
@@ -116,7 +124,7 @@ public class CourseResultService {
 
     if (studentGrades.isEmpty()) {
       return courseResult.status(CourseResultStatus.IN_PROGRESS);
-    } else if (studentGrades.size() < examsOfTheCourse.size()) {
+    } else if (studentGrades.size() < examOfTheStudent.size()) {
       return courseResult.status(CourseResultStatus.IN_PROGRESS);
     } else if (TEN.compareTo(courseResult.getWeightedAverage()) > 0) {
       return courseResult.status(CourseResultStatus.INCOMPLETE);
