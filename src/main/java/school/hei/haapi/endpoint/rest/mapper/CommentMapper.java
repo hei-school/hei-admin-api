@@ -21,8 +21,8 @@ public class CommentMapper {
   private final FileService fileService;
 
   public Comment toDomain(CreateComment rest) {
-    User subject = userService.getById(rest.getStudentId());
-    User observer = userService.getById(rest.getObserverId());
+    User subject = userService.findById(rest.getStudentId());
+    User observer = userService.findById(rest.getObserverId());
 
     return Comment.builder()
         .id(rest.getId())

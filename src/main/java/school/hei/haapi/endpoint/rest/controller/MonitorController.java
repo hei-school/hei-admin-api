@@ -28,7 +28,7 @@ public class MonitorController {
 
   @GetMapping(value = "/monitors/{id}")
   public Monitor getMonitorById(@PathVariable String id) {
-    return userMapper.toRestMonitor(userService.getById(id));
+    return userMapper.toRestMonitor(userService.findById(id));
   }
 
   @PutMapping("/monitors/{id}")

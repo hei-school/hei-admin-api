@@ -69,7 +69,7 @@ public class StaffMemberController {
       @RequestPart("file_to_upload") MultipartFile profilePictureAsMultipartFile,
       @PathVariable String id) {
     userService.uploadUserProfilePicture(profilePictureAsMultipartFile, id);
-    return userMapper.toRestStaffMember(userService.getById(id));
+    return userMapper.toRestStaffMember(userService.findById(id));
   }
 
   @PutMapping("/staff_members")
@@ -82,7 +82,7 @@ public class StaffMemberController {
 
   @GetMapping("/staff_members/{id}")
   public StaffMember getStaffMemberById(@PathVariable("id") String id) {
-    return userMapper.toRestStaffMember(userService.getById(id));
+    return userMapper.toRestStaffMember(userService.findById(id));
   }
 
   @PutMapping("/staff_members/{id}")

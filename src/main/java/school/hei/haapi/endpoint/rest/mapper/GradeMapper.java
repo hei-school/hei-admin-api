@@ -67,7 +67,7 @@ public class GradeMapper {
   public school.hei.haapi.model.Grade toDomain(CreateGrade grade, String examId, String studentId) {
     gradeValidator.accept(grade);
 
-    var student = userService.getById(studentId);
+    var student = userService.findById(studentId);
     return gradeRepository
         .getGradeByExamIdAndStudentRef(examId, student.getRef())
         .orElse(

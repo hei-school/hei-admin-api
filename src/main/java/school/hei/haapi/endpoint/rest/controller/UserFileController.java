@@ -48,7 +48,7 @@ public class UserFileController {
       value = "/students/{id}/scholarship_certificate/raw",
       produces = APPLICATION_PDF_VALUE)
   public byte[] getStudentScholarshipCertificate(@PathVariable(name = "id") String studentId) {
-    User student = userService.getById(studentId);
+    User student = userService.findById(studentId);
     scholarshipDataValidator.accept(student);
     return fileService.generateScholarshipCertificate(studentId, "scolarity");
   }

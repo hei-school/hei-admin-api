@@ -27,7 +27,7 @@ public class GradeService {
   private final IsNewGradeChecker isNewGradeChecker;
 
   public List<Grade> getGradesByStudentId(String studentId) {
-    var student = userService.getById(studentId);
+    var student = userService.findById(studentId);
     return gradeRepository.getAllByStudent(student);
   }
 
@@ -114,7 +114,7 @@ public class GradeService {
   }
 
   public List<Grade> getGradesByStudentAndCourseId(String studentId, String courseId) {
-    var student = userService.getById(studentId);
+    var student = userService.findById(studentId);
     var studentCurrentGroup = student.findCurrentGroup();
     if (studentCurrentGroup.isEmpty()) {
       throw new BadRequestException(String.format("Student with id: %s not in any group", student));

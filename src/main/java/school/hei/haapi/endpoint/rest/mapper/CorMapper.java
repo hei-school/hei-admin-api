@@ -78,7 +78,7 @@ public class CorMapper {
     return new school.hei.haapi.model.Cor()
         .toBuilder()
             .id(cor.getId())
-            .concernedStudent(userService.getById(studentId))
+            .concernedStudent(userService.findById(studentId))
             .description(cor.getDescription())
             .interviewDatetime(cor.getInterviewDate())
             .build();

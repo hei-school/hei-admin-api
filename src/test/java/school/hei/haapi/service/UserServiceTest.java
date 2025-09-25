@@ -62,7 +62,7 @@ class UserServiceTest extends FacadeITMockedThirdParties {
 
   @Test
   void disabled_user_enable_ko() {
-    User student1 = subject.getById(STUDENT1_ID);
+    User student1 = subject.findById(STUDENT1_ID);
     student1.setStatus(User.Status.DISABLED);
     assertThrows(
         IllegalArgumentException.class,

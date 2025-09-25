@@ -60,7 +60,7 @@ class CheckParticipantMissingEventTest extends FacadeITMockedThirdParties {
 
   @Test
   void send_mail_for_missed_event() {
-    when(userService.getById(anyString())).thenReturn(new User());
+    when(userService.findById(anyString())).thenReturn(new User());
     when(eventService.findEventById(anyString())).thenReturn(fakeDataProvider.someEvent());
 
     assertThrows(

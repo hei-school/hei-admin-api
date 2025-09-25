@@ -36,7 +36,7 @@ public class MpbsMapper {
     school.hei.haapi.model.mpbs.Mpbs domain = new school.hei.haapi.model.mpbs.Mpbs();
 
     domain.setId(rest.getId());
-    domain.setStudent(userService.getById(rest.getStudentId()));
+    domain.setStudent(userService.findById(rest.getStudentId()));
     domain.setFee(feeService.getById(rest.getFeeId()));
     domain.setPspId(rest.getPspId());
     domain.setMobileMoneyType(rest.getPspType());

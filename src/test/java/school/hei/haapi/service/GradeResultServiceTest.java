@@ -400,9 +400,9 @@ class GradeResultServiceTest {
                 lv1Course()));
     when(courseService.getByStudentLevel(M1)).thenReturn(List.of(secu3Course()));
 
-    when(userService.getById(STUDENT1_ID)).thenReturn(student1);
-    when(userService.getById(STUDENT2_ID)).thenReturn(student2);
-    when(userService.getById(STUDENT3_ID)).thenReturn(student3);
+    when(userService.findById(STUDENT1_ID)).thenReturn(student1);
+    when(userService.findById(STUDENT2_ID)).thenReturn(student2);
+    when(userService.findById(STUDENT3_ID)).thenReturn(student3);
     when(student1.findGroupAt(any())).thenReturn(Optional.of(group()));
     when(student2.findGroupAt(any())).thenReturn(Optional.of(group()));
     when(student3.findGroupAt(any())).thenReturn(Optional.of(group()));
@@ -579,7 +579,7 @@ class GradeResultServiceTest {
   void yearly_result_generation_should_return_available_transcript_when_file_exists()
       throws MalformedURLException {
 
-    when(userService.getById(anyString())).thenReturn(student1);
+    when(userService.findById(anyString())).thenReturn(student1);
     when(yearlyResultGenerationService.findGenerationRequestByFileName(anyString()))
         .thenReturn(
             Optional.of(
@@ -603,7 +603,7 @@ class GradeResultServiceTest {
 
   @Test
   void yearly_result_generation_should_return_generating_status_when_file_is_missing() {
-    when(userService.getById(anyString())).thenReturn(student1);
+    when(userService.findById(anyString())).thenReturn(student1);
     when(yearlyResultGenerationService.findGenerationRequestByFileName(anyString()))
         .thenReturn(empty());
 
@@ -616,7 +616,7 @@ class GradeResultServiceTest {
   @Test
   void yearly_result_generation_should_regenerate_when_generation_times_out() {
 
-    when(userService.getById(anyString())).thenReturn(student1);
+    when(userService.findById(anyString())).thenReturn(student1);
     when(yearlyResultGenerationService.findGenerationRequestByFileName(anyString()))
         .thenReturn(
             Optional.of(
@@ -641,7 +641,7 @@ class GradeResultServiceTest {
   void yearly_result_event_handler_ok() {
     YearlyResult student1YearlyResult = subject.getLeveledYearlyResultByStudentId(L1, STUDENT1_ID);
 
-    when(userService.getById(anyString())).thenReturn(student1);
+    when(userService.findById(anyString())).thenReturn(student1);
     assertDoesNotThrow(
         () -> {
           yearlyResultTranscriptGenerationService.accept(

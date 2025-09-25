@@ -54,7 +54,7 @@ public class WorkDocumentService {
       Instant commitmentEnd,
       MultipartFile workFile,
       ProfessionalExperienceFileTypeEnum professionalExperience) {
-    User student = userService.getById(studentId);
+    User student = userService.findById(studentId);
 
     return fileInfoService.uploadFile(
         student,

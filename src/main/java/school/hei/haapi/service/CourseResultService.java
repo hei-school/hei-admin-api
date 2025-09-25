@@ -61,7 +61,7 @@ public class CourseResultService {
 
   public List<CourseResult> getCourseResultsForLevelOfStudent(
       StudentLevel level, String studentId) {
-    var student = userService.getById(studentId);
+    var student = userService.findById(studentId);
     var courseForSpecificLevel = courseService.getByStudentLevel(level);
     var courseForSpecificStudent =
         collectionUtils.filterDistinctByField(
