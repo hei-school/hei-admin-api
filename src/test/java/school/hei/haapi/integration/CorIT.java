@@ -6,8 +6,8 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.when;
 import static school.hei.haapi.endpoint.rest.model.CorStatus.IN_PROGRESS;
-import static school.hei.haapi.endpoint.rest.model.CorStatus.LEAVE;
 import static school.hei.haapi.integration.conf.FakeDataProvider.someCor;
+import static school.hei.haapi.integration.conf.FakeDataProvider.someCorCommentInfo;
 import static school.hei.haapi.integration.conf.FakeDataProvider.someStudent;
 import static school.hei.haapi.integration.conf.TestUtils.MANAGER1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_TOKEN;
@@ -27,7 +27,6 @@ import school.hei.haapi.endpoint.rest.api.CorApi;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
 import school.hei.haapi.endpoint.rest.mapper.CorMapper;
-import school.hei.haapi.endpoint.rest.model.CorCommentInfo;
 import school.hei.haapi.endpoint.rest.model.CrupdateCor;
 import school.hei.haapi.integration.conf.FacadeITMockedThirdParties;
 import school.hei.haapi.integration.conf.TestUtils;
@@ -123,19 +122,29 @@ public class CorIT extends FacadeITMockedThirdParties {
   }
 
   @Test
-  // TODO: test student not allow to comment
   public void manager_comment_cor_ok() throws ApiException {
     var api = new CorApi(anApiClient(MANAGER1_TOKEN));
     var corId = corAxel.getId();
+    var newCorComment = someCorCommentInfo();
 
-    api.commentCorById(corId, new CorCommentInfo().comment("You must leave now").status(LEAVE));
+    api.commentCorById(corId, newCorComment);
 
     var findCor = corRepository.findById(corId);
     assertTrue(findCor.isPresent());
     var cor = findCor.get();
-    assertEquals(CorComment.CorStatus.LEAVE, cor.getStatus());
+    assertEquals(corMapper.toDomain(newCorComment.getStatus()), cor.getStatus());
     assertEquals(1, cor.getComments().size());
-    assertEquals("You must leave now", cor.getComments().getFirst().getComment());
+    var corComment = cor.getComments().getFirst();
+    assertEquals(newCorComment.getComment(), corComment.getComment());
+    assertEquals(corMapper.toDomain(newCorComment.getStatus()), corComment.getStatus());
+  }
+
+  @Test
+  public void student_comment_cor_ko() {
+    var api = new CorApi(anApiClient(STUDENT1_TOKEN));
+    var corId = corAxel.getId();
+
+    assertThrowsForbiddenException(() -> api.commentCorById(corId, someCorCommentInfo()));
   }
 
   @Test

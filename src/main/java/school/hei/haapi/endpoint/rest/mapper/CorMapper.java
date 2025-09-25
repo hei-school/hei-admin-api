@@ -33,7 +33,7 @@ public class CorMapper {
     };
   }
 
-  private CorComment.CorStatus toDomain(CorStatus rest) {
+  public CorComment.CorStatus toDomain(CorStatus rest) {
     return switch (rest) {
       case IN_PROGRESS -> CorComment.CorStatus.IN_PROGRESS;
       case STAY -> CorComment.CorStatus.STAY;

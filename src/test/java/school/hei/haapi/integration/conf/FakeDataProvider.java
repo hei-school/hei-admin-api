@@ -25,6 +25,8 @@ import java.util.List;
 import java.util.UUID;
 import org.springframework.stereotype.Component;
 import school.hei.haapi.endpoint.rest.model.Coordinates;
+import school.hei.haapi.endpoint.rest.model.CorCommentInfo;
+import school.hei.haapi.endpoint.rest.model.CorStatus;
 import school.hei.haapi.endpoint.rest.model.CreateEvent;
 import school.hei.haapi.endpoint.rest.model.CrupdateCourseAssignment;
 import school.hei.haapi.endpoint.rest.model.CrupdateTeacher;
@@ -84,6 +86,12 @@ public class FakeDataProvider {
         .courseId("course2_id")
         .groupIds(List.of("group2_id"))
         .mainTeacherId("teacher2_id");
+  }
+
+  public static CorCommentInfo someCorCommentInfo() {
+    return new CorCommentInfo()
+        .comment(faker.lorem().paragraph())
+        .status(faker.options().option(CorStatus.class));
   }
 
   public Group createGroup() {

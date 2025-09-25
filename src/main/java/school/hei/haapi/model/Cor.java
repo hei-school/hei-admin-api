@@ -54,6 +54,7 @@ public class Cor {
   private Instant interviewDatetime;
 
   @EqualsAndHashCode.Exclude
+  @ToString.Exclude
   @OneToMany(mappedBy = "cor", fetch = EAGER, cascade = ALL)
   private List<CorComment> comments;
 
