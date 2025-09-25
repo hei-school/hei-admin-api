@@ -22,7 +22,6 @@ import org.casbin.casdoor.entity.CasdoorUser;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.testcontainers.junit.jupiter.Testcontainers;
 import school.hei.haapi.endpoint.rest.api.CorApi;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
@@ -35,7 +34,6 @@ import school.hei.haapi.model.User;
 import school.hei.haapi.repository.CorRepository;
 import school.hei.haapi.repository.UserRepository;
 
-@Testcontainers
 public class CorIT extends FacadeITMockedThirdParties {
   @Autowired private UserRepository userRepository;
   @Autowired private CorRepository corRepository;
