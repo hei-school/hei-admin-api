@@ -1,6 +1,8 @@
 package school.hei.haapi.model;
 
+import static jakarta.persistence.CascadeType.ALL;
 import static jakarta.persistence.EnumType.STRING;
+import static jakarta.persistence.FetchType.EAGER;
 import static jakarta.persistence.GenerationType.IDENTITY;
 import static org.hibernate.type.SqlTypes.NAMED_ENUM;
 import static school.hei.haapi.model.CorComment.CorStatus.IN_PROGRESS;
@@ -51,8 +53,8 @@ public class Cor {
 
   private Instant interviewDatetime;
 
-  @OneToMany(mappedBy = "cor")
   @EqualsAndHashCode.Exclude
+  @OneToMany(mappedBy = "cor", fetch = EAGER, cascade = ALL)
   private List<CorComment> comments;
 
   @Enumerated(STRING)
@@ -62,6 +64,7 @@ public class Cor {
   private CorStatus status = IN_PROGRESS;
 
   public void addComment(CorComment comment) {
+    comment.setCor(this);
     comments.add(comment);
     status = comment.getStatus();
   }

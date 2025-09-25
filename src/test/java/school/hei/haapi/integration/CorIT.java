@@ -118,11 +118,11 @@ public class CorIT extends FacadeITMockedThirdParties {
   @Test
   public void manager_comment_cor_ok() throws ApiException {
     var api = new CorApi(anApiClient(MANAGER1_TOKEN));
+    var corId = corAxel.getId();
 
-    api.commentCorById(
-        axelWithCor.getId(), new CorCommentInfo().comment("You must leave now").status(LEAVE));
+    api.commentCorById(corId, new CorCommentInfo().comment("You must leave now").status(LEAVE));
 
-    var findCor = corRepository.findById(axelWithCor.getId());
+    var findCor = corRepository.findById(corId);
     assertTrue(findCor.isPresent());
     var cor = findCor.get();
     assertEquals(CorComment.CorStatus.LEAVE, cor.getStatus());
