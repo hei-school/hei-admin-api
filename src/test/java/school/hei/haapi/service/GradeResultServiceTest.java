@@ -106,8 +106,51 @@ class GradeResultServiceTest {
     return mockPromotion();
   }
 
-  private static Group group() {
-    return mockGroup(promotion());
+  private static final String TEACHER_ID = "teacher";
+
+  private static final String MGT1_COURSE_ASSIGNMENT_ID = "mgt1-ca";
+  private static final String PROG1_COURSE_ASSIGNMENT_ID = "prog1-ca";
+  private static final String DONNE1_COURSE_ASSIGNMENT_ID = "donne1-ca";
+  private static final String WEB1_COURSE_ASSIGNMENT_ID = "web1-ca";
+  private static final String SYS1_COURSE_ASSIGNMENT_ID = "sys1-ca";
+  private static final String LV1_COURSE_ASSIGNMENT_ID = "lv1-ca";
+  private static final String SECU3_COURSE_ASSIGNMENT_ID = "secu3-ca";
+  private static final String BAD_COURSE_ASSIGNMENT_ID = "bad-ca";
+
+  private static User teacher() {
+    return mockUser(TEACHER_ID);
+  }
+
+  private static CourseAssignment mgt1CourseAssignment() {
+    return mockCourseAssignment(MGT1_COURSE_ASSIGNMENT_ID, teacher());
+  }
+
+  private static CourseAssignment prog1CourseAssignment() {
+    return mockCourseAssignment(PROG1_COURSE_ASSIGNMENT_ID, teacher());
+  }
+
+  private static CourseAssignment donne1CourseAssignment() {
+    return mockCourseAssignment(DONNE1_COURSE_ASSIGNMENT_ID, teacher());
+  }
+
+  private static CourseAssignment web1CourseAssignment() {
+    return mockCourseAssignment(WEB1_COURSE_ASSIGNMENT_ID, teacher());
+  }
+
+  private static CourseAssignment sys1CourseAssignment() {
+    return mockCourseAssignment(SYS1_COURSE_ASSIGNMENT_ID, teacher());
+  }
+
+  private static CourseAssignment lv1CourseAssignment() {
+    return mockCourseAssignment(LV1_COURSE_ASSIGNMENT_ID, teacher());
+  }
+
+  private static CourseAssignment secu3CourseAssignment() {
+    return mockCourseAssignment(SECU3_COURSE_ASSIGNMENT_ID, teacher());
+  }
+
+  private static CourseAssignment badCourseAssignment() {
+    return mockCourseAssignment(BAD_COURSE_ASSIGNMENT_ID, teacher());
   }
 
   private static final String MGT1_EXAM_ID = "mgt1 exam";
@@ -119,31 +162,35 @@ class GradeResultServiceTest {
   private static final String BAD_EXAM_ID = "bad exam";
 
   private static Exam mgt1Exam() {
-    return mockExam(MGT1_EXAM_ID, 1, 1);
+    return mockExam(MGT1_EXAM_ID, 1, 1, mgt1CourseAssignment());
   }
 
   private static Exam prog1Exam() {
-    return mockExam(PROG1_EXAM_ID, 1, 1);
+    return mockExam(PROG1_EXAM_ID, 1, 1, prog1CourseAssignment());
   }
 
   private static Exam donnees1Exam() {
-    return mockExam(DONNEES1_EXAM_ID, 1, 1);
+    return mockExam(DONNEES1_EXAM_ID, 1, 1, donne1CourseAssignment());
   }
 
   private static Exam web1Exam() {
-    return mockExam(WEB1_EXAM_ID, 1, 1);
+    return mockExam(WEB1_EXAM_ID, 1, 1, web1CourseAssignment());
   }
 
   private static Exam sys1Exam() {
-    return mockExam(SYS1_EXAM_ID, 1, 1);
+    return mockExam(SYS1_EXAM_ID, 1, 1, sys1CourseAssignment());
   }
 
   private static Exam lv1Exam() {
-    return mockExam(LV1_EXAM_ID, 1, 1);
+    return mockExam(LV1_EXAM_ID, 1, 1, lv1CourseAssignment());
   }
 
   private static Exam badExam() {
-    return mockExam(BAD_EXAM_ID, 0, 1);
+    return mockExam(BAD_EXAM_ID, 0, 1, badCourseAssignment());
+  }
+
+  private static Group group() {
+    return mockGroup(promotion());
   }
 
   private static Grade student1Mgt1Grade() {
@@ -216,53 +263,6 @@ class GradeResultServiceTest {
 
   private static Grade student3GradeForBadExam() {
     return mockGrade(badExam(), 13.59);
-  }
-
-  private static final String TEACHER_ID = "teacher";
-
-  private static final String MGT1_COURSE_ASSIGNMENT_ID = "mgt1-ca";
-  private static final String PROG1_COURSE_ASSIGNMENT_ID = "prog1-ca";
-  private static final String DONNE1_COURSE_ASSIGNMENT_ID = "donne1-ca";
-  private static final String WEB1_COURSE_ASSIGNMENT_ID = "web1-ca";
-  private static final String SYS1_COURSE_ASSIGNMENT_ID = "sys1-ca";
-  private static final String LV1_COURSE_ASSIGNMENT_ID = "lv1-ca";
-  private static final String SECU3_COURSE_ASSIGNMENT_ID = "secu3-ca";
-  private static final String BAD_COURSE_ASSIGNMENT_ID = "bad-ca";
-
-  private static User teacher() {
-    return mockUser(TEACHER_ID);
-  }
-
-  private static CourseAssignment mgt1CourseAssignment() {
-    return mockCourseAssignment(MGT1_COURSE_ASSIGNMENT_ID, teacher());
-  }
-
-  private static CourseAssignment prog1CourseAssignment() {
-    return mockCourseAssignment(PROG1_COURSE_ASSIGNMENT_ID, teacher());
-  }
-
-  private static CourseAssignment donne1CourseAssignment() {
-    return mockCourseAssignment(DONNE1_COURSE_ASSIGNMENT_ID, teacher());
-  }
-
-  private static CourseAssignment web1CourseAssignment() {
-    return mockCourseAssignment(WEB1_COURSE_ASSIGNMENT_ID, teacher());
-  }
-
-  private static CourseAssignment sys1CourseAssignment() {
-    return mockCourseAssignment(SYS1_COURSE_ASSIGNMENT_ID, teacher());
-  }
-
-  private static CourseAssignment lv1CourseAssignment() {
-    return mockCourseAssignment(LV1_COURSE_ASSIGNMENT_ID, teacher());
-  }
-
-  private static CourseAssignment secu3CourseAssignment() {
-    return mockCourseAssignment(SECU3_COURSE_ASSIGNMENT_ID, teacher());
-  }
-
-  private static CourseAssignment badCourseAssignment() {
-    return mockCourseAssignment(BAD_COURSE_ASSIGNMENT_ID, teacher());
   }
 
   private static final String MGT1_COURSE_ID = "mgt1";
@@ -652,11 +652,13 @@ class GradeResultServiceTest {
         });
   }
 
-  private static Exam mockExam(String id, int coefficientNumerator, int coefficientDenominator) {
+  private static Exam mockExam(
+      String id, int coefficientNumerator, int coefficientDenominator, CourseAssignment ca) {
     return Exam.builder()
         .id(id)
         .coefficientNumerator(coefficientNumerator)
         .coefficientDenominator(coefficientDenominator)
+        .courseAssignment(ca)
         .build();
   }
 
