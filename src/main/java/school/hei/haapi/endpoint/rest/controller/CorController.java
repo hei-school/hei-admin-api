@@ -29,21 +29,6 @@ public class CorController {
   private final CorDao corDao;
   private final PaginationFromPageAndPageSize paginationFromPageAndPageSize;
 
-  @GetMapping("/students/{student_id}/cors")
-  public List<Cor> getStudentCors(
-      @PathVariable(name = "student_id") String studentId,
-      @RequestParam(name = "page", required = false, defaultValue = "1") PageFromOne page,
-      @RequestParam(name = "page_size", required = false, defaultValue = "15")
-          BoundedPageSize pageSize) {
-    return corMapper.toRest(corService.getByStudentId(studentId, page, pageSize));
-  }
-
-  @PutMapping("/students/{student_id}/cors")
-  public Cor crupdateStudentCors(
-      @PathVariable(name = "student_id") String studentId, @RequestBody CrupdateCor cors) {
-    return corMapper.toRest(corService.save(corMapper.toDomain(cors, studentId)));
-  }
-
   @GetMapping("/cors")
   public List<Cor> getCors(
       @RequestParam(required = false) Instant from,
@@ -73,5 +58,20 @@ public class CorController {
   public Cor commentCorById(
       @PathVariable("cor_id") String corId, @RequestBody CorCommentInfo corCommentInfo) {
     return corMapper.toRest(corService.addComment(corId, corMapper.toDomain(corCommentInfo)));
+  }
+
+  @GetMapping("/students/{student_id}/cors")
+  public List<Cor> getStudentCors(
+      @PathVariable(name = "student_id") String studentId,
+      @RequestParam(name = "page", required = false, defaultValue = "1") PageFromOne page,
+      @RequestParam(name = "page_size", required = false, defaultValue = "15")
+          BoundedPageSize pageSize) {
+    return corMapper.toRest(corService.getByStudentId(studentId, page, pageSize));
+  }
+
+  @PutMapping("/students/{student_id}/cors")
+  public Cor crupdateStudentCors(
+      @PathVariable(name = "student_id") String studentId, @RequestBody CrupdateCor cors) {
+    return corMapper.toRest(corService.save(corMapper.toDomain(cors, studentId)));
   }
 }

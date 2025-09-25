@@ -31,7 +31,6 @@ import school.hei.haapi.endpoint.rest.model.CrupdateCor;
 import school.hei.haapi.integration.conf.FacadeITMockedThirdParties;
 import school.hei.haapi.integration.conf.TestUtils;
 import school.hei.haapi.model.Cor;
-import school.hei.haapi.model.CorComment;
 import school.hei.haapi.model.User;
 import school.hei.haapi.repository.CorRepository;
 import school.hei.haapi.repository.UserRepository;
