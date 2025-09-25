@@ -50,8 +50,8 @@ public class RetakeExamService {
   private Boolean isExisting(CrupdateRetakeExam crupdateRetakeExam) {
     return retakeExamRepository
         .findByCourse_IdAndStudent_IdAndSession_Id(
-            crupdateRetakeExam.getStudentId(),
             crupdateRetakeExam.getCourseId(),
+            crupdateRetakeExam.getStudentId(),
             crupdateRetakeExam.getSessionId())
         .isPresent();
   }
@@ -65,6 +65,17 @@ public class RetakeExamService {
         new ArrayList<>(
             coursesToRetake.stream()
                 .map(courseResult -> courseResultAndSessionToRetake(courseResult, session))
+                .filter(
+                    newExam ->
+                        existingRetakeExams.stream()
+                            .noneMatch(
+                                existing ->
+                                    existing.getCourse().getId().equals(newExam.getCourse().getId())
+                                        && existing
+                                            .getSession()
+                                            .getId()
+                                            .equals(newExam.getSession().getId())
+                                        && existing.getStudent().getId().equals(studentId)))
                 .toList());
     retakeExams.addAll(existingRetakeExams);
     return retakeExams;
