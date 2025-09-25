@@ -13,6 +13,8 @@ public class PaginationFromPageAndPageSize
 
   @Override
   public Pageable apply(PageFromOne page, BoundedPageSize pageSize) {
-    return PageRequest.of(page.getValue() - 1, pageSize.getValue());
+    return (page == null || pageSize == null)
+        ? Pageable.unpaged()
+        : PageRequest.of(page.getValue() - 1, pageSize.getValue());
   }
 }
