@@ -109,5 +109,6 @@ public class RetakeExamIT extends FacadeITMockedThirdParties {
     assertNotNull(retakeExams);
     assertEquals(
         "session1", Objects.requireNonNull(retakeExams.getFirst().getSession()).getTitle());
+    assertNotNull(retakeExams.getFirst().getStudentIdentifier());
   }
 }

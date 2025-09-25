@@ -68,4 +68,9 @@ public class RetakeExamMapper {
         .session(retakeExamSessionMapper.toRest(retakeExam.getSession()))
         .registrationDate(retakeExam.getRegistrationDate());
   }
+
+  public List<StudentRetakeExam> toStudentRetakeRestList(
+      List<school.hei.haapi.model.RetakeExam> retakeExams) {
+    return retakeExams.stream().map(this::toStudentRetakeRest).toList();
+  }
 }
