@@ -1,5 +1,6 @@
 package school.hei.haapi.service.event;
 
+import jakarta.transaction.Transactional;
 import java.util.function.Consumer;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -13,6 +14,7 @@ public class YearlyResultTranscriptGenerationService
   private final GradeResultService gradeResultService;
 
   @Override
+  @Transactional
   public void accept(YearlyResultTranscriptGeneration yearlyResultTranscriptGeneration) {
     gradeResultService.uploadYearlyResultTranscript(
         yearlyResultTranscriptGeneration.getUserId(),

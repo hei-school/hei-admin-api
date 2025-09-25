@@ -3,6 +3,7 @@ package school.hei.haapi.model;
 import static jakarta.persistence.EnumType.STRING;
 import static jakarta.persistence.FetchType.LAZY;
 import static jakarta.persistence.GenerationType.IDENTITY;
+import static java.util.Comparator.comparing;
 import static org.hibernate.type.SqlTypes.NAMED_ENUM;
 import static school.hei.haapi.model.GroupFlow.GroupFlowType.JOIN;
 import static school.hei.haapi.model.User.Status.*;
@@ -25,7 +26,6 @@ import jakarta.validation.constraints.NotBlank;
 import java.io.Serializable;
 import java.time.Instant;
 import java.time.LocalDate;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -41,6 +41,7 @@ import org.hibernate.Hibernate;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
+import school.hei.haapi.endpoint.rest.model.Coordinates;
 import school.hei.haapi.endpoint.rest.model.SpecializationField;
 import school.hei.haapi.model.exception.ApiException;
 
@@ -242,8 +243,18 @@ public class User implements Serializable {
     var lastGroupFlow =
         this.getGroupFlows().stream()
             .filter(groupFlow -> JOIN.equals(groupFlow.getGroupFlowType()))
-            .max(Comparator.comparing(GroupFlow::getFlowDatetime));
+            .max(comparing(GroupFlow::getFlowDatetime));
     return lastGroupFlow.map(GroupFlow::getGroup);
+  }
+
+  public Optional<Group> findGroupAt(Instant instant) {
+    return this.getGroupFlows().stream()
+        .filter(
+            groupFlow ->
+                JOIN.equals(groupFlow.getGroupFlowType())
+                    && instant.isAfter(groupFlow.getFlowDatetime()))
+        .max(comparing(GroupFlow::getFlowDatetime))
+        .map(GroupFlow::getGroup);
   }
 
   public enum Sex {
@@ -274,5 +285,18 @@ public class User implements Serializable {
       case EL -> "Écosystème Logiciel";
       default -> throw new ApiException(SERVER_EXCEPTION, "Invalid specialization field");
     };
+  }
+
+  public static User.UserBuilder builder() {
+    return new User.UserBuilder();
+  }
+
+  public static User.UserBuilder builder(Coordinates coordinates) {
+    var builder = User.builder();
+
+    if (coordinates != null)
+      builder.longitude(coordinates.getLongitude()).latitude(coordinates.getLatitude());
+
+    return builder;
   }
 }

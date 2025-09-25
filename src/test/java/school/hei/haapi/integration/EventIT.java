@@ -12,6 +12,7 @@ import static school.hei.haapi.endpoint.rest.model.FrequencyScopeDay.MONDAY;
 import static school.hei.haapi.integration.StudentIT.student1;
 import static school.hei.haapi.integration.StudentIT.student2;
 import static school.hei.haapi.integration.StudentIT.student3;
+import static school.hei.haapi.integration.conf.FakeDataProvider.someCreatableEventByManager1;
 import static school.hei.haapi.integration.conf.TestUtils.ADMIN1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.EVENT1_ID;
 import static school.hei.haapi.integration.conf.TestUtils.EVENT2_ID;
@@ -29,7 +30,6 @@ import static school.hei.haapi.integration.conf.TestUtils.group1;
 import static school.hei.haapi.integration.conf.TestUtils.setUpCasdoor;
 import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
 import static school.hei.haapi.integration.conf.TestUtils.setUpS3Service;
-import static school.hei.haapi.integration.conf.TestUtils.someCreatableEventByManager1;
 import static school.hei.haapi.integration.conf.TestUtils.student1AttendEvent2;
 import static school.hei.haapi.integration.conf.TestUtils.student1MissEvent1;
 import static school.hei.haapi.integration.conf.TestUtils.student2AttendEvent2;
@@ -108,13 +108,14 @@ public class EventIT extends FacadeITMockedThirdParties {
     ApiClient apiClient = anApiClient(MANAGER1_TOKEN);
     EventsApi api = new EventsApi(apiClient);
 
-    List<Event> actual = api.getEvents(1, 500, null, null, null, null, null);
+    var actual = api.getEvents(1, 500, null, null, null, null, null, null);
 
     System.out.println(actual);
     assertTrue(actual.containsAll(List.of(event1(), event2(), event3())));
 
-    List<Event> eventsBeginAfterAnInstant =
-        api.getEvents(1, 15, Instant.parse("2022-12-15T10:00:00.00Z"), null, null, null, null);
+    var eventsBeginAfterAnInstant =
+        api.getEvents(
+            1, 15, Instant.parse("2022-12-15T10:00:00.00Z"), null, null, null, null, null);
 
     assertTrue(eventsBeginAfterAnInstant.contains(event1()));
     assertFalse(eventsBeginAfterAnInstant.contains(event2()));
@@ -127,23 +128,25 @@ public class EventIT extends FacadeITMockedThirdParties {
             Instant.parse("2022-12-10T08:00:00.00Z"),
             null,
             null,
+            null,
             null);
 
     assertTrue(eventsBeginBetweenTwoInstant.containsAll(List.of(event2(), event3())));
     assertFalse(eventsBeginBetweenTwoInstant.contains(event1()));
 
-    List<Event> eventsBeginBeforeAnInstant =
-        api.getEvents(1, 15, null, Instant.parse("2022-12-08T08:00:00.00Z"), null, null, null);
+    var eventsBeginBeforeAnInstant =
+        api.getEvents(
+            1, 15, null, Instant.parse("2022-12-08T08:00:00.00Z"), null, null, null, null);
 
     assertTrue(eventsBeginBeforeAnInstant.contains(event2()));
     assertFalse(eventsBeginBeforeAnInstant.containsAll(List.of(event1(), event3())));
 
-    List<Event> eventsFilterByType = api.getEvents(1, 15, null, null, COURSE, null, null);
+    var eventsFilterByType = api.getEvents(1, 15, null, null, COURSE, null, null, null);
     assertTrue(eventsFilterByType.contains(event1()));
     assertFalse(eventsFilterByType.contains(event3()));
     assertFalse(eventsFilterByType.contains(event2()));
 
-    List<Event> eventsFilterByTitle = api.getEvents(1, 15, null, null, null, "PROG1", null);
+    var eventsFilterByTitle = api.getEvents(1, 15, null, null, null, "PROG1", null, null);
     assertTrue(eventsFilterByTitle.contains(event1()));
     assertFalse(eventsFilterByTitle.contains(event3()));
     assertFalse(eventsFilterByTitle.contains(event2()));
@@ -281,7 +284,7 @@ public class EventIT extends FacadeITMockedThirdParties {
   @Test
   void event_as_public_link() throws ApiException {
     EventsApi api = new EventsApi(anApiClient(null));
-    List<Event> actual = api.getEvents(1, 15, null, null, null, null, null);
+    var actual = api.getEvents(1, 15, null, null, null, null, null, null);
     assertEquals(event1(), actual.getFirst());
     assertEquals(event3(), actual.get(1));
     assertEquals(event2(), actual.get(2));

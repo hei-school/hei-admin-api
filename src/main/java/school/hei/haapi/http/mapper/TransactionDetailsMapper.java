@@ -17,9 +17,9 @@ import school.hei.haapi.model.MobileTransactionDetails;
 @Component
 @AllArgsConstructor
 @Slf4j
-public class ExternalResponseMapper {
+public class TransactionDetailsMapper {
 
-  public TransactionDetails from(OrangeTransactionDetails orangeRest) {
+  public TransactionDetails toModel(OrangeTransactionDetails orangeRest) {
     return TransactionDetails.builder()
         .pspDatetimeTransactionCreation(orangeRest.getTransactionCreation())
         .pspTransactionRef(orangeRest.getTransactionRef())
@@ -27,7 +27,7 @@ public class ExternalResponseMapper {
         .build();
   }
 
-  public TransactionDetails from(OrangeTransactionScrappingDetails orangeScrappingRest) {
+  public TransactionDetails toModel(OrangeTransactionScrappingDetails orangeScrappingRest) {
     return TransactionDetails.builder()
         .pspDatetimeTransactionCreation(
             formatAndGetDateOfTransaction(orangeScrappingRest.getDate()))

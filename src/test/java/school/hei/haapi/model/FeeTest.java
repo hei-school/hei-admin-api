@@ -16,7 +16,7 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 import school.hei.haapi.endpoint.rest.model.MpbsStatus;
 import school.hei.haapi.integration.conf.FakeDataProvider;
-import school.hei.haapi.model.Mpbs.Mpbs;
+import school.hei.haapi.model.mpbs.Mpbs;
 
 class FeeTest {
   FakeDataProvider fakeDataProvider = new FakeDataProvider();

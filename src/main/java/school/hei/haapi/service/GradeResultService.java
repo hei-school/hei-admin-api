@@ -13,8 +13,6 @@ import static school.hei.haapi.endpoint.rest.model.YearlyResultGenerationStatus.
 import static school.hei.haapi.endpoint.rest.model.YearlyResultGenerationStatus.GENERATING;
 import static school.hei.haapi.service.utils.FileUtils.multipartFileFromFile;
 
-import jakarta.transaction.Transactional;
-import java.io.File;
 import java.math.BigDecimal;
 import java.time.Duration;
 import java.util.Arrays;
@@ -32,6 +30,7 @@ import school.hei.haapi.endpoint.rest.model.StudentLevel;
 import school.hei.haapi.endpoint.rest.model.YearlyResult;
 import school.hei.haapi.endpoint.rest.model.YearlyResultGenerationTranscript;
 import school.hei.haapi.file.bucket.BucketComponent;
+import school.hei.haapi.model.FileInfo;
 import school.hei.haapi.model.User;
 import school.hei.haapi.model.YearlyResultGenerationRequest;
 import school.hei.haapi.model.exception.BadRequestException;
@@ -49,6 +48,7 @@ public class GradeResultService {
   private final EventProducer<YearlyResultTranscriptGeneration> eventProducer;
   private static final String TRANSCRIPT_FILENAME_FORMAT = "Bulletin - %s - %s";
   private static final Duration TRANSCRIPT_GENERATION_TIMEOUT = Duration.ofMinutes(5);
+  private static final Duration TRANSCRIPT_VALIDATION_DURATION = Duration.ofHours(12);
 
   public YearlyResult getLeveledYearlyResultByStudentId(StudentLevel level, String studentId) {
     var courseResults = courseResultService.getCourseResultsForLevelOfStudent(level, studentId);
@@ -60,7 +60,7 @@ public class GradeResultService {
         .weightedAverage(courseResultService.weightedSumOfCourseResults(courseResults).orElse(null))
         .obtainedCredits(courseResultService.obtainedCreditsOfCourseResults(courseResults))
         .courseResults(courseResults)
-        .status(courseResultService.courseValidationFromCourseResult(courseResults).orElse(null))
+        .status(courseResultService.courseValidationFromCourseResult(courseResults))
         .totalCredits(BigDecimal.valueOf(courseResultService.getSumCredits(courseResults)));
   }
 
@@ -153,11 +153,7 @@ public class GradeResultService {
     if (studentTranscriptRequestInfo.isPresent()) {
       var request = studentTranscriptRequestInfo.get();
       if (AVAILABLE.equals(request.getStatus())) {
-        var presignedTranscriptUrl =
-            bucketComponent.presign(request.getFileInfo().getFilePath(), Duration.of(10, MINUTES));
-        return new YearlyResultGenerationTranscript()
-            .status(AVAILABLE)
-            .link(presignedTranscriptUrl.toString());
+        return handleAvailableGenerationRequest(request, studentYearlyResult);
       }
       if (Duration.between(request.getDatetime(), now())
           .minus(TRANSCRIPT_GENERATION_TIMEOUT)
@@ -166,6 +162,23 @@ public class GradeResultService {
       }
     } else generateTranscript(studentId, studentYearlyResult);
     return new YearlyResultGenerationTranscript().status(GENERATING);
+  }
+
+  private YearlyResultGenerationTranscript handleAvailableGenerationRequest(
+      YearlyResultGenerationRequest request, YearlyResult yearlyResult) {
+    var requestDatetime = request.getDatetime();
+
+    if (Duration.between(requestDatetime, now())
+        .minus(TRANSCRIPT_VALIDATION_DURATION)
+        .isPositive()) {
+      generateTranscript(request.getFileInfo().getUser().getId(), yearlyResult);
+      return new YearlyResultGenerationTranscript().status(GENERATING);
+    }
+    var presignedTranscriptUrl =
+        bucketComponent.presign(request.getFileInfo().getFilePath(), Duration.of(10, MINUTES));
+    return new YearlyResultGenerationTranscript()
+        .status(AVAILABLE)
+        .link(presignedTranscriptUrl.toString());
   }
 
   private void generateTranscript(String studentId, YearlyResult studentYearlyResult) {
@@ -177,28 +190,41 @@ public class GradeResultService {
                 .build()));
   }
 
-  @Transactional
   public void uploadYearlyResultTranscript(String studentId, YearlyResult yearlyResult) {
-    User student = userService.findById(studentId);
-    String fileName =
+    var student = userService.findById(studentId);
+    var fileName =
         String.format(TRANSCRIPT_FILENAME_FORMAT, student.getRef(), yearlyResult.getLevel());
+    Optional<FileInfo> availableFileInfo = fileInfoService.findTranscriptInfoByName(fileName);
     yearlyResultGenerationService.saveGenerationRequest(
         YearlyResultGenerationRequest.builder()
             .datetime(now())
             .fileName(fileName)
             .status(GENERATING)
             .build());
-    File yearlyResultTranscript =
+    var yearlyResultTranscript =
         yearlyResultGenerationService.generateYearlyResultTranscript(student, yearlyResult);
-    var uploadedTranscriptFileInfo =
-        fileInfoService.uploadFile(
-            fileName, TRANSCRIPT, student.getId(), multipartFileFromFile(yearlyResultTranscript));
+    if (availableFileInfo.isPresent()) {
+      bucketComponent.upload(yearlyResultTranscript, availableFileInfo.get().getFilePath());
+    } else {
+      var uploadedFileInfo =
+          fileInfoService.uploadFile(
+              fileName, TRANSCRIPT, student.getId(), multipartFileFromFile(yearlyResultTranscript));
+      yearlyResultGenerationService.saveGenerationRequest(
+          YearlyResultGenerationRequest.builder()
+              .datetime(now())
+              .fileName(fileName)
+              .status(AVAILABLE)
+              .fileInfo(uploadedFileInfo)
+              .build());
+      return;
+    }
+
     yearlyResultGenerationService.saveGenerationRequest(
         YearlyResultGenerationRequest.builder()
             .datetime(now())
             .fileName(fileName)
             .status(AVAILABLE)
-            .fileInfo(uploadedTranscriptFileInfo)
+            .fileInfo(availableFileInfo.get())
             .build());
   }
 }

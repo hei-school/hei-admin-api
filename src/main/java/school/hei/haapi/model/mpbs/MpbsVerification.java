@@ -1,4 +1,4 @@
-package school.hei.haapi.model.Mpbs;
+package school.hei.haapi.model.mpbs;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.JoinColumn;

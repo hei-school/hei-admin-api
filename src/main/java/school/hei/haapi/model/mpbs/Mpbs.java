@@ -1,4 +1,4 @@
-package school.hei.haapi.model.Mpbs;
+package school.hei.haapi.model.mpbs;
 
 import static jakarta.persistence.CascadeType.ALL;
 import static jakarta.persistence.EnumType.STRING;
@@ -73,7 +73,7 @@ public class Mpbs extends TypedMobileMoneyTransaction implements Serializable {
   @ToString.Exclude
   private List<MpbsStatusHistory> statusHistory;
 
-  private static final int EXPIRATION_DURATION_IN_DAYS = 2;
+  private static final int EXPIRATION_DURATION_IN_DAYS = 5;
 
   private Optional<MpbsStatusHistory> getLastStatusHistory() {
     return statusHistory.stream()

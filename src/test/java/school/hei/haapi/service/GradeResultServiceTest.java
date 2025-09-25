@@ -32,7 +32,6 @@ import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.stubbing.Answer;
 import school.hei.haapi.endpoint.event.EventProducer;
 import school.hei.haapi.endpoint.event.model.YearlyResultTranscriptGeneration;
 import school.hei.haapi.endpoint.rest.mapper.CourseMapper;
@@ -50,17 +49,16 @@ import school.hei.haapi.model.User;
 import school.hei.haapi.model.YearlyResultGenerationRequest;
 import school.hei.haapi.model.exception.CoursesCreditSumZero;
 import school.hei.haapi.repository.YearlyResultGenerationRequestRepository;
-import school.hei.haapi.repository.dao.CourseAssignmentDao;
 import school.hei.haapi.repository.dao.GradeDao;
 import school.hei.haapi.service.event.YearlyResultTranscriptGenerationService;
 import school.hei.haapi.service.utils.Base64Converter;
 import school.hei.haapi.service.utils.ClassPathResourceResolver;
+import school.hei.haapi.service.utils.CollectionUtils;
 import school.hei.haapi.service.utils.HtmlParser;
 import school.hei.haapi.service.utils.PdfRenderer;
 
 class GradeResultServiceTest {
   private final GradeDao gradeDao = mock();
-  private final CourseAssignmentDao courseAssignmentDao = mock();
   private final CourseService courseService = mock();
   private final ExamService examService = mock();
   private final UserService userService = mock();
@@ -79,7 +77,12 @@ class GradeResultServiceTest {
   private final GradeResultService subject =
       new GradeResultService(
           new CourseResultService(
-              courseService, gradeDao, new CourseMapper(), examService, userService),
+              courseService,
+              gradeDao,
+              new CourseMapper(),
+              examService,
+              userService,
+              new CollectionUtils()),
           yearlyResultGenerationService,
           bucketComponent,
           userService,
@@ -96,6 +99,8 @@ class GradeResultServiceTest {
   private static final String STUDENT1_REF = "STD1";
   private static final String STUDENT1_SPECIALIZATION_FIELD_STRING = "Transformation Numérique";
   private static final User student1 = mock();
+  private static final User student2 = mock();
+  private static final User student3 = mock();
 
   private static Promotion promotion() {
     return mockPromotion();
@@ -213,6 +218,53 @@ class GradeResultServiceTest {
     return mockGrade(badExam(), 13.59);
   }
 
+  private static final String TEACHER_ID = "teacher";
+
+  private static final String MGT1_COURSE_ASSIGNMENT_ID = "mgt1-ca";
+  private static final String PROG1_COURSE_ASSIGNMENT_ID = "prog1-ca";
+  private static final String DONNE1_COURSE_ASSIGNMENT_ID = "donne1-ca";
+  private static final String WEB1_COURSE_ASSIGNMENT_ID = "web1-ca";
+  private static final String SYS1_COURSE_ASSIGNMENT_ID = "sys1-ca";
+  private static final String LV1_COURSE_ASSIGNMENT_ID = "lv1-ca";
+  private static final String SECU3_COURSE_ASSIGNMENT_ID = "secu3-ca";
+  private static final String BAD_COURSE_ASSIGNMENT_ID = "bad-ca";
+
+  private static User teacher() {
+    return mockUser(TEACHER_ID);
+  }
+
+  private static CourseAssignment mgt1CourseAssignment() {
+    return mockCourseAssignment(MGT1_COURSE_ASSIGNMENT_ID, teacher());
+  }
+
+  private static CourseAssignment prog1CourseAssignment() {
+    return mockCourseAssignment(PROG1_COURSE_ASSIGNMENT_ID, teacher());
+  }
+
+  private static CourseAssignment donne1CourseAssignment() {
+    return mockCourseAssignment(DONNE1_COURSE_ASSIGNMENT_ID, teacher());
+  }
+
+  private static CourseAssignment web1CourseAssignment() {
+    return mockCourseAssignment(WEB1_COURSE_ASSIGNMENT_ID, teacher());
+  }
+
+  private static CourseAssignment sys1CourseAssignment() {
+    return mockCourseAssignment(SYS1_COURSE_ASSIGNMENT_ID, teacher());
+  }
+
+  private static CourseAssignment lv1CourseAssignment() {
+    return mockCourseAssignment(LV1_COURSE_ASSIGNMENT_ID, teacher());
+  }
+
+  private static CourseAssignment secu3CourseAssignment() {
+    return mockCourseAssignment(SECU3_COURSE_ASSIGNMENT_ID, teacher());
+  }
+
+  private static CourseAssignment badCourseAssignment() {
+    return mockCourseAssignment(BAD_COURSE_ASSIGNMENT_ID, teacher());
+  }
+
   private static final String MGT1_COURSE_ID = "mgt1";
   private static final String MGT1_COURSE_CODE = "MGT1";
   private static final String MGT1_COURSE_NAME = "Mgt 1";
@@ -239,35 +291,41 @@ class GradeResultServiceTest {
   private static final String BAD1_COURSE_NAME = "Bad course";
 
   private static Course mgt1Course() {
-    return mockCourse(MGT1_COURSE_ID, MGT1_COURSE_CODE, MGT1_COURSE_NAME, 4);
+    return mockCourse(
+        MGT1_COURSE_ID, MGT1_COURSE_CODE, MGT1_COURSE_NAME, 4, mgt1CourseAssignment());
   }
 
   private static Course prog1Course() {
-    return mockCourse(PROG1_COURSE_ID, PROG1_COURSE_CODE, PROG1_COURSE_NAME, 6);
+    return mockCourse(
+        PROG1_COURSE_ID, PROG1_COURSE_CODE, PROG1_COURSE_NAME, 6, prog1CourseAssignment());
   }
 
   private static Course donne1Course() {
-    return mockCourse(DONNE1_COURSE_ID, DONNE1_COURSE_CODE, DONNE1_COURSE_NAME, 4);
+    return mockCourse(
+        DONNE1_COURSE_ID, DONNE1_COURSE_CODE, DONNE1_COURSE_NAME, 4, donne1CourseAssignment());
   }
 
   private static Course web1Course() {
-    return mockCourse(WEB1_COURSE_ID, WEB1_COURSE_CODE, WEB1_COURSE_NAME, 6);
+    return mockCourse(
+        WEB1_COURSE_ID, WEB1_COURSE_CODE, WEB1_COURSE_NAME, 6, web1CourseAssignment());
   }
 
   private static Course sys1Course() {
-    return mockCourse(SYS1_COURSE_ID, SYS1_COURSE_CODE, SYS1_COURSE_NAME, 6);
+    return mockCourse(
+        SYS1_COURSE_ID, SYS1_COURSE_CODE, SYS1_COURSE_NAME, 6, sys1CourseAssignment());
   }
 
   private static Course lv1Course() {
-    return mockCourse(LV1_COURSE_ID, LV1_COURSE_CODE, LV1_COURSE_NAME, 4);
+    return mockCourse(LV1_COURSE_ID, LV1_COURSE_CODE, LV1_COURSE_NAME, 4, lv1CourseAssignment());
   }
 
   private static Course secu3Course() {
-    return mockCourse(SECU3_COURSE_ID, SECU3_COURSE_CODE, SECU3_COURSE_NAME, 4);
+    return mockCourse(
+        SECU3_COURSE_ID, SECU3_COURSE_CODE, SECU3_COURSE_NAME, 4, secu3CourseAssignment());
   }
 
   private static Course badCourse() {
-    return mockCourse(BAD1_COURSE_ID, BAD1_COURSE_CODE, BAD1_COURSE_NAME, 0);
+    return mockCourse(BAD1_COURSE_ID, BAD1_COURSE_CODE, BAD1_COURSE_NAME, 0, badCourseAssignment());
   }
 
   @BeforeEach
@@ -279,6 +337,10 @@ class GradeResultServiceTest {
     when(student1.getRef()).thenReturn(STUDENT1_REF);
     when(student1.getSpecializationFieldString()).thenReturn(STUDENT1_SPECIALIZATION_FIELD_STRING);
     when(student1.findCurrentGroup()).thenReturn(Optional.of(group()));
+
+    // Mock student Ids
+    when(student2.getId()).thenReturn(STUDENT2_ID);
+    when(student3.getId()).thenReturn(STUDENT3_ID);
 
     when(gradeDao.getStudentGradesByCourseId(MGT1_COURSE_ID, STUDENT1_ID))
         .thenReturn(List.of(student1Mgt1Grade()));
@@ -338,9 +400,34 @@ class GradeResultServiceTest {
                 lv1Course()));
     when(courseService.getByStudentLevel(M1)).thenReturn(List.of(secu3Course()));
 
-    when(userService.findById(anyString()))
-        .thenAnswer(
-            (Answer<User>) invocation -> User.builder().id(invocation.getArgument(0)).build());
+    when(userService.findById(STUDENT1_ID)).thenReturn(student1);
+    when(userService.findById(STUDENT2_ID)).thenReturn(student2);
+    when(userService.findById(STUDENT3_ID)).thenReturn(student3);
+    when(student1.findGroupAt(any())).thenReturn(Optional.of(group()));
+    when(student2.findGroupAt(any())).thenReturn(Optional.of(group()));
+    when(student3.findGroupAt(any())).thenReturn(Optional.of(group()));
+
+    when(examService.getExamsByCourseAssignmentIds(eq(List.of(MGT1_COURSE_ASSIGNMENT_ID))))
+        .thenReturn(List.of(mgt1Exam()));
+    when(examService.getExamsByCourseAssignmentIds(eq(List.of(PROG1_COURSE_ASSIGNMENT_ID))))
+        .thenReturn(List.of(prog1Exam()));
+    when(examService.getExamsByCourseAssignmentIds(eq(List.of(DONNE1_COURSE_ASSIGNMENT_ID))))
+        .thenReturn(List.of(donnees1Exam()));
+    when(examService.getExamsByCourseAssignmentIds(eq(List.of(WEB1_COURSE_ASSIGNMENT_ID))))
+        .thenReturn(List.of(web1Exam()));
+    when(examService.getExamsByCourseAssignmentIds(eq(List.of(SYS1_COURSE_ASSIGNMENT_ID))))
+        .thenReturn(List.of(sys1Exam()));
+    when(examService.getExamsByCourseAssignmentIds(eq(List.of(LV1_COURSE_ASSIGNMENT_ID))))
+        .thenReturn(List.of(lv1Exam()));
+    when(examService.getExamsByCourseAssignmentIds(eq(List.of(SECU3_COURSE_ASSIGNMENT_ID))))
+        .thenReturn(List.of());
+    when(examService.getExamsByCourseId(eq(MGT1_COURSE_ID))).thenReturn(List.of(mgt1Exam()));
+    when(examService.getExamsByCourseId(eq(PROG1_COURSE_ID))).thenReturn(List.of(prog1Exam()));
+    when(examService.getExamsByCourseId(eq(DONNE1_COURSE_ID))).thenReturn(List.of(donnees1Exam()));
+    when(examService.getExamsByCourseId(eq(WEB1_COURSE_ID))).thenReturn(List.of(web1Exam()));
+    when(examService.getExamsByCourseId(eq(SYS1_COURSE_ID))).thenReturn(List.of(sys1Exam()));
+    when(examService.getExamsByCourseId(eq(LV1_COURSE_ID))).thenReturn(List.of(lv1Exam()));
+    when(examService.getExamsByCourseId(eq(SECU3_COURSE_ID))).thenReturn(List.of());
   }
 
   @Test
@@ -581,19 +668,38 @@ class GradeResultServiceTest {
     return Promotion.builder().ref("prom1").name("Promotion de test").startDatetime(now()).build();
   }
 
+  private static final String GROUP_ID = "test-grp";
+  private static final String GROUP_NAME = "Groupe test";
+  private static final String GROUP_REF = "GRP_TST";
+
   private static Group mockGroup(Promotion promotion) {
-    return Group.builder().name("Groupe test").ref("GRP_TST").promotion(promotion).build();
+    return Group.builder()
+        .id(GROUP_ID)
+        .name(GROUP_NAME)
+        .ref(GROUP_REF)
+        .promotion(promotion)
+        .build();
   }
 
   private static Grade mockGrade(Exam exam, double score) {
     return Grade.builder().score(score).exam(exam).build();
   }
 
-  private static Course mockCourse(String id, String code, String name, int credits) {
-    return Course.builder().id(id).code(code).name(name).credits(credits).build();
+  private static Course mockCourse(
+      String id, String code, String name, int credits, CourseAssignment ca) {
+    var course =
+        Course.builder()
+            .id(id)
+            .courseAssignments(List.of(ca))
+            .code(code)
+            .name(name)
+            .credits(credits)
+            .build();
+    ca.setCourse(course);
+    return course;
   }
 
-  private static CourseAssignment mockCourseAssignment(String id, Course course) {
-    return CourseAssignment.builder().id(id).course(course).build();
+  private static CourseAssignment mockCourseAssignment(String id, User teacher) {
+    return CourseAssignment.builder().id(id).mainTeacher(teacher).groups(List.of(group())).build();
   }
 }

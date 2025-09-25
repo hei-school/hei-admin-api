@@ -23,9 +23,11 @@ public class AttendanceController {
       @PathVariable("id") String studentId,
       @RequestParam Instant from,
       @RequestParam Instant to,
-      @RequestParam AttendanceStatus attendanceStatus) {
+      @RequestParam AttendanceStatus attendanceStatus,
+      @RequestParam("title") List<String> titles) {
     var studentAttendances =
-        attendanceService.getStudentAttendanceByStudentId(studentId, attendanceStatus, from, to);
+        attendanceService.getStudentAttendanceByStudentId(
+            studentId, attendanceStatus, from, to, titles);
     return studentAttendances.stream().map(attendanceRestMapper::toRest).toList();
   }
 }

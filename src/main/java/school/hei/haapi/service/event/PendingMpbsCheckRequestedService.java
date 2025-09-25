@@ -19,13 +19,12 @@ import school.hei.haapi.endpoint.event.model.PaidFeeByMpbsFailedNotificationBody
 import school.hei.haapi.endpoint.event.model.PendingMpbsCheckRequested;
 import school.hei.haapi.endpoint.event.model.PojaEvent;
 import school.hei.haapi.endpoint.rest.model.MpbsStatus;
-import school.hei.haapi.http.mapper.ExternalResponseMapper;
+import school.hei.haapi.http.mapper.TransactionDetailsMapper;
 import school.hei.haapi.http.model.TransactionDetails;
 import school.hei.haapi.model.Fee;
-import school.hei.haapi.model.MobileTransactionDetails;
-import school.hei.haapi.model.Mpbs.Mpbs;
-import school.hei.haapi.model.Mpbs.MpbsVerification;
 import school.hei.haapi.model.Payment;
+import school.hei.haapi.model.mpbs.Mpbs;
+import school.hei.haapi.model.mpbs.MpbsVerification;
 import school.hei.haapi.repository.MpbsVerificationRepository;
 import school.hei.haapi.service.FeeService;
 import school.hei.haapi.service.MobilePaymentService;
@@ -36,7 +35,7 @@ import school.hei.haapi.service.PaymentService;
 @AllArgsConstructor
 @Slf4j
 public class PendingMpbsCheckRequestedService implements Consumer<PendingMpbsCheckRequested> {
-  private final ExternalResponseMapper externalResponseMapper;
+  private final TransactionDetailsMapper transactionDetailsMapper;
   private final MpbsVerificationRepository repository;
   private final MpbsService mpbsService;
   private final FeeService feeService;
@@ -140,16 +139,12 @@ public class PendingMpbsCheckRequestedService implements Consumer<PendingMpbsChe
     Mpbs mpbs = pendingMpbsCheckRequested.getToVerify();
     var verifyAt = pendingMpbsCheckRequested.getVerifyAt();
     log.info("Verifying {}", mpbs.getId());
-    // Find transaction in database
-    Optional<MobileTransactionDetails> mobileTransactionResponseDetails =
-        mobilePaymentService.findTransactionByMpbsWithoutException(mpbs);
+    Optional<TransactionDetails> mobileTransactionResponseDetails =
+        mobilePaymentService.findTransactionByMpbs(mpbs);
 
     // TIPS: do not use exception to continue script
     if (mobileTransactionResponseDetails.isPresent()) {
-      TransactionDetails transactionDetails =
-          externalResponseMapper.toExternalTransactionDetails(
-              mobileTransactionResponseDetails.get());
-      saveTheVerifiedMpbs(mpbs, transactionDetails, verifyAt);
+      saveTheVerifiedMpbs(mpbs, mobileTransactionResponseDetails.get(), verifyAt);
       return;
     }
     saveTheUnverifiedMpbs(mpbs, verifyAt);

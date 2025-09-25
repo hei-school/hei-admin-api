@@ -14,9 +14,9 @@ import org.mockito.ArgumentCaptor;
 import school.hei.haapi.endpoint.event.EventProducer;
 import school.hei.haapi.endpoint.event.model.PaidFeeByMpbsFailedNotificationBody;
 import school.hei.haapi.model.Fee;
-import school.hei.haapi.model.Mpbs.Mpbs;
 import school.hei.haapi.model.Payment;
 import school.hei.haapi.model.User;
+import school.hei.haapi.model.mpbs.Mpbs;
 import school.hei.haapi.service.FailedMobilePaymentNotification;
 
 class FailedMobilePaymentNotificationTest {

@@ -40,7 +40,7 @@ public class MpbsController {
       @PathVariable(name = "fee_id") String feeId,
       @RequestBody CrupdateMpbs mpbsToSave) {
     validator.accept(studentId, feeId, mpbsToSave);
-    school.hei.haapi.model.Mpbs.Mpbs mappedMpbsToSave = mapper.toDomain(mpbsToSave);
+    school.hei.haapi.model.mpbs.Mpbs mappedMpbsToSave = mapper.toDomain(mpbsToSave);
     return mapper.toRest(mpbsService.saveMpbs(mappedMpbsToSave));
   }
 

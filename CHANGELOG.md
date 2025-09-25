@@ -1,3 +1,82 @@
+# [1.120.0](https://github.com/hei-school/hei-admin-api/compare/v1.119.0...v1.120.0) (2025-09-24)
+
+
+### Bug Fixes
+
+* wrong result overview status computation ([e5e2db1](https://github.com/hei-school/hei-admin-api/commit/e5e2db1c70ff2745a0c25716b9d7ffe639b46131))
+
+
+### Features
+
+* **doc:** add retake exam registration date ([8c6c3b5](https://github.com/hei-school/hei-admin-api/commit/8c6c3b5b5fec723423dfbcd4d75760728ba91e84))
+
+
+
+# [1.119.0](https://github.com/hei-school/hei-admin-api/compare/v1.118.1...v1.119.0) (2025-09-23)
+
+
+### Bug Fixes
+
+* find user group at instant ([518500f](https://github.com/hei-school/hei-admin-api/commit/518500f5cdec09b17ad652792a25ffba5248b38a))
+* in progress course status ([7aefae4](https://github.com/hei-school/hei-admin-api/commit/7aefae4edcc80d54de6b5dbaf41c3c8e66e51c8e))
+* mask retake exams for existing ones ([61f8a40](https://github.com/hei-school/hei-admin-api/commit/61f8a403c6dcacc9af619a86842d0bd082bee367))
+* mpbs xlsx verification fail on duplicate reference ([c5f2cf3](https://github.com/hei-school/hei-admin-api/commit/c5f2cf346053d19d6090ca9af431de7c443943c7))
+* yearly result transcript generation ([4247e1f](https://github.com/hei-school/hei-admin-api/commit/4247e1ff351e7080dea201e5d77552c52ead613d))
+* yearly result transcript unavailable average on incomplete course result ([0dcfc7f](https://github.com/hei-school/hei-admin-api/commit/0dcfc7fbca5d5714b7f1e4ee2207a2bcc4e241d3))
+
+
+### Features
+
+* **not-implemented:** COR ([e33e6b3](https://github.com/hei-school/hei-admin-api/commit/e33e6b3890d936b8a1dd63f92a457c1de801411c))
+
+
+
+## [1.118.1](https://github.com/hei-school/hei-admin-api/compare/v1.118.0...v1.118.1) (2025-09-18)
+
+
+### Bug Fixes
+
+* **doc:** rename Remedials to RetakeExam and refactor components ([0356a58](https://github.com/hei-school/hei-admin-api/commit/0356a58e8643194e96d7367aab00c189b5fa54ee))
+
+
+
+# [1.118.0](https://github.com/hei-school/hei-admin-api/compare/v1.117.0...v1.118.0) (2025-09-18)
+
+
+### Features
+
+* **not-implemented:** event filter by teacher ([a80fb25](https://github.com/hei-school/hei-admin-api/commit/a80fb25f974de9452191a0e1cb2b44a26cc9a142))
+
+
+
+# [1.117.0](https://github.com/hei-school/hei-admin-api/compare/v1.116.2...v1.117.0) (2025-09-18)
+
+
+### Features
+
+* event place/room and student attendance filter ([f737ca4](https://github.com/hei-school/hei-admin-api/commit/f737ca41732ebc9309675c1eb3a1550932f576b8))
+
+
+
+## [1.116.2](https://github.com/hei-school/hei-admin-api/compare/v1.116.1...v1.116.2) (2025-09-18)
+
+
+### Bug Fixes
+
+* course-result fetch course by student exam participation ([c66dc95](https://github.com/hei-school/hei-admin-api/commit/c66dc95450e5158068ca99fd042d2d79c7a495b2))
+* **remedial:** restructure remedial component ([b15c9bf](https://github.com/hei-school/hei-admin-api/commit/b15c9bfdc19257c4c4c58447b12c60e17f7499f2))
+
+
+
+## [1.116.1](https://github.com/hei-school/hei-admin-api/compare/v1.116.0...v1.116.1) (2025-09-17)
+
+
+### Bug Fixes
+
+* **remedial:** restructure remedial component ([e43b116](https://github.com/hei-school/hei-admin-api/commit/e43b116776ddb8e91f19c4202f93c721cfac1be2))
+
+
+
 # [1.116.0](https://github.com/hei-school/hei-admin-api/compare/v1.115.0...v1.116.0) (2025-09-10)
 
 
@@ -37,97 +116,6 @@
 ### Features
 
 * filter exam by teacher id ([44e68de](https://github.com/hei-school/hei-admin-api/commit/44e68def3e5be2214d49ed682fc3fb55ac512314))
-
-
-
-## [1.113.1](https://github.com/hei-school/hei-admin-api/compare/v1.113.0...v1.113.1) (2025-08-29)
-
-
-### Bug Fixes
-
-* add missing type query parameter to getAdvancedFeeStats ([6f13992](https://github.com/hei-school/hei-admin-api/commit/6f139924eb119a32659058f786898977a6ce6093))
-* handle runtime exceptions in mpbs verifications ([6e94e2b](https://github.com/hei-school/hei-admin-api/commit/6e94e2bb9df7c4530c2b92354ac3d597e866e014))
-
-
-
-# [1.113.0](https://github.com/hei-school/hei-admin-api/compare/v1.111.0...v1.113.0) (2025-08-29)
-
-
-### Bug Fixes
-
-* exam participants pagination ([96cea02](https://github.com/hei-school/hei-admin-api/commit/96cea0211225fab2326f210c09ea9c09bf3027bc))
-* **SecurityConf:** antMacher(GET, "/students/*/attendance") ([16664ef](https://github.com/hei-school/hei-admin-api/commit/16664ef63663b3d4a3afc58c4840e4eb2e2cfcb4))
-
-
-### Features
-
-* add receipt advanced fee stats ([cf9d4a8](https://github.com/hei-school/hei-admin-api/commit/cf9d4a81d01948fef8708d4ebbd89cb09e9464d0))
-* GET /students/{id}/attendance ([445aed9](https://github.com/hei-school/hei-admin-api/commit/445aed91fb2dff43e3a8ff5ac3980d68c90221da))
-* **not-implemented:** pend failed mpbs ([e5db94d](https://github.com/hei-school/hei-admin-api/commit/e5db94dd834f59f4d770a2d764edf2b786effbdb))
-
-
-
-# [1.111.0](https://github.com/hei-school/hei-admin-api/compare/v1.110.2...v1.111.0) (2025-08-26)
-
-
-### Bug Fixes
-
-* mpbs xlsx verification failing on new excel format ([1c4916d](https://github.com/hei-school/hei-admin-api/commit/1c4916dbb719e388f9f6831f8b355fe03abe21e3))
-
-
-### Features
-
-* **not-implemented:** get grade change history and additional filter ([b626c9b](https://github.com/hei-school/hei-admin-api/commit/b626c9ba939a4c7d3b7dc69628ff98d2914e00f1))
-
-
-
-## [1.110.2](https://github.com/hei-school/hei-admin-api/compare/v1.110.1...v1.110.2) (2025-08-22)
-
-
-### Bug Fixes
-
-* grade mapper ([7ae21f8](https://github.com/hei-school/hei-admin-api/commit/7ae21f8aac9585bc28f3260d7086f8c0834c57de))
-
-
-
-## [1.110.1](https://github.com/hei-school/hei-admin-api/compare/v1.110.0...v1.110.1) (2025-08-20)
-
-
-### Bug Fixes
-
-* create and update grades ([00d4bb3](https://github.com/hei-school/hei-admin-api/commit/00d4bb3431cfcbe1388e7b370a27dd6dc5b574d2))
-* handle student without course results ([bc37732](https://github.com/hei-school/hei-admin-api/commit/bc3773287515b3e6abe06f1161061e57da9cf33c))
-* increase stack size for build ([2efe473](https://github.com/hei-school/hei-admin-api/commit/2efe473db3f99b9ae62c41958f5e798cb2bdeb17))
-* multiple course results on multiple awarded course ([e4ddede](https://github.com/hei-school/hei-admin-api/commit/e4ddede537728830791d4fd25d08f45a29087316))
-
-
-
-# [1.110.0](https://github.com/hei-school/hei-admin-api/compare/v1.109.0...v1.110.0) (2025-08-14)
-
-
-### Bug Fixes
-
-* getResultsSummary error on irrational numbers ([a10ecdd](https://github.com/hei-school/hei-admin-api/commit/a10ecdd6d15231d6029a699b88b6c1fc4c899b84))
-
-
-### Features
-
-* generate yearly result pdf ([0155b1d](https://github.com/hei-school/hei-admin-api/commit/0155b1d28cd90baa5605fb4891d3c32e34083e1a))
-* grade change history ([35c6221](https://github.com/hei-school/hei-admin-api/commit/35c62218f71e55b8495d125a854bb3bd791dc147))
-
-
-
-# [1.109.0](https://github.com/hei-school/hei-admin-api/compare/v1.108.0...v1.109.0) (2025-08-12)
-
-
-### Bug Fixes
-
-* getStudentById Monitor ([d5be86f](https://github.com/hei-school/hei-admin-api/commit/d5be86f554fc2274239fde5eda37ac25aa02b302))
-
-
-### Features
-
-* YearlyResult transcript ([25f4552](https://github.com/hei-school/hei-admin-api/commit/25f4552735972ba0cc4314490b7d3cb4836ed18e))
 
 
 

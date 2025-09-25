@@ -6,6 +6,7 @@ import java.util.Optional;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 import school.hei.haapi.endpoint.rest.model.CreateEvent;
+import school.hei.haapi.endpoint.rest.model.EventLocation;
 import school.hei.haapi.endpoint.rest.model.GroupIdentifier;
 import school.hei.haapi.model.Event;
 import school.hei.haapi.model.Group;
@@ -25,6 +26,8 @@ public class EventMapper {
   private final UserMapper userMapper;
   private final GroupMapper groupMapper;
   private final EventParticipantService eventParticipantService;
+  private final PlaceMapper placeMapper;
+  private final RoomMapper roomMapper;
 
   public school.hei.haapi.model.Event toDomain(CreateEvent createEvent) {
     List<GroupIdentifier> groupIdentifiers = Objects.requireNonNull(createEvent.getGroups());
@@ -35,21 +38,30 @@ public class EventMapper {
         .toList();
     List<Group> mappedGroup = groupService.saveDomainGroup(groups);
 
-    return Event.builder()
-        .id(createEvent.getId())
-        .beginDatetime(createEvent.getBeginDatetime())
-        .endDatetime(createEvent.getEndDatetime())
-        .description(createEvent.getDescription())
-        .colorCode(createEvent.getColor())
-        .course(
-            Objects.isNull(createEvent.getCourseId())
-                ? null
-                : courseService.getById(createEvent.getCourseId()))
-        .groups(mappedGroup)
-        .planner(userService.findById(createEvent.getPlannerId()))
-        .type(createEvent.getEventType())
-        .title(createEvent.getTitle())
-        .build();
+    var eventBuilder =
+        Event.builder()
+            .id(createEvent.getId())
+            .beginDatetime(createEvent.getBeginDatetime())
+            .endDatetime(createEvent.getEndDatetime())
+            .description(createEvent.getDescription())
+            .colorCode(createEvent.getColor())
+            .course(
+                Objects.isNull(createEvent.getCourseId())
+                    ? null
+                    : courseService.getById(createEvent.getCourseId()))
+            .groups(mappedGroup)
+            .planner(userService.findById(createEvent.getPlannerId()))
+            .type(createEvent.getEventType())
+            .title(createEvent.getTitle());
+
+    var location = createEvent.getLocation();
+    if (location != null) {
+      eventBuilder
+          .place(placeMapper.toDomain(location.getPlace()))
+          .room(roomMapper.toDomain(location.getRoom()));
+    }
+
+    return eventBuilder.build();
   }
 
   public school.hei.haapi.endpoint.rest.model.Event toRest(Event domain) {
@@ -65,10 +77,17 @@ public class EventMapper {
         .title(domain.getTitle())
         .planner(userMapper.toIdentifier(domain.getPlanner()))
         .count(eventParticipantService.getEventParticipantsStats(domain.getId()))
+        .location(toEventLocation(domain))
         .groups(
             Objects.isNull(groups)
                 ? List.of()
                 : groups.stream().map(groupMapper::toRestGroupIdentifier).toList());
+  }
+
+  private EventLocation toEventLocation(Event domain) {
+    return new EventLocation()
+        .place(placeMapper.toRest(domain.getPlace()))
+        .room(roomMapper.toRest(domain.getRoom()));
   }
 
   public Group mapGroupColorFromGroupIdentifiers(

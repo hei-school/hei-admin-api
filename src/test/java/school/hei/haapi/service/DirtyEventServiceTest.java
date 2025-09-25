@@ -7,10 +7,10 @@ import static school.hei.haapi.endpoint.rest.model.AttendanceStatus.PRESENT;
 import static school.hei.haapi.endpoint.rest.model.EventType.COURSE;
 import static school.hei.haapi.endpoint.rest.model.FrequencyScopeDay.MONDAY;
 import static school.hei.haapi.integration.StudentIT.someCreatableStudentList;
+import static school.hei.haapi.integration.conf.FakeDataProvider.someCreatableEvent;
 import static school.hei.haapi.integration.conf.TestUtils.MANAGER_ID;
 import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
 import static school.hei.haapi.integration.conf.TestUtils.setUpEventBridge;
-import static school.hei.haapi.integration.conf.TestUtils.someCreatableEvent;
 
 import java.time.Instant;
 import java.time.LocalDate;

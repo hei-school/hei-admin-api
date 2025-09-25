@@ -182,8 +182,8 @@
                     <td th:text="${course_result.course.name}"></td>
                     <td class="center" th:text="${course_result.course.credits}"></td>
                     <td class="center" >
-                        <span th:if="${course_result.status.toString() == 'VALIDATED'}" th:text="${course_result.weightedAverage}"></span>
-                        <span th:unless="${course_result.status.toString() == 'VALIDATED'}">Non disponible</span>
+                        <span th:if="${course_result.status.toString() == 'VALIDATED' or course_result.status.toString() == 'INCOMPLETE'}" th:text="${course_result.weightedAverage}"></span>
+                        <span th:unless="${course_result.status.toString() == 'VALIDATED' or course_result.status.toString() == 'INCOMPLETE'}">Non disponible</span>
                     </td>
                 </tr>
             </tbody>
