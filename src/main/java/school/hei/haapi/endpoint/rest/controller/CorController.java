@@ -64,6 +64,11 @@ public class CorController {
             paginationFromPageAndPageSize.apply(page, pageSize)));
   }
 
+  @GetMapping("/cors/{cor_id}")
+  public Cor getCorById(@PathVariable(name = "cor_id") String corId) {
+    return corMapper.toRest(corService.getById(corId));
+  }
+
   @PostMapping("/cors/{cor_id}/comment")
   public Cor commentCorById(
       @PathVariable("cor_id") String corId, @RequestBody CorCommentInfo corCommentInfo) {

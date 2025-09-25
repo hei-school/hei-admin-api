@@ -123,6 +123,7 @@ public class CorIT extends FacadeITMockedThirdParties {
   }
 
   @Test
+  // TODO: test student not allow to comment
   public void manager_comment_cor_ok() throws ApiException {
     var api = new CorApi(anApiClient(MANAGER1_TOKEN));
     var corId = corAxel.getId();
@@ -135,6 +136,15 @@ public class CorIT extends FacadeITMockedThirdParties {
     assertEquals(CorComment.CorStatus.LEAVE, cor.getStatus());
     assertEquals(1, cor.getComments().size());
     assertEquals("You must leave now", cor.getComments().getFirst().getComment());
+  }
+
+  @Test
+  public void manager_get_cor_by_id_ok() throws ApiException {
+    var api = new CorApi(anApiClient(MANAGER1_TOKEN));
+
+    var cor = api.getCorById(corAxel.getId());
+
+    assertEquals(corMapper.toRest(corAxel), cor);
   }
 
   private ApiClient anApiClient(String token) {
