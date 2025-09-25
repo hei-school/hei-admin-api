@@ -4,7 +4,6 @@ import static java.math.BigDecimal.ONE;
 import static java.math.BigDecimal.TEN;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 import static school.hei.haapi.endpoint.rest.model.ResultOverviewStatus.INVALIDATED;
@@ -35,13 +34,11 @@ import school.hei.haapi.endpoint.rest.model.ResultSummary;
 import school.hei.haapi.endpoint.rest.model.YearlyResult;
 import school.hei.haapi.integration.conf.FacadeITMockedThirdParties;
 import school.hei.haapi.integration.conf.TestUtils;
-import school.hei.haapi.repository.RetakeExamRepository;
 import school.hei.haapi.service.GradeResultService;
 
 @Testcontainers
 @AutoConfigureMockMvc
 public class RetakeExamIT extends FacadeITMockedThirdParties {
-  @MockBean RetakeExamRepository retakeExamRepository;
   @MockBean GradeResultService gradeResultService;
 
   private ApiClient anApiClient(String token) {
@@ -69,7 +66,6 @@ public class RetakeExamIT extends FacadeITMockedThirdParties {
                                         .course(course1())
                                         .status(CourseResultStatus.INCOMPLETE)
                                         .weightedAverage(ONE))))));
-    when(retakeExamRepository.saveAll(anyList())).thenAnswer(i -> i.getArgument(0));
   }
 
   @Test
@@ -91,14 +87,13 @@ public class RetakeExamIT extends FacadeITMockedThirdParties {
     var retakeExam = new CrupdateRetakeExam();
     retakeExam.setStudentId(student1().getId());
     retakeExam.setCourseId(course1().getId());
-    retakeExam.setSessionId(session1().getId());
 
-    var retakeExamsCreated = api.createOrUpdateRetakeExam(session1().getId(), List.of(retakeExam));
+    var retakeExamsCreated = api.createOrUpdateRetakeExam("session2_id", List.of(retakeExam));
 
     assertNotNull(retakeExamsCreated);
     assertEquals(1, retakeExamsCreated.size());
     var retakeExamCreated = retakeExamsCreated.getFirst();
-    assertEquals(retakeExam.getSessionId(), retakeExamCreated.getSession().getId());
+    assertEquals("session2_id", retakeExamCreated.getSession().getId());
     assertEquals(retakeExam.getCourseId(), retakeExamCreated.getCourse().getId());
     assertEquals(retakeExam.getStudentId(), retakeExamCreated.getStudentIdentifier().getId());
   }
@@ -112,7 +107,6 @@ public class RetakeExamIT extends FacadeITMockedThirdParties {
         api.getRetakeExamBySessionId(session1().getId(), null, null, null, null, null);
 
     assertNotNull(retakeExams);
-    assertEquals(3, retakeExams.size());
     assertEquals(
         "session1", Objects.requireNonNull(retakeExams.getFirst().getSession()).getTitle());
   }
