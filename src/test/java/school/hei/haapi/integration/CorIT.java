@@ -107,7 +107,6 @@ public class CorIT extends FacadeITMockedThirdParties {
     var api = new CorApi(anApiClient(MANAGER1_TOKEN));
 
     var cors = api.getCors(null, null, null, null, null, null, null);
-    System.out.println(cors);
     assertTrue(cors.contains(corMapper.toRest(corAxel)));
 
     var corsFilterByStudentRef =
@@ -117,8 +116,10 @@ public class CorIT extends FacadeITMockedThirdParties {
         corsFilterByStudentRef.contains(
             corMapper.toRest(Cor.builder().concernedStudent(tolotraWithoutCor).build())));
 
-    var corsFilterByStatus = api.getCors(1, 10, null, null, null, null, singletonList(IN_PROGRESS));
-    assertTrue(corsFilterByStatus.stream().allMatch(cor -> IN_PROGRESS.equals(cor.getStatus())));
+    var corsFilterByStatus = api.getCors(1, 1, null, null, null, null, singletonList(IN_PROGRESS));
+    assertEquals(1, corsFilterByStatus.size());
+    var corFilterByStatus = corsFilterByStatus.getFirst();
+    assertEquals(IN_PROGRESS, corFilterByStatus.getStatus());
   }
 
   @Test

@@ -38,13 +38,14 @@ public class CorDao {
 
     if (to != null) predicates.add(builder.lessThanOrEqualTo(root.get("creationDatetime"), to));
 
-    if (studentRef != null)
+    if (studentRef != null && !studentRef.isEmpty())
       predicates.add(
           builder.like(
               builder.lower(root.get("concernedStudent").get("ref")),
               "%" + studentRef.toLowerCase() + "%"));
 
-    if (groupRef != null) throw new NotImplementedException("Filter by status not implemented");
+    if (groupRef != null && !groupRef.isEmpty())
+      throw new NotImplementedException("Filter by status not implemented");
 
     if (status != null) predicates.add(builder.equal(root.get("status"), status));
 

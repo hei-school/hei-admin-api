@@ -22,24 +22,24 @@ public class CorMapper {
   private final UserService userService;
 
   private CorStatus toRest(CorComment.CorStatus domain) {
+    if (domain == null) return null;
     return switch (domain) {
       case IN_PROGRESS -> IN_PROGRESS;
       case STAY -> STAY;
       case CANCELED -> CANCELED;
       case LEAVE -> LEAVE;
       case NO_SHOW -> NO_SHOW;
-      case null -> IN_PROGRESS;
     };
   }
 
   public CorComment.CorStatus toDomain(CorStatus rest) {
+    if (rest == null) return null;
     return switch (rest) {
       case IN_PROGRESS -> CorComment.CorStatus.IN_PROGRESS;
       case STAY -> CorComment.CorStatus.STAY;
       case CANCELED -> CorComment.CorStatus.CANCELED;
       case LEAVE -> CorComment.CorStatus.LEAVE;
       case NO_SHOW -> CorComment.CorStatus.NO_SHOW;
-      case null -> CorComment.CorStatus.IN_PROGRESS;
     };
   }
 
