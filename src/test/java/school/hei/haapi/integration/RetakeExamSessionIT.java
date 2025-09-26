@@ -2,6 +2,8 @@ package school.hei.haapi.integration;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static school.hei.haapi.integration.StudentIT.student1;
@@ -11,6 +13,7 @@ import static school.hei.haapi.integration.conf.TestUtils.setUpCasdoor;
 import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
 import static school.hei.haapi.integration.conf.TestUtils.setUpS3Service;
 import static school.hei.haapi.integration.test_data.RetakeExamSessionTestData.session1;
+import static school.hei.haapi.integration.test_data.RetakeExamSessionTestData.sessionWithWrongDate;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -64,7 +67,7 @@ public class RetakeExamSessionIT extends FacadeITMockedThirdParties {
   }
 
   @Test
-  void save_retake_exam_session_by_admin() throws ApiException {
+  void save_retake_exam_session_by_admin_ok() throws ApiException {
     ApiClient apiClient = anApiClient(ADMIN1_TOKEN);
     RetakeExamApi api = new RetakeExamApi(apiClient);
 
@@ -74,5 +77,22 @@ public class RetakeExamSessionIT extends FacadeITMockedThirdParties {
     assertNotNull(retakeExamSessionCreated);
     assertEquals(session1().getId(), retakeExamSessionCreated.getId());
     assertEquals(session1().getTitle(), retakeExamSessionCreated.getTitle());
+  }
+
+  @Test
+  void save_retake_exam_session_with_wrong_date_ko() {
+    ApiClient apiClient = anApiClient(ADMIN1_TOKEN);
+    RetakeExamApi api = new RetakeExamApi(apiClient);
+    var sessionWithWrongDate = sessionWithWrongDate();
+
+    ApiException exception =
+        assertThrows(
+            ApiException.class,
+            () ->
+                api.createOrUpdateRetakeExamSessions(
+                    retakeExamSessionMapper.toRest(sessionWithWrongDate)));
+
+    assertEquals(500, exception.getCode());
+    assertTrue(exception.getMessage().contains("Session start date must be before end date"));
   }
 }
