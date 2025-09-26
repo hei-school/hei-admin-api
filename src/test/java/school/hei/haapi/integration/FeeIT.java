@@ -148,6 +148,9 @@ class FeeIT extends FacadeITMockedThirdParties {
     Fee actualFee = api.getStudentFeeById(STUDENT1_ID, FEE1_ID);
     List<Fee> actual = api.getStudentFees(STUDENT1_ID, 1, 10, null);
 
+    log.info("Fee monitor test => ");
+    log.info(fee1().toString());
+    log.info(actualFee.toString());
     assertEquals(fee1(), actualFee);
     assertTrue(actual.contains(fee1()));
     assertTrue(actual.contains(fee2()));
