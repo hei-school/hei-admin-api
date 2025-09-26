@@ -35,7 +35,7 @@ public class CorController {
       @RequestParam(required = false) Instant to,
       @RequestParam(name = "student_ref", required = false) String studentRef,
       @RequestParam(name = "group_ref", required = false) String groupRef,
-      @RequestParam(required = false) CorStatus status,
+      @RequestParam(name = "cor_status", required = false) List<CorStatus> statuses,
       @RequestParam(name = "page", required = false) PageFromOne page,
       @RequestParam(name = "page_size", required = false) BoundedPageSize pageSize) {
     return corMapper.toRest(
@@ -44,7 +44,7 @@ public class CorController {
             to,
             studentRef,
             groupRef,
-            corMapper.toDomain(status),
+            corMapper.toDomain(statuses),
             paginationFromPageAndPageSize.apply(page, pageSize)));
   }
 

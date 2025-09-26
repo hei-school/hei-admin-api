@@ -43,6 +43,10 @@ public class CorMapper {
     };
   }
 
+  public List<CorComment.CorStatus> toDomain(List<CorStatus> rest) {
+    return rest != null ? rest.stream().map(this::toDomain).toList() : List.of();
+  }
+
   public CorComment toDomain(school.hei.haapi.endpoint.rest.model.CorCommentInfo rest) {
     return CorComment.builder()
         .comment(rest.getComment())

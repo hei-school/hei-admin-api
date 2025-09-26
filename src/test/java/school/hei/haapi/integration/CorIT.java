@@ -30,6 +30,7 @@ import school.hei.haapi.endpoint.rest.model.CrupdateCor;
 import school.hei.haapi.integration.conf.FacadeITMockedThirdParties;
 import school.hei.haapi.integration.conf.TestUtils;
 import school.hei.haapi.model.Cor;
+import school.hei.haapi.model.CorComment;
 import school.hei.haapi.model.User;
 import school.hei.haapi.repository.CorRepository;
 import school.hei.haapi.repository.UserRepository;
@@ -115,7 +116,9 @@ public class CorIT extends FacadeITMockedThirdParties {
     assertFalse(
         corsFilterByStudentRef.contains(
             corMapper.toRest(Cor.builder().concernedStudent(tolotraWithoutCor).build())));
-
+    var cor = corRepository.findById(corAxel.getId()).get();
+    cor.setStatus(CorComment.CorStatus.IN_PROGRESS);
+    corAxel = corRepository.save(cor);
     var corsFilterByStatus = api.getCors(1, 1, null, null, null, null, singletonList(IN_PROGRESS));
     assertEquals(1, corsFilterByStatus.size());
     var corFilterByStatus = corsFilterByStatus.getFirst();

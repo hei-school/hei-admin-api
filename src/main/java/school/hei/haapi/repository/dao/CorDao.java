@@ -25,7 +25,7 @@ public class CorDao {
       Instant to,
       String studentRef,
       String groupRef,
-      CorStatus status,
+      List<CorStatus> statuses,
       Pageable pageable) {
     CriteriaBuilder builder = entityManager.getCriteriaBuilder();
     CriteriaQuery<Cor> query = builder.createQuery(Cor.class);
@@ -45,9 +45,13 @@ public class CorDao {
               "%" + studentRef.toLowerCase() + "%"));
 
     if (groupRef != null && !groupRef.isEmpty())
-      throw new NotImplementedException("Filter by status not implemented");
+      throw new NotImplementedException("Filter by group ref not implemented");
 
-    if (status != null) predicates.add(builder.equal(root.get("status"), status));
+    if (statuses != null && !statuses.isEmpty()) {
+      if (statuses.size() > 1)
+        throw new NotImplementedException("Filter by statuses not implemented");
+      predicates.add(builder.equal(root.get("status"), statuses.getFirst()));
+    }
 
     query.where(predicates.toArray(new Predicate[0]));
 
