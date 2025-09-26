@@ -2,13 +2,12 @@ package school.hei.haapi.integration;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static school.hei.haapi.integration.StudentIT.student1;
 import static school.hei.haapi.integration.conf.TestUtils.ADMIN1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_TOKEN;
+import static school.hei.haapi.integration.conf.TestUtils.assertBadRequestException;
 import static school.hei.haapi.integration.conf.TestUtils.setUpCasdoor;
 import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
 import static school.hei.haapi.integration.conf.TestUtils.setUpS3Service;
@@ -49,10 +48,10 @@ public class RetakeExamSessionIT extends FacadeITMockedThirdParties {
     ApiClient apiClient = anApiClient(STUDENT1_TOKEN);
     RetakeExamApi api = new RetakeExamApi(apiClient);
 
-    var retakeAxamSessions = api.getRetakeExamSessions(null, null, null, null, null);
+    var retakeExamSessions = api.getRetakeExamSessions(null, null, null, null, null);
 
-    assertNotNull(retakeAxamSessions);
-    assertEquals(3, retakeAxamSessions.size());
+    assertNotNull(retakeExamSessions);
+    assertEquals(3, retakeExamSessions.size());
   }
 
   @Test
@@ -60,10 +59,10 @@ public class RetakeExamSessionIT extends FacadeITMockedThirdParties {
     ApiClient apiClient = anApiClient(ADMIN1_TOKEN);
     RetakeExamApi api = new RetakeExamApi(apiClient);
 
-    var retakeAxamSessions = api.getRetakeExamSessions(null, null, null, null, null);
+    var retakeExamSessions = api.getRetakeExamSessions(null, null, null, null, null);
 
-    assertNotNull(retakeAxamSessions);
-    assertEquals(3, retakeAxamSessions.size());
+    assertNotNull(retakeExamSessions);
+    assertEquals(3, retakeExamSessions.size());
   }
 
   @Test
@@ -85,14 +84,10 @@ public class RetakeExamSessionIT extends FacadeITMockedThirdParties {
     RetakeExamApi api = new RetakeExamApi(apiClient);
     var sessionWithWrongDate = sessionWithWrongDate();
 
-    ApiException exception =
-        assertThrows(
-            ApiException.class,
-            () ->
-                api.createOrUpdateRetakeExamSessions(
-                    retakeExamSessionMapper.toRest(sessionWithWrongDate)));
-
-    assertEquals(500, exception.getCode());
-    assertTrue(exception.getMessage().contains("Session start date must be before end date"));
+    assertBadRequestException(
+        "Session start date must be before end date",
+        () ->
+            api.createOrUpdateRetakeExamSessions(
+                retakeExamSessionMapper.toRest(sessionWithWrongDate)));
   }
 }
