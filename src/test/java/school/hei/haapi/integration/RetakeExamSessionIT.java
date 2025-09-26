@@ -7,10 +7,12 @@ import static org.mockito.Mockito.when;
 import static school.hei.haapi.integration.StudentIT.student1;
 import static school.hei.haapi.integration.conf.TestUtils.ADMIN1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_TOKEN;
+import static school.hei.haapi.integration.conf.TestUtils.assertBadRequestException;
 import static school.hei.haapi.integration.conf.TestUtils.setUpCasdoor;
 import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
 import static school.hei.haapi.integration.conf.TestUtils.setUpS3Service;
 import static school.hei.haapi.integration.test_data.RetakeExamSessionTestData.session1;
+import static school.hei.haapi.integration.test_data.RetakeExamSessionTestData.sessionWithWrongDate;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -46,10 +48,10 @@ public class RetakeExamSessionIT extends FacadeITMockedThirdParties {
     ApiClient apiClient = anApiClient(STUDENT1_TOKEN);
     RetakeExamApi api = new RetakeExamApi(apiClient);
 
-    var retakeAxamSessions = api.getRetakeExamSessions(null, null, null, null, null);
+    var retakeExamSessions = api.getRetakeExamSessions(null, null, null, null, null);
 
-    assertNotNull(retakeAxamSessions);
-    assertEquals(3, retakeAxamSessions.size());
+    assertNotNull(retakeExamSessions);
+    assertEquals(3, retakeExamSessions.size());
   }
 
   @Test
@@ -57,14 +59,14 @@ public class RetakeExamSessionIT extends FacadeITMockedThirdParties {
     ApiClient apiClient = anApiClient(ADMIN1_TOKEN);
     RetakeExamApi api = new RetakeExamApi(apiClient);
 
-    var retakeAxamSessions = api.getRetakeExamSessions(null, null, null, null, null);
+    var retakeExamSessions = api.getRetakeExamSessions(null, null, null, null, null);
 
-    assertNotNull(retakeAxamSessions);
-    assertEquals(3, retakeAxamSessions.size());
+    assertNotNull(retakeExamSessions);
+    assertEquals(3, retakeExamSessions.size());
   }
 
   @Test
-  void save_retake_exam_session_by_admin() throws ApiException {
+  void save_retake_exam_session_by_admin_ok() throws ApiException {
     ApiClient apiClient = anApiClient(ADMIN1_TOKEN);
     RetakeExamApi api = new RetakeExamApi(apiClient);
 
@@ -74,5 +76,18 @@ public class RetakeExamSessionIT extends FacadeITMockedThirdParties {
     assertNotNull(retakeExamSessionCreated);
     assertEquals(session1().getId(), retakeExamSessionCreated.getId());
     assertEquals(session1().getTitle(), retakeExamSessionCreated.getTitle());
+  }
+
+  @Test
+  void save_retake_exam_session_with_wrong_date_ko() {
+    ApiClient apiClient = anApiClient(ADMIN1_TOKEN);
+    RetakeExamApi api = new RetakeExamApi(apiClient);
+    var sessionWithWrongDate = sessionWithWrongDate();
+
+    assertBadRequestException(
+        "Session start date must be before end date",
+        () ->
+            api.createOrUpdateRetakeExamSessions(
+                retakeExamSessionMapper.toRest(sessionWithWrongDate)));
   }
 }
