@@ -26,6 +26,7 @@ import school.hei.haapi.endpoint.rest.model.EventStats;
 import school.hei.haapi.endpoint.rest.model.EventType;
 import school.hei.haapi.endpoint.rest.model.FrequencyScopeDay;
 import school.hei.haapi.endpoint.rest.model.Group;
+import school.hei.haapi.endpoint.rest.model.MissingStatus;
 import school.hei.haapi.endpoint.rest.model.UpdateEventParticipant;
 import school.hei.haapi.endpoint.rest.validator.CreateEventFrequencyValidator;
 import school.hei.haapi.http.model.CreateEventFrequency;
@@ -110,7 +111,7 @@ public class EventController {
       @RequestParam(name = "name", required = false) String name,
       @RequestParam(name = "status", required = false) AttendanceStatus attendanceStatus) {
     return eventParticipantService
-        .getEventParticipants(eventId, page, pageSize, groupRef, name, ref, attendanceStatus, null)
+        .getEventParticipants(eventId, page, pageSize, groupRef, name, ref, attendanceStatus, null, null)
         .stream()
         .map(eventParticipantMapper::toRest)
         .collect(toUnmodifiableList());
@@ -155,8 +156,10 @@ public class EventController {
 
   @GetMapping(value = "/event_participants")
   public List<EventAttendance> getAllEventParticipants(
+      @RequestParam(name = "event_id", required = false) String eventId,
       @RequestParam(name = "page", defaultValue = "1") PageFromOne page,
       @RequestParam(name = "page_size", defaultValue = "15") BoundedPageSize pageSize,
+      @RequestParam(name = "missing_status", required = false) MissingStatus missingStatus,
       @RequestParam(name = "from", required = false) Instant from,
       @RequestParam(name = "to", required = false) Instant to,
       @RequestParam(name = "attendance_status", required = false) AttendanceStatus attendanceStatus,
@@ -165,13 +168,14 @@ public class EventController {
       @RequestParam(name = "student_name", required = false) String studentName) {
     return eventParticipantService
         .getEventParticipants(
-            null,
+            eventId,
             page,
             pageSize,
             groupRef,
             studentName,
             studentRef,
             attendanceStatus,
+            missingStatus,
             new DateUtils.TimeRange<>(from, to))
         .stream()
         .map(eventAttendanceMapper::toRest)

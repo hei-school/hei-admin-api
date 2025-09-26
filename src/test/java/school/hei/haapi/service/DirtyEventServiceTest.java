@@ -26,6 +26,7 @@ import school.hei.haapi.endpoint.rest.mapper.EventMapper;
 import school.hei.haapi.endpoint.rest.mapper.GroupMapper;
 import school.hei.haapi.endpoint.rest.mapper.UserMapper;
 import school.hei.haapi.endpoint.rest.model.EventStats;
+import school.hei.haapi.endpoint.rest.model.MissingEventStats;
 import school.hei.haapi.http.model.CreateEventFrequency;
 import school.hei.haapi.integration.conf.FacadeITMockedThirdParties;
 import school.hei.haapi.integration.conf.FakeDataProvider;
@@ -89,6 +90,7 @@ class DirtyEventServiceTest extends FacadeITMockedThirdParties {
             randomCourseEvent.getFirst().getId(),
             new PageFromOne(1),
             new BoundedPageSize(10),
+            null,
             null,
             null,
             null,
@@ -178,12 +180,14 @@ class DirtyEventServiceTest extends FacadeITMockedThirdParties {
             null,
             null,
             null,
+            null,
             null);
 
     eventParticipants.getFirst().setStatus(PRESENT);
     participantService.updateEventParticipants(eventParticipants);
 
     EventStats stats = subject.getStats(randomCourseEvent.getFirst().getId(), null, null);
-    assertEquals(new EventStats().late(0).missing(0).total(1).present(1), stats);
+    assertEquals(
+        new EventStats().late(0).missing(new MissingEventStats()).total(1).present(1), stats);
   }
 }

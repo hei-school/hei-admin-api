@@ -1,6 +1,9 @@
 package school.hei.haapi.repository.dao;
 
 import static jakarta.persistence.criteria.JoinType.LEFT;
+import static jakarta.persistence.criteria.JoinType.RIGHT;
+import static school.hei.haapi.endpoint.rest.model.AttendanceStatus.MISSING;
+import static school.hei.haapi.model.Event.BEGIN_DATETIME;
 import static school.hei.haapi.service.utils.DateUtils.TimeRange;
 
 import jakarta.persistence.EntityManager;
@@ -18,9 +21,11 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.query.QueryUtils;
 import org.springframework.stereotype.Repository;
 import school.hei.haapi.endpoint.rest.model.AttendanceStatus;
+import school.hei.haapi.endpoint.rest.model.MissingStatus;
 import school.hei.haapi.model.Event;
 import school.hei.haapi.model.EventParticipant;
 import school.hei.haapi.model.Group;
+import school.hei.haapi.model.Letter;
 import school.hei.haapi.model.User;
 
 @Repository
@@ -35,6 +40,7 @@ public class EventParticipantDao {
       String name,
       String ref,
       AttendanceStatus attendanceStatus,
+      MissingStatus missingStatus,
       TimeRange<Instant> eventBeginRange) {
     CriteriaBuilder builder = entityManager.getCriteriaBuilder();
     CriteriaQuery<EventParticipant> query = builder.createQuery(EventParticipant.class);
@@ -42,7 +48,7 @@ public class EventParticipantDao {
 
     List<Predicate> predicates =
         getPredicates(
-            builder, root, eventId, groupRef, name, ref, attendanceStatus, eventBeginRange);
+            builder, root, eventId, groupRef, name, ref, attendanceStatus, missingStatus, eventBeginRange);
 
     if (!predicates.isEmpty()) {
       query.where(predicates.toArray(new Predicate[0]));
@@ -69,6 +75,7 @@ public class EventParticipantDao {
       String name,
       String ref,
       AttendanceStatus attendanceStatus,
+      MissingStatus missingStatus,
       TimeRange<Instant> eventBeginRange) {
     List<Predicate> predicates = new ArrayList<>();
 
@@ -108,9 +115,19 @@ public class EventParticipantDao {
 
     if (attendanceStatus != null) {
       predicates.add(builder.equal(root.get("status"), attendanceStatus));
+//      if(MISSING.equals(attendanceStatus) && missingStatus != null) {
+//        switch(missingStatus) {
+//          case JUSTIFIED -> {
+//            predicates.add(root.get("letters").isNotNull());
+//          }
+//          case UNJUSTIFIED -> {
+//            predicates.add(root.get("letters").isNull());
+//          }
+//        }
+//      }
     }
 
-    Path<Instant> eventBeginDateTime = root.get("event").get(Event.BEGIN_DATETIME);
+    Path<Instant> eventBeginDateTime = root.get("event").get(BEGIN_DATETIME);
     predicates.add(builder.isNotNull(eventBeginDateTime));
     if (eventBeginRange != null) {
       if (eventBeginRange.from() != null) {

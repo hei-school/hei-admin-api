@@ -10,6 +10,8 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -19,6 +21,8 @@ import lombok.Setter;
 import lombok.ToString;
 import org.hibernate.annotations.JdbcTypeCode;
 import school.hei.haapi.endpoint.rest.model.AttendanceStatus;
+
+import java.util.List;
 
 @Entity
 @Table(name = "\"event_participant\"")
@@ -49,4 +53,7 @@ public class EventParticipant {
   @ManyToOne
   @JoinColumn(name = "group_id", referencedColumnName = "id")
   private Group group;
+
+  @OneToMany(mappedBy = "eventParticipant")
+  private List<Letter> letters;
 }

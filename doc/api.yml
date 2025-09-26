@@ -5314,6 +5314,20 @@ paths:
       summary: All users events participations
       operationId: getAllEventParticipants
       parameters:
+        - name: course_id
+          in: query
+          required: false
+          description: Filter event participants by the given course id value
+          schema:
+            type: string
+        - name: missing_status
+          in: query
+          required: false
+          description: |
+            Filter missing event participants by the given status. 
+            This parameter will be ignored on attendance_status other than `MISSING`
+          schema:
+            $ref: '#/components/schemas/MissingStatus'
         - name: page
           in: query
           schema:
@@ -5325,19 +5339,8 @@ paths:
           description: Set value to 15 by default if null is provided
           schema:
             $ref: '#/components/schemas/PageSize'
-        - name: from
-          in: query
-          description: Filter event participants from a given date
-          schema:
-            type: string
-            format: date-time
-          required: false
-        - name: to
-          in: query
-          description: Filter event participants before a given date
-          schema:
-            type: string
-            format: date-time
+        - $ref: '#/components/parameters/DatetimeFromFilter'
+        - $ref: '#/components/parameters/DatetimeToFilter'
         - name: attendance_status
           required: false
           in: query
@@ -7877,6 +7880,11 @@ components:
         - NP
         - B
         - UNKNOWN
+    MissingStatus:
+      type: string
+      enum:
+        - JUSTIFIED
+        - UNJUSTIFIED
     AttendanceStatus:
       type: string
       enum:
@@ -7950,11 +7958,20 @@ components:
             $ref: '#/components/schemas/GroupIdentifier'
         count:
           $ref: '#/components/schemas/EventStats'
+    MissingEventStats:
+      type: object
+      properties:
+        total:
+          type: integer
+        justified:
+          type: integer
+        unjustified:
+          type: integer
     EventStats:
       type: object
       properties:
         missing:
-          type: integer
+          $ref: "#/components/schemas/MissingEventStats"
         present:
           type: integer
         late:
