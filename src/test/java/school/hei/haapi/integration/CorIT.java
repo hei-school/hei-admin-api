@@ -22,7 +22,6 @@ import org.casbin.casdoor.entity.CasdoorUser;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.testcontainers.junit.jupiter.Testcontainers;
 import school.hei.haapi.endpoint.rest.api.CorApi;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
@@ -108,6 +107,7 @@ public class CorIT extends FacadeITMockedThirdParties {
     var api = new CorApi(anApiClient(MANAGER1_TOKEN));
 
     var cors = api.getCors(null, null, null, null, null, null, null);
+    System.out.println(cors);
     assertTrue(cors.contains(corMapper.toRest(corAxel)));
 
     var corsFilterByStudentRef =
