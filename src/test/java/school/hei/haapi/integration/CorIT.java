@@ -35,7 +35,6 @@ import school.hei.haapi.model.User;
 import school.hei.haapi.repository.CorRepository;
 import school.hei.haapi.repository.UserRepository;
 
-@Testcontainers
 public class CorIT extends FacadeITMockedThirdParties {
   @Autowired private UserRepository userRepository;
   @Autowired private CorRepository corRepository;
@@ -107,6 +106,9 @@ public class CorIT extends FacadeITMockedThirdParties {
   @Test
   public void manager_filter_cor_ok() throws ApiException {
     var api = new CorApi(anApiClient(MANAGER1_TOKEN));
+
+    var cors = api.getCors(null, null, null, null, null, null, null);
+    assertTrue(cors.contains(corMapper.toRest(corAxel)));
 
     var corsFilterByStudentRef =
         api.getCors(null, null, null, null, axelWithCor.getRef(), null, null);

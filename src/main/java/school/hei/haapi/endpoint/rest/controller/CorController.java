@@ -44,7 +44,7 @@ public class CorController {
             to,
             studentRef,
             groupRef,
-            status,
+            corMapper.toDomain(status),
             paginationFromPageAndPageSize.apply(page, pageSize)));
   }
 

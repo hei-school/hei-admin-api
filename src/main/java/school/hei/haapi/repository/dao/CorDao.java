@@ -11,8 +11,8 @@ import java.util.List;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
-import school.hei.haapi.endpoint.rest.model.CorStatus;
 import school.hei.haapi.model.Cor;
+import school.hei.haapi.model.CorComment.CorStatus;
 import school.hei.haapi.model.exception.NotImplementedException;
 
 @Repository
@@ -41,7 +41,8 @@ public class CorDao {
     if (studentRef != null)
       predicates.add(
           builder.like(
-              builder.lower(root.get("concernedStudent").get("ref")), studentRef.toLowerCase()));
+              builder.lower(root.get("concernedStudent").get("ref")),
+              "%" + studentRef.toLowerCase() + "%"));
 
     if (groupRef != null) throw new NotImplementedException("Filter by status not implemented");
 
