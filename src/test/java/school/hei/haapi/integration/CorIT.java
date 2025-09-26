@@ -109,14 +109,13 @@ public class CorIT extends FacadeITMockedThirdParties {
     var api = new CorApi(anApiClient(MANAGER1_TOKEN));
 
     var corsFilterByStudentRef =
-        api.getCor(null, null, null, null, axelWithCor.getRef(), null, null);
+        api.getCors(null, null, null, null, axelWithCor.getRef(), null, null);
     assertTrue(corsFilterByStudentRef.contains(corMapper.toRest(corAxel)));
     assertFalse(
         corsFilterByStudentRef.contains(
             corMapper.toRest(Cor.builder().concernedStudent(tolotraWithoutCor).build())));
 
-    var corsFilterByStatus =
-        api.getCor(null, null, null, null, null, null, singletonList(IN_PROGRESS));
+    var corsFilterByStatus = api.getCors(1, 10, null, null, null, null, singletonList(IN_PROGRESS));
     assertTrue(corsFilterByStatus.stream().allMatch(cor -> IN_PROGRESS.equals(cor.getStatus())));
   }
 

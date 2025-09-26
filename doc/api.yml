@@ -6405,7 +6405,7 @@ paths:
     get:
       tags:
         - Cor
-      operationId: getCor
+      operationId: getCors
       summary: Get all CORs
       parameters:
         - $ref: '#/components/parameters/Page'

@@ -36,9 +36,8 @@ public class CorController {
       @RequestParam(name = "student_ref", required = false) String studentRef,
       @RequestParam(name = "group_ref", required = false) String groupRef,
       @RequestParam(required = false) CorStatus status,
-      @RequestParam(name = "page", required = false, defaultValue = "1") PageFromOne page,
-      @RequestParam(name = "page_size", required = false, defaultValue = "15")
-          BoundedPageSize pageSize) {
+      @RequestParam(name = "page", required = false) PageFromOne page,
+      @RequestParam(name = "page_size", required = false) BoundedPageSize pageSize) {
     return corMapper.toRest(
         corDao.findByCriteria(
             from,
