@@ -18,7 +18,6 @@ import school.hei.haapi.endpoint.rest.model.CrupdateCor;
 import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.model.pagination.PaginationFromPageAndPageSize;
-import school.hei.haapi.repository.dao.CorDao;
 import school.hei.haapi.service.CorService;
 
 @RestController
@@ -26,7 +25,6 @@ import school.hei.haapi.service.CorService;
 public class CorController {
   private final CorService corService;
   private final CorMapper corMapper;
-  private final CorDao corDao;
   private final PaginationFromPageAndPageSize paginationFromPageAndPageSize;
 
   @GetMapping("/cors")
@@ -39,7 +37,7 @@ public class CorController {
       @RequestParam(name = "page", required = false) PageFromOne page,
       @RequestParam(name = "page_size", required = false) BoundedPageSize pageSize) {
     return corMapper.toRest(
-        corDao.findByCriteria(
+        corService.getCors(
             from,
             to,
             studentRef,
