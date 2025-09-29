@@ -205,15 +205,31 @@ public class MpbsVerificationService {
         log.info("Unverified mobile transaction psp id {}", ref);
       }
     }
-    mobilePaymentService.saveAll(
-        collectionUtils
-            .filterDistinctByField(transactions, MobileTransactionDetails::getPspTransactionRef)
-            .stream()
-            .toList());
+    List<MobileTransactionDetails> unsavedTransactions =
+        getUnsavedTransactions(
+            collectionUtils
+                .filterDistinctByField(transactions, MobileTransactionDetails::getPspTransactionRef)
+                .stream()
+                .toList());
+    mobilePaymentService.saveAll(unsavedTransactions);
     log.info("Verification done...");
     return transactions.stream()
         .map(MobileTransactionDetails::getPspTransactionRef)
         .collect(Collectors.toList());
+  }
+
+  private List<MobileTransactionDetails> getUnsavedTransactions(
+      List<MobileTransactionDetails> transactions) {
+    List<String> transactionRefs =
+        transactions.stream().map(MobileTransactionDetails::getPspTransactionRef).toList();
+    List<String> savedTransactionRefs =
+        mobilePaymentService.findAllTransactionByRefs(transactionRefs).stream()
+            .map(MobileTransactionDetails::getPspTransactionRef)
+            .toList();
+
+    return transactions.stream()
+        .filter(t -> !savedTransactionRefs.contains(t.getPspTransactionRef()))
+        .toList();
   }
 
   @Transactional

@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.Optional;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import school.hei.haapi.http.mapper.TransactionDetailsMapper;
 import school.hei.haapi.http.model.TransactionDetails;
@@ -41,10 +40,10 @@ public class MobilePaymentService implements MobileTransactionProvider {
 
   public List<MobileTransactionDetails> findAllTransactionByMpbs(List<Mpbs> mpbsList) {
     List<String> transactionRefs = mpbsList.stream().map(Mpbs::getPspId).toList();
-    return findAllTransactionByRef(transactionRefs);
+    return findAllTransactionByRefs(transactionRefs);
   }
 
-  private List<MobileTransactionDetails> findAllTransactionByRef(List<String> transactionRefs) {
+  public List<MobileTransactionDetails> findAllTransactionByRefs(List<String> transactionRefs) {
     return mobileTransactionDetailsRepository.findAllByPspTransactionRefIn(transactionRefs);
   }
 
@@ -73,7 +72,7 @@ public class MobilePaymentService implements MobileTransactionProvider {
     try {
       var saved = mobileTransactionDetailsRepository.save(transaction);
       savedTransactions.add(saved);
-    } catch (DataIntegrityViolationException e) {
+    } catch (RuntimeException e) {
       log.info(
           "Error saving mobile transaction of ref {} because of error",
           transaction.getPspTransactionRef(),
