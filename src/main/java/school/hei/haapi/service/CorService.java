@@ -11,6 +11,7 @@ import school.hei.haapi.model.CorComment;
 import school.hei.haapi.model.CorComment.CorStatus;
 import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.model.exception.BadRequestException;
+import school.hei.haapi.model.exception.NotFoundException;
 import school.hei.haapi.model.pagination.PaginationFromPageAndPageSize;
 import school.hei.haapi.repository.CorRepository;
 import school.hei.haapi.repository.dao.CorDao;
@@ -37,13 +38,23 @@ public class CorService {
         studentId, paginationFromPageAndPageSize.apply(page, size));
   }
 
-  /** Cor status cannot be manually changed by this function, must add comment to change it */
   public Cor save(Cor cor) {
-    var id = cor.getId();
-
-    if (id != null) corRepository.findById(id).ifPresent(value -> cor.setStatus(value.getStatus()));
-
+    statusValidation(cor);
     return corRepository.save(cor);
+  }
+
+  private void statusValidation(Cor cor) {
+    var id = cor.getId();
+    if (id == null) return;
+
+    var storedCor = corRepository.findById(id);
+    if (storedCor.isEmpty()) return;
+
+    var storedStatus = storedCor.get().getStatus();
+    if (storedStatus == null) return;
+
+    if (!storedStatus.equals(cor.getStatus()))
+      throw new BadRequestException("Cor status cannot be changed manually");
   }
 
   public Cor addComment(String corId, CorComment comment) {
@@ -53,6 +64,6 @@ public class CorService {
   }
 
   public Cor getById(String id) {
-    return corRepository.findById(id).orElseThrow(() -> new BadRequestException("Cor not found"));
+    return corRepository.findById(id).orElseThrow(() -> new NotFoundException("Cor not found"));
   }
 }
