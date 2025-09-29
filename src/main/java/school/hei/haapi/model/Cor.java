@@ -47,8 +47,8 @@ public class Cor {
   private String description;
 
   @ManyToOne
-  @JoinColumn(name = "concerned_student_id", updatable = false)
-  private User concernedStudent;
+  @JoinColumn(name = "student_id", updatable = false)
+  private User student;
 
   @EqualsAndHashCode.Exclude @CreationTimestamp private Instant creationDatetime;
 

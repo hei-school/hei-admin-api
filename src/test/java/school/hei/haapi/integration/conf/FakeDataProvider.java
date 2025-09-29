@@ -224,7 +224,7 @@ public class FakeDataProvider {
     return Cor.builder()
         .id(randomUUID().toString())
         .interviewDatetime(interviewDatetime)
-        .concernedStudent(user)
+        .student(user)
         .description(faker.lorem().paragraph())
         .status(faker.options().option(CorComment.CorStatus.class))
         .build();

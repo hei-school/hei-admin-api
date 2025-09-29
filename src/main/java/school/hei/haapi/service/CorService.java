@@ -34,7 +34,7 @@ public class CorService {
   }
 
   public List<Cor> getByStudentId(String studentId, PageFromOne page, BoundedPageSize size) {
-    return corRepository.findAllByConcernedStudentId(
+    return corRepository.findAllByStudentId(
         studentId, paginationFromPageAndPageSize.apply(page, size));
   }
 

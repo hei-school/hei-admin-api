@@ -41,8 +41,7 @@ public class CorDao {
     if (studentRef != null && !studentRef.isEmpty())
       predicates.add(
           builder.like(
-              builder.lower(root.get("concernedStudent").get("ref")),
-              "%" + studentRef.toLowerCase() + "%"));
+              builder.lower(root.get("student").get("ref")), "%" + studentRef.toLowerCase() + "%"));
 
     if (groupRef != null && !groupRef.isEmpty())
       throw new NotImplementedException("Filter by group ref not implemented");

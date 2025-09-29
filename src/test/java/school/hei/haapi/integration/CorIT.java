@@ -35,7 +35,7 @@ import school.hei.haapi.model.User;
 import school.hei.haapi.repository.CorRepository;
 import school.hei.haapi.repository.UserRepository;
 
-public class CorIT extends FacadeITMockedThirdParties {
+class CorIT extends FacadeITMockedThirdParties {
   @Autowired private UserRepository userRepository;
   @Autowired private CorRepository corRepository;
   @Autowired private CorMapper corMapper;
@@ -115,7 +115,7 @@ public class CorIT extends FacadeITMockedThirdParties {
     assertTrue(corsFilterByStudentRef.contains(corMapper.toRest(corAxel)));
     assertFalse(
         corsFilterByStudentRef.contains(
-            corMapper.toRest(Cor.builder().concernedStudent(tolotraWithoutCor).build())));
+            corMapper.toRest(Cor.builder().student(tolotraWithoutCor).build())));
     var cor = corRepository.findById(corAxel.getId()).get();
     cor.setStatus(CorComment.CorStatus.IN_PROGRESS);
     corAxel = corRepository.save(cor);
@@ -171,7 +171,7 @@ public class CorIT extends FacadeITMockedThirdParties {
     CasdoorRole casdoorRole = new CasdoorRole();
     casdoorRole.setOwner("dummy");
     casdoorRole.setName("student");
-    String[] roleUsers = List.of("dummy/user").toArray(new String[0]);
+    String[] roleUsers = new String[] {"dummy/user"};
     casdoorRole.setUsers(roleUsers);
     user.setRoles(List.of(casdoorRole));
 
