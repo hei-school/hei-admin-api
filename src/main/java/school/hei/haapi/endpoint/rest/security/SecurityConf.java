@@ -925,10 +925,6 @@ public class SecurityConf {
                     .hasAnyRole(MANAGER.getRole(), TEACHER.getRole(), ADMIN.getRole())
                     .requestMatchers(PUT, "/promotions/*/groups")
                     .hasAnyRole(MANAGER.getRole(), ADMIN.getRole())
-
-                    //
-                    // Cors resources
-                    //
                     .requestMatchers(GET, "/cors")
                     .hasAnyRole(TEACHER.getRole(), MANAGER.getRole(), ADMIN.getRole())
                     .requestMatchers(GET, "/cors/*")

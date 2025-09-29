@@ -119,8 +119,8 @@ class PaymentServiceTest extends MockedThirdParties {
 
     subject.computeUserStatusAfterPayingFee(userWithUnpaidFees);
     subject.computeUserStatusAfterPayingFee(userWithoutUnpaidFees);
-    User updatedUserWithUnpaidFees = userService.findById(userWithUnpaidFees.getId());
-    User updatedUserWithoutUnpaidFees = userService.findById(userWithoutUnpaidFees.getId());
+    User updatedUserWithUnpaidFees = userService.getById(userWithUnpaidFees.getId());
+    User updatedUserWithoutUnpaidFees = userService.getById(userWithoutUnpaidFees.getId());
 
     assertEquals(User.Status.SUSPENDED, updatedUserWithUnpaidFees.getStatus());
     assertEquals(User.Status.ENABLED, updatedUserWithoutUnpaidFees.getStatus());
@@ -129,7 +129,7 @@ class PaymentServiceTest extends MockedThirdParties {
     subject.computeRemainingAmount(student2UnpaidFee1().getId(), 5000);
     subject.computeRemainingAmount(student2UnpaidFee2().getId(), 5000);
     subject.computeUserStatusAfterPayingFee(userWithUnpaidFees);
-    User userPaidAllLateFees = userService.findById(userWithUnpaidFees.getId());
+    User userPaidAllLateFees = userService.getById(userWithUnpaidFees.getId());
 
     assertEquals(User.Status.ENABLED, userPaidAllLateFees.getStatus());
   }

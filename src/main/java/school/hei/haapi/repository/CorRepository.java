@@ -10,6 +10,4 @@ import school.hei.haapi.model.Cor;
 @Repository
 public interface CorRepository extends JpaRepository<Cor, String> {
   List<Cor> findAllByConcernedStudentId(String concernedStudentId, Pageable pageable);
-
-  Optional<Cor> findByIdAndConcernedStudent_Id(String id, String concernedStudentId);
 }

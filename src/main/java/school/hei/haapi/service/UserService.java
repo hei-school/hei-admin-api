@@ -66,7 +66,7 @@ public class UserService {
   private final XlsxCellsGenerator<EventParticipant> eventParticipantXlsxCellsGenerator;
 
   public void uploadUserProfilePicture(MultipartFile profilePictureAsMultipartFile, String userId) {
-    User user = findById(userId);
+    User user = getById(userId);
     File savedProfilePicture = fileConverter.apply(profilePictureAsMultipartFile);
     String bucketKey =
         getFormattedProfilePictureKey(user)
@@ -87,7 +87,7 @@ public class UserService {
   }
 
   private User refreshUserById(String userId, User refreshedUser) {
-    User userToRefresh = findById(userId);
+    User userToRefresh = getById(userId);
 
     userToRefresh.setAddress(refreshedUser.getAddress());
     userToRefresh.setBirthDate(refreshedUser.getBirthDate());
@@ -111,8 +111,7 @@ public class UserService {
     return userToRefresh;
   }
 
-  // TODO: This is getById
-  public User findById(String userId) {
+  public User getById(String userId) {
     return userRepository
         .findById(userId)
         .orElseThrow(() -> new NotFoundException("User with id: " + userId + " not found"));

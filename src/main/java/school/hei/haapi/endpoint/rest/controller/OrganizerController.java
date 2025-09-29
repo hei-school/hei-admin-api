@@ -65,7 +65,7 @@ public class OrganizerController {
 
   @GetMapping("/organizers/{id}")
   public Organizer getOrganizerById(@PathVariable("id") String id) {
-    return userMapper.toRestOrganizer(userService.findById(id));
+    return userMapper.toRestOrganizer(userService.getById(id));
   }
 
   @PostMapping(value = "/organizers/{id}/picture/raw", consumes = MULTIPART_FORM_DATA_VALUE)
@@ -73,6 +73,6 @@ public class OrganizerController {
       @RequestPart("file_to_upload") MultipartFile profilePictureAsMultipartFile,
       @PathVariable String id) {
     userService.uploadUserProfilePicture(profilePictureAsMultipartFile, id);
-    return userMapper.toRestManager(userService.findById(id));
+    return userMapper.toRestManager(userService.getById(id));
   }
 }
