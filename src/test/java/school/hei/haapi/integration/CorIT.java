@@ -43,7 +43,7 @@ class CorIT extends FacadeITMockedThirdParties {
   private User axelWithCor;
   private User tolotraWithoutCor;
   private Cor corAxel;
-  private final String AXEL_TOKEN = "AXEL_TOKEN";
+  private final String axelToken = "AXEL_TOKEN";
 
   @BeforeEach
   void setUp() {
@@ -53,13 +53,13 @@ class CorIT extends FacadeITMockedThirdParties {
 
     setUpCasdoor(casdoorAuthServiceMock, certificateLoaderMock);
     setUpCognito(cognitoComponentMock);
-    when(cognitoComponentMock.getEmailByIdToken(AXEL_TOKEN)).thenReturn(axelWithCor.getEmail());
-    when(casdoorAuthServiceMock.parseJwtToken(AXEL_TOKEN)).thenReturn(getCasdoorAxel());
+    when(cognitoComponentMock.getEmailByIdToken(axelToken)).thenReturn(axelWithCor.getEmail());
+    when(casdoorAuthServiceMock.parseJwtToken(axelToken)).thenReturn(getCasdoorAxel());
   }
 
   @Test
-  public void student_get_own_cor_ok() throws ApiException {
-    var api = new CorApi(anApiClient(AXEL_TOKEN));
+  void student_get_own_cor_ok() throws ApiException {
+    var api = new CorApi(anApiClient(axelToken));
 
     var studentCors = api.getStudentCors(axelWithCor.getId(), null, null);
 
@@ -69,15 +69,15 @@ class CorIT extends FacadeITMockedThirdParties {
   }
 
   @Test
-  public void student_get_other_cor_ko() {
+  void student_get_other_cor_ko() {
     var api = new CorApi(anApiClient(STUDENT1_TOKEN));
 
     assertThrowsForbiddenException(() -> api.getStudentCors(axelWithCor.getId(), null, null));
   }
 
   @Test
-  public void student_create_cor_ko() {
-    var api = new CorApi(anApiClient(AXEL_TOKEN));
+  void student_create_cor_ko() {
+    var api = new CorApi(anApiClient(axelToken));
     var cor =
         new CrupdateCor()
             .concernedStudentId(tolotraWithoutCor.getId())
@@ -88,7 +88,7 @@ class CorIT extends FacadeITMockedThirdParties {
   }
 
   @Test
-  public void manager_create_cor_ok() throws ApiException {
+  void manager_create_cor_ok() throws ApiException {
     var api = new CorApi(anApiClient(MANAGER1_TOKEN));
     var cor =
         new CrupdateCor()
@@ -104,7 +104,7 @@ class CorIT extends FacadeITMockedThirdParties {
   }
 
   @Test
-  public void manager_filter_cor_ok() throws ApiException {
+  void manager_filter_cor_ok() throws ApiException {
     var api = new CorApi(anApiClient(MANAGER1_TOKEN));
 
     var cors = api.getCors(null, null, null, null, null, null, null);
@@ -126,7 +126,7 @@ class CorIT extends FacadeITMockedThirdParties {
   }
 
   @Test
-  public void manager_comment_cor_ok() throws ApiException {
+  void manager_comment_cor_ok() throws ApiException {
     var api = new CorApi(anApiClient(MANAGER1_TOKEN));
     var corId = corAxel.getId();
     var newCorComment = someCorCommentInfo();
@@ -144,7 +144,7 @@ class CorIT extends FacadeITMockedThirdParties {
   }
 
   @Test
-  public void student_comment_cor_ko() {
+  void student_comment_cor_ko() {
     var api = new CorApi(anApiClient(STUDENT1_TOKEN));
     var corId = corAxel.getId();
 
@@ -152,7 +152,7 @@ class CorIT extends FacadeITMockedThirdParties {
   }
 
   @Test
-  public void manager_get_cor_by_id_ok() throws ApiException {
+  void manager_get_cor_by_id_ok() throws ApiException {
     var api = new CorApi(anApiClient(MANAGER1_TOKEN));
 
     var cor = api.getCorById(corAxel.getId());
@@ -164,7 +164,7 @@ class CorIT extends FacadeITMockedThirdParties {
     return TestUtils.anApiClient(token, localPort);
   }
 
-  public CasdoorUser getCasdoorAxel() {
+  CasdoorUser getCasdoorAxel() {
     CasdoorUser user = new CasdoorUser();
     user.setEmail(axelWithCor.getEmail());
 
