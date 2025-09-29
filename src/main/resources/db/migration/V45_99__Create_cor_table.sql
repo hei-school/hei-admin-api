@@ -14,6 +14,5 @@ CREATE TABLE public.cor
     interview_datetime TIMESTAMP with time ZONE,
     student_id         VARCHAR REFERENCES "user" (id) NOT NULL,
     description        VARCHAR                        NOT NULL,
-    status             cor_status                     NOT NULL DEFAULT 'IN_PROGRESS'::cor_status,
     CONSTRAINT cor_pk PRIMARY KEY (id)
 );

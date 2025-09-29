@@ -10,7 +10,6 @@ import school.hei.haapi.model.Cor;
 import school.hei.haapi.model.CorComment;
 import school.hei.haapi.model.CorComment.CorStatus;
 import school.hei.haapi.model.PageFromOne;
-import school.hei.haapi.model.exception.BadRequestException;
 import school.hei.haapi.model.exception.NotFoundException;
 import school.hei.haapi.model.pagination.PaginationFromPageAndPageSize;
 import school.hei.haapi.repository.CorRepository;
@@ -20,6 +19,7 @@ import school.hei.haapi.repository.dao.CorDao;
 @AllArgsConstructor
 public class CorService {
   private final CorRepository corRepository;
+  private final CorCommentService corCommentService;
   private final PaginationFromPageAndPageSize paginationFromPageAndPageSize;
   private final CorDao corDao;
 
@@ -39,28 +39,11 @@ public class CorService {
   }
 
   public Cor save(Cor cor) {
-    statusValidation(cor);
     return corRepository.save(cor);
-  }
-
-  private void statusValidation(Cor cor) {
-    var id = cor.getId();
-    if (id == null) return;
-
-    var storedCor = corRepository.findById(id);
-    if (storedCor.isEmpty()) return;
-
-    var storedStatus = storedCor.get().getStatus();
-    if (storedStatus == null) return;
-
-    if (!storedStatus.equals(cor.getStatus()))
-      throw new BadRequestException("Cor status cannot be changed manually");
   }
 
   public Cor addComment(String corId, CorComment comment) {
-    var cor = getById(corId);
-    cor.addComment(comment);
-    return corRepository.save(cor);
+    return corCommentService.save(comment.toBuilder().cor(getById(corId)).build()).getCor();
   }
 
   public Cor getById(String id) {

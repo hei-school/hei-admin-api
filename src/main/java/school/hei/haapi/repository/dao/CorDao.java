@@ -49,7 +49,7 @@ public class CorDao {
     if (statuses != null && !statuses.isEmpty()) {
       if (statuses.size() > 1)
         throw new NotImplementedException("Filter by statuses not implemented");
-      predicates.add(builder.equal(root.get("status"), statuses.getFirst()));
+      throw new NotImplementedException("Filter by statuses not implemented");
     }
 
     query.where(predicates.toArray(new Predicate[0]));

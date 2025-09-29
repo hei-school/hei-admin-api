@@ -1,11 +1,5 @@
 package school.hei.haapi.endpoint.rest.mapper;
 
-import static school.hei.haapi.endpoint.rest.model.CorStatus.CANCELED;
-import static school.hei.haapi.endpoint.rest.model.CorStatus.IN_PROGRESS;
-import static school.hei.haapi.endpoint.rest.model.CorStatus.LEAVE;
-import static school.hei.haapi.endpoint.rest.model.CorStatus.NO_SHOW;
-import static school.hei.haapi.endpoint.rest.model.CorStatus.STAY;
-
 import java.util.List;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -20,38 +14,10 @@ import school.hei.haapi.service.UserService;
 public class CorMapper {
   private final UserMapper userMapper;
   private final UserService userService;
-
-  private CorStatus toRest(CorComment.CorStatus domain) {
-    if (domain == null) return null;
-    return switch (domain) {
-      case IN_PROGRESS -> IN_PROGRESS;
-      case STAY -> STAY;
-      case CANCELED -> CANCELED;
-      case LEAVE -> LEAVE;
-      case NO_SHOW -> NO_SHOW;
-    };
-  }
-
-  public CorComment.CorStatus toDomain(CorStatus rest) {
-    if (rest == null) return null;
-    return switch (rest) {
-      case IN_PROGRESS -> CorComment.CorStatus.IN_PROGRESS;
-      case STAY -> CorComment.CorStatus.STAY;
-      case CANCELED -> CorComment.CorStatus.CANCELED;
-      case LEAVE -> CorComment.CorStatus.LEAVE;
-      case NO_SHOW -> CorComment.CorStatus.NO_SHOW;
-    };
-  }
+  private final CorCommentMapper corCommentMapper;
 
   public List<CorComment.CorStatus> toDomain(List<CorStatus> rest) {
-    return rest != null ? rest.stream().map(this::toDomain).toList() : List.of();
-  }
-
-  public CorComment toDomain(school.hei.haapi.endpoint.rest.model.CorCommentInfo rest) {
-    return CorComment.builder()
-        .comment(rest.getComment())
-        .status(toDomain(rest.getStatus()))
-        .build();
+    return rest != null ? rest.stream().map(corCommentMapper::toDomain).toList() : List.of();
   }
 
   public Cor toRest(school.hei.haapi.model.Cor cor) {
@@ -60,7 +26,9 @@ public class CorMapper {
         .creationDatetime(cor.getCreationDatetime())
         .concernedStudent(userMapper.toIdentifier(cor.getStudent()))
         .description(cor.getDescription())
-        .status(toRest(cor.getStatus()))
+        .status(corCommentMapper.toRest(cor.getStatus()))
+        .comments(
+            cor.getComments() != null ? corCommentMapper.toRest(cor.getComments()) : List.of())
         .interviewDate(cor.getInterviewDatetime());
   }
 

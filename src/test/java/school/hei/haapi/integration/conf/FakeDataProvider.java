@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.IntStream;
 import org.springframework.stereotype.Component;
 import school.hei.haapi.endpoint.rest.model.Coordinates;
 import school.hei.haapi.endpoint.rest.model.CorCommentInfo;
@@ -226,7 +227,18 @@ public class FakeDataProvider {
         .interviewDatetime(interviewDatetime)
         .student(user)
         .description(faker.lorem().paragraph())
-        .status(faker.options().option(CorComment.CorStatus.class))
         .build();
+  }
+
+  public static CorComment someCorComment() {
+    return someCorComment(faker.options().option(CorComment.CorStatus.class));
+  }
+
+  public static CorComment someCorComment(CorComment.CorStatus status) {
+    return CorComment.builder().comment(faker.lorem().paragraph()).status(status).build();
+  }
+
+  public static List<CorComment> someCorComment(int count) {
+    return IntStream.range(0, count + 1).mapToObj(i -> FakeDataProvider.someCorComment()).toList();
   }
 }

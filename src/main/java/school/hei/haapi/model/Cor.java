@@ -1,15 +1,10 @@
 package school.hei.haapi.model;
 
-import static jakarta.persistence.CascadeType.ALL;
-import static jakarta.persistence.EnumType.STRING;
 import static jakarta.persistence.FetchType.EAGER;
 import static jakarta.persistence.GenerationType.IDENTITY;
-import static org.hibernate.type.SqlTypes.NAMED_ENUM;
 import static school.hei.haapi.model.CorComment.CorStatus.IN_PROGRESS;
 
-import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
@@ -17,8 +12,9 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import java.time.Instant;
-import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
@@ -27,7 +23,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.JdbcTypeCode;
 import school.hei.haapi.model.CorComment.CorStatus;
 
 @Entity
@@ -56,20 +51,15 @@ public class Cor {
 
   @EqualsAndHashCode.Exclude
   @ToString.Exclude
-  @OneToMany(mappedBy = "cor", fetch = EAGER, cascade = ALL)
+  @OneToMany(mappedBy = "cor", fetch = EAGER)
   private List<CorComment> comments;
 
-  @Enumerated(STRING)
-  @JdbcTypeCode(NAMED_ENUM)
-  @Builder.Default
-  @Column(nullable = false)
-  private CorStatus status = IN_PROGRESS;
+  public Optional<CorComment> getLastComment() {
+    if (comments == null) return Optional.empty();
+    return comments.stream().max(Comparator.comparing(CorComment::getCreationDatetime));
+  }
 
-  public void addComment(CorComment comment) {
-    comment.setCor(this);
-    var comments = new ArrayList<>(this.comments);
-    comments.add(comment);
-    this.comments = comments;
-    this.status = comment.getStatus();
+  public CorStatus getStatus() {
+    return getLastComment().map(CorComment::getStatus).orElse(IN_PROGRESS);
   }
 }
