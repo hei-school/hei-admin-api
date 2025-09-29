@@ -17,6 +17,7 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -66,7 +67,9 @@ public class Cor {
 
   public void addComment(CorComment comment) {
     comment.setCor(this);
+    var comments = new ArrayList<>(this.comments);
     comments.add(comment);
-    status = comment.getStatus();
+    this.comments = comments;
+    this.status = comment.getStatus();
   }
 }

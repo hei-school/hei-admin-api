@@ -47,13 +47,9 @@ public class CorService {
   }
 
   public Cor addComment(String corId, CorComment comment) {
-    return addComment(getById(corId), comment);
-  }
-
-  public Cor addComment(Cor cor, CorComment comment) {
-    var savedCor = getById(cor.getId());
-    savedCor.addComment(comment);
-    return corRepository.save(savedCor);
+    var cor = getById(corId);
+    cor.addComment(comment);
+    return corRepository.save(cor);
   }
 
   public Cor getById(String id) {
