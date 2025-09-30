@@ -175,14 +175,14 @@ class CorIT extends FacadeITMockedThirdParties {
     return TestUtils.anApiClient(token, localPort);
   }
 
-  CasdoorUser getCasdoorAxel() {
+  private CasdoorUser getCasdoorAxel() {
     CasdoorUser user = new CasdoorUser();
     user.setEmail(axelWithCor.getEmail());
 
     CasdoorRole casdoorRole = new CasdoorRole();
     casdoorRole.setOwner("dummy");
     casdoorRole.setName("student");
-    String[] roleUsers = new String[] {"dummy/user"};
+    var roleUsers = new String[] {"dummy/user"};
     casdoorRole.setUsers(roleUsers);
     user.setRoles(List.of(casdoorRole));
 

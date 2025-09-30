@@ -91,7 +91,7 @@ public class FeeMapper {
   }
 
   public school.hei.haapi.model.Fee toDomain(CrupdateStudentFee crupdateFee) {
-    User student = userService.getById(crupdateFee.getStudentId());
+    var student = userService.getById(crupdateFee.getStudentId());
     school.hei.haapi.model.Fee.FeeBuilder feeBuilder =
         school.hei.haapi.model.Fee.builder()
             .id(crupdateFee.getId())
