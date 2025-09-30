@@ -34,7 +34,6 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Random;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -78,7 +77,6 @@ public class MpbsIT extends FacadeITMockedThirdParties {
     student = userRepository.save(someStudent());
     fee = feeRepository.save(someFee(student));
     mpbs = mpbsRepository.save(someMpbs(fee));
-    System.out.println(mpbs.getPspId());
     setUpCognitoAndCasdoorUser(casdoorAuthServiceMock, cognitoComponentMock, studentToken, student);
   }
 
@@ -160,18 +158,14 @@ public class MpbsIT extends FacadeITMockedThirdParties {
   }
 
   @Test
-  @Disabled("TODO: dirty, create new student")
   void student_create_mobile_payment_ok() throws ApiException {
-    ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
-    PayingApi api = new PayingApi(student1Client);
+    var api = new PayingApi(anApiClient(studentToken));
+    var manager1Api = new PayingApi(anApiClient(MANAGER1_TOKEN));
 
-    ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
-    PayingApi manager1Api = new PayingApi(manager1Client);
-
-    Fee actualFee =
+    var actualFee =
         manager1Api
             .createStudentFees(
-                STUDENT1_ID,
+                student.getId(),
                 List.of(
                     new CreateFee()
                         .totalAmount(5000)
@@ -182,17 +176,16 @@ public class MpbsIT extends FacadeITMockedThirdParties {
                         .creationDatetime(now())
                         .comment("test")))
             .getFirst();
-    assertEquals(STUDENT1_ID, actualFee.getStudentId());
+    assertEquals(student.getId(), actualFee.getStudentId());
 
-    Mpbs actual =
-        api.crupdateMpbs(
-            STUDENT1_ID, actualFee.getId(), createableMpbsFromFeeIdWithStudent1(actualFee.getId()));
+    var crupdateMpbs = createableMpbsFromFeeIdWithStudent(actualFee.getId());
+    var actualMpbs = api.crupdateMpbs(student.getId(), actualFee.getId(), crupdateMpbs);
 
-    assertEquals(createableMpbs1().getStudentId(), actual.getStudentId());
-    assertEquals(createableMpbs1().getPspId(), actual.getPspId());
-    assertEquals(createableMpbs1().getPspType(), actual.getPspType());
+    assertEquals(crupdateMpbs.getStudentId(), actualMpbs.getStudentId());
+    assertEquals(crupdateMpbs.getPspId(), actualMpbs.getPspId());
+    assertEquals(crupdateMpbs.getPspType(), actualMpbs.getPspType());
 
-    Fee updatedFee = api.getStudentFeeById(STUDENT1_ID, actualFee.getId());
+    var updatedFee = api.getStudentFeeById(student.getId(), actualFee.getId());
 
     assertEquals(FeeStatusEnum.PENDING, updatedFee.getStatus());
   }
@@ -282,16 +275,12 @@ public class MpbsIT extends FacadeITMockedThirdParties {
         .status(PENDING);
   }
 
-  public static CrupdateMpbs createableMpbs1() {
-    return new CrupdateMpbs()
-        .studentId(STUDENT1_ID)
-        .feeId(FEE2_ID)
-        .pspType(ORANGE_MONEY)
-        .pspId("MP240726.1541.D88425");
-  }
-
   public static CrupdateMpbs createableMpbsFromFeeIdWithStudent1(String feeId) {
     return createableMpbsFromFeeIdForStudent(STUDENT1_ID, feeId);
+  }
+
+  public CrupdateMpbs createableMpbsFromFeeIdWithStudent(String feeId) {
+    return createableMpbsFromFeeIdForStudent(student.getId(), feeId);
   }
 
   public static CrupdateMpbs createableMpbsFromFeeIdForStudent(String studentId, String feeId) {
