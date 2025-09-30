@@ -34,8 +34,7 @@ import static school.hei.haapi.integration.conf.TestUtils.fee2;
 import static school.hei.haapi.integration.conf.TestUtils.fee3;
 import static school.hei.haapi.integration.conf.TestUtils.fee4;
 import static school.hei.haapi.integration.conf.TestUtils.requestFile;
-import static school.hei.haapi.integration.conf.TestUtils.setUpCasdoor;
-import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
+import static school.hei.haapi.integration.conf.TestUtils.setUpCognitoAndCasdoor;
 import static school.hei.haapi.integration.conf.TestUtils.setUpS3Service;
 
 import jakarta.persistence.EntityManager;
@@ -98,8 +97,7 @@ class FeeIT extends FacadeITMockedThirdParties {
 
   @BeforeEach
   void setUp() {
-    setUpCasdoor(casdoorAuthServiceMock, certificateLoaderMock);
-    setUpCognito(cognitoComponentMock);
+    setUpCognitoAndCasdoor(casdoorAuthServiceMock, cognitoComponentMock, certificateLoaderMock);
     setUpS3Service(fileService, student1());
   }
 

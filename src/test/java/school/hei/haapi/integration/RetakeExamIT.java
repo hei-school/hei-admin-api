@@ -12,8 +12,7 @@ import static school.hei.haapi.integration.StudentIT.student1;
 import static school.hei.haapi.integration.conf.TestUtils.ADMIN1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.course1;
-import static school.hei.haapi.integration.conf.TestUtils.setUpCasdoor;
-import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
+import static school.hei.haapi.integration.conf.TestUtils.setUpCognitoAndCasdoor;
 import static school.hei.haapi.integration.conf.TestUtils.setUpS3Service;
 
 import java.util.List;
@@ -46,8 +45,7 @@ public class RetakeExamIT extends FacadeITMockedThirdParties {
 
   @BeforeEach
   void setup() {
-    setUpCasdoor(casdoorAuthServiceMock, certificateLoaderMock);
-    setUpCognito(cognitoComponentMock);
+    setUpCognitoAndCasdoor(casdoorAuthServiceMock, cognitoComponentMock, certificateLoaderMock);
     setUpS3Service(fileService, student1());
 
     when(gradeResultService.getStudentResultSummary(anyString()))

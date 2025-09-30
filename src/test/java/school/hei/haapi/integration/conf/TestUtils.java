@@ -69,6 +69,7 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.web.util.UriComponentsBuilder;
 import org.testcontainers.shaded.com.google.common.primitives.Bytes;
+import org.testcontainers.shaded.org.checkerframework.checker.nullness.qual.Nullable;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
 import school.hei.haapi.endpoint.rest.model.Announcement;
@@ -355,24 +356,57 @@ public class TestUtils {
     return user;
   }
 
-  public static void setUpCasdoor(
-      CasdoorAuthService casdoorAuthService, CertificateLoader certificateLoader) {
+  public static void setUpCognitoAndCasdoor(
+      CasdoorAuthService casdoorAuthService,
+      CognitoComponent cognitoComponent,
+      CertificateLoader certificateLoader) {
     given(certificateLoader.getCertificate()).willReturn("mocked-certificate");
-    setUpCasdoorUser(casdoorAuthService, TEACHER1_TOKEN, getCasdoorUserTeacher1());
-    setUpCasdoorUser(casdoorAuthService, MANAGER1_TOKEN, getCasdoorUserManager1());
-    setUpCasdoorUser(casdoorAuthService, STUDENT1_TOKEN, getCasdoorUserStudent1());
-    setUpCasdoorUser(casdoorAuthService, STUDENT2_TOKEN, getCasdoorUserStudent2());
-    setUpCasdoorUser(casdoorAuthService, STUDENT8_TOKEN, getCasdoorUserStudent8());
-    setUpCasdoorUser(casdoorAuthService, STUDENT11_TOKEN, getCasdoorUserStudent11());
-    setUpCasdoorUser(casdoorAuthService, STUDENT12_TOKEN, getCasdoorUserStudent12());
-    setUpCasdoorUser(casdoorAuthService, STUDENT13_TOKEN, getCasdoorUserStudent13());
-    setUpCasdoorUser(casdoorAuthService, MONITOR1_TOKEN, getCasdoorUserMonitor1());
-    setUpCasdoorUser(casdoorAuthService, MONITOR2_TOKEN, getCasdoorUserMonitor2());
-    setUpCasdoorUser(casdoorAuthService, ORGANIZER1_TOKEN, getCasdoorUserOrganizer1());
-    setUpCasdoorUser(casdoorAuthService, ORGANIZER2_TOKEN, getCasdoorUserOrganizer2());
-    setUpCasdoorUser(casdoorAuthService, STAFF_MEMBER1_TOKEN, getCasdoorUserStaffMember1());
-    setUpCasdoorUser(casdoorAuthService, ADMIN1_TOKEN, getCasdoorUserAdmin1());
-    setUpCasdoorUser(casdoorAuthService, SUSPENDED_TOKEN, getCasdoorUserSuspended());
+
+    setUpCognitoAndCasdoorUser(casdoorAuthService, cognitoComponent, BAD_TOKEN, null);
+    setUpCognitoAndCasdoorUser(
+        casdoorAuthService, cognitoComponent, STUDENT1_TOKEN, getCasdoorUserStudent1());
+    setUpCognitoAndCasdoorUser(
+        casdoorAuthService, cognitoComponent, STUDENT2_TOKEN, getCasdoorUserStudent2());
+    setUpCognitoAndCasdoorUser(
+        casdoorAuthService, cognitoComponent, STUDENT11_TOKEN, getCasdoorUserStudent11());
+    setUpCognitoAndCasdoorUser(
+        casdoorAuthService, cognitoComponent, STUDENT12_TOKEN, getCasdoorUserStudent12());
+    setUpCognitoAndCasdoorUser(
+        casdoorAuthService, cognitoComponent, STUDENT13_TOKEN, getCasdoorUserStudent13());
+    setUpCognitoAndCasdoorUser(
+        casdoorAuthService, cognitoComponent, MONITOR1_TOKEN, getCasdoorUserMonitor1());
+    setUpCognitoAndCasdoorUser(
+        casdoorAuthService, cognitoComponent, MONITOR2_TOKEN, getCasdoorUserMonitor2());
+    setUpCognitoAndCasdoorUser(
+        casdoorAuthService, cognitoComponent, STUDENT8_TOKEN, getCasdoorUserStudent8());
+
+    setUpCognitoAndCasdoorUser(
+        casdoorAuthService, cognitoComponent, TEACHER1_TOKEN, getCasdoorUserTeacher1());
+    setUpCognitoAndCasdoorUser(
+        casdoorAuthService, cognitoComponent, MANAGER1_TOKEN, getCasdoorUserManager1());
+    setUpCognitoAndCasdoorUser(
+        casdoorAuthService, cognitoComponent, ORGANIZER1_TOKEN, getCasdoorUserOrganizer1());
+    setUpCognitoAndCasdoorUser(
+        casdoorAuthService, cognitoComponent, ORGANIZER2_TOKEN, getCasdoorUserOrganizer2());
+    setUpCognitoAndCasdoorUser(
+        casdoorAuthService, cognitoComponent, STAFF_MEMBER1_TOKEN, getCasdoorUserStaffMember1());
+    setUpCognitoAndCasdoorUser(
+        casdoorAuthService, cognitoComponent, ADMIN1_TOKEN, getCasdoorUserAdmin1());
+    setUpCognitoAndCasdoorUser(
+        casdoorAuthService, cognitoComponent, SUSPENDED_TOKEN, getCasdoorUserSuspended());
+  }
+
+  public static void setUpCognitoAndCasdoorUser(
+      CasdoorAuthService casdoorAuthService,
+      CognitoComponent cognitoComponent,
+      String userToken,
+      @Nullable CasdoorUser user) {
+    if (user != null) {
+      setUpCasdoorUser(casdoorAuthService, userToken, user);
+      setUpCognitoUser(cognitoComponent, userToken, user.getEmail());
+    } else {
+      setUpCognitoUser(cognitoComponent, userToken, null);
+    }
   }
 
   public static void setUpCasdoorUser(
@@ -389,25 +423,6 @@ public class TestUtils {
       client.setRequestInterceptor(
           httpRequestBuilder -> httpRequestBuilder.header("Authorization", "Bearer " + token));
     return client;
-  }
-
-  public static void setUpCognito(CognitoComponent cognitoComponent) {
-    setUpCognitoUser(cognitoComponent, BAD_TOKEN, null);
-    setUpCognitoUser(cognitoComponent, STUDENT1_TOKEN, "test+ryan@hei.school");
-    setUpCognitoUser(cognitoComponent, STUDENT2_TOKEN, "test+student2@hei.school");
-    setUpCognitoUser(cognitoComponent, STUDENT11_TOKEN, "test+student11@hei.school");
-    setUpCognitoUser(cognitoComponent, STUDENT12_TOKEN, "test+student12@hei.school");
-    setUpCognitoUser(cognitoComponent, STUDENT13_TOKEN, "test+student13@hei.school");
-    setUpCognitoUser(cognitoComponent, MONITOR1_TOKEN, "test+monitor@hei.school");
-    setUpCognitoUser(cognitoComponent, MONITOR2_TOKEN, "test+monitor2@hei.school");
-    setUpCognitoUser(cognitoComponent, STUDENT8_TOKEN, "test+repeating2@hei" + ".school");
-    setUpCognitoUser(cognitoComponent, TEACHER1_TOKEN, "test+teacher1@hei.school");
-    setUpCognitoUser(cognitoComponent, MANAGER1_TOKEN, "test+manager1@hei.school");
-    setUpCognitoUser(cognitoComponent, STAFF_MEMBER1_TOKEN, "test+staff@hei.school");
-    setUpCognitoUser(cognitoComponent, ADMIN1_TOKEN, "test+admin@hei.school");
-    setUpCognitoUser(cognitoComponent, ORGANIZER1_TOKEN, "test+organizer@hei.school");
-    setUpCognitoUser(cognitoComponent, ORGANIZER2_TOKEN, "test+organizer+2@hei.school");
-    setUpCognitoUser(cognitoComponent, SUSPENDED_TOKEN, "test+suspended@hei.school");
   }
 
   private static void setUpCognitoUser(

@@ -26,8 +26,7 @@ import static school.hei.haapi.integration.conf.TestUtils.exam5;
 import static school.hei.haapi.integration.conf.TestUtils.grade1;
 import static school.hei.haapi.integration.conf.TestUtils.grade2;
 import static school.hei.haapi.integration.conf.TestUtils.group1;
-import static school.hei.haapi.integration.conf.TestUtils.setUpCasdoor;
-import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
+import static school.hei.haapi.integration.conf.TestUtils.setUpCognitoAndCasdoor;
 import static school.hei.haapi.integration.conf.TestUtils.setUpS3Service;
 import static school.hei.haapi.integration.conf.TestUtils.studentGrade1;
 import static school.hei.haapi.integration.conf.TestUtils.teacher1;
@@ -60,8 +59,7 @@ class ExamIT extends FacadeITMockedThirdParties {
 
   @BeforeEach
   void setUp() {
-    setUpCasdoor(casdoorAuthServiceMock, certificateLoaderMock);
-    setUpCognito(cognitoComponentMock);
+    setUpCognitoAndCasdoor(casdoorAuthServiceMock, cognitoComponentMock, certificateLoaderMock);
     setUpS3Service(fileService, student1());
   }
 

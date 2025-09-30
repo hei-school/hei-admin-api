@@ -19,8 +19,7 @@ import static school.hei.haapi.integration.conf.TestUtils.promotion21;
 import static school.hei.haapi.integration.conf.TestUtils.promotion22;
 import static school.hei.haapi.integration.conf.TestUtils.promotion23;
 import static school.hei.haapi.integration.conf.TestUtils.removeGroupToPromotion3;
-import static school.hei.haapi.integration.conf.TestUtils.setUpCasdoor;
-import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
+import static school.hei.haapi.integration.conf.TestUtils.setUpCognitoAndCasdoor;
 import static school.hei.haapi.integration.conf.TestUtils.setUpS3Service;
 
 import java.io.IOException;
@@ -52,8 +51,7 @@ public class PromotionIT extends FacadeITMockedThirdParties {
 
   @BeforeEach
   void setUp() {
-    setUpCasdoor(casdoorAuthServiceMock, certificateLoaderMock);
-    setUpCognito(cognitoComponentMock);
+    setUpCognitoAndCasdoor(casdoorAuthServiceMock, cognitoComponentMock, certificateLoaderMock);
     setUpS3Service(fileService, student1());
   }
 

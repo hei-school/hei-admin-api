@@ -17,8 +17,7 @@ import static school.hei.haapi.integration.conf.TestUtils.cloneGroupNoTimestamp;
 import static school.hei.haapi.integration.conf.TestUtils.group3;
 import static school.hei.haapi.integration.conf.TestUtils.group5;
 import static school.hei.haapi.integration.conf.TestUtils.isValidUUID;
-import static school.hei.haapi.integration.conf.TestUtils.setUpCasdoor;
-import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
+import static school.hei.haapi.integration.conf.TestUtils.setUpCognitoAndCasdoor;
 import static school.hei.haapi.integration.conf.TestUtils.setUpS3Service;
 import static school.hei.haapi.integration.test_data.GroupTestData.createGroupFlow;
 import static school.hei.haapi.integration.test_data.GroupTestData.g1;
@@ -153,8 +152,7 @@ class GroupIT extends FacadeITMockedThirdParties {
 
   @BeforeEach
   public void setUp() {
-    setUpCasdoor(casdoorAuthServiceMock, certificateLoaderMock);
-    setUpCognito(cognitoComponentMock);
+    setUpCognitoAndCasdoor(casdoorAuthServiceMock, cognitoComponentMock, certificateLoaderMock);
     setUpS3Service(fileService, student1());
     setUpTestData();
   }

@@ -2,7 +2,7 @@ package school.hei.haapi.unit.utils;
 
 import static java.util.Optional.empty;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
+import static school.hei.haapi.integration.conf.TestUtils.setUpCognitoAndCasdoor;
 import static school.hei.haapi.integration.conf.TestUtils.setUpEventBridge;
 
 import java.time.LocalDate;
@@ -25,7 +25,7 @@ public class DateUtilsTest extends FacadeITMockedThirdParties {
 
   @BeforeEach
   void setUp() {
-    setUpCognito(cognitoComponentMock);
+    setUpCognitoAndCasdoor(casdoorAuthServiceMock, cognitoComponentMock, certificateLoaderMock);
     setUpEventBridge(eventBridgeClientMock);
   }
 
