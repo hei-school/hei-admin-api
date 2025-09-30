@@ -38,18 +38,23 @@ public class CorDao {
 
     List<Predicate> predicates = new ArrayList<>();
 
-    if (from != null)
+    if (from != null) {
       predicates.add(builder.greaterThanOrEqualTo(root.get("creationDatetime"), from));
+    }
 
-    if (to != null) predicates.add(builder.lessThanOrEqualTo(root.get("creationDatetime"), to));
+    if (to != null) {
+      predicates.add(builder.lessThanOrEqualTo(root.get("creationDatetime"), to));
+    }
 
-    if (studentRef != null && !studentRef.isEmpty())
+    if (studentRef != null && !studentRef.isEmpty()) {
       predicates.add(
           builder.like(
               builder.lower(root.get("student").get("ref")), "%" + studentRef.toLowerCase() + "%"));
+    }
 
-    if (groupRef != null && !groupRef.isEmpty())
+    if (groupRef != null && !groupRef.isEmpty()) {
       throw new NotImplementedException("Filter by group ref not implemented");
+    }
 
     if (statuses != null && !statuses.isEmpty()) {
       Join<Cor, CorComment> commentsJoin = root.join("comments", JoinType.INNER);
@@ -63,7 +68,9 @@ public class CorDao {
 
     query.where(predicates.toArray(new Predicate[0]));
 
-    if (pageable.isUnpaged()) return entityManager.createQuery(query).getResultList();
+    if (pageable.isUnpaged()) {
+      return entityManager.createQuery(query).getResultList();
+    }
 
     return entityManager
         .createQuery(query)
