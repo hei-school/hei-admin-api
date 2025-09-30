@@ -17,7 +17,8 @@ import static school.hei.haapi.endpoint.rest.model.FeeTypeEnum.TUITION;
 import static school.hei.haapi.endpoint.rest.model.MobileMoneyType.ORANGE_MONEY;
 import static school.hei.haapi.endpoint.rest.model.MpbsStatus.PENDING;
 import static school.hei.haapi.endpoint.rest.model.MpbsStatus.SUCCESS;
-import static school.hei.haapi.integration.conf.TestUtils.FEE1_ID;
+import static school.hei.haapi.integration.conf.FakeDataProvider.*;
+import static school.hei.haapi.integration.conf.FakeDataProvider.someStudent;
 import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_ID;
 import static school.hei.haapi.integration.conf.TestUtils.setUpEventBridge;
 
@@ -36,6 +37,8 @@ import school.hei.haapi.model.Fee;
 import school.hei.haapi.model.User;
 import school.hei.haapi.model.mpbs.Mpbs;
 import school.hei.haapi.repository.FeeRepository;
+import school.hei.haapi.repository.MpbsRepository;
+import school.hei.haapi.repository.UserRepository;
 import school.hei.haapi.service.FeeService;
 import school.hei.haapi.service.MobilePaymentService;
 import school.hei.haapi.service.MpbsService;
@@ -49,30 +52,41 @@ class PendingMpbsCheckRequestedServiceTest extends FacadeITMockedThirdParties {
   @MockBean private MobilePaymentService mobilePaymentService;
   @Autowired private FeeService feeService;
   @Autowired private FeeRepository feeRepository;
+  @Autowired private UserRepository userRepository;
+  @Autowired private MpbsRepository mpbsRepository;
 
   private static final String MOCK_FEE_ID = "mock-fee";
   private static final String MOCK_STUDENT_FIRST_NAME = "MOCK";
   private static final String MOCK_STUDENT_LAST_NAME = "Student";
   private static final String MOCK_STUDENT_EMAIL = "mock@example.com";
 
+  private User student;
+  private Fee fee;
+  private Mpbs mpbs;
+
   @BeforeEach
   void setUp() {
     setUpEventBridge(eventBridgeClientMock);
+
+    student = userRepository.save(someStudent());
+    fee = feeRepository.save(someFee(student));
+    mpbs = mpbsRepository.save(someMpbs(fee));
   }
 
   @Test
-  @Disabled("TODO: dirty, create new student")
   void verify_mpbs_to_unverified() {
-    var actualFee = feeService.getById(FEE1_ID);
+    var actualFee = feeService.getById(fee.getId());
     assertDoesNotThrow(
         () ->
             subject.accept(
                 PendingMpbsCheckRequested.builder()
                     .toVerify(
-                        mpbsService.getStudentMobilePaymentByFeeId(STUDENT1_ID, FEE1_ID).getFirst())
+                        mpbsService
+                            .getStudentMobilePaymentByFeeId(student.getId(), fee.getId())
+                            .getFirst())
                     .verifyAt(now())
                     .build()));
-    var updatedFee = feeService.getById(FEE1_ID);
+    var updatedFee = feeService.getById(fee.getId());
 
     assertEquals(actualFee, updatedFee);
   }
