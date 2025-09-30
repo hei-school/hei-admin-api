@@ -10,6 +10,9 @@ import static school.hei.haapi.endpoint.rest.model.MobileMoneyType.MVOLA;
 import static school.hei.haapi.endpoint.rest.model.MobileMoneyType.ORANGE_MONEY;
 import static school.hei.haapi.endpoint.rest.model.MpbsStatus.PENDING;
 import static school.hei.haapi.integration.StudentIT.student1;
+import static school.hei.haapi.integration.conf.FakeDataProvider.someFee;
+import static school.hei.haapi.integration.conf.FakeDataProvider.someMpbs;
+import static school.hei.haapi.integration.conf.FakeDataProvider.someStudent;
 import static school.hei.haapi.integration.conf.TestUtils.FEE1_ID;
 import static school.hei.haapi.integration.conf.TestUtils.FEE2_ID;
 import static school.hei.haapi.integration.conf.TestUtils.MANAGER1_TOKEN;
@@ -19,6 +22,7 @@ import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.STUDENT2_ID;
 import static school.hei.haapi.integration.conf.TestUtils.assertThrowsForbiddenException;
 import static school.hei.haapi.integration.conf.TestUtils.setUpCognitoAndCasdoor;
+import static school.hei.haapi.integration.conf.TestUtils.setUpCognitoAndCasdoorUser;
 import static school.hei.haapi.integration.conf.TestUtils.setUpEventBridge;
 import static school.hei.haapi.integration.conf.TestUtils.setUpS3Service;
 import static school.hei.haapi.model.User.Role.STUDENT;
@@ -39,10 +43,14 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 import school.hei.haapi.endpoint.rest.api.PayingApi;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
+import school.hei.haapi.endpoint.rest.mapper.MpbsMapper;
 import school.hei.haapi.endpoint.rest.model.*;
 import school.hei.haapi.integration.conf.FacadeITMockedThirdParties;
 import school.hei.haapi.integration.conf.TestUtils;
 import school.hei.haapi.model.User;
+import school.hei.haapi.repository.FeeRepository;
+import school.hei.haapi.repository.MpbsRepository;
+import school.hei.haapi.repository.UserRepository;
 import school.hei.haapi.service.UserService;
 import software.amazon.awssdk.services.eventbridge.EventBridgeClient;
 
@@ -51,12 +59,27 @@ import software.amazon.awssdk.services.eventbridge.EventBridgeClient;
 public class MpbsIT extends FacadeITMockedThirdParties {
   @MockBean private EventBridgeClient eventBridgeClientMock;
   @Autowired private UserService userService;
+  @Autowired private UserRepository userRepository;
+  @Autowired private FeeRepository feeRepository;
+  @Autowired private MpbsRepository mpbsRepository;
+  @Autowired private MpbsMapper mpbsMapper;
+
+  private User student;
+  private school.hei.haapi.model.Fee fee;
+  private school.hei.haapi.model.mpbs.Mpbs mpbs;
+  private static final String studentToken = "studentToken";
 
   @BeforeEach
   void setUp() {
     setUpCognitoAndCasdoor(casdoorAuthServiceMock, cognitoComponentMock, certificateLoaderMock);
     setUpEventBridge(eventBridgeClientMock);
     setUpS3Service(fileService, student1());
+
+    student = userRepository.save(someStudent());
+    fee = feeRepository.save(someFee(student));
+    mpbs = mpbsRepository.save(someMpbs(fee));
+    System.out.println(mpbs.getPspId());
+    setUpCognitoAndCasdoorUser(casdoorAuthServiceMock, cognitoComponentMock, studentToken, student);
   }
 
   private ApiClient anApiClient(String token) {
@@ -110,32 +133,30 @@ public class MpbsIT extends FacadeITMockedThirdParties {
   }
 
   @Test
-  @Disabled("TODO: dirty, create new student")
   void student_update_mobile_payment_ok() throws ApiException {
-    ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
-    PayingApi api = new PayingApi(student1Client);
+    var api = new PayingApi(anApiClient(studentToken));
 
-    Mpbs actual0 = api.getMpbs(STUDENT1_ID, FEE1_ID).getFirst();
-    assertEquals(expectedMpbs1(), actual0);
+    var storedMpbs = api.getMpbs(student.getId(), fee.getId()).getFirst();
+    assertEquals(mpbsMapper.toRest(mpbs), storedMpbs);
 
-    Mpbs inUpdate = api.crupdateMpbs(STUDENT1_ID, FEE1_ID, updatableMpbs1());
-    var updated = expectedMpbs1();
+    var mpbsInUpdate = api.crupdateMpbs(student.getId(), fee.getId(), updatableMpbs1());
+    var updated = mpbsMapper.toRest(mpbs);
     updated.setPspId("MP240726.1541.D88426");
     updated.setPspType(ORANGE_MONEY);
-    assertEquals(updated.getStudentId(), inUpdate.getStudentId());
-    assertEquals(updated.getPspId(), inUpdate.getPspId());
-    assertEquals(updated.getFeeId(), inUpdate.getFeeId());
-    assertEquals(updated.getPspType(), inUpdate.getPspType());
+    assertEquals(updated.getStudentId(), mpbsInUpdate.getStudentId());
+    assertEquals(updated.getPspId(), mpbsInUpdate.getPspId());
+    assertEquals(updated.getFeeId(), mpbsInUpdate.getFeeId());
+    assertEquals(updated.getPspType(), mpbsInUpdate.getPspType());
 
     // Assert that one fee has mpbs
-    Mpbs actual1 = api.getMpbs(STUDENT1_ID, FEE1_ID).getFirst();
+    Mpbs actual1 = api.getMpbs(student.getId(), fee.getId()).getFirst();
     actual1.setCreationDatetime(actual1.getCreationDatetime().truncatedTo(MINUTES));
-    inUpdate.setCreationDatetime(inUpdate.getCreationDatetime().truncatedTo(MINUTES));
-    assertEquals(actual1, inUpdate);
+    mpbsInUpdate.setCreationDatetime(mpbsInUpdate.getCreationDatetime().truncatedTo(MINUTES));
+    assertEquals(actual1, mpbsInUpdate);
 
     // Assert that when we get fees it not throws error 500
-    List<Fee> actualFee = api.getStudentFees(STUDENT1_ID, 1, 10, null);
-    assertEquals(7, actualFee.size());
+    var studentFee = api.getStudentFees(student.getId(), 1, 10, null);
+    assertEquals(1, studentFee.size());
   }
 
   @Test
@@ -239,11 +260,11 @@ public class MpbsIT extends FacadeITMockedThirdParties {
     return userService.saveAll(List.of(randomStudent)).getFirst();
   }
 
-  public static CrupdateMpbs updatableMpbs1() {
+  public CrupdateMpbs updatableMpbs1() {
     return new CrupdateMpbs()
-        .id("mpbs1_id")
-        .studentId(STUDENT1_ID)
-        .feeId(FEE1_ID)
+        .id(mpbs.getId())
+        .studentId(student.getId())
+        .feeId(fee.getId())
         .pspId("MP240726.1541.D88426")
         .pspType(ORANGE_MONEY);
   }

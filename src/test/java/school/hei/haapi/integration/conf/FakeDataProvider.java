@@ -8,6 +8,7 @@ import static school.hei.haapi.endpoint.rest.model.FeeCategory.L1;
 import static school.hei.haapi.endpoint.rest.model.FeeFrequency.MONTHLY;
 import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.PENDING;
 import static school.hei.haapi.endpoint.rest.model.FeeTypeEnum.TUITION;
+import static school.hei.haapi.endpoint.rest.model.MobileMoneyType.ORANGE_MONEY;
 import static school.hei.haapi.integration.conf.TestUtils.COURSE1_ID;
 import static school.hei.haapi.integration.conf.TestUtils.MANAGER_ID;
 import static school.hei.haapi.integration.conf.TestUtils.group1;
@@ -110,7 +111,7 @@ public class FakeDataProvider {
     return groupList;
   }
 
-  public Fee someFee(User student) {
+  public static Fee someFee(User student) {
     return Fee.builder()
         .id(UUID.randomUUID().toString())
         .comment(faker.lorem().sentence(10))
@@ -157,10 +158,17 @@ public class FakeDataProvider {
   }
 
   public Mpbs someMpbs(User student) {
+    return someMpbs(someFee(student));
+  }
+
+  public static Mpbs someMpbs(Fee fee) {
     return Mpbs.builder()
         .status(faker.options().option(MpbsStatus.class))
-        .fee(someFee(student))
+        .fee(fee)
         .amount(faker.number().numberBetween(100, 10_000))
+        .mobileMoneyType(ORANGE_MONEY)
+        .pspId(faker.regexify("MP\\d{6}\\.\\d{4}\\.D\\d{5}"))
+        .student(fee.getStudent())
         .build();
   }
 
@@ -213,6 +221,10 @@ public class FakeDataProvider {
         .status(User.Status.ENABLED)
         .entranceDatetime(Instant.now())
         .build();
+  }
+
+  public static User someStudent() {
+    return someStudent(faker.name().firstName());
   }
 
   public static Coordinates someCoordinates() {
