@@ -69,7 +69,7 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.web.util.UriComponentsBuilder;
 import org.testcontainers.shaded.com.google.common.primitives.Bytes;
-import org.testcontainers.shaded.org.checkerframework.checker.nullness.qual.Nullable;
+import org.testcontainers.shaded.org.checkerframework.checker.nullness.qual.NonNull;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
 import school.hei.haapi.endpoint.rest.model.Announcement;
@@ -121,6 +121,7 @@ import school.hei.haapi.endpoint.rest.model.UserIdentifier;
 import school.hei.haapi.endpoint.rest.security.casdoorAuthentication.config.CertificateLoader;
 import school.hei.haapi.endpoint.rest.security.cognito.CognitoComponent;
 import school.hei.haapi.http.model.TransactionDetails;
+import school.hei.haapi.model.User;
 import school.hei.haapi.model.exception.BadRequestException;
 import school.hei.haapi.model.exception.NotFoundException;
 import school.hei.haapi.service.aws.FileService;
@@ -356,13 +357,29 @@ public class TestUtils {
     return user;
   }
 
+  public static CasdoorUser userToCasdoorUser(User user) {
+    CasdoorUser casdoorUser = new CasdoorUser();
+    if (user.getEmail() == null) throw new RuntimeException("Email is null");
+    casdoorUser.setEmail(user.getEmail());
+
+    var casdoorRole = new CasdoorRole();
+    casdoorRole.setOwner("dummy");
+    if (user.getRole() == null) throw new RuntimeException("Role is null");
+    casdoorRole.setName(user.getRole().toString().toLowerCase());
+    var roleUsers = new String[] {"dummy/casdoorUser"};
+    casdoorRole.setUsers(roleUsers);
+    casdoorUser.setRoles(List.of(casdoorRole));
+
+    return casdoorUser;
+  }
+
   public static void setUpCognitoAndCasdoor(
       CasdoorAuthService casdoorAuthService,
       CognitoComponent cognitoComponent,
       CertificateLoader certificateLoader) {
     given(certificateLoader.getCertificate()).willReturn("mocked-certificate");
 
-    setUpCognitoAndCasdoorUser(casdoorAuthService, cognitoComponent, BAD_TOKEN, null);
+    setUpCognitoAndCasdoorUser(cognitoComponent, BAD_TOKEN);
     setUpCognitoAndCasdoorUser(
         casdoorAuthService, cognitoComponent, STUDENT1_TOKEN, getCasdoorUserStudent1());
     setUpCognitoAndCasdoorUser(
@@ -400,13 +417,23 @@ public class TestUtils {
       CasdoorAuthService casdoorAuthService,
       CognitoComponent cognitoComponent,
       String userToken,
-      @Nullable CasdoorUser user) {
-    if (user != null) {
-      setUpCasdoorUser(casdoorAuthService, userToken, user);
-      setUpCognitoUser(cognitoComponent, userToken, user.getEmail());
-    } else {
-      setUpCognitoUser(cognitoComponent, userToken, null);
-    }
+      @NonNull CasdoorUser user) {
+    setUpCasdoorUser(casdoorAuthService, userToken, user);
+    setUpCognitoUser(cognitoComponent, userToken, user.getEmail());
+  }
+
+  public static void setUpCognitoAndCasdoorUser(
+      CasdoorAuthService casdoorAuthService,
+      CognitoComponent cognitoComponent,
+      String userToken,
+      @NonNull User user) {
+    setUpCognitoAndCasdoorUser(
+        casdoorAuthService, cognitoComponent, userToken, userToCasdoorUser(user));
+  }
+
+  public static void setUpCognitoAndCasdoorUser(
+      CognitoComponent cognitoComponent, String badToken) {
+    setUpCognitoUser(cognitoComponent, badToken, null);
   }
 
   public static void setUpCasdoorUser(
