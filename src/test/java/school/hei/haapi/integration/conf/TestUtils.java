@@ -358,22 +358,26 @@ public class TestUtils {
   public static void setUpCasdoor(
       CasdoorAuthService casdoorAuthService, CertificateLoader certificateLoader) {
     given(certificateLoader.getCertificate()).willReturn("mocked-certificate");
-    when(casdoorAuthService.parseJwtToken(TEACHER1_TOKEN)).thenReturn(getCasdoorUserTeacher1());
-    when(casdoorAuthService.parseJwtToken(MANAGER1_TOKEN)).thenReturn(getCasdoorUserManager1());
-    when(casdoorAuthService.parseJwtToken(STUDENT1_TOKEN)).thenReturn(getCasdoorUserStudent1());
-    when(casdoorAuthService.parseJwtToken(STUDENT2_TOKEN)).thenReturn(getCasdoorUserStudent2());
-    when(casdoorAuthService.parseJwtToken(STUDENT8_TOKEN)).thenReturn(getCasdoorUserStudent8());
-    when(casdoorAuthService.parseJwtToken(STUDENT11_TOKEN)).thenReturn(getCasdoorUserStudent11());
-    when(casdoorAuthService.parseJwtToken(STUDENT12_TOKEN)).thenReturn(getCasdoorUserStudent12());
-    when(casdoorAuthService.parseJwtToken(STUDENT13_TOKEN)).thenReturn(getCasdoorUserStudent13());
-    when(casdoorAuthService.parseJwtToken(MONITOR1_TOKEN)).thenReturn(getCasdoorUserMonitor1());
-    when(casdoorAuthService.parseJwtToken(MONITOR2_TOKEN)).thenReturn(getCasdoorUserMonitor2());
-    when(casdoorAuthService.parseJwtToken(ORGANIZER1_TOKEN)).thenReturn(getCasdoorUserOrganizer1());
-    when(casdoorAuthService.parseJwtToken(ORGANIZER2_TOKEN)).thenReturn(getCasdoorUserOrganizer2());
-    when(casdoorAuthService.parseJwtToken(STAFF_MEMBER1_TOKEN))
-        .thenReturn(getCasdoorUserStaffMember1());
-    when(casdoorAuthService.parseJwtToken(ADMIN1_TOKEN)).thenReturn(getCasdoorUserAdmin1());
-    when(casdoorAuthService.parseJwtToken(SUSPENDED_TOKEN)).thenReturn(getCasdoorUserSuspended());
+    setUpCasdoorUser(casdoorAuthService, TEACHER1_TOKEN, getCasdoorUserTeacher1());
+    setUpCasdoorUser(casdoorAuthService, MANAGER1_TOKEN, getCasdoorUserManager1());
+    setUpCasdoorUser(casdoorAuthService, STUDENT1_TOKEN, getCasdoorUserStudent1());
+    setUpCasdoorUser(casdoorAuthService, STUDENT2_TOKEN, getCasdoorUserStudent2());
+    setUpCasdoorUser(casdoorAuthService, STUDENT8_TOKEN, getCasdoorUserStudent8());
+    setUpCasdoorUser(casdoorAuthService, STUDENT11_TOKEN, getCasdoorUserStudent11());
+    setUpCasdoorUser(casdoorAuthService, STUDENT12_TOKEN, getCasdoorUserStudent12());
+    setUpCasdoorUser(casdoorAuthService, STUDENT13_TOKEN, getCasdoorUserStudent13());
+    setUpCasdoorUser(casdoorAuthService, MONITOR1_TOKEN, getCasdoorUserMonitor1());
+    setUpCasdoorUser(casdoorAuthService, MONITOR2_TOKEN, getCasdoorUserMonitor2());
+    setUpCasdoorUser(casdoorAuthService, ORGANIZER1_TOKEN, getCasdoorUserOrganizer1());
+    setUpCasdoorUser(casdoorAuthService, ORGANIZER2_TOKEN, getCasdoorUserOrganizer2());
+    setUpCasdoorUser(casdoorAuthService, STAFF_MEMBER1_TOKEN, getCasdoorUserStaffMember1());
+    setUpCasdoorUser(casdoorAuthService, ADMIN1_TOKEN, getCasdoorUserAdmin1());
+    setUpCasdoorUser(casdoorAuthService, SUSPENDED_TOKEN, getCasdoorUserSuspended());
+  }
+
+  public static void setUpCasdoorUser(
+      CasdoorAuthService casdoorAuthService, String userToken, CasdoorUser user) {
+    when(casdoorAuthService.parseJwtToken(userToken)).thenReturn(user);
   }
 
   public static ApiClient anApiClient(String token, int serverPort) {
@@ -388,30 +392,27 @@ public class TestUtils {
   }
 
   public static void setUpCognito(CognitoComponent cognitoComponent) {
-    when(cognitoComponent.getEmailByIdToken(BAD_TOKEN)).thenReturn(null);
-    when(cognitoComponent.getEmailByIdToken(STUDENT1_TOKEN)).thenReturn("test+ryan@hei.school");
-    when(cognitoComponent.getEmailByIdToken(STUDENT2_TOKEN)).thenReturn("test+student2@hei.school");
-    when(cognitoComponent.getEmailByIdToken(STUDENT11_TOKEN))
-        .thenReturn("test+student11@hei.school");
-    when(cognitoComponent.getEmailByIdToken(STUDENT12_TOKEN))
-        .thenReturn("test+student12@hei.school");
-    when(cognitoComponent.getEmailByIdToken(STUDENT13_TOKEN))
-        .thenReturn("test+student13@hei.school");
-    when(cognitoComponent.getEmailByIdToken(MONITOR1_TOKEN)).thenReturn("test+monitor@hei.school");
-    when(cognitoComponent.getEmailByIdToken(MONITOR2_TOKEN)).thenReturn("test+monitor2@hei.school");
-    when(cognitoComponent.getEmailByIdToken(STUDENT8_TOKEN))
-        .thenReturn("test+repeating2@hei" + ".school");
-    when(cognitoComponent.getEmailByIdToken(TEACHER1_TOKEN)).thenReturn("test+teacher1@hei.school");
-    when(cognitoComponent.getEmailByIdToken(MANAGER1_TOKEN)).thenReturn("test+manager1@hei.school");
-    when(cognitoComponent.getEmailByIdToken(STAFF_MEMBER1_TOKEN))
-        .thenReturn("test+staff@hei.school");
-    when(cognitoComponent.getEmailByIdToken(ADMIN1_TOKEN)).thenReturn("test+admin@hei.school");
-    when(cognitoComponent.getEmailByIdToken(ORGANIZER1_TOKEN))
-        .thenReturn("test+organizer@hei.school");
-    when(cognitoComponent.getEmailByIdToken(ORGANIZER2_TOKEN))
-        .thenReturn("test+organizer+2@hei.school");
-    when(cognitoComponent.getEmailByIdToken(SUSPENDED_TOKEN))
-        .thenReturn("test+suspended@hei.school");
+    setUpCognitoUser(cognitoComponent, BAD_TOKEN, null);
+    setUpCognitoUser(cognitoComponent, STUDENT1_TOKEN, "test+ryan@hei.school");
+    setUpCognitoUser(cognitoComponent, STUDENT2_TOKEN, "test+student2@hei.school");
+    setUpCognitoUser(cognitoComponent, STUDENT11_TOKEN, "test+student11@hei.school");
+    setUpCognitoUser(cognitoComponent, STUDENT12_TOKEN, "test+student12@hei.school");
+    setUpCognitoUser(cognitoComponent, STUDENT13_TOKEN, "test+student13@hei.school");
+    setUpCognitoUser(cognitoComponent, MONITOR1_TOKEN, "test+monitor@hei.school");
+    setUpCognitoUser(cognitoComponent, MONITOR2_TOKEN, "test+monitor2@hei.school");
+    setUpCognitoUser(cognitoComponent, STUDENT8_TOKEN, "test+repeating2@hei" + ".school");
+    setUpCognitoUser(cognitoComponent, TEACHER1_TOKEN, "test+teacher1@hei.school");
+    setUpCognitoUser(cognitoComponent, MANAGER1_TOKEN, "test+manager1@hei.school");
+    setUpCognitoUser(cognitoComponent, STAFF_MEMBER1_TOKEN, "test+staff@hei.school");
+    setUpCognitoUser(cognitoComponent, ADMIN1_TOKEN, "test+admin@hei.school");
+    setUpCognitoUser(cognitoComponent, ORGANIZER1_TOKEN, "test+organizer@hei.school");
+    setUpCognitoUser(cognitoComponent, ORGANIZER2_TOKEN, "test+organizer+2@hei.school");
+    setUpCognitoUser(cognitoComponent, SUSPENDED_TOKEN, "test+suspended@hei.school");
+  }
+
+  private static void setUpCognitoUser(
+      CognitoComponent cognitoComponent, String token, String email) {
+    when(cognitoComponent.getEmailByIdToken(token)).thenReturn(email);
   }
 
   public static void setUpS3Service(FileService fileService, Student user) {
