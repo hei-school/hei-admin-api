@@ -37,12 +37,12 @@ import school.hei.haapi.model.CorStatus;
 import school.hei.haapi.model.User;
 import school.hei.haapi.repository.CorRepository;
 import school.hei.haapi.repository.UserRepository;
-import school.hei.haapi.service.CorService;
+import school.hei.haapi.service.CorCommentService;
 
 class CorIT extends FacadeITMockedThirdParties {
   @Autowired private UserRepository userRepository;
   @Autowired private CorRepository corRepository;
-  @Autowired private CorService corService;
+  @Autowired private CorCommentService corCommentService;
   @Autowired private CorMapper corMapper;
   @Autowired private CorCommentMapper corCommentMapper;
   private final Faker faker = new Faker();
@@ -58,7 +58,7 @@ class CorIT extends FacadeITMockedThirdParties {
     tolotraWithoutCor = userRepository.save(someStudent("tolotra"));
     corAxel = corRepository.save(someCor(axelWithCor, Instant.parse("2025-01-01T10:00:00Z")));
     someCorComment(faker.number().numberBetween(0, 2))
-        .forEach(c -> corService.addComment(corAxel.getId(), c));
+        .forEach(c -> corCommentService.addCommentByCorId(corAxel.getId(), c));
     corAxel = corRepository.findById(corAxel.getId()).get();
 
     setUpCasdoor(casdoorAuthServiceMock, certificateLoaderMock);
@@ -126,7 +126,10 @@ class CorIT extends FacadeITMockedThirdParties {
     assertFalse(
         corsFilterByStudentRef.contains(
             corMapper.toRest(Cor.builder().student(tolotraWithoutCor).build())));
-    corAxel = corService.addComment(corAxel.getId(), someCorComment(CorStatus.IN_PROGRESS));
+    corAxel =
+        corCommentService
+            .addCommentByCorId(corAxel.getId(), someCorComment(CorStatus.IN_PROGRESS))
+            .getCor();
     var corsFilterByStatus = api.getCors(1, 1, null, null, null, null, singletonList(IN_PROGRESS));
     assertEquals(1, corsFilterByStatus.size());
     assertEquals(IN_PROGRESS, corsFilterByStatus.getFirst().getStatus());

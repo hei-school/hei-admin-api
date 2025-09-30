@@ -19,6 +19,7 @@ import school.hei.haapi.endpoint.rest.model.CrupdateCor;
 import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.model.pagination.PaginationFromPageAndPageSize;
+import school.hei.haapi.service.CorCommentService;
 import school.hei.haapi.service.CorService;
 
 @RestController
@@ -28,6 +29,7 @@ public class CorController {
   private final CorMapper corMapper;
   private final CorCommentMapper corCommentMapper;
   private final PaginationFromPageAndPageSize paginationFromPageAndPageSize;
+  private final CorCommentService corCommentService;
 
   @GetMapping("/cors")
   public List<Cor> getCors(
@@ -57,7 +59,9 @@ public class CorController {
   public Cor commentCorById(
       @PathVariable("cor_id") String corId, @RequestBody CorCommentInfo corCommentInfo) {
     return corMapper.toRest(
-        corService.addComment(corId, corCommentMapper.toDomain(corCommentInfo)));
+        corCommentService
+            .addCommentByCorId(corId, corCommentMapper.toDomain(corCommentInfo))
+            .getCor());
   }
 
   @GetMapping("/students/{student_id}/cors")
