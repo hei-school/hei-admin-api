@@ -2,7 +2,7 @@ package school.hei.haapi.model;
 
 import static jakarta.persistence.FetchType.EAGER;
 import static jakarta.persistence.GenerationType.IDENTITY;
-import static school.hei.haapi.model.CorComment.CorStatus.IN_PROGRESS;
+import static school.hei.haapi.model.CorStatus.IN_PROGRESS;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -23,7 +23,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import org.hibernate.annotations.CreationTimestamp;
-import school.hei.haapi.model.CorComment.CorStatus;
 
 @Entity
 @Table(name = "\"cor\"")

@@ -1,6 +1,6 @@
 package school.hei.haapi.repository.dao;
 
-import static school.hei.haapi.model.CorComment.CorStatus.IN_PROGRESS;
+import static school.hei.haapi.model.CorStatus.IN_PROGRESS;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.criteria.CriteriaBuilder;
@@ -17,7 +17,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 import school.hei.haapi.model.Cor;
 import school.hei.haapi.model.CorComment;
-import school.hei.haapi.model.CorComment.CorStatus;
+import school.hei.haapi.model.CorStatus;
 import school.hei.haapi.model.exception.NotImplementedException;
 
 @Repository

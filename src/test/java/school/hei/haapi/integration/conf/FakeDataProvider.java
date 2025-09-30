@@ -231,10 +231,10 @@ public class FakeDataProvider {
   }
 
   public static CorComment someCorComment() {
-    return someCorComment(faker.options().option(CorComment.CorStatus.class));
+    return someCorComment(faker.options().option(school.hei.haapi.model.CorStatus.class));
   }
 
-  public static CorComment someCorComment(CorComment.CorStatus status) {
+  public static CorComment someCorComment(school.hei.haapi.model.CorStatus status) {
     return CorComment.builder().comment(faker.lorem().paragraph()).status(status).build();
   }
 

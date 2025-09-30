@@ -6,7 +6,6 @@ import org.springframework.stereotype.Component;
 import school.hei.haapi.endpoint.rest.model.Cor;
 import school.hei.haapi.endpoint.rest.model.CorStatus;
 import school.hei.haapi.endpoint.rest.model.CrupdateCor;
-import school.hei.haapi.model.CorComment;
 import school.hei.haapi.service.UserService;
 
 @Component
@@ -16,7 +15,7 @@ public class CorMapper {
   private final UserService userService;
   private final CorCommentMapper corCommentMapper;
 
-  public List<CorComment.CorStatus> toDomain(List<CorStatus> rest) {
+  public List<school.hei.haapi.model.CorStatus> toDomain(List<CorStatus> rest) {
     return rest != null ? rest.stream().map(corCommentMapper::toDomain).toList() : List.of();
   }
 

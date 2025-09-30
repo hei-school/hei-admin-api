@@ -33,7 +33,7 @@ public class CorCommentMapper {
     return domain.stream().map(this::toRest).toList();
   }
 
-  public CorStatus toRest(CorComment.CorStatus domain) {
+  public CorStatus toRest(school.hei.haapi.model.CorStatus domain) {
     if (domain == null) return null;
     return switch (domain) {
       case IN_PROGRESS -> IN_PROGRESS;
@@ -44,14 +44,14 @@ public class CorCommentMapper {
     };
   }
 
-  public CorComment.CorStatus toDomain(CorStatus rest) {
+  public school.hei.haapi.model.CorStatus toDomain(CorStatus rest) {
     if (rest == null) return null;
     return switch (rest) {
-      case IN_PROGRESS -> CorComment.CorStatus.IN_PROGRESS;
-      case STAY -> CorComment.CorStatus.STAY;
-      case CANCELED -> CorComment.CorStatus.CANCELED;
-      case LEAVE -> CorComment.CorStatus.LEAVE;
-      case NO_SHOW -> CorComment.CorStatus.NO_SHOW;
+      case IN_PROGRESS -> school.hei.haapi.model.CorStatus.IN_PROGRESS;
+      case STAY -> school.hei.haapi.model.CorStatus.STAY;
+      case CANCELED -> school.hei.haapi.model.CorStatus.CANCELED;
+      case LEAVE -> school.hei.haapi.model.CorStatus.LEAVE;
+      case NO_SHOW -> school.hei.haapi.model.CorStatus.NO_SHOW;
     };
   }
 }

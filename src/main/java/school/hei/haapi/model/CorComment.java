@@ -47,12 +47,4 @@ public class CorComment {
   @ManyToOne
   @JoinColumn(name = "cor_id", updatable = false)
   private Cor cor;
-
-  public enum CorStatus {
-    IN_PROGRESS,
-    STAY,
-    CANCELED,
-    LEAVE,
-    NO_SHOW
-  }
 }

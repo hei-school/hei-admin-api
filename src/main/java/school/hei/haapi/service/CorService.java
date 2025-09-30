@@ -8,7 +8,7 @@ import org.springframework.stereotype.Service;
 import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.Cor;
 import school.hei.haapi.model.CorComment;
-import school.hei.haapi.model.CorComment.CorStatus;
+import school.hei.haapi.model.CorStatus;
 import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.model.exception.NotFoundException;
 import school.hei.haapi.model.pagination.PaginationFromPageAndPageSize;
