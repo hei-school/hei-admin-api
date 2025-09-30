@@ -22,7 +22,7 @@ public class CorCommentMapper {
         .build();
   }
 
-  private school.hei.haapi.endpoint.rest.model.CorComment toRest(CorComment domain) {
+  public school.hei.haapi.endpoint.rest.model.CorComment toRest(CorComment domain) {
     return new school.hei.haapi.endpoint.rest.model.CorComment()
         .comment(domain.getComment())
         .status(toRest(domain.getStatus()))

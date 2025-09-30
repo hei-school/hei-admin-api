@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 import school.hei.haapi.endpoint.rest.mapper.CorCommentMapper;
 import school.hei.haapi.endpoint.rest.mapper.CorMapper;
 import school.hei.haapi.endpoint.rest.model.Cor;
+import school.hei.haapi.endpoint.rest.model.CorComment;
 import school.hei.haapi.endpoint.rest.model.CorCommentInfo;
 import school.hei.haapi.endpoint.rest.model.CorStatus;
 import school.hei.haapi.endpoint.rest.model.CrupdateCor;
@@ -56,12 +57,10 @@ public class CorController {
   }
 
   @PostMapping("/cors/{cor_id}/comment")
-  public Cor commentCorById(
+  public CorComment commentCorById(
       @PathVariable("cor_id") String corId, @RequestBody CorCommentInfo corCommentInfo) {
-    return corMapper.toRest(
-        corCommentService
-            .addCommentByCorId(corId, corCommentMapper.toDomain(corCommentInfo))
-            .getCor());
+    return corCommentMapper.toRest(
+        corCommentService.addCommentByCorId(corId, corCommentMapper.toDomain(corCommentInfo)));
   }
 
   @GetMapping("/students/{student_id}/cors")
