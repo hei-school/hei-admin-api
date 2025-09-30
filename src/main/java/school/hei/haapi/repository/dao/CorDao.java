@@ -1,8 +1,12 @@
 package school.hei.haapi.repository.dao;
 
+import static school.hei.haapi.model.CorComment.CorStatus.IN_PROGRESS;
+
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Join;
+import jakarta.persistence.criteria.JoinType;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 import java.time.Instant;
@@ -12,6 +16,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 import school.hei.haapi.model.Cor;
+import school.hei.haapi.model.CorComment;
 import school.hei.haapi.model.CorComment.CorStatus;
 import school.hei.haapi.model.exception.NotImplementedException;
 
@@ -47,9 +52,13 @@ public class CorDao {
       throw new NotImplementedException("Filter by group ref not implemented");
 
     if (statuses != null && !statuses.isEmpty()) {
-      if (statuses.size() > 1)
-        throw new NotImplementedException("Filter by statuses not implemented");
-      throw new NotImplementedException("Filter by statuses not implemented");
+      Join<Cor, CorComment> commentsJoin = root.join("comments", JoinType.INNER);
+      var statusFilter = commentsJoin.get("status").in(statuses);
+      if (statuses.contains(IN_PROGRESS)) {
+        // TODO: filter with cor without comment don't work
+        statusFilter = builder.or(statusFilter, commentsJoin.get("status").isNull());
+      }
+      predicates.add(statusFilter);
     }
 
     query.where(predicates.toArray(new Predicate[0]));
