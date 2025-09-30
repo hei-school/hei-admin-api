@@ -112,12 +112,16 @@ public class FakeDataProvider {
   }
 
   public static Fee someFee(User student) {
+    return someFee(student, 0);
+  }
+
+  public static Fee someFee(User student, int totalAmount) {
     return Fee.builder()
         .id(UUID.randomUUID().toString())
         .comment(faker.lorem().sentence(10))
         .student(student)
-        .totalAmount(0)
-        .remainingAmount(0)
+        .totalAmount(totalAmount)
+        .remainingAmount(totalAmount)
         .status(PENDING)
         .updatedAt(Instant.now())
         .creationDatetime(Instant.now())

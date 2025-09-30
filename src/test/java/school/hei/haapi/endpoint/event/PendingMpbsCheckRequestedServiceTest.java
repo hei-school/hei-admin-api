@@ -67,9 +67,12 @@ class PendingMpbsCheckRequestedServiceTest extends FacadeITMockedThirdParties {
   @BeforeEach
   void setUp() {
     setUpEventBridge(eventBridgeClientMock);
+    setUpData(0);
+  }
 
+  void setUpData(int totalFeeAmount) {
     student = userRepository.save(someStudent());
-    fee = feeRepository.save(someFee(student));
+    fee = feeRepository.save(someFee(student, totalFeeAmount));
     mpbs = mpbsRepository.save(someMpbs(fee));
   }
 
@@ -92,13 +95,13 @@ class PendingMpbsCheckRequestedServiceTest extends FacadeITMockedThirdParties {
   }
 
   @Test
-  @Disabled("TODO: dirty, create new student")
   void verify_mpbs() {
-    var fee = feeService.saveAll(List.of(someFeeFor(mockStudent()))).getFirst();
+    setUpData(10_000);
+
     var mpbsCreated =
         Mpbs.builder()
             .status(PENDING)
-            .student(mockStudent())
+            .student(student)
             .fee(fee)
             .amount(fee.getRemainingAmount())
             .statusHistory(new ArrayList<>())
