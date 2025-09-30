@@ -7,12 +7,12 @@ $$
     END
 $$;
 
-CREATE TABLE public.cor
+CREATE TABLE cor
 (
-    id                 VARCHAR                        NOT NULL DEFAULT uuid_generate_v4(),
-    creation_datetime  TIMESTAMP WITH TIME ZONE                DEFAULT now(),
+    id                 VARCHAR
+        CONSTRAINT pk_cor PRIMARY KEY           DEFAULT uuid_generate_v4(),
+    creation_datetime  TIMESTAMP WITH TIME ZONE DEFAULT now(),
     interview_datetime TIMESTAMP with time ZONE,
     student_id         VARCHAR REFERENCES "user" (id) NOT NULL,
-    description        VARCHAR                        NOT NULL,
-    CONSTRAINT cor_pk PRIMARY KEY (id)
+    description        VARCHAR                        NOT NULL
 );
