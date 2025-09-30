@@ -145,6 +145,7 @@ class VerificationMpbsByXlsxTest {
             .toList();
     when(mockedMpbsRepository.findByPspIdIn(anyList())).thenReturn(List.of());
     when(mockedMpbsRepository.findAllByStatus(PENDING)).thenReturn(fakePendingSavedMpbs);
+    when(mobilePaymentService.findAllTransactionByRefs(anyList())).thenReturn(List.of());
 
     assertDoesNotThrow(() -> subject.computeFromXls(getMockedFile("test-mpbs", ".xls")));
 

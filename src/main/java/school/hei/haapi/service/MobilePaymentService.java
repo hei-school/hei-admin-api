@@ -40,10 +40,10 @@ public class MobilePaymentService implements MobileTransactionProvider {
 
   public List<MobileTransactionDetails> findAllTransactionByMpbs(List<Mpbs> mpbsList) {
     List<String> transactionRefs = mpbsList.stream().map(Mpbs::getPspId).toList();
-    return findAllTransactionByRef(transactionRefs);
+    return findAllTransactionByRefs(transactionRefs);
   }
 
-  private List<MobileTransactionDetails> findAllTransactionByRef(List<String> transactionRefs) {
+  public List<MobileTransactionDetails> findAllTransactionByRefs(List<String> transactionRefs) {
     return mobileTransactionDetailsRepository.findAllByPspTransactionRefIn(transactionRefs);
   }
 
