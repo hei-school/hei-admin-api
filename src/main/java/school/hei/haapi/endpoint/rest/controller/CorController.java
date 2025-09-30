@@ -66,7 +66,7 @@ public class CorController {
       @RequestParam(name = "page", required = false, defaultValue = "1") PageFromOne page,
       @RequestParam(name = "page_size", required = false, defaultValue = "15")
           BoundedPageSize pageSize) {
-    return corMapper.toRest(corService.getByStudentId(studentId, page, pageSize));
+    return corMapper.toRest(corService.findAllByStudentId(studentId, page, pageSize));
   }
 
   @PutMapping("/students/{student_id}/cors")

@@ -33,7 +33,7 @@ public class CorService {
     return corDao.findByCriteria(from, to, studentRef, groupRef, statuses, pageable);
   }
 
-  public List<Cor> getByStudentId(String studentId, PageFromOne page, BoundedPageSize size) {
+  public List<Cor> findAllByStudentId(String studentId, PageFromOne page, BoundedPageSize size) {
     return corRepository.findAllByStudentId(
         studentId, paginationFromPageAndPageSize.apply(page, size));
   }
@@ -47,6 +47,8 @@ public class CorService {
   }
 
   public Cor getById(String id) {
-    return corRepository.findById(id).orElseThrow(() -> new NotFoundException("Cor not found"));
+    return corRepository
+        .findById(id)
+        .orElseThrow(() -> new NotFoundException("Cor with id # %s not found".formatted(id)));
   }
 }
