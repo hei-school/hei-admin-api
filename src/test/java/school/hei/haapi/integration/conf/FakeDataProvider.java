@@ -222,9 +222,12 @@ public class FakeDataProvider {
         Instant.parse("2023-12-08T10:00:00.00Z"));
   }
 
-
   public static User someStudent(String firstName) {
     return someStudent(firstName, User.Status.ENABLED);
+  }
+
+  public static User someStudent(User.Status status) {
+    return someStudent(faker.name().firstName(), status);
   }
 
   public static User someStudent(String firstName, User.Status status) {

@@ -13,8 +13,7 @@ import static school.hei.haapi.integration.conf.FakeDataProvider.someStudent;
 import static school.hei.haapi.integration.conf.TestUtils.MANAGER1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.assertThrowsForbiddenException;
-import static school.hei.haapi.integration.conf.TestUtils.setUpCasdoor;
-import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
+import static school.hei.haapi.integration.conf.TestUtils.setUpCognitoAndCasdoor;
 
 import com.github.javafaker.Faker;
 import java.time.Instant;
@@ -61,8 +60,7 @@ class CorIT extends FacadeITMockedThirdParties {
         .forEach(c -> corCommentService.addCommentByCorId(corAxel.getId(), c));
     corAxel = corRepository.findById(corAxel.getId()).get();
 
-    setUpCasdoor(casdoorAuthServiceMock, certificateLoaderMock);
-    setUpCognito(cognitoComponentMock);
+    setUpCognitoAndCasdoor(casdoorAuthServiceMock, cognitoComponentMock, certificateLoaderMock);
     when(cognitoComponentMock.getEmailByIdToken(axelToken)).thenReturn(axelWithCor.getEmail());
     when(casdoorAuthServiceMock.parseJwtToken(axelToken)).thenReturn(getCasdoorAxel());
   }
