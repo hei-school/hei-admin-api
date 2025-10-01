@@ -18,7 +18,6 @@ import static school.hei.haapi.endpoint.rest.model.MobileMoneyType.ORANGE_MONEY;
 import static school.hei.haapi.endpoint.rest.model.MpbsStatus.PENDING;
 import static school.hei.haapi.endpoint.rest.model.MpbsStatus.SUCCESS;
 import static school.hei.haapi.integration.conf.FakeDataProvider.*;
-import static school.hei.haapi.integration.conf.FakeDataProvider.someStudent;
 import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_ID;
 import static school.hei.haapi.integration.conf.TestUtils.setUpEventBridge;
 
@@ -32,6 +31,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import school.hei.haapi.endpoint.event.model.PendingMpbsCheckRequested;
 import school.hei.haapi.http.model.TransactionDetails;
 import school.hei.haapi.integration.conf.FacadeITMockedThirdParties;
+import school.hei.haapi.integration.conf.FakeDataFactory.SomeUserFactory;
 import school.hei.haapi.model.Fee;
 import school.hei.haapi.model.User;
 import school.hei.haapi.model.mpbs.Mpbs;
@@ -70,7 +70,7 @@ class PendingMpbsCheckRequestedServiceTest extends FacadeITMockedThirdParties {
   }
 
   void setUpData(int totalFeeAmount) {
-    student = userRepository.save(someStudent());
+    student = userRepository.save(new SomeUserFactory().build());
     fee = feeRepository.save(somePendingFee(student, totalFeeAmount));
     mpbs = mpbsRepository.save(someMpbs(fee));
   }

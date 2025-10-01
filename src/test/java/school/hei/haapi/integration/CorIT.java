@@ -9,7 +9,6 @@ import static school.hei.haapi.endpoint.rest.model.CorStatus.IN_PROGRESS;
 import static school.hei.haapi.integration.conf.FakeDataProvider.someCor;
 import static school.hei.haapi.integration.conf.FakeDataProvider.someCorComment;
 import static school.hei.haapi.integration.conf.FakeDataProvider.someCorCommentInfo;
-import static school.hei.haapi.integration.conf.FakeDataProvider.someStudent;
 import static school.hei.haapi.integration.conf.TestUtils.MANAGER1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.assertThrowsForbiddenException;
@@ -30,6 +29,7 @@ import school.hei.haapi.endpoint.rest.mapper.CorCommentMapper;
 import school.hei.haapi.endpoint.rest.mapper.CorMapper;
 import school.hei.haapi.endpoint.rest.model.CrupdateCor;
 import school.hei.haapi.integration.conf.FacadeITMockedThirdParties;
+import school.hei.haapi.integration.conf.FakeDataFactory.SomeUserFactory;
 import school.hei.haapi.integration.conf.TestUtils;
 import school.hei.haapi.model.Cor;
 import school.hei.haapi.model.CorStatus;
@@ -53,8 +53,8 @@ class CorIT extends FacadeITMockedThirdParties {
 
   @BeforeEach
   void setUp() {
-    axelWithCor = userRepository.save(someStudent("axel"));
-    tolotraWithoutCor = userRepository.save(someStudent("tolotra"));
+    axelWithCor = userRepository.save(new SomeUserFactory().firstName("axel").build());
+    tolotraWithoutCor = userRepository.save(new SomeUserFactory().firstName("tolotra").build());
     corAxel = corRepository.save(someCor(axelWithCor, Instant.parse("2025-01-01T10:00:00Z")));
     someCorComment(faker.number().numberBetween(0, 2))
         .forEach(c -> corCommentService.addCommentByCorId(corAxel.getId(), c));

@@ -4,7 +4,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 import static school.hei.haapi.integration.MpbsIT.createableMpbsFromFeeIdForStudent;
-import static school.hei.haapi.integration.conf.FakeDataProvider.someStudent;
 import static school.hei.haapi.integration.conf.TestUtils.FEE4_ID;
 import static school.hei.haapi.integration.conf.TestUtils.FEE5_ID;
 import static school.hei.haapi.integration.conf.TestUtils.MANAGER1_TOKEN;
@@ -34,6 +33,7 @@ import school.hei.haapi.endpoint.rest.api.PayingApi;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
 import school.hei.haapi.integration.conf.AbstractContextInitializer;
+import school.hei.haapi.integration.conf.FakeDataFactory.SomeUserFactory;
 import school.hei.haapi.integration.conf.MockedThirdParties;
 import school.hei.haapi.integration.conf.TestUtils;
 import school.hei.haapi.model.User;
@@ -124,7 +124,7 @@ public class CheckStudentsStatusTest extends MockedThirdParties {
 
   @Test
   void pending_students_status_ok() throws ApiException {
-    var student = userRepository.save(someStudent());
+    var student = userRepository.save(new SomeUserFactory().build());
     var studentToken = "STUDENT TOKEN";
     setUpCognitoAndCasdoorUser(casdoorAuthServiceMock, cognitoComponentMock, studentToken, student);
 

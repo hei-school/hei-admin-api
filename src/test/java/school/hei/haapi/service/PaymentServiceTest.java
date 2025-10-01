@@ -6,7 +6,6 @@ import static school.hei.haapi.endpoint.rest.model.EnableStatus.ENABLED;
 import static school.hei.haapi.endpoint.rest.model.EnableStatus.SUSPENDED;
 import static school.hei.haapi.integration.conf.FakeDataProvider.someLateFee;
 import static school.hei.haapi.integration.conf.FakeDataProvider.someMpbs;
-import static school.hei.haapi.integration.conf.FakeDataProvider.someStudent;
 import static school.hei.haapi.integration.conf.TestUtils.MANAGER1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.anAvailableRandomPort;
 import static school.hei.haapi.integration.conf.TestUtils.setUpCognitoAndCasdoor;
@@ -25,6 +24,7 @@ import school.hei.haapi.endpoint.rest.api.UsersApi;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
 import school.hei.haapi.integration.conf.AbstractContextInitializer;
+import school.hei.haapi.integration.conf.FakeDataFactory.SomeUserFactory;
 import school.hei.haapi.integration.conf.MockedThirdParties;
 import school.hei.haapi.integration.conf.TestUtils;
 import school.hei.haapi.model.Fee;
@@ -54,8 +54,9 @@ class PaymentServiceTest extends MockedThirdParties {
     setUpS3Service(fileService, TestUtils.student1());
     setUpEventBridge(eventBridgeClientMock);
 
-    student = userRepository.save(someStudent());
-    studentSuspend = userRepository.save(someStudent(User.Status.SUSPENDED));
+    student = userRepository.save(new SomeUserFactory().build());
+    studentSuspend =
+        userRepository.save(new SomeUserFactory().status(User.Status.SUSPENDED).build());
     feeSuspendStudent = feeRepository.save(someLateFee(studentSuspend, 1_000_000));
   }
 

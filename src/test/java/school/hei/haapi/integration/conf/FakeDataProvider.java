@@ -15,7 +15,6 @@ import static school.hei.haapi.integration.conf.TestUtils.MANAGER_ID;
 import static school.hei.haapi.integration.conf.TestUtils.group1;
 import static school.hei.haapi.model.Event.PlaceName.IVANDRY;
 import static school.hei.haapi.model.Event.RoomName.UNKNOWN;
-import static school.hei.haapi.model.User.Role.STUDENT;
 
 import com.github.javafaker.Faker;
 import java.time.Instant;
@@ -80,7 +79,7 @@ public class FakeDataProvider {
         .address(faker.address().fullAddress());
   }
 
-  private static String someRef(String prefix) {
+  public static String someRef(String prefix) {
     return "%s%s".formatted(prefix, faker.number().digits(5));
   }
 
@@ -220,32 +219,6 @@ public class FakeDataProvider {
         MANAGER_ID,
         Instant.parse("2023-12-08T08:00:00.00Z"),
         Instant.parse("2023-12-08T10:00:00.00Z"));
-  }
-
-  public static User someStudent(String firstName) {
-    return someStudent(firstName, User.Status.ENABLED);
-  }
-
-  public static User someStudent(User.Status status) {
-    return someStudent(faker.name().firstName(), status);
-  }
-
-  public static User someStudent(String firstName, User.Status status) {
-    return User.builder(someCoordinates())
-        .id(UUID.randomUUID().toString())
-        .role(STUDENT)
-        .firstName(firstName)
-        .email(faker.internet().emailAddress())
-        .ref(someRef("STD"))
-        .lastName(faker.name().lastName())
-        .address(faker.address().fullAddress())
-        .status(status)
-        .entranceDatetime(Instant.now())
-        .build();
-  }
-
-  public static User someStudent() {
-    return someStudent(faker.name().firstName());
   }
 
   public static Coordinates someCoordinates() {
