@@ -166,6 +166,9 @@ public interface UserRepository extends JpaRepository<User, String> {
 
   List<User> findAllByRefIn(List<String> refs);
 
+  /* TODO: it says `late` or `unpaid`, but the real filter is only `late`
+  Need verification and refactor
+  */
   @Query("select u from User u join Fee f on u.id = f.student.id where f.status = 'LATE' ")
   List<User> getStudentsWithUnpaidOrLateFee();
 

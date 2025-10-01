@@ -55,6 +55,10 @@ public class DataFormatterUtils {
 
     Instant now = Instant.now();
 
+    /* TODO: what ? is late mean now.isBefore(`instantToCompare`)
+    Need verification and refactor
+    if possible remove that and put it in the class that need it
+    */
     return now.isAfter(instantToCompare);
   }
 

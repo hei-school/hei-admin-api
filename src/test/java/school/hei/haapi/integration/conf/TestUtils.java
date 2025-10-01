@@ -534,13 +534,17 @@ public class TestUtils {
   }
 
   public static CreateFee creatableFee1() {
+    return creatableFee(Instant.parse("2021-12-08T08:25:24.00Z"));
+  }
+
+  public static CreateFee creatableFee(Instant dueDatetime) {
     return new CreateFee()
         .type(TUITION)
         .totalAmount(5000)
         .category(UNKNOWN)
         .frequency(FeeFrequency.UNKNOWN)
         .comment("Comment")
-        .dueDatetime(Instant.parse("2021-12-08T08:25:24.00Z"));
+        .dueDatetime(dueDatetime);
   }
 
   public static CrupdateStudentFee creatableStudentFee() {

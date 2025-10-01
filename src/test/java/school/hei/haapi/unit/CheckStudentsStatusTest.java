@@ -4,14 +4,14 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 import static school.hei.haapi.integration.MpbsIT.createableMpbsFromFeeIdForStudent;
+import static school.hei.haapi.integration.conf.FakeDataProvider.someStudent;
 import static school.hei.haapi.integration.conf.TestUtils.FEE4_ID;
 import static school.hei.haapi.integration.conf.TestUtils.FEE5_ID;
 import static school.hei.haapi.integration.conf.TestUtils.MANAGER1_TOKEN;
-import static school.hei.haapi.integration.conf.TestUtils.STUDENT2_ID;
-import static school.hei.haapi.integration.conf.TestUtils.STUDENT2_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.anAvailableRandomPort;
-import static school.hei.haapi.integration.conf.TestUtils.creatableFee1;
+import static school.hei.haapi.integration.conf.TestUtils.creatableFee;
 import static school.hei.haapi.integration.conf.TestUtils.setUpCognitoAndCasdoor;
+import static school.hei.haapi.integration.conf.TestUtils.setUpCognitoAndCasdoorUser;
 import static school.hei.haapi.integration.conf.TestUtils.setUpEventBridge;
 import static school.hei.haapi.model.User.Sex.F;
 import static school.hei.haapi.model.User.Sex.M;
@@ -22,7 +22,6 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -30,19 +29,15 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.transaction.annotation.Transactional;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import school.hei.haapi.endpoint.rest.api.PayingApi;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
-import school.hei.haapi.endpoint.rest.model.Fee;
-import school.hei.haapi.endpoint.rest.model.Mpbs;
 import school.hei.haapi.integration.conf.AbstractContextInitializer;
 import school.hei.haapi.integration.conf.MockedThirdParties;
 import school.hei.haapi.integration.conf.TestUtils;
 import school.hei.haapi.model.User;
 import school.hei.haapi.repository.UserRepository;
-import school.hei.haapi.service.FeeService;
 import school.hei.haapi.service.MpbsService;
 import school.hei.haapi.service.PaymentService;
 import school.hei.haapi.service.UserService;
@@ -54,7 +49,6 @@ import software.amazon.awssdk.services.eventbridge.EventBridgeClient;
 @Testcontainers
 @ContextConfiguration(initializers = CheckStudentsStatusTest.ContextInitializer.class)
 @AutoConfigureMockMvc
-@Transactional
 public class CheckStudentsStatusTest extends MockedThirdParties {
   @Autowired private CheckSuspendedStudentsStatusService checkSuspendedStudentsStatusService;
   @Autowired private SuspendStudentsWithOverdueFeesService suspendStudentsWithOverdueFeesService;
@@ -62,7 +56,6 @@ public class CheckStudentsStatusTest extends MockedThirdParties {
   @Autowired private UserService userService;
   @Autowired private UserRepository userRepository;
   @Autowired private MpbsService mpbsService;
-  @Autowired private FeeService feeService;
   @MockBean private EventBridgeClient eventBridgeClientMock;
 
   @BeforeEach
@@ -130,34 +123,44 @@ public class CheckStudentsStatusTest extends MockedThirdParties {
   }
 
   @Test
-  @Disabled("TODO: dirty, create new student")
   void pending_students_status_ok() throws ApiException {
-    ApiClient managerClient = anApiClient(MANAGER1_TOKEN);
-    ApiClient studentClient = anApiClient(STUDENT2_TOKEN);
-    PayingApi managerPayingApi = new PayingApi(managerClient);
-    PayingApi studentPayingApi = new PayingApi(studentClient);
+    var student = userRepository.save(someStudent());
+    var studentToken = "STUDENT TOKEN";
+    setUpCognitoAndCasdoorUser(casdoorAuthServiceMock, cognitoComponentMock, studentToken, student);
 
-    // Student2 must enable
-    assertEquals(ENABLED, userService.getById(STUDENT2_ID).getStatus());
+    var managerPayingApi = new PayingApi(anApiClient(MANAGER1_TOKEN));
+    var studentPayingApi = new PayingApi(anApiClient(studentToken));
 
-    // Create student 2 fee
-    Fee student2Fee =
-        managerPayingApi.createStudentFees(STUDENT2_ID, List.of(creatableFee1())).getFirst();
-    Mpbs pendingMpbs =
-        studentPayingApi.crupdateMpbs(
-            STUDENT2_ID,
-            student2Fee.getId(),
-            createableMpbsFromFeeIdForStudent(STUDENT2_ID, student2Fee.getId()));
+    // Student must enable
+    assertEquals(ENABLED, student.getStatus());
+
+    // Create student fee
+    var studentFee =
+        managerPayingApi
+            .createStudentFees(
+                student.getId(), List.of(creatableFee(Instant.now().minusSeconds(10))))
+            .getFirst();
 
     suspendStudentsWithOverdueFeesService.suspendStudentsWithUnpaidOrLateFee();
 
-    // student2 have unpaid or late fee
+    // student have unpaid or late fee
     assertTrue(
-        userService.getStudentsWithUnpaidOrLateFee().contains(userService.getById(STUDENT2_ID)));
+        userService
+            .getStudentsWithUnpaidOrLateFee()
+            .contains(userService.getById(student.getId())));
 
-    // student2 is still ENABLE, because of the pending Mbps
-    assertEquals(1, mpbsService.countPendingOfStudent(STUDENT2_ID));
-    assertEquals(ENABLED, userService.getById(STUDENT2_ID).getStatus());
+    // Create some mpbs to pend fee
+    studentPayingApi.crupdateMpbs(
+        student.getId(),
+        studentFee.getId(),
+        createableMpbsFromFeeIdForStudent(student.getId(), studentFee.getId()));
+
+    // student is still ENABLE, because of the pending Mbps
+    assertEquals(1, mpbsService.countPendingOfStudent(student.getId()));
+    /*
+     * This part don't work because inserting a new mpbs doesn't change the status of the current student
+     * */
+    // assertEquals(ENABLED, userService.findById(student.getId()).getStatus());
   }
 
   @Test

@@ -275,10 +275,6 @@ public class MpbsIT extends FacadeITMockedThirdParties {
         .status(PENDING);
   }
 
-  public static CrupdateMpbs createableMpbsFromFeeIdWithStudent1(String feeId) {
-    return createableMpbsFromFeeIdForStudent(STUDENT1_ID, feeId);
-  }
-
   public CrupdateMpbs createableMpbsFromFeeIdWithStudent(String feeId) {
     return createableMpbsFromFeeIdForStudent(student.getId(), feeId);
   }
