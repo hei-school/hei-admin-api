@@ -43,8 +43,7 @@ import school.hei.haapi.service.GradeResultService;
 @AutoConfigureMockMvc
 public class RetakeExamIT extends FacadeITMockedThirdParties {
   @MockBean GradeResultService gradeResultService;
-  @Autowired
-  RetakeExamSessionRepository retakeExamSessionRepository;
+  @Autowired RetakeExamSessionRepository retakeExamSessionRepository;
   private RetakeExamSession retakeExamSession;
 
   private ApiClient anApiClient(String token) {
@@ -96,7 +95,8 @@ public class RetakeExamIT extends FacadeITMockedThirdParties {
     retakeExam.setStudentId(student1().getId());
     retakeExam.setCourseId(course1().getId());
 
-    var retakeExamsCreated = api.createOrUpdateRetakeExam(retakeExamSession.getId(), List.of(retakeExam));
+    var retakeExamsCreated =
+        api.createOrUpdateRetakeExam(retakeExamSession.getId(), List.of(retakeExam));
 
     assertNotNull(retakeExamsCreated);
     assertEquals(1, retakeExamsCreated.size());
