@@ -2,6 +2,7 @@ package school.hei.haapi.repository;
 
 import java.util.List;
 import java.util.Optional;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
@@ -12,4 +13,6 @@ public interface CorRepository extends JpaRepository<Cor, String> {
   List<Cor> findAllByStudentId(String studentId, Pageable pageable);
 
   Optional<Cor> findByIdAndStudent_Id(String corId, String studentId);
+
+  boolean existsById(@NotNull String id);
 }

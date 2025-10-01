@@ -2,7 +2,7 @@ package school.hei.haapi.service;
 
 import java.time.Instant;
 import java.util.List;
-import java.util.Optional;
+import javax.annotation.Nullable;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -43,20 +43,22 @@ public class CorService {
   }
 
   public Cor save(Cor cor) {
-    if (findById(cor.getId()).isEmpty()) {
-      corNotification.accept(List.of(new CorNotification(corMapper.toRest(cor))));
+    var corDoesntExists = notExistsById(cor.getId());
+    var savedCor = corRepository.save(cor);
+    if (corDoesntExists) {
+      corNotification.accept(List.of(new CorNotification(corMapper.toRest(savedCor))));
     }
-    // TODO: save the Cor before send it to the event
-    return corRepository.save(cor);
+    return savedCor;
   }
 
   public Cor getById(String id) {
-    return findById(id)
+    return corRepository
+        .findById(id)
         .orElseThrow(() -> new NotFoundException("Cor with id # %s not found".formatted(id)));
   }
 
-  private Optional<Cor> findById(String id) {
-    if (id == null) return Optional.empty();
-    return corRepository.findById(id);
+  public boolean notExistsById(@Nullable String id) {
+    if (id == null) return true;
+    return !corRepository.existsById(id);
   }
 }
