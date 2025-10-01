@@ -3,6 +3,8 @@ package school.hei.haapi.integration;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static school.hei.haapi.endpoint.rest.model.CorStatus.LEAVE;
 import static school.hei.haapi.integration.conf.FakeDataProvider.*;
@@ -24,7 +26,11 @@ import org.casbin.casdoor.entity.CasdoorRole;
 import org.casbin.casdoor.entity.CasdoorUser;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import school.hei.haapi.endpoint.event.EventProducer;
+import school.hei.haapi.endpoint.event.model.CorNotification;
 import school.hei.haapi.endpoint.rest.api.CorApi;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
@@ -45,6 +51,7 @@ class CorIT extends FacadeITMockedThirdParties {
   @Autowired private CorCommentService corCommentService;
   @Autowired private CorMapper corMapper;
   @Autowired private CorCommentMapper corCommentMapper;
+  @MockBean private EventProducer<CorNotification> corNotificationMock;
   private static final Faker faker = new Faker();
 
   private User axelWithCor;
@@ -103,7 +110,7 @@ class CorIT extends FacadeITMockedThirdParties {
   }
 
   @Test
-  void manager_create_cor_ok() throws ApiException {
+  void manager_create_cor_and_notify_student_ok() throws ApiException {
     var api = new CorApi(anApiClient(MANAGER1_TOKEN));
     var cor = someCreatableCor(tolotraWithoutCor.getId());
 
@@ -111,6 +118,13 @@ class CorIT extends FacadeITMockedThirdParties {
 
     assertEquals(
         corMapper.toRest(corMapper.toDomain(cor)), createdCor.id(null).creationDatetime(null));
+
+    ArgumentCaptor<List<CorNotification>> notificationBodyCaptor =
+        ArgumentCaptor.forClass(List.class);
+    verify(corNotificationMock, times(1)).accept(notificationBodyCaptor.capture());
+    var notifications = notificationBodyCaptor.getValue();
+    assertEquals(1, notifications.size());
+    assertEquals(createdCor, notifications.getFirst().getCor());
   }
 
   @Test

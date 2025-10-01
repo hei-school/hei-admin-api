@@ -2,9 +2,13 @@ package school.hei.haapi.service;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Optional;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import school.hei.haapi.endpoint.event.EventProducer;
+import school.hei.haapi.endpoint.event.model.CorNotification;
+import school.hei.haapi.endpoint.rest.mapper.CorMapper;
 import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.Cor;
 import school.hei.haapi.model.CorStatus;
@@ -20,6 +24,8 @@ public class CorService {
   private final CorRepository corRepository;
   private final PaginationFromPageAndPageSize paginationFromPageAndPageSize;
   private final CorDao corDao;
+  private final EventProducer<CorNotification> corNotification;
+  private final CorMapper corMapper;
 
   public List<Cor> getCors(
       Instant from,
@@ -37,12 +43,20 @@ public class CorService {
   }
 
   public Cor save(Cor cor) {
+    if (findById(cor.getId()).isEmpty()) {
+      corNotification.accept(List.of(new CorNotification(corMapper.toRest(cor))));
+    }
+    // TODO: save the Cor before send it to the event
     return corRepository.save(cor);
   }
 
   public Cor getById(String id) {
-    return corRepository
-        .findById(id)
+    return findById(id)
         .orElseThrow(() -> new NotFoundException("Cor with id # %s not found".formatted(id)));
+  }
+
+  private Optional<Cor> findById(String id) {
+    if (id == null) return Optional.empty();
+    return corRepository.findById(id);
   }
 }
