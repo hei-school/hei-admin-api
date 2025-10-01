@@ -71,7 +71,7 @@ class PendingMpbsCheckRequestedServiceTest extends FacadeITMockedThirdParties {
 
   void setUpData(int totalFeeAmount) {
     student = userRepository.save(someStudent());
-    fee = feeRepository.save(someFee(student, totalFeeAmount));
+    fee = feeRepository.save(somePendingFee(student, totalFeeAmount));
     mpbs = mpbsRepository.save(someMpbs(fee));
   }
 

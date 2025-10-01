@@ -7,16 +7,11 @@ import static school.hei.haapi.endpoint.rest.model.EnableStatus.SUSPENDED;
 import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.LATE;
 import static school.hei.haapi.endpoint.rest.model.FeeTypeEnum.HARDWARE;
 import static school.hei.haapi.endpoint.rest.model.FeeTypeEnum.TUITION;
-import static school.hei.haapi.integration.MpbsIT.createableMpbsFromFeeIdForStudent;
-import static school.hei.haapi.integration.StudentIT.someCreatableStudent;
-import static school.hei.haapi.integration.conf.FakeDataProvider.someFee;
+import static school.hei.haapi.integration.conf.FakeDataProvider.someLateFee;
+import static school.hei.haapi.integration.conf.FakeDataProvider.someMpbs;
 import static school.hei.haapi.integration.conf.FakeDataProvider.someStudent;
-import static school.hei.haapi.integration.conf.TestUtils.FEE3_ID;
-import static school.hei.haapi.integration.conf.TestUtils.FEE6_ID;
 import static school.hei.haapi.integration.conf.TestUtils.MANAGER1_TOKEN;
-import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_ID;
 import static school.hei.haapi.integration.conf.TestUtils.anAvailableRandomPort;
-import static school.hei.haapi.integration.conf.TestUtils.creatableFee1;
 import static school.hei.haapi.integration.conf.TestUtils.setUpCognitoAndCasdoor;
 import static school.hei.haapi.integration.conf.TestUtils.setUpEventBridge;
 import static school.hei.haapi.integration.conf.TestUtils.setUpS3Service;
@@ -25,11 +20,8 @@ import static school.hei.haapi.model.User.Sex.M;
 
 import java.time.Instant;
 import java.time.LocalDate;
-import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -37,7 +29,6 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.testcontainers.junit.jupiter.Testcontainers;
-import school.hei.haapi.endpoint.rest.api.PayingApi;
 import school.hei.haapi.endpoint.rest.api.UsersApi;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
@@ -55,18 +46,14 @@ import software.amazon.awssdk.services.eventbridge.EventBridgeClient;
 @ContextConfiguration(initializers = PaymentServiceTest.ContextInitializer.class)
 @AutoConfigureMockMvc
 class PaymentServiceTest extends MockedThirdParties {
-  private static final Logger log = LoggerFactory.getLogger(PaymentServiceTest.class);
   @Autowired private PaymentService subject;
-  @Autowired private MpbsService mpbsService;
   @MockBean private EventBridgeClient eventBridgeClientMock;
   @Autowired private UserService userService;
   @Autowired private UserRepository userRepository;
   @Autowired private FeeRepository feeRepository;
 
-  private String FEE7_ID = "fee7_id";
-
-  private User suspendStudent;
-  private Fee suspendUserFee;
+  private User studentSuspend;
+  private Fee feeSuspendStudent;
 
   @BeforeEach
   void setUp() {
@@ -74,49 +61,33 @@ class PaymentServiceTest extends MockedThirdParties {
     setUpS3Service(fileService, TestUtils.student1());
     setUpEventBridge(eventBridgeClientMock);
 
-    suspendStudent = userRepository.save(someStudent(User.Status.SUSPENDED));
-    suspendUserFee = feeRepository.save(someFee(suspendStudent));
+    studentSuspend = userRepository.save(someStudent(User.Status.SUSPENDED));
+    feeSuspendStudent = feeRepository.save(someLateFee(studentSuspend, 1_000_000));
+  }
+
+  @Test
+  void user_status_is_stay_suspend_after_paying_fee_with_mpbs_without_sufficient_amount()
+      throws ApiException {
+    var usersApi = new UsersApi(anApiClient(MANAGER1_TOKEN));
+    var mpbs = someMpbs(feeSuspendStudent, 1);
+
+    subject.savePaymentFromMpbs(mpbs, mpbs.getAmount());
+    subject.computeRemainingAmount(feeSuspendStudent.getId(), mpbs.getAmount());
+
+    var actualStudent = usersApi.getStudentById(studentSuspend.getId());
+    assertEquals(SUSPENDED, actualStudent.getStatus());
   }
 
   @Test
   void user_status_is_computed_after_paying_fee_by_mpbs() throws ApiException {
-    ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
-    var usersApi = new UsersApi(manager1Client);
-    var payingApi = new PayingApi(manager1Client);
+    var usersApi = new UsersApi(anApiClient(MANAGER1_TOKEN));
+    var mpbs = someMpbs(feeSuspendStudent);
 
-    var correspondingCreateableStudent = someCreatableStudent();
-    var correspondingFee =
-        payingApi.createStudentFees(suspendStudent.getId(), List.of(creatableFee1())).getFirst();
-    var correspondingMpbs =
-        payingApi.crupdateMpbs(
-            suspendStudent.getId(),
-            correspondingFee.getId(),
-            createableMpbsFromFeeIdForStudent(suspendStudent.getId(), correspondingFee.getId()));
-    var correspondingStudent =
-        usersApi.createOrUpdateStudents(List.of(correspondingCreateableStudent), null).getFirst();
+    subject.savePaymentFromMpbs(mpbs, mpbs.getAmount());
+    subject.computeRemainingAmount(feeSuspendStudent.getId(), mpbs.getAmount());
 
-    assertEquals(ENABLED, correspondingStudent.getStatus());
-    correspondingCreateableStudent.setId(correspondingStudent.getId());
-    correspondingCreateableStudent.setStatus(SUSPENDED);
-
-    var correspondingStudentAfterMakingSUSPENDED =
-        usersApi.createOrUpdateStudents(List.of(correspondingCreateableStudent), null).getFirst();
-
-    assertEquals(SUSPENDED, correspondingStudentAfterMakingSUSPENDED.getStatus());
-
-    var domainMpbs = mpbsService.getByPspId(correspondingMpbs.getPspId());
-    subject.savePaymentFromMpbs(domainMpbs, 5000);
-
-    // here correspondingStudent has paid all their fees late (fee3_id, fee6_id, fee7_id and the
-    // created
-    // correspondingFee)
-    subject.computeRemainingAmount(FEE3_ID, 5000);
-    subject.computeRemainingAmount(FEE6_ID, 5000);
-    subject.computeRemainingAmount(FEE7_ID, 5000);
-    subject.computeRemainingAmount(correspondingFee.getId(), 5000);
-
-    var actualStudent1 = usersApi.getStudentById(STUDENT1_ID);
-    assertEquals(ENABLED, actualStudent1.getStatus());
+    var actualStudent = usersApi.getStudentById(studentSuspend.getId());
+    assertEquals(ENABLED, actualStudent.getStatus());
   }
 
   @Test
@@ -140,21 +111,6 @@ class PaymentServiceTest extends MockedThirdParties {
     User userPaidAllLateFees = userService.getById(userWithUnpaidFees.getId());
 
     assertEquals(User.Status.ENABLED, userPaidAllLateFees.getStatus());
-  }
-
-  public static Fee student1UnpaidFee1() {
-    return Fee.builder()
-        .id("fee3_id")
-        .student(student1())
-        .type(TUITION)
-        .comment("Comment")
-        .remainingAmount(5000)
-        .totalAmount(5000)
-        .status(LATE)
-        .creationDatetime(Instant.parse("2022-12-08T08:25:24.00Z"))
-        .dueDatetime(Instant.parse("2023-02-08T08:30:24.00Z"))
-        .updatedAt(Instant.parse("2021-12-09T08:25:24.00Z"))
-        .build();
   }
 
   public static Fee student2UnpaidFee1() {

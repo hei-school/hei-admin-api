@@ -112,11 +112,11 @@ public class FakeDataProvider {
     return groupList;
   }
 
-  public static Fee someFee(User student) {
-    return someFee(student, 0);
+  public static Fee somePendingFee(User student) {
+    return somePendingFee(student, 0);
   }
 
-  public static Fee someFee(User student, int totalAmount) {
+  public static Fee somePendingFee(User student, int totalAmount) {
     return Fee.builder()
         .id(UUID.randomUUID().toString())
         .comment(faker.lorem().sentence(10))
@@ -134,7 +134,7 @@ public class FakeDataProvider {
   }
 
   public static Fee someLateFee(User student, int totalAmount) {
-    return someFee(student, totalAmount).toBuilder().status(LATE).build();
+    return somePendingFee(student, totalAmount).toBuilder().status(LATE).build();
   }
 
   public Event someEvent() {
@@ -167,14 +167,18 @@ public class FakeDataProvider {
   }
 
   public Mpbs someMpbs(User student) {
-    return someMpbs(someFee(student));
+    return someMpbs(somePendingFee(student));
   }
 
   public static Mpbs someMpbs(Fee fee) {
+    return someMpbs(fee, fee.getRemainingAmount());
+  }
+
+  public static Mpbs someMpbs(Fee fee, Integer amount) {
     return Mpbs.builder()
         .status(faker.options().option(MpbsStatus.class))
         .fee(fee)
-        .amount(faker.number().numberBetween(100, 10_000))
+        .amount(amount)
         .mobileMoneyType(ORANGE_MONEY)
         .pspId(faker.regexify("MP\\d{6}\\.\\d{4}\\.D\\d{5}"))
         .student(fee.getStudent())

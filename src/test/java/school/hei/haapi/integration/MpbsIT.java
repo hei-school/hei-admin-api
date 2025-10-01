@@ -10,7 +10,6 @@ import static school.hei.haapi.endpoint.rest.model.MobileMoneyType.MVOLA;
 import static school.hei.haapi.endpoint.rest.model.MobileMoneyType.ORANGE_MONEY;
 import static school.hei.haapi.endpoint.rest.model.MpbsStatus.PENDING;
 import static school.hei.haapi.integration.StudentIT.student1;
-import static school.hei.haapi.integration.conf.FakeDataProvider.someFee;
 import static school.hei.haapi.integration.conf.FakeDataProvider.someMpbs;
 import static school.hei.haapi.integration.conf.FakeDataProvider.someStudent;
 import static school.hei.haapi.integration.conf.TestUtils.FEE1_ID;
@@ -45,6 +44,7 @@ import school.hei.haapi.endpoint.rest.client.ApiException;
 import school.hei.haapi.endpoint.rest.mapper.MpbsMapper;
 import school.hei.haapi.endpoint.rest.model.*;
 import school.hei.haapi.integration.conf.FacadeITMockedThirdParties;
+import school.hei.haapi.integration.conf.FakeDataProvider;
 import school.hei.haapi.integration.conf.TestUtils;
 import school.hei.haapi.model.User;
 import school.hei.haapi.repository.FeeRepository;
@@ -75,7 +75,7 @@ public class MpbsIT extends FacadeITMockedThirdParties {
     setUpS3Service(fileService, student1());
 
     student = userRepository.save(someStudent());
-    fee = feeRepository.save(someFee(student));
+    fee = feeRepository.save(FakeDataProvider.somePendingFee(student));
     mpbs = mpbsRepository.save(someMpbs(fee));
     setUpCognitoAndCasdoorUser(casdoorAuthServiceMock, cognitoComponentMock, studentToken, student);
   }
