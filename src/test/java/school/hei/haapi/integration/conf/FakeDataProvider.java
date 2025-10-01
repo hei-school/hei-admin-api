@@ -6,6 +6,7 @@ import static java.util.concurrent.TimeUnit.DAYS;
 import static school.hei.haapi.endpoint.rest.model.EnableStatus.ENABLED;
 import static school.hei.haapi.endpoint.rest.model.FeeCategory.L1;
 import static school.hei.haapi.endpoint.rest.model.FeeFrequency.MONTHLY;
+import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.LATE;
 import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.PENDING;
 import static school.hei.haapi.endpoint.rest.model.FeeTypeEnum.TUITION;
 import static school.hei.haapi.endpoint.rest.model.MobileMoneyType.ORANGE_MONEY;
@@ -132,6 +133,10 @@ public class FakeDataProvider {
         .build();
   }
 
+  public static Fee someLateFee(User student, int totalAmount) {
+    return someFee(student, totalAmount).toBuilder().status(LATE).build();
+  }
+
   public Event someEvent() {
     var beginDatetime =
         faker
@@ -213,7 +218,12 @@ public class FakeDataProvider {
         Instant.parse("2023-12-08T10:00:00.00Z"));
   }
 
+
   public static User someStudent(String firstName) {
+    return someStudent(firstName, User.Status.ENABLED);
+  }
+
+  public static User someStudent(String firstName, User.Status status) {
     return User.builder(someCoordinates())
         .id(UUID.randomUUID().toString())
         .role(STUDENT)
@@ -222,7 +232,7 @@ public class FakeDataProvider {
         .ref(someRef("STD"))
         .lastName(faker.name().lastName())
         .address(faker.address().fullAddress())
-        .status(User.Status.ENABLED)
+        .status(status)
         .entranceDatetime(Instant.now())
         .build();
   }

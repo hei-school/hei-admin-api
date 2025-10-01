@@ -7,8 +7,10 @@ import static school.hei.haapi.endpoint.rest.model.EnableStatus.SUSPENDED;
 import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.LATE;
 import static school.hei.haapi.endpoint.rest.model.FeeTypeEnum.HARDWARE;
 import static school.hei.haapi.endpoint.rest.model.FeeTypeEnum.TUITION;
-import static school.hei.haapi.integration.MpbsIT.createableMpbsFromFeeIdWithStudent1;
+import static school.hei.haapi.integration.MpbsIT.createableMpbsFromFeeIdForStudent;
 import static school.hei.haapi.integration.StudentIT.someCreatableStudent;
+import static school.hei.haapi.integration.conf.FakeDataProvider.someFee;
+import static school.hei.haapi.integration.conf.FakeDataProvider.someStudent;
 import static school.hei.haapi.integration.conf.TestUtils.FEE3_ID;
 import static school.hei.haapi.integration.conf.TestUtils.FEE6_ID;
 import static school.hei.haapi.integration.conf.TestUtils.MANAGER1_TOKEN;
@@ -25,7 +27,6 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,6 +46,8 @@ import school.hei.haapi.integration.conf.MockedThirdParties;
 import school.hei.haapi.integration.conf.TestUtils;
 import school.hei.haapi.model.Fee;
 import school.hei.haapi.model.User;
+import school.hei.haapi.repository.FeeRepository;
+import school.hei.haapi.repository.UserRepository;
 import software.amazon.awssdk.services.eventbridge.EventBridgeClient;
 
 @SpringBootTest(webEnvironment = RANDOM_PORT)
@@ -56,32 +59,39 @@ class PaymentServiceTest extends MockedThirdParties {
   @Autowired private PaymentService subject;
   @Autowired private MpbsService mpbsService;
   @MockBean private EventBridgeClient eventBridgeClientMock;
-  @Autowired private FeeService feeService;
   @Autowired private UserService userService;
+  @Autowired private UserRepository userRepository;
+  @Autowired private FeeRepository feeRepository;
+
   private String FEE7_ID = "fee7_id";
+
+  private User suspendStudent;
+  private Fee suspendUserFee;
 
   @BeforeEach
   void setUp() {
     setUpCognitoAndCasdoor(casdoorAuthServiceMock, cognitoComponentMock, certificateLoaderMock);
     setUpS3Service(fileService, TestUtils.student1());
     setUpEventBridge(eventBridgeClientMock);
+
+    suspendStudent = userRepository.save(someStudent(User.Status.SUSPENDED));
+    suspendUserFee = feeRepository.save(someFee(suspendStudent));
   }
 
   @Test
-  @Disabled("TODO: dirty, create new student")
   void user_status_is_computed_after_paying_fee_by_mpbs() throws ApiException {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
-    UsersApi usersApi = new UsersApi(manager1Client);
-    PayingApi payingApi = new PayingApi(manager1Client);
+    var usersApi = new UsersApi(manager1Client);
+    var payingApi = new PayingApi(manager1Client);
 
     var correspondingCreateableStudent = someCreatableStudent();
     var correspondingFee =
-        payingApi.createStudentFees(STUDENT1_ID, List.of(creatableFee1())).getFirst();
+        payingApi.createStudentFees(suspendStudent.getId(), List.of(creatableFee1())).getFirst();
     var correspondingMpbs =
         payingApi.crupdateMpbs(
-            STUDENT1_ID,
+            suspendStudent.getId(),
             correspondingFee.getId(),
-            createableMpbsFromFeeIdWithStudent1(correspondingFee.getId()));
+            createableMpbsFromFeeIdForStudent(suspendStudent.getId(), correspondingFee.getId()));
     var correspondingStudent =
         usersApi.createOrUpdateStudents(List.of(correspondingCreateableStudent), null).getFirst();
 
