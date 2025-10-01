@@ -15,11 +15,13 @@ import static school.hei.haapi.integration.conf.TestUtils.course1;
 import static school.hei.haapi.integration.conf.TestUtils.setUpCasdoor;
 import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
 import static school.hei.haapi.integration.conf.TestUtils.setUpS3Service;
+import static school.hei.haapi.integration.test_data.RetakeExamSessionTestData.session1;
 
 import java.util.List;
 import java.util.Objects;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.testcontainers.junit.jupiter.Testcontainers;
@@ -33,12 +35,17 @@ import school.hei.haapi.endpoint.rest.model.ResultSummary;
 import school.hei.haapi.endpoint.rest.model.YearlyResult;
 import school.hei.haapi.integration.conf.FacadeITMockedThirdParties;
 import school.hei.haapi.integration.conf.TestUtils;
+import school.hei.haapi.model.RetakeExamSession;
+import school.hei.haapi.repository.RetakeExamSessionRepository;
 import school.hei.haapi.service.GradeResultService;
 
 @Testcontainers
 @AutoConfigureMockMvc
 public class RetakeExamIT extends FacadeITMockedThirdParties {
   @MockBean GradeResultService gradeResultService;
+  @Autowired
+  RetakeExamSessionRepository retakeExamSessionRepository;
+  private RetakeExamSession retakeExamSession;
 
   private ApiClient anApiClient(String token) {
     return TestUtils.anApiClient(token, localPort);
@@ -65,6 +72,8 @@ public class RetakeExamIT extends FacadeITMockedThirdParties {
                                         .course(course1())
                                         .status(CourseResultStatus.INCOMPLETE)
                                         .weightedAverage(ONE))))));
+
+    retakeExamSession = retakeExamSessionRepository.save(session1());
   }
 
   @Test
@@ -87,12 +96,11 @@ public class RetakeExamIT extends FacadeITMockedThirdParties {
     retakeExam.setStudentId(student1().getId());
     retakeExam.setCourseId(course1().getId());
 
-    var retakeExamsCreated = api.createOrUpdateRetakeExam("session2_id", List.of(retakeExam));
+    var retakeExamsCreated = api.createOrUpdateRetakeExam(retakeExamSession.getId(), List.of(retakeExam));
 
     assertNotNull(retakeExamsCreated);
     assertEquals(1, retakeExamsCreated.size());
     var retakeExamCreated = retakeExamsCreated.getFirst();
-    assertEquals("session2_id", retakeExamCreated.getSession().getId());
     assertEquals(retakeExam.getCourseId(), retakeExamCreated.getCourse().getId());
     assertEquals(retakeExam.getStudentId(), retakeExamCreated.getStudentIdentifier().getId());
   }
