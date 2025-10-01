@@ -31,13 +31,13 @@ public interface LetterRepository extends JpaRepository<Letter, String> {
 
   @Query(
       value =
-          "SELECT count(p.event.id) from Letter l inner join EventParticipant p "
-              + "where l.eventParticipant is not null and p.event.id in :eventId group by p.id")
-  int countByEventIdInUnique(List<String> eventId);
+          "SELECT count(p.event.id) from Letter l inner join EventParticipant p on"
+              + " l.eventParticipant.id = p.id where l.eventParticipant is not null and p.event.id"
+              + " in :eventId group by p.id")
+  Integer countByEventIdInUnique(List<String> eventId);
 
   @Query(
-      value =
-          "SELECT count(p.event.id) from Letter l inner join EventParticipant p "
-              + "where l.eventParticipant is not null group by p.id")
-  int countByEventUnique();
+      "SELECT count(p.event.id) from Letter l inner join EventParticipant p on"
+          + " l.eventParticipant.id = p.id where l.eventParticipant is not null group by p.id")
+  Integer countByEventUnique();
 }

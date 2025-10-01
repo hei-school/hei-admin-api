@@ -1,7 +1,6 @@
 package school.hei.haapi.repository.dao;
 
 import static jakarta.persistence.criteria.JoinType.LEFT;
-import static jakarta.persistence.criteria.JoinType.RIGHT;
 import static school.hei.haapi.endpoint.rest.model.AttendanceStatus.MISSING;
 import static school.hei.haapi.model.Event.BEGIN_DATETIME;
 import static school.hei.haapi.service.utils.DateUtils.TimeRange;
@@ -25,7 +24,6 @@ import school.hei.haapi.endpoint.rest.model.MissingStatus;
 import school.hei.haapi.model.Event;
 import school.hei.haapi.model.EventParticipant;
 import school.hei.haapi.model.Group;
-import school.hei.haapi.model.Letter;
 import school.hei.haapi.model.User;
 
 @Repository
@@ -48,7 +46,15 @@ public class EventParticipantDao {
 
     List<Predicate> predicates =
         getPredicates(
-            builder, root, eventId, groupRef, name, ref, attendanceStatus, missingStatus, eventBeginRange);
+            builder,
+            root,
+            eventId,
+            groupRef,
+            name,
+            ref,
+            attendanceStatus,
+            missingStatus,
+            eventBeginRange);
 
     if (!predicates.isEmpty()) {
       query.where(predicates.toArray(new Predicate[0]));
@@ -115,16 +121,16 @@ public class EventParticipantDao {
 
     if (attendanceStatus != null) {
       predicates.add(builder.equal(root.get("status"), attendanceStatus));
-//      if(MISSING.equals(attendanceStatus) && missingStatus != null) {
-//        switch(missingStatus) {
-//          case JUSTIFIED -> {
-//            predicates.add(root.get("letters").isNotNull());
-//          }
-//          case UNJUSTIFIED -> {
-//            predicates.add(root.get("letters").isNull());
-//          }
-//        }
-//      }
+      if (MISSING.equals(attendanceStatus) && missingStatus != null) {
+        switch (missingStatus) {
+          case JUSTIFIED -> {
+            predicates.add(root.get("letters").isNotNull());
+          }
+          case UNJUSTIFIED -> {
+            predicates.add(root.get("letters").isNull());
+          }
+        }
+      }
     }
 
     Path<Instant> eventBeginDateTime = root.get("event").get(BEGIN_DATETIME);

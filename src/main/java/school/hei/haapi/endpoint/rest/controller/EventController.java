@@ -84,7 +84,7 @@ public class EventController {
       @RequestParam(required = false) Instant to) {
     return eventService.getEvents(from, to, title, eventType, group, page, pageSize).stream()
         .map(mapper::toRest)
-        .collect(toUnmodifiableList());
+        .toList();
   }
 
   @GetMapping("/events/{event_id}")
@@ -111,7 +111,8 @@ public class EventController {
       @RequestParam(name = "name", required = false) String name,
       @RequestParam(name = "status", required = false) AttendanceStatus attendanceStatus) {
     return eventParticipantService
-        .getEventParticipants(eventId, page, pageSize, groupRef, name, ref, attendanceStatus, null, null)
+        .getEventParticipants(
+            eventId, page, pageSize, groupRef, name, ref, attendanceStatus, null, null)
         .stream()
         .map(eventParticipantMapper::toRest)
         .collect(toUnmodifiableList());

@@ -321,11 +321,13 @@ public class EventIT extends FacadeITMockedThirdParties {
             null,
             null);
     List<EventAttendance> statusFilteredEventParticipants =
-        api.getAllEventParticipants(null, null,null, null, null, null, MISSING, null, null, null);
+        api.getAllEventParticipants(null, null, null, null, null, null, MISSING, null, null, null);
     List<EventAttendance> groupFilteredEventParticipants =
-        api.getAllEventParticipants(null, null, null, null, null, null, null, group1().getRef(), null, null);
+        api.getAllEventParticipants(
+            null, null, null, null, null, null, null, group1().getRef(), null, null);
     List<EventAttendance> studentRefFilteredEventParticipants =
-        api.getAllEventParticipants(null, null, null, null, null, null, null, null, student3().getRef(), null);
+        api.getAllEventParticipants(
+            null, null, null, null, null, null, null, null, student3().getRef(), null);
     List<EventAttendance> studentNameFilteredEventParticipants =
         api.getAllEventParticipants(
             null, null, null, null, null, null, null, null, null, student3().getFirstName());

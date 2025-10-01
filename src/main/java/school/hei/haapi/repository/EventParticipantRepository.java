@@ -25,10 +25,14 @@ public interface EventParticipantRepository extends JpaRepository<EventParticipa
 
   int countByStatus(AttendanceStatus status);
 
-  @Query("select count(p.id) from EventParticipant p left join Letter l where l is null and p.event.id = :eventId")
+  @Query(
+      "select count(p.id) from EventParticipant p left join Letter l "
+          + "on l.eventParticipant.id = p.id where l is null and p.event.id = :eventId")
   int countUnjustifiedMissingByEventId(String eventId);
 
-  @Query(value = "select count(p.id) from EventParticipant p left join Letter l where l is null")
+  @Query(
+      "select count(p.id) from EventParticipant p left join Letter l on p.id ="
+          + " l.eventParticipant.id where l is null")
   int countUnjustifiedMissing();
 
   int countAllByParticipantIdAndStatus(String participantId, AttendanceStatus status);
@@ -37,8 +41,8 @@ public interface EventParticipantRepository extends JpaRepository<EventParticipa
 
   @Query(
       value =
-          "select count(p.id) from EventParticipant p left join Letter l "
-              + "where l is null and p.event.id in :eventIds")
+          "select count(p.id) from EventParticipant p left join Letter l  on l.eventParticipant.id"
+              + " = p.id where l is null and p.event.id in :eventIds")
   int countUnjustifiedMissingByEventIdIn(List<String> eventIds);
 
   int countAllByParticipantIdAndStatusAndEventIdIn(
