@@ -12,7 +12,6 @@ import org.springframework.stereotype.Service;
 import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.Comment;
 import school.hei.haapi.model.PageFromOne;
-import school.hei.haapi.model.User;
 import school.hei.haapi.repository.CommentRepository;
 import school.hei.haapi.repository.dao.CommentDao;
 
@@ -42,11 +41,11 @@ public class CommentService {
     Pageable pageable =
         PageRequest.of(page.getValue() - 1, pageSize.getValue(), Sort.by(DESC, "creationDatetime"));
 
-    User subject = userService.findById(subjectId);
+    var subject = userService.getById(subjectId);
     if (Objects.isNull(observerId)) {
       return commentRepository.findAllBySubject(subject, pageable);
     }
-    User observer = userService.findById(observerId);
+    var observer = userService.getById(observerId);
     return commentRepository.findAllBySubjectAndObserver(subject, observer, pageable);
   }
 

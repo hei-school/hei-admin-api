@@ -14,7 +14,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import school.hei.haapi.endpoint.rest.model.ProfessionalExperienceFileTypeEnum;
 import school.hei.haapi.endpoint.rest.model.WorkStudyStatus;
-import school.hei.haapi.model.User;
 import school.hei.haapi.model.WorkDocument;
 import school.hei.haapi.model.exception.NotFoundException;
 import school.hei.haapi.repository.WorkDocumentRepository;
@@ -54,7 +53,7 @@ public class WorkDocumentService {
       Instant commitmentEnd,
       MultipartFile workFile,
       ProfessionalExperienceFileTypeEnum professionalExperience) {
-    User student = userService.findById(studentId);
+    var student = userService.getById(studentId);
 
     return fileInfoService.uploadFile(
         student,

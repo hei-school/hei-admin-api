@@ -6405,7 +6405,7 @@ paths:
     get:
       tags:
         - Cor
-      operationId: getCor
+      operationId: getCors
       summary: Get all CORs
       parameters:
         - $ref: '#/components/parameters/Page'
@@ -6467,13 +6467,19 @@ paths:
       summary: Change the status of the COR and add some comment about the change
       parameters:
         - $ref: '#/components/parameters/PathCorId'
+      requestBody:
+        description: Comment for the cor
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CorCommentInfo'
       responses:
         '200':
           description: The COR with the corresponding id
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/CorCommentInfo'
+                $ref: '#/components/schemas/CorComment'
         '400':
           $ref: '#/components/responses/400'
         '403':
@@ -8289,7 +8295,7 @@ components:
       type: object
       allOf:
         - $ref: '#/components/schemas/CorCommentInfo'
-      properties: 
+      properties:
         creation_date:
           type: string
           format: date-time

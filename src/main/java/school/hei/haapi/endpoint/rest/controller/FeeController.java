@@ -24,7 +24,6 @@ import school.hei.haapi.endpoint.rest.mapper.FeeTemplateMapper;
 import school.hei.haapi.endpoint.rest.model.*;
 import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.PageFromOne;
-import school.hei.haapi.model.User;
 import school.hei.haapi.model.statistics.AdvancedFeeStats;
 import school.hei.haapi.model.statistics.AdvancedFeeStats.AdvancedFeeStatsCountType;
 import school.hei.haapi.model.validator.UpdateFeeValidator;
@@ -66,7 +65,7 @@ public class FeeController {
   public List<Fee> createStudentFees(
       @PathVariable String studentId, @RequestBody List<CreateFee> toCreate) {
     return feeService
-        .saveAll(feeMapper.toDomainFee(userService.findById(studentId), toCreate))
+        .saveAll(feeMapper.toDomainFee(userService.getById(studentId), toCreate))
         .stream()
         .map(feeMapper::toRestFee)
         .collect(toUnmodifiableList());
@@ -75,7 +74,7 @@ public class FeeController {
   @PutMapping("/students/{studentId}/fees")
   public List<Fee> updateStudentFees(@PathVariable String studentId, @RequestBody List<Fee> fees) {
     updateFeeValidator.accept(fees, studentId);
-    User student = userService.findById(studentId);
+    var student = userService.getById(studentId);
     List<school.hei.haapi.model.Fee> domainFeeList =
         fees.stream().map(fee -> feeMapper.toDomain(fee, student)).collect(toList());
     return feeService.updateAll(domainFeeList, studentId).stream()

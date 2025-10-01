@@ -31,7 +31,6 @@ import school.hei.haapi.endpoint.rest.model.YearlyResult;
 import school.hei.haapi.endpoint.rest.model.YearlyResultGenerationTranscript;
 import school.hei.haapi.file.bucket.BucketComponent;
 import school.hei.haapi.model.FileInfo;
-import school.hei.haapi.model.User;
 import school.hei.haapi.model.YearlyResultGenerationRequest;
 import school.hei.haapi.model.exception.BadRequestException;
 import school.hei.haapi.model.exception.CoursesCreditSumZero;
@@ -146,7 +145,7 @@ public class GradeResultService {
       throw new BadRequestException(
           "Cannot generate transcript for this level. This level has not yet been started");
 
-    User student = userService.findById(studentId);
+    var student = userService.getById(studentId);
     var fileName = String.format(TRANSCRIPT_FILENAME_FORMAT, student.getRef(), level);
     Optional<YearlyResultGenerationRequest> studentTranscriptRequestInfo =
         yearlyResultGenerationService.findGenerationRequestByFileName(fileName);
@@ -191,7 +190,7 @@ public class GradeResultService {
   }
 
   public void uploadYearlyResultTranscript(String studentId, YearlyResult yearlyResult) {
-    var student = userService.findById(studentId);
+    var student = userService.getById(studentId);
     var fileName =
         String.format(TRANSCRIPT_FILENAME_FORMAT, student.getRef(), yearlyResult.getLevel());
     Optional<FileInfo> availableFileInfo = fileInfoService.findTranscriptInfoByName(fileName);

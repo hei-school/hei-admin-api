@@ -41,7 +41,7 @@ public class AnnouncementMapper {
 
   public school.hei.haapi.model.Announcement toDomain(CreateAnnouncement rest) {
 
-    User author = userService.findById(rest.getAuthorId());
+    User author = userService.getById(rest.getAuthorId());
 
     return school.hei.haapi.model.Announcement.builder()
         .id(rest.getId())
