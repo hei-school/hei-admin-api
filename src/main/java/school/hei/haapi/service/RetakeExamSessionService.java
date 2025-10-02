@@ -8,6 +8,7 @@ import org.springframework.stereotype.Component;
 import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.model.RetakeExamSession;
+import school.hei.haapi.model.exception.BadRequestException;
 import school.hei.haapi.model.exception.NotFoundException;
 import school.hei.haapi.model.pagination.PaginationFromPageAndPageSize;
 import school.hei.haapi.repository.RetakeExamSessionRepository;
@@ -33,6 +34,8 @@ public class RetakeExamSessionService {
   }
 
   public RetakeExamSession save(RetakeExamSession retakeExamSession) {
+    if (retakeExamSession.getDateFrom().isAfter(retakeExamSession.getDateTo()))
+      throw new BadRequestException("Session start date must be before end date");
     return retakeExamSessionRepository.save(retakeExamSession);
   }
 }

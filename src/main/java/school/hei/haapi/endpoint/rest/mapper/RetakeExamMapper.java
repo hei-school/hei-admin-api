@@ -8,7 +8,6 @@ import school.hei.haapi.endpoint.rest.model.RetakeExam;
 import school.hei.haapi.endpoint.rest.model.StudentRetakeExam;
 import school.hei.haapi.model.Course;
 import school.hei.haapi.model.RetakeExamSession;
-import school.hei.haapi.model.User;
 import school.hei.haapi.service.CourseService;
 import school.hei.haapi.service.RetakeExamSessionService;
 import school.hei.haapi.service.UserService;
@@ -23,8 +22,8 @@ public class RetakeExamMapper {
   private final RetakeExamSessionService retakeExamSessionService;
   private final UserMapper userMapper;
 
-  public school.hei.haapi.model.RetakeExam toDomainCrupDate(CrupdateRetakeExam crupdateRetakeExam) {
-    User studentUser = userService.findById(crupdateRetakeExam.getStudentId());
+  public school.hei.haapi.model.RetakeExam toDomainCrupdate(CrupdateRetakeExam crupdateRetakeExam) {
+    var studentUser = userService.getById(crupdateRetakeExam.getStudentId());
     RetakeExamSession retakeExamSession =
         retakeExamSessionService.getById(crupdateRetakeExam.getSessionId());
     Course course = courseService.getById(crupdateRetakeExam.getCourseId());
@@ -58,7 +57,7 @@ public class RetakeExamMapper {
 
   public List<school.hei.haapi.model.RetakeExam> toDoMainList(
       List<CrupdateRetakeExam> crupdateRetakeExams) {
-    return crupdateRetakeExams.stream().map(this::toDomainCrupDate).toList();
+    return crupdateRetakeExams.stream().map(this::toDomainCrupdate).toList();
   }
 
   public StudentRetakeExam toStudentRetakeRest(school.hei.haapi.model.RetakeExam retakeExam) {
@@ -67,5 +66,10 @@ public class RetakeExamMapper {
         .course(courseMapper.toRest(retakeExam.getCourse()))
         .session(retakeExamSessionMapper.toRest(retakeExam.getSession()))
         .registrationDate(retakeExam.getRegistrationDate());
+  }
+
+  public List<StudentRetakeExam> toStudentRetakeRestList(
+      List<school.hei.haapi.model.RetakeExam> retakeExams) {
+    return retakeExams.stream().map(this::toStudentRetakeRest).toList();
   }
 }

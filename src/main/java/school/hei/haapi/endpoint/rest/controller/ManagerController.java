@@ -43,12 +43,12 @@ public class ManagerController {
       @RequestPart("file_to_upload") MultipartFile profilePictureAsMultipartFile,
       @PathVariable String id) {
     userService.uploadUserProfilePicture(profilePictureAsMultipartFile, id);
-    return userMapper.toRestManager(userService.findById(id));
+    return userMapper.toRestManager(userService.getById(id));
   }
 
   @GetMapping(value = "/managers/{id}")
   public Manager getManagerById(@PathVariable String id) {
-    return userMapper.toRestManager(userService.findById(id));
+    return userMapper.toRestManager(userService.getById(id));
   }
 
   @PutMapping("/managers/{id}")

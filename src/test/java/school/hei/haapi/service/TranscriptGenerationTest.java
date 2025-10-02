@@ -49,7 +49,7 @@ public class TranscriptGenerationTest extends FacadeITMockedThirdParties {
 
     when(courseResultServiceMock.getCourseResultsForLevelOfStudent(any(), any()))
         .thenReturn(List.of(mgt1CourseResult(), prog1CourseResult(), sys1CourseResult()));
-    when(userServiceMock.findById(any()))
+    when(userServiceMock.getById(any()))
         .thenReturn(User.builder().id(STUDENT_ID).ref(STUDENT_REF).build());
     when(bucketComponentMock.presign(any(), any()))
         .thenReturn(URI.create(DUMMY_PRESIGNED_URL).toURL());

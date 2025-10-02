@@ -9,7 +9,6 @@ import school.hei.haapi.endpoint.rest.model.CourseAssignment;
 import school.hei.haapi.endpoint.rest.model.CrupdateCourseAssignment;
 import school.hei.haapi.model.Course;
 import school.hei.haapi.model.Group;
-import school.hei.haapi.model.User;
 import school.hei.haapi.model.validator.CourseAssignmentValidator;
 import school.hei.haapi.service.CourseService;
 import school.hei.haapi.service.GroupService;
@@ -28,22 +27,21 @@ public class CourseAssignmentMapper {
 
   public school.hei.haapi.model.CourseAssignment toDomain(
       CrupdateCourseAssignment crupdateCourseAssignment) {
-    school.hei.haapi.model.Course course =
-        courseService.getById(crupdateCourseAssignment.getCourseId());
+    var course = courseService.getById(crupdateCourseAssignment.getCourseId());
     return toDomain(crupdateCourseAssignment, course);
   }
 
   public school.hei.haapi.model.CourseAssignment toDomain(
       String courseId, CrupdateCourseAssignment crupdateCourseAssignment) {
-    school.hei.haapi.model.Course course = courseService.getById(courseId);
+    var course = courseService.getById(courseId);
     return toDomain(crupdateCourseAssignment, course);
   }
 
   @NotNull
   private school.hei.haapi.model.CourseAssignment toDomain(
       CrupdateCourseAssignment crupdateCourseAssignment, Course course) {
-    User teacher = userService.findById(crupdateCourseAssignment.getMainTeacherId());
-    List<Group> groups = groupService.getAllById(crupdateCourseAssignment.getGroupIds());
+    var teacher = userService.getById(crupdateCourseAssignment.getMainTeacherId());
+    var groups = groupService.getAllById(crupdateCourseAssignment.getGroupIds());
     var domainCourseAssignment =
         school.hei.haapi.model.CourseAssignment.builder()
             .id(crupdateCourseAssignment.getId())
@@ -78,9 +76,9 @@ public class CourseAssignmentMapper {
   }
 
   public CourseAssignment toRest(CrupdateCourseAssignment crupdateCourseAssignment) {
-    List<Group> groups = groupService.getAllById(crupdateCourseAssignment.getGroupIds());
-    Course course = courseService.getById(crupdateCourseAssignment.getCourseId());
-    User teacher = userService.findById(crupdateCourseAssignment.getMainTeacherId());
+    var groups = groupService.getAllById(crupdateCourseAssignment.getGroupIds());
+    var course = courseService.getById(crupdateCourseAssignment.getCourseId());
+    var teacher = userService.getById(crupdateCourseAssignment.getMainTeacherId());
 
     return new CourseAssignment()
         .id(crupdateCourseAssignment.getId())

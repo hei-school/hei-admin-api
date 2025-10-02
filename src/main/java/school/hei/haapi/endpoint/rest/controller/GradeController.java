@@ -62,7 +62,7 @@ public class GradeController {
       @PathVariable("student_id") String studentId,
       @RequestBody UpdateGrade grade) {
     updateGradeValidator.accept(grade);
-    var toUpdate = gradeMapper.toDomain(grade, examId, userService.findById(studentId).getRef());
+    var toUpdate = gradeMapper.toDomain(grade, examId, userService.getById(studentId).getRef());
     return gradeMapper.toRest(gradeService.updateParticipantGrade(List.of(toUpdate)).getFirst());
   }
 

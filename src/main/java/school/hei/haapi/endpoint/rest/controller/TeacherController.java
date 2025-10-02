@@ -40,7 +40,7 @@ public class TeacherController {
 
   @GetMapping(value = "/teachers/{id}")
   public Teacher getTeacherById(@PathVariable String id) {
-    return userMapper.toRestTeacher(userService.findById(id));
+    return userMapper.toRestTeacher(userService.getById(id));
   }
 
   @PutMapping("/teachers/{id}")
@@ -85,7 +85,7 @@ public class TeacherController {
       @RequestPart("file_to_upload") MultipartFile profilePictureAsMultipartFile,
       @PathVariable String id) {
     userService.uploadUserProfilePicture(profilePictureAsMultipartFile, id);
-    return userMapper.toRestTeacher(userService.findById(id));
+    return userMapper.toRestTeacher(userService.getById(id));
   }
 
   @GetMapping(value = "/teachers/raw", produces = "application/vnd.ms-excel")

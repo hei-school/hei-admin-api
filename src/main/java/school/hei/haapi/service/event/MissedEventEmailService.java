@@ -63,7 +63,7 @@ public class MissedEventEmailService implements Consumer<MissedEventEmail> {
 
   private Context loadContext(MissedEventEmail missedEventEmail) {
     Context context = new Context();
-    User student = userService.findById(missedEventEmail.getStudentId());
+    var student = userService.getById(missedEventEmail.getStudentId());
     Event event = eventService.findEventById(missedEventEmail.getEventId());
 
     context.setVariable("student_fullname", getStudentFullName(student));

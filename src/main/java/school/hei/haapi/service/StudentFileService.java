@@ -19,7 +19,6 @@ import school.hei.haapi.endpoint.rest.model.ProfessionalExperienceFileTypeEnum;
 import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.FileInfo;
 import school.hei.haapi.model.PageFromOne;
-import school.hei.haapi.model.User;
 import school.hei.haapi.model.WorkDocument;
 import school.hei.haapi.repository.FileInfoRepository;
 import school.hei.haapi.repository.dao.FileInfoDao;
@@ -100,7 +99,7 @@ public class StudentFileService {
   private Context loadContext(String studentId) {
     Resource logo = classPathResourceResolver.apply("HEI_logo", ".png");
     Resource signature = classPathResourceResolver.apply("signature", ".png");
-    User student = userService.findById(studentId);
+    var student = userService.getById(studentId);
     Context context = new Context();
 
     context.setVariable("student", student);

@@ -37,7 +37,7 @@ public class SuspendStudentsWithOverdueFeesService
         Long studentMpbsPendingCount = mpbsService.countPendingOfStudent(student.getId());
         if (studentMpbsPendingCount == 0) {
           userManagerDao.updateUserStatusById(SUSPENDED, student.getId());
-          log.info("suspended student : {} ", userService.findById(student.getId()));
+          log.info("suspended student : {} ", userService.getById(student.getId()));
         }
       }
     }

@@ -27,7 +27,6 @@ import school.hei.haapi.endpoint.rest.model.WorkDocumentInfo;
 import school.hei.haapi.endpoint.rest.validator.CreateStudentWorkFileValidator;
 import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.PageFromOne;
-import school.hei.haapi.model.User;
 import school.hei.haapi.model.validator.ScholarshipDataValidator;
 import school.hei.haapi.service.ReceiptGenerationService;
 import school.hei.haapi.service.StudentFileService;
@@ -48,7 +47,7 @@ public class UserFileController {
       value = "/students/{id}/scholarship_certificate/raw",
       produces = APPLICATION_PDF_VALUE)
   public byte[] getStudentScholarshipCertificate(@PathVariable(name = "id") String studentId) {
-    User student = userService.findById(studentId);
+    var student = userService.getById(studentId);
     scholarshipDataValidator.accept(student);
     return fileService.generateScholarshipCertificate(studentId, "scolarity");
   }

@@ -87,7 +87,7 @@ public class LetterService {
       String feeId,
       Integer amount,
       String eventParticipantId) {
-    User user = userService.findById(studentId);
+    User user = userService.getById(studentId);
     String bucketKey = getBucketKey(user.getRef(), filename) + fileService.getFileExtension(file);
     final String uuid = UUID.randomUUID().toString();
 

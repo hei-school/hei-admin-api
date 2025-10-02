@@ -13,6 +13,7 @@ import static school.hei.haapi.integration.conf.TestUtils.MANAGER_ID;
 import static school.hei.haapi.integration.conf.TestUtils.group1;
 import static school.hei.haapi.model.Event.PlaceName.IVANDRY;
 import static school.hei.haapi.model.Event.RoomName.UNKNOWN;
+import static school.hei.haapi.model.User.Role.STUDENT;
 
 import com.github.javafaker.Faker;
 import java.time.Instant;
@@ -21,8 +22,11 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.IntStream;
 import org.springframework.stereotype.Component;
 import school.hei.haapi.endpoint.rest.model.Coordinates;
+import school.hei.haapi.endpoint.rest.model.CorCommentInfo;
+import school.hei.haapi.endpoint.rest.model.CorStatus;
 import school.hei.haapi.endpoint.rest.model.CreateEvent;
 import school.hei.haapi.endpoint.rest.model.CrupdateCourseAssignment;
 import school.hei.haapi.endpoint.rest.model.CrupdateTeacher;
@@ -33,6 +37,8 @@ import school.hei.haapi.endpoint.rest.model.MpbsStatus;
 import school.hei.haapi.endpoint.rest.model.PlaceEnum;
 import school.hei.haapi.endpoint.rest.model.RoomEnum;
 import school.hei.haapi.endpoint.rest.model.Sex;
+import school.hei.haapi.model.Cor;
+import school.hei.haapi.model.CorComment;
 import school.hei.haapi.model.Course;
 import school.hei.haapi.model.Event;
 import school.hei.haapi.model.Fee;
@@ -81,6 +87,12 @@ public class FakeDataProvider {
         .courseId("course2_id")
         .groupIds(List.of("group2_id"))
         .mainTeacherId("teacher2_id");
+  }
+
+  public static CorCommentInfo someCorCommentInfo() {
+    return new CorCommentInfo()
+        .comment(faker.lorem().paragraph())
+        .status(faker.options().option(CorStatus.class));
   }
 
   public Group createGroup() {
@@ -187,5 +199,46 @@ public class FakeDataProvider {
         MANAGER_ID,
         Instant.parse("2023-12-08T08:00:00.00Z"),
         Instant.parse("2023-12-08T10:00:00.00Z"));
+  }
+
+  public static User someStudent(String firstName) {
+    return User.builder(someCoordinates())
+        .id(UUID.randomUUID().toString())
+        .role(STUDENT)
+        .firstName(firstName)
+        .email(faker.internet().emailAddress())
+        .ref(someRef("STD"))
+        .lastName(faker.name().lastName())
+        .address(faker.address().fullAddress())
+        .status(User.Status.ENABLED)
+        .entranceDatetime(Instant.now())
+        .build();
+  }
+
+  public static Coordinates someCoordinates() {
+    return new Coordinates()
+        .latitude(faker.number().randomDouble(2, -90, 90))
+        .longitude(faker.number().randomDouble(2, -180, 180));
+  }
+
+  public static Cor someCor(User user, Instant interviewDatetime) {
+    return Cor.builder()
+        .id(randomUUID().toString())
+        .interviewDatetime(interviewDatetime)
+        .student(user)
+        .description(faker.lorem().paragraph())
+        .build();
+  }
+
+  public static CorComment someCorComment() {
+    return someCorComment(faker.options().option(school.hei.haapi.model.CorStatus.class));
+  }
+
+  public static CorComment someCorComment(school.hei.haapi.model.CorStatus status) {
+    return CorComment.builder().comment(faker.lorem().paragraph()).status(status).build();
+  }
+
+  public static List<CorComment> someCorComment(int count) {
+    return IntStream.range(0, count + 1).mapToObj(i -> FakeDataProvider.someCorComment()).toList();
   }
 }
