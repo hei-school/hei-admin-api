@@ -1,5 +1,6 @@
 package school.hei.haapi.endpoint.rest.mapper;
 
+import java.util.List;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 import school.hei.haapi.endpoint.rest.model.Course;
@@ -27,5 +28,9 @@ public class CourseMapper {
         .totalHours(rest.getTotalHours())
         .studentLevel(rest.getLevel())
         .build();
+  }
+
+  public List<Course> toRestList(List<school.hei.haapi.model.Course> domains) {
+    return domains.stream().map(this::toRest).toList();
   }
 }
