@@ -1,6 +1,7 @@
 package school.hei.haapi.repository.dao;
 
 import static jakarta.persistence.criteria.JoinType.LEFT;
+import static java.util.Collections.emptyList;
 import static school.hei.haapi.endpoint.rest.model.AttendanceStatus.MISSING;
 import static school.hei.haapi.model.Event.BEGIN_DATETIME;
 import static school.hei.haapi.service.utils.DateUtils.TimeRange;
@@ -123,12 +124,8 @@ public class EventParticipantDao {
       predicates.add(builder.equal(root.get("status"), attendanceStatus));
       if (MISSING.equals(attendanceStatus) && missingStatus != null) {
         switch (missingStatus) {
-          case JUSTIFIED -> {
-            predicates.add(root.get("letters").isNotNull());
-          }
-          case UNJUSTIFIED -> {
-            predicates.add(root.get("letters").isNull());
-          }
+          case JUSTIFIED -> predicates.add(builder.isNotEmpty(root.get("letters")));
+          case UNJUSTIFIED -> predicates.add(builder.isEmpty(root.get("letters")));
         }
       }
     }
@@ -145,5 +142,35 @@ public class EventParticipantDao {
     }
 
     return predicates;
+  }
+
+  public Long countMissingByMissingStatus(MissingStatus missingStatus) {
+    return countMissingByMissingStatusAndEventIds(missingStatus, emptyList());
+  }
+
+  public Long countMissingByMissingStatusAndEventId(MissingStatus missingStatus, String eventId) {
+    return countMissingByMissingStatusAndEventIds(missingStatus, List.of(eventId));
+  }
+
+  public Long countMissingByMissingStatusAndEventIds(
+      MissingStatus missingStatus, List<String> eventIds) {
+    CriteriaBuilder builder = entityManager.getCriteriaBuilder();
+    CriteriaQuery<Long> query = builder.createQuery(Long.class);
+    Root<EventParticipant> root = query.from(EventParticipant.class);
+
+    List<Predicate> predicates = new ArrayList<>();
+
+    predicates.add(builder.equal(root.get("status"), MISSING));
+    if (!eventIds.isEmpty()) {
+      predicates.add(root.get("event").get("id").in(eventIds));
+    }
+
+    switch (missingStatus) {
+      case JUSTIFIED -> predicates.add(builder.isNotEmpty(root.get("letters")));
+      case UNJUSTIFIED -> predicates.add(builder.isEmpty(root.get("letters")));
+    }
+
+    query.select(builder.count(root)).where(predicates.toArray(new Predicate[0]));
+    return entityManager.createQuery(query).getSingleResult();
   }
 }

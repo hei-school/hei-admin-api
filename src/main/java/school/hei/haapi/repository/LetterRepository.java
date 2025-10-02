@@ -28,16 +28,4 @@ public interface LetterRepository extends JpaRepository<Letter, String> {
           "SELECT * FROM  letter where event_participant_id = ?1 ORDER BY creation_datetime DESC",
       nativeQuery = true)
   Optional<List<Letter>> findByEventParticipantId(String eventParticipantId);
-
-  @Query(
-      value =
-          "SELECT count(p.event.id) from Letter l inner join EventParticipant p on"
-              + " l.eventParticipant.id = p.id where l.eventParticipant is not null and p.event.id"
-              + " in :eventId group by p.id")
-  Integer countByEventIdInUnique(List<String> eventId);
-
-  @Query(
-      "SELECT count(p.event.id) from Letter l inner join EventParticipant p on"
-          + " l.eventParticipant.id = p.id where l.eventParticipant is not null group by p.id")
-  Integer countByEventUnique();
 }

@@ -63,11 +63,11 @@ public class EventService {
           .findById(evId)
           .orElseThrow(() -> new NotFoundException("Event with id : " + evId + "not found"));
 
-      return eventParticipantService.getEventParticipantsStats(evId);
+      return eventParticipantService.getEventStats(evId);
     }
 
     if (optionalFrom.isEmpty() && optionalTo.isEmpty()) {
-      return eventParticipantService.getOverallEventParticipantsStats();
+      return eventParticipantService.getOverallEventStats();
     }
 
     Instant fromInstant = optionalFrom.orElse(Instant.now());
@@ -81,7 +81,7 @@ public class EventService {
         eventDao.findByCriteria(null, fromInstant, toInstant, null, null, null);
     List<String> filteredEventIds =
         filteredEvents.stream().map(Event::getId).collect(toUnmodifiableList());
-    return eventParticipantService.getEventParticipantsStats(filteredEventIds);
+    return eventParticipantService.getEventStats(filteredEventIds);
   }
 
   public Event findEventById(String eventId) {

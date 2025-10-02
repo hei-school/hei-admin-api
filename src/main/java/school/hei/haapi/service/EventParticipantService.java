@@ -6,6 +6,8 @@ import static school.hei.haapi.endpoint.rest.model.AttendanceStatus.LATE;
 import static school.hei.haapi.endpoint.rest.model.AttendanceStatus.MISSING;
 import static school.hei.haapi.endpoint.rest.model.AttendanceStatus.PRESENT;
 import static school.hei.haapi.endpoint.rest.model.AttendanceStatus.UNCHECKED;
+import static school.hei.haapi.endpoint.rest.model.MissingStatus.JUSTIFIED;
+import static school.hei.haapi.endpoint.rest.model.MissingStatus.UNJUSTIFIED;
 
 import java.time.Instant;
 import java.util.ArrayList;
@@ -170,7 +172,7 @@ public class EventParticipantService {
         .orElseThrow(() -> new NotFoundException("Event with id #" + eventId + " does not exist"));
   }
 
-  public EventStats getEventParticipantsStats(String eventId) {
+  public EventStats getEventStats(String eventId) {
     int late = eventParticipantRepository.countByEventIdAndStatus(eventId, LATE);
     int present = eventParticipantRepository.countByEventIdAndStatus(eventId, PRESENT);
 
@@ -182,9 +184,10 @@ public class EventParticipantService {
   }
 
   private MissingEventStats countEventMissingStatsByEventId(String eventId) {
-    var justifiedMissingCount = letterRepository.countByEventIdInUnique(List.of(eventId));
+    var justifiedMissingCount =
+        eventParticipantDao.countMissingByMissingStatusAndEventId(JUSTIFIED, eventId).intValue();
     var unjustifiedMissingCount =
-        eventParticipantRepository.countUnjustifiedMissingByEventId(eventId);
+        eventParticipantDao.countMissingByMissingStatusAndEventId(UNJUSTIFIED, eventId).intValue();
     var totalMissingCount = eventParticipantRepository.countByEventIdAndStatus(eventId, MISSING);
 
     return new MissingEventStats()
@@ -194,8 +197,10 @@ public class EventParticipantService {
   }
 
   private MissingEventStats countOverallEventMissingStats() {
-    var justifiedMissingCount = letterRepository.countByEventUnique();
-    var unjustifiedMissingCount = eventParticipantRepository.countUnjustifiedMissing();
+    int justifiedMissingCount =
+        eventParticipantDao.countMissingByMissingStatus(JUSTIFIED).intValue();
+    int unjustifiedMissingCount =
+        eventParticipantDao.countMissingByMissingStatus(UNJUSTIFIED).intValue();
     int total = eventParticipantRepository.countByStatus(MISSING);
 
     return new MissingEventStats()
@@ -204,7 +209,7 @@ public class EventParticipantService {
         .unjustified(unjustifiedMissingCount);
   }
 
-  public EventStats getOverallEventParticipantsStats() {
+  public EventStats getOverallEventStats() {
     var missing = countOverallEventMissingStats();
     int late = eventParticipantRepository.countByStatus(LATE);
     int present = eventParticipantRepository.countByStatus(PRESENT);
@@ -217,9 +222,12 @@ public class EventParticipantService {
   }
 
   private MissingEventStats countMissingEventStatsByEventIds(List<String> eventIds) {
-    int justifiedMissingStats = letterRepository.countByEventIdInUnique(eventIds);
+    int justifiedMissingStats =
+        eventParticipantDao.countMissingByMissingStatusAndEventIds(JUSTIFIED, eventIds).intValue();
     int unjustifiedMissingStats =
-        eventParticipantRepository.countUnjustifiedMissingByEventIdIn(eventIds);
+        eventParticipantDao
+            .countMissingByMissingStatusAndEventIds(UNJUSTIFIED, eventIds)
+            .intValue();
     int total = eventParticipantRepository.countByEventIdInAndStatus(eventIds, MISSING);
 
     return new MissingEventStats()
@@ -228,7 +236,7 @@ public class EventParticipantService {
         .unjustified(unjustifiedMissingStats);
   }
 
-  public EventStats getEventParticipantsStats(List<String> eventIds) {
+  public EventStats getEventStats(List<String> eventIds) {
     int late = eventParticipantRepository.countByEventIdInAndStatus(eventIds, LATE);
     int present = eventParticipantRepository.countByEventIdInAndStatus(eventIds, PRESENT);
     var missing = countMissingEventStatsByEventIds(eventIds);

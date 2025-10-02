@@ -187,7 +187,12 @@ class DirtyEventServiceTest extends FacadeITMockedThirdParties {
     participantService.updateEventParticipants(eventParticipants);
 
     EventStats stats = subject.getStats(randomCourseEvent.getFirst().getId(), null, null);
-    assertEquals(
-        new EventStats().late(0).missing(new MissingEventStats()).total(1).present(1), stats);
+    var expectedStats =
+        new EventStats()
+            .late(0)
+            .missing(new MissingEventStats().justified(0).unjustified(0).total(0))
+            .total(1)
+            .present(1);
+    assertEquals(expectedStats, stats);
   }
 }
