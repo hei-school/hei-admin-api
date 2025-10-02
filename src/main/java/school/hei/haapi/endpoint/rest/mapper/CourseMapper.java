@@ -30,7 +30,7 @@ public class CourseMapper {
         .build();
   }
 
-  public List<Course> toRestList(List<school.hei.haapi.model.Course> domains) {
+  public List<Course> toRests(List<school.hei.haapi.model.Course> domains) {
     return domains.stream().map(this::toRest).toList();
   }
 }

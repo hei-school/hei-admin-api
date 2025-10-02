@@ -5,10 +5,10 @@ import java.util.Optional;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.repository.query.Param;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Repository;
 import school.hei.haapi.model.RetakeExam;
 
-@Component
+@Repository
 public interface RetakeExamRepository extends JpaRepository<RetakeExam, String> {
   Optional<RetakeExam> findByCourse_IdAndStudent_IdAndSession_Id(
       String courseId, String studentId, String sessionId);
@@ -17,4 +17,7 @@ public interface RetakeExamRepository extends JpaRepository<RetakeExam, String> 
       @Param("sessionId") String retakeExamSessionId, Pageable pageable);
 
   List<RetakeExam> findRetakeExamsBySession_IdAndStudent_Id(String sessionId, String studentId);
+
+  List<RetakeExam> findRetakeExamsBySession_IdAndCourse_Id(
+      String sessionId, String courseId, Pageable pageable);
 }

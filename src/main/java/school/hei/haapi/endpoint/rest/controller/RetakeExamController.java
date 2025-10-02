@@ -11,9 +11,11 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import school.hei.haapi.endpoint.rest.mapper.CourseMapper;
 import school.hei.haapi.endpoint.rest.mapper.RetakeExamMapper;
+import school.hei.haapi.endpoint.rest.mapper.UserMapper;
 import school.hei.haapi.endpoint.rest.model.Course;
 import school.hei.haapi.endpoint.rest.model.CrupdateRetakeExam;
 import school.hei.haapi.endpoint.rest.model.RetakeExam;
+import school.hei.haapi.endpoint.rest.model.Student;
 import school.hei.haapi.endpoint.rest.model.StudentRetakeExam;
 import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.PageFromOne;
@@ -26,6 +28,7 @@ public class RetakeExamController {
   private final RetakeExamService retakeExamService;
   private final RetakeExamMapper retakeExamMapper;
   private final CourseMapper courseMapper;
+  private final UserMapper userMapper;
 
   @PutMapping("/retake_exam_sessions/{session_id}/retakeExams")
   public List<StudentRetakeExam> createOrUpdateRetakeExam(
@@ -57,7 +60,18 @@ public class RetakeExamController {
       @PathVariable("session_id") String sessionId,
       @RequestParam(value = "page", defaultValue = "1") PageFromOne page,
       @RequestParam(value = "pageSize", defaultValue = "15") BoundedPageSize pageSize) {
-    return courseMapper.toRestList(
+    return courseMapper.toRests(
         retakeExamService.getAllRetakeExamCoursesBySessionId(sessionId, page, pageSize));
+  }
+
+  @GetMapping("/retake_exam_sessions/{session_id}/retake_exam_courses/{course_id}/students")
+  public List<Student> getRetakeExamParticipantByCourseIdAndSessionId(
+      @PathVariable("session_id") String sessionId,
+      @PathVariable("course_id") String courseId,
+      @RequestParam(value = "page", defaultValue = "1") PageFromOne page,
+      @RequestParam(value = "pageSize", defaultValue = "15") BoundedPageSize pageSize) {
+    return userMapper.toRestStudents(
+        retakeExamService.getAllRetakeExamParticipantByCourseAndBySessionId(
+            sessionId, courseId, page, pageSize));
   }
 }
