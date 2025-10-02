@@ -6,7 +6,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import school.hei.haapi.endpoint.rest.mapper.CourseMapper;
@@ -22,7 +21,6 @@ import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.service.RetakeExamService;
 
 @RestController
-@RequestMapping
 @AllArgsConstructor
 public class RetakeExamController {
   private final RetakeExamService retakeExamService;
@@ -50,7 +48,7 @@ public class RetakeExamController {
   public List<StudentRetakeExam> getRetakeExamBySessionId(
       @PathVariable("session_id") String sessionId,
       @RequestParam(value = "page", defaultValue = "1") PageFromOne page,
-      @RequestParam(value = "pageSize", defaultValue = "15") BoundedPageSize pageSize) {
+      @RequestParam(value = "page_size", defaultValue = "15") BoundedPageSize pageSize) {
     return retakeExamMapper.toStudentRetakeRestList(
         retakeExamService.getAllRetakeExamBySessionId(sessionId, page, pageSize));
   }
@@ -59,7 +57,7 @@ public class RetakeExamController {
   public List<Course> getRetakeExamCoursesBySessionId(
       @PathVariable("session_id") String sessionId,
       @RequestParam(value = "page", defaultValue = "1") PageFromOne page,
-      @RequestParam(value = "pageSize", defaultValue = "15") BoundedPageSize pageSize) {
+      @RequestParam(value = "page_size", defaultValue = "15") BoundedPageSize pageSize) {
     return courseMapper.toRests(
         retakeExamService.getAllRetakeExamCoursesBySessionId(sessionId, page, pageSize));
   }
@@ -69,7 +67,7 @@ public class RetakeExamController {
       @PathVariable("session_id") String sessionId,
       @PathVariable("course_id") String courseId,
       @RequestParam(value = "page", defaultValue = "1") PageFromOne page,
-      @RequestParam(value = "pageSize", defaultValue = "15") BoundedPageSize pageSize) {
+      @RequestParam(value = "page_size", defaultValue = "15") BoundedPageSize pageSize) {
     return userMapper.toRestStudents(
         retakeExamService.getAllRetakeExamParticipantByCourseAndBySessionId(
             sessionId, courseId, page, pageSize));
