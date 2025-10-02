@@ -12,7 +12,7 @@ on:
   workflow_call:
 
 env:
-  SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }} 
+  SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
 jobs:
   test:
@@ -21,7 +21,7 @@ jobs:
 
     env:
       AWS_REGION: eu-west-3
-      
+
 
     steps:
       - uses: actions/checkout@v4.1.6
