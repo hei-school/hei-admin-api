@@ -6,7 +6,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import school.hei.haapi.endpoint.rest.mapper.RetakeExamSessionMapper;
@@ -16,7 +15,6 @@ import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.service.RetakeExamSessionService;
 
 @RestController
-@RequestMapping
 @RequiredArgsConstructor
 public class RetakeExamSessionController {
   private final RetakeExamSessionService retakeExamSessionService;
@@ -26,7 +24,7 @@ public class RetakeExamSessionController {
   public List<RetakeExamSession> getRetakeExamSessions(
       @RequestParam(value = "title", required = false) String title,
       @RequestParam(value = "page", defaultValue = "1") PageFromOne page,
-      @RequestParam(value = "pageSize", defaultValue = "15") BoundedPageSize pageSize,
+      @RequestParam(value = "page_size", defaultValue = "15") BoundedPageSize pageSize,
       @RequestParam(value = "from", required = false) Instant from,
       @RequestParam(value = "to", required = false) Instant to) {
     return retakeExamSessionMapper.toRestList(

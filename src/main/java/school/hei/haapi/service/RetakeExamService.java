@@ -3,12 +3,13 @@ package school.hei.haapi.service;
 import static school.hei.haapi.endpoint.rest.model.CourseResultStatus.INCOMPLETE;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 import school.hei.haapi.endpoint.rest.mapper.CourseMapper;
 import school.hei.haapi.endpoint.rest.mapper.RetakeExamMapper;
 import school.hei.haapi.endpoint.rest.model.Course;
@@ -19,10 +20,11 @@ import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.model.RetakeExam;
 import school.hei.haapi.model.RetakeExamSession;
+import school.hei.haapi.model.pagination.PaginationFromPageAndPageSize;
 import school.hei.haapi.repository.RetakeExamRepository;
 import school.hei.haapi.repository.dao.RetakeExamDao;
 
-@Component
+@Service
 @AllArgsConstructor
 public class RetakeExamService {
   private final RetakeExamRepository retakeExamRepository;
@@ -31,6 +33,7 @@ public class RetakeExamService {
   private final GradeResultService gradeResultService;
   private final CourseMapper courseMapper;
   private final RetakeExamDao retakeExamDao;
+  private final PaginationFromPageAndPageSize paginationFromPageAndPageSize;
 
   public List<RetakeExam> crupdateRetakeExams(
       String sessionId, List<CrupdateRetakeExam> crupdateRetakeExams) {
@@ -58,7 +61,7 @@ public class RetakeExamService {
 
   public List<RetakeExam> getStudentRetakeExams(String sessionId, String studentId) {
     var session = retakeExamSessionService.getById(sessionId);
-    var coursesToRetake = getCourseResultToRetake(studentId, session);
+    var coursesToRetake = getCourseResultToRetake(studentId);
     var existingRetakeExams =
         retakeExamRepository.findRetakeExamsBySession_IdAndStudent_Id(session.getId(), studentId);
     var retakeExams =
@@ -93,24 +96,40 @@ public class RetakeExamService {
     return retakeExam;
   }
 
-  private List<CourseResult> getCourseResultToRetake(String studentId, RetakeExamSession session) {
+  private List<CourseResult> getCourseResultToRetake(String studentId) {
     List<YearlyResult> yearlyResults =
         gradeResultService.getStudentResultSummary(studentId).getYearlyResults();
-    List<CourseResult> toRetakeCourse =
-        yearlyResults.stream()
-            .filter(Objects::nonNull)
-            .map(YearlyResult::getCourseResults)
-            .filter(Objects::nonNull)
-            .flatMap(List::stream)
-            .filter(courseResult -> INCOMPLETE.equals(courseResult.getStatus()))
-            .toList();
 
-    return toRetakeCourse;
+    return yearlyResults.stream()
+        .filter(Objects::nonNull)
+        .map(YearlyResult::getCourseResults)
+        .filter(Objects::nonNull)
+        .flatMap(List::stream)
+        .filter(courseResult -> INCOMPLETE.equals(courseResult.getStatus()))
+        .toList();
   }
 
   public List<RetakeExam> getAllRetakeExamBySessionId(
       String sessionId, PageFromOne page, BoundedPageSize pageSize) {
     Pageable pageable = PageRequest.of(page.getValue() - 1, pageSize.getValue());
     return retakeExamDao.filterByCriteria(sessionId, null, pageable);
+  }
+
+  public List<school.hei.haapi.model.Course> getAllRetakeExamCoursesBySessionId(
+      String sessionId, PageFromOne page, BoundedPageSize pageSize) {
+    var pageable = paginationFromPageAndPageSize.apply(page, pageSize);
+    return retakeExamRepository.findRetakeExamsBySession_Id(sessionId, pageable).stream()
+        .map(RetakeExam::getCourse)
+        .distinct()
+        .sorted(Comparator.comparing(school.hei.haapi.model.Course::getCode))
+        .toList();
+  }
+
+  public List<school.hei.haapi.model.User> getAllRetakeExamParticipantByCourseAndBySessionId(
+      String sessionId, String courseId, PageFromOne page, BoundedPageSize pageSize) {
+    var pageable = paginationFromPageAndPageSize.apply(page, pageSize);
+    var retakeExams =
+        retakeExamRepository.findRetakeExamsBySession_IdAndCourse_Id(sessionId, courseId, pageable);
+    return retakeExams.stream().map(RetakeExam::getStudent).toList();
   }
 }

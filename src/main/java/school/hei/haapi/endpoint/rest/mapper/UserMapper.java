@@ -417,4 +417,8 @@ public class UserMapper {
   public User toDomain(UserIdentifier userIdentifier) {
     return userService.getById(userIdentifier.getId());
   }
+
+  public List<Student> toRestStudents(List<User> users) {
+    return users.stream().map(this::toRestStudent).toList();
+  }
 }
