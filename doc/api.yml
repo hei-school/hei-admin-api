@@ -1584,8 +1584,78 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
+  /retake_exam_sessions/{session_id}/retake_exam_courses:
+    get:
+      tags:
+        - RetakeExam
+      summary: Get all retake exam courses for a specific session
+      parameters:
+        - name: session_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PageSize'
+      operationId: getRetakeExamCoursesBySessionId
+      responses:
+        '200':
+          description: List of retake exams courses for a specific session
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Course'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+  /retake_exam_sessions/{session_id}/retake_exam_courses/{course_id}/students:
+    get:
+      tags:
+        - RetakeExam
+      summary: Get all participant for a specific retake exam course inside a session
+      parameters:
+        - name: session_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: course_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PageSize'
+      operationId: getRetakeExamParticipantByCourseIdAndSessionId
+      responses:
+        '200':
+          description: List of retake exam participant for a specific course in session
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Student'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
   /students/{student_id}/sessions/{session_id}/retakeExams:
-    ### TODO now
     get:
       tags:
         - RetakeExam
