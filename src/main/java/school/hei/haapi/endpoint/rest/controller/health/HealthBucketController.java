@@ -21,6 +21,7 @@ import school.hei.haapi.file.bucket.BucketComponent;
 import school.hei.haapi.file.hash.FileHash;
 
 @PojaGenerated
+@SuppressWarnings("all")
 @RestController
 @AllArgsConstructor
 public class HealthBucketController {
