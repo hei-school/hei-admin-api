@@ -1,3 +1,12 @@
+## [1.122.1](https://github.com/hei-school/hei-admin-api/compare/v1.122.0...v1.122.1) (2025-10-02)
+
+
+### Bug Fixes
+
+* increase stack size for build ([19092e9](https://github.com/hei-school/hei-admin-api/commit/19092e9f4570c356a0f45a81d995c8beb6964b80))
+
+
+
 # [1.122.0](https://github.com/hei-school/hei-admin-api/compare/v1.121.0...v1.122.0) (2025-10-02)
 
 
@@ -112,20 +121,6 @@
 ### Bug Fixes
 
 * **remedial:** restructure remedial component ([e43b116](https://github.com/hei-school/hei-admin-api/commit/e43b116776ddb8e91f19c4202f93c721cfac1be2))
-
-
-
-# [1.116.0](https://github.com/hei-school/hei-admin-api/compare/v1.115.0...v1.116.0) (2025-09-10)
-
-
-### Bug Fixes
-
-* yearly result transcript generation blocked on GENERATING ([68c718e](https://github.com/hei-school/hei-admin-api/commit/68c718e730171a0853ab262e0f49a9fdfdcdebd8))
-
-
-### Features
-
-* **not-implemented:** add remedial spec ([2b2cc04](https://github.com/hei-school/hei-admin-api/commit/2b2cc046816831547f036b19663cdd9ac1d0b897))
 
 
 
