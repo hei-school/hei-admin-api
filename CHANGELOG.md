@@ -1,3 +1,17 @@
+# [1.122.0](https://github.com/hei-school/hei-admin-api/compare/v1.121.0...v1.122.0) (2025-10-02)
+
+
+### Bug Fixes
+
+* increase stack size for build ([be30d92](https://github.com/hei-school/hei-admin-api/commit/be30d925d0c3aa1d8c53263e916d0ae7a4be633b))
+
+
+### Features
+
+* add get all retake exam courses and all retake exam course participant in specific session ([2afe4f1](https://github.com/hei-school/hei-admin-api/commit/2afe4f1ec4682da23fffb974b6932d56a14ea475))
+
+
+
 # [1.121.0](https://github.com/hei-school/hei-admin-api/compare/v1.120.0...v1.121.0) (2025-10-01)
 
 
@@ -112,20 +126,6 @@
 ### Features
 
 * **not-implemented:** add remedial spec ([2b2cc04](https://github.com/hei-school/hei-admin-api/commit/2b2cc046816831547f036b19663cdd9ac1d0b897))
-
-
-
-# [1.115.0](https://github.com/hei-school/hei-admin-api/compare/v1.114.0...v1.115.0) (2025-09-05)
-
-
-### Bug Fixes
-
-* not started courseResult ([e5b03ab](https://github.com/hei-school/hei-admin-api/commit/e5b03ab70085edc0856b3ad4c5329829d92ead29))
-
-
-### Features
-
-* filter exam grades by student ref ([a1320f2](https://github.com/hei-school/hei-admin-api/commit/a1320f2b334d0eab968f30ca52e0fb259380fc95))
 
 
 
