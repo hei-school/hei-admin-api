@@ -1635,7 +1635,7 @@ paths:
             type: string
         - $ref: '#/components/parameters/Page'
         - $ref: '#/components/parameters/PageSize'
-      operationId: getRetakeExamParticipantByCourseIdInSessionId
+      operationId: getRetakeExamParticipantByCourseIdAndSessionId
       responses:
         '200':
           description: List of retake exam participant for a specific course in session
