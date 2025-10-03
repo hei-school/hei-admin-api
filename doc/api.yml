@@ -5369,7 +5369,7 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
-  /events/participants/{participant_id}/stats:
+  /events/participants/{student_id}/stats:
     get:
       tags:
         - Events
@@ -5390,8 +5390,8 @@ paths:
           schema:
             type: string
             format: date-time
-        - name: participant_id
-          description: participantId to get stats
+        - name: student_id
+          description: studentId to get stats
           in: path
           required: true
           schema:
@@ -7982,7 +7982,7 @@ components:
       type: object
       properties:
         missed_events:
-          type: integer
+          $ref: "#/components/schemas/MissingEventStats"
         assisted_events:
           type: integer
         late_events:

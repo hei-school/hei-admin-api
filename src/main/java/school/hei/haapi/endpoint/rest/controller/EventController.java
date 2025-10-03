@@ -118,16 +118,14 @@ public class EventController {
         .collect(toUnmodifiableList());
   }
 
-  @GetMapping("/events/participants/{participant_id}/stats")
+  @GetMapping("/events/participants/{student_id}/stats")
   public EventParticipantStats getEventParticipantStats(
-      @PathVariable(name = "participant_id") String participantId,
+      @PathVariable(name = "student_id") String studentId,
       @RequestParam(name = "from_event_begin", required = false) Instant from,
       @RequestParam(name = "to_event_begin", required = false) Instant to) {
     Optional<Instant> optionalFrom = Optional.ofNullable(from);
     Optional<Instant> optionalTo = Optional.ofNullable(to);
-
-    return eventParticipantService.getEventParticipantStats(
-        participantId, optionalFrom, optionalTo);
+    return eventParticipantService.getEventParticipantStats(studentId, optionalFrom, optionalTo);
   }
 
   @PutMapping("/events/{event_id}/participants")

@@ -1,5 +1,6 @@
 package school.hei.haapi.service;
 
+import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.toUnmodifiableList;
 import static org.springframework.data.domain.Sort.Direction.ASC;
 import static school.hei.haapi.endpoint.rest.model.AttendanceStatus.LATE;
@@ -94,9 +95,9 @@ public class EventParticipantService {
   }
 
   public EventParticipantStats getEventParticipantStats(
-      String participantId, Optional<Instant> from, Optional<Instant> to) {
+      String studentId, Optional<Instant> from, Optional<Instant> to) {
     if (from.isEmpty() && to.isEmpty()) {
-      return generateParticipantStat(participantId, Optional.empty());
+      return generateParticipantStat(studentId, Optional.empty());
     }
 
     Instant fromInstant = from.orElse(Instant.now());
@@ -111,45 +112,48 @@ public class EventParticipantService {
             .map(Event::getId)
             .collect(toUnmodifiableList());
 
-    return generateParticipantStat(participantId, Optional.of(filteredEventsIds));
+    return generateParticipantStat(studentId, Optional.of(filteredEventsIds));
   }
 
   private EventParticipantStats generateParticipantStat(
-      String participantId, Optional<List<String>> evenIds) {
+      String studentId, Optional<List<String>> evenIds) {
     Integer lateCount;
-    Integer missingCount;
+    MissingEventStats missingEventStats;
     Integer presentCount;
 
-    if (evenIds.isPresent()) {
-      List<String> eventIdsList = evenIds.get();
-      lateCount =
-          eventParticipantRepository.countAllByParticipantIdAndStatusAndEventIdIn(
-              participantId, LATE, eventIdsList);
-      missingCount =
-          eventParticipantRepository.countAllByParticipantIdAndStatusAndEventIdIn(
-              participantId, MISSING, eventIdsList);
-      presentCount =
-          eventParticipantRepository.countAllByParticipantIdAndStatusAndEventIdIn(
-              participantId, PRESENT, eventIdsList);
-
-      return new EventParticipantStats()
-          .assistedEvents(presentCount)
-          .lateEvents(lateCount)
-          .missedEvents(missingCount)
-          .totalEvents(lateCount + missingCount + presentCount);
-    }
-
-    lateCount = eventParticipantRepository.countAllByParticipantIdAndStatus(participantId, LATE);
-    missingCount =
-        eventParticipantRepository.countAllByParticipantIdAndStatus(participantId, MISSING);
+    List<String> eventIdsList = evenIds.orElse(emptyList());
+    lateCount =
+        eventParticipantDao
+            .countEventParticipantByCriteria(studentId, LATE, null, eventIdsList)
+            .intValue();
+    missingEventStats = countEventMissingStatsByStudentIdAndEventIds(studentId, eventIdsList);
     presentCount =
-        eventParticipantRepository.countAllByParticipantIdAndStatus(participantId, PRESENT);
+        eventParticipantDao
+            .countEventParticipantByCriteria(studentId, PRESENT, null, eventIdsList)
+            .intValue();
 
     return new EventParticipantStats()
         .assistedEvents(presentCount)
         .lateEvents(lateCount)
-        .missedEvents(missingCount)
-        .totalEvents(lateCount + missingCount + presentCount);
+        .missedEvents(missingEventStats)
+        .totalEvents(lateCount + missingEventStats.getTotal() + presentCount);
+  }
+
+  private MissingEventStats countEventMissingStatsByStudentIdAndEventIds(
+      String studentId, List<String> eventId) {
+    return new MissingEventStats()
+        .justified(
+            eventParticipantDao
+                .countEventParticipantByCriteria(studentId, MISSING, JUSTIFIED, eventId)
+                .intValue())
+        .unjustified(
+            eventParticipantDao
+                .countEventParticipantByCriteria(studentId, MISSING, JUSTIFIED, eventId)
+                .intValue())
+        .total(
+            eventParticipantDao
+                .countEventParticipantByCriteria(studentId, MISSING, null, eventId)
+                .intValue());
   }
 
   public EventParticipant findById(String id) {

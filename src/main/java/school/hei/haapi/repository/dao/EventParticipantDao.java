@@ -120,15 +120,7 @@ public class EventParticipantDao {
       }
     }
 
-    if (attendanceStatus != null) {
-      predicates.add(builder.equal(root.get("status"), attendanceStatus));
-      if (MISSING.equals(attendanceStatus) && missingStatus != null) {
-        switch (missingStatus) {
-          case JUSTIFIED -> predicates.add(builder.isNotEmpty(root.get("letters")));
-          case UNJUSTIFIED -> predicates.add(builder.isEmpty(root.get("letters")));
-        }
-      }
-    }
+    setEventStatusPredicate(builder, root, predicates, attendanceStatus, missingStatus);
 
     Path<Instant> eventBeginDateTime = root.get("event").get(BEGIN_DATETIME);
     predicates.add(builder.isNotNull(eventBeginDateTime));
@@ -154,23 +146,48 @@ public class EventParticipantDao {
 
   public Long countMissingByMissingStatusAndEventIds(
       MissingStatus missingStatus, List<String> eventIds) {
+    return countEventParticipantByCriteria(null, MISSING, missingStatus, eventIds);
+  }
+
+  public Long countEventParticipantByCriteria(
+      String studentId,
+      AttendanceStatus status,
+      MissingStatus missingStatus,
+      List<String> eventIds) {
     CriteriaBuilder builder = entityManager.getCriteriaBuilder();
     CriteriaQuery<Long> query = builder.createQuery(Long.class);
     Root<EventParticipant> root = query.from(EventParticipant.class);
 
     List<Predicate> predicates = new ArrayList<>();
 
-    predicates.add(builder.equal(root.get("status"), MISSING));
+    setEventStatusPredicate(builder, root, predicates, status, missingStatus);
+
     if (!eventIds.isEmpty()) {
       predicates.add(root.get("event").get("id").in(eventIds));
     }
 
-    switch (missingStatus) {
-      case JUSTIFIED -> predicates.add(builder.isNotEmpty(root.get("letters")));
-      case UNJUSTIFIED -> predicates.add(builder.isEmpty(root.get("letters")));
+    if (studentId != null) {
+      predicates.add(builder.equal(root.get("participant").get("id"), studentId));
     }
 
     query.select(builder.count(root)).where(predicates.toArray(new Predicate[0]));
     return entityManager.createQuery(query).getSingleResult();
+  }
+
+  private void setEventStatusPredicate(
+      CriteriaBuilder builder,
+      Root<EventParticipant> root,
+      List<Predicate> predicates,
+      AttendanceStatus status,
+      MissingStatus missingStatus) {
+    if (status != null) {
+      predicates.add(builder.equal(root.get("status"), status));
+      if (MISSING.equals(status) && missingStatus != null) {
+        switch (missingStatus) {
+          case JUSTIFIED -> predicates.add(builder.isNotEmpty(root.get("letters")));
+          case UNJUSTIFIED -> predicates.add(builder.isEmpty(root.get("letters")));
+        }
+      }
+    }
   }
 }
