@@ -5,7 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.when;
-import static school.hei.haapi.endpoint.rest.model.CorStatus.IN_PROGRESS;
+import static school.hei.haapi.endpoint.rest.model.CorStatus.CANCELED;
 import static school.hei.haapi.integration.conf.FakeDataProvider.someCor;
 import static school.hei.haapi.integration.conf.FakeDataProvider.someCorComment;
 import static school.hei.haapi.integration.conf.FakeDataProvider.someCorCommentInfo;
@@ -128,12 +128,12 @@ class CorIT extends FacadeITMockedThirdParties {
             corMapper.toRest(Cor.builder().student(tolotraWithoutCor).build())));
     corAxel =
         corCommentService
-            .addCommentByCorId(corAxel.getId(), someCorComment(CorStatus.IN_PROGRESS))
+            .addCommentByCorId(corAxel.getId(), someCorComment(CorStatus.CANCELED))
             .getCor();
 
-    var corsFilterByStatus = api.getCors(1, 1, null, null, null, null, singletonList(IN_PROGRESS));
+    var corsFilterByStatus = api.getCors(1, 1, null, null, null, null, singletonList(CANCELED));
     assertEquals(1, corsFilterByStatus.size());
-    assertEquals(IN_PROGRESS, corsFilterByStatus.getFirst().getStatus());
+    assertEquals(CANCELED, corsFilterByStatus.getFirst().getStatus());
   }
 
   @Test

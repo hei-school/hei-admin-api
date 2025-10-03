@@ -1,10 +1,12 @@
 package school.hei.haapi.repository.dao;
 
+import static jakarta.persistence.criteria.JoinType.LEFT;
+import static school.hei.haapi.model.CorStatus.IN_PROGRESS;
+
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Join;
-import jakarta.persistence.criteria.JoinType;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 import java.time.Instant;
@@ -58,14 +60,14 @@ public class CorDao {
       if (statuses.size() > 1) {
         throw new NotImplementedException("Filter by statuses not implemented");
       }
-      Join<Cor, CorLastComment> lastCommentJoin = root.join("lastComment", JoinType.LEFT);
+      Join<Cor, CorLastComment> lastCommentJoin = root.join("lastComment", LEFT);
 
-      Predicate matchStatus = builder.equal(lastCommentJoin.get("status"), statuses.getFirst());
-      Predicate inProgressWithNull =
+      var matchStatus =
+          builder.equal(lastCommentJoin.get("comment").get("status"), statuses.getFirst());
+      var inProgressWithNull =
           builder.and(
-              builder.equal(
-                  builder.literal(CorStatus.IN_PROGRESS).as(CorStatus.class), statuses.getFirst()),
-              builder.isNull(lastCommentJoin.get("status")));
+              builder.equal(builder.literal(IN_PROGRESS).as(CorStatus.class), statuses.getFirst()),
+              builder.isNull(lastCommentJoin.get("comment").get("status")));
 
       predicates.add(builder.or(matchStatus, inProgressWithNull));
     }

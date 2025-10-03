@@ -57,8 +57,7 @@ public class Cor {
 
   @Setter(AccessLevel.NONE)
   @Getter(AccessLevel.NONE)
-  @OneToOne
-  @JoinColumn(name = "id", referencedColumnName = "cor_id", insertable = false, updatable = false)
+  @OneToOne(mappedBy = "cor")
   private CorLastComment lastComment;
 
   public Optional<CorComment> getLastComment() {
