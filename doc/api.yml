@@ -1520,6 +1520,7 @@ paths:
           example: PROG1
           schema:
             type: string
+        - $ref: '#/components/parameters/RetakeExamStatuses'
         - $ref: '#/components/parameters/DatetimeFromFilter'
         - $ref: '#/components/parameters/DatetimeToFilter'
         - $ref: '#/components/parameters/Page'
@@ -6749,6 +6750,15 @@ components:
       required: true
       schema:
         type: string
+    RetakeExamStatuses:
+      name: retake_exam_status
+      in: query
+      required: false
+      description: Filter by retake exam actual status
+      schema:
+        type: array
+        items:
+          $ref: '#/components/schemas/RetakeExamStatus'
   responses:
     '400':
       description: Bad request
@@ -7437,6 +7447,8 @@ components:
         registration_date:
           type: string
           format: date-time
+        status:
+          $ref: "#/components/schemas/RetakeExamStatus"
     CrupdateRetakeExam:
       type: object
       properties:
@@ -7448,6 +7460,8 @@ components:
           type: string
         student_id:
           type: string
+        status:
+          $ref: "#/components/schemas/RetakeExamStatus"
     StudentRetakeExam:
       type: object
       allOf:
@@ -7456,6 +7470,12 @@ components:
         ### TODO: must be Student resource ou some attributes only ?
         student_identifier:
           $ref: "#/components/schemas/UserIdentifier"
+    RetakeExamStatus:
+      type: string
+      enum:
+        - REGISTERED
+        - TO_CANCEL
+        - CANCELED
     CreateAttendanceMovement:
       type: object
       properties:
