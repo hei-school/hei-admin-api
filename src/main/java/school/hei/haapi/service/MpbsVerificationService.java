@@ -124,9 +124,9 @@ public class MpbsVerificationService {
 
   @Transactional
   public List<Mpbs> computeFromXls(File file) throws IOException {
-    List<String> pspToVerify = generateMobileTransactionDetailsFromXlsFile(file);
+    generateMobileTransactionDetailsFromXlsFile(file);
 
-    List<Mpbs> mpbsToVerify = mpbsRepository.findByPspIdIn(pspToVerify);
+    List<Mpbs> mpbsToVerify = mpbsRepository.findAllByStatus(PENDING);
 
     verifyMobilePaymentAndSaveResult(mpbsToVerify);
     return mpbsToVerify;
