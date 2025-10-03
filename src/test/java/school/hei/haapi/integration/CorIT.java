@@ -133,8 +133,7 @@ class CorIT extends FacadeITMockedThirdParties {
 
     var corsFilterByStatus = api.getCors(1, 1, null, null, null, null, singletonList(IN_PROGRESS));
     assertEquals(1, corsFilterByStatus.size());
-    // TODO: filter by status doesn't work
-    // assertEquals(IN_PROGRESS, corsFilterByStatus.getFirst().getStatus());
+    assertEquals(IN_PROGRESS, corsFilterByStatus.getFirst().getStatus());
   }
 
   @Test

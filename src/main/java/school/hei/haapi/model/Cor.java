@@ -10,11 +10,13 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import java.time.Instant;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
+import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
@@ -52,6 +54,12 @@ public class Cor {
   @ToString.Exclude
   @OneToMany(mappedBy = "cor", fetch = EAGER)
   private List<CorComment> comments;
+
+  @Setter(AccessLevel.NONE)
+  @Getter(AccessLevel.NONE)
+  @OneToOne
+  @JoinColumn(name = "id", referencedColumnName = "cor_id", insertable = false, updatable = false)
+  private CorLastComment lastComment;
 
   public Optional<CorComment> getLastComment() {
     if (comments == null) return Optional.empty();

@@ -1,7 +1,5 @@
 package school.hei.haapi.repository.dao;
 
-import static school.hei.haapi.model.CorStatus.IN_PROGRESS;
-
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
@@ -16,7 +14,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 import school.hei.haapi.model.Cor;
-import school.hei.haapi.model.CorComment;
+import school.hei.haapi.model.CorLastComment;
 import school.hei.haapi.model.CorStatus;
 import school.hei.haapi.model.exception.NotImplementedException;
 
@@ -57,13 +55,19 @@ public class CorDao {
     }
 
     if (statuses != null && !statuses.isEmpty()) {
-      Join<Cor, CorComment> commentsJoin = root.join("comments", JoinType.INNER);
-      var statusFilter = commentsJoin.get("status").in(statuses);
-      if (statuses.contains(IN_PROGRESS)) {
-        // TODO: filter with cor without comment don't work
-        statusFilter = builder.or(statusFilter, commentsJoin.get("status").isNull());
+      if (statuses.size() > 1) {
+        throw new NotImplementedException("Filter by statuses not implemented");
       }
-      predicates.add(statusFilter);
+      Join<Cor, CorLastComment> lastCommentJoin = root.join("lastComment", JoinType.LEFT);
+
+      Predicate matchStatus = builder.equal(lastCommentJoin.get("status"), statuses.getFirst());
+      Predicate inProgressWithNull =
+          builder.and(
+              builder.equal(
+                  builder.literal(CorStatus.IN_PROGRESS).as(CorStatus.class), statuses.getFirst()),
+              builder.isNull(lastCommentJoin.get("status")));
+
+      predicates.add(builder.or(matchStatus, inProgressWithNull));
     }
 
     query.where(predicates.toArray(new Predicate[0]));
