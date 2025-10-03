@@ -27,14 +27,14 @@ import lombok.ToString;
 import org.hibernate.annotations.CreationTimestamp;
 
 @Entity
-@Table(name = "\"cor\"")
 @Getter
 @Setter
 @ToString
-@Builder(toBuilder = true)
-@AllArgsConstructor
 @NoArgsConstructor
 @EqualsAndHashCode
+@AllArgsConstructor
+@Table(name = "\"cor\"")
+@Builder(toBuilder = true)
 public class Cor {
   @Id
   @GeneratedValue(strategy = IDENTITY)

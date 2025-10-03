@@ -11,11 +11,11 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Immutable;
 
 @Entity
-@Table(name = "cor_last_comment")
-@AllArgsConstructor
-@NoArgsConstructor
 @Getter
 @Immutable
+@NoArgsConstructor
+@AllArgsConstructor
+@Table(name = "cor_last_comment")
 public class CorLastComment {
   @Id
   @OneToOne

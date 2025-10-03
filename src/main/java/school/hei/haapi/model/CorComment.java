@@ -23,14 +23,14 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.JdbcTypeCode;
 
 @Entity
-@Table(name = "\"cor_comment\"")
 @Getter
 @Setter
 @ToString
-@Builder(toBuilder = true)
-@AllArgsConstructor
 @NoArgsConstructor
 @EqualsAndHashCode
+@AllArgsConstructor
+@Builder(toBuilder = true)
+@Table(name = "\"cor_comment\"")
 public class CorComment {
   @Id
   @GeneratedValue(strategy = IDENTITY)
