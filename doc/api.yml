@@ -1520,6 +1520,12 @@ paths:
           example: PROG1
           schema:
             type: string
+        - name: status
+          in: query
+          required: false
+          example: CANCELED
+          schema: 
+            type: string
         - $ref: '#/components/parameters/DatetimeFromFilter'
         - $ref: '#/components/parameters/DatetimeToFilter'
         - $ref: '#/components/parameters/Page'
@@ -7437,6 +7443,8 @@ components:
         registration_date:
           type: string
           format: date-time
+        status:
+          $ref: "#/components/schemas/RetakeExamStatus"
     CrupdateRetakeExam:
       type: object
       properties:
@@ -7448,6 +7456,8 @@ components:
           type: string
         student_id:
           type: string
+        status:
+          $ref: "#/components/schemas/RetakeExamStatus"
     StudentRetakeExam:
       type: object
       allOf:
@@ -7456,6 +7466,12 @@ components:
         ### TODO: must be Student resource ou some attributes only ?
         student_identifier:
           $ref: "#/components/schemas/UserIdentifier"
+    RetakeExamStatus:
+      type: string
+      enum:
+        - REGISTERED
+        - TO_CANCEL
+        - CANCELED
     CreateAttendanceMovement:
       type: object
       properties:
