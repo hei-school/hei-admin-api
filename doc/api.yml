@@ -1520,12 +1520,7 @@ paths:
           example: PROG1
           schema:
             type: string
-        - name: status
-          in: query
-          required: false
-          example: CANCELED
-          schema:
-            type: string
+        - $ref: '#/components/parameters/RetakeExamStatuses'
         - $ref: '#/components/parameters/DatetimeFromFilter'
         - $ref: '#/components/parameters/DatetimeToFilter'
         - $ref: '#/components/parameters/Page'
@@ -6755,6 +6750,15 @@ components:
       required: true
       schema:
         type: string
+    RetakeExamStatuses:
+      name: retake_exam_status
+      in: query
+      required: false
+      description: Filter by retake exam actual status
+      schema:
+        type: array
+        items:
+          $ref: '#/components/schemas/RetakeExamStatus'
   responses:
     '400':
       description: Bad request
