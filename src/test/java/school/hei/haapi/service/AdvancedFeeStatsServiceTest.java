@@ -22,6 +22,8 @@ import static school.hei.haapi.model.statistics.AdvancedFeeStats.AdvancedFeeStat
 import static school.hei.haapi.model.statistics.AdvancedFeeStats.AdvancedFeeStatsType.TOTAL_COUNT;
 
 import java.time.Instant;
+import java.time.LocalDate;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -57,6 +59,32 @@ class AdvancedFeeStatsServiceTest extends FacadeITMockedThirdParties {
     subject =
         new AdvancedFeeStatsService(
             feeDao, repository, advancedFeeStatsMapper, feeRepository, eventProducer);
+  }
+
+  @Test
+  void getAdvancedFeeStats_withEmptyData_is_expired_ok() {
+    var from = LocalDate.of(2025, 6, 1);
+    var to = LocalDate.of(2025, 6, 30);
+    when(feeDao.getAdvancedFeeStatsOnDateBetween(any(), any(), any())).thenReturn(Map.of());
+    var advancedFeeStats = subject.getAdvancedFeeStats(from, to, Optional.of(RECEIPT));
+
+    assertEquals(Boolean.TRUE, advancedFeeStats.getExpired());
+  }
+
+  @Test
+  void getAdvancedFeeStats_shouldUpdateData_ok() {
+    var from = LocalDate.of(2025, 6, 1);
+    var to = LocalDate.of(2025, 6, 30);
+    var oldAdvancedFeeStats =
+        AdvancedFeeStats.builder()
+            .id("stats-id-1")
+            .updateDatetime(Instant.parse("2020-06-01T00:00:00.00Z"))
+            .build();
+    Map<AdvancedFeeStats.AdvancedFeeStatsType, AdvancedFeeStats> oldStatsMap = new HashMap<>();
+    oldStatsMap.put(PENDING_COUNT, oldAdvancedFeeStats);
+    when(feeDao.getAdvancedFeeStatsOnDateBetween(from, to, RECEIPT)).thenReturn(oldStatsMap);
+    var result = subject.getAdvancedFeeStats(from, to, Optional.of(RECEIPT));
+    assertEquals(Boolean.TRUE, result.getExpired());
   }
 
   @Test
