@@ -84,6 +84,7 @@ public class AdvancedFeeStatsService {
     LocalDate to = Optional.ofNullable(dateTo).orElse(now.with(lastDayOfMonth()));
     var advancedStats = feeDao.getAdvancedFeeStatsOnDateBetween(from, to, type.orElse(ACCOUNTING));
     if (advancedStats.isEmpty()) {
+      log.info("Advanced stats is empty. Now generating stats for... {} {}", from, to);
       eventProducer.accept(
           List.of(
               new AdvancedFeeStatsComputationTriggered(
@@ -92,6 +93,7 @@ public class AdvancedFeeStatsService {
     }
 
     if (shouldBeUpdated(advancedStats)) {
+      log.info("Advanced stats is expired. Now generating stats for... {} {}", from, to);
       eventProducer.accept(
           List.of(
               new AdvancedFeeStatsComputationTriggered(
