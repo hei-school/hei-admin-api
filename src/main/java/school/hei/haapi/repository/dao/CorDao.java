@@ -57,17 +57,13 @@ public class CorDao {
     }
 
     if (statuses != null && !statuses.isEmpty()) {
-      if (statuses.size() > 1) {
-        throw new NotImplementedException("Filter by statuses not implemented");
-      }
       Join<Cor, CorLastComment> lastCommentJoin = root.join("lastComment", LEFT);
 
-      var matchStatus =
-          builder.equal(lastCommentJoin.get("comment").get("status"), statuses.getFirst());
+      var matchStatus = lastCommentJoin.get("comment").get("status").in(statuses);
       var inProgressWithNull =
           builder.and(
-              builder.equal(builder.literal(IN_PROGRESS).as(CorStatus.class), statuses.getFirst()),
-              builder.isNull(lastCommentJoin.get("comment").get("status")));
+              builder.literal(IN_PROGRESS).as(CorStatus.class).in(statuses),
+              builder.isNull(lastCommentJoin.get("comment")));
 
       predicates.add(builder.or(matchStatus, inProgressWithNull));
     }
