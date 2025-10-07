@@ -44,6 +44,7 @@ public class CorMapper {
             .student(userService.getById(studentId))
             .description(cor.getDescription())
             .interviewDatetime(cor.getInterviewDate())
+            .status(toDomainStatus(cor.getStatus()))
             .build();
   }
 
