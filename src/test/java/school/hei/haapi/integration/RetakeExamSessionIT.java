@@ -66,6 +66,17 @@ public class RetakeExamSessionIT extends FacadeITMockedThirdParties {
   }
 
   @Test
+  void filter_retake_exam_session_by_admin_ok() throws ApiException {
+    ApiClient apiClient = anApiClient(ADMIN1_TOKEN);
+    RetakeExamApi api = new RetakeExamApi(apiClient);
+
+    var retakeExamFiltered = api.getRetakeExamSessions("session1", null, null, null, null);
+    assertNotNull(retakeExamFiltered);
+    assertEquals(1, retakeExamFiltered.size());
+    assertEquals(retakeExamSessionMapper.toRest(session1()), retakeExamFiltered.getFirst());
+  }
+
+  @Test
   void save_retake_exam_session_by_admin_ok() throws ApiException {
     ApiClient apiClient = anApiClient(ADMIN1_TOKEN);
     RetakeExamApi api = new RetakeExamApi(apiClient);

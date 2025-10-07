@@ -25,7 +25,7 @@ public class RetakeExamSessionDao {
     CriteriaQuery<RetakeExamSession> query = builder.createQuery(RetakeExamSession.class);
     Root<RetakeExamSession> root = query.from(RetakeExamSession.class);
     ArrayList<Predicate> predicates = new ArrayList<>();
-    if (title != null && title.isEmpty()) {
+    if (title != null && !title.isEmpty()) {
       predicates.add(
           builder.like(builder.lower(root.get("title")), "%" + title.toLowerCase() + "%"));
     }

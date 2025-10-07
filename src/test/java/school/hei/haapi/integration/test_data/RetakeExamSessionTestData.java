@@ -6,6 +6,7 @@ import school.hei.haapi.model.RetakeExamSession;
 public class RetakeExamSessionTestData {
   public static RetakeExamSession session1() {
     return RetakeExamSession.builder()
+        .id("session1_id")
         .title("session1")
         .dateFrom(Instant.parse("2025-09-10T08:00:00.00Z"))
         .dateTo(Instant.parse("2025-09-12T08:00:00.00Z"))

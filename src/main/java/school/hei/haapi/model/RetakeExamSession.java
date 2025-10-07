@@ -18,6 +18,7 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 
 @Entity
 @Table(name = "\"retake_exam_session\"")
@@ -27,6 +28,7 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 @EqualsAndHashCode
+@ToString(exclude = "retakeExams")
 public class RetakeExamSession implements Serializable {
   @Id
   @GeneratedValue(strategy = IDENTITY)
@@ -39,16 +41,4 @@ public class RetakeExamSession implements Serializable {
   @OneToMany(mappedBy = "session")
   @JsonManagedReference
   private List<RetakeExam> retakeExams = new ArrayList<>();
-
-  @Override
-  public String toString() {
-    return "RetakeExamSession{"
-        + "id="
-        + id
-        + ", startDate="
-        + dateTo
-        + ", endDate="
-        + dateFrom
-        + '}';
-  }
 }
