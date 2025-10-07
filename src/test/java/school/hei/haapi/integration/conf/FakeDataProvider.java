@@ -38,6 +38,7 @@ import school.hei.haapi.endpoint.rest.model.RoomEnum;
 import school.hei.haapi.endpoint.rest.model.Sex;
 import school.hei.haapi.model.Cor;
 import school.hei.haapi.model.CorComment;
+import school.hei.haapi.model.CorStatus;
 import school.hei.haapi.model.Course;
 import school.hei.haapi.model.Event;
 import school.hei.haapi.model.Fee;
@@ -224,6 +225,7 @@ public class FakeDataProvider {
         .interviewDatetime(interviewDatetime)
         .student(user)
         .description(faker.lorem().paragraph())
+        .status(faker.options().option(CorStatus.class))
         .build();
   }
 
