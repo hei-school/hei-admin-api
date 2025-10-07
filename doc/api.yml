@@ -1656,7 +1656,7 @@ paths:
     get:
       tags:
         - RetakeExam
-      summary: Get retake exam course by course identifier
+      summary: Get retake exam course by session identifier and course identifier
       parameters:
         - name: session_id
           in: path
@@ -1704,11 +1704,7 @@ paths:
           required: true
           schema:
             type: string
-        - name: std_ref
-          in: query
-          required: false
-          schema:
-            type: string
+        - $ref: '#/components/parameters/StudentRef'
         - $ref: '#/components/parameters/Page'
         - $ref: '#/components/parameters/PageSize'
       operationId: getRetakeExamParticipantByCourseIdAndSessionId
