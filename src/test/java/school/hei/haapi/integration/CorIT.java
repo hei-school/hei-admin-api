@@ -88,11 +88,7 @@ class CorIT extends FacadeITMockedThirdParties {
   @Test
   void student_create_cor_ko() {
     var api = new CorApi(anApiClient(axelToken));
-    var cor =
-        new CrupdateCor()
-            .concernedStudentId(tolotraWithoutCor.getId())
-            .description("tolotra don't practice enough")
-            .interviewDate(Instant.now());
+    var cor = someCreatableCor();
 
     assertThrowsForbiddenException(() -> api.crupdateStudentCors(tolotraWithoutCor.getId(), cor));
   }
@@ -100,11 +96,7 @@ class CorIT extends FacadeITMockedThirdParties {
   @Test
   void manager_create_cor_ok() throws ApiException {
     var api = new CorApi(anApiClient(MANAGER1_TOKEN));
-    var cor =
-        new CrupdateCor()
-            .concernedStudentId(tolotraWithoutCor.getId())
-            .description("tolotra don't practice enough")
-            .interviewDate(Instant.now());
+    var cor = someCreatableCor();
 
     var createdCor = api.crupdateStudentCors(tolotraWithoutCor.getId(), cor);
 
@@ -184,5 +176,13 @@ class CorIT extends FacadeITMockedThirdParties {
     user.setRoles(List.of(casdoorRole));
 
     return user;
+  }
+
+  private CrupdateCor someCreatableCor() {
+    return new CrupdateCor()
+        .concernedStudentId(tolotraWithoutCor.getId())
+        .description("tolotra don't practice enough")
+        .status(faker.options().option(school.hei.haapi.endpoint.rest.model.CorStatus.class))
+        .interviewDate(Instant.now());
   }
 }
