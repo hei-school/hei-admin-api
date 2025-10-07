@@ -64,7 +64,7 @@ public class CorMapper {
   }
 
   private school.hei.haapi.model.CorStatus toDomainStatus(CorStatus rest) {
-    if (rest == null) return null;
+    if (rest == null) return school.hei.haapi.model.CorStatus.IN_PROGRESS;
     return switch (rest) {
       case IN_PROGRESS -> school.hei.haapi.model.CorStatus.IN_PROGRESS;
       case STAY -> school.hei.haapi.model.CorStatus.STAY;
