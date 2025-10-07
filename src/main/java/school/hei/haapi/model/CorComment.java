@@ -1,11 +1,8 @@
 package school.hei.haapi.model;
 
-import static jakarta.persistence.EnumType.STRING;
 import static jakarta.persistence.GenerationType.IDENTITY;
-import static org.hibernate.type.SqlTypes.NAMED_ENUM;
 
 import jakarta.persistence.Entity;
-import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
@@ -20,7 +17,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.JdbcTypeCode;
 
 @Entity
 @Table(name = "\"cor_comment\"")
@@ -37,10 +33,6 @@ public class CorComment {
   private String id;
 
   @CreationTimestamp Instant creationDatetime;
-
-  @Enumerated(STRING)
-  @JdbcTypeCode(NAMED_ENUM)
-  private CorStatus status;
 
   private String comment;
 

@@ -26,7 +26,6 @@ import java.util.stream.IntStream;
 import org.springframework.stereotype.Component;
 import school.hei.haapi.endpoint.rest.model.Coordinates;
 import school.hei.haapi.endpoint.rest.model.CorCommentInfo;
-import school.hei.haapi.endpoint.rest.model.CorStatus;
 import school.hei.haapi.endpoint.rest.model.CreateEvent;
 import school.hei.haapi.endpoint.rest.model.CrupdateCourseAssignment;
 import school.hei.haapi.endpoint.rest.model.CrupdateTeacher;
@@ -90,9 +89,7 @@ public class FakeDataProvider {
   }
 
   public static CorCommentInfo someCorCommentInfo() {
-    return new CorCommentInfo()
-        .comment(faker.lorem().paragraph())
-        .status(faker.options().option(CorStatus.class));
+    return new CorCommentInfo().comment(faker.lorem().paragraph());
   }
 
   public Group createGroup() {
@@ -231,11 +228,7 @@ public class FakeDataProvider {
   }
 
   public static CorComment someCorComment() {
-    return someCorComment(faker.options().option(school.hei.haapi.model.CorStatus.class));
-  }
-
-  public static CorComment someCorComment(school.hei.haapi.model.CorStatus status) {
-    return CorComment.builder().comment(faker.lorem().paragraph()).status(status).build();
+    return CorComment.builder().comment(faker.lorem().paragraph()).build();
   }
 
   public static List<CorComment> someCorComment(int count) {
