@@ -1,6 +1,5 @@
 package school.hei.haapi.endpoint.rest.mapper;
 
-
 import java.util.List;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
