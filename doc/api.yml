@@ -1502,7 +1502,36 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
-  /retake_exam_sessions/{session_id}/retakeExams:
+  /retake_exam_sessions/{session_id}:
+    get:
+      tags:
+        - RetakeExam
+      summary: Get retake exam session by identifier
+      parameters:
+        - name: session_id
+          in: path
+          required: true
+          schema:
+            type: string
+      operationId: getRetakeExamSessionById
+      responses:
+        '200':
+          description: Retake exam session by identifier
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RetakeExamSession'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+  /retake_exam_sessions/{session_id}/retake_exams:
     ### TODO later
     get:
       tags:
@@ -1596,6 +1625,11 @@ paths:
           required: true
           schema:
             type: string
+        - name: course_code
+          in: query
+          required: false
+          schema:
+            type: string
         - $ref: '#/components/parameters/Page'
         - $ref: '#/components/parameters/PageSize'
       operationId: getRetakeExamCoursesBySessionId
@@ -1618,7 +1652,7 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
-  /retake_exam_sessions/{session_id}/retake_exam_courses/{course_id}/students:
+  /retake_exam_sessions/{session_id}/retake_exam_courses/{course_id}/participants:
     get:
       tags:
         - RetakeExam
@@ -1632,6 +1666,11 @@ paths:
         - name: course_id
           in: path
           required: true
+          schema:
+            type: string
+        - name: std_ref
+          in: query
+          required: false
           schema:
             type: string
         - $ref: '#/components/parameters/Page'
@@ -1656,7 +1695,7 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
-  /students/{student_id}/sessions/{session_id}/retakeExams:
+  /students/{student_id}/sessions/{session_id}/retake_exams:
     get:
       tags:
         - RetakeExam
