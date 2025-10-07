@@ -5320,14 +5320,6 @@ paths:
           description: Filter event participants by the given course id value
           schema:
             type: string
-        - name: missing_status
-          in: query
-          required: false
-          description: |
-            Filter missing event participants by the given status. 
-            This parameter will be ignored on attendance_status other than `MISSING`
-          schema:
-            $ref: '#/components/schemas/MissingStatus'
         - name: page
           in: query
           schema:
@@ -5369,11 +5361,11 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
-  /events/participants/{student_id}/stats:
+  /events/students/{student_id}/stats:
     get:
       tags:
         - Events
-      summary: Get stats for en event participant
+      summary: Get stats for a student
       operationId: getEventParticipantStats
       parameters:
         - name: from_event_begin
@@ -7892,6 +7884,8 @@ components:
         - LATE
         - PRESENT
         - UNCHECKED
+        - JUSTIFIED_ABSENCE
+        - UNJUSTIFIED_ABSENCE
     UpdateEventParticipant:
       type: object
       properties:
@@ -7958,7 +7952,7 @@ components:
             $ref: '#/components/schemas/GroupIdentifier'
         count:
           $ref: '#/components/schemas/EventStats'
-    MissingEventStats:
+    MissedEventStats:
       type: object
       properties:
         total:
@@ -7970,8 +7964,8 @@ components:
     EventStats:
       type: object
       properties:
-        missing:
-          $ref: "#/components/schemas/MissingEventStats"
+        missed_stats:
+          $ref: "#/components/schemas/MissedEventStats"
         present:
           type: integer
         late:
@@ -7982,7 +7976,7 @@ components:
       type: object
       properties:
         missed_events:
-          $ref: "#/components/schemas/MissingEventStats"
+          $ref: "#/components/schemas/MissedEventStats"
         assisted_events:
           type: integer
         late_events:

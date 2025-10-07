@@ -4,9 +4,11 @@ import java.util.List;
 import java.util.Optional;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 import school.hei.haapi.endpoint.rest.model.AttendanceStatus;
 import school.hei.haapi.model.EventParticipant;
+import school.hei.haapi.model.dto.MissedEventStatsDto;
 
 @Repository
 public interface EventParticipantRepository extends JpaRepository<EventParticipant, String> {
@@ -30,4 +32,36 @@ public interface EventParticipantRepository extends JpaRepository<EventParticipa
 
   int countAllByParticipantIdAndStatusAndEventIdIn(
       String participantId, AttendanceStatus status, List<String> eventIds);
+
+  @Query(
+      """
+      select new school.hei.haapi.model.dto.MissedEventStatsDto(
+          sum(case when e.status = 'MISSING' then 1 else 0 end),
+          sum(case when size(e.letters) > 0 and e.status = 'MISSING' then 1 else 0 end),
+          sum(case when size(e.letters) = 0 and e.status = 'MISSING' then 1 else 0 end))
+      from EventParticipant e where e.participant.id = :studentId
+      and e.event.id in :eventIds
+      """)
+  MissedEventStatsDto countMissedEventStatsByStudentIdAndEventIds(
+      String studentId, List<String> eventIds);
+
+  @Query(
+      """
+      select new school.hei.haapi.model.dto.MissedEventStatsDto(
+          sum(case when e.status = 'MISSING' then 1 else 0 end),
+          sum(case when size(e.letters) > 0 and e.status = 'MISSING' then 1 else 0 end),
+          sum(case when size(e.letters) = 0 and e.status = 'MISSING' then 1 else 0 end))
+      from EventParticipant e where e.event.id in :eventIds
+      """)
+  MissedEventStatsDto countMissedEventStatsByEventIds(List<String> eventIds);
+
+  @Query(
+      """
+        select new school.hei.haapi.model.dto.MissedEventStatsDto(
+            sum(case when e.status = 'MISSING' then 1 else 0 end),
+            sum(case when size(e.letters) > 0 and e.status = 'MISSING' then 1 else 0 end),
+            sum(case when size(e.letters) = 0 and e.status = 'MISSING' then 1 else 0 end))
+        from EventParticipant e
+      """)
+  MissedEventStatsDto countOverallMissedEventStats();
 }

@@ -39,7 +39,6 @@ public class EventParticipantDao {
       String name,
       String ref,
       AttendanceStatus attendanceStatus,
-      MissingStatus missingStatus,
       TimeRange<Instant> eventBeginRange) {
     CriteriaBuilder builder = entityManager.getCriteriaBuilder();
     CriteriaQuery<EventParticipant> query = builder.createQuery(EventParticipant.class);
@@ -47,15 +46,7 @@ public class EventParticipantDao {
 
     List<Predicate> predicates =
         getPredicates(
-            builder,
-            root,
-            eventId,
-            groupRef,
-            name,
-            ref,
-            attendanceStatus,
-            missingStatus,
-            eventBeginRange);
+            builder, root, eventId, groupRef, name, ref, attendanceStatus, eventBeginRange);
 
     if (!predicates.isEmpty()) {
       query.where(predicates.toArray(new Predicate[0]));
@@ -82,7 +73,6 @@ public class EventParticipantDao {
       String name,
       String ref,
       AttendanceStatus attendanceStatus,
-      MissingStatus missingStatus,
       TimeRange<Instant> eventBeginRange) {
     List<Predicate> predicates = new ArrayList<>();
 
@@ -120,7 +110,7 @@ public class EventParticipantDao {
       }
     }
 
-    setEventStatusPredicate(builder, root, predicates, attendanceStatus, missingStatus);
+    setEventStatusPredicate(builder, root, predicates, attendanceStatus);
 
     Path<Instant> eventBeginDateTime = root.get("event").get(BEGIN_DATETIME);
     predicates.add(builder.isNotNull(eventBeginDateTime));
@@ -146,21 +136,18 @@ public class EventParticipantDao {
 
   public Long countMissingByMissingStatusAndEventIds(
       MissingStatus missingStatus, List<String> eventIds) {
-    return countEventParticipantByCriteria(null, MISSING, missingStatus, eventIds);
+    return countEventParticipantByCriteria(null, MISSING, eventIds);
   }
 
   public Long countEventParticipantByCriteria(
-      String studentId,
-      AttendanceStatus status,
-      MissingStatus missingStatus,
-      List<String> eventIds) {
+      String studentId, AttendanceStatus status, List<String> eventIds) {
     CriteriaBuilder builder = entityManager.getCriteriaBuilder();
     CriteriaQuery<Long> query = builder.createQuery(Long.class);
     Root<EventParticipant> root = query.from(EventParticipant.class);
 
     List<Predicate> predicates = new ArrayList<>();
 
-    setEventStatusPredicate(builder, root, predicates, status, missingStatus);
+    setEventStatusPredicate(builder, root, predicates, status);
 
     if (!eventIds.isEmpty()) {
       predicates.add(root.get("event").get("id").in(eventIds));
@@ -178,14 +165,16 @@ public class EventParticipantDao {
       CriteriaBuilder builder,
       Root<EventParticipant> root,
       List<Predicate> predicates,
-      AttendanceStatus status,
-      MissingStatus missingStatus) {
+      AttendanceStatus status) {
     if (status != null) {
-      predicates.add(builder.equal(root.get("status"), status));
-      if (MISSING.equals(status) && missingStatus != null) {
-        switch (missingStatus) {
-          case JUSTIFIED -> predicates.add(builder.isNotEmpty(root.get("letters")));
-          case UNJUSTIFIED -> predicates.add(builder.isEmpty(root.get("letters")));
+      switch (status) {
+        case JUSTIFIED_ABSENCE -> {
+          predicates.add(builder.equal(root.get("status"), MISSING));
+          predicates.add(builder.isNotEmpty(root.get("letters")));
+        }
+        case UNJUSTIFIED_ABSENCE -> {
+          predicates.add(builder.equal(root.get("status"), MISSING));
+          predicates.add(builder.isEmpty(root.get("letters")));
         }
       }
     }
