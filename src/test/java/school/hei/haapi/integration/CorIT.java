@@ -1,6 +1,5 @@
 package school.hei.haapi.integration;
 
-import static java.util.Collections.singletonList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -13,6 +12,7 @@ import static school.hei.haapi.integration.conf.FakeDataProvider.someCorCommentI
 import static school.hei.haapi.integration.conf.FakeDataProvider.someStudent;
 import static school.hei.haapi.integration.conf.TestUtils.MANAGER1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_TOKEN;
+import static school.hei.haapi.integration.conf.TestUtils.assertBadRequestException;
 import static school.hei.haapi.integration.conf.TestUtils.assertThrowsForbiddenException;
 import static school.hei.haapi.integration.conf.TestUtils.setUpCasdoor;
 import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
@@ -105,14 +105,12 @@ class CorIT extends FacadeITMockedThirdParties {
   }
 
   @Test
-  void manager_create_cor_default_in_progress_ok() throws ApiException {
+  void manager_create_cor_without_status_ko() {
     var api = new CorApi(anApiClient(MANAGER1_TOKEN));
     var cor = someCreatableCor(tolotraWithoutCor.getId(), null);
 
-    var createdCor = api.crupdateStudentCors(tolotraWithoutCor.getId(), cor);
-
-    assertEquals(
-        corMapper.toRest(corMapper.toDomain(cor)), createdCor.id(null).creationDatetime(null));
+    assertBadRequestException(
+        "Status is mandatory", () -> api.crupdateStudentCors(tolotraWithoutCor.getId(), cor));
   }
 
   @Test
@@ -130,7 +128,7 @@ class CorIT extends FacadeITMockedThirdParties {
             corMapper.toRest(Cor.builder().student(tolotraWithoutCor).build())));
     corAxel = corRepository.save(corAxel.toBuilder().status(CorStatus.LEAVE).build());
 
-    var corsFilterByStatus = api.getCors(1, 1, null, null, null, null, singletonList(LEAVE));
+    var corsFilterByStatus = api.getCors(1, 1, null, null, null, null, List.of(LEAVE));
     assertEquals(1, corsFilterByStatus.size());
     assertEquals(LEAVE, corsFilterByStatus.getFirst().getStatus());
   }

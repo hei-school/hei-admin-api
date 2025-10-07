@@ -8,6 +8,7 @@ import static school.hei.haapi.endpoint.rest.model.CorStatus.STAY;
 
 import java.util.List;
 import lombok.AllArgsConstructor;
+import lombok.NonNull;
 import org.springframework.stereotype.Component;
 import school.hei.haapi.endpoint.rest.model.Cor;
 import school.hei.haapi.endpoint.rest.model.CorStatus;
@@ -21,8 +22,8 @@ public class CorMapper {
   private final UserService userService;
   private final CorCommentMapper corCommentMapper;
 
-  public List<school.hei.haapi.model.CorStatus> toDomainStatus(List<CorStatus> rest) {
-    return rest != null ? rest.stream().map(this::toDomainStatus).toList() : List.of();
+  public List<school.hei.haapi.model.CorStatus> toDomainStatus(@NonNull List<CorStatus> rest) {
+    return rest.stream().map(this::toDomainStatus).toList();
   }
 
   public Cor toRest(school.hei.haapi.model.Cor cor) {
@@ -64,7 +65,7 @@ public class CorMapper {
   }
 
   private school.hei.haapi.model.CorStatus toDomainStatus(CorStatus rest) {
-    if (rest == null) return school.hei.haapi.model.CorStatus.IN_PROGRESS;
+    if (rest == null) return null;
     return switch (rest) {
       case IN_PROGRESS -> school.hei.haapi.model.CorStatus.IN_PROGRESS;
       case STAY -> school.hei.haapi.model.CorStatus.STAY;

@@ -11,8 +11,6 @@ import org.junit.jupiter.api.Test;
 import school.hei.haapi.endpoint.rest.mapper.CorCommentMapper;
 import school.hei.haapi.endpoint.rest.mapper.CorMapper;
 import school.hei.haapi.endpoint.rest.mapper.UserMapper;
-import school.hei.haapi.endpoint.rest.model.Cor;
-import school.hei.haapi.endpoint.rest.model.CrupdateCor;
 import school.hei.haapi.endpoint.rest.model.UserIdentifier;
 import school.hei.haapi.service.UserService;
 
@@ -32,15 +30,11 @@ class CorMapperTest {
     var domain = subject.toDomain(crupdateCor);
     var rest = subject.toRest(domain);
 
-    assertEqualsCor(crupdateCor, rest);
-  }
-
-  void assertEqualsCor(CrupdateCor excepted, Cor actual) {
-    assertEquals(excepted.getId(), actual.getId());
-    assertEquals(excepted.getDescription(), actual.getDescription());
-    assertEquals(excepted.getStatus(), actual.getStatus());
-    assertEquals(excepted.getInterviewDate(), actual.getInterviewDate());
-    assertNotNull(actual.getConcernedStudent());
-    assertEquals(excepted.getConcernedStudentId(), actual.getConcernedStudent().getId());
+    assertEquals(crupdateCor.getId(), rest.getId());
+    assertEquals(crupdateCor.getDescription(), rest.getDescription());
+    assertEquals(crupdateCor.getStatus(), rest.getStatus());
+    assertEquals(crupdateCor.getInterviewDate(), rest.getInterviewDate());
+    assertNotNull(rest.getConcernedStudent());
+    assertEquals(crupdateCor.getConcernedStudentId(), rest.getConcernedStudent().getId());
   }
 }
