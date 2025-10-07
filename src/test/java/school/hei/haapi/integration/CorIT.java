@@ -45,7 +45,7 @@ class CorIT extends FacadeITMockedThirdParties {
   @Autowired private CorCommentService corCommentService;
   @Autowired private CorMapper corMapper;
   @Autowired private CorCommentMapper corCommentMapper;
-  private final Faker faker = new Faker();
+  private static final Faker faker = new Faker();
 
   private User axelWithCor;
   private User tolotraWithoutCor;
@@ -88,7 +88,7 @@ class CorIT extends FacadeITMockedThirdParties {
   @Test
   void student_create_cor_ko() {
     var api = new CorApi(anApiClient(axelToken));
-    var cor = someCreatableCor();
+    var cor = someCreatableCor(tolotraWithoutCor.getId());
 
     assertThrowsForbiddenException(() -> api.crupdateStudentCors(tolotraWithoutCor.getId(), cor));
   }
@@ -96,7 +96,19 @@ class CorIT extends FacadeITMockedThirdParties {
   @Test
   void manager_create_cor_ok() throws ApiException {
     var api = new CorApi(anApiClient(MANAGER1_TOKEN));
-    var cor = someCreatableCor();
+    var cor = someCreatableCor(tolotraWithoutCor.getId());
+
+    var createdCor = api.crupdateStudentCors(tolotraWithoutCor.getId(), cor);
+
+    assertEquals(
+        corMapper.toRest(corMapper.toDomain(cor, tolotraWithoutCor.getId())),
+        createdCor.id(null).creationDatetime(null));
+  }
+
+  @Test
+  void manager_create_cor_default_in_progress_ok() throws ApiException {
+    var api = new CorApi(anApiClient(MANAGER1_TOKEN));
+    var cor = someCreatableCor(tolotraWithoutCor.getId(), null);
 
     var createdCor = api.crupdateStudentCors(tolotraWithoutCor.getId(), cor);
 
@@ -178,11 +190,17 @@ class CorIT extends FacadeITMockedThirdParties {
     return user;
   }
 
-  private CrupdateCor someCreatableCor() {
+  private static CrupdateCor someCreatableCor(String studentId) {
+    return someCreatableCor(
+        studentId, faker.options().option(school.hei.haapi.endpoint.rest.model.CorStatus.class));
+  }
+
+  private static CrupdateCor someCreatableCor(
+      String studentId, school.hei.haapi.endpoint.rest.model.CorStatus status) {
     return new CrupdateCor()
-        .concernedStudentId(tolotraWithoutCor.getId())
+        .concernedStudentId(studentId)
         .description("tolotra don't practice enough")
-        .status(faker.options().option(school.hei.haapi.endpoint.rest.model.CorStatus.class))
+        .status(status)
         .interviewDate(Instant.now());
   }
 }
