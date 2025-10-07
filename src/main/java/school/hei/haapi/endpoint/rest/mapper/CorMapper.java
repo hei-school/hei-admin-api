@@ -21,7 +21,7 @@ public class CorMapper {
   private final UserService userService;
   private final CorCommentMapper corCommentMapper;
 
-  public List<school.hei.haapi.model.CorStatus> toDomain(List<CorStatus> rest) {
+  public List<school.hei.haapi.model.CorStatus> toDomainStatus(List<CorStatus> rest) {
     return rest != null ? rest.stream().map(this::toDomainStatus).toList() : List.of();
   }
 
@@ -37,11 +37,11 @@ public class CorMapper {
         .interviewDate(cor.getInterviewDatetime());
   }
 
-  public school.hei.haapi.model.Cor toDomain(CrupdateCor cor, String studentId) {
+  public school.hei.haapi.model.Cor toDomain(CrupdateCor cor) {
     return new school.hei.haapi.model.Cor()
         .toBuilder()
             .id(cor.getId())
-            .student(userService.getById(studentId))
+            .student(userService.getById(cor.getConcernedStudentId()))
             .description(cor.getDescription())
             .interviewDatetime(cor.getInterviewDate())
             .status(toDomainStatus(cor.getStatus()))

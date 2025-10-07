@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.when;
 import static school.hei.haapi.endpoint.rest.model.CorStatus.LEAVE;
+import static school.hei.haapi.integration.conf.FakeDataProvider.*;
 import static school.hei.haapi.integration.conf.FakeDataProvider.someCor;
 import static school.hei.haapi.integration.conf.FakeDataProvider.someCorComment;
 import static school.hei.haapi.integration.conf.FakeDataProvider.someCorCommentInfo;
@@ -29,7 +30,6 @@ import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
 import school.hei.haapi.endpoint.rest.mapper.CorCommentMapper;
 import school.hei.haapi.endpoint.rest.mapper.CorMapper;
-import school.hei.haapi.endpoint.rest.model.CrupdateCor;
 import school.hei.haapi.integration.conf.FacadeITMockedThirdParties;
 import school.hei.haapi.integration.conf.TestUtils;
 import school.hei.haapi.model.Cor;
@@ -101,8 +101,7 @@ class CorIT extends FacadeITMockedThirdParties {
     var createdCor = api.crupdateStudentCors(tolotraWithoutCor.getId(), cor);
 
     assertEquals(
-        corMapper.toRest(corMapper.toDomain(cor, tolotraWithoutCor.getId())),
-        createdCor.id(null).creationDatetime(null));
+        corMapper.toRest(corMapper.toDomain(cor)), createdCor.id(null).creationDatetime(null));
   }
 
   @Test
@@ -113,8 +112,7 @@ class CorIT extends FacadeITMockedThirdParties {
     var createdCor = api.crupdateStudentCors(tolotraWithoutCor.getId(), cor);
 
     assertEquals(
-        corMapper.toRest(corMapper.toDomain(cor, tolotraWithoutCor.getId())),
-        createdCor.id(null).creationDatetime(null));
+        corMapper.toRest(corMapper.toDomain(cor)), createdCor.id(null).creationDatetime(null));
   }
 
   @Test
@@ -188,19 +186,5 @@ class CorIT extends FacadeITMockedThirdParties {
     user.setRoles(List.of(casdoorRole));
 
     return user;
-  }
-
-  private static CrupdateCor someCreatableCor(String studentId) {
-    return someCreatableCor(
-        studentId, faker.options().option(school.hei.haapi.endpoint.rest.model.CorStatus.class));
-  }
-
-  private static CrupdateCor someCreatableCor(
-      String studentId, school.hei.haapi.endpoint.rest.model.CorStatus status) {
-    return new CrupdateCor()
-        .concernedStudentId(studentId)
-        .description("tolotra don't practice enough")
-        .status(status)
-        .interviewDate(Instant.now());
   }
 }

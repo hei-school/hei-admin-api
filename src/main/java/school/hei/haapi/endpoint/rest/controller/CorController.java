@@ -47,7 +47,7 @@ public class CorController {
             to,
             studentRef,
             groupRef,
-            corMapper.toDomain(statuses),
+            corMapper.toDomainStatus(statuses),
             paginationFromPageAndPageSize.apply(page, pageSize)));
   }
 
@@ -75,6 +75,6 @@ public class CorController {
   @PutMapping("/students/{student_id}/cors")
   public Cor crupdateStudentCors(
       @PathVariable(name = "student_id") String studentId, @RequestBody CrupdateCor cors) {
-    return corMapper.toRest(corService.save(corMapper.toDomain(cors, studentId)));
+    return corMapper.toRest(corService.save(corMapper.toDomain(cors)));
   }
 }

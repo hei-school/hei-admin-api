@@ -27,6 +27,7 @@ import org.springframework.stereotype.Component;
 import school.hei.haapi.endpoint.rest.model.Coordinates;
 import school.hei.haapi.endpoint.rest.model.CorCommentInfo;
 import school.hei.haapi.endpoint.rest.model.CreateEvent;
+import school.hei.haapi.endpoint.rest.model.CrupdateCor;
 import school.hei.haapi.endpoint.rest.model.CrupdateCourseAssignment;
 import school.hei.haapi.endpoint.rest.model.CrupdateTeacher;
 import school.hei.haapi.endpoint.rest.model.EventLocation;
@@ -91,6 +92,20 @@ public class FakeDataProvider {
 
   public static CorCommentInfo someCorCommentInfo() {
     return new CorCommentInfo().comment(faker.lorem().paragraph());
+  }
+
+  public static CrupdateCor someCreatableCor(
+      String studentId, school.hei.haapi.endpoint.rest.model.CorStatus status) {
+    return new CrupdateCor()
+        .concernedStudentId(studentId)
+        .description(faker.lorem().paragraph())
+        .status(status)
+        .interviewDate(faker.date().future(10, DAYS).toInstant());
+  }
+
+  public static CrupdateCor someCreatableCor(String studentId) {
+    return someCreatableCor(
+        studentId, faker.options().option(school.hei.haapi.endpoint.rest.model.CorStatus.class));
   }
 
   public Group createGroup() {
