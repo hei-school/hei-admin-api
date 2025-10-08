@@ -116,20 +116,34 @@ public class RetakeExamService {
   }
 
   public List<school.hei.haapi.model.Course> getAllRetakeExamCoursesBySessionId(
-      String sessionId, PageFromOne page, BoundedPageSize pageSize) {
+      String sessionId, String courseCode, PageFromOne page, BoundedPageSize pageSize) {
     var pageable = paginationFromPageAndPageSize.apply(page, pageSize);
     return retakeExamRepository.findRetakeExamsBySession_Id(sessionId, pageable).stream()
         .map(RetakeExam::getCourse)
+        .filter(
+            course ->
+                courseCode == null
+                    || course.getCode().toLowerCase().contains(courseCode.toLowerCase()))
         .distinct()
         .sorted(Comparator.comparing(school.hei.haapi.model.Course::getCode))
         .toList();
   }
 
   public List<school.hei.haapi.model.User> getAllRetakeExamParticipantByCourseAndBySessionId(
-      String sessionId, String courseId, PageFromOne page, BoundedPageSize pageSize) {
+      String sessionId,
+      String courseId,
+      String studentRef,
+      PageFromOne page,
+      BoundedPageSize pageSize) {
     var pageable = paginationFromPageAndPageSize.apply(page, pageSize);
     var retakeExams =
         retakeExamRepository.findRetakeExamsBySession_IdAndCourse_Id(sessionId, courseId, pageable);
-    return retakeExams.stream().map(RetakeExam::getStudent).toList();
+    return retakeExams.stream()
+        .map(RetakeExam::getStudent)
+        .filter(
+            student ->
+                studentRef == null
+                    || student.getRef().toLowerCase().contains(studentRef.toLowerCase()))
+        .toList();
   }
 }
