@@ -8394,6 +8394,10 @@ components:
       properties:
         concerned_student_id:
           type: string
+        interviewer_ids:
+          type: array
+          items:
+            type: string
     Cor:
       type: object
       allOf:
@@ -8401,6 +8405,10 @@ components:
       properties:
         concerned_student:
           $ref: "#/components/schemas/UserIdentifier"
+        interviewers:
+          type: array
+          items:
+            $ref: "#/components/schemas/UserIdentifier"
         creation_datetime:
           type: string
           format: date-time
