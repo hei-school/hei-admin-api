@@ -116,8 +116,7 @@ class CorIT extends FacadeITMockedThirdParties {
 
     var createdCor = api.crupdateStudentCors(tolotraWithoutCor.getId(), cor);
 
-    assertEqualsCor(
-        corMapper.toRest(corMapper.toDomain(cor)), createdCor);
+    assertEqualsCor(corMapper.toRest(corMapper.toDomain(cor)), createdCor);
 
     ArgumentCaptor<List<CorNotification>> notificationBodyCaptor =
         ArgumentCaptor.forClass(List.class);
