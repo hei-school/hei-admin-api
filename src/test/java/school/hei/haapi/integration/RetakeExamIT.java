@@ -126,6 +126,19 @@ public class RetakeExamIT extends FacadeITMockedThirdParties {
   }
 
   @Test
+  void filter_retake_exam_course_by_course_code_ok() throws ApiException {
+    ApiClient apiClient = anApiClient(ADMIN1_TOKEN);
+    RetakeExamApi api = new RetakeExamApi(apiClient);
+
+    var retakeExamCourse = api.getRetakeExamCoursesBySessionId("session2_id", "IA2", 1, 15);
+
+    assertNotNull(retakeExamCourse);
+    assertEquals(1, retakeExamCourse.size());
+    assertEquals("Implemented IA", retakeExamCourse.getFirst().getName());
+    assertEquals("IA2", retakeExamCourse.getFirst().getCode());
+  }
+
+  @Test
   void get_all_retake_exam_participants_of_course_ok() throws ApiException {
     ApiClient apiClient = anApiClient(ADMIN1_TOKEN);
     RetakeExamApi api = new RetakeExamApi(apiClient);
@@ -137,5 +150,21 @@ public class RetakeExamIT extends FacadeITMockedThirdParties {
     assertNotNull(students);
     assertEquals(1, students.size());
     assertEquals("student2_id", students.getFirst().getId());
+  }
+
+  @Test
+  void filter_retake_exam_participants_by_student_ref_ok() throws ApiException {
+    ApiClient apiClient = anApiClient(ADMIN1_TOKEN);
+    RetakeExamApi api = new RetakeExamApi(apiClient);
+
+    var participant =
+        api.getRetakeExamParticipantByCourseIdAndSessionId(
+            "session2_id", "course2_id", "STD21002", 1, 15);
+
+    assertNotNull(participant);
+    assertEquals("STD21002", participant.getFirst().getRef());
+    assertEquals("student2_id", participant.getFirst().getId());
+    assertEquals("Two", participant.getFirst().getFirstName());
+    assertEquals("Student", participant.getFirst().getLastName());
   }
 }
