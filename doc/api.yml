@@ -8394,7 +8394,7 @@ components:
       properties:
         concerned_student_id:
           type: string
-        interviewers_id:
+        interviewer_ids:
           type: array
           items:
             type: string
