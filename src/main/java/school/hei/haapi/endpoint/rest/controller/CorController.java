@@ -17,6 +17,7 @@ import school.hei.haapi.endpoint.rest.model.CorComment;
 import school.hei.haapi.endpoint.rest.model.CorCommentInfo;
 import school.hei.haapi.endpoint.rest.model.CorStatus;
 import school.hei.haapi.endpoint.rest.model.CrupdateCor;
+import school.hei.haapi.endpoint.rest.validator.CorValidator;
 import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.model.pagination.PaginationFromPageAndPageSize;
@@ -31,6 +32,7 @@ public class CorController {
   private final CorCommentMapper corCommentMapper;
   private final PaginationFromPageAndPageSize paginationFromPageAndPageSize;
   private final CorCommentService corCommentService;
+  private final CorValidator validator;
 
   @GetMapping("/cors")
   public List<Cor> getCors(
@@ -38,7 +40,8 @@ public class CorController {
       @RequestParam(required = false) Instant to,
       @RequestParam(name = "student_ref", required = false) String studentRef,
       @RequestParam(name = "group_ref", required = false) String groupRef,
-      @RequestParam(name = "cor_status", required = false) List<CorStatus> statuses,
+      @RequestParam(name = "cor_status", required = false, defaultValue = "")
+          List<CorStatus> statuses,
       @RequestParam(name = "page", required = false) PageFromOne page,
       @RequestParam(name = "page_size", required = false) BoundedPageSize pageSize) {
     return corMapper.toRest(
@@ -47,7 +50,7 @@ public class CorController {
             to,
             studentRef,
             groupRef,
-            corMapper.toDomain(statuses),
+            corMapper.toDomainStatus(statuses),
             paginationFromPageAndPageSize.apply(page, pageSize)));
   }
 
@@ -75,6 +78,7 @@ public class CorController {
   @PutMapping("/students/{student_id}/cors")
   public Cor crupdateStudentCors(
       @PathVariable(name = "student_id") String studentId, @RequestBody CrupdateCor cors) {
-    return corMapper.toRest(corService.save(corMapper.toDomain(cors, studentId)));
+    validator.accept(cors);
+    return corMapper.toRest(corService.save(corMapper.toDomain(cors)));
   }
 }

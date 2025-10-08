@@ -1,10 +1,14 @@
 package school.hei.haapi.model;
 
+import static jakarta.persistence.EnumType.STRING;
 import static jakarta.persistence.FetchType.EAGER;
 import static jakarta.persistence.GenerationType.IDENTITY;
+import static org.hibernate.type.SqlTypes.NAMED_ENUM;
 import static school.hei.haapi.model.CorStatus.IN_PROGRESS;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
@@ -23,6 +27,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.JdbcTypeCode;
 
 @Entity
 @Table(name = "\"cor\"")
@@ -58,7 +63,9 @@ public class Cor {
     return comments.stream().max(Comparator.comparing(CorComment::getCreationDatetime));
   }
 
-  public CorStatus getStatus() {
-    return getLastComment().map(CorComment::getStatus).orElse(IN_PROGRESS);
-  }
+  @Builder.Default
+  @Enumerated(STRING)
+  @JdbcTypeCode(NAMED_ENUM)
+  @Column(nullable = false)
+  private CorStatus status = IN_PROGRESS;
 }

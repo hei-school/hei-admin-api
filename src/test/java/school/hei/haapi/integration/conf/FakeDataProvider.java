@@ -26,8 +26,8 @@ import java.util.stream.IntStream;
 import org.springframework.stereotype.Component;
 import school.hei.haapi.endpoint.rest.model.Coordinates;
 import school.hei.haapi.endpoint.rest.model.CorCommentInfo;
-import school.hei.haapi.endpoint.rest.model.CorStatus;
 import school.hei.haapi.endpoint.rest.model.CreateEvent;
+import school.hei.haapi.endpoint.rest.model.CrupdateCor;
 import school.hei.haapi.endpoint.rest.model.CrupdateCourseAssignment;
 import school.hei.haapi.endpoint.rest.model.CrupdateTeacher;
 import school.hei.haapi.endpoint.rest.model.EventLocation;
@@ -39,6 +39,7 @@ import school.hei.haapi.endpoint.rest.model.RoomEnum;
 import school.hei.haapi.endpoint.rest.model.Sex;
 import school.hei.haapi.model.Cor;
 import school.hei.haapi.model.CorComment;
+import school.hei.haapi.model.CorStatus;
 import school.hei.haapi.model.Course;
 import school.hei.haapi.model.Event;
 import school.hei.haapi.model.Fee;
@@ -90,9 +91,21 @@ public class FakeDataProvider {
   }
 
   public static CorCommentInfo someCorCommentInfo() {
-    return new CorCommentInfo()
-        .comment(faker.lorem().paragraph())
-        .status(faker.options().option(CorStatus.class));
+    return new CorCommentInfo().comment(faker.lorem().paragraph());
+  }
+
+  public static CrupdateCor someCreatableCor(
+      String studentId, school.hei.haapi.endpoint.rest.model.CorStatus status) {
+    return new CrupdateCor()
+        .concernedStudentId(studentId)
+        .description(faker.lorem().paragraph())
+        .status(status)
+        .interviewDate(faker.date().future(10, DAYS).toInstant());
+  }
+
+  public static CrupdateCor someCreatableCor(String studentId) {
+    return someCreatableCor(
+        studentId, faker.options().option(school.hei.haapi.endpoint.rest.model.CorStatus.class));
   }
 
   public Group createGroup() {
@@ -227,15 +240,12 @@ public class FakeDataProvider {
         .interviewDatetime(interviewDatetime)
         .student(user)
         .description(faker.lorem().paragraph())
+        .status(faker.options().option(CorStatus.class))
         .build();
   }
 
   public static CorComment someCorComment() {
-    return someCorComment(faker.options().option(school.hei.haapi.model.CorStatus.class));
-  }
-
-  public static CorComment someCorComment(school.hei.haapi.model.CorStatus status) {
-    return CorComment.builder().comment(faker.lorem().paragraph()).status(status).build();
+    return CorComment.builder().comment(faker.lorem().paragraph()).build();
   }
 
   public static List<CorComment> someCorComment(int count) {
