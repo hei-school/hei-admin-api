@@ -26,33 +26,38 @@ public interface EventParticipantRepository extends JpaRepository<EventParticipa
 
   int countByStatus(AttendanceStatus status);
 
-  int countAllByParticipantIdAndStatus(String participantId, AttendanceStatus status);
-
   int countByEventIdInAndStatus(List<String> eventIds, AttendanceStatus status);
-
-  int countAllByParticipantIdAndStatusAndEventIdIn(
-      String participantId, AttendanceStatus status, List<String> eventIds);
 
   @Query(
       """
-      select new school.hei.haapi.model.dto.MissedEventStatsDto(
-          sum(case when e.status = 'MISSING' then 1 else 0 end),
-          sum(case when size(e.letters) > 0 and e.status = 'MISSING' then 1 else 0 end),
-          sum(case when size(e.letters) = 0 and e.status = 'MISSING' then 1 else 0 end))
-      from EventParticipant e where e.participant.id = :studentId
-      and e.event.id in :eventIds
+        select new school.hei.haapi.model.dto.MissedEventStatsDto(
+            sum(case when e.status = 'MISSING' then 1 else 0 end),
+            sum(case when size(e.letters) > 0 and e.status = 'MISSING' then 1 else 0 end),
+            sum(case when size(e.letters) = 0 and e.status = 'MISSING' then 1 else 0 end))
+        from EventParticipant e where e.participant.id = :studentId
+      """)
+  MissedEventStatsDto countMissedEventStatsByStudentId(String studentId);
+
+  @Query(
+      """
+        select new school.hei.haapi.model.dto.MissedEventStatsDto(
+            sum(case when e.status = 'MISSING' then 1 else 0 end),
+            sum(case when size(e.letters) > 0 and e.status = 'MISSING' then 1 else 0 end),
+            sum(case when size(e.letters) = 0 and e.status = 'MISSING' then 1 else 0 end))
+        from EventParticipant e where e.participant.id = :studentId
+        and e.event.id in :eventIds
       """)
   MissedEventStatsDto countMissedEventStatsByStudentIdAndEventIds(
       String studentId, List<String> eventIds);
 
   @Query(
       """
-      select new school.hei.haapi.model.dto.MissedEventStatsDto(
-          sum(case when e.status = 'MISSING' then 1 else 0 end),
-          sum(case when size(e.letters) > 0 and e.status = 'MISSING' then 1 else 0 end),
-          sum(case when size(e.letters) = 0 and e.status = 'MISSING' then 1 else 0 end))
-      from EventParticipant e where e.event.id in :eventIds
-      """)
+select new school.hei.haapi.model.dto.MissedEventStatsDto(
+    sum(case when e is not null and e.status = 'MISSING' then 1 else 0 end),
+    sum(case when e is not null and size(e.letters) > 0 and e.status = 'MISSING' then 1 else 0 end),
+    sum(case when e is not null and size(e.letters) = 0 and e.status = 'MISSING' then 1 else 0 end))
+from EventParticipant e where e.event.id in :eventIds
+""")
   MissedEventStatsDto countMissedEventStatsByEventIds(List<String> eventIds);
 
   @Query(

@@ -116,9 +116,11 @@ public class EventParticipantService {
             .countEventParticipantByCriteria(studentId, LATE, eventIdsList)
             .intValue();
     var missedEventStats =
-        eventParticipantRepository
-            .countMissedEventStatsByStudentIdAndEventIds(studentId, eventIdsList)
-            .toRest();
+        evenIds.isEmpty()
+            ? eventParticipantRepository.countMissedEventStatsByStudentId(studentId).toRest()
+            : eventParticipantRepository
+                .countMissedEventStatsByStudentIdAndEventIds(studentId, eventIdsList)
+                .toRest();
     var presentCount =
         eventParticipantDao
             .countEventParticipantByCriteria(studentId, PRESENT, eventIdsList)
@@ -154,11 +156,11 @@ public class EventParticipantService {
   public EventStats getEventStats(String eventId) {
     int late = eventParticipantRepository.countByEventIdAndStatus(eventId, LATE);
     int present = eventParticipantRepository.countByEventIdAndStatus(eventId, PRESENT);
-
+    var missedStats =
+        eventParticipantRepository.countMissedEventStatsByEventIds(List.of(eventId)).toRest();
     return new EventStats()
         .late(late)
-        .missedStats(
-            eventParticipantRepository.countMissedEventStatsByEventIds(List.of(eventId)).toRest())
+        .missedStats(missedStats)
         .present(present)
         .total(eventParticipantRepository.countByEventId(eventId));
   }

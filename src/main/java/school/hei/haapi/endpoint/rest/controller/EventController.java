@@ -116,7 +116,7 @@ public class EventController {
         .collect(toUnmodifiableList());
   }
 
-  @GetMapping("/events/participants/{student_id}/stats")
+  @GetMapping("/events/students/{student_id}/stats")
   public EventParticipantStats getEventParticipantStats(
       @PathVariable(name = "student_id") String studentId,
       @RequestParam(name = "from_event_begin", required = false) Instant from,

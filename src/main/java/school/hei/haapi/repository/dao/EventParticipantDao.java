@@ -176,6 +176,7 @@ public class EventParticipantDao {
           predicates.add(builder.equal(root.get("status"), MISSING));
           predicates.add(builder.isEmpty(root.get("letters")));
         }
+        default -> predicates.add(builder.equal(root.get("status"), status));
       }
     }
   }
