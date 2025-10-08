@@ -29,7 +29,7 @@ public class StudentCorMatcher implements RequestMatcher {
     }
     Principal principal = getPrincipal();
     return corRepository
-        .findByIdAndConcernedStudent_Id(getCorId(request), principal.getUserId())
+        .findByIdAndStudent_Id(getCorId(request), principal.getUserId())
         .isPresent();
   }
 

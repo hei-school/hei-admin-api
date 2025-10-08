@@ -79,6 +79,15 @@ class CorIT extends FacadeITMockedThirdParties {
   }
 
   @Test
+  void student_get_own_cor_by_id_ok() throws ApiException {
+    var api = new CorApi(anApiClient(axelToken));
+
+    var studentCor = api.getCorById(corAxel.getId());
+
+    assertEquals(corMapper.toRest(corAxel), studentCor);
+  }
+
+  @Test
   void student_get_other_cor_ko() {
     var api = new CorApi(anApiClient(STUDENT1_TOKEN));
 
