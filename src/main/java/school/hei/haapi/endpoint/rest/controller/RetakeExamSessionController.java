@@ -4,6 +4,7 @@ import java.time.Instant;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -36,5 +37,10 @@ public class RetakeExamSessionController {
       @RequestBody RetakeExamSession retakeExamSession) {
     return retakeExamSessionMapper.toRest(
         retakeExamSessionService.save(retakeExamSessionMapper.toDomain(retakeExamSession)));
+  }
+
+  @GetMapping("/retake_exam_sessions/{session_id}")
+  public RetakeExamSession getRetakeExamSessionById(@PathVariable("session_id") String sessionId) {
+    return retakeExamSessionMapper.toRest(retakeExamSessionService.getById(sessionId));
   }
 }

@@ -2,32 +2,25 @@ package school.hei.haapi.integration;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
-import static school.hei.haapi.integration.StudentIT.student1;
 import static school.hei.haapi.integration.conf.TestUtils.ADMIN1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.assertBadRequestException;
 import static school.hei.haapi.integration.conf.TestUtils.setUpCasdoor;
 import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
-import static school.hei.haapi.integration.conf.TestUtils.setUpS3Service;
 import static school.hei.haapi.integration.test_data.RetakeExamSessionTestData.session1;
 import static school.hei.haapi.integration.test_data.RetakeExamSessionTestData.sessionWithWrongDate;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import school.hei.haapi.endpoint.rest.api.RetakeExamApi;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
 import school.hei.haapi.endpoint.rest.mapper.RetakeExamSessionMapper;
 import school.hei.haapi.integration.conf.FacadeITMockedThirdParties;
 import school.hei.haapi.integration.conf.TestUtils;
-import school.hei.haapi.repository.RetakeExamSessionRepository;
 
 public class RetakeExamSessionIT extends FacadeITMockedThirdParties {
-  @MockBean RetakeExamSessionRepository retakeExamSessionRepository;
   @Autowired private RetakeExamSessionMapper retakeExamSessionMapper;
 
   private ApiClient anApiClient(String token) {
@@ -38,9 +31,6 @@ public class RetakeExamSessionIT extends FacadeITMockedThirdParties {
   void setUp() {
     setUpCasdoor(casdoorAuthServiceMock, certificateLoaderMock);
     setUpCognito(cognitoComponentMock);
-    setUpS3Service(fileService, student1());
-
-    when(retakeExamSessionRepository.save(any())).thenReturn(session1());
   }
 
   @Test
@@ -71,6 +61,7 @@ public class RetakeExamSessionIT extends FacadeITMockedThirdParties {
     RetakeExamApi api = new RetakeExamApi(apiClient);
 
     var retakeExamFiltered = api.getRetakeExamSessions("session1", null, null, null, null);
+
     assertNotNull(retakeExamFiltered);
     assertEquals(1, retakeExamFiltered.size());
     assertEquals(retakeExamSessionMapper.toRest(session1()), retakeExamFiltered.getFirst());
@@ -100,5 +91,16 @@ public class RetakeExamSessionIT extends FacadeITMockedThirdParties {
         () ->
             api.createOrUpdateRetakeExamSessions(
                 retakeExamSessionMapper.toRest(sessionWithWrongDate)));
+  }
+
+  @Test
+  void read_a_specific_retake_exam_session_by_admin() throws ApiException {
+    ApiClient apiClient = anApiClient(ADMIN1_TOKEN);
+    RetakeExamApi api = new RetakeExamApi(apiClient);
+
+    var retakeExam = api.getRetakeExamSessionById(session1().getId());
+
+    assertNotNull(retakeExam);
+    assertEquals(retakeExamSessionMapper.toRest(session1()), retakeExam);
   }
 }
