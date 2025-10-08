@@ -8385,6 +8385,8 @@ components:
         interview_date:
           type: string
           format: date-time
+        status:
+          $ref: '#/components/schemas/CorStatus'
     CrupdateCor:
       type: object
       allOf:
@@ -8402,8 +8404,6 @@ components:
         creation_datetime:
           type: string
           format: date-time
-        status:
-          $ref: '#/components/schemas/CorStatus'
         comments:
           type: array
           items:
@@ -8411,8 +8411,6 @@ components:
     CorCommentInfo:
       type: object
       properties:
-        status:
-          $ref: '#/components/schemas/CorStatus'
         comment:
           type: string
           description: explanation of the reason or comment on change of status
