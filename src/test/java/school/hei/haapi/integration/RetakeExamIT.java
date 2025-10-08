@@ -116,7 +116,7 @@ public class RetakeExamIT extends FacadeITMockedThirdParties {
     ApiClient apiClient = anApiClient(ADMIN1_TOKEN);
     RetakeExamApi api = new RetakeExamApi(apiClient);
 
-    var courses = api.getRetakeExamCoursesBySessionId("session2_id", 1, 15);
+    var courses = api.getRetakeExamCoursesBySessionId("session2_id", null, 1, 15);
 
     assertNotNull(courses);
     assertEquals(3, courses.size());
@@ -131,7 +131,8 @@ public class RetakeExamIT extends FacadeITMockedThirdParties {
     RetakeExamApi api = new RetakeExamApi(apiClient);
 
     var students =
-        api.getRetakeExamParticipantByCourseIdAndSessionId("session2_id", "course2_id", 1, 15);
+        api.getRetakeExamParticipantByCourseIdAndSessionId(
+            "session2_id", "course2_id", null, 1, 15);
 
     assertNotNull(students);
     assertEquals(1, students.size());

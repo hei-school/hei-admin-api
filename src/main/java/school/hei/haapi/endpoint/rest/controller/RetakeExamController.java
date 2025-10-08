@@ -28,7 +28,7 @@ public class RetakeExamController {
   private final CourseMapper courseMapper;
   private final UserMapper userMapper;
 
-  @PutMapping("/retake_exam_sessions/{session_id}/retakeExams")
+  @PutMapping("/retake_exam_sessions/{session_id}/retake_exams")
   public List<StudentRetakeExam> createOrUpdateRetakeExam(
       @PathVariable("session_id") String sessionId,
       @RequestBody List<CrupdateRetakeExam> crupdateRetakeExams) {
@@ -37,14 +37,14 @@ public class RetakeExamController {
         .toList();
   }
 
-  @GetMapping("students/{student_id}/sessions/{session_id}/retakeExams")
+  @GetMapping("students/{student_id}/sessions/{session_id}/retake_exams")
   public List<RetakeExam> getStudentRetakeExamBySession(
       @PathVariable("student_id") String studentId, @PathVariable("session_id") String sessionId) {
     return retakeExamMapper.toRestList(
         retakeExamService.getStudentRetakeExams(sessionId, studentId));
   }
 
-  @GetMapping("/retake_exam_sessions/{session_id}/retakeExams")
+  @GetMapping("/retake_exam_sessions/{session_id}/retake_exams")
   public List<StudentRetakeExam> getRetakeExamBySessionId(
       @PathVariable("session_id") String sessionId,
       @RequestParam(value = "page", defaultValue = "1") PageFromOne page,
@@ -62,7 +62,7 @@ public class RetakeExamController {
         retakeExamService.getAllRetakeExamCoursesBySessionId(sessionId, page, pageSize));
   }
 
-  @GetMapping("/retake_exam_sessions/{session_id}/retake_exam_courses/{course_id}/students")
+  @GetMapping("/retake_exam_sessions/{session_id}/retake_exam_courses/{course_id}/participants")
   public List<Student> getRetakeExamParticipantByCourseIdAndSessionId(
       @PathVariable("session_id") String sessionId,
       @PathVariable("course_id") String courseId,

@@ -254,11 +254,11 @@ public class SecurityConf {
                     antMatcher(PUT, "/students/*/courses"),
                     antMatcher(GET, "/retake_exam_sessions"),
                     antMatcher(PUT, "/retake_exam_sessions"),
-                    antMatcher(GET, "/retake_exam_sessions/*/retakeExams"),
-                    antMatcher(PUT, "/retake_exam_sessions/*/retakeExams"),
-                    antMatcher(GET, "/students/*/sessions/*/retakeExams"),
+                    antMatcher(GET, "/retake_exam_sessions/*/retake_exams"),
+                    antMatcher(PUT, "/retake_exam_sessions/*/retake_exams"),
+                    antMatcher(GET, "/students/*/sessions/*/retake_exams"),
                     antMatcher(GET, "/retake_exam_sessions/*/retake_exam_courses"),
-                    antMatcher(GET, "/retake_exam_sessions/*/retake_exam_courses/*/students"),
+                    antMatcher(GET, "/retake_exam_sessions/*/retake_exam_courses/*/participants"),
                     nonAccessibleBySuspendedUserPath)),
             AnonymousAuthenticationFilter.class)
         .addFilterAfter(
@@ -753,19 +753,20 @@ public class SecurityConf {
                         TEACHER.getRole(), MANAGER.getRole(), ADMIN.getRole(), STUDENT.getRole())
                     .requestMatchers(PUT, "/retake_exam_sessions")
                     .hasAnyRole(TEACHER.getRole(), MANAGER.getRole(), ADMIN.getRole())
-                    .requestMatchers(GET, "/retake_exam_sessions/*/retakeExams")
+                    .requestMatchers(GET, "/retake_exam_sessions/*/retake_exams")
                     .hasAnyRole(
                         TEACHER.getRole(), MANAGER.getRole(), ADMIN.getRole(), STUDENT.getRole())
-                    .requestMatchers(PUT, "/retake_exam_sessions/*/retakeExams")
+                    .requestMatchers(PUT, "/retake_exam_sessions/*/retake_exams")
                     .hasAnyRole(
                         MANAGER.getRole(), TEACHER.getRole(), ADMIN.getRole(), STUDENT.getRole())
-                    .requestMatchers(GET, "/students/*/sessions/*/retakeExams")
+                    .requestMatchers(GET, "/students/*/sessions/*/retake_exams")
                     .hasAnyRole(
                         MANAGER.getRole(), TEACHER.getRole(), ADMIN.getRole(), STUDENT.getRole())
                     .requestMatchers(GET, "/retake_exam_sessions/*/retake_exam_courses")
                     .hasAnyRole(
                         MANAGER.getRole(), TEACHER.getRole(), ADMIN.getRole(), STUDENT.getRole())
-                    .requestMatchers(GET, "/retake_exam_sessions/*/retake_exam_courses/*/students")
+                    .requestMatchers(
+                        GET, "/retake_exam_sessions/*/retake_exam_courses/*/participants")
                     .hasAnyRole(MANAGER.getRole(), TEACHER.getRole(), ADMIN.getRole())
                     .requestMatchers(
                         new CourseAssignmentTeacherMatcher(
