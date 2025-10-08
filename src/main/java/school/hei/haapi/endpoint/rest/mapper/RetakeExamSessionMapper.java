@@ -22,7 +22,8 @@ public class RetakeExamSessionMapper {
 
   public school.hei.haapi.model.RetakeExamSession toDomain(RetakeExamSession retakeExamSession) {
     List<RetakeExam> retakeExams =
-        retakeExamRepository.findRetakeExamsBySession_Id(retakeExamSession.getId(), null);
+        retakeExamRepository.findRetakeExamsBySession_IdAndCourse_Code(
+            retakeExamSession.getId(), null, null);
     return school.hei.haapi.model.RetakeExamSession.builder()
         .id(retakeExamSession.getId())
         .title(retakeExamSession.getTitle())

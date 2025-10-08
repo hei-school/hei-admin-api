@@ -112,18 +112,16 @@ public class RetakeExamService {
   public List<RetakeExam> getAllRetakeExamBySessionId(
       String sessionId, PageFromOne page, BoundedPageSize pageSize) {
     Pageable pageable = PageRequest.of(page.getValue() - 1, pageSize.getValue());
-    return retakeExamDao.filterByCriteria(sessionId, null, pageable);
+    return retakeExamDao.filterByCriteria(sessionId, null, null, null, null, pageable);
   }
 
   public List<school.hei.haapi.model.Course> getAllRetakeExamCoursesBySessionId(
       String sessionId, String courseCode, PageFromOne page, BoundedPageSize pageSize) {
     var pageable = paginationFromPageAndPageSize.apply(page, pageSize);
-    return retakeExamRepository.findRetakeExamsBySession_Id(sessionId, pageable).stream()
+    return retakeExamDao
+        .filterByCriteria(sessionId, null, null, null, courseCode, pageable)
+        .stream()
         .map(RetakeExam::getCourse)
-        .filter(
-            course ->
-                courseCode == null
-                    || course.getCode().toLowerCase().contains(courseCode.toLowerCase()))
         .distinct()
         .sorted(Comparator.comparing(school.hei.haapi.model.Course::getCode))
         .toList();
@@ -137,13 +135,7 @@ public class RetakeExamService {
       BoundedPageSize pageSize) {
     var pageable = paginationFromPageAndPageSize.apply(page, pageSize);
     var retakeExams =
-        retakeExamRepository.findRetakeExamsBySession_IdAndCourse_Id(sessionId, courseId, pageable);
-    return retakeExams.stream()
-        .map(RetakeExam::getStudent)
-        .filter(
-            student ->
-                studentRef == null
-                    || student.getRef().toLowerCase().contains(studentRef.toLowerCase()))
-        .toList();
+        retakeExamDao.filterByCriteria(sessionId, null, studentRef, courseId, null, pageable);
+    return retakeExams.stream().map(RetakeExam::getStudent).toList();
   }
 }
