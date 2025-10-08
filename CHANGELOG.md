@@ -1,3 +1,12 @@
+## [1.123.1](https://github.com/hei-school/hei-admin-api/compare/v1.123.0...v1.123.1) (2025-10-08)
+
+
+### Bug Fixes
+
+* Cor store status ([405f96b](https://github.com/hei-school/hei-admin-api/commit/405f96bfb73500cb6e4b85425ab7f8ae1869d761))
+
+
+
 # [1.123.0](https://github.com/hei-school/hei-admin-api/compare/v1.122.1...v1.123.0) (2025-10-08)
 
 
@@ -118,16 +127,6 @@
 ### Features
 
 * event place/room and student attendance filter ([f737ca4](https://github.com/hei-school/hei-admin-api/commit/f737ca41732ebc9309675c1eb3a1550932f576b8))
-
-
-
-## [1.116.2](https://github.com/hei-school/hei-admin-api/compare/v1.116.1...v1.116.2) (2025-09-18)
-
-
-### Bug Fixes
-
-* course-result fetch course by student exam participation ([c66dc95](https://github.com/hei-school/hei-admin-api/commit/c66dc95450e5158068ca99fd042d2d79c7a495b2))
-* **remedial:** restructure remedial component ([b15c9bf](https://github.com/hei-school/hei-admin-api/commit/b15c9bfdc19257c4c4c58447b12c60e17f7499f2))
 
 
 
