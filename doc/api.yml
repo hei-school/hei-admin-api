@@ -1652,42 +1652,6 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
-  /retake_exam_sessions/{session_id}/retake_exam_courses/{course_id}:
-    get:
-      tags:
-        - RetakeExam
-      summary: Get retake exam course by session identifier and course identifier
-      parameters:
-        - name: session_id
-          in: path
-          required: true
-          schema:
-            type: string
-        - name: course_id
-          in: path
-          required: true
-          schema:
-            type: string
-      operationId: getRetakeExamCourseById
-      responses:
-        '200':
-          description: Retake exam course by Id
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Course'
-        '400':
-          $ref: '#/components/responses/400'
-        '403':
-          $ref: '#/components/responses/403'
-        '404':
-          $ref: '#/components/responses/404'
-        '429':
-          $ref: '#/components/responses/429'
-        '500':
-          $ref: '#/components/responses/500'
   /retake_exam_sessions/{session_id}/retake_exam_courses/{course_id}/participants:
     get:
       tags:
