@@ -1,3 +1,19 @@
+# [1.123.0](https://github.com/hei-school/hei-admin-api/compare/v1.122.1...v1.123.0) (2025-10-08)
+
+
+### Bug Fixes
+
+* add logs and tests to AdvancedFeeStatsService for receipt type  ([6e4c63c](https://github.com/hei-school/hei-admin-api/commit/6e4c63ca32d4a7848c1f34d65f6b6a01a732f7ce))
+* filter retake exam session by title ([7a5cf22](https://github.com/hei-school/hei-admin-api/commit/7a5cf22fbe180a8e4847e17b5c5e15664834ce17))
+* payment duplication on Mpbs re-verification ([c1c31d2](https://github.com/hei-school/hei-admin-api/commit/c1c31d25f695e00c5e88e915068ae31cc807f637))
+
+
+### Features
+
+* **doc:** add retake exam status ([f228859](https://github.com/hei-school/hei-admin-api/commit/f228859127bc278c936d2a63e0082e6a4dd79dce))
+
+
+
 ## [1.122.1](https://github.com/hei-school/hei-admin-api/compare/v1.122.0...v1.122.1) (2025-10-02)
 
 
@@ -112,15 +128,6 @@
 
 * course-result fetch course by student exam participation ([c66dc95](https://github.com/hei-school/hei-admin-api/commit/c66dc95450e5158068ca99fd042d2d79c7a495b2))
 * **remedial:** restructure remedial component ([b15c9bf](https://github.com/hei-school/hei-admin-api/commit/b15c9bfdc19257c4c4c58447b12c60e17f7499f2))
-
-
-
-## [1.116.1](https://github.com/hei-school/hei-admin-api/compare/v1.116.0...v1.116.1) (2025-09-17)
-
-
-### Bug Fixes
-
-* **remedial:** restructure remedial component ([e43b116](https://github.com/hei-school/hei-admin-api/commit/e43b116776ddb8e91f19c4202f93c721cfac1be2))
 
 
 
