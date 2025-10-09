@@ -94,7 +94,7 @@ tasks.compileJava.dependsOn publishJavaClientToMavenLocal
 
 
 test {
-    maxParallelForks = Runtime.runtime.availableProcessors().intdiv(2) ?: 1
+    maxParallelForks = 1
     useJUnitPlatform()
     finalizedBy jacocoTestCoverageVerification
 }
