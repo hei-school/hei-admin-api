@@ -1,11 +1,12 @@
 package school.hei.haapi.service.event;
 
 import static school.hei.haapi.service.utils.DataFormatterUtils.instantToCommonDate;
+import static school.hei.haapi.service.utils.InstantUtils.UTC3;
 import static school.hei.haapi.service.utils.TemplateUtils.htmlToString;
 
 import jakarta.mail.internet.AddressException;
 import jakarta.mail.internet.InternetAddress;
-import java.time.temporal.ChronoField;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.function.Consumer;
 import lombok.AllArgsConstructor;
@@ -37,14 +38,18 @@ public class CorNotificationService implements Consumer<CorNotification> {
   }
 
   private Context getMailContext(CorNotification corNotification) {
-    var interviewDate = corNotification.getCor().getInterviewDate();
-    if (interviewDate == null) {
+    var interviewInstant = corNotification.getCor().getInterviewDate();
+    if (interviewInstant == null) {
       throw new BadRequestException("Interview date is null");
     }
     var initial = new Context();
+    initial.setVariable("interviewers", corNotification.getCor().getInterviewers());
     initial.setVariable("description", corNotification.getCor().getDescription());
-    initial.setVariable("date", instantToCommonDate(interviewDate));
-    initial.setVariable("hour", interviewDate.get(ChronoField.HOUR_OF_DAY));
+    // TODO: Use the local datetime here
+    initial.setVariable("date", instantToCommonDate(interviewInstant));
+    var insertViewDate = LocalDateTime.ofInstant(interviewInstant, UTC3);
+    initial.setVariable(
+        "hour", "%dh%d".formatted(insertViewDate.getHour(), insertViewDate.getMinute()));
     return initial;
   }
 

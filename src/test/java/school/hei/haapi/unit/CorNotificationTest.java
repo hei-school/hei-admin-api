@@ -7,6 +7,7 @@ import static school.hei.haapi.integration.conf.FakeDataProvider.someCor;
 import static school.hei.haapi.integration.conf.FakeDataProvider.someStudent;
 
 import java.time.Instant;
+import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -24,7 +25,8 @@ public class CorNotificationTest extends FacadeITMockedThirdParties {
   @Test
   void send_cor_mail_ok() {
     var student = someStudent("use with cor");
-    var cor = someCor(student, Instant.now());
+    var manager = someStudent("cor manager");
+    var cor = someCor(student, Instant.now(), List.of(manager));
     var notification = new CorNotification(corMapper.toRest(cor));
     subject.accept(notification);
 

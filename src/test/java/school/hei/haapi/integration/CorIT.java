@@ -2,6 +2,7 @@ package school.hei.haapi.integration;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -18,6 +19,7 @@ import static school.hei.haapi.integration.conf.TestUtils.assertBadRequestExcept
 import static school.hei.haapi.integration.conf.TestUtils.assertThrowsForbiddenException;
 import static school.hei.haapi.integration.conf.TestUtils.setUpCasdoor;
 import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
+import static school.hei.haapi.model.User.Role.MANAGER;
 
 import com.github.javafaker.Faker;
 import java.time.Instant;
@@ -34,8 +36,8 @@ import school.hei.haapi.endpoint.event.model.CorNotification;
 import school.hei.haapi.endpoint.rest.api.CorApi;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
-import school.hei.haapi.endpoint.rest.mapper.CorCommentMapper;
 import school.hei.haapi.endpoint.rest.mapper.CorMapper;
+import school.hei.haapi.endpoint.rest.mapper.UserMapper;
 import school.hei.haapi.integration.conf.FacadeITMockedThirdParties;
 import school.hei.haapi.integration.conf.TestUtils;
 import school.hei.haapi.model.Cor;
@@ -50,12 +52,13 @@ class CorIT extends FacadeITMockedThirdParties {
   @Autowired private CorRepository corRepository;
   @Autowired private CorCommentService corCommentService;
   @Autowired private CorMapper corMapper;
-  @Autowired private CorCommentMapper corCommentMapper;
+  @Autowired private UserMapper userMapper;
   @MockBean private EventProducer<CorNotification> corNotificationMock;
   private static final Faker faker = new Faker();
 
   private User axelWithCor;
   private User tolotraWithoutCor;
+  private User manager;
   private Cor corAxel;
   private final String axelToken = "AXEL_TOKEN";
 
@@ -63,7 +66,12 @@ class CorIT extends FacadeITMockedThirdParties {
   void setUp() {
     axelWithCor = userRepository.save(someStudent("axel"));
     tolotraWithoutCor = userRepository.save(someStudent("tolotra"));
-    corAxel = corRepository.save(someCor(axelWithCor, Instant.parse("2025-01-01T10:00:00Z")));
+    manager = userRepository.save(someUser("manager", MANAGER));
+
+    corAxel =
+        corRepository.save(
+            someCor(axelWithCor, Instant.parse("2025-01-01T10:00:00Z"), List.of(manager)));
+
     someCorComment(faker.number().numberBetween(0, 2))
         .forEach(c -> corCommentService.addCommentByCorId(corAxel.getId(), c));
     corAxel = corRepository.findById(corAxel.getId()).get();
@@ -112,10 +120,18 @@ class CorIT extends FacadeITMockedThirdParties {
   @Test
   void manager_create_cor_and_notify_student_ok() throws ApiException {
     var api = new CorApi(anApiClient(MANAGER1_TOKEN));
-    var cor = someCreatableCor(tolotraWithoutCor.getId());
+    var cor =
+        someCreatableCor(
+            tolotraWithoutCor.getId(),
+            faker.options().option(school.hei.haapi.endpoint.rest.model.CorStatus.class),
+            List.of(manager.getId()));
 
     var createdCor = api.crupdateStudentCors(tolotraWithoutCor.getId(), cor);
 
+    var interviewers = createdCor.getInterviewers();
+    assertNotNull(interviewers);
+    assertEquals(1, interviewers.size());
+    assertEquals(userMapper.toIdentifier(manager), interviewers.getFirst());
     assertEqualsCor(corMapper.toRest(corMapper.toDomain(cor)), createdCor);
 
     ArgumentCaptor<List<CorNotification>> notificationBodyCaptor =
@@ -129,7 +145,7 @@ class CorIT extends FacadeITMockedThirdParties {
   @Test
   void manager_create_cor_without_status_ko() {
     var api = new CorApi(anApiClient(MANAGER1_TOKEN));
-    var cor = someCreatableCor(tolotraWithoutCor.getId(), null);
+    var cor = someCreatableCor(tolotraWithoutCor.getId(), null, List.of());
 
     assertBadRequestException(
         "Status is mandatory", () -> api.crupdateStudentCors(tolotraWithoutCor.getId(), cor));

@@ -77,11 +77,13 @@
         >.
     </p>
     <p class="persons">
-        Cette réunion se tiendra en présence de
-        <strong>M. Ryan ANDRIAMAHERY</strong>, de
-        <strong>M. Larry RAZAFINDRABE (SYS2)</strong> et de
-        <strong>Dr. Toky RAMAROZAKA (PROG2)</strong>, dans le cadre de la
-        procédure de COR.
+        Cette réunion se tiendra en présence
+
+        <span th:each="interviewer : ${interviewers}">
+            de <strong><span th:text="${interviewer.firstName}"></span> <span th:text="${interviewer.lastName}"></span></strong>,
+        </span>
+
+        dans le cadre de la procédure de COR.
     </p>
     <p class="section-title">Détails de la convocation :</p>
     <ul class="details-list">

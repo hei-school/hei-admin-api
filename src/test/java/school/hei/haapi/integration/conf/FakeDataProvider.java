@@ -95,17 +95,22 @@ public class FakeDataProvider {
   }
 
   public static CrupdateCor someCreatableCor(
-      String studentId, school.hei.haapi.endpoint.rest.model.CorStatus status) {
+      String studentId,
+      school.hei.haapi.endpoint.rest.model.CorStatus status,
+      List<String> interviewerIds) {
     return new CrupdateCor()
         .concernedStudentId(studentId)
         .description(faker.lorem().paragraph())
         .status(status)
-        .interviewDate(faker.date().future(10, DAYS).toInstant());
+        .interviewDate(faker.date().future(10, DAYS).toInstant())
+        .interviewerIds(interviewerIds);
   }
 
   public static CrupdateCor someCreatableCor(String studentId) {
     return someCreatableCor(
-        studentId, faker.options().option(school.hei.haapi.endpoint.rest.model.CorStatus.class));
+        studentId,
+        faker.options().option(school.hei.haapi.endpoint.rest.model.CorStatus.class),
+        List.of("manager"));
   }
 
   public Group createGroup() {
@@ -215,12 +220,26 @@ public class FakeDataProvider {
   }
 
   public static User someStudent(String firstName) {
+    return someUser(firstName, STUDENT);
+  }
+
+  public static User someUser(String firstName, User.Role role) {
     return User.builder(someCoordinates())
         .id(UUID.randomUUID().toString())
-        .role(STUDENT)
+        .role(role)
         .firstName(firstName)
         .email(faker.internet().emailAddress())
-        .ref(someRef("STD"))
+        .ref(
+            someRef(
+                switch (role) {
+                  case STUDENT -> "STD";
+                  case STAFF_MEMBER -> "STAFF";
+                  case TEACHER -> "TCH";
+                  case MANAGER -> "MGR";
+                  case ADMIN -> "ADM";
+                  case MONITOR -> "MTR";
+                  case ORGANIZER -> "ORG";
+                }))
         .lastName(faker.name().lastName())
         .address(faker.address().fullAddress())
         .status(User.Status.ENABLED)
@@ -234,13 +253,14 @@ public class FakeDataProvider {
         .longitude(faker.number().randomDouble(2, -180, 180));
   }
 
-  public static Cor someCor(User user, Instant interviewDatetime) {
+  public static Cor someCor(User user, Instant interviewDatetime, List<User> interviewers) {
     return Cor.builder()
         .id(randomUUID().toString())
         .interviewDatetime(interviewDatetime)
         .student(user)
         .description(faker.lorem().paragraph())
         .status(faker.options().option(CorStatus.class))
+        .interviewers(interviewers)
         .build();
   }
 

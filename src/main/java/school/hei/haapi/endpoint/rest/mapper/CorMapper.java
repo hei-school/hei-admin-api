@@ -5,7 +5,10 @@ import static school.hei.haapi.endpoint.rest.model.CorStatus.IN_PROGRESS;
 import static school.hei.haapi.endpoint.rest.model.CorStatus.LEAVE;
 import static school.hei.haapi.endpoint.rest.model.CorStatus.NO_SHOW;
 import static school.hei.haapi.endpoint.rest.model.CorStatus.STAY;
+import static school.hei.haapi.model.User.Role.*;
+import static school.hei.haapi.model.User.Role.TEACHER;
 
+import java.util.HashSet;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.NonNull;
@@ -35,6 +38,10 @@ public class CorMapper {
         .status(toRestStatus(cor.getStatus()))
         .comments(
             cor.getComments() != null ? corCommentMapper.toRest(cor.getComments()) : List.of())
+        .interviewers(
+            cor.getInterviewers() != null
+                ? cor.getInterviewers().stream().map(userMapper::toIdentifier).toList()
+                : List.of())
         .interviewDate(cor.getInterviewDatetime());
   }
 
@@ -46,6 +53,12 @@ public class CorMapper {
             .description(cor.getDescription())
             .interviewDatetime(cor.getInterviewDate())
             .status(toDomainStatus(cor.getStatus()))
+            .interviewers(
+                cor.getInterviewerIds() != null
+                    ? userService.getByRoleAndIds(
+                        List.of(TEACHER, ADMIN, MANAGER, STAFF_MEMBER),
+                        new HashSet<>(cor.getInterviewerIds()))
+                    : List.of())
             .build();
   }
 
