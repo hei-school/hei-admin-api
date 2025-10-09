@@ -5,7 +5,9 @@ import static school.hei.haapi.endpoint.rest.model.CorStatus.IN_PROGRESS;
 import static school.hei.haapi.endpoint.rest.model.CorStatus.LEAVE;
 import static school.hei.haapi.endpoint.rest.model.CorStatus.NO_SHOW;
 import static school.hei.haapi.endpoint.rest.model.CorStatus.STAY;
-import static school.hei.haapi.model.User.Role.*;
+import static school.hei.haapi.model.User.Role.ADMIN;
+import static school.hei.haapi.model.User.Role.MANAGER;
+import static school.hei.haapi.model.User.Role.STAFF_MEMBER;
 import static school.hei.haapi.model.User.Role.TEACHER;
 
 import java.util.HashSet;
