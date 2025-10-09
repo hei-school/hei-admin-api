@@ -18,6 +18,14 @@ public class DataFormatterUtils {
     return localDate.format(pattern);
   }
 
+  public static String formatLocalDateTime(LocalDateTime localDateTime) {
+    DateTimeFormatter formatter =
+        DateTimeFormatter.ofLocalizedDate(FormatStyle.LONG)
+            .withLocale(Locale.FRENCH)
+            .withZone(ZoneId.of("UTC+3"));
+    return formatter.format(localDateTime);
+  }
+
   public static String formatLocalDate(LocalDate localDate) {
     DateTimeFormatter formatter =
         DateTimeFormatter.ofLocalizedDate(FormatStyle.LONG)

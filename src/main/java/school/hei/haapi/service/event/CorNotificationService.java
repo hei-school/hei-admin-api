@@ -1,6 +1,6 @@
 package school.hei.haapi.service.event;
 
-import static school.hei.haapi.service.utils.DataFormatterUtils.instantToCommonDate;
+import static school.hei.haapi.service.utils.DataFormatterUtils.formatLocalDateTime;
 import static school.hei.haapi.service.utils.InstantUtils.UTC3;
 import static school.hei.haapi.service.utils.TemplateUtils.htmlToString;
 
@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.function.Consumer;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.context.Context;
 import school.hei.haapi.endpoint.event.model.CorNotification;
@@ -38,19 +39,26 @@ public class CorNotificationService implements Consumer<CorNotification> {
   }
 
   private Context getMailContext(CorNotification corNotification) {
+    var interviewDate = getInteviewLocalDateTime(corNotification);
+
+    var initial = new Context();
+    initial.setVariable("interviewers", corNotification.getCor().getInterviewers());
+    initial.setVariable("description", corNotification.getCor().getDescription());
+    initial.setVariable("date", formatLocalDateTime(interviewDate));
+    initial.setVariable("hour", toHourMinutes(interviewDate));
+    return initial;
+  }
+
+  private static LocalDateTime getInteviewLocalDateTime(CorNotification corNotification) {
     var interviewInstant = corNotification.getCor().getInterviewDate();
     if (interviewInstant == null) {
       throw new BadRequestException("Interview date is null");
     }
-    var initial = new Context();
-    initial.setVariable("interviewers", corNotification.getCor().getInterviewers());
-    initial.setVariable("description", corNotification.getCor().getDescription());
-    // TODO: Use the local datetime here
-    initial.setVariable("date", instantToCommonDate(interviewInstant));
-    var insertViewDate = LocalDateTime.ofInstant(interviewInstant, UTC3);
-    initial.setVariable(
-        "hour", "%dh%d".formatted(insertViewDate.getHour(), insertViewDate.getMinute()));
-    return initial;
+    return LocalDateTime.ofInstant(interviewInstant, UTC3);
+  }
+
+  private static String toHourMinutes(LocalDateTime insertViewDate) {
+    return "%dh%d".formatted(insertViewDate.getHour(), insertViewDate.getMinute());
   }
 
   private static InternetAddress getDestinationEmail(CorNotification corNotification) {
