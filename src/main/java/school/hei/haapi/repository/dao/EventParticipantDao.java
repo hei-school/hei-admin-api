@@ -1,7 +1,6 @@
 package school.hei.haapi.repository.dao;
 
 import static jakarta.persistence.criteria.JoinType.LEFT;
-import static java.util.Collections.emptyList;
 import static school.hei.haapi.endpoint.rest.model.AttendanceStatus.MISSING;
 import static school.hei.haapi.model.Event.BEGIN_DATETIME;
 import static school.hei.haapi.service.utils.DateUtils.TimeRange;
@@ -21,7 +20,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.query.QueryUtils;
 import org.springframework.stereotype.Repository;
 import school.hei.haapi.endpoint.rest.model.AttendanceStatus;
-import school.hei.haapi.endpoint.rest.model.MissingStatus;
 import school.hei.haapi.model.Event;
 import school.hei.haapi.model.EventParticipant;
 import school.hei.haapi.model.Group;
@@ -124,19 +122,6 @@ public class EventParticipantDao {
     }
 
     return predicates;
-  }
-
-  public Long countMissingByMissingStatus(MissingStatus missingStatus) {
-    return countMissingByMissingStatusAndEventIds(missingStatus, emptyList());
-  }
-
-  public Long countMissingByMissingStatusAndEventId(MissingStatus missingStatus, String eventId) {
-    return countMissingByMissingStatusAndEventIds(missingStatus, List.of(eventId));
-  }
-
-  public Long countMissingByMissingStatusAndEventIds(
-      MissingStatus missingStatus, List<String> eventIds) {
-    return countEventParticipantByCriteria(null, MISSING, eventIds);
   }
 
   public Long countEventParticipantByCriteria(
