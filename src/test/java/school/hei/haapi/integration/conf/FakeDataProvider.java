@@ -14,6 +14,7 @@ import static school.hei.haapi.integration.conf.TestUtils.group1;
 import static school.hei.haapi.model.Event.PlaceName.IVANDRY;
 import static school.hei.haapi.model.Event.RoomName.UNKNOWN;
 import static school.hei.haapi.model.User.Role.STUDENT;
+import static school.hei.haapi.model.User.Role.TEACHER;
 
 import com.github.javafaker.Faker;
 import java.time.Instant;
@@ -69,7 +70,7 @@ public class FakeDataProvider {
         .firstName(faker.name().firstName())
         .lastName(faker.name().lastName())
         .email(faker.internet().emailAddress())
-        .ref(someRef("TCR"))
+        .ref(someRef(TEACHER))
         .phone(faker.phoneNumber().phoneNumber())
         .status(ENABLED)
         .sex(faker.options().option(Sex.class))
@@ -81,6 +82,19 @@ public class FakeDataProvider {
 
   private static String someRef(String prefix) {
     return "%s%s".formatted(prefix, faker.number().digits(5));
+  }
+
+  private static String someRef(User.Role role) {
+    return someRef(
+        switch (role) {
+          case STUDENT -> "STD";
+          case STAFF_MEMBER -> "STAFF";
+          case TEACHER -> "TCH";
+          case MANAGER -> "MGR";
+          case ADMIN -> "ADM";
+          case MONITOR -> "MTR";
+          case ORGANIZER -> "ORG";
+        });
   }
 
   public static CrupdateCourseAssignment createCourseAssignment() {
@@ -229,17 +243,7 @@ public class FakeDataProvider {
         .role(role)
         .firstName(firstName)
         .email(faker.internet().emailAddress())
-        .ref(
-            someRef(
-                switch (role) {
-                  case STUDENT -> "STD";
-                  case STAFF_MEMBER -> "STAFF";
-                  case TEACHER -> "TCH";
-                  case MANAGER -> "MGR";
-                  case ADMIN -> "ADM";
-                  case MONITOR -> "MTR";
-                  case ORGANIZER -> "ORG";
-                }))
+        .ref(someRef(role))
         .lastName(faker.name().lastName())
         .address(faker.address().fullAddress())
         .status(User.Status.ENABLED)

@@ -8,12 +8,14 @@ import jakarta.mail.internet.AddressException;
 import jakarta.mail.internet.InternetAddress;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Consumer;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.context.Context;
 import school.hei.haapi.endpoint.event.model.CorNotification;
+import school.hei.haapi.endpoint.rest.model.UserIdentifier;
 import school.hei.haapi.mail.Email;
 import school.hei.haapi.mail.Mailer;
 import school.hei.haapi.model.exception.BadRequestException;
@@ -31,7 +33,7 @@ public class CorNotificationService implements Consumer<CorNotification> {
         new Email(
             getDestinationEmail(corNotification),
             List.of(),
-            List.of(),
+            getInterviewerEmails(corNotification),
             "[COR] Convocation des parents",
             htmlBody,
             List.of()));
@@ -66,7 +68,32 @@ public class CorNotificationService implements Consumer<CorNotification> {
       throw new BadRequestException("Concerned student is null");
     }
 
-    var email = concernedStudent.getEmail();
+    return getEmailFromUserIdentifier(concernedStudent);
+  }
+
+  private static List<InternetAddress> getInterviewerEmails(CorNotification corNotification) {
+    var interviewers = corNotification.getCor().getInterviewers();
+    if (interviewers == null) {
+      return List.of();
+    }
+
+    return interviewers.stream()
+        .map(CorNotificationService::findEmailFromUserIdentifier)
+        .filter(Optional::isPresent)
+        .map(Optional::get)
+        .toList();
+  }
+
+  private static Optional<InternetAddress> findEmailFromUserIdentifier(UserIdentifier user) {
+    try {
+      return Optional.of(getEmailFromUserIdentifier(user));
+    } catch (BadRequestException e) {
+      return Optional.empty();
+    }
+  }
+
+  private static InternetAddress getEmailFromUserIdentifier(UserIdentifier user) {
+    var email = user.getEmail();
     if (email == null) {
       throw new BadRequestException("Email is null");
     }

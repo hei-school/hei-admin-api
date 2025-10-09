@@ -28,6 +28,7 @@ public class CorNotificationTest extends FacadeITMockedThirdParties {
     var manager = someStudent("cor manager");
     var cor = someCor(student, Instant.now(), List.of(manager));
     var notification = new CorNotification(corMapper.toRest(cor));
+
     subject.accept(notification);
 
     verify(mailer, times(1)).accept(any());
