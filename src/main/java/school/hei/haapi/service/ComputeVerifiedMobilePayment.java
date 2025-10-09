@@ -54,15 +54,15 @@ public class ComputeVerifiedMobilePayment {
     verifiedMobileTransaction.setPspId(successfullyVerifiedMpbs.getPspId());
     mpbsVerificationRepository.save(verifiedMobileTransaction);
 
+    // ... then update fee remaining amount
+    feeService.debitAmountFromMpbs(fee, verifiedMobileTransaction.getAmountInPsp());
+
     // ... then save the corresponding payment
     paymentService.savePaymentFromMpbs(
         successfullyVerifiedMpbs, correspondingMobileTransaction.getPspTransactionAmount());
 
     // ... then update student status
     paymentService.computeUserStatusAfterPayingFee(mpbs.getStudent());
-
-    // ... then update fee remaining amount
-    feeService.debitAmountFromMpbs(fee, verifiedMobileTransaction.getAmountInPsp());
 
     return verifiedMobileTransaction;
   }
