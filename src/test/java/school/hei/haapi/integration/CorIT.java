@@ -143,6 +143,25 @@ class CorIT extends FacadeITMockedThirdParties {
   }
 
   @Test
+  void manager_update_cor_ok() throws ApiException {
+    var api = new CorApi(anApiClient(MANAGER1_TOKEN));
+    var updateCor = someCreatableCor(axelWithCor.getId(), LEAVE, List.of(manager.getId()));
+    updateCor.setId(corAxel.getId());
+
+    var updatedCor = api.crupdateStudentCors(axelWithCor.getId(), updateCor);
+
+    assertEquals(updateCor.getDescription(), updatedCor.getDescription());
+    assertEquals(userMapper.toIdentifier(axelWithCor), updatedCor.getConcernedStudent());
+    assertEquals(updateCor.getInterviewDate(), updatedCor.getInterviewDate());
+    assertEquals(updateCor.getStatus(), updatedCor.getStatus());
+
+    assertNotNull(updateCor.getInterviewerIds());
+    assertNotNull(updatedCor.getInterviewers());
+    assertEquals(1, updatedCor.getInterviewers().size());
+    assertEquals(userMapper.toIdentifier(manager), updatedCor.getInterviewers().getFirst());
+  }
+
+  @Test
   void manager_create_cor_without_status_ko() {
     var api = new CorApi(anApiClient(MANAGER1_TOKEN));
     var cor = someCreatableCor(tolotraWithoutCor.getId(), null, List.of());
