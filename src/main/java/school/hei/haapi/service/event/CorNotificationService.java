@@ -53,7 +53,9 @@ public class CorNotificationService implements Consumer<CorNotification> {
   private static LocalDateTime getInteviewLocalDateTime(CorNotification corNotification) {
     var interviewInstant = corNotification.getCor().getInterviewDate();
     if (interviewInstant == null) {
-      throw new BadRequestException("Interview date is null");
+      throw new BadRequestException(
+          "Interview date for the cor with id #%s is null"
+              .formatted(corNotification.getCor().getId()));
     }
     return LocalDateTime.ofInstant(interviewInstant, UTC3);
   }
@@ -65,7 +67,9 @@ public class CorNotificationService implements Consumer<CorNotification> {
   private static InternetAddress getDestinationEmail(CorNotification corNotification) {
     var concernedStudent = corNotification.getCor().getConcernedStudent();
     if (concernedStudent == null) {
-      throw new BadRequestException("Concerned student is null");
+      throw new BadRequestException(
+          "Concerned student for the cor with id #%s is null"
+              .formatted(corNotification.getCor().getId()));
     }
 
     return getEmailFromUserIdentifier(concernedStudent);
@@ -95,7 +99,8 @@ public class CorNotificationService implements Consumer<CorNotification> {
   private static InternetAddress getEmailFromUserIdentifier(UserIdentifier user) {
     var email = user.getEmail();
     if (email == null) {
-      throw new BadRequestException("Email is null");
+      throw new BadRequestException(
+          "Email of the user with id #%s is null".formatted(user.getId()));
     }
 
     try {
