@@ -95,7 +95,7 @@ public class EventParticipantService {
     Instant fromInstant = from.orElse(Instant.now());
     Instant toInstant = to.orElse(Instant.now());
 
-    if (fromInstant.isBefore(toInstant)) {
+    if (fromInstant.isAfter(toInstant)) {
       throw new BadRequestException("Bad value for filters");
     }
 

@@ -1,8 +1,12 @@
 package school.hei.haapi.service;
 
+import static java.time.Instant.now;
+import static java.time.temporal.ChronoUnit.DAYS;
+import static java.time.temporal.ChronoUnit.HOURS;
 import static java.util.Comparator.comparing;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.test.annotation.DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD;
+import static school.hei.haapi.endpoint.rest.model.AttendanceStatus.MISSING;
 import static school.hei.haapi.endpoint.rest.model.AttendanceStatus.PRESENT;
 import static school.hei.haapi.endpoint.rest.model.EventType.COURSE;
 import static school.hei.haapi.endpoint.rest.model.FrequencyScopeDay.MONDAY;
@@ -15,6 +19,7 @@ import static school.hei.haapi.integration.conf.TestUtils.setUpEventBridge;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,6 +30,7 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 import school.hei.haapi.endpoint.rest.mapper.EventMapper;
 import school.hei.haapi.endpoint.rest.mapper.GroupMapper;
 import school.hei.haapi.endpoint.rest.mapper.UserMapper;
+import school.hei.haapi.endpoint.rest.model.EventParticipantStats;
 import school.hei.haapi.endpoint.rest.model.EventStats;
 import school.hei.haapi.endpoint.rest.model.MissedEventStats;
 import school.hei.haapi.http.model.CreateEventFrequency;
@@ -78,8 +84,8 @@ class DirtyEventServiceTest extends FacadeITMockedThirdParties {
             someCreatableEvent(
                 COURSE,
                 MANAGER_ID,
-                Instant.now(),
-                Instant.now().plusSeconds(60),
+                now(),
+                now().plusSeconds(60),
                 randomGroups.stream().map(groupMapper::toRest).toList()));
     List<Event> randomCourseEvent =
         subject.createOrUpdateEvent(
@@ -165,8 +171,8 @@ class DirtyEventServiceTest extends FacadeITMockedThirdParties {
                     someCreatableEvent(
                         COURSE,
                         MANAGER_ID,
-                        Instant.now(),
-                        Instant.now().plusSeconds(60),
+                        now(),
+                        now().plusSeconds(60),
                         randomGroups.stream().map(groupMapper::toRest).toList()))),
             CreateEventFrequency.builder().build());
 
@@ -192,5 +198,55 @@ class DirtyEventServiceTest extends FacadeITMockedThirdParties {
             .total(1)
             .present(1);
     assertEquals(expectedStats, stats);
+  }
+
+  @Test
+  void event_participant_stats_are_exact() {
+    List<User> randomUsers =
+        userService.saveAll(
+            someCreatableStudentList(1).stream().map(userMapper::toDomain).toList());
+    List<Group> randomGroups =
+        groupService.saveAll(
+            List.of(
+                new CreateGroup(
+                    groupMapper.toDomain(fakeDataProvider.createGroup()),
+                    randomUsers.stream().map(User::getId).toList())));
+    var randomCourseEvent =
+        subject.createOrUpdateEvent(
+            List.of(
+                eventMapper.toDomain(
+                    someCreatableEvent(
+                        COURSE,
+                        MANAGER_ID,
+                        now(),
+                        now().plusSeconds(60),
+                        randomGroups.stream().map(groupMapper::toRest).toList()))),
+            CreateEventFrequency.builder().build());
+    List<EventParticipant> eventParticipants =
+        participantService.getEventParticipants(
+            randomCourseEvent.getFirst().getId(),
+            new PageFromOne(1),
+            new BoundedPageSize(10),
+            null,
+            null,
+            null,
+            null,
+            null);
+
+    eventParticipants.getFirst().setStatus(MISSING);
+    participantService.updateEventParticipants(eventParticipants);
+
+    var randomStudentStats =
+        participantService.getEventParticipantStats(
+            randomUsers.getFirst().getId(),
+            Optional.of(now().minus(1, DAYS)),
+            Optional.of(now().plus(1, HOURS)));
+    var expectedStats =
+        new EventParticipantStats()
+            .missedEvents(new MissedEventStats().justified(0).unjustified(1).total(1))
+            .assistedEvents(0)
+            .lateEvents(0)
+            .totalEvents(1);
+    assertEquals(expectedStats, randomStudentStats);
   }
 }
