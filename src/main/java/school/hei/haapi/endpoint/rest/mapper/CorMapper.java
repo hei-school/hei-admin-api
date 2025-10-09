@@ -16,6 +16,8 @@ import org.springframework.stereotype.Component;
 import school.hei.haapi.endpoint.rest.model.Cor;
 import school.hei.haapi.endpoint.rest.model.CorStatus;
 import school.hei.haapi.endpoint.rest.model.CrupdateCor;
+import school.hei.haapi.endpoint.rest.model.UserIdentifier;
+import school.hei.haapi.model.User;
 import school.hei.haapi.service.UserService;
 
 @Component
@@ -38,10 +40,7 @@ public class CorMapper {
         .status(toRestStatus(cor.getStatus()))
         .comments(
             cor.getComments() != null ? corCommentMapper.toRest(cor.getComments()) : List.of())
-        .interviewers(
-            cor.getInterviewers() != null
-                ? cor.getInterviewers().stream().map(userMapper::toIdentifier).toList()
-                : List.of())
+        .interviewers(getRestInterviewers(cor))
         .interviewDate(cor.getInterviewDatetime());
   }
 
@@ -53,13 +52,23 @@ public class CorMapper {
             .description(cor.getDescription())
             .interviewDatetime(cor.getInterviewDate())
             .status(toDomainStatus(cor.getStatus()))
-            .interviewers(
-                cor.getInterviewerIds() != null
-                    ? userService.getByRoleAndIds(
-                        List.of(TEACHER, ADMIN, MANAGER, STAFF_MEMBER),
-                        new HashSet<>(cor.getInterviewerIds()))
-                    : List.of())
+            .interviewers(getDomainInterviewers(cor))
             .build();
+  }
+
+  private List<UserIdentifier> getRestInterviewers(school.hei.haapi.model.Cor cor) {
+    if (cor.getInterviewers() == null) {
+      return List.of();
+    }
+    return cor.getInterviewers().stream().map(userMapper::toIdentifier).toList();
+  }
+
+  private List<User> getDomainInterviewers(CrupdateCor cor) {
+    if (cor.getInterviewerIds() == null) {
+      return List.of();
+    }
+    return userService.getByRoleAndIds(
+        List.of(TEACHER, ADMIN, MANAGER, STAFF_MEMBER), new HashSet<>(cor.getInterviewerIds()));
   }
 
   public List<Cor> toRest(List<school.hei.haapi.model.Cor> cors) {
