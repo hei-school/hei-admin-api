@@ -2,7 +2,6 @@ package school.hei.haapi.service;
 
 import java.time.Instant;
 import java.util.List;
-import javax.annotation.Nullable;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -41,9 +40,9 @@ public class CorService {
   }
 
   public Cor save(Cor cor) {
-    var corDoesntExists = notExistsById(cor.getId());
+    var isUpdate = cor.getId() != null && corRepository.existsById(cor.getId());
     var savedCor = corRepository.save(cor);
-    if (corDoesntExists) {
+    if (!isUpdate) {
       corNotification.accept(List.of(new CorNotification(savedCor.getId())));
     }
     return savedCor;
@@ -53,10 +52,5 @@ public class CorService {
     return corRepository
         .findById(id)
         .orElseThrow(() -> new NotFoundException("Cor with id # %s not found".formatted(id)));
-  }
-
-  public boolean notExistsById(@Nullable String id) {
-    if (id == null) return true;
-    return !corRepository.existsById(id);
   }
 }
