@@ -21,7 +21,7 @@ import school.hei.haapi.mail.Mailer;
 import school.hei.haapi.model.exception.BadRequestException;
 import school.hei.haapi.service.event.CorNotificationService;
 
-public class CorNotificationTest extends FacadeITMockedThirdParties {
+class CorNotificationTest extends FacadeITMockedThirdParties {
   @Autowired private CorNotificationService subject;
   @Autowired private CorMapper corMapper;
   @MockBean private Mailer mailer;

@@ -24,7 +24,7 @@ import school.hei.haapi.model.exception.BadRequestException;
 @Service
 @AllArgsConstructor
 public class CorNotificationService implements Consumer<CorNotification> {
-  private Mailer mailer;
+  private final Mailer mailer;
 
   @Override
   public void accept(CorNotification corNotification) {
@@ -42,12 +42,12 @@ public class CorNotificationService implements Consumer<CorNotification> {
   private Context getMailContext(CorNotification corNotification) {
     var interviewDate = getInteviewLocalDateTime(corNotification);
 
-    var initial = new Context();
-    initial.setVariable("interviewers", corNotification.getCor().getInterviewers());
-    initial.setVariable("description", corNotification.getCor().getDescription());
-    initial.setVariable("date", formatLocalDateTime(interviewDate));
-    initial.setVariable("hour", toHourMinutes(interviewDate));
-    return initial;
+    var context = new Context();
+    context.setVariable("interviewers", corNotification.getCor().getInterviewers());
+    context.setVariable("description", corNotification.getCor().getDescription());
+    context.setVariable("date", formatLocalDateTime(interviewDate));
+    context.setVariable("hour", toHourMinutes(interviewDate));
+    return context;
   }
 
   private static LocalDateTime getInteviewLocalDateTime(CorNotification corNotification) {

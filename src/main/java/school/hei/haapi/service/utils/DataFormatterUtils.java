@@ -14,12 +14,12 @@ public class DataFormatterUtils {
   private DataFormatterUtils() {}
 
   public static String formatLocalDate(LocalDate localDate, String format) {
-    DateTimeFormatter pattern = DateTimeFormatter.ofPattern(format);
+    var pattern = DateTimeFormatter.ofPattern(format);
     return localDate.format(pattern);
   }
 
   public static String formatLocalDateTime(LocalDateTime localDateTime) {
-    DateTimeFormatter formatter =
+    var formatter =
         DateTimeFormatter.ofLocalizedDate(FormatStyle.LONG)
             .withLocale(Locale.FRENCH)
             .withZone(ZoneId.of("UTC+3"));
@@ -27,7 +27,7 @@ public class DataFormatterUtils {
   }
 
   public static String formatLocalDate(LocalDate localDate) {
-    DateTimeFormatter formatter =
+    var formatter =
         DateTimeFormatter.ofLocalizedDate(FormatStyle.LONG)
             .withLocale(Locale.FRENCH)
             .withZone(ZoneId.of("UTC+3"));
@@ -35,7 +35,7 @@ public class DataFormatterUtils {
   }
 
   public static String instantToCommonDate(Instant instant) {
-    DateTimeFormatter formatter =
+    var formatter =
         DateTimeFormatter.ofLocalizedDate(FormatStyle.LONG)
             .withLocale(Locale.FRENCH)
             // Madagascar's timezone
@@ -44,18 +44,18 @@ public class DataFormatterUtils {
   }
 
   public static String instantToOcsDateFormat(Instant instant) {
-    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+    var formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
     LocalDateTime localDateTime = LocalDateTime.ofInstant(instant, ZoneId.of("UTC+3"));
     return localDateTime.format(formatter);
   }
 
   public static String numberToReadable(int number) {
-    NumberFormat numberFormat = NumberFormat.getNumberInstance();
+    var numberFormat = NumberFormat.getNumberInstance();
     return numberFormat.format(number);
   }
 
   public static String numberToWords(int number) {
-    ValueConverters intConverter = ValueConverters.FRENCH_INTEGER;
+    var intConverter = ValueConverters.FRENCH_INTEGER;
     return intConverter.asWords(number).toUpperCase();
   }
 
