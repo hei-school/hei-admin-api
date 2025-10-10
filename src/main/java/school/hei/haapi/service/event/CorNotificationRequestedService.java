@@ -94,8 +94,7 @@ public class CorNotificationRequestedService implements Consumer<CorNotification
     try {
       return new InternetAddress(email);
     } catch (AddressException e) {
-      throw new IllegalArgumentException(
-          "Email # %s is not a valid address\n%s".formatted(email, e));
+      throw new IllegalArgumentException("Email # %s is not a valid address".formatted(email));
     }
   }
 }

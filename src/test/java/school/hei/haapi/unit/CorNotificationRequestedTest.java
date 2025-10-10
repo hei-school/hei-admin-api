@@ -21,7 +21,6 @@ import school.hei.haapi.integration.conf.FacadeITMockedThirdParties;
 import school.hei.haapi.mail.Mailer;
 import school.hei.haapi.model.Cor;
 import school.hei.haapi.model.User;
-import school.hei.haapi.model.exception.BadRequestException;
 import school.hei.haapi.service.CorService;
 import school.hei.haapi.service.event.CorNotificationRequestedService;
 
@@ -58,7 +57,7 @@ class CorNotificationRequestedTest extends FacadeITMockedThirdParties {
     var notification = new CorNotificationRequested(cor.getId());
 
     var badRequestException =
-        assertThrows(BadRequestException.class, () -> subject.accept(notification));
+        assertThrows(IllegalArgumentException.class, () -> subject.accept(notification));
     assertEquals(
         "Interview date for the cor with id #%s is null".formatted(cor.getId()),
         badRequestException.getMessage());
@@ -67,14 +66,14 @@ class CorNotificationRequestedTest extends FacadeITMockedThirdParties {
   }
 
   @Test
-  void send_cor_mail_student_without_email_date_ko() {
-    student.setEmail(null);
+  void send_cor_mail_student_with_bad_email_ko() {
+    student.setEmail("..123");
     var notification = new CorNotificationRequested(cor.getId());
 
     var badRequestException =
-        assertThrows(BadRequestException.class, () -> subject.accept(notification));
+        assertThrows(IllegalArgumentException.class, () -> subject.accept(notification));
     assertEquals(
-        "Email of the user with id #%s is null".formatted(cor.getStudent().getId()),
+        "Email # %s is not a valid address".formatted(student.getEmail()),
         badRequestException.getMessage());
 
     verify(mailer, never()).accept(any());
