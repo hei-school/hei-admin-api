@@ -32,7 +32,7 @@ import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import school.hei.haapi.endpoint.event.EventProducer;
-import school.hei.haapi.endpoint.event.model.CorNotification;
+import school.hei.haapi.endpoint.event.model.CorNotificationRequested;
 import school.hei.haapi.endpoint.rest.api.CorApi;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
@@ -53,7 +53,7 @@ class CorIT extends FacadeITMockedThirdParties {
   @Autowired private CorCommentService corCommentService;
   @Autowired private CorMapper corMapper;
   @Autowired private UserMapper userMapper;
-  @MockBean private EventProducer<CorNotification> corNotificationMock;
+  @MockBean private EventProducer<CorNotificationRequested> corNotificationMock;
   private static final Faker faker = new Faker();
 
   private User axelWithCor;
@@ -139,7 +139,7 @@ class CorIT extends FacadeITMockedThirdParties {
             .creationDatetime(createdCor.getCreationDatetime()),
         createdCor);
 
-    ArgumentCaptor<List<CorNotification>> notificationBodyCaptor =
+    ArgumentCaptor<List<CorNotificationRequested>> notificationBodyCaptor =
         ArgumentCaptor.forClass(List.class);
     verify(corNotificationMock, times(1)).accept(notificationBodyCaptor.capture());
     var notifications = notificationBodyCaptor.getValue();

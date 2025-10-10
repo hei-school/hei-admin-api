@@ -14,7 +14,7 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.context.Context;
-import school.hei.haapi.endpoint.event.model.CorNotification;
+import school.hei.haapi.endpoint.event.model.CorNotificationRequested;
 import school.hei.haapi.mail.Email;
 import school.hei.haapi.mail.Mailer;
 import school.hei.haapi.model.Cor;
@@ -25,13 +25,13 @@ import school.hei.haapi.service.CorService;
 @Slf4j
 @Service
 @AllArgsConstructor
-public class CorNotificationService implements Consumer<CorNotification> {
+public class CorNotificationRequestedService implements Consumer<CorNotificationRequested> {
   private final Mailer mailer;
   private final CorService corService;
 
   @Override
-  public void accept(CorNotification corNotification) {
-    var cor = corService.getById(corNotification.getCorId());
+  public void accept(CorNotificationRequested corNotificationRequested) {
+    var cor = corService.getById(corNotificationRequested.getCorId());
 
     var htmlBody = htmlToString("corNotification", getMailContext(cor));
     mailer.accept(
@@ -85,7 +85,7 @@ public class CorNotificationService implements Consumer<CorNotification> {
     }
 
     return interviewers.stream()
-        .map(CorNotificationService::findEmailFromUserIdentifier)
+        .map(CorNotificationRequestedService::findEmailFromUserIdentifier)
         .filter(Optional::isPresent)
         .map(Optional::get)
         .toList();

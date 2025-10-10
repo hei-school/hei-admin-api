@@ -8,7 +8,7 @@ import lombok.ToString;
 @Getter
 @ToString
 @AllArgsConstructor
-public class CorNotification extends PojaEvent {
+public class CorNotificationRequested extends PojaEvent {
   private String corId;
 
   @Override

@@ -16,17 +16,17 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import school.hei.haapi.endpoint.event.model.CorNotification;
+import school.hei.haapi.endpoint.event.model.CorNotificationRequested;
 import school.hei.haapi.integration.conf.FacadeITMockedThirdParties;
 import school.hei.haapi.mail.Mailer;
 import school.hei.haapi.model.Cor;
 import school.hei.haapi.model.User;
 import school.hei.haapi.model.exception.BadRequestException;
 import school.hei.haapi.service.CorService;
-import school.hei.haapi.service.event.CorNotificationService;
+import school.hei.haapi.service.event.CorNotificationRequestedService;
 
-class CorNotificationTest extends FacadeITMockedThirdParties {
-  @Autowired private CorNotificationService subject;
+class CorNotificationRequestedTest extends FacadeITMockedThirdParties {
+  @Autowired private CorNotificationRequestedService subject;
   @MockBean private Mailer mailer;
   @MockBean private CorService corService;
 
@@ -45,7 +45,7 @@ class CorNotificationTest extends FacadeITMockedThirdParties {
 
   @Test
   void send_cor_mail_ok() {
-    var notification = new CorNotification(cor.getId());
+    var notification = new CorNotificationRequested(cor.getId());
 
     subject.accept(notification);
 
@@ -55,7 +55,7 @@ class CorNotificationTest extends FacadeITMockedThirdParties {
   @Test
   void send_cor_mail_without_interview_date_ko() {
     cor.setInterviewDatetime(null);
-    var notification = new CorNotification(cor.getId());
+    var notification = new CorNotificationRequested(cor.getId());
 
     var badRequestException =
         assertThrows(BadRequestException.class, () -> subject.accept(notification));
@@ -69,7 +69,7 @@ class CorNotificationTest extends FacadeITMockedThirdParties {
   @Test
   void send_cor_mail_student_without_email_date_ko() {
     student.setEmail(null);
-    var notification = new CorNotification(cor.getId());
+    var notification = new CorNotificationRequested(cor.getId());
 
     var badRequestException =
         assertThrows(BadRequestException.class, () -> subject.accept(notification));
