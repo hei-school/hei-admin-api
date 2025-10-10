@@ -15,47 +15,51 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.context.Context;
 import school.hei.haapi.endpoint.event.model.CorNotification;
-import school.hei.haapi.endpoint.rest.model.UserIdentifier;
 import school.hei.haapi.mail.Email;
 import school.hei.haapi.mail.Mailer;
+import school.hei.haapi.model.Cor;
+import school.hei.haapi.model.User;
 import school.hei.haapi.model.exception.BadRequestException;
+import school.hei.haapi.service.CorService;
 
 @Slf4j
 @Service
 @AllArgsConstructor
 public class CorNotificationService implements Consumer<CorNotification> {
   private final Mailer mailer;
+  private final CorService corService;
 
   @Override
   public void accept(CorNotification corNotification) {
-    var htmlBody = htmlToString("corNotification", getMailContext(corNotification));
+    var cor = corService.getById(corNotification.getCorId());
+
+    var htmlBody = htmlToString("corNotification", getMailContext(cor));
     mailer.accept(
         new Email(
-            getDestinationEmail(corNotification),
+            getDestinationEmail(cor),
             List.of(),
-            getInterviewerEmails(corNotification),
+            getInterviewerEmails(cor),
             "[COR] Convocation des parents",
             htmlBody,
             List.of()));
   }
 
-  private Context getMailContext(CorNotification corNotification) {
-    var interviewDate = getInteviewLocalDateTime(corNotification);
+  private Context getMailContext(Cor cor) {
+    var interviewDate = getInteviewLocalDateTime(cor);
 
     var context = new Context();
-    context.setVariable("interviewers", corNotification.getCor().getInterviewers());
-    context.setVariable("description", corNotification.getCor().getDescription());
+    context.setVariable("interviewers", cor.getInterviewers());
+    context.setVariable("description", cor.getDescription());
     context.setVariable("date", formatLocalDateTime(interviewDate));
     context.setVariable("hour", toHourMinutes(interviewDate));
     return context;
   }
 
-  private static LocalDateTime getInteviewLocalDateTime(CorNotification corNotification) {
-    var interviewInstant = corNotification.getCor().getInterviewDate();
+  private static LocalDateTime getInteviewLocalDateTime(Cor cor) {
+    var interviewInstant = cor.getInterviewDatetime();
     if (interviewInstant == null) {
       throw new BadRequestException(
-          "Interview date for the cor with id #%s is null"
-              .formatted(corNotification.getCor().getId()));
+          "Interview date for the cor with id #%s is null".formatted(cor.getId()));
     }
     return LocalDateTime.ofInstant(interviewInstant, UTC3);
   }
@@ -64,19 +68,18 @@ public class CorNotificationService implements Consumer<CorNotification> {
     return "%dh%d".formatted(insertViewDate.getHour(), insertViewDate.getMinute());
   }
 
-  private static InternetAddress getDestinationEmail(CorNotification corNotification) {
-    var concernedStudent = corNotification.getCor().getConcernedStudent();
+  private static InternetAddress getDestinationEmail(Cor cor) {
+    var concernedStudent = cor.getStudent();
     if (concernedStudent == null) {
       throw new BadRequestException(
-          "Concerned student for the cor with id #%s is null"
-              .formatted(corNotification.getCor().getId()));
+          "Concerned student for the cor with id #%s is null".formatted(cor.getId()));
     }
 
     return getEmailFromUserIdentifier(concernedStudent);
   }
 
-  private static List<InternetAddress> getInterviewerEmails(CorNotification corNotification) {
-    var interviewers = corNotification.getCor().getInterviewers();
+  private static List<InternetAddress> getInterviewerEmails(Cor cor) {
+    var interviewers = cor.getInterviewers();
     if (interviewers == null) {
       return List.of();
     }
@@ -88,7 +91,7 @@ public class CorNotificationService implements Consumer<CorNotification> {
         .toList();
   }
 
-  private static Optional<InternetAddress> findEmailFromUserIdentifier(UserIdentifier user) {
+  private static Optional<InternetAddress> findEmailFromUserIdentifier(User user) {
     try {
       return Optional.of(getEmailFromUserIdentifier(user));
     } catch (BadRequestException e) {
@@ -96,7 +99,7 @@ public class CorNotificationService implements Consumer<CorNotification> {
     }
   }
 
-  private static InternetAddress getEmailFromUserIdentifier(UserIdentifier user) {
+  private static InternetAddress getEmailFromUserIdentifier(User user) {
     var email = user.getEmail();
     if (email == null) {
       throw new BadRequestException(

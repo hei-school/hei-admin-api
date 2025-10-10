@@ -8,7 +8,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import school.hei.haapi.endpoint.event.EventProducer;
 import school.hei.haapi.endpoint.event.model.CorNotification;
-import school.hei.haapi.endpoint.rest.mapper.CorMapper;
 import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.Cor;
 import school.hei.haapi.model.CorStatus;
@@ -25,7 +24,6 @@ public class CorService {
   private final PaginationFromPageAndPageSize paginationFromPageAndPageSize;
   private final CorDao corDao;
   private final EventProducer<CorNotification> corNotification;
-  private final CorMapper corMapper;
 
   public List<Cor> getCors(
       Instant from,
@@ -46,7 +44,7 @@ public class CorService {
     var corDoesntExists = notExistsById(cor.getId());
     var savedCor = corRepository.save(cor);
     if (corDoesntExists) {
-      corNotification.accept(List.of(new CorNotification(corMapper.toRest(savedCor))));
+      corNotification.accept(List.of(new CorNotification(savedCor.getId())));
     }
     return savedCor;
   }

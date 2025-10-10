@@ -132,14 +132,15 @@ class CorIT extends FacadeITMockedThirdParties {
     assertNotNull(interviewers);
     assertEquals(1, interviewers.size());
     assertEquals(userMapper.toIdentifier(manager), interviewers.getFirst());
-    assertEqualsCor(corMapper.toRest(corMapper.toDomain(cor)), createdCor);
+    assertEquals(
+        corMapper.toRest(corMapper.toDomain(cor)), createdCor.id(null).creationDatetime(null));
 
     ArgumentCaptor<List<CorNotification>> notificationBodyCaptor =
         ArgumentCaptor.forClass(List.class);
     verify(corNotificationMock, times(1)).accept(notificationBodyCaptor.capture());
     var notifications = notificationBodyCaptor.getValue();
     assertEquals(1, notifications.size());
-    assertEqualsCor(createdCor, notifications.getFirst().getCor());
+    assertEquals(createdCor.getId(), notifications.getFirst().getCorId());
   }
 
   @Test
@@ -227,12 +228,6 @@ class CorIT extends FacadeITMockedThirdParties {
 
   private ApiClient anApiClient(String token) {
     return TestUtils.anApiClient(token, localPort);
-  }
-
-  private void assertEqualsCor(
-      school.hei.haapi.endpoint.rest.model.Cor excepted,
-      school.hei.haapi.endpoint.rest.model.Cor actual) {
-    assertEquals(excepted, actual.id(null).creationDatetime(null));
   }
 
   private CasdoorUser getCasdoorAxel() {

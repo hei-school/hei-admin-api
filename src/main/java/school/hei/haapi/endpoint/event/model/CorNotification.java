@@ -4,13 +4,12 @@ import java.time.Duration;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.ToString;
-import school.hei.haapi.endpoint.rest.model.Cor;
 
 @Getter
 @ToString
 @AllArgsConstructor
 public class CorNotification extends PojaEvent {
-  private Cor cor;
+  private String corId;
 
   @Override
   public Duration maxConsumerDuration() {
