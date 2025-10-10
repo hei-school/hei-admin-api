@@ -3,7 +3,9 @@ package school.hei.haapi.repository.dao;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
+import java.util.ArrayList;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Pageable;
@@ -26,24 +28,28 @@ public class RetakeExamDao {
     CriteriaQuery<RetakeExam> query = builder.createQuery(RetakeExam.class);
     Root<RetakeExam> root = query.from(RetakeExam.class);
 
+    List<Predicate> predicates = new ArrayList<>();
+
     if (studentId != null) {
-      query.where(builder.equal(root.get("student").get("id"), studentId));
+      predicates.add(builder.equal(root.get("student").get("id"), studentId));
     }
 
     if (studentRef != null) {
-      query.where(builder.equal(root.get("student").get("ref"), studentRef));
+      predicates.add(builder.equal(root.get("student").get("ref"), studentRef));
     }
 
     if (sessionId != null) {
-      query.where(builder.equal(root.get("session").get("id"), sessionId));
+      predicates.add(builder.equal(root.get("session").get("id"), sessionId));
     }
 
     if (courseId != null) {
-      query.where(builder.equal(root.get("course").get("id"), courseId));
+      predicates.add(builder.equal(root.get("course").get("id"), courseId));
     }
     if (courseCode != null) {
-      query.where(builder.equal(root.get("course").get("code"), courseCode));
+      predicates.add(builder.equal(root.get("course").get("code"), courseCode));
     }
+
+    query.where(predicates.toArray(new Predicate[0]));
 
     return entityManager
         .createQuery(query)
