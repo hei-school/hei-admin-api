@@ -1,3 +1,13 @@
+# [1.124.0](https://github.com/hei-school/hei-admin-api/compare/v1.123.1...v1.124.0) (2025-10-10)
+
+
+### Features
+
+* add get retake exam session by id ([6d985cc](https://github.com/hei-school/hei-admin-api/commit/6d985ccc11ee88c591387042406f7e869258936d))
+* **not-implemented:** cor interviewers ([4ea6fd0](https://github.com/hei-school/hei-admin-api/commit/4ea6fd01d92d38516320e54f4ed39bc063177a2c))
+
+
+
 ## [1.123.1](https://github.com/hei-school/hei-admin-api/compare/v1.123.0...v1.123.1) (2025-10-08)
 
 
@@ -118,15 +128,6 @@
 ### Features
 
 * **not-implemented:** event filter by teacher ([a80fb25](https://github.com/hei-school/hei-admin-api/commit/a80fb25f974de9452191a0e1cb2b44a26cc9a142))
-
-
-
-# [1.117.0](https://github.com/hei-school/hei-admin-api/compare/v1.116.2...v1.117.0) (2025-09-18)
-
-
-### Features
-
-* event place/room and student attendance filter ([f737ca4](https://github.com/hei-school/hei-admin-api/commit/f737ca41732ebc9309675c1eb3a1550932f576b8))
 
 
 
