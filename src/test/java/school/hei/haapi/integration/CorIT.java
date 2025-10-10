@@ -133,7 +133,11 @@ class CorIT extends FacadeITMockedThirdParties {
     assertEquals(1, interviewers.size());
     assertEquals(userMapper.toIdentifier(manager), interviewers.getFirst());
     assertEquals(
-        corMapper.toRest(corMapper.toDomain(cor)), createdCor.id(null).creationDatetime(null));
+        corMapper
+            .toRest(corMapper.toDomain(cor))
+            .id(createdCor.getId())
+            .creationDatetime(createdCor.getCreationDatetime()),
+        createdCor);
 
     ArgumentCaptor<List<CorNotification>> notificationBodyCaptor =
         ArgumentCaptor.forClass(List.class);
