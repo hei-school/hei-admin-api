@@ -87,6 +87,7 @@ public class RetakeExamIT extends FacadeITMockedThirdParties {
     var retakeExam = new CrupdateRetakeExam();
     retakeExam.setStudentId(student1().getId());
     retakeExam.setCourseId(course1().getId());
+    retakeExam.setStatus(RetakeExamStatus.TO_CANCEL);
 
     var retakeExamsCreated = api.createOrUpdateRetakeExam("session2_id", List.of(retakeExam));
 
@@ -122,7 +123,7 @@ public class RetakeExamIT extends FacadeITMockedThirdParties {
             "session2_id", null, List.of(RetakeExamStatus.TO_CANCEL), null, null, null, null);
 
     assertNotNull(retakeExamFiltered);
-    assertEquals(1, retakeExamFiltered.size());
+    assertEquals(2, retakeExamFiltered.size());
     assertEquals(RetakeExamStatus.TO_CANCEL, retakeExamFiltered.getFirst().getStatus());
   }
 
