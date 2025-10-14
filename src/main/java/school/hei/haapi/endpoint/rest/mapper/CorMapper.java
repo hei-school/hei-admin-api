@@ -1,5 +1,6 @@
 package school.hei.haapi.endpoint.rest.mapper;
 
+import static java.util.stream.Collectors.toUnmodifiableSet;
 import static school.hei.haapi.endpoint.rest.model.CorStatus.CANCELED;
 import static school.hei.haapi.endpoint.rest.model.CorStatus.IN_PROGRESS;
 import static school.hei.haapi.endpoint.rest.model.CorStatus.LEAVE;
@@ -10,7 +11,6 @@ import static school.hei.haapi.model.User.Role.MANAGER;
 import static school.hei.haapi.model.User.Role.STAFF_MEMBER;
 import static school.hei.haapi.model.User.Role.TEACHER;
 
-import java.util.HashSet;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.NonNull;
@@ -70,7 +70,8 @@ public class CorMapper {
       return List.of();
     }
     return userService.getByRoleAndIds(
-        List.of(TEACHER, ADMIN, MANAGER, STAFF_MEMBER), new HashSet<>(cor.getInterviewerIds()));
+        List.of(TEACHER, ADMIN, MANAGER, STAFF_MEMBER),
+        cor.getInterviewerIds().stream().collect(toUnmodifiableSet()));
   }
 
   public List<Cor> toRest(List<school.hei.haapi.model.Cor> cors) {

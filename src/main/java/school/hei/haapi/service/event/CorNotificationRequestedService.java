@@ -35,7 +35,7 @@ public class CorNotificationRequestedService implements Consumer<CorNotification
     var htmlBody = htmlToString("corNotification", getMailContext(cor));
     mailer.accept(
         new Email(
-            getEmailFromUser(cor.getStudent()),
+            getUserEmail(cor.getStudent()),
             List.of(),
             getInterviewerEmails(cor),
             "[COR] Convocation des parents",
@@ -43,7 +43,7 @@ public class CorNotificationRequestedService implements Consumer<CorNotification
             List.of()));
   }
 
-  private Context getMailContext(Cor cor) {
+  private static Context getMailContext(Cor cor) {
     var interviewDate = getInteviewLocalDateTime(cor);
 
     var context = new Context();
@@ -74,27 +74,27 @@ public class CorNotificationRequestedService implements Consumer<CorNotification
     }
 
     return interviewers.stream()
-        .map(CorNotificationRequestedService::findEmailFromUser)
+        .map(CorNotificationRequestedService::findUserEmail)
         .filter(Optional::isPresent)
         .map(Optional::get)
         .toList();
   }
 
-  private static Optional<InternetAddress> findEmailFromUser(User user) {
+  private static Optional<InternetAddress> findUserEmail(User user) {
     try {
-      return Optional.of(getEmailFromUser(user));
+      return Optional.of(getUserEmail(user));
     } catch (IllegalArgumentException e) {
       return Optional.empty();
     }
   }
 
-  private static InternetAddress getEmailFromUser(User user) {
+  private static InternetAddress getUserEmail(User user) {
     var email = user.getEmail();
 
     try {
       return new InternetAddress(email);
     } catch (AddressException e) {
-      throw new IllegalArgumentException("Email # %s is not a valid address".formatted(email));
+      throw new IllegalArgumentException("Email %s is not a valid address".formatted(email));
     }
   }
 }

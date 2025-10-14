@@ -73,7 +73,7 @@ class CorNotificationRequestedTest extends FacadeITMockedThirdParties {
     var badRequestException =
         assertThrows(IllegalArgumentException.class, () -> subject.accept(notification));
     assertEquals(
-        "Email # %s is not a valid address".formatted(student.getEmail()),
+        "Email %s is not a valid address".formatted(student.getEmail()),
         badRequestException.getMessage());
 
     verify(mailer, never()).accept(any());

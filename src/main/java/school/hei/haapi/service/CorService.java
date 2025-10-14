@@ -22,7 +22,7 @@ public class CorService {
   private final CorRepository corRepository;
   private final PaginationFromPageAndPageSize paginationFromPageAndPageSize;
   private final CorDao corDao;
-  private final EventProducer<CorNotificationRequested> corNotification;
+  private final EventProducer<CorNotificationRequested> eventProducer;
 
   public List<Cor> getCors(
       Instant from,
@@ -43,7 +43,7 @@ public class CorService {
     var isUpdate = cor.getId() != null && corRepository.existsById(cor.getId());
     var savedCor = corRepository.save(cor);
     if (!isUpdate) {
-      corNotification.accept(List.of(new CorNotificationRequested(savedCor.getId())));
+      eventProducer.accept(List.of(new CorNotificationRequested(savedCor.getId())));
     }
     return savedCor;
   }
