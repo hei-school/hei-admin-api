@@ -6,9 +6,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
-import school.hei.haapi.endpoint.rest.model.AttendanceStatus;
 import school.hei.haapi.model.EventParticipant;
-import school.hei.haapi.model.dto.MissedEventStatsDto;
+import school.hei.haapi.model.dto.EventStatsDto;
 
 @Repository
 public interface EventParticipantRepository extends JpaRepository<EventParticipant, String> {
@@ -20,53 +19,64 @@ public interface EventParticipantRepository extends JpaRepository<EventParticipa
   Optional<List<EventParticipant>> findAllByEventIdAndGroupRef(
       String eventId, String groupRef, Pageable pageable);
 
-  Integer countByEventIdAndStatus(String eventId, AttendanceStatus status);
-
-  Integer countByEventId(String eventId);
-
-  int countByStatus(AttendanceStatus status);
-
-  int countByEventIdInAndStatus(List<String> eventIds, AttendanceStatus status);
-
   @Query(
       """
-        select new school.hei.haapi.model.dto.MissedEventStatsDto(
-            sum(case when e.status = 'MISSING' then 1 else 0 end),
-            sum(case when size(e.letters) > 0 and e.status = 'MISSING' then 1 else 0 end),
-            sum(case when size(e.letters) = 0 and e.status = 'MISSING' then 1 else 0 end))
-        from EventParticipant e where e.participant.id = :studentId
-      """)
-  MissedEventStatsDto countMissedEventStatsByStudentId(String studentId);
-
-  @Query(
-      """
-        select new school.hei.haapi.model.dto.MissedEventStatsDto(
-            sum(case when e.status = 'MISSING' then 1 else 0 end),
-            sum(case when size(e.letters) > 0 and e.status = 'MISSING' then 1 else 0 end),
-            sum(case when size(e.letters) = 0 and e.status = 'MISSING' then 1 else 0 end))
-        from EventParticipant e where e.participant.id = :studentId
-        and e.event.id in :eventIds
-      """)
-  MissedEventStatsDto countMissedEventStatsByStudentIdAndEventIds(
-      String studentId, List<String> eventIds);
-
-  @Query(
-      """
-select new school.hei.haapi.model.dto.MissedEventStatsDto(
-    sum(case when e is not null and e.status = 'MISSING' then 1 else 0 end),
-    sum(case when e is not null and size(e.letters) > 0 and e.status = 'MISSING' then 1 else 0 end),
-    sum(case when e is not null and size(e.letters) = 0 and e.status = 'MISSING' then 1 else 0 end))
-from EventParticipant e where e.event.id in :eventIds
+  select new school.hei.haapi.model.dto.EventStatsDto(
+        coalesce(count(e), 0),
+        coalesce(sum(case when e.status = 'PRESENT' then 1 else 0 end), 0),
+        coalesce(sum(case when e.status = 'LATE' then 1 else 0 end), 0),
+        coalesce(sum(case when e.status = 'UNCHECKED' then 1 else 0 end), 0),
+        new school.hei.haapi.model.dto.MissedEventStatsDto(
+            coalesce(sum(case when e.status = 'MISSING' then 1 else 0 end), 0),
+            coalesce(sum(case when size(e.letters) > 0 and e.status = 'MISSING' then 1 else 0 end), 0),
+            coalesce(sum(case when size(e.letters) = 0 and e.status = 'MISSING' then 1 else 0 end), 0))
+  ) from EventParticipant e where e.event.id in :eventIds
 """)
-  MissedEventStatsDto countMissedEventStatsByEventIds(List<String> eventIds);
+  EventStatsDto countEventStatsByEventIds(List<String> eventIds);
 
   @Query(
       """
-        select new school.hei.haapi.model.dto.MissedEventStatsDto(
-            sum(case when e.status = 'MISSING' then 1 else 0 end),
-            sum(case when size(e.letters) > 0 and e.status = 'MISSING' then 1 else 0 end),
-            sum(case when size(e.letters) = 0 and e.status = 'MISSING' then 1 else 0 end))
-        from EventParticipant e
-      """)
-  MissedEventStatsDto countOverallMissedEventStats();
+  select new school.hei.haapi.model.dto.EventStatsDto(
+      coalesce(count(e), 0),
+      coalesce(sum(case when e.status = 'PRESENT' then 1 else 0 end), 0),
+      coalesce(sum(case when e.status = 'LATE' then 1 else 0 end), 0),
+      coalesce(sum(case when e.status = 'UNCHECKED' then 1 else 0 end), 0),
+      new school.hei.haapi.model.dto.MissedEventStatsDto(
+          coalesce(sum(case when e.status = 'MISSING' then 1 else 0 end), 0),
+          coalesce(sum(case when size(e.letters) > 0 and e.status = 'MISSING' then 1 else 0 end), 0),
+          coalesce(sum(case when size(e.letters) = 0 and e.status = 'MISSING' then 1 else 0 end), 0))
+  ) from EventParticipant e where e.event.id in :eventIds
+  and e.participant.id = :studentId
+""")
+  EventStatsDto countEventStatsByStudentIdAndEventIds(String studentId, List<String> eventIds);
+
+  @Query(
+      """
+  select new school.hei.haapi.model.dto.EventStatsDto(
+      coalesce(count(e), 0),
+      coalesce(sum(case when e.status = 'PRESENT' then 1 else 0 end), 0),
+      coalesce(sum(case when e.status = 'LATE' then 1 else 0 end), 0),
+      coalesce(sum(case when e.status = 'UNCHECKED' then 1 else 0 end), 0),
+      new school.hei.haapi.model.dto.MissedEventStatsDto(
+          coalesce(sum(case when e.status = 'MISSING' then 1 else 0 end), 0),
+          coalesce(sum(case when size(e.letters) > 0 and e.status = 'MISSING' then 1 else 0 end), 0),
+          coalesce(sum(case when size(e.letters) = 0 and e.status = 'MISSING' then 1 else 0 end), 0))
+  ) from EventParticipant e
+""")
+  EventStatsDto countOverallEventStats();
+
+  @Query(
+      """
+  select new school.hei.haapi.model.dto.EventStatsDto(
+      coalesce(count(e), 0),
+      coalesce(sum(case when e.status = 'PRESENT' then 1 else 0 end), 0),
+      coalesce(sum(case when e.status = 'LATE' then 1 else 0 end), 0),
+      coalesce(sum(case when e.status = 'UNCHECKED' then 1 else 0 end), 0),
+      new school.hei.haapi.model.dto.MissedEventStatsDto(
+          coalesce(sum(case when e.status = 'MISSING' then 1 else 0 end), 0),
+          coalesce(sum(case when size(e.letters) > 0 and e.status = 'MISSING' then 1 else 0 end), 0),
+          coalesce(sum(case when size(e.letters) = 0 and e.status = 'MISSING' then 1 else 0 end), 0))
+  ) from EventParticipant e where e.participant.id = :studentId
+""")
+  EventStatsDto countEventStatsByStudentId(String studentId);
 }

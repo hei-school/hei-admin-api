@@ -1,6 +1,5 @@
 package school.hei.haapi.service;
 
-import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.toUnmodifiableList;
 import static org.springframework.data.domain.Sort.Direction.ASC;
 import static school.hei.haapi.endpoint.rest.model.AttendanceStatus.*;
@@ -27,14 +26,12 @@ import school.hei.haapi.model.exception.BadRequestException;
 import school.hei.haapi.model.exception.NotFoundException;
 import school.hei.haapi.repository.EventParticipantRepository;
 import school.hei.haapi.repository.EventRepository;
-import school.hei.haapi.repository.LetterRepository;
 import school.hei.haapi.repository.dao.EventParticipantDao;
 import school.hei.haapi.service.utils.DateUtils.TimeRange;
 
 @Service
 @AllArgsConstructor
 public class EventParticipantService {
-  private final LetterRepository letterRepository;
   private final EventParticipantRepository eventParticipantRepository;
   private final EventRepository eventRepository;
   private final UserService userService;
@@ -108,29 +105,12 @@ public class EventParticipantService {
   }
 
   private EventParticipantStats generateParticipantStat(
-      String studentId, Optional<List<String>> evenIds) {
-
-    List<String> eventIdsList = evenIds.orElse(emptyList());
-    var lateCount =
-        eventParticipantDao
-            .countEventParticipantByCriteria(studentId, LATE, eventIdsList)
-            .intValue();
-    var missedEventStats =
-        evenIds.isEmpty()
-            ? eventParticipantRepository.countMissedEventStatsByStudentId(studentId).toRest()
-            : eventParticipantRepository
-                .countMissedEventStatsByStudentIdAndEventIds(studentId, eventIdsList)
-                .toRest();
-    var presentCount =
-        eventParticipantDao
-            .countEventParticipantByCriteria(studentId, PRESENT, eventIdsList)
-            .intValue();
-
-    return new EventParticipantStats()
-        .assistedEvents(presentCount)
-        .lateEvents(lateCount)
-        .missedEvents(missedEventStats)
-        .totalEvents(lateCount + missedEventStats.getTotal() + presentCount);
+      String studentId, Optional<List<String>> eventIds) {
+    return eventIds
+        .map(
+            ids -> eventParticipantRepository.countEventStatsByStudentIdAndEventIds(studentId, ids))
+        .orElse(eventParticipantRepository.countEventStatsByStudentId(studentId))
+        .toEventParticipantStats();
   }
 
   public EventParticipant findById(String id) {
@@ -154,39 +134,15 @@ public class EventParticipantService {
   }
 
   public EventStats getEventStats(String eventId) {
-    int late = eventParticipantRepository.countByEventIdAndStatus(eventId, LATE);
-    int present = eventParticipantRepository.countByEventIdAndStatus(eventId, PRESENT);
-    var missedStats =
-        eventParticipantRepository.countMissedEventStatsByEventIds(List.of(eventId)).toRest();
-    return new EventStats()
-        .late(late)
-        .missedStats(missedStats)
-        .present(present)
-        .total(eventParticipantRepository.countByEventId(eventId));
+    return eventParticipantRepository.countEventStatsByEventIds(List.of(eventId)).toEventStats();
   }
 
   public EventStats getOverallEventStats() {
-    var missedStats = eventParticipantRepository.countOverallMissedEventStats().toRest();
-    int late = eventParticipantRepository.countByStatus(LATE);
-    int present = eventParticipantRepository.countByStatus(PRESENT);
-
-    return new EventStats()
-        .late(late)
-        .missedStats(missedStats)
-        .present(present)
-        .total(missedStats.getTotal() + present + late);
+    return eventParticipantRepository.countOverallEventStats().toEventStats();
   }
 
   public EventStats getEventStats(List<String> eventIds) {
-    int late = eventParticipantRepository.countByEventIdInAndStatus(eventIds, LATE);
-    int present = eventParticipantRepository.countByEventIdInAndStatus(eventIds, PRESENT);
-    var missedEventStats =
-        eventParticipantRepository.countMissedEventStatsByEventIds(eventIds).toRest();
-    return new EventStats()
-        .late(late)
-        .missedStats(missedEventStats)
-        .present(present)
-        .total(missedEventStats.getTotal() + present + late);
+    return eventParticipantRepository.countEventStatsByEventIds(eventIds).toEventStats();
   }
 
   private boolean isParticipantAlreadyInEvent(String eventId, String groupId, String userId) {
