@@ -56,20 +56,23 @@ public class RetakeExamController {
   @GetMapping("/retake_exam_sessions/{session_id}/retake_exam_courses")
   public List<Course> getRetakeExamCoursesBySessionId(
       @PathVariable("session_id") String sessionId,
+      @RequestParam(value = "course_code", required = false) String courseCode,
       @RequestParam(value = "page", defaultValue = "1") PageFromOne page,
       @RequestParam(value = "page_size", defaultValue = "15") BoundedPageSize pageSize) {
     return courseMapper.toRests(
-        retakeExamService.getAllRetakeExamCoursesBySessionId(sessionId, page, pageSize));
+        retakeExamService.getAllRetakeExamCoursesBySessionId(
+            sessionId, courseCode, page, pageSize));
   }
 
   @GetMapping("/retake_exam_sessions/{session_id}/retake_exam_courses/{course_id}/participants")
   public List<Student> getRetakeExamParticipantByCourseIdAndSessionId(
       @PathVariable("session_id") String sessionId,
       @PathVariable("course_id") String courseId,
+      @RequestParam(value = "student_ref", required = false) String studentRef,
       @RequestParam(value = "page", defaultValue = "1") PageFromOne page,
       @RequestParam(value = "page_size", defaultValue = "15") BoundedPageSize pageSize) {
     return userMapper.toRestStudents(
         retakeExamService.getAllRetakeExamParticipantByCourseAndBySessionId(
-            sessionId, courseId, page, pageSize));
+            sessionId, courseId, studentRef, page, pageSize));
   }
 }
