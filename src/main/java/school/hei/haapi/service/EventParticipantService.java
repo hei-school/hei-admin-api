@@ -24,7 +24,6 @@ import school.hei.haapi.model.User;
 import school.hei.haapi.model.exception.BadRequestException;
 import school.hei.haapi.model.exception.NotFoundException;
 import school.hei.haapi.repository.EventParticipantRepository;
-import school.hei.haapi.repository.EventRepository;
 import school.hei.haapi.repository.dao.EventParticipantDao;
 import school.hei.haapi.service.utils.DateUtils.TimeRange;
 
@@ -32,7 +31,6 @@ import school.hei.haapi.service.utils.DateUtils.TimeRange;
 @AllArgsConstructor
 public class EventParticipantService {
   private final EventParticipantRepository eventParticipantRepository;
-  private final EventRepository eventRepository;
   private final UserService userService;
   private final GroupService groupService;
   private final EventParticipantDao eventParticipantDao;
@@ -82,7 +80,7 @@ public class EventParticipantService {
     eventParticipantRepository.saveAll(eventParticipants);
   }
 
-  public EventParticipantStats getEventParticipantStats(
+  public EventParticipantStats getStudentEventStats(
       String studentId, Optional<Instant> from, Optional<Instant> to) {
     if (from.isEmpty() && to.isEmpty()) {
       return generateParticipantStat(studentId);

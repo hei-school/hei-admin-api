@@ -237,7 +237,7 @@ class DirtyEventServiceTest extends FacadeITMockedThirdParties {
     participantService.updateEventParticipants(eventParticipants);
 
     var randomStudentStats =
-        participantService.getEventParticipantStats(
+        participantService.getStudentEventStats(
             randomUsers.getFirst().getId(),
             Optional.of(now().minus(1, DAYS)),
             Optional.of(now().plus(1, HOURS)));

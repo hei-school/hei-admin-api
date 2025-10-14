@@ -123,7 +123,7 @@ public class EventController {
       @RequestParam(name = "to_event_begin", required = false) Instant to) {
     Optional<Instant> optionalFrom = Optional.ofNullable(from);
     Optional<Instant> optionalTo = Optional.ofNullable(to);
-    return eventParticipantService.getEventParticipantStats(studentId, optionalFrom, optionalTo);
+    return eventParticipantService.getStudentEventStats(studentId, optionalFrom, optionalTo);
   }
 
   @PutMapping("/events/{event_id}/participants")
