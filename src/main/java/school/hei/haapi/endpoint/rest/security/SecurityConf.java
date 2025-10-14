@@ -336,7 +336,6 @@ public class SecurityConf {
                     //
                     // Student files resources
                     //
-
                     .requestMatchers(POST, "/school/files/raw")
                     .hasAnyRole(MANAGER.getRole(), ADMIN.getRole())
                     .requestMatchers(GET, "/school/files")

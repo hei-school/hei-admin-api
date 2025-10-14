@@ -151,18 +151,17 @@ public class EventParticipantDao {
       Root<EventParticipant> root,
       List<Predicate> predicates,
       AttendanceStatus status) {
-    if (status != null) {
-      switch (status) {
-        case JUSTIFIED_ABSENCE -> {
-          predicates.add(builder.equal(root.get("status"), MISSING));
-          predicates.add(builder.isNotEmpty(root.get("letters")));
-        }
-        case UNJUSTIFIED_ABSENCE -> {
-          predicates.add(builder.equal(root.get("status"), MISSING));
-          predicates.add(builder.isEmpty(root.get("letters")));
-        }
-        default -> predicates.add(builder.equal(root.get("status"), status));
+    if (status == null) return;
+    switch (status) {
+      case JUSTIFIED_ABSENCE -> {
+        predicates.add(builder.equal(root.get("status"), MISSING));
+        predicates.add(builder.isNotEmpty(root.get("letters")));
       }
+      case UNJUSTIFIED_ABSENCE -> {
+        predicates.add(builder.equal(root.get("status"), MISSING));
+        predicates.add(builder.isEmpty(root.get("letters")));
+      }
+      default -> predicates.add(builder.equal(root.get("status"), status));
     }
   }
 }
