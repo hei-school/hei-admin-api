@@ -45,6 +45,7 @@ public class RetakeExamDao {
     if (courseId != null) {
       predicates.add(builder.equal(root.get("course").get("id"), courseId));
     }
+
     if (courseCode != null) {
       predicates.add(builder.equal(root.get("course").get("code"), courseCode));
     }
