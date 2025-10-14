@@ -1,3 +1,12 @@
+# [1.125.0](https://github.com/hei-school/hei-admin-api/compare/v1.124.0...v1.125.0) (2025-10-14)
+
+
+### Features
+
+* filter retake_exam_courses by course_code and participant by ref ([97af3af](https://github.com/hei-school/hei-admin-api/commit/97af3aff5bef526a74916cf958983e55af6e7e2c))
+
+
+
 # [1.124.0](https://github.com/hei-school/hei-admin-api/compare/v1.123.1...v1.124.0) (2025-10-10)
 
 
@@ -119,15 +128,6 @@
 ### Bug Fixes
 
 * **doc:** rename Remedials to RetakeExam and refactor components ([0356a58](https://github.com/hei-school/hei-admin-api/commit/0356a58e8643194e96d7367aab00c189b5fa54ee))
-
-
-
-# [1.118.0](https://github.com/hei-school/hei-admin-api/compare/v1.117.0...v1.118.0) (2025-09-18)
-
-
-### Features
-
-* **not-implemented:** event filter by teacher ([a80fb25](https://github.com/hei-school/hei-admin-api/commit/a80fb25f974de9452191a0e1cb2b44a26cc9a142))
 
 
 
