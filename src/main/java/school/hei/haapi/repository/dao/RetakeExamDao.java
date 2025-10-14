@@ -35,7 +35,9 @@ public class RetakeExamDao {
     }
 
     if (studentRef != null) {
-      predicates.add(builder.equal(root.get("student").get("ref"), studentRef));
+      predicates.add(
+          builder.like(
+              builder.lower(root.get("student").get("ref")), "%" + studentRef.toLowerCase() + "%"));
     }
 
     if (sessionId != null) {
@@ -47,7 +49,9 @@ public class RetakeExamDao {
     }
 
     if (courseCode != null) {
-      predicates.add(builder.equal(root.get("course").get("code"), courseCode));
+      predicates.add(
+          builder.like(
+              builder.lower(root.get("course").get("code")), "%" + courseCode.toLowerCase() + "%"));
     }
 
     query.where(predicates.toArray(new Predicate[0]));
