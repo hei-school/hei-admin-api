@@ -135,7 +135,6 @@ public class AdvancedFeeStatsService {
               feeRepository.findDistinctByStatusHistoriesDatetimeBetween(dayStart, dayEnd);
         };
 
-    log.info("All {} fees are : {} ", type, allFees);
     Collection<AdvancedFeeStats> stats =
         feeDao.getAdvancedFeeStatsOnDateBetween(fromDate, toDate, type).values();
     Optional<LocalDate> date = statCountDateMapper(type, toDate);
