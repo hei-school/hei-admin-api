@@ -1,5 +1,6 @@
 package school.hei.haapi.repository;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.data.domain.Pageable;
@@ -30,9 +31,24 @@ public interface EventParticipantRepository extends JpaRepository<EventParticipa
             coalesce(sum(case when e.status = 'MISSING' then 1 else 0 end), 0),
             coalesce(sum(case when size(e.letters) > 0 and e.status = 'MISSING' then 1 else 0 end), 0),
             coalesce(sum(case when size(e.letters) = 0 and e.status = 'MISSING' then 1 else 0 end), 0))
-  ) from EventParticipant e where e.event.id in :eventIds
+  ) from EventParticipant e where e.event.id = :eventId
 """)
-  EventStatsDto countEventStatsByEventIds(List<String> eventIds);
+  EventStatsDto countEventStatsByEventId(String eventId);
+
+  @Query(
+      """
+  select new school.hei.haapi.model.dto.EventStatsDto(
+        coalesce(count(e), 0),
+        coalesce(sum(case when e.status = 'PRESENT' then 1 else 0 end), 0),
+        coalesce(sum(case when e.status = 'LATE' then 1 else 0 end), 0),
+        coalesce(sum(case when e.status = 'UNCHECKED' then 1 else 0 end), 0),
+        new school.hei.haapi.model.dto.MissedEventStatsDto(
+            coalesce(sum(case when e.status = 'MISSING' then 1 else 0 end), 0),
+            coalesce(sum(case when size(e.letters) > 0 and e.status = 'MISSING' then 1 else 0 end), 0),
+            coalesce(sum(case when size(e.letters) = 0 and e.status = 'MISSING' then 1 else 0 end), 0))
+  ) from EventParticipant e where e.event.beginDatetime between :from and :to
+""")
+  EventStatsDto countEventStatsByEventBeginBetween(Instant from, Instant to);
 
   @Query(
       """
@@ -45,10 +61,11 @@ public interface EventParticipantRepository extends JpaRepository<EventParticipa
           coalesce(sum(case when e.status = 'MISSING' then 1 else 0 end), 0),
           coalesce(sum(case when size(e.letters) > 0 and e.status = 'MISSING' then 1 else 0 end), 0),
           coalesce(sum(case when size(e.letters) = 0 and e.status = 'MISSING' then 1 else 0 end), 0))
-  ) from EventParticipant e where e.event.id in :eventIds
+  ) from EventParticipant e where e.event.beginDatetime between :from and :to
   and e.participant.id = :studentId
 """)
-  EventStatsDto countEventStatsByStudentIdAndEventIds(String studentId, List<String> eventIds);
+  EventStatsDto countEventStatsByStudentIdAndEventBeginBetween(
+      String studentId, Instant from, Instant to);
 
   @Query(
       """

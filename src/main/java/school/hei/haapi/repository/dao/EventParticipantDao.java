@@ -124,28 +124,6 @@ public class EventParticipantDao {
     return predicates;
   }
 
-  public Long countEventParticipantByCriteria(
-      String studentId, AttendanceStatus status, List<String> eventIds) {
-    CriteriaBuilder builder = entityManager.getCriteriaBuilder();
-    CriteriaQuery<Long> query = builder.createQuery(Long.class);
-    Root<EventParticipant> root = query.from(EventParticipant.class);
-
-    List<Predicate> predicates = new ArrayList<>();
-
-    setEventStatusPredicate(builder, root, predicates, status);
-
-    if (!eventIds.isEmpty()) {
-      predicates.add(root.get("event").get("id").in(eventIds));
-    }
-
-    if (studentId != null) {
-      predicates.add(builder.equal(root.get("participant").get("id"), studentId));
-    }
-
-    query.select(builder.count(root)).where(predicates.toArray(new Predicate[0]));
-    return entityManager.createQuery(query).getSingleResult();
-  }
-
   private void setEventStatusPredicate(
       CriteriaBuilder builder,
       Root<EventParticipant> root,

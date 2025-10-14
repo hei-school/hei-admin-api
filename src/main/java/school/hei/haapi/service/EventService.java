@@ -1,6 +1,5 @@
 package school.hei.haapi.service;
 
-import static java.util.stream.Collectors.toUnmodifiableList;
 import static org.springframework.data.domain.Sort.Direction.DESC;
 
 import java.time.Instant;
@@ -76,12 +75,7 @@ public class EventService {
     if (fromInstant.isAfter(toInstant)) {
       throw new BadRequestException("from cannot be after to");
     }
-
-    List<Event> filteredEvents =
-        eventDao.findByCriteria(null, fromInstant, toInstant, null, null, null);
-    List<String> filteredEventIds =
-        filteredEvents.stream().map(Event::getId).collect(toUnmodifiableList());
-    return eventParticipantService.getEventStats(filteredEventIds);
+    return eventParticipantService.getEventStats(fromInstant, toInstant);
   }
 
   public Event findEventById(String eventId) {

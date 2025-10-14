@@ -1,6 +1,5 @@
 package school.hei.haapi.service;
 
-import static java.util.stream.Collectors.toUnmodifiableList;
 import static org.springframework.data.domain.Sort.Direction.ASC;
 import static school.hei.haapi.endpoint.rest.model.AttendanceStatus.*;
 
@@ -86,7 +85,7 @@ public class EventParticipantService {
   public EventParticipantStats getEventParticipantStats(
       String studentId, Optional<Instant> from, Optional<Instant> to) {
     if (from.isEmpty() && to.isEmpty()) {
-      return generateParticipantStat(studentId, Optional.empty());
+      return generateParticipantStat(studentId);
     }
 
     Instant fromInstant = from.orElse(Instant.now());
@@ -96,20 +95,19 @@ public class EventParticipantService {
       throw new BadRequestException("Bad value for filters");
     }
 
-    List<String> filteredEventsIds =
-        eventRepository.findEventsBetweenInstant(fromInstant, toInstant).stream()
-            .map(Event::getId)
-            .collect(toUnmodifiableList());
-
-    return generateParticipantStat(studentId, Optional.of(filteredEventsIds));
+    return generateParticipantStat(studentId, fromInstant, toInstant);
   }
 
   private EventParticipantStats generateParticipantStat(
-      String studentId, Optional<List<String>> eventIds) {
-    return eventIds
-        .map(
-            ids -> eventParticipantRepository.countEventStatsByStudentIdAndEventIds(studentId, ids))
-        .orElse(eventParticipantRepository.countEventStatsByStudentId(studentId))
+      String studentId, Instant from, Instant to) {
+    return eventParticipantRepository
+        .countEventStatsByStudentIdAndEventBeginBetween(studentId, from, to)
+        .toEventParticipantStats();
+  }
+
+  private EventParticipantStats generateParticipantStat(String studentId) {
+    return eventParticipantRepository
+        .countEventStatsByStudentId(studentId)
         .toEventParticipantStats();
   }
 
@@ -134,15 +132,15 @@ public class EventParticipantService {
   }
 
   public EventStats getEventStats(String eventId) {
-    return eventParticipantRepository.countEventStatsByEventIds(List.of(eventId)).toEventStats();
+    return eventParticipantRepository.countEventStatsByEventId(eventId).toEventStats();
   }
 
   public EventStats getOverallEventStats() {
     return eventParticipantRepository.countOverallEventStats().toEventStats();
   }
 
-  public EventStats getEventStats(List<String> eventIds) {
-    return eventParticipantRepository.countEventStatsByEventIds(eventIds).toEventStats();
+  public EventStats getEventStats(Instant from, Instant to) {
+    return eventParticipantRepository.countEventStatsByEventBeginBetween(from, to).toEventStats();
   }
 
   private boolean isParticipantAlreadyInEvent(String eventId, String groupId, String userId) {

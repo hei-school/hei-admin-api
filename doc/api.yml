@@ -5383,7 +5383,6 @@ paths:
             type: string
             format: date-time
         - name: student_id
-          description: studentId to get stats
           in: path
           required: true
           schema:
