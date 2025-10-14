@@ -1,0 +1,1 @@
+alter table "retake_exam" add column if not exists retake_exam_status varchar not null;

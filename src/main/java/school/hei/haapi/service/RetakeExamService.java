@@ -20,6 +20,7 @@ import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.model.RetakeExam;
 import school.hei.haapi.model.RetakeExamSession;
+import school.hei.haapi.model.RetakeExamStatus;
 import school.hei.haapi.model.pagination.PaginationFromPageAndPageSize;
 import school.hei.haapi.repository.RetakeExamRepository;
 import school.hei.haapi.repository.dao.RetakeExamDao;
@@ -110,16 +111,19 @@ public class RetakeExamService {
   }
 
   public List<RetakeExam> getAllRetakeExamBySessionId(
-      String sessionId, PageFromOne page, BoundedPageSize pageSize) {
+      String sessionId,
+      List<RetakeExamStatus> statuses,
+      PageFromOne page,
+      BoundedPageSize pageSize) {
     Pageable pageable = PageRequest.of(page.getValue() - 1, pageSize.getValue());
-    return retakeExamDao.filterByCriteria(sessionId, null, null, null, null, pageable);
+    return retakeExamDao.filterByCriteria(sessionId, null, null, null, null, statuses, pageable);
   }
 
   public List<school.hei.haapi.model.Course> getAllRetakeExamCoursesBySessionId(
       String sessionId, String courseCode, PageFromOne page, BoundedPageSize pageSize) {
     var pageable = paginationFromPageAndPageSize.apply(page, pageSize);
     return retakeExamDao
-        .filterByCriteria(sessionId, null, null, null, courseCode, pageable)
+        .filterByCriteria(sessionId, null, null, null, courseCode, null, pageable)
         .stream()
         .map(RetakeExam::getCourse)
         .distinct()
@@ -135,7 +139,7 @@ public class RetakeExamService {
       BoundedPageSize pageSize) {
     var pageable = paginationFromPageAndPageSize.apply(page, pageSize);
     var retakeExams =
-        retakeExamDao.filterByCriteria(sessionId, null, studentRef, courseId, null, pageable);
+        retakeExamDao.filterByCriteria(sessionId, null, studentRef, courseId, null, null, pageable);
     return retakeExams.stream().map(RetakeExam::getStudent).toList();
   }
 }

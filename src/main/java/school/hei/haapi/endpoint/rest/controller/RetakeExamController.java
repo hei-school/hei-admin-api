@@ -18,6 +18,7 @@ import school.hei.haapi.endpoint.rest.model.Student;
 import school.hei.haapi.endpoint.rest.model.StudentRetakeExam;
 import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.PageFromOne;
+import school.hei.haapi.model.RetakeExamStatus;
 import school.hei.haapi.service.RetakeExamService;
 
 @RestController
@@ -47,10 +48,11 @@ public class RetakeExamController {
   @GetMapping("/retake_exam_sessions/{session_id}/retake_exams")
   public List<StudentRetakeExam> getRetakeExamBySessionId(
       @PathVariable("session_id") String sessionId,
+      @RequestParam(value = "retake_exam_status", required = false) List<RetakeExamStatus> statuses,
       @RequestParam(value = "page", defaultValue = "1") PageFromOne page,
       @RequestParam(value = "page_size", defaultValue = "15") BoundedPageSize pageSize) {
     return retakeExamMapper.toStudentRetakeRestList(
-        retakeExamService.getAllRetakeExamBySessionId(sessionId, page, pageSize));
+        retakeExamService.getAllRetakeExamBySessionId(sessionId, statuses, page, pageSize));
   }
 
   @GetMapping("/retake_exam_sessions/{session_id}/retake_exam_courses")

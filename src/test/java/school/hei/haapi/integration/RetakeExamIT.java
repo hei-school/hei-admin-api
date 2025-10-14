@@ -30,6 +30,7 @@ import school.hei.haapi.endpoint.rest.model.CourseResult;
 import school.hei.haapi.endpoint.rest.model.CourseResultStatus;
 import school.hei.haapi.endpoint.rest.model.CrupdateRetakeExam;
 import school.hei.haapi.endpoint.rest.model.ResultSummary;
+import school.hei.haapi.endpoint.rest.model.RetakeExamStatus;
 import school.hei.haapi.endpoint.rest.model.YearlyResult;
 import school.hei.haapi.integration.conf.FacadeITMockedThirdParties;
 import school.hei.haapi.integration.conf.TestUtils;
@@ -109,6 +110,20 @@ public class RetakeExamIT extends FacadeITMockedThirdParties {
     assertEquals(
         "session1", Objects.requireNonNull(retakeExams.getFirst().getSession()).getTitle());
     assertNotNull(retakeExams.getFirst().getStudentIdentifier());
+  }
+
+  @Test
+  void filter_retake_exam_by_status_ok() throws ApiException {
+    ApiClient apiClient = anApiClient(ADMIN1_TOKEN);
+    RetakeExamApi api = new RetakeExamApi(apiClient);
+
+    var retakeExamFiltered =
+        api.getRetakeExamBySessionId(
+            "session2_id", null, List.of(RetakeExamStatus.TO_CANCEL), null, null, null, null);
+
+    assertNotNull(retakeExamFiltered);
+    assertEquals(1, retakeExamFiltered.size());
+    assertEquals(RetakeExamStatus.TO_CANCEL, retakeExamFiltered.getFirst().getStatus());
   }
 
   @Test
