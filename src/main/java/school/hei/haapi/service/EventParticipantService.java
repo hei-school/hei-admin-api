@@ -73,8 +73,6 @@ public class EventParticipantService {
                     .status(UNCHECKED)
                     .build();
             eventParticipants.add(newEventParticipant);
-          } else {
-            // nothing
           }
         });
     eventParticipantRepository.saveAll(eventParticipants);
