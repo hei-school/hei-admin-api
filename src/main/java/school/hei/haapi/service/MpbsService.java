@@ -1,6 +1,5 @@
 package school.hei.haapi.service;
 
-import java.util.Comparator;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -42,13 +41,16 @@ public class MpbsService {
 
   private static void updateStatusHistory(Mpbs mpbs) {
     var statusHistory = mpbs.getStatusHistory();
-    var actualSavedStatus =
-        statusHistory.stream().max(Comparator.comparing(MpbsStatusHistory::getUpdateInstant));
-    if (actualSavedStatus.isPresent()) {
-      var presentStatus = actualSavedStatus.get();
-      if (presentStatus.getStatus() != mpbs.getStatus()) statusHistory.add(presentStatus);
-    } else {
+    var lastHistory = mpbs.getLastStatusHistory();
+
+    if (lastHistory.isEmpty()) {
       statusHistory.add(MpbsStatusHistory.fromMpbs(mpbs));
+      return;
+    }
+
+    var actualHistory = lastHistory.get();
+    if (actualHistory.getStatus() != mpbs.getStatus()) {
+      statusHistory.add(actualHistory);
     }
   }
 
