@@ -7,6 +7,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 import static school.hei.haapi.endpoint.rest.model.ResultOverviewStatus.INVALIDATED;
+import static school.hei.haapi.endpoint.rest.model.RetakeExamStatus.TO_CANCEL;
 import static school.hei.haapi.endpoint.rest.model.StudentLevel.L1;
 import static school.hei.haapi.integration.StudentIT.student1;
 import static school.hei.haapi.integration.conf.TestUtils.ADMIN1_TOKEN;
@@ -86,6 +87,7 @@ public class RetakeExamIT extends FacadeITMockedThirdParties {
     var retakeExam = new CrupdateRetakeExam();
     retakeExam.setStudentId(student1().getId());
     retakeExam.setCourseId(course1().getId());
+    retakeExam.setStatus(TO_CANCEL);
 
     var retakeExamsCreated = api.createOrUpdateRetakeExam("session2_id", List.of(retakeExam));
 
@@ -109,6 +111,20 @@ public class RetakeExamIT extends FacadeITMockedThirdParties {
     assertEquals(
         "session1", Objects.requireNonNull(retakeExams.getFirst().getSession()).getTitle());
     assertNotNull(retakeExams.getFirst().getStudentIdentifier());
+  }
+
+  @Test
+  void filter_retake_exam_by_status_ok() throws ApiException {
+    ApiClient apiClient = anApiClient(ADMIN1_TOKEN);
+    RetakeExamApi api = new RetakeExamApi(apiClient);
+
+    var retakeExamFiltered =
+        api.getRetakeExamBySessionId(
+            "session2_id", null, List.of(TO_CANCEL), null, null, null, null);
+
+    assertNotNull(retakeExamFiltered);
+    assertEquals(2, retakeExamFiltered.size());
+    assertEquals(TO_CANCEL, retakeExamFiltered.getFirst().getStatus());
   }
 
   @Test

@@ -11,6 +11,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
 import school.hei.haapi.model.RetakeExam;
+import school.hei.haapi.model.RetakeExamStatus;
 
 @Component
 @AllArgsConstructor
@@ -23,6 +24,7 @@ public class RetakeExamDao {
       String studentRef,
       String courseId,
       String courseCode,
+      List<RetakeExamStatus> statuses,
       Pageable pageable) {
     CriteriaBuilder builder = entityManager.getCriteriaBuilder();
     CriteriaQuery<RetakeExam> query = builder.createQuery(RetakeExam.class);
@@ -52,6 +54,10 @@ public class RetakeExamDao {
       predicates.add(
           builder.like(
               builder.lower(root.get("course").get("code")), "%" + courseCode.toLowerCase() + "%"));
+    }
+
+    if (statuses != null && !statuses.isEmpty()) {
+      predicates.add(root.get("status").in(statuses));
     }
 
     query.where(predicates.toArray(new Predicate[0]));

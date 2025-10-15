@@ -5,6 +5,8 @@ import static jakarta.persistence.GenerationType.IDENTITY;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
@@ -51,4 +53,8 @@ public class RetakeExam implements Serializable {
   @CreationTimestamp
   @Column(name = "registration_date", nullable = false, updatable = false)
   private Instant registrationDate;
+
+  @Enumerated(EnumType.STRING)
+  @Column(name = "status", nullable = false)
+  private RetakeExamStatus status;
 }
