@@ -419,4 +419,8 @@ public class UserService {
             null);
     return userXlsxCellsGenerator.apply(students, List.of("firstName", "lastName", "email", "sex"));
   }
+
+  public List<User> getByRoleAndIds(Collection<User.Role> roles, Collection<String> ids) {
+    return userRepository.findAllByRoleInAndIdIn(roles, ids);
+  }
 }

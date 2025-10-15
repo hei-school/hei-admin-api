@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Convocation - Suivi académique</title>
+    <style type="text/css">
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: 16px;
+            color: #000;
+            background-color: #fff;
+            margin: 20px;
+            line-height: 1.45;
+        }
+
+        .container {
+            width: 780px;
+            margin: 0;
+            padding: 20px 30px;
+            border: none;
+        }
+
+        p {
+            margin: 18px 0;
+        }
+
+        .greeting {
+            font-size: 18px;
+            margin-bottom: 14px;
+        }
+
+        .details-list {
+            margin: 14px 0 18px 28px;
+        }
+
+        .details-list li {
+            margin: 10px 0;
+            list-style-type: disc;
+        }
+
+        .details-list strong {
+            font-weight: bold;
+        }
+
+        .persons {
+            margin: 18px 0;
+        }
+
+        .section-title {
+            margin-top: 10px;
+            margin-bottom: 8px;
+            font-weight: normal;
+        }
+
+        .underline {
+            text-decoration: underline;
+        }
+
+        .signature {
+            margin-top: 26px;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <p class="greeting">Bonjour,</p>
+    <span th:text="${description}"></span>
+    <p>
+        Afin de mieux comprendre votre situation et de vous accompagner au
+        mieux, nous vous convions à une réunion
+        <span class="underline"
+        >en présence de l'un de vos parents ou tuteur</span
+        >.
+    </p>
+    <p class="persons">
+        Cette réunion se tiendra en présence
+
+        <span th:each="interviewer : ${interviewers}">
+            de <strong><span th:text="${interviewer.firstName}"></span> <span th:text="${interviewer.lastName}"></span></strong>,
+        </span>
+
+        dans le cadre de la procédure de COR.
+    </p>
+    <p class="section-title">Détails de la convocation :</p>
+    <ul class="details-list">
+        <li>Date : <strong><span th:text="${date}"></span></strong></li>
+        <li>Horaire : <strong>à <span th:text="${hour}"></span></strong></li>
+        <li>Motif : <strong><span th:text="${description}"></span></strong></li>
+    </ul>
+    <p>
+        Votre présence, ainsi que celle de votre parent ou tuteur, est
+        essentielle afin d'échanger sur les difficultés que vous rencontrez et
+        d'envisager ensemble des solutions adaptées.
+    </p>
+    <p>Votre présence, ainsi que celle de vos tuteurs, est essentielle.</p>
+    <p>Nous vous remercions par avance pour votre coopération.</p>
+    <p class="signature">Cordialement,</p>
+</div>
+</body>
+</html>

@@ -5,6 +5,8 @@ import java.util.List;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import school.hei.haapi.endpoint.event.EventProducer;
+import school.hei.haapi.endpoint.event.model.CorNotificationRequested;
 import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.Cor;
 import school.hei.haapi.model.CorStatus;
@@ -20,6 +22,7 @@ public class CorService {
   private final CorRepository corRepository;
   private final PaginationFromPageAndPageSize paginationFromPageAndPageSize;
   private final CorDao corDao;
+  private final EventProducer<CorNotificationRequested> eventProducer;
 
   public List<Cor> getCors(
       Instant from,
@@ -37,7 +40,12 @@ public class CorService {
   }
 
   public Cor save(Cor cor) {
-    return corRepository.save(cor);
+    var isUpdate = cor.getId() != null && corRepository.existsById(cor.getId());
+    var savedCor = corRepository.save(cor);
+    if (!isUpdate) {
+      eventProducer.accept(List.of(new CorNotificationRequested(savedCor.getId())));
+    }
+    return savedCor;
   }
 
   public Cor getById(String id) {

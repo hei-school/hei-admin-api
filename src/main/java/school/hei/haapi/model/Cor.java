@@ -12,6 +12,8 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
@@ -57,6 +59,15 @@ public class Cor {
   @ToString.Exclude
   @OneToMany(mappedBy = "cor", fetch = EAGER)
   private List<CorComment> comments;
+
+  @ToString.Exclude
+  @ManyToMany(fetch = EAGER)
+  @EqualsAndHashCode.Exclude
+  @JoinTable(
+      name = "cor_interviewers",
+      joinColumns = @JoinColumn(name = "cor_id"),
+      inverseJoinColumns = @JoinColumn(name = "user_id"))
+  private List<User> interviewers;
 
   public Optional<CorComment> getLastComment() {
     if (comments == null) return Optional.empty();
