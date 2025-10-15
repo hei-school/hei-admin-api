@@ -55,6 +55,6 @@ public class RetakeExam implements Serializable {
   private Instant registrationDate;
 
   @Enumerated(EnumType.STRING)
-  @Column(name = "retake_exam_status", nullable = false)
+  @Column(name = "status", nullable = false)
   private RetakeExamStatus status;
 }

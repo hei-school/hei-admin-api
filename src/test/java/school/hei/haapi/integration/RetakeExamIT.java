@@ -7,6 +7,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 import static school.hei.haapi.endpoint.rest.model.ResultOverviewStatus.INVALIDATED;
+import static school.hei.haapi.endpoint.rest.model.RetakeExamStatus.TO_CANCEL;
 import static school.hei.haapi.endpoint.rest.model.StudentLevel.L1;
 import static school.hei.haapi.integration.StudentIT.student1;
 import static school.hei.haapi.integration.conf.TestUtils.ADMIN1_TOKEN;
@@ -30,7 +31,6 @@ import school.hei.haapi.endpoint.rest.model.CourseResult;
 import school.hei.haapi.endpoint.rest.model.CourseResultStatus;
 import school.hei.haapi.endpoint.rest.model.CrupdateRetakeExam;
 import school.hei.haapi.endpoint.rest.model.ResultSummary;
-import school.hei.haapi.endpoint.rest.model.RetakeExamStatus;
 import school.hei.haapi.endpoint.rest.model.YearlyResult;
 import school.hei.haapi.integration.conf.FacadeITMockedThirdParties;
 import school.hei.haapi.integration.conf.TestUtils;
@@ -87,7 +87,7 @@ public class RetakeExamIT extends FacadeITMockedThirdParties {
     var retakeExam = new CrupdateRetakeExam();
     retakeExam.setStudentId(student1().getId());
     retakeExam.setCourseId(course1().getId());
-    retakeExam.setStatus(RetakeExamStatus.TO_CANCEL);
+    retakeExam.setStatus(TO_CANCEL);
 
     var retakeExamsCreated = api.createOrUpdateRetakeExam("session2_id", List.of(retakeExam));
 
@@ -120,11 +120,11 @@ public class RetakeExamIT extends FacadeITMockedThirdParties {
 
     var retakeExamFiltered =
         api.getRetakeExamBySessionId(
-            "session2_id", null, List.of(RetakeExamStatus.TO_CANCEL), null, null, null, null);
+            "session2_id", null, List.of(TO_CANCEL), null, null, null, null);
 
     assertNotNull(retakeExamFiltered);
     assertEquals(2, retakeExamFiltered.size());
-    assertEquals(RetakeExamStatus.TO_CANCEL, retakeExamFiltered.getFirst().getStatus());
+    assertEquals(TO_CANCEL, retakeExamFiltered.getFirst().getStatus());
   }
 
   @Test
