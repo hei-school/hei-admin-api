@@ -34,8 +34,7 @@ public class RetakeExamMapper {
         .session(retakeExamSession)
         .course(course)
         .status(
-            school.hei.haapi.model.RetakeExamStatus.valueOf(
-                String.valueOf(crupdateRetakeExam.getStatus())))
+            school.hei.haapi.model.RetakeExamStatus.valueOf(crupdateRetakeExam.getStatus().name()))
         .build();
   }
 
@@ -53,8 +52,7 @@ public class RetakeExamMapper {
         .id(retakeExam.getId())
         .course(courseMapper.toDomain(retakeExam.getCourse()))
         .session(retakeExamSessionMapper.toDomain(retakeExam.getSession()))
-        .status(
-            school.hei.haapi.model.RetakeExamStatus.valueOf(String.valueOf(retakeExam.getStatus())))
+        .status(school.hei.haapi.model.RetakeExamStatus.valueOf(retakeExam.getStatus().name()))
         .build();
   }
 
@@ -62,13 +60,14 @@ public class RetakeExamMapper {
     return retakeExams.stream().map(this::toRest).toList();
   }
 
-  public List<school.hei.haapi.model.RetakeExam> toDoMainList(
+  public List<school.hei.haapi.model.RetakeExam> toDomainList(
       List<CrupdateRetakeExam> crupdateRetakeExams) {
     return crupdateRetakeExams.stream().map(this::toDomainCrupdate).toList();
   }
 
   public StudentRetakeExam toStudentRetakeRest(school.hei.haapi.model.RetakeExam retakeExam) {
     return new StudentRetakeExam()
+        .id(retakeExam.getId())
         .studentIdentifier(userMapper.toIdentifier(retakeExam.getStudent()))
         .course(courseMapper.toRest(retakeExam.getCourse()))
         .session(retakeExamSessionMapper.toRest(retakeExam.getSession()))
