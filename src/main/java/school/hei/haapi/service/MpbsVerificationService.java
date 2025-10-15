@@ -1,34 +1,26 @@
 package school.hei.haapi.service;
 
-import static java.util.UUID.randomUUID;
+import static org.apache.poi.ss.usermodel.Row.MissingCellPolicy.CREATE_NULL_AS_BLANK;
 import static school.hei.haapi.endpoint.rest.model.MpbsStatus.PENDING;
 import static school.hei.haapi.endpoint.rest.model.MpbsStatus.SUCCESS;
-import static school.hei.haapi.service.utils.DateUtils.convertStringToInstant;
 
-import io.micrometer.common.util.StringUtils;
 import jakarta.transaction.Transactional;
 import java.io.File;
 import java.io.IOException;
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.Workbook;
-import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-import school.hei.haapi.endpoint.rest.model.MpbsStatus;
 import school.hei.haapi.http.mapper.TransactionDetailsMapper;
 import school.hei.haapi.http.model.TransactionDetails;
 import school.hei.haapi.model.MobileTransactionDetails;
+import school.hei.haapi.model.dto.MobileTransactionDetailsDto;
 import school.hei.haapi.model.exception.NoRemainingAmountFee;
 import school.hei.haapi.model.mpbs.Mpbs;
 import school.hei.haapi.model.mpbs.MpbsVerification;
@@ -36,6 +28,7 @@ import school.hei.haapi.repository.MpbsRepository;
 import school.hei.haapi.repository.MpbsVerificationRepository;
 import school.hei.haapi.service.aws.FileService;
 import school.hei.haapi.service.utils.CollectionUtils;
+import school.hei.haapi.service.utils.excel.ExcelParser;
 
 @Service
 @AllArgsConstructor
@@ -139,66 +132,12 @@ public class MpbsVerificationService {
     return fileKey;
   }
 
-
-
   private List<String> generateMobileTransactionDetailsFromXlsFile(File file) throws IOException {
-    log.info("Reading XLS file...");
-
-    List<MobileTransactionDetails> transactions = new ArrayList<>();
-
-    Workbook workbook = generateWorkBook(file);
-
-    Sheet sheet = workbook.getSheetAt(0);
-
-    for (Row row : sheet) {
-
-      Cell dateCell = row.getCell(1);
-      Cell timeCell = row.getCell(2);
-      Cell refCell = row.getCell(3);
-      Cell statusCell = row.getCell(6);
-      Cell montantCell = row.getCell(14);
-
-      if (dateCell == null
-          || timeCell == null
-          || StringUtils.isBlank(dateCell.getStringCellValue())
-          || StringUtils.isBlank(timeCell.getStringCellValue())) {
-        log.warn("Row {} ignored because of an empty cell", row.getRowNum());
-        continue;
-      }
-
-      String dateTimeStr =
-          dateCell.getStringCellValue().trim() + " " + timeCell.getStringCellValue().trim();
-      String ref = refCell.getStringCellValue().trim();
-
-      if (ref.matches("^MP.{18}$")) {
-        Instant transactionCreationTime;
-        try {
-          transactionCreationTime = Instant.from(convertStringToInstant(dateTimeStr));
-        } catch (Exception e) {
-          log.warn("Failed to parse date/time for row {}: {}", row.getRowNum(), e.getMessage());
-          continue;
-        }
-
-        MobileTransactionDetails transaction =
-            MobileTransactionDetails.builder()
-                .id(randomUUID().toString())
-                .pspDatetimeTransactionCreation(transactionCreationTime)
-                .pspTransactionRef(refCell.getStringCellValue().trim())
-                .pspTransactionAmount((int) montantCell.getNumericCellValue())
-                .status(
-                    MpbsStatus.fromValue(
-                        Objects.equals(statusCell.getStringCellValue().trim(), "Succès")
-                            ? "SUCCESS"
-                            : "FAILED"))
-                .pspOwnDatetimeVerification(Instant.now())
-                .build();
-
-        transactions.add(transaction);
-        log.info("Generated mobile transaction psp id {}", transaction.getPspTransactionRef());
-      } else {
-        log.info("Unverified mobile transaction psp id {}", ref);
-      }
-    }
+    var excelParser =
+        new ExcelParser<>(
+            MobileTransactionDetailsDto.class, MobileTransactionDetailsDto.getExcelColumnMap());
+    var transactions =
+        excelParser.parseFile(file, 0, CREATE_NULL_AS_BLANK).stream().map(MobileTransactionDetailsDto::toModel).toList();
     List<MobileTransactionDetails> unsavedTransactions =
         getUnsavedTransactions(
             collectionUtils
