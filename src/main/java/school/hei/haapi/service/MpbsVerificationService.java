@@ -139,13 +139,7 @@ public class MpbsVerificationService {
     return fileKey;
   }
 
-  public Workbook generateWorkBook(File file) throws IOException {
-    try {
-      return WorkbookFactory.create(file);
-    } catch (Exception e) {
-      throw new IOException(e);
-    }
-  }
+
 
   private List<String> generateMobileTransactionDetailsFromXlsFile(File file) throws IOException {
     log.info("Reading XLS file...");
