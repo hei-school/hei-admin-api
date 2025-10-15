@@ -40,17 +40,10 @@ public class MpbsService {
   }
 
   private static void updateStatusHistory(Mpbs mpbs) {
-    var statusHistory = mpbs.getStatusHistory();
     var lastHistory = mpbs.getLastStatusHistory();
 
-    if (lastHistory.isEmpty()) {
-      statusHistory.add(MpbsStatusHistory.fromMpbs(mpbs));
-      return;
-    }
-
-    var actualHistory = lastHistory.get();
-    if (actualHistory.getStatus() != mpbs.getStatus()) {
-      statusHistory.add(actualHistory);
+    if ((lastHistory.isEmpty()) || (lastHistory.get().getStatus() != mpbs.getStatus())) {
+      mpbs.getStatusHistory().add(MpbsStatusHistory.fromMpbs(mpbs));
     }
   }
 
