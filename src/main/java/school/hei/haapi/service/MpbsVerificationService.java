@@ -14,7 +14,6 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.poi.ss.usermodel.Row;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import school.hei.haapi.http.mapper.TransactionDetailsMapper;
@@ -137,7 +136,9 @@ public class MpbsVerificationService {
         new ExcelParser<>(
             MobileTransactionDetailsDto.class, MobileTransactionDetailsDto.getExcelColumnMap());
     var transactions =
-        excelParser.parseFile(file, 0, CREATE_NULL_AS_BLANK).stream().map(MobileTransactionDetailsDto::toModel).toList();
+        excelParser.parseFile(file, 0, CREATE_NULL_AS_BLANK).stream()
+            .map(MobileTransactionDetailsDto::toModel)
+            .toList();
     List<MobileTransactionDetails> unsavedTransactions =
         getUnsavedTransactions(
             collectionUtils

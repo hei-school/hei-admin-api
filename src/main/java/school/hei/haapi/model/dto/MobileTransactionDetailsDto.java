@@ -47,12 +47,12 @@ public class MobileTransactionDetailsDto {
   }
 
   private static String mapCellToPspTransactionRef(Cell cell) {
-      if(StringUtils.isBlank(cell.getStringCellValue())) {
-          log.warn("Row {} ignored because of an empty cell", cell.getRowIndex());
-          throw new IllegalArgumentException(
-              "Cell %d:%d is empty".formatted(cell.getRowIndex(), cell.getColumnIndex()));
-      }
-      var ref = cell.getStringCellValue().trim();
+    if (StringUtils.isBlank(cell.getStringCellValue())) {
+      log.warn("Row {} ignored because of an empty cell", cell.getRowIndex());
+      throw new IllegalArgumentException(
+          "Cell %d:%d is empty".formatted(cell.getRowIndex(), cell.getColumnIndex()));
+    }
+    var ref = cell.getStringCellValue().trim();
     if (!ref.matches("^MP.{18}$")) {
       throw new IllegalArgumentException(
           "Row %d ignored because of an invalid transaction ref".formatted(cell.getRowIndex()));
@@ -61,11 +61,11 @@ public class MobileTransactionDetailsDto {
   }
 
   private static MpbsStatus mapCellToMpbsStatus(Cell cell) {
-      if(StringUtils.isBlank(cell.getStringCellValue())) {
-          log.warn("Row {} ignored because of an empty cell", cell.getRowIndex());
-          throw new IllegalArgumentException(
-              "Cell %d:%d is empty".formatted(cell.getRowIndex(), cell.getColumnIndex()));
-      }
+    if (StringUtils.isBlank(cell.getStringCellValue())) {
+      log.warn("Row {} ignored because of an empty cell", cell.getRowIndex());
+      throw new IllegalArgumentException(
+          "Cell %d:%d is empty".formatted(cell.getRowIndex(), cell.getColumnIndex()));
+    }
     return MpbsStatus.fromValue(
         Objects.equals(cell.getStringCellValue().trim(), "Succès") ? "SUCCESS" : "FAILED");
   }

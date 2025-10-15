@@ -7,7 +7,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
@@ -33,7 +32,8 @@ public class ExcelParser<T> {
     this.columnMap = columnMap;
   }
 
-  public List<T> parseFile(File file, int sheetNumber, Row.MissingCellPolicy missingCellPolicy) throws IOException {
+  public List<T> parseFile(File file, int sheetNumber, Row.MissingCellPolicy missingCellPolicy)
+      throws IOException {
     var workbook = generateWorkBook(file);
     var sheet = workbook.getSheetAt(sheetNumber);
     var cellMapEntries = columnMap.entrySet();
@@ -50,9 +50,9 @@ public class ExcelParser<T> {
                           entry.getValue()))
               .toList();
       try {
-          cellMappers.forEach(cellMapper -> setFieldValue(classInstance, cellMapper));
+        cellMappers.forEach(cellMapper -> setFieldValue(classInstance, cellMapper));
       } catch (IllegalArgumentException | IllegalStateException e) {
-          continue;
+        continue;
       }
       result.add(classInstance);
     }
