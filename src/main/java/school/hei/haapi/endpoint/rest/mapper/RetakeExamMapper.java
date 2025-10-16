@@ -40,14 +40,16 @@ public class RetakeExamMapper {
   }
 
   public RetakeExam toRest(school.hei.haapi.model.RetakeExam retakeExam) {
-    var status = retakeExam.getStatus();
-    return new RetakeExam()
-        .id(retakeExam.getId())
-        .course(courseMapper.toRest(retakeExam.getCourse()))
-        .session(retakeExamSessionMapper.toRest(retakeExam.getSession()))
-        .status(
-            Optional.ofNullable(status).map(s -> RetakeExamStatus.valueOf(s.name())).orElse(null))
-        .registrationDate(retakeExam.getRegistrationDate());
+      var domainStatus = retakeExam.getStatus();
+      var retakeExamRest = new RetakeExam()
+              .id(retakeExam.getId())
+              .course(courseMapper.toRest(retakeExam.getCourse()))
+              .session(retakeExamSessionMapper.toRest(retakeExam.getSession()))
+              .registrationDate(retakeExam.getRegistrationDate());
+      if (domainStatus != null) {
+          retakeExamRest.status(RetakeExamStatus.valueOf(domainStatus.name()));
+      }
+      return retakeExamRest;
   }
 
   public school.hei.haapi.model.RetakeExam toDomain(RetakeExam retakeExam) {
@@ -69,15 +71,17 @@ public class RetakeExamMapper {
   }
 
   public StudentRetakeExam toStudentRetakeRest(school.hei.haapi.model.RetakeExam retakeExam) {
-    var status = retakeExam.getStatus();
-    return new StudentRetakeExam()
+      var domainStatus = retakeExam.getStatus();
+    var studentRetakeExam = new StudentRetakeExam()
         .id(retakeExam.getId())
         .studentIdentifier(userMapper.toIdentifier(retakeExam.getStudent()))
         .course(courseMapper.toRest(retakeExam.getCourse()))
         .session(retakeExamSessionMapper.toRest(retakeExam.getSession()))
-        .status(
-            Optional.ofNullable(status).map(s -> RetakeExamStatus.valueOf(s.name())).orElse(null))
         .registrationDate(retakeExam.getRegistrationDate());
+    if(domainStatus != null){
+        studentRetakeExam.status(RetakeExamStatus.valueOf(domainStatus.name()));
+    }
+    return studentRetakeExam;
   }
 
   public List<StudentRetakeExam> toStudentRetakeRestList(
