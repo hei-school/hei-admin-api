@@ -6,6 +6,7 @@ import static org.mockito.Mockito.when;
 import static school.hei.haapi.endpoint.rest.model.MpbsStatus.FAILED;
 import static school.hei.haapi.endpoint.rest.model.MpbsStatus.PENDING;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
@@ -55,14 +56,18 @@ public class MpbsServiceTest extends FacadeITMockedThirdParties {
   }
 
   private static Mpbs mpbs(List<MpbsStatusHistory> statusHistory, MpbsStatus status) {
-    return Mpbs.builder().status(status).statusHistory(statusHistory).build();
+    return Mpbs.builder()
+        .status(status)
+        .statusHistory(statusHistory)
+        .creationDatetime(Instant.now())
+        .build();
   }
 
   private static Mpbs pendingMpbs(List<MpbsStatusHistory> statusHistory) {
-    return Mpbs.builder().status(PENDING).statusHistory(statusHistory).build();
+    return mpbs(statusHistory, PENDING);
   }
 
   private static MpbsStatusHistory pendingStatus() {
-    return MpbsStatusHistory.builder().status(PENDING).build();
+    return MpbsStatusHistory.builder().status(PENDING).creationInstant(Instant.now()).build();
   }
 }
