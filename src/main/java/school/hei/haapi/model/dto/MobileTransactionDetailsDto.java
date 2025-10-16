@@ -29,49 +29,42 @@ public class MobileTransactionDetailsDto {
   private int pspTransactionAmount;
 
   private static String mapCellToDateTransactionCreation(Cell cell) {
-    if (StringUtils.isBlank(cell.getStringCellValue())) {
-      log.warn("Row {} ignored because of an empty cell", cell.getRowIndex());
-      throw new IllegalArgumentException(
-          "Cell %d:%d is empty".formatted(cell.getRowIndex(), cell.getColumnIndex()));
-    }
+    verifyEmptyCell(cell);
     return cell.getStringCellValue().trim();
   }
 
   private static String mapCellToTimeTransactionCreation(Cell cell) {
-    if (StringUtils.isBlank(cell.getStringCellValue())) {
-      log.warn("Row {} ignored because of an empty cell", cell.getAddress());
-      throw new IllegalArgumentException(
-          "Cell %d:%d is empty".formatted(cell.getRowIndex(), cell.getColumnIndex()));
-    }
+    verifyEmptyCell(cell);
     return cell.getStringCellValue().trim();
   }
 
   private static String mapCellToPspTransactionRef(Cell cell) {
-    if (StringUtils.isBlank(cell.getStringCellValue())) {
-      log.warn("Row {} ignored because of an empty cell", cell.getRowIndex());
-      throw new IllegalArgumentException(
-          "Cell %d:%d is empty".formatted(cell.getRowIndex(), cell.getColumnIndex()));
-    }
+    verifyEmptyCell(cell);
     var ref = cell.getStringCellValue().trim();
     if (!ref.matches("^MP.{18}$")) {
       throw new IllegalArgumentException(
           "Row %d ignored because of an invalid transaction ref".formatted(cell.getRowIndex()));
     }
+    log.info("Parsed transaction ref: {}", ref);
     return ref;
   }
 
   private static MpbsStatus mapCellToMpbsStatus(Cell cell) {
-    if (StringUtils.isBlank(cell.getStringCellValue())) {
-      log.warn("Row {} ignored because of an empty cell", cell.getRowIndex());
-      throw new IllegalArgumentException(
-          "Cell %d:%d is empty".formatted(cell.getRowIndex(), cell.getColumnIndex()));
-    }
+    verifyEmptyCell(cell);
     return MpbsStatus.fromValue(
         Objects.equals(cell.getStringCellValue().trim(), "Succès") ? "SUCCESS" : "FAILED");
   }
 
   private static int mapCellToPspTransactionAmount(Cell cell) {
     return (int) cell.getNumericCellValue();
+  }
+
+  private static void verifyEmptyCell(Cell cell) {
+    if (StringUtils.isBlank(cell.getStringCellValue())) {
+      log.warn("Row {} ignored because of an empty cell", cell.getRowIndex());
+      throw new IllegalArgumentException(
+          "Cell %d:%d is empty".formatted(cell.getRowIndex(), cell.getColumnIndex()));
+    }
   }
 
   public MobileTransactionDetails toModel() {
