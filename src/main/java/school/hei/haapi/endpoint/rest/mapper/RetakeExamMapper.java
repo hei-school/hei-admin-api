@@ -1,6 +1,7 @@
 package school.hei.haapi.endpoint.rest.mapper;
 
 import java.util.List;
+import java.util.Optional;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 import school.hei.haapi.endpoint.rest.model.CrupdateRetakeExam;
@@ -39,11 +40,13 @@ public class RetakeExamMapper {
   }
 
   public RetakeExam toRest(school.hei.haapi.model.RetakeExam retakeExam) {
+    var status = retakeExam.getStatus();
     return new RetakeExam()
         .id(retakeExam.getId())
         .course(courseMapper.toRest(retakeExam.getCourse()))
         .session(retakeExamSessionMapper.toRest(retakeExam.getSession()))
-        .status(RetakeExamStatus.valueOf(String.valueOf(retakeExam.getStatus())))
+        .status(
+            Optional.ofNullable(status).map(s -> RetakeExamStatus.valueOf(s.name())).orElse(null))
         .registrationDate(retakeExam.getRegistrationDate());
   }
 
@@ -66,12 +69,14 @@ public class RetakeExamMapper {
   }
 
   public StudentRetakeExam toStudentRetakeRest(school.hei.haapi.model.RetakeExam retakeExam) {
+    var status = retakeExam.getStatus();
     return new StudentRetakeExam()
         .id(retakeExam.getId())
         .studentIdentifier(userMapper.toIdentifier(retakeExam.getStudent()))
         .course(courseMapper.toRest(retakeExam.getCourse()))
         .session(retakeExamSessionMapper.toRest(retakeExam.getSession()))
-        .status(RetakeExamStatus.valueOf(String.valueOf(retakeExam.getStatus())))
+        .status(
+            Optional.ofNullable(status).map(s -> RetakeExamStatus.valueOf(s.name())).orElse(null))
         .registrationDate(retakeExam.getRegistrationDate());
   }
 

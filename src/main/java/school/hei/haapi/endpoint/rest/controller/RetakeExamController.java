@@ -33,7 +33,6 @@ public class RetakeExamController {
   public List<StudentRetakeExam> createOrUpdateRetakeExam(
       @PathVariable("session_id") String sessionId,
       @RequestBody List<CrupdateRetakeExam> crupdateRetakeExams) {
-    crupdateRetakeExams.forEach(crupdateRetakeExam -> crupdateRetakeExam.setSessionId(sessionId));
     return retakeExamService
         .crupdateRetakeExams(retakeExamMapper.toDomainList(crupdateRetakeExams))
         .stream()
