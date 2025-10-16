@@ -87,6 +87,7 @@ public class RetakeExamIT extends FacadeITMockedThirdParties {
     var retakeExam = new CrupdateRetakeExam();
     retakeExam.setStudentId(student1().getId());
     retakeExam.setCourseId(course1().getId());
+    retakeExam.setSessionId("session2_id");
     retakeExam.setStatus(TO_CANCEL);
 
     var retakeExamsCreated = api.createOrUpdateRetakeExam("session2_id", List.of(retakeExam));

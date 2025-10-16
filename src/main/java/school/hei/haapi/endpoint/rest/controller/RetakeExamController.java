@@ -33,7 +33,9 @@ public class RetakeExamController {
   public List<StudentRetakeExam> createOrUpdateRetakeExam(
       @PathVariable("session_id") String sessionId,
       @RequestBody List<CrupdateRetakeExam> crupdateRetakeExams) {
-    return retakeExamService.crupdateRetakeExams(sessionId, crupdateRetakeExams).stream()
+    return retakeExamService
+        .crupdateRetakeExams(retakeExamMapper.toDomainList(crupdateRetakeExams))
+        .stream()
         .map(retakeExamMapper::toStudentRetakeRest)
         .toList();
   }

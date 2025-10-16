@@ -11,10 +11,8 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import school.hei.haapi.endpoint.rest.mapper.CourseMapper;
-import school.hei.haapi.endpoint.rest.mapper.RetakeExamMapper;
 import school.hei.haapi.endpoint.rest.model.Course;
 import school.hei.haapi.endpoint.rest.model.CourseResult;
-import school.hei.haapi.endpoint.rest.model.CrupdateRetakeExam;
 import school.hei.haapi.endpoint.rest.model.YearlyResult;
 import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.PageFromOne;
@@ -30,34 +28,13 @@ import school.hei.haapi.repository.dao.RetakeExamDao;
 public class RetakeExamService {
   private final RetakeExamRepository retakeExamRepository;
   private final RetakeExamSessionService retakeExamSessionService;
-  private final RetakeExamMapper retakeExamMapper;
   private final GradeResultService gradeResultService;
   private final CourseMapper courseMapper;
   private final RetakeExamDao retakeExamDao;
   private final PaginationFromPageAndPageSize paginationFromPageAndPageSize;
 
-  public List<RetakeExam> crupdateRetakeExams(
-      String sessionId, List<CrupdateRetakeExam> crupdateRetakeExams) {
-    RetakeExamSession retakeExamSession = retakeExamSessionService.getById(sessionId);
-    if (retakeExamSession != null) {
-      crupdateRetakeExams.forEach(
-          crupdateRetakeExam -> crupdateRetakeExam.sessionId(retakeExamSession.getId()));
-    }
-    List<CrupdateRetakeExam> crupdateRetakeExamsNotExisting =
-        crupdateRetakeExams.stream()
-            .filter(crupdateRetakeExam -> !isExisting(crupdateRetakeExam))
-            .toList();
-    return retakeExamRepository.saveAll(
-        retakeExamMapper.toDoMainList(crupdateRetakeExamsNotExisting));
-  }
-
-  private Boolean isExisting(CrupdateRetakeExam crupdateRetakeExam) {
-    return retakeExamRepository
-        .findByCourse_IdAndStudent_IdAndSession_Id(
-            crupdateRetakeExam.getCourseId(),
-            crupdateRetakeExam.getStudentId(),
-            crupdateRetakeExam.getSessionId())
-        .isPresent();
+  public List<RetakeExam> crupdateRetakeExams(List<RetakeExam> crupdateRetakeExams) {
+    return retakeExamRepository.saveAll(crupdateRetakeExams);
   }
 
   public List<RetakeExam> getStudentRetakeExams(String sessionId, String studentId) {
