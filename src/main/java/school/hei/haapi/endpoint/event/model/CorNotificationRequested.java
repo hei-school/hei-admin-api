@@ -1,5 +1,6 @@
 package school.hei.haapi.endpoint.event.model;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import java.time.Duration;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
@@ -11,6 +12,7 @@ import lombok.ToString;
 @AllArgsConstructor
 @ToString(callSuper = true)
 public class CorNotificationRequested extends PojaEvent {
+  @JsonProperty("cor_id")
   private String corId;
 
   @Override
