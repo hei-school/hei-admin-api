@@ -19,7 +19,7 @@ import school.hei.haapi.model.mpbs.Mpbs;
 import school.hei.haapi.model.mpbs.MpbsStatusHistory;
 import school.hei.haapi.repository.MpbsRepository;
 
-public class MpbsServiceTest extends FacadeITMockedThirdParties {
+class MpbsServiceTest extends FacadeITMockedThirdParties {
   @Autowired private MpbsService subject;
   @MockBean private MpbsRepository mpbsRepository;
   @MockBean private FeeService feeService;
