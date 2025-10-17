@@ -16,13 +16,16 @@ import static school.hei.haapi.integration.conf.TestUtils.course1;
 import static school.hei.haapi.integration.conf.TestUtils.setUpCasdoor;
 import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
 import static school.hei.haapi.integration.conf.TestUtils.setUpS3Service;
+import static school.hei.haapi.model.RetakeExamStatus.REGISTERED;
 
 import java.util.List;
 import java.util.Objects;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.domain.PageRequest;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import school.hei.haapi.endpoint.rest.api.RetakeExamApi;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
@@ -34,12 +37,14 @@ import school.hei.haapi.endpoint.rest.model.ResultSummary;
 import school.hei.haapi.endpoint.rest.model.YearlyResult;
 import school.hei.haapi.integration.conf.FacadeITMockedThirdParties;
 import school.hei.haapi.integration.conf.TestUtils;
+import school.hei.haapi.repository.dao.RetakeExamDao;
 import school.hei.haapi.service.GradeResultService;
 
 @Testcontainers
 @AutoConfigureMockMvc
 public class RetakeExamIT extends FacadeITMockedThirdParties {
   @MockBean GradeResultService gradeResultService;
+  @Autowired private RetakeExamDao retakeExamDao;
 
   private ApiClient anApiClient(String token) {
     return TestUtils.anApiClient(token, localPort);
@@ -183,5 +188,18 @@ public class RetakeExamIT extends FacadeITMockedThirdParties {
     assertEquals("student2_id", participant.getFirst().getId());
     assertEquals("Two", participant.getFirst().getFirstName());
     assertEquals("Student", participant.getFirst().getLastName());
+  }
+
+  @Test
+  void filter_retake_exam_by_criteria_ok() {
+    var pageable = PageRequest.of(0, 10);
+    var retakeExams =
+        retakeExamDao.filterByCriteria(null, null, null, null, null, List.of(REGISTERED), pageable);
+    assertNotNull(retakeExams);
+    assertEquals(1, retakeExams.size());
+    assertEquals("retake_exam3_id", retakeExams.getFirst().getId());
+    assertEquals(REGISTERED, retakeExams.getFirst().getStatus());
+    assertEquals("student3_id", retakeExams.getFirst().getStudent().getId());
+    assertEquals("course3_id", retakeExams.getFirst().getCourse().getId());
   }
 }
