@@ -1,5 +1,6 @@
 package school.hei.haapi.service;
 
+import static java.time.Instant.now;
 import static school.hei.haapi.endpoint.rest.model.CourseResultStatus.INCOMPLETE;
 
 import java.util.ArrayList;
@@ -39,14 +40,22 @@ public class RetakeExamService {
 
   public List<RetakeExam> getStudentRetakeExams(String sessionId, String studentId) {
     var session = retakeExamSessionService.getById(sessionId);
-    var coursesToRetake = getCourseResultToRetake(studentId);
     var existingRetakeExams =
         retakeExamRepository.findRetakeExamsBySession_IdAndStudent_Id(session.getId(), studentId);
+    if (session.getDateTo().isBefore(now())) {
+      return existingRetakeExams;
+    }
+    var existingRetakeExamsForAllSessionsFromNow =
+        retakeExamRepository.findRetakeExamsByStudent_IdAndSession_DateFromAfter(studentId, now());
+    var coursesToRetake = getCourseResultToRetake(studentId);
     var retakeExams =
         new ArrayList<>(
             coursesToRetake.stream()
                 .map(courseResult -> courseResultAndSessionToRetake(courseResult, session))
-                .filter(newRetakeExam -> !isRetakeIn(newRetakeExam, existingRetakeExams, studentId))
+                .filter(
+                    newRetakeExam ->
+                        !isRetakeIn(
+                            newRetakeExam, existingRetakeExamsForAllSessionsFromNow, studentId))
                 .toList());
     retakeExams.addAll(existingRetakeExams);
     return retakeExams;
@@ -58,7 +67,6 @@ public class RetakeExamService {
         .anyMatch(
             existing ->
                 existing.getCourse().getId().equals(newExam.getCourse().getId())
-                    && existing.getSession().getId().equals(newExam.getSession().getId())
                     && existing.getStudent().getId().equals(studentId));
   }
 
