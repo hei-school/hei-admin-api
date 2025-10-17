@@ -40,11 +40,15 @@ public class MpbsService {
   }
 
   private static void updateStatusHistory(Mpbs mpbs) {
-    var lastHistory = mpbs.getLastStatusHistory();
+    var lastHistoryOpt = mpbs.getLastStatusHistory();
+    var statusNotChanged =
+        lastHistoryOpt.map(history -> history.getStatus() == mpbs.getStatus()).orElse(false);
 
-    if ((lastHistory.isEmpty()) || (lastHistory.get().getStatus() != mpbs.getStatus())) {
-      mpbs.getStatusHistory().add(MpbsStatusHistory.fromMpbs(mpbs));
+    if (statusNotChanged) {
+      return;
     }
+
+    mpbs.getStatusHistory().add(MpbsStatusHistory.fromMpbs(mpbs));
   }
 
   public Mpbs saveMpbs(Mpbs mobilePaymentByStudentToSave) {

@@ -34,6 +34,7 @@ class MpbsServiceTest extends FacadeITMockedThirdParties {
     var mpbs = pendingMpbs(new ArrayList(List.of(pendingStatus())));
 
     var saved = subject.save(mpbs);
+
     assertEquals(mpbs, saved);
   }
 
@@ -42,6 +43,7 @@ class MpbsServiceTest extends FacadeITMockedThirdParties {
     var mpbs = pendingMpbs(new ArrayList());
 
     var saved = subject.save(mpbs);
+
     assertEquals(1, saved.getStatusHistory().size());
     assertEquals(PENDING, saved.getStatusHistory().getFirst().getStatus());
   }
@@ -51,6 +53,7 @@ class MpbsServiceTest extends FacadeITMockedThirdParties {
     var mpbs = mpbs(new ArrayList(List.of(pendingStatus())), FAILED);
 
     var saved = subject.save(mpbs);
+
     assertEquals(2, saved.getStatusHistory().size());
     assertEquals(FAILED, saved.getStatusHistory().getLast().getStatus());
   }
