@@ -44,8 +44,7 @@ import school.hei.haapi.service.GradeResultService;
 @AutoConfigureMockMvc
 public class RetakeExamIT extends FacadeITMockedThirdParties {
   @MockBean GradeResultService gradeResultService;
-  @Autowired
-  private RetakeExamDao retakeExamDao;
+  @Autowired private RetakeExamDao retakeExamDao;
 
   private ApiClient anApiClient(String token) {
     return TestUtils.anApiClient(token, localPort);
@@ -191,16 +190,16 @@ public class RetakeExamIT extends FacadeITMockedThirdParties {
     assertEquals("Student", participant.getFirst().getLastName());
   }
 
-    @Test
-    void filter_retake_exam_by_criteria_ok() {
-        var pageable = PageRequest.of(0, 10);
-        var retakeExams =
-                retakeExamDao.filterByCriteria(null, null, null, null, null, List.of(REGISTERED), pageable);
-        assertNotNull(retakeExams);
-        assertEquals(1, retakeExams.size());
-        assertEquals("retake_exam3_id", retakeExams.getFirst().getId());
-        assertEquals(REGISTERED, retakeExams.getFirst().getStatus());
-        assertEquals("student3_id", retakeExams.getFirst().getStudent().getId());
-        assertEquals("course3_id", retakeExams.getFirst().getCourse().getId());
-    }
+  @Test
+  void filter_retake_exam_by_criteria_ok() {
+    var pageable = PageRequest.of(0, 10);
+    var retakeExams =
+        retakeExamDao.filterByCriteria(null, null, null, null, null, List.of(REGISTERED), pageable);
+    assertNotNull(retakeExams);
+    assertEquals(1, retakeExams.size());
+    assertEquals("retake_exam3_id", retakeExams.getFirst().getId());
+    assertEquals(REGISTERED, retakeExams.getFirst().getStatus());
+    assertEquals("student3_id", retakeExams.getFirst().getStudent().getId());
+    assertEquals("course3_id", retakeExams.getFirst().getCourse().getId());
+  }
 }
