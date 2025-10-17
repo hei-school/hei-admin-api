@@ -1,6 +1,5 @@
 package school.hei.haapi.integration.test_data;
 
-
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
