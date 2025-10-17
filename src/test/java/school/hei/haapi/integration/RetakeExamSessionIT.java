@@ -64,7 +64,7 @@ public class RetakeExamSessionIT extends FacadeITMockedThirdParties {
 
     assertNotNull(retakeExamFiltered);
     assertEquals(1, retakeExamFiltered.size());
-    assertEquals(retakeExamSessionMapper.toRest(session1()), retakeExamFiltered.getFirst());
+    assertEquals(session1().getId(), retakeExamFiltered.getFirst().getId());
   }
 
   @Test

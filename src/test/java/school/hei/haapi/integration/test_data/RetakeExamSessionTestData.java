@@ -1,6 +1,9 @@
 package school.hei.haapi.integration.test_data;
 
+
 import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import school.hei.haapi.model.RetakeExamSession;
 
 public class RetakeExamSessionTestData {
@@ -8,8 +11,8 @@ public class RetakeExamSessionTestData {
     return RetakeExamSession.builder()
         .id("session1_id")
         .title("session1")
-        .dateFrom(Instant.parse("2025-09-10T08:00:00.00Z"))
-        .dateTo(Instant.parse("2025-09-12T08:00:00.00Z"))
+        .dateFrom(LocalDateTime.now().plusMonths(1).toInstant(ZoneOffset.UTC))
+        .dateTo(LocalDateTime.now().plusMonths(1).plusDays(20).toInstant(ZoneOffset.UTC))
         .build();
   }
 
