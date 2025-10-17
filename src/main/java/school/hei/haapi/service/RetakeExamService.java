@@ -61,8 +61,7 @@ public class RetakeExamService {
     return retakeExams;
   }
 
-  private boolean isRetakeIn(
-      RetakeExam newExam, List<RetakeExam> existingRetakeExams, String studentId) {
+  boolean isRetakeIn(RetakeExam newExam, List<RetakeExam> existingRetakeExams, String studentId) {
     return existingRetakeExams.stream()
         .anyMatch(
             existing ->
@@ -70,8 +69,7 @@ public class RetakeExamService {
                     && existing.getStudent().getId().equals(studentId));
   }
 
-  private RetakeExam courseResultAndSessionToRetake(
-      CourseResult courseResult, RetakeExamSession session) {
+  RetakeExam courseResultAndSessionToRetake(CourseResult courseResult, RetakeExamSession session) {
     Course course = courseResult.getCourse();
     if (course == null) {
       throw new IllegalStateException("Course must not be null for CourseResult: " + courseResult);
@@ -82,7 +80,7 @@ public class RetakeExamService {
     return retakeExam;
   }
 
-  private List<CourseResult> getCourseResultToRetake(String studentId) {
+  List<CourseResult> getCourseResultToRetake(String studentId) {
     List<YearlyResult> yearlyResults =
         gradeResultService.getStudentResultSummary(studentId).getYearlyResults();
 
