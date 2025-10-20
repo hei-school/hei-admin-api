@@ -147,4 +147,11 @@ public class StudentController {
     return userService.generateAllStudentsAsXlsx(
         courseId, domainStatus, domainSex, workStatus, excludeGroupIds);
   }
+
+  @PutMapping(value = "students/import", consumes = MULTIPART_FORM_DATA_VALUE)
+  public StudentImportValidationResult importStudents(
+      @RequestPart("file_to_upload") MultipartFile file,
+      @RequestPart("due_datetime") Instant dueDatetime) {
+    return userService.importStudentFromXlsx(file, dueDatetime);
+  }
 }

@@ -1,5 +1,6 @@
 package school.hei.haapi.service;
 
+import static org.apache.poi.ss.usermodel.Row.MissingCellPolicy.CREATE_NULL_AS_BLANK;
 import static org.springframework.data.domain.Pageable.unpaged;
 import static org.springframework.data.domain.Sort.Direction.ASC;
 import static school.hei.haapi.endpoint.rest.model.WorkStudyStatus.*;
@@ -12,7 +13,9 @@ import static school.hei.haapi.model.User.Status.ENABLED;
 import static school.hei.haapi.model.User.Status.SUSPENDED;
 import static school.hei.haapi.service.aws.FileService.getFormattedProfilePictureKey;
 
+import jakarta.ws.rs.InternalServerErrorException;
 import java.io.File;
+import java.io.IOException;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -30,13 +33,17 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import school.hei.haapi.endpoint.event.EventProducer;
+import school.hei.haapi.endpoint.event.model.StudentImportEvent;
 import school.hei.haapi.endpoint.event.model.UserUpserted;
 import school.hei.haapi.endpoint.rest.model.*;
+import school.hei.haapi.endpoint.rest.security.AuthProvider;
+import school.hei.haapi.file.bucket.BucketComponent;
 import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.EventParticipant;
 import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.model.Promotion;
 import school.hei.haapi.model.User;
+import school.hei.haapi.model.dto.StudentImportDto;
 import school.hei.haapi.model.exception.NotFoundException;
 import school.hei.haapi.model.validator.UserValidator;
 import school.hei.haapi.repository.EventParticipantRepository;
@@ -46,6 +53,7 @@ import school.hei.haapi.repository.UserRepository;
 import school.hei.haapi.repository.dao.UserManagerDao;
 import school.hei.haapi.service.aws.FileService;
 import school.hei.haapi.service.utils.XlsxCellsGenerator;
+import school.hei.haapi.service.utils.excel.ExcelParser;
 
 @Service
 @AllArgsConstructor
@@ -64,6 +72,9 @@ public class UserService {
   private final EventParticipantRepository eventParticipantRepository;
   private final XlsxCellsGenerator<User> userXlsxCellsGenerator;
   private final XlsxCellsGenerator<EventParticipant> eventParticipantXlsxCellsGenerator;
+  private final BucketComponent bucketComponent;
+
+  private static final String STUDENT_XLSX_IMPORT_BUCKET_KEY = "/STUDENT_XLS_IMPORT/";
 
   public void uploadUserProfilePicture(MultipartFile profilePictureAsMultipartFile, String userId) {
     User user = getById(userId);
@@ -195,6 +206,31 @@ public class UserService {
             "ostie",
             "cnaps",
             "address"));
+  }
+
+  public StudentImportValidationResult importStudentFromXlsx(
+      MultipartFile file, Instant dueDatetime) {
+    var parser = new ExcelParser<>(StudentImportDto.class, StudentImportDto.getCellMap());
+    var excelFile = fileConverter.apply(file);
+    var coordinator = AuthProvider.getPrincipal().getUserId();
+    try {
+      var importResults =
+          parser.parseFile(excelFile, 0, CREATE_NULL_AS_BLANK).stream()
+              .map(StudentImportDto::toCrupdateStudent)
+              .toList();
+      bucketComponent.upload(
+          excelFile, STUDENT_XLSX_IMPORT_BUCKET_KEY + file.getOriginalFilename());
+      eventProducer.accept(
+          List.of(
+              StudentImportEvent.builder()
+                  .coordinatorId(coordinator)
+                  .fileKey(STUDENT_XLSX_IMPORT_BUCKET_KEY + file.getOriginalFilename())
+                  .dueDatetime(dueDatetime)
+                  .build()));
+      return new StudentImportValidationResult().validStudentNumber(importResults.size());
+    } catch (IOException e) {
+      throw new InternalServerErrorException("Unable to read file");
+    }
   }
 
   public List<User> getAllEnabledUsers() {

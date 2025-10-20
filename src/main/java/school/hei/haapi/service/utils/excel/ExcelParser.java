@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
@@ -14,6 +15,7 @@ import school.hei.haapi.service.utils.excel.exceptions.ClassInstantiationExcepti
 import school.hei.haapi.service.utils.excel.exceptions.FieldAccessException;
 import school.hei.haapi.service.utils.excel.exceptions.FieldNotFoundException;
 
+@Slf4j
 public class ExcelParser<T> {
   private final Map<String, CellMap<?>> columnMap;
   private final Class<T> clazz;
@@ -52,6 +54,10 @@ public class ExcelParser<T> {
       try {
         cellMappers.forEach(cellMapper -> setFieldValue(classInstance, cellMapper));
       } catch (IllegalArgumentException | IllegalStateException e) {
+        log.warn(
+            "Row {} skipped because an exception was thrown while processing: {}",
+            row.getRowNum(),
+            e);
         continue;
       }
       result.add(classInstance);
@@ -99,10 +105,6 @@ public class ExcelParser<T> {
   }
 
   private Workbook generateWorkBook(File file) throws IOException {
-    try {
-      return WorkbookFactory.create(file);
-    } catch (Exception e) {
-      throw new IOException(e);
-    }
+    return WorkbookFactory.create(file);
   }
 }
