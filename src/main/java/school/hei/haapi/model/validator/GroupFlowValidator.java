@@ -2,6 +2,7 @@ package school.hei.haapi.model.validator;
 
 import static school.hei.haapi.model.GroupFlow.GroupFlowType.JOIN;
 import static school.hei.haapi.model.GroupFlow.GroupFlowType.LEAVE;
+import static school.hei.haapi.model.User.Role.STUDENT;
 
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validator;
@@ -14,13 +15,13 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
 import school.hei.haapi.model.GroupFlow;
 import school.hei.haapi.model.exception.BadRequestException;
-import school.hei.haapi.service.UserService;
+import school.hei.haapi.repository.dao.UserManagerDao;
 
 @Component
 @AllArgsConstructor
 public class GroupFlowValidator implements Consumer<GroupFlow> {
   private final Validator validator;
-  private final UserService userService;
+  private final UserManagerDao userManagerDao;
 
   public void accept(List<GroupFlow> groupFlows) {
     groupFlows.forEach(this::accept);
@@ -28,7 +29,25 @@ public class GroupFlowValidator implements Consumer<GroupFlow> {
 
   @Override
   public void accept(GroupFlow groupFlow) {
-    var studentsGroup = userService.getByGroupId(groupFlow.getGroup().getId(), Pageable.unpaged());
+    var studentsGroup =
+        userManagerDao
+            .findByCriteria(
+                STUDENT,
+                null,
+                null,
+                null,
+                Pageable.unpaged(),
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                List.of(groupFlow.getGroup().getId()))
+            .stream()
+            .map(user -> user)
+            .collect(Collectors.toSet());
     boolean isStudentInGroup = studentsGroup.contains(groupFlow.getStudent());
     GroupFlow.GroupFlowType groupFlowType = groupFlow.getGroupFlowType();
 

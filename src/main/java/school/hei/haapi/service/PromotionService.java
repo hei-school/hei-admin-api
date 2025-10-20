@@ -18,6 +18,7 @@ import school.hei.haapi.model.Promotion;
 import school.hei.haapi.model.User;
 import school.hei.haapi.model.exception.NotFoundException;
 import school.hei.haapi.repository.PromotionRepository;
+import school.hei.haapi.repository.UserRepository;
 import school.hei.haapi.repository.dao.PromotionDao;
 import school.hei.haapi.service.utils.XlsxCellsGenerator;
 
@@ -27,7 +28,7 @@ public class PromotionService {
   private final PromotionRepository promotionRepository;
   private final PromotionDao promotionDao;
   private final GroupService groupService;
-  private final UserService userService;
+  private final UserRepository userRepository;
 
   public List<Promotion> getPromotions(
       String name, String ref, String groupRef, PageFromOne page, BoundedPageSize pageSize) {
@@ -69,7 +70,7 @@ public class PromotionService {
   }
 
   public byte[] getStudentsPromotionInXlsx(String promotionId) throws IOException {
-    List<User> students = userService.getStudentsByPromotionId(promotionId);
+    List<User> students = userRepository.findAllStudentsByPromotionId(promotionId);
     return generateSheetsOfStudentsPromotionById(students);
   }
 

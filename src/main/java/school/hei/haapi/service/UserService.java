@@ -51,7 +51,6 @@ import school.hei.haapi.endpoint.rest.model.StudentImportValidationResult;
 import school.hei.haapi.endpoint.rest.model.WorkStudyStatus;
 import school.hei.haapi.endpoint.rest.security.AuthProvider;
 import school.hei.haapi.file.bucket.BucketComponent;
-import school.hei.haapi.mail.Mailer;
 import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.EventParticipant;
 import school.hei.haapi.model.PageFromOne;
@@ -89,7 +88,6 @@ public class UserService {
   private final XlsxCellsGenerator<EventParticipant> eventParticipantXlsxCellsGenerator;
   private final BucketComponent bucketComponent;
   private final UserMapper userMapper;
-  private final Mailer mailer;
 
   private static final String STUDENT_XLSX_IMPORT_BUCKET_KEY = "/STUDENT_XLSX_IMPORT/";
 
