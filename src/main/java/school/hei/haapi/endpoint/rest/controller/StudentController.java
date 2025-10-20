@@ -110,7 +110,7 @@ public class StudentController {
     toWrite.forEach(student -> validator.accept(student.getCoordinates()));
     return userService.saveAll(userMapper.toMapDomain(toWrite), dueDatetime).stream()
         .map(userMapper::toRestStudent)
-        .collect(toUnmodifiableList());
+        .toList();
   }
 
   @PutMapping("/students/{id}")
@@ -152,6 +152,6 @@ public class StudentController {
   public StudentImportValidationResult importStudents(
       @RequestPart("file_to_upload") MultipartFile file,
       @RequestPart("due_datetime") Instant dueDatetime) {
-    return userService.importStudentFromXlsx(file, dueDatetime);
+    return userService.initStudentImportFromXlsx(file, dueDatetime);
   }
 }

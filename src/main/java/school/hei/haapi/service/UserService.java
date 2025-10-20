@@ -3,7 +3,10 @@ package school.hei.haapi.service;
 import static org.apache.poi.ss.usermodel.Row.MissingCellPolicy.CREATE_NULL_AS_BLANK;
 import static org.springframework.data.domain.Pageable.unpaged;
 import static org.springframework.data.domain.Sort.Direction.ASC;
-import static school.hei.haapi.endpoint.rest.model.WorkStudyStatus.*;
+import static school.hei.haapi.endpoint.rest.model.WorkStudyStatus.HAVE_BEEN_WORKING;
+import static school.hei.haapi.endpoint.rest.model.WorkStudyStatus.NOT_WORKING;
+import static school.hei.haapi.endpoint.rest.model.WorkStudyStatus.WILL_BE_WORKING;
+import static school.hei.haapi.endpoint.rest.model.WorkStudyStatus.WORKING;
 import static school.hei.haapi.model.User.Role.STUDENT;
 import static school.hei.haapi.model.User.Role.TEACHER;
 import static school.hei.haapi.model.User.Sex.F;
@@ -20,10 +23,13 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
@@ -35,15 +41,24 @@ import org.springframework.web.multipart.MultipartFile;
 import school.hei.haapi.endpoint.event.EventProducer;
 import school.hei.haapi.endpoint.event.model.StudentImportEvent;
 import school.hei.haapi.endpoint.event.model.UserUpserted;
-import school.hei.haapi.endpoint.rest.model.*;
+import school.hei.haapi.endpoint.rest.mapper.UserMapper;
+import school.hei.haapi.endpoint.rest.model.PaymentFrequency;
+import school.hei.haapi.endpoint.rest.model.Statistics;
+import school.hei.haapi.endpoint.rest.model.StatisticsDetails;
+import school.hei.haapi.endpoint.rest.model.StatisticsStudentsAlternating;
+import school.hei.haapi.endpoint.rest.model.Student;
+import school.hei.haapi.endpoint.rest.model.StudentImportValidationResult;
+import school.hei.haapi.endpoint.rest.model.WorkStudyStatus;
 import school.hei.haapi.endpoint.rest.security.AuthProvider;
 import school.hei.haapi.file.bucket.BucketComponent;
+import school.hei.haapi.mail.Mailer;
 import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.EventParticipant;
 import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.model.Promotion;
 import school.hei.haapi.model.User;
 import school.hei.haapi.model.dto.StudentImportDto;
+import school.hei.haapi.model.exception.BadRequestException;
 import school.hei.haapi.model.exception.NotFoundException;
 import school.hei.haapi.model.validator.UserValidator;
 import school.hei.haapi.repository.EventParticipantRepository;
@@ -73,8 +88,10 @@ public class UserService {
   private final XlsxCellsGenerator<User> userXlsxCellsGenerator;
   private final XlsxCellsGenerator<EventParticipant> eventParticipantXlsxCellsGenerator;
   private final BucketComponent bucketComponent;
+  private final UserMapper userMapper;
+  private final Mailer mailer;
 
-  private static final String STUDENT_XLSX_IMPORT_BUCKET_KEY = "/STUDENT_XLS_IMPORT/";
+  private static final String STUDENT_XLSX_IMPORT_BUCKET_KEY = "/STUDENT_XLSX_IMPORT/";
 
   public void uploadUserProfilePicture(MultipartFile profilePictureAsMultipartFile, String userId) {
     User user = getById(userId);
@@ -208,29 +225,58 @@ public class UserService {
             "address"));
   }
 
-  public StudentImportValidationResult importStudentFromXlsx(
+  public StudentImportValidationResult initStudentImportFromXlsx(
       MultipartFile file, Instant dueDatetime) {
     var parser = new ExcelParser<>(StudentImportDto.class, StudentImportDto.getCellMap());
     var excelFile = fileConverter.apply(file);
-    var coordinator = AuthProvider.getPrincipal().getUserId();
+    var coordinatorEmail = AuthProvider.getPrincipal().getUser().getEmail();
     try {
-      var importResults =
-          parser.parseFile(excelFile, 0, CREATE_NULL_AS_BLANK).stream()
-              .map(StudentImportDto::toCrupdateStudent)
-              .toList();
+      var parseResult = parser.parseFile(excelFile, 0, CREATE_NULL_AS_BLANK);
+      if (parseResult.skippedRows().size() > 1) {
+        var errorMessage =
+            parseResult.skippedRows().values().stream()
+                .map(Throwable::getMessage)
+                .collect(Collectors.joining("\n"));
+        throw new BadRequestException(errorMessage);
+      }
+      var importResults = parseResult.parsedResult();
+      if (importResults.size() > 50) {
+        throw new BadRequestException(
+            "Le nombre maximum d'importation par excel est de 50 étudiants");
+      }
+      validateDuplicateStudentImport(importResults);
       bucketComponent.upload(
           excelFile, STUDENT_XLSX_IMPORT_BUCKET_KEY + file.getOriginalFilename());
       eventProducer.accept(
           List.of(
               StudentImportEvent.builder()
-                  .coordinatorId(coordinator)
-                  .fileKey(STUDENT_XLSX_IMPORT_BUCKET_KEY + file.getOriginalFilename())
+                  .coordinatorEmail(coordinatorEmail)
+                  .students(importResults)
                   .dueDatetime(dueDatetime)
                   .build()));
       return new StudentImportValidationResult().validStudentNumber(importResults.size());
     } catch (IOException e) {
       throw new InternalServerErrorException("Unable to read file");
     }
+  }
+
+  private void validateDuplicateStudentImport(List<StudentImportDto> importResults) {
+    Set<String> seenRefs = new HashSet<>();
+    Set<String> seenEmails = new HashSet<>();
+    for (StudentImportDto dto : importResults) {
+      if (!seenRefs.add(dto.ref())) {
+        throw new BadRequestException("Référence dupliqués détecté: " + dto.ref());
+      }
+      if (!seenEmails.add(dto.email())) {
+        throw new BadRequestException("Email dupliqués détecté: " + dto.email());
+      }
+    }
+  }
+
+  public void importStudentFromXlsx(
+      List<StudentImportDto> students, Instant dueDatetime, String coordinatorEmail) {
+    var usersToCreate = students.stream().map(StudentImportDto::toCrupdateStudent).toList();
+    saveAll(userMapper.toMapDomain(usersToCreate), dueDatetime);
   }
 
   public List<User> getAllEnabledUsers() {

@@ -105,7 +105,7 @@ public record StudentImportDto(
   private static void verifyEmptyCell(Cell cell) {
     if (StringUtil.isBlank(cell.getStringCellValue())) {
       throw new IllegalArgumentException(
-          "Row %d ignored because of an empty mandatory field".formatted(cell.getRowIndex()));
+          "Ligne %d ignorée en raison d'un champ obligatoire vide".formatted(cell.getRowIndex()));
     }
   }
 
@@ -113,7 +113,8 @@ public record StudentImportDto(
     var ref = cell.getStringCellValue().trim();
     if (!ref.matches(REF_REGEX)) {
       throw new IllegalArgumentException(
-          "Row %d ignored because of invalid reference format".formatted(cell.getRowIndex()));
+          "Ligne %d ignorée en raison d'un format de référence étudiant invalide"
+              .formatted(cell.getRowIndex()));
     }
     return ref;
   }
@@ -123,13 +124,14 @@ public record StudentImportDto(
     if (StringUtil.isNotBlank(email)) {
       if (!email.matches(EMAIL_REGEX)) {
         throw new IllegalArgumentException(
-            "Row %d ignored because of invalid email format".formatted(cell.getRowIndex()));
+            "Ligne %d ignorée en raison d'un format d'email invalide"
+                .formatted(cell.getRowIndex()));
       } else {
         return email;
       }
     } else {
       throw new IllegalArgumentException(
-          "Row %d ignored because of empty email".formatted(cell.getRowIndex()));
+          "Ligne %d ignorée en raison d'un email vide".formatted(cell.getRowIndex()));
     }
   }
 

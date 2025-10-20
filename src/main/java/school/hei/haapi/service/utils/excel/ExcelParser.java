@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
@@ -34,12 +35,13 @@ public class ExcelParser<T> {
     this.columnMap = columnMap;
   }
 
-  public List<T> parseFile(File file, int sheetNumber, Row.MissingCellPolicy missingCellPolicy)
-      throws IOException {
+  public ParseResult<T> parseFile(
+      File file, int sheetNumber, Row.MissingCellPolicy missingCellPolicy) throws IOException {
     var workbook = generateWorkBook(file);
     var sheet = workbook.getSheetAt(sheetNumber);
     var cellMapEntries = columnMap.entrySet();
     var result = new ArrayList<T>();
+    var failedRows = new HashMap<Row, Exception>();
     for (var row : sheet) {
       var classInstance = instantiateClass();
       List<CellMapper> cellMappers =
@@ -54,6 +56,7 @@ public class ExcelParser<T> {
       try {
         cellMappers.forEach(cellMapper -> setFieldValue(classInstance, cellMapper));
       } catch (IllegalArgumentException | IllegalStateException e) {
+        failedRows.put(row, e);
         log.warn(
             "Row {} skipped because an exception was thrown while processing: {}",
             row.getRowNum(),
@@ -62,7 +65,7 @@ public class ExcelParser<T> {
       }
       result.add(classInstance);
     }
-    return result;
+    return new ParseResult<>(result, failedRows);
   }
 
   private void setFieldValue(T classInstance, CellMapper cellMapper) {
