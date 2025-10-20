@@ -1,3 +1,21 @@
+# [1.126.0](https://github.com/hei-school/hei-admin-api/compare/v1.125.0...v1.126.0) (2025-10-20)
+
+
+### Bug Fixes
+
+* advanced fee stats receipt count type generation ([e943221](https://github.com/hei-school/hei-admin-api/commit/e943221a8c0964297089b59ec0a59c21e9ba187c))
+* crupdate retake exam ([adc5c1a](https://github.com/hei-school/hei-admin-api/commit/adc5c1a3927747c50b6468faa6a14547d5d19231))
+* get retake exam ([987d8eb](https://github.com/hei-school/hei-admin-api/commit/987d8ebab7bb4f5d247be04d80dc2338294a822e))
+
+
+### Features
+
+* add retake exam annulation ([0d80ea1](https://github.com/hei-school/hei-admin-api/commit/0d80ea1aa25d0fbb845c93c57b4c5a9c9f72400b))
+* cor notification ([2c387cc](https://github.com/hei-school/hei-admin-api/commit/2c387ccbbf86b042b2eb406759544068e2eff092))
+* **doc:** import student from xlsx ([bc3c4c2](https://github.com/hei-school/hei-admin-api/commit/bc3c4c28e8769b00dbe6c124085b0cf334ed71a6))
+
+
+
 # [1.125.0](https://github.com/hei-school/hei-admin-api/compare/v1.124.0...v1.125.0) (2025-10-14)
 
 
@@ -119,15 +137,6 @@
 ### Features
 
 * **not-implemented:** COR ([e33e6b3](https://github.com/hei-school/hei-admin-api/commit/e33e6b3890d936b8a1dd63f92a457c1de801411c))
-
-
-
-## [1.118.1](https://github.com/hei-school/hei-admin-api/compare/v1.118.0...v1.118.1) (2025-09-18)
-
-
-### Bug Fixes
-
-* **doc:** rename Remedials to RetakeExam and refactor components ([0356a58](https://github.com/hei-school/hei-admin-api/commit/0356a58e8643194e96d7367aab00c189b5fa54ee))
 
 
 
