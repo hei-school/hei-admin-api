@@ -3,10 +3,10 @@ package school.hei.haapi.service;
 import static java.time.Instant.now;
 import static school.hei.haapi.endpoint.rest.model.CourseResultStatus.INCOMPLETE;
 
-import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -49,14 +49,12 @@ public class RetakeExamService {
         retakeExamRepository.findRetakeExamsByStudent_IdAndSession_DateFromAfter(studentId, now());
     var coursesToRetake = getCourseResultToRetake(studentId);
     var retakeExams =
-        new ArrayList<>(
-            coursesToRetake.stream()
-                .map(courseResult -> courseResultAndSessionToRetake(courseResult, session))
-                .filter(
-                    newRetakeExam ->
-                        !isRetakeIn(
-                            newRetakeExam, existingRetakeExamsForAllSessionsFromNow, studentId))
-                .toList());
+        coursesToRetake.stream()
+            .map(courseResult -> courseResultAndSessionToRetake(courseResult, session))
+            .filter(
+                newRetakeExam ->
+                    !isRetakeIn(newRetakeExam, existingRetakeExamsForAllSessionsFromNow, studentId))
+            .collect(Collectors.toList());
     retakeExams.addAll(existingRetakeExams);
     return retakeExams;
   }
