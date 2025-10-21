@@ -1,3 +1,12 @@
+# [1.127.0](https://github.com/hei-school/hei-admin-api/compare/v1.126.0...v1.127.0) (2025-10-21)
+
+
+### Features
+
+* **doc:** add new retake exam status and update endpoint ([01b76bf](https://github.com/hei-school/hei-admin-api/commit/01b76bf96daa03907da1ca237f451235a0b33617))
+
+
+
 # [1.126.0](https://github.com/hei-school/hei-admin-api/compare/v1.125.0...v1.126.0) (2025-10-20)
 
 
@@ -118,25 +127,6 @@
 ### Features
 
 * **doc:** add retake exam registration date ([8c6c3b5](https://github.com/hei-school/hei-admin-api/commit/8c6c3b5b5fec723423dfbcd4d75760728ba91e84))
-
-
-
-# [1.119.0](https://github.com/hei-school/hei-admin-api/compare/v1.118.1...v1.119.0) (2025-09-23)
-
-
-### Bug Fixes
-
-* find user group at instant ([518500f](https://github.com/hei-school/hei-admin-api/commit/518500f5cdec09b17ad652792a25ffba5248b38a))
-* in progress course status ([7aefae4](https://github.com/hei-school/hei-admin-api/commit/7aefae4edcc80d54de6b5dbaf41c3c8e66e51c8e))
-* mask retake exams for existing ones ([61f8a40](https://github.com/hei-school/hei-admin-api/commit/61f8a403c6dcacc9af619a86842d0bd082bee367))
-* mpbs xlsx verification fail on duplicate reference ([c5f2cf3](https://github.com/hei-school/hei-admin-api/commit/c5f2cf346053d19d6090ca9af431de7c443943c7))
-* yearly result transcript generation ([4247e1f](https://github.com/hei-school/hei-admin-api/commit/4247e1ff351e7080dea201e5d77552c52ead613d))
-* yearly result transcript unavailable average on incomplete course result ([0dcfc7f](https://github.com/hei-school/hei-admin-api/commit/0dcfc7fbca5d5714b7f1e4ee2207a2bcc4e241d3))
-
-
-### Features
-
-* **not-implemented:** COR ([e33e6b3](https://github.com/hei-school/hei-admin-api/commit/e33e6b3890d936b8a1dd63f92a457c1de801411c))
 
 
 
