@@ -107,7 +107,7 @@ public class RetakeExamIT extends FacadeITMockedThirdParties {
   }
 
   @Test
-  @Disabled
+  @Disabled("TODO: endpoint changed and need to change operationId")
   void admin_read_all_retake_exams_by_session_ok() throws ApiException {
     ApiClient apiClient = anApiClient(ADMIN1_TOKEN);
     RetakeExamApi api = new RetakeExamApi(apiClient);
@@ -121,7 +121,7 @@ public class RetakeExamIT extends FacadeITMockedThirdParties {
   }
 
   @Test
-  @Disabled
+  @Disabled("TODO: endpoint changed and need to change operationId")
   void filter_retake_exam_by_status_ok() throws ApiException {
     ApiClient apiClient = anApiClient(ADMIN1_TOKEN);
     RetakeExamApi api = new RetakeExamApi(apiClient);
