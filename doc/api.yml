@@ -1567,30 +1567,18 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
-  /retake_exam_sessions/{session_id}/retake_exams:
-    ### TODO later
+  /retake_exams:
     get:
       tags:
         - RetakeExam
       summary: Get all retake exams infos for a specific session
       parameters:
-        - name: session_id
-          in: path
-          required: true
-          schema:
-            type: string
-        - name: course_code
-          in: query
-          required: false
-          example: PROG1
-          schema:
-            type: string
         - $ref: '#/components/parameters/RetakeExamStatuses'
         - $ref: '#/components/parameters/DatetimeFromFilter'
         - $ref: '#/components/parameters/DatetimeToFilter'
         - $ref: '#/components/parameters/Page'
         - $ref: '#/components/parameters/PageSize'
-      operationId: getRetakeExamBySessionId
+      operationId: getAllRetakeExams
       responses:
         '200':
           description: List of retake exams for a specific session
@@ -1610,7 +1598,7 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
-    ### TODO now
+  /retake_exam_sessions/{session_id}/retake_exams:
     put:
       tags:
         - RetakeExam
@@ -7547,6 +7535,8 @@ components:
         - REGISTERED
         - TO_CANCEL
         - CANCELED
+        - INVALIDATE
+        - VALIDATE
     CreateAttendanceMovement:
       type: object
       properties:
