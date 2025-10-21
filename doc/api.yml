@@ -8423,6 +8423,8 @@ components:
           format: date-time
         status:
           $ref: '#/components/schemas/CorStatus'
+        contacts:
+          type: string
     CrupdateCor:
       type: object
       allOf:
