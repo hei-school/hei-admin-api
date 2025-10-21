@@ -5,6 +5,8 @@ import static school.hei.haapi.endpoint.rest.model.AttendanceStatus.MISSING;
 import java.time.Instant;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
+import java.util.function.Function;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -58,11 +60,15 @@ public class AttendanceService {
     return new StudentAttendanceStatus(
         (String) objElement[EVENT_TITLE],
         (String) objElement[EVENT_DESCRIPTION],
-        EventType.valueOf((String) objElement[EVENT_TYPE]),
-        AttendanceStatus.valueOf((String) objElement[ATTENDANCE_STATUS]),
+        enumFormObject(objElement[EVENT_TYPE], EventType::valueOf),
+        enumFormObject(objElement[ATTENDANCE_STATUS], AttendanceStatus::valueOf),
         (Instant) objElement[BEGIN_DATETIME],
         (Instant) objElement[END_DATETIME],
-        RoomName.valueOf((String) objElement[ROOM]),
-        PlaceName.valueOf((String) objElement[PLACE]));
+        enumFormObject(objElement[ROOM], RoomName::valueOf),
+        enumFormObject(objElement[PLACE], PlaceName::valueOf));
+  }
+
+  private static <T> T enumFormObject(Object object, Function<String, T> toEnum) {
+    return Optional.ofNullable((String) object).map(toEnum).orElse(null);
   }
 }
