@@ -224,9 +224,8 @@ public class UserService {
   }
 
   public StudentImportValidationResult initStudentImportFromXlsx(
-      MultipartFile file, Instant dueDatetime) {
+      File excelFile, Instant dueDatetime) {
     var parser = new ExcelParser<>(StudentImportDto.class, StudentImportDto.getCellMap());
-    var excelFile = fileConverter.apply(file);
     var coordinatorEmail = AuthProvider.getPrincipal().getUser().getEmail();
     try {
       var parseResult = parser.parseFile(excelFile, 0, CREATE_NULL_AS_BLANK);
@@ -243,8 +242,7 @@ public class UserService {
             "Le nombre maximum d'importation par excel est de 50 étudiants");
       }
       validateDuplicateStudentImport(importResults);
-      bucketComponent.upload(
-          excelFile, STUDENT_XLSX_IMPORT_BUCKET_KEY + file.getOriginalFilename());
+      bucketComponent.upload(excelFile, STUDENT_XLSX_IMPORT_BUCKET_KEY + excelFile.getName());
       eventProducer.accept(
           List.of(
               StudentImportEvent.builder()
@@ -262,16 +260,16 @@ public class UserService {
     Set<String> seenRefs = new HashSet<>();
     Set<String> seenEmails = new HashSet<>();
     for (StudentImportDto dto : importResults) {
-      if (!seenRefs.add(dto.ref())) {
-        throw new BadRequestException("Référence dupliqués détecté: " + dto.ref());
+      if (!seenRefs.add(dto.getRef())) {
+        throw new BadRequestException("Référence dupliqués détecté: " + dto.getRef());
       }
-      if (!seenEmails.add(dto.email())) {
-        throw new BadRequestException("Email dupliqués détecté: " + dto.email());
+      if (!seenEmails.add(dto.getEmail())) {
+        throw new BadRequestException("Email dupliqués détecté: " + dto.getEmail());
       }
     }
   }
 
-  public void importStudentFromXlsx(
+  public void importStudents(
       List<StudentImportDto> students, Instant dueDatetime, String coordinatorEmail) {
     var usersToCreate = students.stream().map(StudentImportDto::toCrupdateStudent).toList();
     saveAll(userMapper.toMapDomain(usersToCreate), dueDatetime);

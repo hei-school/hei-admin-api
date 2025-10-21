@@ -737,7 +737,7 @@ paths:
               allOf:
                 - $ref: '#/components/schemas/UploadFile'
               properties:
-                dueDatetime:
+                due_datetime:
                   type: string
                   format: date-time
                 

@@ -58,7 +58,7 @@ public class ExcelParser<T> {
       } catch (IllegalArgumentException | IllegalStateException e) {
         failedRows.put(row, e);
         log.warn(
-            "Row {} skipped because an exception was thrown while processing: {}",
+            "Row {} skipped because an exception was thrown while processing: ",
             row.getRowNum(),
             e);
         continue;

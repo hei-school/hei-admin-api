@@ -2,7 +2,12 @@ package school.hei.haapi.model.dto;
 
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.ZoneOffset;
 import java.util.Map;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.util.StringUtil;
 import school.hei.haapi.endpoint.rest.model.CrupdateStudent;
@@ -10,17 +15,22 @@ import school.hei.haapi.endpoint.rest.model.PaymentFrequency;
 import school.hei.haapi.endpoint.rest.model.Sex;
 import school.hei.haapi.service.utils.excel.CellMap;
 
-public record StudentImportDto(
-    String ref,
-    String firstName,
-    String lastName,
-    String email,
-    Sex sex,
-    LocalDate birthDate,
-    String address,
-    String phone,
-    Instant entranceDatetime,
-    PaymentFrequency paymentFrequency) {
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+@Getter
+public class StudentImportDto {
+  private String ref;
+  private String firstName;
+  private String lastName;
+  private String email;
+  private Sex sex;
+  private LocalDate birthDate;
+  private String address;
+  private String phone;
+  private Instant entranceDatetime;
+  private PaymentFrequency paymentFrequency;
+
   private static final String REF_REGEX = "^STD[\\w-]+$";
   private static final String EMAIL_REGEX = "^[\\w.-]+@([\\w-]+\\.)+[\\w-]{2,}$";
 
@@ -53,11 +63,17 @@ public record StudentImportDto(
   }
 
   private static LocalDate getBirthDateFromCell(Cell cell) {
-    var value = cell.getStringCellValue();
-    if (StringUtil.isNotBlank(value)) {
-      return LocalDate.parse(value.trim());
+    try {
+      var value = cell.getLocalDateTimeCellValue();
+      if (value != null) {
+        return value.toLocalDate();
+      }
+      return null;
+    } catch (NumberFormatException e) {
+      throw new IllegalStateException(
+          "ligne %d ignorée en raison d'une valeur incovertible en date"
+              .formatted(cell.getRowIndex()));
     }
-    return null;
   }
 
   private static String getAddressFromCell(Cell cell) {
@@ -79,8 +95,18 @@ public record StudentImportDto(
   }
 
   private static Instant getEntranceDatetimeFromCell(Cell cell) {
-    verifyEmptyCell(cell);
-    return Instant.parse(cell.getStringCellValue().trim());
+    try {
+      var value = cell.getLocalDateTimeCellValue();
+      if (value != null) {
+        return value.toInstant(ZoneOffset.of("+3"));
+      }
+      throw new IllegalArgumentException(
+          "Ligne %d ignorée en raison d'un champ obligatoire vide".formatted(cell.getRowIndex()));
+    } catch (NumberFormatException e) {
+      throw new IllegalStateException(
+          "Ligne %d ignorée en raison d'une valeur incovertible en date"
+              .formatted(cell.getRowIndex()));
+    }
   }
 
   private static PaymentFrequency getPaymentFrequencyFromCell(Cell cell) {
@@ -137,16 +163,16 @@ public record StudentImportDto(
 
   public static Map<String, CellMap<?>> getCellMap() {
     return Map.of(
-        "ref", new CellMap<String>(1, StudentImportDto::getRefFromCell),
-        "firstName", new CellMap<String>(2, StudentImportDto::getFirstNameFromCell),
-        "lastName", new CellMap<String>(3, StudentImportDto::getLastNameFromCell),
-        "email", new CellMap<String>(4, StudentImportDto::getEmailFromCell),
-        "sex", new CellMap<Sex>(5, StudentImportDto::getSexFromCell),
-        "birthDate", new CellMap<LocalDate>(6, StudentImportDto::getBirthDateFromCell),
-        "address", new CellMap<String>(7, StudentImportDto::getAddressFromCell),
-        "phone", new CellMap<String>(8, StudentImportDto::getPhoneFromCell),
-        "entranceDatetime", new CellMap<Instant>(9, StudentImportDto::getEntranceDatetimeFromCell),
+        "ref", new CellMap<String>(0, StudentImportDto::getRefFromCell),
+        "firstName", new CellMap<String>(1, StudentImportDto::getFirstNameFromCell),
+        "lastName", new CellMap<String>(2, StudentImportDto::getLastNameFromCell),
+        "email", new CellMap<String>(3, StudentImportDto::getEmailFromCell),
+        "sex", new CellMap<Sex>(4, StudentImportDto::getSexFromCell),
+        "birthDate", new CellMap<LocalDate>(5, StudentImportDto::getBirthDateFromCell),
+        "address", new CellMap<String>(6, StudentImportDto::getAddressFromCell),
+        "phone", new CellMap<String>(7, StudentImportDto::getPhoneFromCell),
+        "entranceDatetime", new CellMap<Instant>(8, StudentImportDto::getEntranceDatetimeFromCell),
         "paymentFrequency",
-            new CellMap<PaymentFrequency>(10, StudentImportDto::getPaymentFrequencyFromCell));
+            new CellMap<PaymentFrequency>(9, StudentImportDto::getPaymentFrequencyFromCell));
   }
 }
