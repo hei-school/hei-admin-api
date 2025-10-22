@@ -14,7 +14,6 @@ import static school.hei.haapi.model.User.Status.ENABLED;
 
 import java.time.*;
 import java.util.List;
-import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -22,14 +21,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import school.hei.haapi.integration.conf.FacadeITMockedThirdParties;
 import school.hei.haapi.model.Event;
 import school.hei.haapi.model.EventParticipant;
-import school.hei.haapi.model.StudentAttendanceStatus;
-import school.hei.haapi.model.StudentAttendanceStatusRepresentation;
 import school.hei.haapi.model.User;
+import school.hei.haapi.model.dto.StudentAttendanceStatusDto;
 import school.hei.haapi.repository.EventParticipantRepository;
 import school.hei.haapi.repository.EventRepository;
 import school.hei.haapi.repository.UserRepository;
 
-@Slf4j
 class AttendanceServiceIT extends FacadeITMockedThirdParties {
   @Autowired AttendanceService subject;
   @Autowired UserRepository userRepository;
@@ -128,8 +125,8 @@ class AttendanceServiceIT extends FacadeITMockedThirdParties {
     assertEquals(List.of(presentStudentAttendanceStatus()), actual);
   }
 
-  private StudentAttendanceStatusRepresentation missingStudentAttendanceStatus() {
-    return new StudentAttendanceStatusRepresentation(
+  private StudentAttendanceStatusDto missingStudentAttendanceStatus() {
+    return new StudentAttendanceStatusDto(
         "eventTitle",
         "eventDescription",
         COURSE,
@@ -140,8 +137,8 @@ class AttendanceServiceIT extends FacadeITMockedThirdParties {
         ANDRAHARO);
   }
 
-  private StudentAttendanceStatusRepresentation presentStudentAttendanceStatus() {
-    return new StudentAttendanceStatusRepresentation(
+  private StudentAttendanceStatusDto presentStudentAttendanceStatus() {
+    return new StudentAttendanceStatusDto(
         "eventTitle",
         "eventDescription",
         COURSE,

@@ -5,36 +5,22 @@ import static school.hei.haapi.endpoint.rest.model.AttendanceStatus.MISSING;
 import java.time.Instant;
 import java.util.Collection;
 import java.util.List;
-import java.util.Optional;
-import java.util.function.Function;
+import lombok.AllArgsConstructor;
 import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import school.hei.haapi.endpoint.rest.model.AttendanceStatus;
-import school.hei.haapi.endpoint.rest.model.EventType;
-import school.hei.haapi.model.Event.PlaceName;
-import school.hei.haapi.model.Event.RoomName;
-import school.hei.haapi.model.StudentAttendanceStatus;
-import school.hei.haapi.model.StudentAttendanceStatusRepresentation;
+import school.hei.haapi.model.dto.StudentAttendanceStatusDto;
 import school.hei.haapi.model.exception.NotImplementedException;
 import school.hei.haapi.repository.EventRepository;
 import school.hei.haapi.repository.UserRepository;
 
 @Service
-@RequiredArgsConstructor
+@AllArgsConstructor
 public class AttendanceService {
   private final EventRepository eventRepository;
   private final UserRepository userRepository;
-  private static final int EVENT_TITLE = 0;
-  private static final int EVENT_DESCRIPTION = 1;
-  private static final int EVENT_TYPE = 2;
-  private static final int ATTENDANCE_STATUS = 3;
-  private static final int BEGIN_DATETIME = 4;
-  private static final int END_DATETIME = 5;
-  private static final int ROOM = 6;
-  private static final int PLACE = 7;
 
-  public List<StudentAttendanceStatusRepresentation> getStudentAttendanceByStudentId(
+  public List<StudentAttendanceStatusDto> getStudentAttendanceByStudentId(
       String studentId,
       AttendanceStatus actualAttendanceStatus,
       Instant from,
@@ -54,6 +40,6 @@ public class AttendanceService {
             from,
             to,
             titles.stream().findFirst().map("%%%s%%"::formatted).orElse(null));
-    return studentAttendanceObject.stream().map(StudentAttendanceStatusRepresentation::new).toList();
+    return studentAttendanceObject.stream().map(StudentAttendanceStatusDto::new).toList();
   }
 }
