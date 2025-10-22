@@ -12,7 +12,10 @@ import static school.hei.haapi.model.Event.RoomName.ALGEBRE;
 import static school.hei.haapi.model.User.Role.STUDENT;
 import static school.hei.haapi.model.User.Status.ENABLED;
 
-import java.time.*;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.YearMonth;
+import java.time.ZoneOffset;
 import java.util.List;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;

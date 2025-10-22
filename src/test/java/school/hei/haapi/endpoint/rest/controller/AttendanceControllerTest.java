@@ -24,7 +24,8 @@ import school.hei.haapi.endpoint.rest.model.EventLocation;
 import school.hei.haapi.endpoint.rest.model.PlaceEnum;
 import school.hei.haapi.endpoint.rest.model.RoomEnum;
 import school.hei.haapi.endpoint.rest.model.StudentGlobalAttendance;
-import school.hei.haapi.model.Event;
+import school.hei.haapi.model.Event.PlaceName;
+import school.hei.haapi.model.Event.RoomName;
 import school.hei.haapi.model.dto.StudentAttendanceStatusDto;
 import school.hei.haapi.service.AttendanceService;
 
@@ -88,11 +89,7 @@ class AttendanceControllerTest {
   }
 
   private StudentAttendanceStatusDto studentAttendanceStatus(
-      AttendanceStatus attendanceStatus,
-      Instant from,
-      Instant to,
-      Event.RoomName room,
-      Event.PlaceName place) {
+      AttendanceStatus attendanceStatus, Instant from, Instant to, RoomName room, PlaceName place) {
     return new StudentAttendanceStatusDto(
         "eventTile", "eventDescription", COURSE, attendanceStatus, from, to, room, place);
   }

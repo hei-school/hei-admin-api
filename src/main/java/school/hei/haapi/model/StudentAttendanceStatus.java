@@ -1,6 +1,7 @@
 package school.hei.haapi.model;
 
-import static school.hei.haapi.model.Event.*;
+import static school.hei.haapi.model.Event.PlaceName;
+import static school.hei.haapi.model.Event.RoomName;
 
 import java.time.Instant;
 import school.hei.haapi.endpoint.rest.model.AttendanceStatus;
