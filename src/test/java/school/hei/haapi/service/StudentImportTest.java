@@ -15,6 +15,7 @@ import static school.hei.haapi.integration.conf.TestUtils.getMockedFile;
 
 import java.time.LocalDate;
 import java.util.List;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -29,6 +30,7 @@ import school.hei.haapi.integration.conf.FacadeITMockedThirdParties;
 import school.hei.haapi.mail.Mailer;
 import school.hei.haapi.model.User;
 import school.hei.haapi.model.dto.StudentImportDto;
+import school.hei.haapi.model.exception.BadRequestException;
 import school.hei.haapi.service.event.StudentImportEventService;
 
 @Testcontainers
@@ -39,13 +41,26 @@ public class StudentImportTest extends FacadeITMockedThirdParties {
   @MockBean BucketComponent bucketComponent;
   @MockBean private EventProducer eventProducer;
 
-  @Test
-  void validate_import_student_xlsx_ok() {
+  @BeforeAll
+  static void setUp() {
     mockStatic(AuthProvider.class);
     when(AuthProvider.getPrincipal()).thenReturn(mockPrincipal());
+  }
+
+  @Test
+  void validate_import_student_xlsx_ok() {
     var importResult =
         subject.initStudentImportFromXlsx(getMockedFile("test-student-import", ".xlsx"), now());
     assertEquals(3, importResult.getValidStudentNumber());
+  }
+
+  @Test
+  void validate_bad_student_import_ko() {
+    assertThrows(
+        BadRequestException.class,
+        () ->
+            subject.initStudentImportFromXlsx(
+                getMockedFile("test-bad-student-import", ".xlsx"), now()));
   }
 
   @Test
@@ -67,7 +82,7 @@ public class StudentImportTest extends FacadeITMockedThirdParties {
     assertThrows(Exception.class, () -> studentImportEventService.accept(badImportEvent()));
   }
 
-  private Principal mockPrincipal() {
+  private static Principal mockPrincipal() {
     return new Principal(User.builder().email("test@email.com").build(), "huh!?");
   }
 

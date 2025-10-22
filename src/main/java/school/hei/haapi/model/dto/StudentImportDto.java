@@ -2,6 +2,8 @@ package school.hei.haapi.model.dto;
 
 import static school.hei.haapi.endpoint.rest.model.EnableStatus.ENABLED;
 
+import jakarta.mail.internet.AddressException;
+import jakarta.mail.internet.InternetAddress;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneOffset;
@@ -34,7 +36,6 @@ public class StudentImportDto {
   private PaymentFrequency paymentFrequency;
 
   private static final String REF_REGEX = "^STD[\\w-]+$";
-  private static final String EMAIL_REGEX = "^[\\w.-]+@([\\w-]+\\.)+[\\w-]{2,}$";
 
   private static String getRefFromCell(Cell cell) {
     verifyEmptyCell(cell);
@@ -151,12 +152,13 @@ public class StudentImportDto {
   private static String validateEmailCell(Cell cell) {
     var email = cell.getStringCellValue().trim();
     if (StringUtil.isNotBlank(email)) {
-      if (!email.matches(EMAIL_REGEX)) {
+      try {
+        new InternetAddress(email);
+        return email;
+      } catch (AddressException e) {
         throw new IllegalArgumentException(
             "Ligne %d ignorée en raison d'un format d'email invalide"
                 .formatted(cell.getRowIndex()));
-      } else {
-        return email;
       }
     } else {
       throw new IllegalArgumentException(

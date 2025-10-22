@@ -421,4 +421,10 @@ public class UserFileIT extends FacadeITMockedThirdParties {
         .name("transcript1")
         .creationDatetime(Instant.parse("2021-11-08T08:25:24.00Z"));
   }
+
+  @Test
+  void student_get_workfile_by_id_ok() throws ApiException {
+    FilesApi api = new FilesApi(anApiClient(MANAGER1_TOKEN));
+    assertNotNull(api.getStudentWorkDocumentsById(STUDENT1_ID, "work_file1_id"));
+  }
 }
