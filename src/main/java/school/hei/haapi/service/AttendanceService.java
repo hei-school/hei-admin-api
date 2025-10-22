@@ -15,6 +15,7 @@ import school.hei.haapi.endpoint.rest.model.EventType;
 import school.hei.haapi.model.Event.PlaceName;
 import school.hei.haapi.model.Event.RoomName;
 import school.hei.haapi.model.StudentAttendanceStatus;
+import school.hei.haapi.model.StudentAttendanceStatusRepresentation;
 import school.hei.haapi.model.exception.NotImplementedException;
 import school.hei.haapi.repository.EventRepository;
 import school.hei.haapi.repository.UserRepository;
@@ -33,7 +34,7 @@ public class AttendanceService {
   private static final int ROOM = 6;
   private static final int PLACE = 7;
 
-  public List<StudentAttendanceStatus> getStudentAttendanceByStudentId(
+  public List<StudentAttendanceStatusRepresentation> getStudentAttendanceByStudentId(
       String studentId,
       AttendanceStatus actualAttendanceStatus,
       Instant from,
@@ -53,22 +54,6 @@ public class AttendanceService {
             from,
             to,
             titles.stream().findFirst().map("%%%s%%"::formatted).orElse(null));
-    return studentAttendanceObject.stream().map(this::toStudentAttendanceStatus).toList();
-  }
-
-  private StudentAttendanceStatus toStudentAttendanceStatus(Object[] objElement) {
-    return new StudentAttendanceStatus(
-        (String) objElement[EVENT_TITLE],
-        (String) objElement[EVENT_DESCRIPTION],
-        enumFormObject(objElement[EVENT_TYPE], EventType::valueOf),
-        enumFormObject(objElement[ATTENDANCE_STATUS], AttendanceStatus::valueOf),
-        (Instant) objElement[BEGIN_DATETIME],
-        (Instant) objElement[END_DATETIME],
-        enumFormObject(objElement[ROOM], RoomName::valueOf),
-        enumFormObject(objElement[PLACE], PlaceName::valueOf));
-  }
-
-  private static <T> T enumFormObject(Object object, Function<String, T> toEnum) {
-    return Optional.ofNullable((String) object).map(toEnum).orElse(null);
+    return studentAttendanceObject.stream().map(StudentAttendanceStatusRepresentation::new).toList();
   }
 }

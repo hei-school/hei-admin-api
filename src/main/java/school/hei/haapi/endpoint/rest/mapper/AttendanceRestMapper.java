@@ -5,6 +5,7 @@ import org.springframework.stereotype.Component;
 import school.hei.haapi.endpoint.rest.model.EventLocation;
 import school.hei.haapi.endpoint.rest.model.StudentGlobalAttendance;
 import school.hei.haapi.model.StudentAttendanceStatus;
+import school.hei.haapi.model.StudentAttendanceStatusRepresentation;
 
 @Component
 @AllArgsConstructor
@@ -12,17 +13,17 @@ public class AttendanceRestMapper {
   private RoomMapper roomMapper;
   private PlaceMapper placeMapper;
 
-  public StudentGlobalAttendance toRest(StudentAttendanceStatus s) {
+  public StudentGlobalAttendance toRest(StudentAttendanceStatusRepresentation s) {
     return new StudentGlobalAttendance()
-        .title(s.eventTitle())
-        .description(s.eventDescription())
+        .title(s.getEventTitle())
+        .description(s.getEventDescription())
         .location(
             new EventLocation()
-                .room(roomMapper.toRest(s.room()))
-                .place(placeMapper.toRest(s.place())))
-        .eventType(s.eventType())
-        .attendanceStatus(s.attendanceStatus())
-        .beginDatetime(s.beginDatetime())
-        .endDatetime(s.endDatetime());
+                .room(roomMapper.toRest(s.getRoom()))
+                .place(placeMapper.toRest(s.getPlace())))
+        .eventType(s.getEventType())
+        .attendanceStatus(s.getAttendanceStatus())
+        .beginDatetime(s.getBeginDatetime())
+        .endDatetime(s.getEndDatetime());
   }
 }
