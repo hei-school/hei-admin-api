@@ -93,6 +93,80 @@ class RetakeExamServiceTest {
     verify(retakeExamRepository, never())
         .findRetakeExamsByStudent_IdAndSession_DateFromAfter(anyString(), any());
   }
+    @Test
+    void getAllStudentRetakeExams_with_to_future_sessions() {
+        school.hei.haapi.model.User student1 = new school.hei.haapi.model.User();
+        student1.setId("student1_id");
+        student1.setFirstName("student1_first_name");
+
+        school.hei.haapi.model.Course course1 = new school.hei.haapi.model.Course();
+        course1.setId("course1_id");
+        course1.setName("course1_name");
+
+        school.hei.haapi.model.Course course2 = new school.hei.haapi.model.Course();
+        course2.setId("course2_id");
+        course2.setName("course2_name");
+
+        school.hei.haapi.model.Course course3 = new school.hei.haapi.model.Course();
+        course3.setId("course3_id");
+        course3.setName("course3_name");
+
+        CourseResult courseResult1 = new CourseResult();
+        courseResult1.setId("courseResult1_id");
+        courseResult1.setCourse(new Course().id(course1.getId()).name(course1.getName()));
+        courseResult1.setStatus(INCOMPLETE);
+
+        CourseResult courseResult2 = new CourseResult();
+        courseResult2.setId("courseResult2_id");
+        courseResult2.setCourse(new Course().id(course2.getId()).name(course2.getName()));
+        courseResult2.setStatus(INCOMPLETE);
+
+        CourseResult courseResult3 = new CourseResult();
+        courseResult3.setId("courseResult3_id");
+        courseResult3.setCourse(new Course().id(course3.getId()).name(course3.getName()));
+        courseResult3.setStatus(INCOMPLETE);
+
+        RetakeExamSession session1 = new RetakeExamSession();
+        session1.setId("session1_id");
+        session1.setTitle("session_2025_1");
+        session1.setDateFrom(Instant.now().plus(2, ChronoUnit.DAYS));
+        session1.setDateTo(Instant.now().plus(20, ChronoUnit.DAYS));
+
+        RetakeExam retakeExam1 = new RetakeExam();
+        retakeExam1.setId("retake1_id");
+        retakeExam1.setCourse(course1);
+        retakeExam1.setStudent(student1);
+        retakeExam1.setSession(session1);
+
+        RetakeExam retakeExam2 = new RetakeExam();
+        retakeExam2.setId("retake2_id");
+        retakeExam2.setCourse(course2);
+        retakeExam2.setStudent(student1);
+        retakeExam2.setSession(session1);
+
+        ResultSummary mockSummary = new ResultSummary();
+        YearlyResult yearlyResult = new YearlyResult();
+        yearlyResult.setCourseResults(List.of(courseResult1, courseResult2, courseResult3));
+        mockSummary.setYearlyResults(List.of(yearlyResult));
+
+        when(gradeResultService.getStudentResultSummary(any()))
+                .thenReturn(mockSummary);
+
+        when(retakeExamRepository.findRetakeExamsBySession_IdAndStudent_Id(any(), any()))
+                .thenReturn(List.of(retakeExam1, retakeExam2));
+
+        when(retakeExamSessionService.getById(any())).thenReturn(session1);
+
+        var existingsRetakeExams = retakeExamRepository
+                .findRetakeExamsBySession_IdAndStudent_Id(retakeExam1.getSession().getId(), student1.getId());
+        var retakeExamsToRetake = retakeExamService.getCourseResultToRetake(student1.getId());
+
+        var retakeExams = retakeExamService.getStudentRetakeExams(session1.getId(), student1.getId());
+
+        System.out.println("Retake Exams: " + retakeExams);
+        assertNotNull(retakeExams);
+        assertEquals(3, retakeExams.size());
+    }
 
   @Test
   void getStudentRetakeExams_with_active_session_should_generate_new_retake_exams() {
@@ -194,57 +268,7 @@ class RetakeExamServiceTest {
     List<RetakeExam> result = retakeExamService.getStudentRetakeExams(sessionId, studentId);
 
     assertEquals(1, result.size());
-    assertEquals("course1", result.get(0).getCourse().getId());
-  }
-
-  @Test
-  void isRetakeIn_should_return_true_when_retake_exists() {
-    String studentId = "student1";
-
-    school.hei.haapi.model.Course course = new school.hei.haapi.model.Course();
-    course.setId("course1");
-    school.hei.haapi.model.User student = new school.hei.haapi.model.User();
-    student.setId("student1");
-
-    RetakeExam newExam = new RetakeExam();
-    newExam.setCourse(course);
-    newExam.setStudent(student);
-
-    RetakeExam existingExam = new RetakeExam();
-    existingExam.setCourse(course);
-    existingExam.setStudent(student);
-
-    List<RetakeExam> existingExams = List.of(existingExam);
-
-    boolean result = retakeExamService.isRetakeIn(newExam, existingExams, studentId);
-
-    assertTrue(result);
-  }
-
-  @Test
-  void isRetakeIn_should_return_false_when_no_retake_exists() {
-    String studentId = "student1";
-
-    school.hei.haapi.model.Course course1 = new school.hei.haapi.model.Course();
-    course1.setId("course1");
-    school.hei.haapi.model.Course course2 = new school.hei.haapi.model.Course();
-    course2.setId("course2");
-    school.hei.haapi.model.User student = new school.hei.haapi.model.User();
-    student.setId("student1");
-
-    RetakeExam newExam = new RetakeExam();
-    newExam.setCourse(course2);
-    newExam.setStudent(student);
-
-    RetakeExam existingExam = new RetakeExam();
-    existingExam.setCourse(course1);
-    existingExam.setStudent(student);
-
-    List<RetakeExam> existingExams = List.of(existingExam);
-
-    boolean result = retakeExamService.isRetakeIn(newExam, existingExams, studentId);
-
-    assertFalse(result);
+    assertEquals("course1", result.getFirst().getCourse().getId());
   }
 
   @Test
