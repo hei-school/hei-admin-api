@@ -1,11 +1,12 @@
 package school.hei.haapi.service.event;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
+import static school.hei.haapi.service.utils.FileUtils.createFileFromBytes;
 import static school.hei.haapi.service.utils.TemplateUtils.htmlToString;
 
 import jakarta.mail.internet.AddressException;
 import jakarta.mail.internet.InternetAddress;
 import jakarta.transaction.Transactional;
-import java.nio.file.Files;
 import java.util.List;
 import java.util.function.Consumer;
 import lombok.AllArgsConstructor;
@@ -78,8 +79,7 @@ public class StudentImportEventService implements Consumer<StudentImportEvent> {
 
   private void sendErrorEmail(StudentImportEvent event, Exception e, User coordinatorUser) {
     try {
-      var logFile = Files.createTempFile("log_file", ".txt");
-      Files.writeString(logFile, e.toString());
+      var logFile = createFileFromBytes(e.toString().getBytes(UTF_8), "log_file", ".txt");
       var coordinatorAddress = new InternetAddress(event.getCoordinatorEmail());
       var htmlBody =
           htmlToString("studentXlsxImportErrorEmail", getMailContext(event, coordinatorUser));
@@ -89,9 +89,9 @@ public class StudentImportEventService implements Consumer<StudentImportEvent> {
               coordinatorAddress,
               List.of(),
               List.of(),
-              "Échec de l'import des étudiants - valeurs en double",
+              "Échec de l'import des étudiants",
               htmlBody,
-              List.of(logFile.toFile())));
+              List.of(logFile)));
     } catch (AddressException ex) {
       throw new RuntimeException(
           "Failed to send student import failure email to invalid email address: "

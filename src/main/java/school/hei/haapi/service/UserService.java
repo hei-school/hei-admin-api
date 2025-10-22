@@ -271,12 +271,6 @@ public class UserService {
     }
   }
 
-  public void importStudents(
-      List<StudentImportDto> students, Instant dueDatetime, String coordinatorEmail) {
-    var usersToCreate = students.stream().map(StudentImportDto::toCrupdateStudent).toList();
-    saveAll(userMapper.toMapDomain(usersToCreate), dueDatetime);
-  }
-
   public List<User> getAllEnabledUsers() {
     return userRepository.findAllByStatus(ENABLED);
   }
