@@ -1,12 +1,12 @@
 package school.hei.haapi.service;
 
+import static java.time.Instant.now;
 import static org.springframework.data.domain.Sort.Direction.ASC;
 import static school.hei.haapi.endpoint.rest.model.AttendanceStatus.*;
 
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -78,14 +78,13 @@ public class EventParticipantService {
     eventParticipantRepository.saveAll(eventParticipants);
   }
 
-  public EventParticipantStats getStudentEventStats(
-      String studentId, Optional<Instant> from, Optional<Instant> to) {
-    if (from.isEmpty() && to.isEmpty()) {
+  public EventParticipantStats getStudentEventStats(String studentId, Instant from, Instant to) {
+    if (from == null && to == null) {
       return generateParticipantStat(studentId);
     }
 
-    Instant fromInstant = from.orElse(Instant.now());
-    Instant toInstant = to.orElse(Instant.now());
+    Instant fromInstant = from == null ? now() : from;
+    Instant toInstant = to == null ? now() : to;
 
     if (fromInstant.isAfter(toInstant)) {
       throw new BadRequestException("Bad value for filters");

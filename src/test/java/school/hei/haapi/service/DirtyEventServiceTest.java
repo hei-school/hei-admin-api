@@ -19,7 +19,6 @@ import static school.hei.haapi.integration.conf.TestUtils.setUpEventBridge;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -238,9 +237,7 @@ class DirtyEventServiceTest extends FacadeITMockedThirdParties {
 
     var randomStudentStats =
         participantService.getStudentEventStats(
-            randomUsers.getFirst().getId(),
-            Optional.of(now().minus(1, DAYS)),
-            Optional.of(now().plus(1, HOURS)));
+            randomUsers.getFirst().getId(), now().minus(1, DAYS), now().plus(1, HOURS));
     var expectedStats =
         new EventParticipantStats()
             .missedEvents(new MissedEventStats().justified(0L).unjustified(1L).total(1L))

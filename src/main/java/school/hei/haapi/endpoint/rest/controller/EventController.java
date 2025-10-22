@@ -4,7 +4,6 @@ import static java.util.stream.Collectors.toUnmodifiableList;
 
 import java.time.Instant;
 import java.util.List;
-import java.util.Optional;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -121,9 +120,7 @@ public class EventController {
       @PathVariable(name = "student_id") String studentId,
       @RequestParam(name = "from_event_begin", required = false) Instant from,
       @RequestParam(name = "to_event_begin", required = false) Instant to) {
-    Optional<Instant> optionalFrom = Optional.ofNullable(from);
-    Optional<Instant> optionalTo = Optional.ofNullable(to);
-    return eventParticipantService.getStudentEventStats(studentId, optionalFrom, optionalTo);
+    return eventParticipantService.getStudentEventStats(studentId, from, to);
   }
 
   @PutMapping("/events/{event_id}/participants")
