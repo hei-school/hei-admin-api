@@ -1,9 +1,6 @@
 package school.hei.haapi.service;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -38,26 +35,87 @@ import school.hei.haapi.repository.dao.RetakeExamDao;
 class RetakeExamServiceTest {
 
   @Mock private RetakeExamRepository retakeExamRepository;
-
   @Mock private RetakeExamSessionService retakeExamSessionService;
-
   @Mock private GradeResultService gradeResultService;
-
   @Mock private CourseMapper courseMapper;
-
   @Mock private RetakeExamDao retakeExamDao;
-
   @Mock private PaginationFromPageAndPageSize paginationFromPageAndPageSize;
-
   @InjectMocks private RetakeExamService retakeExamService;
+
+  private static final school.hei.haapi.model.User student1;
+  private static final school.hei.haapi.model.Course course1;
+  private static final school.hei.haapi.model.Course course2;
+  private static final school.hei.haapi.model.Course course3;
+  private static final RetakeExamSession session1;
+  private static final RetakeExamSession session2;
+  private static final RetakeExam retakeExam1;
+  private static final RetakeExam retakeExam2;
+  private static final CourseResult courseResult1;
+  private static final CourseResult courseResult2;
+  private static final CourseResult courseResult3;
+
+  static {
+    student1 = new school.hei.haapi.model.User();
+    student1.setId("student1_id");
+    student1.setFirstName("student1_first_name");
+
+    course1 = new school.hei.haapi.model.Course();
+    course1.setId("course1_id");
+    course1.setName("course1_name");
+
+    course2 = new school.hei.haapi.model.Course();
+    course2.setId("course2_id");
+    course2.setName("course2_name");
+
+    course3 = new school.hei.haapi.model.Course();
+    course3.setId("course3_id");
+    course3.setName("course3_name");
+
+    session1 = new RetakeExamSession();
+    session1.setId("session1_id");
+    session1.setTitle("session_2025_1");
+    session1.setDateFrom(Instant.now().plus(2, ChronoUnit.DAYS));
+    session1.setDateTo(Instant.now().plus(20, ChronoUnit.DAYS));
+
+    session2 = new RetakeExamSession();
+    session2.setId("session2_id");
+    session2.setTitle("session_2025_2");
+    session2.setDateFrom(Instant.now().plus(21, ChronoUnit.DAYS));
+    session2.setDateTo(Instant.now().plus(30, ChronoUnit.DAYS));
+
+    retakeExam1 = new RetakeExam();
+    retakeExam1.setId("retake1_id");
+    retakeExam1.setCourse(course1);
+    retakeExam1.setStudent(student1);
+    retakeExam1.setSession(session1);
+    retakeExam1.setStatus(REGISTERED);
+
+    retakeExam2 = new RetakeExam();
+    retakeExam2.setId("retake2_id");
+    retakeExam2.setCourse(course2);
+    retakeExam2.setStudent(student1);
+    retakeExam2.setSession(session2);
+    retakeExam2.setStatus(REGISTERED);
+
+    courseResult1 = new CourseResult();
+    courseResult1.setId("courseResult1_id");
+    courseResult1.setCourse(new Course().id(course1.getId()).name(course1.getName()));
+    courseResult1.setStatus(INCOMPLETE);
+
+    courseResult2 = new CourseResult();
+    courseResult2.setId("courseResult2_id");
+    courseResult2.setCourse(new Course().id(course2.getId()).name(course2.getName()));
+    courseResult2.setStatus(INCOMPLETE);
+
+    courseResult3 = new CourseResult();
+    courseResult3.setId("courseResult3_id");
+    courseResult3.setCourse(new Course().id(course3.getId()).name(course3.getName()));
+    courseResult3.setStatus(INCOMPLETE);
+  }
 
   @Test
   void crupdateRetakeExams_should_save_all_retake_exams() {
-    RetakeExam retakeExam1 = new RetakeExam();
-    retakeExam1.setId("retake1");
-    RetakeExam retakeExam2 = new RetakeExam();
-    retakeExam2.setId("retake2");
-    List<RetakeExam> retakeExams = List.of(retakeExam1, retakeExam2);
+    var retakeExams = List.of(retakeExam1, retakeExam2);
 
     when(retakeExamRepository.saveAll(retakeExams)).thenReturn(retakeExams);
 
@@ -69,84 +127,18 @@ class RetakeExamServiceTest {
 
   @Test
   void getAllStudentRetakeExams_with_two_future_sessions() {
-    school.hei.haapi.model.User student1 = new school.hei.haapi.model.User();
-    student1.setId("student1_id");
-    student1.setFirstName("student1_first_name");
-
-    school.hei.haapi.model.Course course1 = new school.hei.haapi.model.Course();
-    course1.setId("course1_id");
-    course1.setName("course1_name");
-
-    school.hei.haapi.model.Course course2 = new school.hei.haapi.model.Course();
-    course2.setId("course2_id");
-    course2.setName("course2_name");
-
-    school.hei.haapi.model.Course course3 = new school.hei.haapi.model.Course();
-    course3.setId("course3_id");
-    course3.setName("course3_name");
-
-    CourseResult courseResult1 = new CourseResult();
-    courseResult1.setId("courseResult1_id");
-    courseResult1.setCourse(new Course().id(course1.getId()).name(course1.getName()));
-    courseResult1.setStatus(INCOMPLETE);
-
-    CourseResult courseResult2 = new CourseResult();
-    courseResult2.setId("courseResult2_id");
-    courseResult2.setCourse(new Course().id(course2.getId()).name(course2.getName()));
-    courseResult2.setStatus(INCOMPLETE);
-
-    CourseResult courseResult3 = new CourseResult();
-    courseResult3.setId("courseResult3_id");
-    courseResult3.setCourse(new Course().id(course3.getId()).name(course3.getName()));
-    courseResult3.setStatus(INCOMPLETE);
-
-    RetakeExamSession session1 = new RetakeExamSession();
-    session1.setId("session1_id");
-    session1.setTitle("session_2025_1");
-    session1.setDateFrom(Instant.now().plus(2, ChronoUnit.DAYS));
-    session1.setDateTo(Instant.now().plus(20, ChronoUnit.DAYS));
-
-    RetakeExamSession session2 = new RetakeExamSession();
-    session2.setId("session2_id");
-    session2.setTitle("session_2025_2");
-    session2.setDateFrom(Instant.now().plus(21, ChronoUnit.DAYS));
-    session2.setDateTo(Instant.now().plus(30, ChronoUnit.DAYS));
-
-    RetakeExam retakeExam1 = new RetakeExam();
-    retakeExam1.setId("retake1_id");
-    retakeExam1.setCourse(course1);
-    retakeExam1.setStudent(student1);
-    retakeExam1.setSession(session1);
-    retakeExam1.setStatus(REGISTERED);
-
-    RetakeExam retakeExam2 = new RetakeExam();
-    retakeExam2.setId("retake2_id");
-    retakeExam2.setCourse(course2);
-    retakeExam2.setStudent(student1);
-    retakeExam2.setSession(session2);
-    retakeExam2.setStatus(REGISTERED);
-
     ResultSummary mockSummary = new ResultSummary();
     YearlyResult yearlyResult = new YearlyResult();
     yearlyResult.setCourseResults(List.of(courseResult1, courseResult2, courseResult3));
     mockSummary.setYearlyResults(List.of(yearlyResult));
 
     when(gradeResultService.getStudentResultSummary(any())).thenReturn(mockSummary);
-
-    when(retakeExamSessionService.getRetakeExamSessions(any(), any(), any(), any(), any()))
-        .thenReturn(List.of(session1, session2));
-
-    when(retakeExamRepository.findRetakeExamsBySession_IdAndStudent_Id(
-            "session1_id", "student1_id"))
-        .thenReturn(List.of(retakeExam1));
-    when(retakeExamRepository.findRetakeExamsBySession_IdAndStudent_Id(
-            "session2_id", "student1_id"))
-        .thenReturn(List.of(retakeExam2));
-
+    when(retakeExamRepository.findActiveRetakeExamsInFutureSessions(any(), any(), any()))
+        .thenReturn(List.of(retakeExam1, retakeExam2));
     when(retakeExamSessionService.getById(any())).thenReturn(session1);
 
     var retakeExams = retakeExamService.getStudentRetakeExams(session1.getId(), student1.getId());
-
+    System.out.println(retakeExams);
     assertNotNull(retakeExams);
     assertEquals(2, retakeExams.size());
   }
@@ -162,7 +154,7 @@ class RetakeExamServiceTest {
     RetakeExamSession session = new RetakeExamSession();
     session.setId("session1");
 
-    school.hei.haapi.model.Course domainCourse = new school.hei.haapi.model.Course();
+    var domainCourse = new school.hei.haapi.model.Course();
     domainCourse.setId("course1");
     when(courseMapper.toDomain(validCourse)).thenReturn(domainCourse);
 
@@ -190,7 +182,7 @@ class RetakeExamServiceTest {
 
   @Test
   void getCourseResultToRetake_should_return_only_incomplete_courses() {
-    String studentId = "student1";
+    String studentId = student1.getId();
 
     Course course1 = new Course();
     course1.setId("course1");
@@ -221,7 +213,7 @@ class RetakeExamServiceTest {
 
   @Test
   void getCourseResultToRetake_should_throw_exception_when_yearlyResults_is_null() {
-    String studentId = "student1";
+    String studentId = student1.getId();
 
     ResultSummary resultSummary = new ResultSummary();
     resultSummary.setYearlyResults(null);
@@ -234,7 +226,7 @@ class RetakeExamServiceTest {
 
   @Test
   void getCourseResultToRetake_should_handle_null_course_results() {
-    String studentId = "student1";
+    String studentId = student1.getId();
 
     YearlyResult yearlyResult = new YearlyResult();
     yearlyResult.setCourseResults(null);
@@ -252,14 +244,14 @@ class RetakeExamServiceTest {
 
   @Test
   void getAllRetakeExamCoursesBySessionId_should_return_distinct_sorted_courses() {
-    String sessionId = "session1";
+    String sessionId = session1.getId();
     PageFromOne page = new PageFromOne(1);
     BoundedPageSize pageSize = new BoundedPageSize(10);
     Pageable pageable = PageRequest.of(0, 10);
 
-    school.hei.haapi.model.Course course1 = new school.hei.haapi.model.Course();
+    var course1 = new school.hei.haapi.model.Course();
     course1.setCode("LV");
-    school.hei.haapi.model.Course course2 = new school.hei.haapi.model.Course();
+    var course2 = new school.hei.haapi.model.Course();
     course2.setCode("MATH");
 
     RetakeExam retakeExam1 = new RetakeExam();
@@ -283,15 +275,15 @@ class RetakeExamServiceTest {
 
   @Test
   void getAllRetakeExamParticipantByCourseAndBySessionId_should_return_students() {
-    String sessionId = "session1";
+    String sessionId = session1.getId();
     String courseId = "course1";
     PageFromOne page = new PageFromOne(1);
     BoundedPageSize pageSize = new BoundedPageSize(10);
     Pageable pageable = PageRequest.of(0, 10);
 
-    school.hei.haapi.model.User student1 = new school.hei.haapi.model.User();
+    var student1 = new school.hei.haapi.model.User();
     student1.setId("student1");
-    school.hei.haapi.model.User student2 = new school.hei.haapi.model.User();
+    var student2 = new school.hei.haapi.model.User();
     student2.setId("student2");
 
     RetakeExam retakeExam1 = new RetakeExam();
