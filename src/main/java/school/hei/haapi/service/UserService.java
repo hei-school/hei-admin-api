@@ -151,7 +151,9 @@ public class UserService {
   }
 
   public User getByEmail(String email) {
-    return userRepository.getByEmail(email);
+    return userRepository
+        .findByEmail(email)
+        .orElseThrow(() -> new NotFoundException("User with email %s not found".formatted(email)));
   }
 
   @Transactional

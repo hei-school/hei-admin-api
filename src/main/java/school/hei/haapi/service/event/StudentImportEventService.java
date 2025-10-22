@@ -2,6 +2,7 @@ package school.hei.haapi.service.event;
 
 import static school.hei.haapi.service.utils.TemplateUtils.htmlToString;
 
+import jakarta.mail.internet.AddressException;
 import jakarta.mail.internet.InternetAddress;
 import jakarta.transaction.Transactional;
 import java.nio.file.Files;
@@ -16,6 +17,7 @@ import school.hei.haapi.endpoint.event.model.StudentImportEvent;
 import school.hei.haapi.endpoint.rest.mapper.UserMapper;
 import school.hei.haapi.mail.Email;
 import school.hei.haapi.mail.Mailer;
+import school.hei.haapi.model.User;
 import school.hei.haapi.model.dto.StudentImportDto;
 import school.hei.haapi.service.UserService;
 
@@ -30,24 +32,27 @@ public class StudentImportEventService implements Consumer<StudentImportEvent> {
   @Override
   @Transactional
   public void accept(StudentImportEvent event) {
+    var coordinatorUser = userService.getByEmail(event.getCoordinatorEmail());
     try {
       userService.saveAll(
           userMapper.toMapDomain(
               event.getStudents().stream().map(StudentImportDto::toCrupdateStudent).toList()),
           event.getDueDatetime());
     } catch (DuplicateKeyException e) {
-      sendDuplicatedValueEmail(event);
+      sendDuplicatedValueEmail(event, coordinatorUser);
       throw e;
     } catch (Exception e) {
-      sendErrorEmail(event, e);
+      sendErrorEmail(event, e, coordinatorUser);
       throw e;
     }
   }
 
-  private void sendDuplicatedValueEmail(StudentImportEvent event) {
+  private void sendDuplicatedValueEmail(StudentImportEvent event, User coordinatorUser) {
     try {
       var coordinatorAddress = new InternetAddress(event.getCoordinatorEmail());
-      var htmlBody = htmlToString("studentXlsxImportDuplicateValueEmail", getMailContext(event));
+      var htmlBody =
+          htmlToString(
+              "studentXlsxImportDuplicateValueEmail", getMailContext(event, coordinatorUser));
       log.info("Sending student import failure email...");
       mailer.accept(
           new Email(
@@ -57,7 +62,7 @@ public class StudentImportEventService implements Consumer<StudentImportEvent> {
               "Échec de l'import des étudiants - valeurs en double",
               htmlBody,
               List.of()));
-    } catch (Exception e) {
+    } catch (AddressException e) {
       throw new RuntimeException(
           "Failed to send student import failure email to invalid email address: "
               + event.getCoordinatorEmail(),
@@ -65,19 +70,19 @@ public class StudentImportEventService implements Consumer<StudentImportEvent> {
     }
   }
 
-  private Context getMailContext(StudentImportEvent event) {
-    var coordinatorUser = userService.getByEmail(event.getCoordinatorEmail());
+  private Context getMailContext(StudentImportEvent event, User coordinatorUser) {
     var context = new Context();
     context.setVariable("coordinatorFirstName", coordinatorUser.getFirstName());
     return context;
   }
 
-  private void sendErrorEmail(StudentImportEvent event, Exception e) {
+  private void sendErrorEmail(StudentImportEvent event, Exception e, User coordinatorUser) {
     try {
       var logFile = Files.createTempFile("log_file", ".txt");
       Files.writeString(logFile, e.toString());
       var coordinatorAddress = new InternetAddress(event.getCoordinatorEmail());
-      var htmlBody = htmlToString("studentXlsxImportDuplicateValueEmail", getMailContext(event));
+      var htmlBody =
+          htmlToString("studentXlsxImportErrorEmail", getMailContext(event, coordinatorUser));
       log.info("Sending student import failure email...");
       mailer.accept(
           new Email(
@@ -87,11 +92,13 @@ public class StudentImportEventService implements Consumer<StudentImportEvent> {
               "Échec de l'import des étudiants - valeurs en double",
               htmlBody,
               List.of(logFile.toFile())));
-    } catch (Exception ex) {
+    } catch (AddressException ex) {
       throw new RuntimeException(
           "Failed to send student import failure email to invalid email address: "
               + event.getCoordinatorEmail(),
-          e);
+          ex);
+    } catch (Exception ex) {
+      throw new RuntimeException("Failed to send student import failure email", ex);
     }
   }
 }

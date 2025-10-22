@@ -14,7 +14,7 @@ import school.hei.haapi.model.User.Role;
 
 @Repository
 public interface UserRepository extends JpaRepository<User, String> {
-  User getByEmail(String email);
+  Optional<User> findByEmail(String email);
 
   List<User> findAllByStatus(User.Status status);
 

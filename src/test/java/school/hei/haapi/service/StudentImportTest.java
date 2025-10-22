@@ -3,6 +3,7 @@ package school.hei.haapi.service;
 import static java.time.Instant.now;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.when;
 import static school.hei.haapi.endpoint.rest.model.PaymentFrequency.MONTHLY;
@@ -17,10 +18,13 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.testcontainers.junit.jupiter.Testcontainers;
+import school.hei.haapi.endpoint.event.EventProducer;
 import school.hei.haapi.endpoint.event.model.StudentImportEvent;
 import school.hei.haapi.endpoint.rest.security.AuthProvider;
 import school.hei.haapi.endpoint.rest.security.model.Principal;
+import school.hei.haapi.file.bucket.BucketComponent;
 import school.hei.haapi.integration.conf.FacadeITMockedThirdParties;
+import school.hei.haapi.mail.Mailer;
 import school.hei.haapi.model.User;
 import school.hei.haapi.model.dto.StudentImportDto;
 import school.hei.haapi.service.event.StudentImportEventService;
@@ -28,7 +32,10 @@ import school.hei.haapi.service.event.StudentImportEventService;
 @Testcontainers
 public class StudentImportTest extends FacadeITMockedThirdParties {
   @Autowired private UserService subject;
-  @MockBean private StudentImportEventService studentImportEventService;
+  @Autowired private StudentImportEventService studentImportEventService;
+  @MockBean private Mailer mailer;
+  @MockBean BucketComponent bucketComponent;
+  @MockBean private EventProducer eventProducer;
 
   @Test
   void validate_import_student_xlsx_ok() {
@@ -42,6 +49,8 @@ public class StudentImportTest extends FacadeITMockedThirdParties {
   @Test
   void handle_student_import_xlsx() {
     assertDoesNotThrow(() -> studentImportEventService.accept(studentImportEventMock()));
+    assertNotNull(subject.getByEmail("example@mail.com"));
+    assertNotNull(subject.getByEmail("example.2@mail.com"));
   }
 
   private Principal mockPrincipal() {
@@ -50,6 +59,8 @@ public class StudentImportTest extends FacadeITMockedThirdParties {
 
   private StudentImportEvent studentImportEventMock() {
     return StudentImportEvent.builder()
+        .coordinatorEmail("test+manager1@hei.school")
+        .dueDatetime(now())
         .students(
             List.of(
                 StudentImportDto.builder()
@@ -66,7 +77,7 @@ public class StudentImportTest extends FacadeITMockedThirdParties {
                     .build(),
                 StudentImportDto.builder()
                     .address("Test Adress 2")
-                    .ref("STD12345-1")
+                    .ref("STD12345-2")
                     .lastName("LastName")
                     .firstName("FirstName")
                     .sex(F)

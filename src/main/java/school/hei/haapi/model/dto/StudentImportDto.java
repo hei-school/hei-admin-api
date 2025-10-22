@@ -1,5 +1,7 @@
 package school.hei.haapi.model.dto;
 
+import static school.hei.haapi.endpoint.rest.model.EnableStatus.ENABLED;
+
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneOffset;
@@ -117,6 +119,7 @@ public class StudentImportDto {
   public CrupdateStudent toCrupdateStudent() {
     return new CrupdateStudent()
         .ref(ref)
+        .status(ENABLED)
         .firstName(firstName)
         .lastName(lastName)
         .email(email)
