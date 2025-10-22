@@ -53,6 +53,7 @@ public class RetakeExamService {
 
     var allFuturSessions =
         retakeExamSessionService.getRetakeExamSessions(null, null, null, now(), null);
+
     List<RetakeExam> retakeExamsExistingInFuturSessions =
         allFuturSessions.stream()
             .map(
@@ -103,13 +104,10 @@ public class RetakeExamService {
         .toList();
   }
 
-  public List<RetakeExam> getAllRetakeExamBySessionId(
-      String sessionId,
-      List<RetakeExamStatus> statuses,
-      PageFromOne page,
-      BoundedPageSize pageSize) {
+  public List<RetakeExam> getAllRetakeExams(
+      List<RetakeExamStatus> statuses, PageFromOne page, BoundedPageSize pageSize) {
     Pageable pageable = PageRequest.of(page.getValue() - 1, pageSize.getValue());
-    return retakeExamDao.filterByCriteria(sessionId, null, null, null, null, statuses, pageable);
+    return retakeExamDao.filterByCriteria(null, null, null, null, null, statuses, pageable);
   }
 
   public List<school.hei.haapi.model.Course> getAllRetakeExamCoursesBySessionId(

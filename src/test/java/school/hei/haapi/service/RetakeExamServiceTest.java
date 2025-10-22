@@ -30,7 +30,6 @@ import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.model.RetakeExam;
 import school.hei.haapi.model.RetakeExamSession;
-import school.hei.haapi.model.RetakeExamStatus;
 import school.hei.haapi.model.pagination.PaginationFromPageAndPageSize;
 import school.hei.haapi.repository.RetakeExamRepository;
 import school.hei.haapi.repository.dao.RetakeExamDao;
@@ -249,24 +248,6 @@ class RetakeExamServiceTest {
 
     assertNotNull(result);
     assertTrue(result.isEmpty());
-  }
-
-  @Test
-  void getAllRetakeExamBySessionId_should_call_dao() {
-    String sessionId = "session1";
-    List<RetakeExamStatus> statuses = List.of(REGISTERED);
-    PageFromOne page = new PageFromOne(1);
-    BoundedPageSize pageSize = new BoundedPageSize(10);
-    Pageable pageable = PageRequest.of(0, 10);
-
-    RetakeExam retakeExam = new RetakeExam();
-    when(retakeExamDao.filterByCriteria(sessionId, null, null, null, null, statuses, pageable))
-        .thenReturn(List.of(retakeExam));
-
-    List<RetakeExam> result =
-        retakeExamService.getAllRetakeExamBySessionId(sessionId, statuses, page, pageSize);
-
-    assertEquals(1, result.size());
   }
 
   @Test

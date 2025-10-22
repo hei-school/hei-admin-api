@@ -47,14 +47,13 @@ public class RetakeExamController {
         retakeExamService.getStudentRetakeExams(sessionId, studentId));
   }
 
-  @GetMapping("/retake_exam_sessions/{session_id}/retake_exams")
+  @GetMapping("/retake_exams")
   public List<StudentRetakeExam> getRetakeExamBySessionId(
-      @PathVariable("session_id") String sessionId,
       @RequestParam(value = "retake_exam_status", required = false) List<RetakeExamStatus> statuses,
       @RequestParam(value = "page", defaultValue = "1") PageFromOne page,
       @RequestParam(value = "page_size", defaultValue = "15") BoundedPageSize pageSize) {
     return retakeExamMapper.toStudentRetakeRestList(
-        retakeExamService.getAllRetakeExamBySessionId(sessionId, statuses, page, pageSize));
+        retakeExamService.getAllRetakeExams(statuses, page, pageSize));
   }
 
   @GetMapping("/retake_exam_sessions/{session_id}/retake_exam_courses")
