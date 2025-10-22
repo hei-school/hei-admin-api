@@ -193,10 +193,10 @@ class DirtyEventServiceTest extends FacadeITMockedThirdParties {
     EventStats stats = subject.getStats(randomCourseEvent.getFirst().getId(), null, null);
     var expectedStats =
         new EventStats()
-            .late(0)
-            .missedStats(new MissedEventStats().justified(0).unjustified(0).total(0))
-            .total(1)
-            .present(1);
+            .late(0L)
+            .missedStats(new MissedEventStats().justified(0L).unjustified(0L).total(0L))
+            .total(1L)
+            .present(1L);
     assertEquals(expectedStats, stats);
   }
 
@@ -243,10 +243,10 @@ class DirtyEventServiceTest extends FacadeITMockedThirdParties {
             Optional.of(now().plus(1, HOURS)));
     var expectedStats =
         new EventParticipantStats()
-            .missedEvents(new MissedEventStats().justified(0).unjustified(1).total(1))
-            .assistedEvents(0)
-            .lateEvents(0)
-            .totalEvents(1);
+            .missedEvents(new MissedEventStats().justified(0L).unjustified(1L).total(1L))
+            .assistedEvents(0L)
+            .lateEvents(0L)
+            .totalEvents(1L);
     assertEquals(expectedStats, randomStudentStats);
   }
 }

@@ -4,20 +4,20 @@ import school.hei.haapi.endpoint.rest.model.EventParticipantStats;
 import school.hei.haapi.endpoint.rest.model.EventStats;
 
 public record EventStatsDto(
-    Long total, Long present, Long late, Long unchecked, MissedEventStatsDto missedEventStatsDto) {
+    long total, long present, long late, long unchecked, MissedEventStatsDto missedEventStatsDto) {
   public EventStats toEventStats() {
     return new EventStats()
-        .present(this.present.intValue())
-        .late(this.late.intValue())
+        .present(this.present)
+        .late(this.late)
         .missedStats(missedEventStatsDto.toRest())
-        .total((int) (this.present + this.late + this.missedEventStatsDto.total()));
+        .total(this.present + this.late + this.missedEventStatsDto.total());
   }
 
   public EventParticipantStats toEventParticipantStats() {
     return new EventParticipantStats()
-        .assistedEvents(this.present.intValue())
-        .lateEvents(this.late.intValue())
+        .assistedEvents(this.present)
+        .lateEvents(this.late)
         .missedEvents(this.missedEventStatsDto.toRest())
-        .totalEvents((int) (this.present + this.late + this.missedEventStatsDto.total()));
+        .totalEvents(this.present + this.late + this.missedEventStatsDto.total());
   }
 }

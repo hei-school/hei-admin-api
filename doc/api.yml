@@ -7956,10 +7956,13 @@ components:
       properties:
         total:
           type: integer
+          format: int64
         justified:
           type: integer
+          format: int64
         unjustified:
           type: integer
+          format: int64
     EventStats:
       type: object
       properties:
@@ -7967,10 +7970,13 @@ components:
           $ref: "#/components/schemas/MissedEventStats"
         present:
           type: integer
+          format: int64
         late:
           type: integer
+          format: int64
         total:
           type: integer
+          format: int64
     EventParticipantStats:
       type: object
       properties:
@@ -7978,10 +7984,13 @@ components:
           $ref: "#/components/schemas/MissedEventStats"
         assisted_events:
           type: integer
+          format: int64
         late_events:
           type: integer
+          format: int64
         total_events:
           type: integer
+          format: int64
     CrupdatePromotion:
       type: object
       properties:

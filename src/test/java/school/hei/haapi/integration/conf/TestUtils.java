@@ -1419,10 +1419,10 @@ public class TestUtils {
         .planner(planner1())
         .count(
             new EventStats()
-                .late(0)
-                .missedStats(new MissedEventStats().justified(0).unjustified(1).total(1))
-                .present(1)
-                .total(2))
+                .late(0L)
+                .missedStats(new MissedEventStats().justified(0L).unjustified(1L).total(1L))
+                .present(1L)
+                .total(2L))
         .location(unknownLocationEvent().place(ANDRAHARO))
         .groups(List.of(createGroupIdentifier(group1())));
   }
@@ -1453,10 +1453,10 @@ public class TestUtils {
         .title("Integration Day")
         .count(
             new EventStats()
-                .total(3)
-                .missedStats(new MissedEventStats().justified(0).unjustified(1).total(1))
-                .present(2)
-                .late(0))
+                .total(3L)
+                .missedStats(new MissedEventStats().justified(0L).unjustified(1L).total(1L))
+                .present(2L)
+                .late(0L))
         .description("HEI students integration day")
         .location(new EventLocation().place(IVANDRY).room(B))
         .groups(List.of(createGroupIdentifier(group1()), createGroupIdentifier(group2())));
@@ -1482,10 +1482,10 @@ public class TestUtils {
         .color("#0000")
         .count(
             new EventStats()
-                .late(0)
-                .present(0)
-                .missedStats(new MissedEventStats().justified(0).unjustified(0).total(0))
-                .total(0))
+                .late(0L)
+                .present(0L)
+                .missedStats(new MissedEventStats().justified(0L).unjustified(0L).total(0L))
+                .total(0L))
         .location(unknownLocationEvent())
         .groups(List.of());
   }
