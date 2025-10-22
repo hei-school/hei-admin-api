@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.function.Consumer;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.dao.DuplicateKeyException;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.context.Context;
 import school.hei.haapi.endpoint.event.model.StudentImportEvent;
@@ -39,7 +39,7 @@ public class StudentImportEventService implements Consumer<StudentImportEvent> {
           userMapper.toMapDomain(
               event.getStudents().stream().map(StudentImportDto::toCrupdateStudent).toList()),
           event.getDueDatetime());
-    } catch (DuplicateKeyException e) {
+    } catch (DataIntegrityViolationException e) {
       sendDuplicatedValueEmail(event, coordinatorUser);
       throw e;
     } catch (Exception e) {
