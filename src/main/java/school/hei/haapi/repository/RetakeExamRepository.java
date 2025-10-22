@@ -8,7 +8,6 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import school.hei.haapi.model.RetakeExam;
-import school.hei.haapi.model.RetakeExamStatus;
 
 @Repository
 public interface RetakeExamRepository extends JpaRepository<RetakeExam, String> {
@@ -21,10 +20,8 @@ public interface RetakeExamRepository extends JpaRepository<RetakeExam, String> 
       "select re from RetakeExam re "
           + "join re.session s "
           + "where re.student.id = :studentId "
-          + "and re.status not in :excludedStatuses "
+          + "and re.status not in ('INVALIDATE', 'CANCELED')  "
           + "and s.dateTo >= :currentDate")
   List<RetakeExam> findActiveRetakeExamsInFutureSessions(
-      @Param("studentId") String studentId,
-      @Param("currentDate") Instant currentDate,
-      @Param("excludedStatuses") List<RetakeExamStatus> excludedStatuses);
+      @Param("studentId") String studentId, @Param("currentDate") Instant currentDate);
 }

@@ -4,8 +4,6 @@ import static java.time.Instant.now;
 import static java.util.Comparator.comparing;
 import static java.util.stream.Collectors.toUnmodifiableSet;
 import static school.hei.haapi.endpoint.rest.model.CourseResultStatus.INCOMPLETE;
-import static school.hei.haapi.model.RetakeExamStatus.CANCELED;
-import static school.hei.haapi.model.RetakeExamStatus.INVALIDATE;
 
 import java.util.List;
 import java.util.Objects;
@@ -50,17 +48,16 @@ public class RetakeExamService {
           session.getId(), studentId);
     }
 
-    List<RetakeExam> retakeExamsExistingInFuturSessions =
-        retakeExamRepository.findActiveRetakeExamsInFutureSessions(
-            studentId, now(), List.of(CANCELED, INVALIDATE));
+    var futureSessionRetakeExams =
+        retakeExamRepository.findActiveRetakeExamsInFutureSessions(studentId, now());
 
     var existingCourseIds =
-        retakeExamsExistingInFuturSessions.stream()
+        futureSessionRetakeExams.stream()
             .map(exam -> exam.getCourse().getId())
             .collect(toUnmodifiableSet());
 
     var existingRetakeExamsInCurrentSession =
-        retakeExamsExistingInFuturSessions.stream()
+        futureSessionRetakeExams.stream()
             .filter(exam -> exam.getSession().getId().equals(sessionId))
             .toList();
 
@@ -70,6 +67,9 @@ public class RetakeExamService {
             .map(courseResult -> courseResultAndSessionToRetake(courseResult, session))
             .toList();
 
+    // TODO: separate the responsibility of the endpoint
+    //  - one for reading what's in the database
+    //  - one for determining what needs retake
     return Stream.concat(newRetakeExams.stream(), existingRetakeExamsInCurrentSession.stream())
         .toList();
   }

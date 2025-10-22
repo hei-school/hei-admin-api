@@ -1,6 +1,9 @@
 package school.hei.haapi.service;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertThrows;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -17,7 +20,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import school.hei.haapi.endpoint.rest.mapper.CourseMapper;
 import school.hei.haapi.endpoint.rest.model.Course;
 import school.hei.haapi.endpoint.rest.model.CourseResult;
@@ -133,7 +135,7 @@ class RetakeExamServiceTest {
     mockSummary.setYearlyResults(List.of(yearlyResult));
 
     when(gradeResultService.getStudentResultSummary(any())).thenReturn(mockSummary);
-    when(retakeExamRepository.findActiveRetakeExamsInFutureSessions(any(), any(), any()))
+    when(retakeExamRepository.findActiveRetakeExamsInFutureSessions(any(), any()))
         .thenReturn(List.of(retakeExam1, retakeExam2));
     when(retakeExamSessionService.getById(any())).thenReturn(session1);
 
@@ -151,7 +153,7 @@ class RetakeExamServiceTest {
     courseResult.setCourse(validCourse);
     courseResult.setStatus(INCOMPLETE);
 
-    RetakeExamSession session = new RetakeExamSession();
+    var session = new RetakeExamSession();
     session.setId("session1");
 
     var domainCourse = new school.hei.haapi.model.Course();
@@ -167,11 +169,11 @@ class RetakeExamServiceTest {
 
   @Test
   void courseResultAndSessionToRetake_with_null_course_should_throw_exception() {
-    CourseResult courseResultWithNullCourse = new CourseResult();
+    var courseResultWithNullCourse = new CourseResult();
     courseResultWithNullCourse.setCourse(null);
     courseResultWithNullCourse.setStatus(INCOMPLETE);
 
-    RetakeExamSession session = new RetakeExamSession();
+    var session = new RetakeExamSession();
     session.setId("session1");
 
     assertThrows(
@@ -182,24 +184,24 @@ class RetakeExamServiceTest {
 
   @Test
   void getCourseResultToRetake_should_return_only_incomplete_courses() {
-    String studentId = student1.getId();
+    var studentId = student1.getId();
 
-    Course course1 = new Course();
+    var course1 = new Course();
     course1.setId("course1");
-    Course course2 = new Course();
+    var course2 = new Course();
     course2.setId("course2");
 
-    CourseResult incompleteCourse = new CourseResult();
+    var incompleteCourse = new CourseResult();
     incompleteCourse.setCourse(course1);
     incompleteCourse.setStatus(INCOMPLETE);
-    CourseResult completeCourse = new CourseResult();
+    var completeCourse = new CourseResult();
     completeCourse.setCourse(course2);
     completeCourse.setStatus(VALIDATED);
 
-    YearlyResult yearlyResult = new YearlyResult();
+    var yearlyResult = new YearlyResult();
     yearlyResult.setCourseResults(List.of(incompleteCourse, completeCourse));
 
-    ResultSummary resultSummary = new ResultSummary();
+    var resultSummary = new ResultSummary();
     resultSummary.setYearlyResults(List.of(yearlyResult));
 
     when(gradeResultService.getStudentResultSummary(studentId)).thenReturn(resultSummary);
@@ -213,9 +215,9 @@ class RetakeExamServiceTest {
 
   @Test
   void getCourseResultToRetake_should_throw_exception_when_yearlyResults_is_null() {
-    String studentId = student1.getId();
+    var studentId = student1.getId();
 
-    ResultSummary resultSummary = new ResultSummary();
+    var resultSummary = new ResultSummary();
     resultSummary.setYearlyResults(null);
 
     when(gradeResultService.getStudentResultSummary(studentId)).thenReturn(resultSummary);
@@ -226,12 +228,12 @@ class RetakeExamServiceTest {
 
   @Test
   void getCourseResultToRetake_should_handle_null_course_results() {
-    String studentId = student1.getId();
+    var studentId = student1.getId();
 
-    YearlyResult yearlyResult = new YearlyResult();
+    var yearlyResult = new YearlyResult();
     yearlyResult.setCourseResults(null);
 
-    ResultSummary resultSummary = new ResultSummary();
+    var resultSummary = new ResultSummary();
     resultSummary.setYearlyResults(List.of(yearlyResult));
 
     when(gradeResultService.getStudentResultSummary(studentId)).thenReturn(resultSummary);
@@ -244,63 +246,63 @@ class RetakeExamServiceTest {
 
   @Test
   void getAllRetakeExamCoursesBySessionId_should_return_distinct_sorted_courses() {
-    String sessionId = session1.getId();
-    PageFromOne page = new PageFromOne(1);
-    BoundedPageSize pageSize = new BoundedPageSize(10);
-    Pageable pageable = PageRequest.of(0, 10);
+    var sessionId = session1.getId();
+    var page = new PageFromOne(1);
+    var pageSize = new BoundedPageSize(10);
+    var pageable = PageRequest.of(0, 10);
 
     var course1 = new school.hei.haapi.model.Course();
     course1.setCode("LV");
     var course2 = new school.hei.haapi.model.Course();
     course2.setCode("MATH");
 
-    RetakeExam retakeExam1 = new RetakeExam();
+    var retakeExam1 = new RetakeExam();
     retakeExam1.setCourse(course1);
-    RetakeExam retakeExam2 = new RetakeExam();
+    var retakeExam2 = new RetakeExam();
     retakeExam2.setCourse(course2);
-    RetakeExam retakeExam3 = new RetakeExam();
+    var retakeExam3 = new RetakeExam();
     retakeExam3.setCourse(course1);
 
     when(paginationFromPageAndPageSize.apply(page, pageSize)).thenReturn(pageable);
     when(retakeExamDao.filterByCriteria(sessionId, null, null, null, null, null, pageable))
         .thenReturn(List.of(retakeExam1, retakeExam2, retakeExam3));
 
-    List<school.hei.haapi.model.Course> result =
+    var retakeExamsCourses =
         retakeExamService.getAllRetakeExamCoursesBySessionId(sessionId, null, page, pageSize);
 
-    assertEquals(2, result.size());
-    assertEquals("LV", result.getFirst().getCode());
-    assertEquals("MATH", result.get(1).getCode());
+    assertEquals(2, retakeExamsCourses.size());
+    assertEquals("LV", retakeExamsCourses.getFirst().getCode());
+    assertEquals("MATH", retakeExamsCourses.get(1).getCode());
   }
 
   @Test
   void getAllRetakeExamParticipantByCourseAndBySessionId_should_return_students() {
-    String sessionId = session1.getId();
-    String courseId = "course1";
-    PageFromOne page = new PageFromOne(1);
-    BoundedPageSize pageSize = new BoundedPageSize(10);
-    Pageable pageable = PageRequest.of(0, 10);
+    var sessionId = session1.getId();
+    var courseId = "course1";
+    var page = new PageFromOne(1);
+    var pageSize = new BoundedPageSize(10);
+    var pageable = PageRequest.of(0, 10);
 
     var student1 = new school.hei.haapi.model.User();
     student1.setId("student1");
     var student2 = new school.hei.haapi.model.User();
     student2.setId("student2");
 
-    RetakeExam retakeExam1 = new RetakeExam();
+    var retakeExam1 = new RetakeExam();
     retakeExam1.setStudent(student1);
-    RetakeExam retakeExam2 = new RetakeExam();
+    var retakeExam2 = new RetakeExam();
     retakeExam2.setStudent(student2);
 
     when(paginationFromPageAndPageSize.apply(page, pageSize)).thenReturn(pageable);
     when(retakeExamDao.filterByCriteria(sessionId, null, null, courseId, null, null, pageable))
         .thenReturn(List.of(retakeExam1, retakeExam2));
 
-    List<school.hei.haapi.model.User> result =
+    var participants =
         retakeExamService.getAllRetakeExamParticipantByCourseAndBySessionId(
             sessionId, courseId, null, page, pageSize);
 
-    assertEquals(2, result.size());
-    assertEquals("student1", result.getFirst().getId());
-    assertEquals("student2", result.get(1).getId());
+    assertEquals(2, participants.size());
+    assertEquals("student1", participants.getFirst().getId());
+    assertEquals("student2", participants.get(1).getId());
   }
 }
