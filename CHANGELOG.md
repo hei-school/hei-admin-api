@@ -1,3 +1,13 @@
+# [1.128.0](https://github.com/hei-school/hei-admin-api/compare/v1.127.0...v1.128.0) (2025-10-23)
+
+
+### Features
+
+* add missing status to event participant ([a4bd62b](https://github.com/hei-school/hei-admin-api/commit/a4bd62b2e021dc6b1feb6d461763631314ce3c08))
+* import student from xlsx  ([319cc70](https://github.com/hei-school/hei-admin-api/commit/319cc70dde9a6f244f49ab02f6e0b548026e8a0f))
+
+
+
 # [1.127.0](https://github.com/hei-school/hei-admin-api/compare/v1.126.0...v1.127.0) (2025-10-21)
 
 
@@ -113,20 +123,6 @@
 ### Reverts
 
 * Revert "docs(api): student attendance with refactor components and filter" ([592b395](https://github.com/hei-school/hei-admin-api/commit/592b3952116b69030b90fe964000c026fe805b73))
-
-
-
-# [1.120.0](https://github.com/hei-school/hei-admin-api/compare/v1.119.0...v1.120.0) (2025-09-24)
-
-
-### Bug Fixes
-
-* wrong result overview status computation ([e5e2db1](https://github.com/hei-school/hei-admin-api/commit/e5e2db1c70ff2745a0c25716b9d7ffe639b46131))
-
-
-### Features
-
-* **doc:** add retake exam registration date ([8c6c3b5](https://github.com/hei-school/hei-admin-api/commit/8c6c3b5b5fec723423dfbcd4d75760728ba91e84))
 
 
 
