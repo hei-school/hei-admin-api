@@ -1,8 +1,12 @@
 package school.hei.haapi.service;
 
+import static org.apache.poi.ss.usermodel.Row.MissingCellPolicy.CREATE_NULL_AS_BLANK;
 import static org.springframework.data.domain.Pageable.unpaged;
 import static org.springframework.data.domain.Sort.Direction.ASC;
-import static school.hei.haapi.endpoint.rest.model.WorkStudyStatus.*;
+import static school.hei.haapi.endpoint.rest.model.WorkStudyStatus.HAVE_BEEN_WORKING;
+import static school.hei.haapi.endpoint.rest.model.WorkStudyStatus.NOT_WORKING;
+import static school.hei.haapi.endpoint.rest.model.WorkStudyStatus.WILL_BE_WORKING;
+import static school.hei.haapi.endpoint.rest.model.WorkStudyStatus.WORKING;
 import static school.hei.haapi.model.User.Role.STUDENT;
 import static school.hei.haapi.model.User.Role.TEACHER;
 import static school.hei.haapi.model.User.Sex.F;
@@ -12,15 +16,20 @@ import static school.hei.haapi.model.User.Status.ENABLED;
 import static school.hei.haapi.model.User.Status.SUSPENDED;
 import static school.hei.haapi.service.aws.FileService.getFormattedProfilePictureKey;
 
+import jakarta.ws.rs.InternalServerErrorException;
 import java.io.File;
+import java.io.IOException;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
@@ -30,13 +39,25 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import school.hei.haapi.endpoint.event.EventProducer;
+import school.hei.haapi.endpoint.event.model.StudentImportEvent;
 import school.hei.haapi.endpoint.event.model.UserUpserted;
-import school.hei.haapi.endpoint.rest.model.*;
+import school.hei.haapi.endpoint.rest.mapper.UserMapper;
+import school.hei.haapi.endpoint.rest.model.PaymentFrequency;
+import school.hei.haapi.endpoint.rest.model.Statistics;
+import school.hei.haapi.endpoint.rest.model.StatisticsDetails;
+import school.hei.haapi.endpoint.rest.model.StatisticsStudentsAlternating;
+import school.hei.haapi.endpoint.rest.model.Student;
+import school.hei.haapi.endpoint.rest.model.StudentImportValidationResult;
+import school.hei.haapi.endpoint.rest.model.WorkStudyStatus;
+import school.hei.haapi.endpoint.rest.security.AuthProvider;
+import school.hei.haapi.file.bucket.BucketComponent;
 import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.EventParticipant;
 import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.model.Promotion;
 import school.hei.haapi.model.User;
+import school.hei.haapi.model.dto.StudentImportDto;
+import school.hei.haapi.model.exception.BadRequestException;
 import school.hei.haapi.model.exception.NotFoundException;
 import school.hei.haapi.model.validator.UserValidator;
 import school.hei.haapi.repository.EventParticipantRepository;
@@ -46,6 +67,7 @@ import school.hei.haapi.repository.UserRepository;
 import school.hei.haapi.repository.dao.UserManagerDao;
 import school.hei.haapi.service.aws.FileService;
 import school.hei.haapi.service.utils.XlsxCellsGenerator;
+import school.hei.haapi.service.utils.excel.ExcelParser;
 
 @Service
 @AllArgsConstructor
@@ -64,6 +86,10 @@ public class UserService {
   private final EventParticipantRepository eventParticipantRepository;
   private final XlsxCellsGenerator<User> userXlsxCellsGenerator;
   private final XlsxCellsGenerator<EventParticipant> eventParticipantXlsxCellsGenerator;
+  private final BucketComponent bucketComponent;
+  private final UserMapper userMapper;
+
+  private static final String STUDENT_XLSX_IMPORT_BUCKET_KEY = "/STUDENT_XLSX_IMPORT/";
 
   public void uploadUserProfilePicture(MultipartFile profilePictureAsMultipartFile, String userId) {
     User user = getById(userId);
@@ -125,7 +151,9 @@ public class UserService {
   }
 
   public User getByEmail(String email) {
-    return userRepository.getByEmail(email);
+    return userRepository
+        .findByEmail(email)
+        .orElseThrow(() -> new NotFoundException("User with email %s not found".formatted(email)));
   }
 
   @Transactional
@@ -195,6 +223,52 @@ public class UserService {
             "ostie",
             "cnaps",
             "address"));
+  }
+
+  public StudentImportValidationResult initStudentImportFromXlsx(
+      File excelFile, Instant dueDatetime) {
+    var parser = new ExcelParser<>(StudentImportDto.class, StudentImportDto.getCellMap());
+    var coordinatorEmail = AuthProvider.getPrincipal().getUser().getEmail();
+    try {
+      var parseResult = parser.parseFile(excelFile, 0, CREATE_NULL_AS_BLANK);
+      if (parseResult.skippedRows().size() > 1) {
+        var errorMessage =
+            parseResult.skippedRows().values().stream()
+                .map(Throwable::getMessage)
+                .collect(Collectors.joining("\n"));
+        throw new BadRequestException(errorMessage);
+      }
+      var importResults = parseResult.parsedResult();
+      if (importResults.size() > 50) {
+        throw new BadRequestException(
+            "Le nombre maximum d'importation par excel est de 50 étudiants");
+      }
+      validateDuplicateStudentImport(importResults);
+      bucketComponent.upload(excelFile, STUDENT_XLSX_IMPORT_BUCKET_KEY + excelFile.getName());
+      eventProducer.accept(
+          List.of(
+              StudentImportEvent.builder()
+                  .coordinatorEmail(coordinatorEmail)
+                  .students(importResults)
+                  .dueDatetime(dueDatetime)
+                  .build()));
+      return new StudentImportValidationResult().validStudentNumber(importResults.size());
+    } catch (IOException e) {
+      throw new InternalServerErrorException("Unable to read file");
+    }
+  }
+
+  private void validateDuplicateStudentImport(List<StudentImportDto> importResults) {
+    Set<String> seenRefs = new HashSet<>();
+    Set<String> seenEmails = new HashSet<>();
+    for (StudentImportDto dto : importResults) {
+      if (!seenRefs.add(dto.getRef())) {
+        throw new BadRequestException("Référence dupliqués détecté: " + dto.getRef());
+      }
+      if (!seenEmails.add(dto.getEmail())) {
+        throw new BadRequestException("Email dupliqués détecté: " + dto.getEmail());
+      }
+    }
   }
 
   public List<User> getAllEnabledUsers() {

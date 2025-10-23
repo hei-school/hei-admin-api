@@ -136,7 +136,7 @@ public class MpbsVerificationService {
         new ExcelParser<>(
             MobileTransactionDetailsDto.class, MobileTransactionDetailsDto.getExcelColumnMap());
     var transactions =
-        excelParser.parseFile(file, 0, CREATE_NULL_AS_BLANK).stream()
+        excelParser.parseFile(file, 0, CREATE_NULL_AS_BLANK).parsedResult().stream()
             .map(MobileTransactionDetailsDto::toModel)
             .toList();
     List<MobileTransactionDetails> unsavedTransactions =

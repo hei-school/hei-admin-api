@@ -19,6 +19,7 @@ import school.hei.haapi.model.User;
 import school.hei.haapi.model.exception.NotFoundException;
 import school.hei.haapi.repository.GroupRepository;
 import school.hei.haapi.repository.dao.GroupDao;
+import school.hei.haapi.repository.dao.UserManagerDao;
 
 @Service
 @AllArgsConstructor
@@ -26,7 +27,7 @@ public class GroupService {
   // todo: to review all class
 
   private final GroupRepository repository;
-  private final UserService userService;
+  private final UserManagerDao userManagerDao;
   private final GroupFlowService groupFlowService;
   private final GroupRepository groupRepository;
   private final GroupDao groupDao;
@@ -53,7 +54,21 @@ public class GroupService {
   }
 
   public Integer getGroupSize(String groupId) {
-    List<User> students = userService.getByGroupId(groupId, Pageable.unpaged());
+    List<User> students =
+        userManagerDao.findByCriteria(
+            User.Role.STUDENT,
+            null,
+            null,
+            null,
+            Pageable.unpaged(),
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            List.of(groupId));
     return students.size();
   }
 
