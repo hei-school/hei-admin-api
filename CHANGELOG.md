@@ -1,4 +1,10 @@
-# [1.128.0](https://github.com/hei-school/hei-admin-api/compare/v1.127.0...v1.128.0) (2025-10-23)
+# [1.129.0](https://github.com/hei-school/hei-admin-api/compare/v1.127.0...v1.129.0) (2025-10-23)
+
+
+### Bug Fixes
+
+* import student by xlsx ([f6babf8](https://github.com/hei-school/hei-admin-api/commit/f6babf83acb3899553a74aab625dfe16e1f256d5))
+* student import xlsx security conf ([08fa5f5](https://github.com/hei-school/hei-admin-api/commit/08fa5f5a92a2b38f4ada78e44aaaa27f988b8515))
 
 
 ### Features
