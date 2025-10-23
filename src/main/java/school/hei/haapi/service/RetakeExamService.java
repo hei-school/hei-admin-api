@@ -74,7 +74,8 @@ public class RetakeExamService {
         .toList();
   }
 
-  RetakeExam courseResultAndSessionToRetake(CourseResult courseResult, RetakeExamSession session) {
+  private RetakeExam courseResultAndSessionToRetake(
+      CourseResult courseResult, RetakeExamSession session) {
     Course course = courseResult.getCourse();
     if (course == null) {
       throw new IllegalStateException("Course must not be null for CourseResult: " + courseResult);
@@ -85,9 +86,14 @@ public class RetakeExamService {
     return retakeExam;
   }
 
-  List<CourseResult> getCourseResultToRetake(String studentId) {
+  private List<CourseResult> getCourseResultToRetake(String studentId) {
     List<YearlyResult> yearlyResults =
         gradeResultService.getStudentResultSummary(studentId).getYearlyResults();
+
+    if (yearlyResults == null) {
+      throw new IllegalStateException(
+          "No yearly result generated for this student with id : %s".formatted(studentId));
+    }
 
     return yearlyResults.stream()
         .filter(Objects::nonNull)

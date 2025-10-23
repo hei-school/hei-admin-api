@@ -44,4 +44,14 @@ public class CourseTestData {
         .totalHours(70)
         .build();
   }
+
+  public static Course ia1() {
+    return Course.builder()
+        .id(randomUUID().toString())
+        .code(randomUUID().toString())
+        .name("Implemented IA")
+        .credits(6)
+        .totalHours(20)
+        .build();
+  }
 }
