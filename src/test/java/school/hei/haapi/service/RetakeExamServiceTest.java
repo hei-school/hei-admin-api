@@ -18,8 +18,6 @@ import static school.hei.haapi.integration.test_data.StudentTestData.axel;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import school.hei.haapi.endpoint.rest.mapper.CourseMapper;
@@ -31,19 +29,16 @@ import school.hei.haapi.model.Course;
 import school.hei.haapi.model.RetakeExam;
 import school.hei.haapi.model.RetakeExamSession;
 import school.hei.haapi.model.User;
-import school.hei.haapi.model.pagination.PaginationFromPageAndPageSize;
 import school.hei.haapi.repository.CourseRepository;
 import school.hei.haapi.repository.RetakeExamRepository;
 import school.hei.haapi.repository.RetakeExamSessionRepository;
 
-@ExtendWith(MockitoExtension.class)
 class RetakeExamServiceTest extends FacadeITMockedThirdParties {
   @Autowired private CourseRepository courseRepository;
   @Autowired private RetakeExamRepository retakeExamRepository;
   @Autowired private RetakeExamSessionRepository retakeExamSessionRepository;
   @MockBean private GradeResultService gradeResultService;
   @Autowired private CourseMapper courseMapper;
-  @Autowired private PaginationFromPageAndPageSize paginationFromPageAndPageSize;
   @Autowired private RetakeExamService subject;
 
   private static User axel;
@@ -107,8 +102,8 @@ class RetakeExamServiceTest extends FacadeITMockedThirdParties {
 
   @Test
   void getAllStudentRetakeExams_with_two_future_sessions() {
-    ResultSummary mockSummary = new ResultSummary();
-    YearlyResult yearlyResult = new YearlyResult();
+    var mockSummary = new ResultSummary();
+    var yearlyResult = new YearlyResult();
     yearlyResult.setCourseResults(List.of(courseResult1(), courseResult2(), courseResult3()));
     mockSummary.setYearlyResults(List.of(yearlyResult));
 

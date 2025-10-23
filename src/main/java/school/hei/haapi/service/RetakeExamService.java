@@ -4,6 +4,8 @@ import static java.time.Instant.now;
 import static java.util.Comparator.comparing;
 import static java.util.stream.Collectors.toUnmodifiableSet;
 import static school.hei.haapi.endpoint.rest.model.CourseResultStatus.INCOMPLETE;
+import static school.hei.haapi.model.RetakeExamStatus.CANCELED;
+import static school.hei.haapi.model.RetakeExamStatus.INVALIDATE;
 
 import java.util.List;
 import java.util.Objects;
@@ -49,7 +51,8 @@ public class RetakeExamService {
     }
 
     var futureSessionRetakeExams =
-        retakeExamRepository.findActiveRetakeExamsInFutureSessions(studentId, now());
+        retakeExamRepository.findRetakeExamByStudent_IdAndStatusIsNotInAndSession_DateToGreaterThan(
+            studentId, List.of(INVALIDATE, CANCELED), now());
 
     var existingCourseIds =
         futureSessionRetakeExams.stream()
