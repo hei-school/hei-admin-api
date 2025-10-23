@@ -61,20 +61,17 @@ public class RetakeExamService {
 
     var existingRetakeExamsInCurrentSession =
         futureSessionRetakeExams.stream()
-            .filter(exam -> exam.getSession().getId().equals(sessionId))
-            .toList();
+            .filter(exam -> exam.getSession().getId().equals(sessionId));
 
     var newRetakeExams =
         coursesToRetake.stream()
             .filter(courseResult -> !existingCourseIds.contains(courseResult.getCourse().getId()))
-            .map(courseResult -> courseResultAndSessionToRetake(courseResult, session))
-            .toList();
+            .map(courseResult -> courseResultAndSessionToRetake(courseResult, session));
 
     // TODO: separate the responsibility of the endpoint
     //  - one for reading what's in the database
     //  - one for determining what needs retake
-    return Stream.concat(newRetakeExams.stream(), existingRetakeExamsInCurrentSession.stream())
-        .toList();
+    return Stream.concat(newRetakeExams, existingRetakeExamsInCurrentSession).toList();
   }
 
   private RetakeExam courseResultAndSessionToRetake(

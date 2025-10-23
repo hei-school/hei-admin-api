@@ -1,44 +1,20 @@
 package school.hei.haapi.integration.test_data;
 
-import static school.hei.haapi.integration.test_data.CourseTestData.ia1;
-import static school.hei.haapi.integration.test_data.CourseTestData.prog1;
-import static school.hei.haapi.integration.test_data.CourseTestData.prog3;
-import static school.hei.haapi.integration.test_data.RetakeExamSessionTestData.session1;
-import static school.hei.haapi.integration.test_data.RetakeExamSessionTestData.session2;
-import static school.hei.haapi.integration.test_data.StudentTestData.axel;
 import static school.hei.haapi.model.RetakeExamStatus.REGISTERED;
 
-import lombok.AllArgsConstructor;
+import school.hei.haapi.model.Course;
 import school.hei.haapi.model.RetakeExam;
+import school.hei.haapi.model.RetakeExamSession;
+import school.hei.haapi.model.User;
 
-@AllArgsConstructor
 public class RetakeExamTestData {
-  public static RetakeExam retakeExamProg1() {
+  public static RetakeExam createRetakeExam(
+      User student, Course course, RetakeExamSession session) {
     return RetakeExam.builder()
-        .id("retakeExamProg1")
-        .student(axel())
-        .course(prog1())
-        .session(session1())
-        .status(REGISTERED)
-        .build();
-  }
-
-  public static RetakeExam retakeExamProg3() {
-    return RetakeExam.builder()
-        .id("retakeExamProg3")
-        .student(axel())
-        .course(prog3())
-        .session(session1())
-        .status(REGISTERED)
-        .build();
-  }
-
-  public static RetakeExam retakeExamIa1() {
-    return RetakeExam.builder()
-        .id("retakeExamIa1")
-        .student(axel())
-        .course(ia1())
-        .session(session2())
+        .id("retakeExam%s".formatted(course.getId()))
+        .student(student)
+        .course(course)
+        .session(session)
         .status(REGISTERED)
         .build();
   }

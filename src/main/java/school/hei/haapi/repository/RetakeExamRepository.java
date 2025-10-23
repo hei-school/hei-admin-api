@@ -17,5 +17,5 @@ public interface RetakeExamRepository extends JpaRepository<RetakeExam, String> 
   List<RetakeExam> findRetakeExamsBySession_IdAndStudent_Id(String sessionId, String studentId);
 
   List<RetakeExam> findRetakeExamByStudent_IdAndStatusIsNotInAndSession_DateToGreaterThan(
-      String student_id, Collection<RetakeExamStatus> status, Instant session_dateTo);
+      String studentId, Collection<RetakeExamStatus> status, Instant sessionDateTo);
 }
