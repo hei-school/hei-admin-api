@@ -90,10 +90,7 @@ public class RetakeExamService {
     List<YearlyResult> yearlyResults =
         gradeResultService.getStudentResultSummary(studentId).getYearlyResults();
 
-    if (yearlyResults == null) {
-      throw new IllegalStateException(
-          "No yearly result generated for this student with id : %s".formatted(studentId));
-    }
+    if (yearlyResults == null) return List.of();
 
     return yearlyResults.stream()
         .filter(Objects::nonNull)
