@@ -728,18 +728,20 @@ paths:
         - Users
       summary: Import students from an excel file
       operationId: importStudents
+      parameters:
+        - in: query
+          name: due_datetime
+          required: false
+          schema:
+            type: string
+            format: date-time
       requestBody:
         description: Form containing the xlsx file for students to import
         required: true
         content:
           multipart/form-data:
             schema:
-              allOf:
-                - $ref: '#/components/schemas/UploadFile'
-              properties:
-                due_datetime:
-                  type: string
-                  format: date-time
+              $ref: '#/components/schemas/UploadFile'
       responses:
         '200':
           description: Status of the validation of imported students

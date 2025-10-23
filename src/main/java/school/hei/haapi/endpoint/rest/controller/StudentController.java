@@ -153,7 +153,7 @@ public class StudentController {
   @PostMapping(value = "students/import", consumes = MULTIPART_FORM_DATA_VALUE)
   public StudentImportValidationResult importStudents(
       @RequestParam("due_datetime") Instant dueDatetime,
-      @RequestParam("file_to_upload") MultipartFile fileToUpload) {
+      @RequestPart("file_to_upload") MultipartFile fileToUpload) {
     return userService.initStudentImportFromXlsx(fileConverter.apply(fileToUpload), dueDatetime);
   }
 }
