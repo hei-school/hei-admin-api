@@ -105,6 +105,7 @@ public class SecurityConf {
                     antMatcher(GET, "/school/files"),
                     antMatcher(GET, "/school/files/*"),
                     antMatcher(GET, "/school/files/share_link"),
+                    antMatcher(POST, "/students/import"),
                     antMatcher(GET, "/students/*/work_files"),
                     antMatcher(GET, "/students/*/work_files/*"),
                     antMatcher(POST, "/students/*/group_flows"),
@@ -423,6 +424,8 @@ public class SecurityConf {
                     .requestMatchers(POST, "/staff_members/*/picture/raw")
                     .hasRole(ADMIN.getRole())
                     // STUDENTS
+                    .requestMatchers(POST, "/students/import")
+                    .hasAnyRole(MANAGER.getRole(), ADMIN.getRole())
                     .requestMatchers(GET, "/students")
                     .hasAnyRole(
                         TEACHER.getRole(), MANAGER.getRole(), MONITOR.getRole(), ADMIN.getRole())
@@ -898,7 +901,6 @@ public class SecurityConf {
                     //
                     // Event resources
                     //
-
                     .requestMatchers(GET, "/events/students/*/stats")
                     .hasAnyRole(
                         TEACHER.getRole(), MANAGER.getRole(), ADMIN.getRole(), ORGANIZER.getRole())
