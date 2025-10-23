@@ -24,8 +24,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import school.hei.haapi.integration.conf.FacadeITMockedThirdParties;
 import school.hei.haapi.model.Event;
 import school.hei.haapi.model.EventParticipant;
+import school.hei.haapi.model.StudentAttendanceStatus;
 import school.hei.haapi.model.User;
-import school.hei.haapi.model.dto.StudentAttendanceStatusDto;
 import school.hei.haapi.repository.EventParticipantRepository;
 import school.hei.haapi.repository.EventRepository;
 import school.hei.haapi.repository.UserRepository;
@@ -51,13 +51,13 @@ class AttendanceServiceIT extends FacadeITMockedThirdParties {
         eventRepository.save(
             Event.builder()
                 .id(randomUUID().toString())
-                .beginDatetime(missingStudentAttendanceStatus().getBeginDatetime())
-                .endDatetime(missingStudentAttendanceStatus().getEndDatetime())
-                .title(missingStudentAttendanceStatus().getEventTitle())
-                .description(missingStudentAttendanceStatus().getEventDescription())
-                .type(missingStudentAttendanceStatus().getEventType())
-                .room(missingStudentAttendanceStatus().getRoom())
-                .place(missingStudentAttendanceStatus().getPlace())
+                .beginDatetime(missingStudentAttendanceStatus().beginDatetime())
+                .endDatetime(missingStudentAttendanceStatus().endDatetime())
+                .title(missingStudentAttendanceStatus().eventTitle())
+                .description(missingStudentAttendanceStatus().eventDescription())
+                .type(missingStudentAttendanceStatus().eventType())
+                .room(missingStudentAttendanceStatus().room())
+                .place(missingStudentAttendanceStatus().place())
                 .build());
     studentOne =
         userRepository.save(
@@ -87,7 +87,7 @@ class AttendanceServiceIT extends FacadeITMockedThirdParties {
                 .id(randomUUID().toString())
                 .event(event)
                 .participant(studentOne)
-                .status(missingStudentAttendanceStatus().getAttendanceStatus())
+                .status(missingStudentAttendanceStatus().attendanceStatus())
                 .build());
     eventParticipantTwo =
         eventParticipantRepository.save(
@@ -95,7 +95,7 @@ class AttendanceServiceIT extends FacadeITMockedThirdParties {
                 .id(randomUUID().toString())
                 .event(event)
                 .participant(studentTwo)
-                .status(presentStudentAttendanceStatus().getAttendanceStatus())
+                .status(presentStudentAttendanceStatus().attendanceStatus())
                 .build());
   }
 
@@ -128,8 +128,8 @@ class AttendanceServiceIT extends FacadeITMockedThirdParties {
     assertEquals(List.of(presentStudentAttendanceStatus()), actual);
   }
 
-  private StudentAttendanceStatusDto missingStudentAttendanceStatus() {
-    return new StudentAttendanceStatusDto(
+  private StudentAttendanceStatus missingStudentAttendanceStatus() {
+    return new StudentAttendanceStatus(
         "eventTitle",
         "eventDescription",
         COURSE,
@@ -140,8 +140,8 @@ class AttendanceServiceIT extends FacadeITMockedThirdParties {
         ANDRAHARO);
   }
 
-  private StudentAttendanceStatusDto presentStudentAttendanceStatus() {
-    return new StudentAttendanceStatusDto(
+  private StudentAttendanceStatus presentStudentAttendanceStatus() {
+    return new StudentAttendanceStatus(
         "eventTitle",
         "eventDescription",
         COURSE,

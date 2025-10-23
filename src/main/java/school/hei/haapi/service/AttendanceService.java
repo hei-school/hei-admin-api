@@ -9,7 +9,7 @@ import lombok.AllArgsConstructor;
 import lombok.NonNull;
 import org.springframework.stereotype.Service;
 import school.hei.haapi.endpoint.rest.model.AttendanceStatus;
-import school.hei.haapi.model.dto.StudentAttendanceStatusDto;
+import school.hei.haapi.model.StudentAttendanceStatus;
 import school.hei.haapi.model.exception.NotImplementedException;
 import school.hei.haapi.repository.EventRepository;
 import school.hei.haapi.repository.UserRepository;
@@ -20,7 +20,7 @@ public class AttendanceService {
   private final EventRepository eventRepository;
   private final UserRepository userRepository;
 
-  public List<StudentAttendanceStatusDto> getStudentAttendanceByStudentId(
+  public List<StudentAttendanceStatus> getStudentAttendanceByStudentId(
       String studentId,
       AttendanceStatus actualAttendanceStatus,
       Instant from,
@@ -31,15 +31,12 @@ public class AttendanceService {
 
     var student = userRepository.findById(studentId).orElseThrow();
     var studentReference = student.getRef();
-    var attendanceStatus =
-        actualAttendanceStatus == null ? MISSING.name() : actualAttendanceStatus.name();
-    var studentAttendanceObject =
-        eventRepository.getStudentAttendance(
-            studentReference,
-            attendanceStatus,
-            from,
-            to,
-            titles.stream().findFirst().map("%%%s%%"::formatted).orElse(null));
-    return studentAttendanceObject.stream().map(StudentAttendanceStatusDto::new).toList();
+    var attendanceStatus = actualAttendanceStatus == null ? MISSING : actualAttendanceStatus;
+    return eventRepository.getStudentAttendance(
+        studentReference,
+        attendanceStatus,
+        from,
+        to,
+        titles.stream().findFirst().map("%%%s%%"::formatted).orElse(null));
   }
 }

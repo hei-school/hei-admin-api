@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
+import school.hei.haapi.endpoint.rest.model.AttendanceStatus;
 import school.hei.haapi.model.Event;
 import school.hei.haapi.model.StudentAttendanceStatus;
 
@@ -17,18 +18,23 @@ public interface EventRepository extends JpaRepository<Event, String> {
   @Query(
       value =
           """
-      select
-          event_title eventTitle,
-          event_description eventDescription,
-          event_type eventType,
-          attendance_status attendanceStatus,
-          begin_datetime beginDatetime,
-          end_datetime endDatetime,
-          room,
-          place
-      from get_event_student_attendance(:reference, cast(:attendanceStatus as attendance_status), :from, :to, :title)
-""",
-      nativeQuery = true)
+    SELECT new school.hei.haapi.model.StudentAttendanceStatus(
+        eventParticipant.event.title,
+        eventParticipant.event.description,
+        eventParticipant.event.type,
+        eventParticipant.status,
+        eventParticipant.event.beginDatetime,
+        eventParticipant.event.endDatetime,
+        eventParticipant.event.room,
+        eventParticipant.event.place
+    )
+    FROM EventParticipant eventParticipant
+    WHERE eventParticipant.participant.ref = :reference
+        AND eventParticipant.status = :attendanceStatus
+        AND eventParticipant.event.beginDatetime >= :from
+        AND eventParticipant.event.endDatetime <= :to
+        AND eventParticipant.event.title ILIKE COALESCE(:title, '%%')
+""")
   List<StudentAttendanceStatus> getStudentAttendance(
-      String reference, String attendanceStatus, Instant from, Instant to, String title);
+      String reference, AttendanceStatus attendanceStatus, Instant from, Instant to, String title);
 }

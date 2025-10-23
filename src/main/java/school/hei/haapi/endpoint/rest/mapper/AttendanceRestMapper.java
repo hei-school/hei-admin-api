@@ -4,7 +4,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 import school.hei.haapi.endpoint.rest.model.EventLocation;
 import school.hei.haapi.endpoint.rest.model.StudentGlobalAttendance;
-import school.hei.haapi.model.dto.StudentAttendanceStatusDto;
+import school.hei.haapi.model.StudentAttendanceStatus;
 
 @Component
 @AllArgsConstructor
@@ -12,17 +12,17 @@ public class AttendanceRestMapper {
   private RoomMapper roomMapper;
   private PlaceMapper placeMapper;
 
-  public StudentGlobalAttendance toRest(StudentAttendanceStatusDto dto) {
+  public StudentGlobalAttendance toRest(StudentAttendanceStatus studentAttendanceStatus) {
     return new StudentGlobalAttendance()
-        .title(dto.getEventTitle())
-        .description(dto.getEventDescription())
+        .title(studentAttendanceStatus.eventTitle())
+        .description(studentAttendanceStatus.eventDescription())
         .location(
             new EventLocation()
-                .room(roomMapper.toRest(dto.getRoom()))
-                .place(placeMapper.toRest(dto.getPlace())))
-        .eventType(dto.getEventType())
-        .attendanceStatus(dto.getAttendanceStatus())
-        .beginDatetime(dto.getBeginDatetime())
-        .endDatetime(dto.getEndDatetime());
+                .room(roomMapper.toRest(studentAttendanceStatus.room()))
+                .place(placeMapper.toRest(studentAttendanceStatus.place())))
+        .eventType(studentAttendanceStatus.eventType())
+        .attendanceStatus(studentAttendanceStatus.attendanceStatus())
+        .beginDatetime(studentAttendanceStatus.beginDatetime())
+        .endDatetime(studentAttendanceStatus.endDatetime());
   }
 }
