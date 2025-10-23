@@ -1,6 +1,7 @@
 package school.hei.haapi.integration;
 
 import static java.io.File.createTempFile;
+import static java.time.Instant.now;
 import static org.hibernate.validator.internal.util.Contracts.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -383,7 +384,7 @@ public class UserFileIT extends FacadeITMockedThirdParties {
         api.generateFeeReceipts(
             new GenerationReceiptsRequest()
                 .from(Instant.parse("2021-11-08T08:25:24.00Z"))
-                .to(Instant.now()));
+                .to(now()));
     assertNotNull(zipReceiptsStatistic);
   }
 
