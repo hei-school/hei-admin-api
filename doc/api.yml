@@ -723,7 +723,7 @@ paths:
         '500':
           $ref: '#/components/responses/500'
   /students/import:
-    put:
+    post:
       tags:
         - Users
       summary: Import students from an excel file
@@ -740,7 +740,6 @@ paths:
                 due_datetime:
                   type: string
                   format: date-time
-                
       responses:
         '200':
           description: Status of the validation of imported students
