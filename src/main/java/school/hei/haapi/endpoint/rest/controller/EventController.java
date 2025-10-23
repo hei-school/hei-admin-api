@@ -4,7 +4,6 @@ import static java.util.stream.Collectors.toUnmodifiableList;
 
 import java.time.Instant;
 import java.util.List;
-import java.util.Optional;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -83,7 +82,7 @@ public class EventController {
       @RequestParam(required = false) Instant to) {
     return eventService.getEvents(from, to, title, eventType, group, page, pageSize).stream()
         .map(mapper::toRest)
-        .collect(toUnmodifiableList());
+        .toList();
   }
 
   @GetMapping("/events/{event_id}")
@@ -116,16 +115,12 @@ public class EventController {
         .collect(toUnmodifiableList());
   }
 
-  @GetMapping("/events/participants/{participant_id}/stats")
+  @GetMapping("/events/students/{student_id}/stats")
   public EventParticipantStats getEventParticipantStats(
-      @PathVariable(name = "participant_id") String participantId,
+      @PathVariable(name = "student_id") String studentId,
       @RequestParam(name = "from_event_begin", required = false) Instant from,
       @RequestParam(name = "to_event_begin", required = false) Instant to) {
-    Optional<Instant> optionalFrom = Optional.ofNullable(from);
-    Optional<Instant> optionalTo = Optional.ofNullable(to);
-
-    return eventParticipantService.getEventParticipantStats(
-        participantId, optionalFrom, optionalTo);
+    return eventParticipantService.getStudentEventStats(studentId, from, to);
   }
 
   @PutMapping("/events/{event_id}/participants")
@@ -155,6 +150,7 @@ public class EventController {
 
   @GetMapping(value = "/event_participants")
   public List<EventAttendance> getAllEventParticipants(
+      @RequestParam(name = "event_id", required = false) String eventId,
       @RequestParam(name = "page", defaultValue = "1") PageFromOne page,
       @RequestParam(name = "page_size", defaultValue = "15") BoundedPageSize pageSize,
       @RequestParam(name = "from", required = false) Instant from,
@@ -165,7 +161,7 @@ public class EventController {
       @RequestParam(name = "student_name", required = false) String studentName) {
     return eventParticipantService
         .getEventParticipants(
-            null,
+            eventId,
             page,
             pageSize,
             groupRef,

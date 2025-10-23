@@ -5314,6 +5314,12 @@ paths:
       summary: All users events participations
       operationId: getAllEventParticipants
       parameters:
+        - name: course_id
+          in: query
+          required: false
+          description: Filter event participants by the given course id value
+          schema:
+            type: string
         - name: page
           in: query
           schema:
@@ -5325,19 +5331,8 @@ paths:
           description: Set value to 15 by default if null is provided
           schema:
             $ref: '#/components/schemas/PageSize'
-        - name: from
-          in: query
-          description: Filter event participants from a given date
-          schema:
-            type: string
-            format: date-time
-          required: false
-        - name: to
-          in: query
-          description: Filter event participants before a given date
-          schema:
-            type: string
-            format: date-time
+        - $ref: '#/components/parameters/DatetimeFromFilter'
+        - $ref: '#/components/parameters/DatetimeToFilter'
         - name: attendance_status
           required: false
           in: query
@@ -5366,11 +5361,11 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
-  /events/participants/{participant_id}/stats:
+  /events/students/{student_id}/stats:
     get:
       tags:
         - Events
-      summary: Get stats for en event participant
+      summary: Get stats for a student
       operationId: getEventParticipantStats
       parameters:
         - name: from_event_begin
@@ -5387,8 +5382,7 @@ paths:
           schema:
             type: string
             format: date-time
-        - name: participant_id
-          description: participantId to get stats
+        - name: student_id
           in: path
           required: true
           schema:
@@ -7877,6 +7871,11 @@ components:
         - NP
         - B
         - UNKNOWN
+    MissingStatus:
+      type: string
+      enum:
+        - JUSTIFIED
+        - UNJUSTIFIED
     AttendanceStatus:
       type: string
       enum:
@@ -7884,6 +7883,8 @@ components:
         - LATE
         - PRESENT
         - UNCHECKED
+        - JUSTIFIED_ABSENCE
+        - UNJUSTIFIED_ABSENCE
     UpdateEventParticipant:
       type: object
       properties:
@@ -7950,28 +7951,46 @@ components:
             $ref: '#/components/schemas/GroupIdentifier'
         count:
           $ref: '#/components/schemas/EventStats'
+    MissedEventStats:
+      type: object
+      properties:
+        total:
+          type: integer
+          format: int64
+        justified:
+          type: integer
+          format: int64
+        unjustified:
+          type: integer
+          format: int64
     EventStats:
       type: object
       properties:
-        missing:
-          type: integer
+        missed_stats:
+          $ref: "#/components/schemas/MissedEventStats"
         present:
           type: integer
+          format: int64
         late:
           type: integer
+          format: int64
         total:
           type: integer
+          format: int64
     EventParticipantStats:
       type: object
       properties:
         missed_events:
-          type: integer
+          $ref: "#/components/schemas/MissedEventStats"
         assisted_events:
           type: integer
+          format: int64
         late_events:
           type: integer
+          format: int64
         total_events:
           type: integer
+          format: int64
     CrupdatePromotion:
       type: object
       properties:
