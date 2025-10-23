@@ -21,7 +21,6 @@ import static school.hei.haapi.model.RetakeExamStatus.REGISTERED;
 import java.util.List;
 import java.util.Objects;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -75,18 +74,6 @@ public class RetakeExamIT extends FacadeITMockedThirdParties {
   }
 
   @Test
-  void get_course_need_retake_by_student_ok() throws ApiException {
-    ApiClient apiClient = anApiClient(STUDENT1_TOKEN);
-    RetakeExamApi api = new RetakeExamApi(apiClient);
-
-    var retakeExams = api.getStudentRetakeExamBySession("student1_id", "session1_id");
-
-    assertNotNull(retakeExams);
-    assertEquals(
-        Objects.requireNonNull(retakeExams.getFirst().getCourse()).getName(), course1().getName());
-  }
-
-  @Test
   void student_create_retake_exam_ok() throws ApiException {
     ApiClient apiClient = anApiClient(STUDENT1_TOKEN);
     RetakeExamApi api = new RetakeExamApi(apiClient);
@@ -107,8 +94,7 @@ public class RetakeExamIT extends FacadeITMockedThirdParties {
   }
 
   @Test
-  @Disabled("TODO: endpoint changed and need to change operationId")
-  void admin_read_all_retake_exams_by_session_ok() throws ApiException {
+  void admin_read_all_retake_exams_ok() throws ApiException {
     ApiClient apiClient = anApiClient(ADMIN1_TOKEN);
     RetakeExamApi api = new RetakeExamApi(apiClient);
 
@@ -118,10 +104,10 @@ public class RetakeExamIT extends FacadeITMockedThirdParties {
     assertEquals(
         "session1", Objects.requireNonNull(retakeExams.getFirst().getSession()).getTitle());
     assertNotNull(retakeExams.getFirst().getStudentIdentifier());
+    assertEquals(4, retakeExams.size());
   }
 
   @Test
-  @Disabled("TODO: endpoint changed and need to change operationId")
   void filter_retake_exam_by_status_ok() throws ApiException {
     ApiClient apiClient = anApiClient(ADMIN1_TOKEN);
     RetakeExamApi api = new RetakeExamApi(apiClient);

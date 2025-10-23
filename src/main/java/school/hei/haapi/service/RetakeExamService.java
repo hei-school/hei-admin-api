@@ -1,12 +1,15 @@
 package school.hei.haapi.service;
 
 import static java.time.Instant.now;
+import static java.util.Comparator.comparing;
+import static java.util.stream.Collectors.toUnmodifiableSet;
 import static school.hei.haapi.endpoint.rest.model.CourseResultStatus.INCOMPLETE;
+import static school.hei.haapi.model.RetakeExamStatus.CANCELED;
+import static school.hei.haapi.model.RetakeExamStatus.INVALIDATE;
 
-import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Stream;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -40,36 +43,39 @@ public class RetakeExamService {
 
   public List<RetakeExam> getStudentRetakeExams(String sessionId, String studentId) {
     var session = retakeExamSessionService.getById(sessionId);
-    var existingRetakeExams =
-        retakeExamRepository.findRetakeExamsBySession_IdAndStudent_Id(session.getId(), studentId);
-    if (session.getDateTo().isBefore(now())) {
-      return existingRetakeExams;
-    }
-    var existingRetakeExamsForAllSessionsFromNow =
-        retakeExamRepository.findRetakeExamsByStudent_IdAndSession_DateFromAfter(studentId, now());
     var coursesToRetake = getCourseResultToRetake(studentId);
-    var retakeExams =
-        new ArrayList<>(
-            coursesToRetake.stream()
-                .map(courseResult -> courseResultAndSessionToRetake(courseResult, session))
-                .filter(
-                    newRetakeExam ->
-                        !isRetakeIn(
-                            newRetakeExam, existingRetakeExamsForAllSessionsFromNow, studentId))
-                .toList());
-    retakeExams.addAll(existingRetakeExams);
-    return retakeExams;
+
+    if (session.getDateTo().isBefore(now())) {
+      return retakeExamRepository.findRetakeExamsBySession_IdAndStudent_Id(
+          session.getId(), studentId);
+    }
+
+    var futureSessionRetakeExams =
+        retakeExamRepository.findRetakeExamByStudent_IdAndStatusIsNotInAndSession_DateToGreaterThan(
+            studentId, List.of(INVALIDATE, CANCELED), now());
+
+    var existingCourseIds =
+        futureSessionRetakeExams.stream()
+            .map(exam -> exam.getCourse().getId())
+            .collect(toUnmodifiableSet());
+
+    var existingRetakeExamsInCurrentSession =
+        futureSessionRetakeExams.stream()
+            .filter(exam -> exam.getSession().getId().equals(sessionId));
+
+    var newRetakeExams =
+        coursesToRetake.stream()
+            .filter(courseResult -> !existingCourseIds.contains(courseResult.getCourse().getId()))
+            .map(courseResult -> courseResultAndSessionToRetake(courseResult, session));
+
+    // TODO: separate the responsibility of the endpoint
+    //  - one for reading what's in the database
+    //  - one for determining what needs retake
+    return Stream.concat(newRetakeExams, existingRetakeExamsInCurrentSession).toList();
   }
 
-  boolean isRetakeIn(RetakeExam newExam, List<RetakeExam> existingRetakeExams, String studentId) {
-    return existingRetakeExams.stream()
-        .anyMatch(
-            existing ->
-                existing.getCourse().getId().equals(newExam.getCourse().getId())
-                    && existing.getStudent().getId().equals(studentId));
-  }
-
-  RetakeExam courseResultAndSessionToRetake(CourseResult courseResult, RetakeExamSession session) {
+  private RetakeExam courseResultAndSessionToRetake(
+      CourseResult courseResult, RetakeExamSession session) {
     Course course = courseResult.getCourse();
     if (course == null) {
       throw new IllegalStateException("Course must not be null for CourseResult: " + courseResult);
@@ -80,9 +86,11 @@ public class RetakeExamService {
     return retakeExam;
   }
 
-  List<CourseResult> getCourseResultToRetake(String studentId) {
+  private List<CourseResult> getCourseResultToRetake(String studentId) {
     List<YearlyResult> yearlyResults =
         gradeResultService.getStudentResultSummary(studentId).getYearlyResults();
+
+    if (yearlyResults == null) return List.of();
 
     return yearlyResults.stream()
         .filter(Objects::nonNull)
@@ -93,13 +101,10 @@ public class RetakeExamService {
         .toList();
   }
 
-  public List<RetakeExam> getAllRetakeExamBySessionId(
-      String sessionId,
-      List<RetakeExamStatus> statuses,
-      PageFromOne page,
-      BoundedPageSize pageSize) {
+  public List<RetakeExam> getAllRetakeExams(
+      List<RetakeExamStatus> statuses, PageFromOne page, BoundedPageSize pageSize) {
     Pageable pageable = PageRequest.of(page.getValue() - 1, pageSize.getValue());
-    return retakeExamDao.filterByCriteria(sessionId, null, null, null, null, statuses, pageable);
+    return retakeExamDao.filterByCriteria(null, null, null, null, null, statuses, pageable);
   }
 
   public List<school.hei.haapi.model.Course> getAllRetakeExamCoursesBySessionId(
@@ -110,7 +115,7 @@ public class RetakeExamService {
         .stream()
         .map(RetakeExam::getCourse)
         .distinct()
-        .sorted(Comparator.comparing(school.hei.haapi.model.Course::getCode))
+        .sorted(comparing(school.hei.haapi.model.Course::getCode))
         .toList();
   }
 
