@@ -24,7 +24,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import school.hei.haapi.integration.conf.FacadeITMockedThirdParties;
 import school.hei.haapi.model.Event;
 import school.hei.haapi.model.EventParticipant;
-import school.hei.haapi.model.StudentAttendanceStatus;
+import school.hei.haapi.model.StudentAttendance;
 import school.hei.haapi.model.User;
 import school.hei.haapi.repository.EventParticipantRepository;
 import school.hei.haapi.repository.EventRepository;
@@ -128,8 +128,8 @@ class AttendanceServiceIT extends FacadeITMockedThirdParties {
     assertEquals(List.of(presentStudentAttendanceStatus()), actual);
   }
 
-  private StudentAttendanceStatus missingStudentAttendanceStatus() {
-    return new StudentAttendanceStatus(
+  private StudentAttendance missingStudentAttendanceStatus() {
+    return new StudentAttendance(
         "eventTitle",
         "eventDescription",
         COURSE,
@@ -140,8 +140,8 @@ class AttendanceServiceIT extends FacadeITMockedThirdParties {
         ANDRAHARO);
   }
 
-  private StudentAttendanceStatus presentStudentAttendanceStatus() {
-    return new StudentAttendanceStatus(
+  private StudentAttendance presentStudentAttendanceStatus() {
+    return new StudentAttendance(
         "eventTitle",
         "eventDescription",
         COURSE,
