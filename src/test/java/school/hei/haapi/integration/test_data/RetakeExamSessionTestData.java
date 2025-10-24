@@ -33,6 +33,15 @@ public class RetakeExamSessionTestData {
         .build();
   }
 
+  public static RetakeExamSession passedSession() {
+    return RetakeExamSession.builder()
+        .id("session4_id")
+        .title("session4")
+        .dateFrom(LocalDateTime.now().minusMonths(3).toInstant(ZoneOffset.UTC))
+        .dateTo(LocalDateTime.now().minusMonths(3).plusDays(20).toInstant(ZoneOffset.UTC))
+        .build();
+  }
+
   public static RetakeExamSession sessionWithWrongDate() {
     return RetakeExamSession.builder()
         .title("session with wrong date")

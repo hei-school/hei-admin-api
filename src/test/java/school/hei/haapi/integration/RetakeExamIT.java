@@ -106,7 +106,7 @@ public class RetakeExamIT extends FacadeITMockedThirdParties {
     assertEquals(
         "session1", Objects.requireNonNull(retakeExams.getFirst().getSession()).getTitle());
     assertNotNull(retakeExams.getFirst().getStudentIdentifier());
-    assertEquals(5, retakeExams.size());
+    assertEquals(6, retakeExams.size());
   }
 
   @Test
@@ -184,10 +184,21 @@ public class RetakeExamIT extends FacadeITMockedThirdParties {
     var retakeExams =
         retakeExamDao.filterByCriteria(null, null, null, null, null, List.of(REGISTERED), pageable);
     assertNotNull(retakeExams);
-    assertEquals(1, retakeExams.size());
+    assertEquals(2, retakeExams.size());
     assertEquals("retake_exam3_id", retakeExams.getFirst().getId());
     assertEquals(REGISTERED, retakeExams.getFirst().getStatus());
     assertEquals("student3_id", retakeExams.getFirst().getStudent().getId());
     assertEquals("course3_id", retakeExams.getFirst().getCourse().getId());
+  }
+
+  @Test
+  void get_retake_exam_in_passed_session_ok() throws ApiException {
+    ApiClient apiClient = anApiClient(STUDENT1_TOKEN);
+    RetakeExamApi api = new RetakeExamApi(apiClient);
+
+    var retakeExams = api.getStudentRetakeExamBySession("student3_id", "session4_id", null, null);
+
+    assertNotNull(retakeExams);
+    assertEquals("session4_id", retakeExams.getFirst().getSession().getId());
   }
 }
