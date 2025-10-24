@@ -41,18 +41,18 @@ public class RetakeExamService {
     return retakeExamRepository.saveAll(crupdateRetakeExams);
   }
 
-  public List<RetakeExam> getStudentRetakeExams(String sessionId, String studentId) {
+  public List<RetakeExam> getStudentRetakeExams(String sessionId, String studentId, PageFromOne page, BoundedPageSize pageSize) {
     var session = retakeExamSessionService.getById(sessionId);
     var coursesToRetake = getCourseResultToRetake(studentId);
 
     if (session.getDateTo().isBefore(now())) {
       return retakeExamRepository.findRetakeExamsBySession_IdAndStudent_Id(
-          session.getId(), studentId);
+          session.getId(), studentId, paginationFromPageAndPageSize.apply(page, pageSize));
     }
 
     var futureSessionRetakeExams =
-        retakeExamRepository.findRetakeExamByStudent_IdAndStatusIsNotInAndSession_DateToGreaterThan(
-            studentId, List.of(INVALIDATE, CANCELED), now());
+        retakeExamRepository.findActiveAndCurrentSessionRetakeExams(
+            sessionId, studentId, List.of(INVALIDATE, CANCELED), now());
 
     var existingCourseIds =
         futureSessionRetakeExams.stream()
@@ -71,7 +71,12 @@ public class RetakeExamService {
     // TODO: separate the responsibility of the endpoint
     //  - one for reading what's in the database
     //  - one for determining what needs retake
-    return Stream.concat(newRetakeExams, existingRetakeExamsInCurrentSession).toList();
+      var combinedList = Stream.concat(newRetakeExams, existingRetakeExamsInCurrentSession).toList();
+
+      int from = (page.getValue() - 1) * pageSize.getValue();
+      int to = Math.min(from + pageSize.getValue(), combinedList.size());
+
+      return from >= combinedList.size() ? List.of() : combinedList.subList(from, to);
   }
 
   private RetakeExam courseResultAndSessionToRetake(
