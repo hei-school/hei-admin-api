@@ -1,4 +1,4 @@
-# [1.130.0](https://github.com/hei-school/hei-admin-api/compare/v1.129.1...v1.130.0) (2025-10-24)
+# [1.131.0](https://github.com/hei-school/hei-admin-api/compare/v1.129.1...v1.131.0) (2025-10-24)
 
 
 ### Bug Fixes
@@ -9,7 +9,8 @@
 
 ### Features
 
-* **doc:** add get student retake exams pagination ([745cc40](https://github.com/hei-school/hei-admin-api/commit/745cc40da9a60ac63bdf5fd130ce11409bd9ae07))
+* (doc) add get student retake exams pagination ([f220761](https://github.com/hei-school/hei-admin-api/commit/f220761826e5f5ac3a31a2e2e3be076c1fb3c10c))
+
 
 
 
