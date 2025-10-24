@@ -45,8 +45,7 @@ public class RetakeExamController {
       @PathVariable("student_id") String studentId,
       @PathVariable("session_id") String sessionId,
       @RequestParam(value = "page", defaultValue = "1") PageFromOne page,
-      @RequestParam(value = "page_size", defaultValue = "15") BoundedPageSize pageSize
-  ) {
+      @RequestParam(value = "page_size", defaultValue = "15") BoundedPageSize pageSize) {
     return retakeExamMapper.toRestList(
         retakeExamService.getStudentRetakeExams(sessionId, studentId, page, pageSize));
   }

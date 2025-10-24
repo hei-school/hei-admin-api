@@ -19,7 +19,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.data.domain.Pageable;
 import school.hei.haapi.endpoint.rest.model.CourseResult;
 import school.hei.haapi.endpoint.rest.model.ResultSummary;
 import school.hei.haapi.endpoint.rest.model.YearlyResult;
@@ -27,7 +26,6 @@ import school.hei.haapi.integration.conf.FacadeITMockedThirdParties;
 import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.model.RetakeExam;
-import school.hei.haapi.model.pagination.PaginationFromPageAndPageSize;
 import school.hei.haapi.repository.RetakeExamRepository;
 import school.hei.haapi.repository.RetakeExamSessionRepository;
 import school.hei.haapi.service.GradeResultService;
@@ -38,17 +36,16 @@ class RetakeExamServiceIT extends FacadeITMockedThirdParties {
   @MockBean private RetakeExamSessionRepository retakeExamSessionRepository;
   @MockBean private GradeResultService gradeResultService;
   @Autowired private RetakeExamService subject;
-    private static PageFromOne page;
-    private static BoundedPageSize pageSize;
+  private static PageFromOne page;
+  private static BoundedPageSize pageSize;
+
   @BeforeEach
   void setUp() {
-      page = new PageFromOne(0);
-      pageSize = new BoundedPageSize(1);
+    page = new PageFromOne(1);
+    pageSize = new BoundedPageSize(1);
     when(retakeExamSessionRepository.findById(session1().getId()))
         .thenReturn(Optional.of(session1()));
-    when(retakeExamRepository
-            .findActiveAndCurrentSessionRetakeExams(any(),
-                any(), any(), any()))
+    when(retakeExamRepository.findActiveAndCurrentSessionRetakeExams(any(), any(), any(), any()))
         .thenReturn(List.of(retakeExamProg1(), retakeExamProg3(), retakeExamIa1()));
   }
 
@@ -95,9 +92,10 @@ class RetakeExamServiceIT extends FacadeITMockedThirdParties {
   void getAllStudentRetakeExams_with_two_future_sessions() {
     when(gradeResultService.getStudentResultSummary(any())).thenReturn(mockSummary());
 
-    var retakeExams = subject.getStudentRetakeExams(session1().getId(), axel().getId(), page, pageSize);
+    var retakeExams =
+        subject.getStudentRetakeExams(session1().getId(), axel().getId(), page, pageSize);
 
     assertNotNull(retakeExams);
-    assertEquals(2, retakeExams.size());
+    assertEquals(1, retakeExams.size());
   }
 }

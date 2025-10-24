@@ -15,9 +15,11 @@ public interface RetakeExamRepository extends JpaRepository<RetakeExam, String> 
   List<RetakeExam> findRetakeExamsBySession_IdAndCourse_Code(
       String retakeExamSessionId, String courseCode, Pageable pageable);
 
-  List<RetakeExam> findRetakeExamsBySession_IdAndStudent_Id(String sessionId, String studentId, Pageable pageable);
+  List<RetakeExam> findRetakeExamsBySession_IdAndStudent_Id(
+      String sessionId, String studentId, Pageable pageable);
 
-    @Query("""
+  @Query(
+      """
     select re from RetakeExam re
     join re.session s
     where re.student.id = :studentId
@@ -29,11 +31,9 @@ public interface RetakeExamRepository extends JpaRepository<RetakeExam, String> 
         )
     )
 """)
-    List<RetakeExam> findActiveAndCurrentSessionRetakeExams(
-            String currentSessionId,
-            String studentId,
-            Collection<RetakeExamStatus> excludedStatuses,
-            Instant currentDate
-            );
-
+  List<RetakeExam> findActiveAndCurrentSessionRetakeExams(
+      String currentSessionId,
+      String studentId,
+      Collection<RetakeExamStatus> excludedStatuses,
+      Instant currentDate);
 }
