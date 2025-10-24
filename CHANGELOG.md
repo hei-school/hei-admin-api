@@ -1,3 +1,18 @@
+# [1.130.0](https://github.com/hei-school/hei-admin-api/compare/v1.129.1...v1.130.0) (2025-10-24)
+
+
+### Bug Fixes
+
+* get retake exam ([e76fd06](https://github.com/hei-school/hei-admin-api/commit/e76fd069badaf2187f00d4714b9af7ee32f898b8))
+* student import xlsx multipart form handling ([02edeb6](https://github.com/hei-school/hei-admin-api/commit/02edeb6c5cffa1b2409f52f31c8bc93887d35320))
+
+
+### Features
+
+* **doc:** add get student retake exams pagination ([745cc40](https://github.com/hei-school/hei-admin-api/commit/745cc40da9a60ac63bdf5fd130ce11409bd9ae07))
+
+
+
 ## [1.129.1](https://github.com/hei-school/hei-admin-api/compare/v1.129.0...v1.129.1) (2025-10-23)
 
 
@@ -100,20 +115,6 @@
 ### Bug Fixes
 
 * increase stack size for build ([19092e9](https://github.com/hei-school/hei-admin-api/commit/19092e9f4570c356a0f45a81d995c8beb6964b80))
-
-
-
-# [1.122.0](https://github.com/hei-school/hei-admin-api/compare/v1.121.0...v1.122.0) (2025-10-02)
-
-
-### Bug Fixes
-
-* increase stack size for build ([be30d92](https://github.com/hei-school/hei-admin-api/commit/be30d925d0c3aa1d8c53263e916d0ae7a4be633b))
-
-
-### Features
-
-* add get all retake exam courses and all retake exam course participant in specific session ([2afe4f1](https://github.com/hei-school/hei-admin-api/commit/2afe4f1ec4682da23fffb974b6932d56a14ea475))
 
 
 
