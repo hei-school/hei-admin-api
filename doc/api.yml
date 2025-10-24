@@ -1466,7 +1466,6 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
-  ## TODO later
   /retake_exam_sessions:
     get:
       tags:
@@ -1572,7 +1571,7 @@ paths:
     get:
       tags:
         - RetakeExam
-      summary: Get all retake exams infos for a specific session
+      summary: Get all retake exams infos
       parameters:
         - $ref: '#/components/parameters/RetakeExamStatuses'
         - $ref: '#/components/parameters/DatetimeFromFilter'
@@ -1733,6 +1732,8 @@ paths:
           required: true
           schema:
             type: string
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PageSize'
       responses:
         '200':
           description: List of retake exams for a specific student
