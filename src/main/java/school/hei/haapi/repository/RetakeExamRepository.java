@@ -20,17 +20,17 @@ public interface RetakeExamRepository extends JpaRepository<RetakeExam, String> 
 
   @Query(
       """
-    select re from RetakeExam re
-    join re.session s
-    where re.student.id = :studentId
-    and (
-        s.id = :currentSessionId
-        or (
-            re.status not in :excludedStatuses
-            and s.dateTo > :currentDate
-        )
-    )
-""")
+      select re from RetakeExam re
+      join re.session s
+      where re.student.id = :studentId
+      and (
+          s.id = :currentSessionId
+          or (
+              re.status not in :excludedStatuses
+              and s.dateTo > :currentDate
+          )
+      )
+      """)
   List<RetakeExam> findActiveAndCurrentSessionRetakeExams(
       String currentSessionId,
       String studentId,
