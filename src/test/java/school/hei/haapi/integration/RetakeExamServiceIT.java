@@ -8,6 +8,9 @@ import static school.hei.haapi.endpoint.rest.model.CourseResultStatus.INCOMPLETE
 import static school.hei.haapi.integration.conf.TestUtils.course1;
 import static school.hei.haapi.integration.conf.TestUtils.course2;
 import static school.hei.haapi.integration.conf.TestUtils.course3;
+import static school.hei.haapi.integration.test_data.CourseTestData.course1Model;
+import static school.hei.haapi.integration.test_data.CourseTestData.course2Model;
+import static school.hei.haapi.integration.test_data.CourseTestData.course3Model;
 import static school.hei.haapi.integration.test_data.RetakeExamSessionTestData.session1;
 import static school.hei.haapi.integration.test_data.RetakeExamSessionTestData.session2;
 import static school.hei.haapi.integration.test_data.RetakeExamTestData.createRetakeExam;
@@ -46,26 +49,23 @@ class RetakeExamServiceIT extends FacadeITMockedThirdParties {
     pageSize = new BoundedPageSize(2);
     when(retakeExamSessionRepository.findById(session1().getId()))
         .thenReturn(Optional.of(session1()));
-    when(retakeExamRepository.findActiveAndCurrentSessionRetakeExams(any(), any(), any(), any()))
+    when(retakeExamRepository.findExistingRetakeExamsForCurrentAndFutureSessionsByStudentId(
+            any(), any(), any()))
         .thenReturn(List.of(retakeExamProg1(), retakeExamProg3(), retakeExamIa1()));
   }
 
   private static RetakeExam retakeExamProg1() {
-    return createRetakeExam(
-        axel(), school.hei.haapi.integration.test_data.CourseTestData.course1(), session1());
+    return createRetakeExam(axel(), course1Model(), session1());
   }
 
   private static RetakeExam retakeExamProg3() {
-    var retakeExam =
-        createRetakeExam(
-            axel(), school.hei.haapi.integration.test_data.CourseTestData.course2(), session1());
+    var retakeExam = createRetakeExam(axel(), course2Model(), session1());
     retakeExam.setStatus(CANCELED);
     return retakeExam;
   }
 
   private static RetakeExam retakeExamIa1() {
-    return createRetakeExam(
-        axel(), school.hei.haapi.integration.test_data.CourseTestData.course3(), session2());
+    return createRetakeExam(axel(), course3Model(), session2());
   }
 
   private static CourseResult courseResult1() {
