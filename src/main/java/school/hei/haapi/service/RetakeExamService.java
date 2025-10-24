@@ -6,6 +6,9 @@ import static java.util.stream.Collectors.toUnmodifiableSet;
 import static school.hei.haapi.endpoint.rest.model.CourseResultStatus.INCOMPLETE;
 import static school.hei.haapi.model.RetakeExamStatus.CANCELED;
 import static school.hei.haapi.model.RetakeExamStatus.INVALIDATE;
+import static school.hei.haapi.model.RetakeExamStatus.REGISTERED;
+import static school.hei.haapi.model.RetakeExamStatus.TO_CANCEL;
+import static school.hei.haapi.model.RetakeExamStatus.VALIDATE;
 
 import java.util.List;
 import java.util.Objects;
@@ -133,7 +136,14 @@ public class RetakeExamService {
       BoundedPageSize pageSize) {
     var pageable = paginationFromPageAndPageSize.apply(page, pageSize);
     var retakeExams =
-        retakeExamDao.filterByCriteria(sessionId, null, studentRef, courseId, null, null, pageable);
+        retakeExamDao.filterByCriteria(
+            sessionId,
+            null,
+            studentRef,
+            courseId,
+            null,
+            List.of(REGISTERED, TO_CANCEL, INVALIDATE, VALIDATE),
+            pageable);
     return retakeExams.stream().map(RetakeExam::getStudent).toList();
   }
 }

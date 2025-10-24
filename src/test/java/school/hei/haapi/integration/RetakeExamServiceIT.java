@@ -12,6 +12,7 @@ import static school.hei.haapi.integration.test_data.RetakeExamSessionTestData.s
 import static school.hei.haapi.integration.test_data.RetakeExamSessionTestData.session2;
 import static school.hei.haapi.integration.test_data.RetakeExamTestData.createRetakeExam;
 import static school.hei.haapi.integration.test_data.StudentTestData.axel;
+import static school.hei.haapi.model.RetakeExamStatus.CANCELED;
 
 import java.util.List;
 import java.util.Optional;
@@ -42,7 +43,7 @@ class RetakeExamServiceIT extends FacadeITMockedThirdParties {
   @BeforeEach
   void setUp() {
     page = new PageFromOne(1);
-    pageSize = new BoundedPageSize(1);
+    pageSize = new BoundedPageSize(2);
     when(retakeExamSessionRepository.findById(session1().getId()))
         .thenReturn(Optional.of(session1()));
     when(retakeExamRepository.findActiveAndCurrentSessionRetakeExams(any(), any(), any(), any()))
@@ -55,8 +56,11 @@ class RetakeExamServiceIT extends FacadeITMockedThirdParties {
   }
 
   private static RetakeExam retakeExamProg3() {
-    return createRetakeExam(
-        axel(), school.hei.haapi.integration.test_data.CourseTestData.course2(), session1());
+    var retakeExam =
+        createRetakeExam(
+            axel(), school.hei.haapi.integration.test_data.CourseTestData.course2(), session1());
+    retakeExam.setStatus(CANCELED);
+    return retakeExam;
   }
 
   private static RetakeExam retakeExamIa1() {
@@ -96,6 +100,7 @@ class RetakeExamServiceIT extends FacadeITMockedThirdParties {
         subject.getStudentRetakeExams(session1().getId(), axel().getId(), page, pageSize);
 
     assertNotNull(retakeExams);
-    assertEquals(1, retakeExams.size());
+    assertEquals(CANCELED, retakeExams.getLast().getStatus());
+    assertEquals(2, retakeExams.size());
   }
 }

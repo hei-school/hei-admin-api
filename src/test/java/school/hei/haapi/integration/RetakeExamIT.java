@@ -37,6 +37,7 @@ import school.hei.haapi.endpoint.rest.model.ResultSummary;
 import school.hei.haapi.endpoint.rest.model.YearlyResult;
 import school.hei.haapi.integration.conf.FacadeITMockedThirdParties;
 import school.hei.haapi.integration.conf.TestUtils;
+import school.hei.haapi.repository.RetakeExamRepository;
 import school.hei.haapi.repository.dao.RetakeExamDao;
 import school.hei.haapi.service.GradeResultService;
 
@@ -45,6 +46,7 @@ import school.hei.haapi.service.GradeResultService;
 public class RetakeExamIT extends FacadeITMockedThirdParties {
   @MockBean GradeResultService gradeResultService;
   @Autowired private RetakeExamDao retakeExamDao;
+  @Autowired private RetakeExamRepository retakeExamRepository;
 
   private ApiClient anApiClient(String token) {
     return TestUtils.anApiClient(token, localPort);
@@ -104,7 +106,7 @@ public class RetakeExamIT extends FacadeITMockedThirdParties {
     assertEquals(
         "session1", Objects.requireNonNull(retakeExams.getFirst().getSession()).getTitle());
     assertNotNull(retakeExams.getFirst().getStudentIdentifier());
-    assertEquals(4, retakeExams.size());
+    assertEquals(5, retakeExams.size());
   }
 
   @Test
@@ -153,11 +155,11 @@ public class RetakeExamIT extends FacadeITMockedThirdParties {
 
     var students =
         api.getRetakeExamParticipantByCourseIdAndSessionId(
-            "session2_id", "course2_id", null, 1, 15);
+            "session2_id", "course1_id", null, 1, 15);
 
     assertNotNull(students);
     assertEquals(1, students.size());
-    assertEquals("student2_id", students.getFirst().getId());
+    assertEquals("student1_id", students.getFirst().getId());
   }
 
   @Test
