@@ -37,8 +37,7 @@ public class PaidFeeReceiptDataProvider {
   }
 
   public int getRemainingAmount() {
-    int actualTotalPaymentAmount = defineTotalPaymentSinceActual(paidPaymentsBefore);
-    return fee.getTotalAmount() - actualTotalPaymentAmount;
+    return fee.getRemainingAmount();
   }
 
   public String getPaymentDate() {
