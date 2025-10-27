@@ -1,6 +1,5 @@
 package school.hei.haapi.service;
 
-import static java.util.stream.Collectors.toUnmodifiableList;
 import static org.springframework.data.domain.Sort.Direction.DESC;
 
 import java.time.Instant;
@@ -63,11 +62,11 @@ public class EventService {
           .findById(evId)
           .orElseThrow(() -> new NotFoundException("Event with id : " + evId + "not found"));
 
-      return eventParticipantService.getEventParticipantsStats(evId);
+      return eventParticipantService.getEventStats(evId);
     }
 
     if (optionalFrom.isEmpty() && optionalTo.isEmpty()) {
-      return eventParticipantService.getOverallEventParticipantsStats();
+      return eventParticipantService.getOverallEventStats();
     }
 
     Instant fromInstant = optionalFrom.orElse(Instant.now());
@@ -76,12 +75,7 @@ public class EventService {
     if (fromInstant.isAfter(toInstant)) {
       throw new BadRequestException("from cannot be after to");
     }
-
-    List<Event> filteredEvents =
-        eventDao.findByCriteria(null, fromInstant, toInstant, null, null, null);
-    List<String> filteredEventIds =
-        filteredEvents.stream().map(Event::getId).collect(toUnmodifiableList());
-    return eventParticipantService.getEventParticipantsStats(filteredEventIds);
+    return eventParticipantService.getEventStats(fromInstant, toInstant);
   }
 
   public Event findEventById(String eventId) {

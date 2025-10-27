@@ -14,6 +14,7 @@ import static school.hei.haapi.integration.conf.TestUtils.group1;
 import static school.hei.haapi.model.Event.PlaceName.IVANDRY;
 import static school.hei.haapi.model.Event.RoomName.UNKNOWN;
 import static school.hei.haapi.model.User.Role.STUDENT;
+import static school.hei.haapi.model.User.Role.TEACHER;
 
 import com.github.javafaker.Faker;
 import java.time.Instant;
@@ -26,8 +27,8 @@ import java.util.stream.IntStream;
 import org.springframework.stereotype.Component;
 import school.hei.haapi.endpoint.rest.model.Coordinates;
 import school.hei.haapi.endpoint.rest.model.CorCommentInfo;
-import school.hei.haapi.endpoint.rest.model.CorStatus;
 import school.hei.haapi.endpoint.rest.model.CreateEvent;
+import school.hei.haapi.endpoint.rest.model.CrupdateCor;
 import school.hei.haapi.endpoint.rest.model.CrupdateCourseAssignment;
 import school.hei.haapi.endpoint.rest.model.CrupdateTeacher;
 import school.hei.haapi.endpoint.rest.model.EventLocation;
@@ -39,6 +40,7 @@ import school.hei.haapi.endpoint.rest.model.RoomEnum;
 import school.hei.haapi.endpoint.rest.model.Sex;
 import school.hei.haapi.model.Cor;
 import school.hei.haapi.model.CorComment;
+import school.hei.haapi.model.CorStatus;
 import school.hei.haapi.model.Course;
 import school.hei.haapi.model.Event;
 import school.hei.haapi.model.Fee;
@@ -68,7 +70,7 @@ public class FakeDataProvider {
         .firstName(faker.name().firstName())
         .lastName(faker.name().lastName())
         .email(faker.internet().emailAddress())
-        .ref(someRef("TCR"))
+        .ref(someRef(TEACHER))
         .phone(faker.phoneNumber().phoneNumber())
         .status(ENABLED)
         .sex(faker.options().option(Sex.class))
@@ -82,6 +84,19 @@ public class FakeDataProvider {
     return "%s%s".formatted(prefix, faker.number().digits(5));
   }
 
+  private static String someRef(User.Role role) {
+    return someRef(
+        switch (role) {
+          case STUDENT -> "STD";
+          case STAFF_MEMBER -> "STAFF";
+          case TEACHER -> "TCH";
+          case MANAGER -> "MGR";
+          case ADMIN -> "ADM";
+          case MONITOR -> "MTR";
+          case ORGANIZER -> "ORG";
+        });
+  }
+
   public static CrupdateCourseAssignment createCourseAssignment() {
     return new CrupdateCourseAssignment()
         .courseId("course2_id")
@@ -90,9 +105,26 @@ public class FakeDataProvider {
   }
 
   public static CorCommentInfo someCorCommentInfo() {
-    return new CorCommentInfo()
-        .comment(faker.lorem().paragraph())
-        .status(faker.options().option(CorStatus.class));
+    return new CorCommentInfo().comment(faker.lorem().paragraph());
+  }
+
+  public static CrupdateCor someCreatableCor(
+      String studentId,
+      school.hei.haapi.endpoint.rest.model.CorStatus status,
+      List<String> interviewerIds) {
+    return new CrupdateCor()
+        .concernedStudentId(studentId)
+        .description(faker.lorem().paragraph())
+        .status(status)
+        .interviewDate(faker.date().future(10, DAYS).toInstant())
+        .interviewerIds(interviewerIds);
+  }
+
+  public static CrupdateCor someCreatableCor(String studentId) {
+    return someCreatableCor(
+        studentId,
+        faker.options().option(school.hei.haapi.endpoint.rest.model.CorStatus.class),
+        List.of("manager"));
   }
 
   public Group createGroup() {
@@ -202,12 +234,16 @@ public class FakeDataProvider {
   }
 
   public static User someStudent(String firstName) {
+    return someUser(firstName, STUDENT);
+  }
+
+  public static User someUser(String firstName, User.Role role) {
     return User.builder(someCoordinates())
         .id(UUID.randomUUID().toString())
-        .role(STUDENT)
+        .role(role)
         .firstName(firstName)
         .email(faker.internet().emailAddress())
-        .ref(someRef("STD"))
+        .ref(someRef(role))
         .lastName(faker.name().lastName())
         .address(faker.address().fullAddress())
         .status(User.Status.ENABLED)
@@ -221,21 +257,19 @@ public class FakeDataProvider {
         .longitude(faker.number().randomDouble(2, -180, 180));
   }
 
-  public static Cor someCor(User user, Instant interviewDatetime) {
+  public static Cor someCor(User user, Instant interviewDatetime, List<User> interviewers) {
     return Cor.builder()
         .id(randomUUID().toString())
         .interviewDatetime(interviewDatetime)
         .student(user)
         .description(faker.lorem().paragraph())
+        .status(faker.options().option(CorStatus.class))
+        .interviewers(interviewers)
         .build();
   }
 
   public static CorComment someCorComment() {
-    return someCorComment(faker.options().option(school.hei.haapi.model.CorStatus.class));
-  }
-
-  public static CorComment someCorComment(school.hei.haapi.model.CorStatus status) {
-    return CorComment.builder().comment(faker.lorem().paragraph()).status(status).build();
+    return CorComment.builder().comment(faker.lorem().paragraph()).build();
   }
 
   public static List<CorComment> someCorComment(int count) {

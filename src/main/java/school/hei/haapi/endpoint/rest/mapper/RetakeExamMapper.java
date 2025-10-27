@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 import school.hei.haapi.endpoint.rest.model.CrupdateRetakeExam;
 import school.hei.haapi.endpoint.rest.model.RetakeExam;
+import school.hei.haapi.endpoint.rest.model.RetakeExamStatus;
 import school.hei.haapi.endpoint.rest.model.StudentRetakeExam;
 import school.hei.haapi.model.Course;
 import school.hei.haapi.model.RetakeExamSession;
@@ -32,15 +33,23 @@ public class RetakeExamMapper {
         .student(studentUser)
         .session(retakeExamSession)
         .course(course)
+        .status(
+            school.hei.haapi.model.RetakeExamStatus.valueOf(crupdateRetakeExam.getStatus().name()))
         .build();
   }
 
   public RetakeExam toRest(school.hei.haapi.model.RetakeExam retakeExam) {
-    return new RetakeExam()
-        .id(retakeExam.getId())
-        .course(courseMapper.toRest(retakeExam.getCourse()))
-        .session(retakeExamSessionMapper.toRest(retakeExam.getSession()))
-        .registrationDate(retakeExam.getRegistrationDate());
+    var domainStatus = retakeExam.getStatus();
+    var retakeExamRest =
+        new RetakeExam()
+            .id(retakeExam.getId())
+            .course(courseMapper.toRest(retakeExam.getCourse()))
+            .session(retakeExamSessionMapper.toRest(retakeExam.getSession()))
+            .registrationDate(retakeExam.getRegistrationDate());
+    if (domainStatus != null) {
+      retakeExamRest.status(RetakeExamStatus.valueOf(domainStatus.name()));
+    }
+    return retakeExamRest;
   }
 
   public school.hei.haapi.model.RetakeExam toDomain(RetakeExam retakeExam) {
@@ -48,6 +57,7 @@ public class RetakeExamMapper {
         .id(retakeExam.getId())
         .course(courseMapper.toDomain(retakeExam.getCourse()))
         .session(retakeExamSessionMapper.toDomain(retakeExam.getSession()))
+        .status(school.hei.haapi.model.RetakeExamStatus.valueOf(retakeExam.getStatus().name()))
         .build();
   }
 
@@ -55,17 +65,24 @@ public class RetakeExamMapper {
     return retakeExams.stream().map(this::toRest).toList();
   }
 
-  public List<school.hei.haapi.model.RetakeExam> toDoMainList(
+  public List<school.hei.haapi.model.RetakeExam> toDomainList(
       List<CrupdateRetakeExam> crupdateRetakeExams) {
     return crupdateRetakeExams.stream().map(this::toDomainCrupdate).toList();
   }
 
   public StudentRetakeExam toStudentRetakeRest(school.hei.haapi.model.RetakeExam retakeExam) {
-    return new StudentRetakeExam()
-        .studentIdentifier(userMapper.toIdentifier(retakeExam.getStudent()))
-        .course(courseMapper.toRest(retakeExam.getCourse()))
-        .session(retakeExamSessionMapper.toRest(retakeExam.getSession()))
-        .registrationDate(retakeExam.getRegistrationDate());
+    var domainStatus = retakeExam.getStatus();
+    var studentRetakeExam =
+        new StudentRetakeExam()
+            .id(retakeExam.getId())
+            .studentIdentifier(userMapper.toIdentifier(retakeExam.getStudent()))
+            .course(courseMapper.toRest(retakeExam.getCourse()))
+            .session(retakeExamSessionMapper.toRest(retakeExam.getSession()))
+            .registrationDate(retakeExam.getRegistrationDate());
+    if (domainStatus != null) {
+      studentRetakeExam.status(RetakeExamStatus.valueOf(domainStatus.name()));
+    }
+    return studentRetakeExam;
   }
 
   public List<StudentRetakeExam> toStudentRetakeRestList(

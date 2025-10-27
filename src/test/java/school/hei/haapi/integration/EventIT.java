@@ -295,9 +295,10 @@ public class EventIT extends FacadeITMockedThirdParties {
     EventsApi api = new EventsApi(anApiClient(MANAGER1_TOKEN));
 
     List<EventAttendance> eventParticipants =
-        api.getAllEventParticipants(1, 10, null, null, null, null, null, null);
+        api.getAllEventParticipants(null, 1, 10, null, null, null, null, null, null);
     List<EventAttendance> eventParticipantsWithAllFilter =
         api.getAllEventParticipants(
+            null,
             null,
             null,
             Instant.parse("2022-12-08T07:59:59.00Z"),
@@ -310,6 +311,7 @@ public class EventIT extends FacadeITMockedThirdParties {
         api.getAllEventParticipants(
             null,
             null,
+            null,
             Instant.parse("2022-12-08T07:59:59.00Z"),
             Instant.parse("2022-12-08T08:00:01.00Z"),
             null,
@@ -317,14 +319,16 @@ public class EventIT extends FacadeITMockedThirdParties {
             null,
             null);
     List<EventAttendance> statusFilteredEventParticipants =
-        api.getAllEventParticipants(null, null, null, null, MISSING, null, null, null);
+        api.getAllEventParticipants(null, null, null, null, null, MISSING, null, null, null);
     List<EventAttendance> groupFilteredEventParticipants =
-        api.getAllEventParticipants(null, null, null, null, null, group1().getRef(), null, null);
+        api.getAllEventParticipants(
+            null, null, null, null, null, null, group1().getRef(), null, null);
     List<EventAttendance> studentRefFilteredEventParticipants =
-        api.getAllEventParticipants(null, null, null, null, null, null, student3().getRef(), null);
+        api.getAllEventParticipants(
+            null, null, null, null, null, null, null, student3().getRef(), null);
     List<EventAttendance> studentNameFilteredEventParticipants =
         api.getAllEventParticipants(
-            null, null, null, null, null, null, null, student3().getFirstName());
+            null, null, null, null, null, null, null, null, student3().getFirstName());
 
     assertTrue(
         eventParticipants.contains(

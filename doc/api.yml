@@ -722,6 +722,43 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
+  /students/import:
+    post:
+      tags:
+        - Users
+      summary: Import students from an excel file
+      operationId: importStudents
+      parameters:
+        - in: query
+          name: due_datetime
+          required: false
+          schema:
+            type: string
+            format: date-time
+      requestBody:
+        description: Form containing the xlsx file for students to import
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/UploadFile'
+      responses:
+        '200':
+          description: Status of the validation of imported students
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StudentImportValidationResult'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
   /monitors/{id}:
     put:
       tags:
@@ -1429,7 +1466,6 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
-  ## TODO later
   /retake_exam_sessions:
     get:
       tags:
@@ -1502,29 +1538,47 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
-  /retake_exam_sessions/{session_id}/retakeExams:
-    ### TODO later
+  /retake_exam_sessions/{session_id}:
     get:
       tags:
         - RetakeExam
-      summary: Get all retake exams infos for a specific session
+      summary: Get retake exam session by identifier
       parameters:
         - name: session_id
           in: path
           required: true
           schema:
             type: string
-        - name: course_code
-          in: query
-          required: false
-          example: PROG1
-          schema:
-            type: string
+      operationId: getRetakeExamSessionById
+      responses:
+        '200':
+          description: Retake exam session by identifier
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RetakeExamSession'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+  /retake_exams:
+    get:
+      tags:
+        - RetakeExam
+      summary: Get all retake exams infos
+      parameters:
+        - $ref: '#/components/parameters/RetakeExamStatuses'
         - $ref: '#/components/parameters/DatetimeFromFilter'
         - $ref: '#/components/parameters/DatetimeToFilter'
         - $ref: '#/components/parameters/Page'
         - $ref: '#/components/parameters/PageSize'
-      operationId: getRetakeExamBySessionId
+      operationId: getAllRetakeExams
       responses:
         '200':
           description: List of retake exams for a specific session
@@ -1544,7 +1598,7 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
-    ### TODO now
+  /retake_exam_sessions/{session_id}/retake_exams:
     put:
       tags:
         - RetakeExam
@@ -1595,6 +1649,11 @@ paths:
           required: true
           schema:
             type: string
+        - name: course_code
+          in: query
+          required: false
+          schema:
+            type: string
         - $ref: '#/components/parameters/Page'
         - $ref: '#/components/parameters/PageSize'
       operationId: getRetakeExamCoursesBySessionId
@@ -1617,7 +1676,7 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
-  /retake_exam_sessions/{session_id}/retake_exam_courses/{course_id}/students:
+  /retake_exam_sessions/{session_id}/retake_exam_courses/{course_id}/participants:
     get:
       tags:
         - RetakeExam
@@ -1633,6 +1692,7 @@ paths:
           required: true
           schema:
             type: string
+        - $ref: '#/components/parameters/StudentRef'
         - $ref: '#/components/parameters/Page'
         - $ref: '#/components/parameters/PageSize'
       operationId: getRetakeExamParticipantByCourseIdAndSessionId
@@ -1655,7 +1715,7 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
-  /students/{student_id}/sessions/{session_id}/retakeExams:
+  /students/{student_id}/sessions/{session_id}/retake_exams:
     get:
       tags:
         - RetakeExam
@@ -1672,6 +1732,8 @@ paths:
           required: true
           schema:
             type: string
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PageSize'
       responses:
         '200':
           description: List of retake exams for a specific student
@@ -5254,6 +5316,12 @@ paths:
       summary: All users events participations
       operationId: getAllEventParticipants
       parameters:
+        - name: course_id
+          in: query
+          required: false
+          description: Filter event participants by the given course id value
+          schema:
+            type: string
         - name: page
           in: query
           schema:
@@ -5265,19 +5333,8 @@ paths:
           description: Set value to 15 by default if null is provided
           schema:
             $ref: '#/components/schemas/PageSize'
-        - name: from
-          in: query
-          description: Filter event participants from a given date
-          schema:
-            type: string
-            format: date-time
-          required: false
-        - name: to
-          in: query
-          description: Filter event participants before a given date
-          schema:
-            type: string
-            format: date-time
+        - $ref: '#/components/parameters/DatetimeFromFilter'
+        - $ref: '#/components/parameters/DatetimeToFilter'
         - name: attendance_status
           required: false
           in: query
@@ -5306,11 +5363,11 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
-  /events/participants/{participant_id}/stats:
+  /events/students/{student_id}/stats:
     get:
       tags:
         - Events
-      summary: Get stats for en event participant
+      summary: Get stats for a student
       operationId: getEventParticipantStats
       parameters:
         - name: from_event_begin
@@ -5327,8 +5384,7 @@ paths:
           schema:
             type: string
             format: date-time
-        - name: participant_id
-          description: participantId to get stats
+        - name: student_id
           in: path
           required: true
           schema:
@@ -6749,6 +6805,15 @@ components:
       required: true
       schema:
         type: string
+    RetakeExamStatuses:
+      name: retake_exam_status
+      in: query
+      required: false
+      description: Filter by retake exam actual status
+      schema:
+        type: array
+        items:
+          $ref: '#/components/schemas/RetakeExamStatus'
   responses:
     '400':
       description: Bad request
@@ -7437,6 +7502,8 @@ components:
         registration_date:
           type: string
           format: date-time
+        status:
+          $ref: "#/components/schemas/RetakeExamStatus"
     CrupdateRetakeExam:
       type: object
       properties:
@@ -7448,6 +7515,8 @@ components:
           type: string
         student_id:
           type: string
+        status:
+          $ref: "#/components/schemas/RetakeExamStatus"
     StudentRetakeExam:
       type: object
       allOf:
@@ -7456,6 +7525,14 @@ components:
         ### TODO: must be Student resource ou some attributes only ?
         student_identifier:
           $ref: "#/components/schemas/UserIdentifier"
+    RetakeExamStatus:
+      type: string
+      enum:
+        - REGISTERED
+        - TO_CANCEL
+        - CANCELED
+        - INVALIDATE
+        - VALIDATE
     CreateAttendanceMovement:
       type: object
       properties:
@@ -7796,6 +7873,11 @@ components:
         - NP
         - B
         - UNKNOWN
+    MissingStatus:
+      type: string
+      enum:
+        - JUSTIFIED
+        - UNJUSTIFIED
     AttendanceStatus:
       type: string
       enum:
@@ -7803,6 +7885,8 @@ components:
         - LATE
         - PRESENT
         - UNCHECKED
+        - JUSTIFIED_ABSENCE
+        - UNJUSTIFIED_ABSENCE
     UpdateEventParticipant:
       type: object
       properties:
@@ -7869,28 +7953,46 @@ components:
             $ref: '#/components/schemas/GroupIdentifier'
         count:
           $ref: '#/components/schemas/EventStats'
+    MissedEventStats:
+      type: object
+      properties:
+        total:
+          type: integer
+          format: int64
+        justified:
+          type: integer
+          format: int64
+        unjustified:
+          type: integer
+          format: int64
     EventStats:
       type: object
       properties:
-        missing:
-          type: integer
+        missed_stats:
+          $ref: "#/components/schemas/MissedEventStats"
         present:
           type: integer
+          format: int64
         late:
           type: integer
+          format: int64
         total:
           type: integer
+          format: int64
     EventParticipantStats:
       type: object
       properties:
         missed_events:
-          type: integer
+          $ref: "#/components/schemas/MissedEventStats"
         assisted_events:
           type: integer
+          format: int64
         late_events:
           type: integer
+          format: int64
         total_events:
           type: integer
+          format: int64
     CrupdatePromotion:
       type: object
       properties:
@@ -8330,6 +8432,8 @@ components:
         interview_date:
           type: string
           format: date-time
+        status:
+          $ref: '#/components/schemas/CorStatus'
     CrupdateCor:
       type: object
       allOf:
@@ -8337,6 +8441,10 @@ components:
       properties:
         concerned_student_id:
           type: string
+        interviewer_ids:
+          type: array
+          items:
+            type: string
     Cor:
       type: object
       allOf:
@@ -8344,11 +8452,13 @@ components:
       properties:
         concerned_student:
           $ref: "#/components/schemas/UserIdentifier"
+        interviewers:
+          type: array
+          items:
+            $ref: "#/components/schemas/UserIdentifier"
         creation_datetime:
           type: string
           format: date-time
-        status:
-          $ref: '#/components/schemas/CorStatus'
         comments:
           type: array
           items:
@@ -8356,8 +8466,6 @@ components:
     CorCommentInfo:
       type: object
       properties:
-        status:
-          $ref: '#/components/schemas/CorStatus'
         comment:
           type: string
           description: explanation of the reason or comment on change of status
@@ -8460,3 +8568,8 @@ components:
       example:
         type: InternalServerException
         message: Unexpected error
+    StudentImportValidationResult:
+      type: "object"
+      properties:
+        validStudentNumber:
+          type: "integer"

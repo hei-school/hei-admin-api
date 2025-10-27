@@ -12,8 +12,9 @@ import org.springframework.stereotype.Component;
 import school.hei.haapi.endpoint.rest.model.*;
 import school.hei.haapi.model.User;
 import school.hei.haapi.model.WorkDocument;
-import school.hei.haapi.service.GroupService;
-import school.hei.haapi.service.UserService;
+import school.hei.haapi.model.exception.NotFoundException;
+import school.hei.haapi.repository.GroupRepository;
+import school.hei.haapi.repository.UserRepository;
 import school.hei.haapi.service.WorkDocumentService;
 import school.hei.haapi.service.aws.FileService;
 import school.hei.haapi.service.utils.IsStudentRepeatingYear;
@@ -26,10 +27,10 @@ public class UserMapper {
   private final StatusEnumMapper statusEnumMapper;
   private final SexEnumMapper sexEnumMapper;
   private final FileService fileService;
-  private final GroupService groupService;
+  private final GroupRepository groupRepository;
   private final GroupMapper groupMapper;
   private final IsStudentRepeatingYear isStudentRepeatingYear;
-  private final UserService userService;
+  private final UserRepository userRepository;
 
   public UserIdentifier toIdentifier(User user) {
     return new UserIdentifier()
@@ -103,7 +104,7 @@ public class UserMapper {
     restStudent.setSpecializationField(user.getSpecializationField());
     restStudent.setProfilePicture(url);
     restStudent.groups(
-        groupService.getByUserId(user.getId()).stream().map(groupMapper::toRest).toList());
+        groupRepository.findByStudentId(user.getId()).stream().map(groupMapper::toRest).toList());
     restStudent.setCoordinates(
         new Coordinates().longitude(user.getLongitude()).latitude(user.getLatitude()));
     restStudent.setHighSchoolOrigin(user.getHighSchoolOrigin());
@@ -415,6 +416,13 @@ public class UserMapper {
   }
 
   public User toDomain(UserIdentifier userIdentifier) {
-    return userService.getById(userIdentifier.getId());
+    return userRepository
+        .findById(userIdentifier.getId())
+        .orElseThrow(
+            () -> new NotFoundException("User with id: " + userIdentifier.getId() + " not found"));
+  }
+
+  public List<Student> toRestStudents(List<User> users) {
+    return users.stream().map(this::toRestStudent).toList();
   }
 }

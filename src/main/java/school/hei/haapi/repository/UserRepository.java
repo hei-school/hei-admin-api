@@ -10,14 +10,15 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 import school.hei.haapi.model.User;
+import school.hei.haapi.model.User.Role;
 
 @Repository
 public interface UserRepository extends JpaRepository<User, String> {
-  User getByEmail(String email);
+  Optional<User> findByEmail(String email);
 
   List<User> findAllByStatus(User.Status status);
 
-  List<User> findAllByRoleAndStatus(User.Role role, User.Status status);
+  List<User> findAllByRoleAndStatus(Role role, User.Status status);
 
   @Query(
       value =
@@ -156,13 +157,11 @@ public interface UserRepository extends JpaRepository<User, String> {
 """)
   List<User> findAllStudentNotDisabled();
 
-  Integer countBySexAndRole(User.Sex sex, User.Role role);
+  Integer countBySexAndRole(User.Sex sex, Role role);
 
-  Integer countByRole(User.Role role);
+  Integer countByRole(Role role);
 
-  Integer countBySexAndRoleAndStatus(User.Sex sex, User.Role role, User.Status status);
-
-  Integer countByRoleAndStatus(User.Role role, User.Status status);
+  Integer countBySexAndRoleAndStatus(User.Sex sex, Role role, User.Status status);
 
   List<User> findAllByRefIn(List<String> refs);
 
@@ -170,4 +169,6 @@ public interface UserRepository extends JpaRepository<User, String> {
   List<User> getStudentsWithUnpaidOrLateFee();
 
   Optional<User> findByRef(@NotBlank(message = "Reference is mandatory") String ref);
+
+  List<User> findAllByRoleInAndIdIn(Collection<Role> roles, Collection<String> ids);
 }

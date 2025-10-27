@@ -25,7 +25,7 @@ public class RetakeExamSessionDao {
     CriteriaQuery<RetakeExamSession> query = builder.createQuery(RetakeExamSession.class);
     Root<RetakeExamSession> root = query.from(RetakeExamSession.class);
     ArrayList<Predicate> predicates = new ArrayList<>();
-    if (title != null && title.isEmpty()) {
+    if (title != null && !title.isEmpty()) {
       predicates.add(
           builder.like(builder.lower(root.get("title")), "%" + title.toLowerCase() + "%"));
     }
@@ -49,10 +49,10 @@ public class RetakeExamSessionDao {
       CriteriaBuilder builder,
       Root<RetakeExamSession> root) {
     if (from != null) {
-      predicates.add(builder.greaterThanOrEqualTo(root.get("date_from"), from));
+      predicates.add(builder.greaterThanOrEqualTo(root.get("dateFrom"), from));
     }
     if (to != null) {
-      predicates.add(builder.lessThanOrEqualTo(root.get("date_to"), to));
+      predicates.add(builder.lessThanOrEqualTo(root.get("dateTo"), to));
     }
   }
 }

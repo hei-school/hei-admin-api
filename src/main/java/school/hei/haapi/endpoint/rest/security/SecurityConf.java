@@ -26,6 +26,7 @@ import org.springframework.security.web.util.matcher.OrRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.web.servlet.HandlerExceptionResolver;
 import school.hei.haapi.model.exception.ForbiddenException;
+import school.hei.haapi.repository.CorRepository;
 import school.hei.haapi.service.CourseAssignmentService;
 import school.hei.haapi.service.MonitoringStudentService;
 
@@ -38,17 +39,20 @@ public class SecurityConf {
   private final MonitoringStudentService monitoringStudentService;
   private final AbstractUserDetailsAuthenticationProvider authProvider;
   private final HandlerExceptionResolver exceptionResolver;
+  private final CorRepository corRepository;
 
   public SecurityConf(
       CasdoorAuthProvider authProvider,
       // InternalToExternalErrorHandler behind
       @Qualifier("handlerExceptionResolver") HandlerExceptionResolver exceptionResolver,
       CourseAssignmentService courseAssignmentService,
-      MonitoringStudentService monitoringStudentService) {
+      MonitoringStudentService monitoringStudentService,
+      CorRepository corRepository) {
     this.authProvider = authProvider;
     this.exceptionResolver = exceptionResolver;
     this.courseAssignmentService = courseAssignmentService;
     this.monitoringStudentService = monitoringStudentService;
+    this.corRepository = corRepository;
   }
 
   @Bean
@@ -101,6 +105,7 @@ public class SecurityConf {
                     antMatcher(GET, "/school/files"),
                     antMatcher(GET, "/school/files/*"),
                     antMatcher(GET, "/school/files/share_link"),
+                    antMatcher(POST, "/students/import"),
                     antMatcher(GET, "/students/*/work_files"),
                     antMatcher(GET, "/students/*/work_files/*"),
                     antMatcher(POST, "/students/*/group_flows"),
@@ -221,7 +226,7 @@ public class SecurityConf {
                     antMatcher(GET, "/comments"),
                     antMatcher(GET, "/students/*/comments"),
                     antMatcher(POST, "/students/*/comments"),
-                    antMatcher(GET, "/events/participants/*/stats"),
+                    antMatcher(GET, "/events/students/*/stats"),
                     antMatcher(PUT, "/events"),
                     antMatcher(GET, "/events/stats"),
                     antMatcher(GET, "/events/*"),
@@ -254,9 +259,12 @@ public class SecurityConf {
                     antMatcher(PUT, "/students/*/courses"),
                     antMatcher(GET, "/retake_exam_sessions"),
                     antMatcher(PUT, "/retake_exam_sessions"),
-                    antMatcher(GET, "/retake_exam_sessions/*/retakeExams"),
-                    antMatcher(PUT, "/retake_exam_sessions/*/retakeExams"),
-                    antMatcher(GET, "/students/*/sessions/*/retakeExams"),
+                    antMatcher(GET, "/retake_exam_sessions/*"),
+                    antMatcher(GET, "/retake_exams"),
+                    antMatcher(PUT, "/retake_exam_sessions/*/retake_exams"),
+                    antMatcher(GET, "/students/*/sessions/*/retake_exams"),
+                    antMatcher(GET, "/retake_exam_sessions/*/retake_exam_courses"),
+                    antMatcher(GET, "/retake_exam_sessions/*/retake_exam_courses/*/participants"),
                     nonAccessibleBySuspendedUserPath)),
             AnonymousAuthenticationFilter.class)
         .addFilterAfter(
@@ -329,7 +337,6 @@ public class SecurityConf {
                     //
                     // Student files resources
                     //
-
                     .requestMatchers(POST, "/school/files/raw")
                     .hasAnyRole(MANAGER.getRole(), ADMIN.getRole())
                     .requestMatchers(GET, "/school/files")
@@ -417,6 +424,8 @@ public class SecurityConf {
                     .requestMatchers(POST, "/staff_members/*/picture/raw")
                     .hasRole(ADMIN.getRole())
                     // STUDENTS
+                    .requestMatchers(POST, "/students/import")
+                    .hasAnyRole(MANAGER.getRole(), ADMIN.getRole())
                     .requestMatchers(GET, "/students")
                     .hasAnyRole(
                         TEACHER.getRole(), MANAGER.getRole(), MONITOR.getRole(), ADMIN.getRole())
@@ -749,17 +758,26 @@ public class SecurityConf {
                     .requestMatchers(GET, "/retake_exam_sessions")
                     .hasAnyRole(
                         TEACHER.getRole(), MANAGER.getRole(), ADMIN.getRole(), STUDENT.getRole())
-                    .requestMatchers(PUT, "/retake_exam_sessions")
-                    .hasAnyRole(TEACHER.getRole(), MANAGER.getRole(), ADMIN.getRole())
-                    .requestMatchers(GET, "/retake_exam_sessions/*/retakeExams")
+                    .requestMatchers(GET, "/retake_exam_sessions/*")
                     .hasAnyRole(
                         TEACHER.getRole(), MANAGER.getRole(), ADMIN.getRole(), STUDENT.getRole())
-                    .requestMatchers(PUT, "/retake_exam_sessions/*/retakeExams")
+                    .requestMatchers(PUT, "/retake_exam_sessions")
+                    .hasAnyRole(TEACHER.getRole(), MANAGER.getRole(), ADMIN.getRole())
+                    .requestMatchers(GET, "/retake_exams")
+                    .hasAnyRole(
+                        TEACHER.getRole(), MANAGER.getRole(), ADMIN.getRole(), STUDENT.getRole())
+                    .requestMatchers(PUT, "/retake_exam_sessions/*/retake_exams")
                     .hasAnyRole(
                         MANAGER.getRole(), TEACHER.getRole(), ADMIN.getRole(), STUDENT.getRole())
-                    .requestMatchers(GET, "/students/*/sessions/*/retakeExams")
+                    .requestMatchers(GET, "/students/*/sessions/*/retake_exams")
                     .hasAnyRole(
                         MANAGER.getRole(), TEACHER.getRole(), ADMIN.getRole(), STUDENT.getRole())
+                    .requestMatchers(GET, "/retake_exam_sessions/*/retake_exam_courses")
+                    .hasAnyRole(
+                        MANAGER.getRole(), TEACHER.getRole(), ADMIN.getRole(), STUDENT.getRole())
+                    .requestMatchers(
+                        GET, "/retake_exam_sessions/*/retake_exam_courses/*/participants")
+                    .hasAnyRole(MANAGER.getRole(), TEACHER.getRole(), ADMIN.getRole())
                     .requestMatchers(
                         new CourseAssignmentTeacherMatcher(
                             courseAssignmentService, PUT, "/groups/*/course_assignments/*/exams"))
@@ -883,8 +901,7 @@ public class SecurityConf {
                     //
                     // Event resources
                     //
-
-                    .requestMatchers(GET, "/events/participants/*/stats")
+                    .requestMatchers(GET, "/events/students/*/stats")
                     .hasAnyRole(
                         TEACHER.getRole(), MANAGER.getRole(), ADMIN.getRole(), ORGANIZER.getRole())
                     .requestMatchers(GET, "/events/stats")
@@ -927,6 +944,8 @@ public class SecurityConf {
                     .hasAnyRole(MANAGER.getRole(), ADMIN.getRole())
                     .requestMatchers(GET, "/cors")
                     .hasAnyRole(TEACHER.getRole(), MANAGER.getRole(), ADMIN.getRole())
+                    .requestMatchers(new StudentCorMatcher(GET, "/cors/*", "cors", corRepository))
+                    .hasAnyRole(STUDENT.getRole())
                     .requestMatchers(GET, "/cors/*")
                     .hasAnyRole(TEACHER.getRole(), MANAGER.getRole(), ADMIN.getRole())
                     .requestMatchers(POST, "/cors/*/comment")

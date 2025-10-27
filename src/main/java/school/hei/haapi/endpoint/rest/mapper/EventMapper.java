@@ -76,7 +76,7 @@ public class EventMapper {
         .course(Objects.isNull(domain.getCourse()) ? null : courseMapper.toRest(domain.getCourse()))
         .title(domain.getTitle())
         .planner(userMapper.toIdentifier(domain.getPlanner()))
-        .count(eventParticipantService.getEventParticipantsStats(domain.getId()))
+        .count(eventParticipantService.getEventStats(domain.getId()))
         .location(toEventLocation(domain))
         .groups(
             Objects.isNull(groups)

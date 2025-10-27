@@ -1,6 +1,8 @@
 package school.hei.haapi.repository.dao;
 
 import static jakarta.persistence.criteria.JoinType.LEFT;
+import static school.hei.haapi.endpoint.rest.model.AttendanceStatus.MISSING;
+import static school.hei.haapi.model.Event.BEGIN_DATETIME;
 import static school.hei.haapi.service.utils.DateUtils.TimeRange;
 
 import jakarta.persistence.EntityManager;
@@ -106,11 +108,9 @@ public class EventParticipantDao {
       }
     }
 
-    if (attendanceStatus != null) {
-      predicates.add(builder.equal(root.get("status"), attendanceStatus));
-    }
+    setEventStatusPredicate(builder, root, predicates, attendanceStatus);
 
-    Path<Instant> eventBeginDateTime = root.get("event").get(Event.BEGIN_DATETIME);
+    Path<Instant> eventBeginDateTime = root.get("event").get(BEGIN_DATETIME);
     predicates.add(builder.isNotNull(eventBeginDateTime));
     if (eventBeginRange != null) {
       if (eventBeginRange.from() != null) {
@@ -122,5 +122,24 @@ public class EventParticipantDao {
     }
 
     return predicates;
+  }
+
+  private void setEventStatusPredicate(
+      CriteriaBuilder builder,
+      Root<EventParticipant> root,
+      List<Predicate> predicates,
+      AttendanceStatus status) {
+    if (status == null) return;
+    switch (status) {
+      case JUSTIFIED_ABSENCE -> {
+        predicates.add(builder.equal(root.get("status"), MISSING));
+        predicates.add(builder.isNotEmpty(root.get("letters")));
+      }
+      case UNJUSTIFIED_ABSENCE -> {
+        predicates.add(builder.equal(root.get("status"), MISSING));
+        predicates.add(builder.isEmpty(root.get("letters")));
+      }
+      default -> predicates.add(builder.equal(root.get("status"), status));
+    }
   }
 }

@@ -16,6 +16,7 @@ import school.hei.haapi.endpoint.rest.model.ProfessionalExperienceFileTypeEnum;
 import school.hei.haapi.endpoint.rest.model.WorkStudyStatus;
 import school.hei.haapi.model.WorkDocument;
 import school.hei.haapi.model.exception.NotFoundException;
+import school.hei.haapi.repository.UserRepository;
 import school.hei.haapi.repository.WorkDocumentRepository;
 import school.hei.haapi.repository.dao.WorkDocumentDao;
 
@@ -23,7 +24,7 @@ import school.hei.haapi.repository.dao.WorkDocumentDao;
 @AllArgsConstructor
 public class WorkDocumentService {
   private final FileInfoService fileInfoService;
-  private final UserService userService;
+  private final UserRepository userRepository;
   private final WorkDocumentRepository workDocumentRepository;
   private final WorkDocumentDao workDocumentDao;
 
@@ -53,7 +54,10 @@ public class WorkDocumentService {
       Instant commitmentEnd,
       MultipartFile workFile,
       ProfessionalExperienceFileTypeEnum professionalExperience) {
-    var student = userService.getById(studentId);
+    var student =
+        userRepository
+            .findById(studentId)
+            .orElseThrow(() -> new NotFoundException("User with id: " + studentId + " not found"));
 
     return fileInfoService.uploadFile(
         student,

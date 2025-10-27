@@ -104,6 +104,7 @@ import school.hei.haapi.endpoint.rest.model.GroupIdentifier;
 import school.hei.haapi.endpoint.rest.model.Letter;
 import school.hei.haapi.endpoint.rest.model.LetterUser;
 import school.hei.haapi.endpoint.rest.model.Manager;
+import school.hei.haapi.endpoint.rest.model.MissedEventStats;
 import school.hei.haapi.endpoint.rest.model.Monitor;
 import school.hei.haapi.endpoint.rest.model.Observer;
 import school.hei.haapi.endpoint.rest.model.PlaceEnum;
@@ -1416,7 +1417,12 @@ public class TestUtils {
         .description("Prog1 course")
         .title("PROG1")
         .planner(planner1())
-        .count(new EventStats().late(0).missing(1).present(1).total(2))
+        .count(
+            new EventStats()
+                .late(0L)
+                .missedStats(new MissedEventStats().justified(0L).unjustified(1L).total(1L))
+                .present(1L)
+                .total(2L))
         .location(unknownLocationEvent().place(ANDRAHARO))
         .groups(List.of(createGroupIdentifier(group1())));
   }
@@ -1445,7 +1451,12 @@ public class TestUtils {
         .endDatetime(Instant.parse("2022-12-08T12:00:00.00Z"))
         .course(null)
         .title("Integration Day")
-        .count(new EventStats().total(3).missing(1).present(2).late(0))
+        .count(
+            new EventStats()
+                .total(3L)
+                .missedStats(new MissedEventStats().justified(0L).unjustified(1L).total(1L))
+                .present(2L)
+                .late(0L))
         .description("HEI students integration day")
         .location(new EventLocation().place(IVANDRY).room(B))
         .groups(List.of(createGroupIdentifier(group1()), createGroupIdentifier(group2())));
@@ -1469,7 +1480,12 @@ public class TestUtils {
         .title("December Seminar")
         .course(null)
         .color("#0000")
-        .count(new EventStats().late(0).present(0).missing(0).total(0))
+        .count(
+            new EventStats()
+                .late(0L)
+                .present(0L)
+                .missedStats(new MissedEventStats().justified(0L).unjustified(0L).total(0L))
+                .total(0L))
         .location(unknownLocationEvent())
         .groups(List.of());
   }
