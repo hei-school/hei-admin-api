@@ -17,7 +17,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import school.hei.haapi.endpoint.rest.model.EventStats;
 import school.hei.haapi.endpoint.rest.model.EventType;
-import school.hei.haapi.endpoint.rest.model.Group;
 import school.hei.haapi.http.model.CreateEventFrequency;
 import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.Event;
@@ -89,12 +88,12 @@ public class EventService {
       Instant to,
       String title,
       EventType eventType,
-      Group group,
+      String groupId,
       PageFromOne page,
       BoundedPageSize pageSize) {
     Pageable pageable =
         PageRequest.of(page.getValue() - 1, pageSize.getValue(), Sort.by(DESC, "beginDatetime"));
-    return eventDao.findByCriteria(title, from, to, eventType, group, pageable);
+    return eventDao.findByCriteria(title, from, to, eventType, groupId, pageable);
   }
 
   private List<Event> generateEventFromFrequency(

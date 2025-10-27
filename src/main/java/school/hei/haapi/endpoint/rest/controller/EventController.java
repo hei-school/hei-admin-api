@@ -24,7 +24,6 @@ import school.hei.haapi.endpoint.rest.model.EventParticipantStats;
 import school.hei.haapi.endpoint.rest.model.EventStats;
 import school.hei.haapi.endpoint.rest.model.EventType;
 import school.hei.haapi.endpoint.rest.model.FrequencyScopeDay;
-import school.hei.haapi.endpoint.rest.model.Group;
 import school.hei.haapi.endpoint.rest.model.UpdateEventParticipant;
 import school.hei.haapi.endpoint.rest.validator.CreateEventFrequencyValidator;
 import school.hei.haapi.http.model.CreateEventFrequency;
@@ -76,11 +75,11 @@ public class EventController {
       @RequestParam(name = "page") PageFromOne page,
       @RequestParam(name = "page_size") BoundedPageSize pageSize,
       @RequestParam(name = "event_type", required = false) EventType eventType,
-      @RequestParam(name = "group", required = false) Group group,
+      @RequestParam(name = "group_id", required = false) String groupId,
       @RequestParam(required = false) String title,
       @RequestParam(required = false) Instant from,
       @RequestParam(required = false) Instant to) {
-    return eventService.getEvents(from, to, title, eventType, group, page, pageSize).stream()
+    return eventService.getEvents(from, to, title, eventType, groupId, page, pageSize).stream()
         .map(mapper::toRest)
         .toList();
   }
