@@ -1,3 +1,14 @@
+## [1.131.1](https://github.com/hei-school/hei-admin-api/compare/v1.131.0...v1.131.1) (2025-10-27)
+
+
+### Bug Fixes
+
+* getEvents filter by group id ([3da842d](https://github.com/hei-school/hei-admin-api/commit/3da842d348146af98455e5da01fe2772aa7c4aac))
+* paid fee receipt left to pay value ([96d6e12](https://github.com/hei-school/hei-admin-api/commit/96d6e12bf5ce79c1b06413b2bff5fd1e63c9636d))
+* payment duplication on Mpbs re-verification ([4d334a9](https://github.com/hei-school/hei-admin-api/commit/4d334a9ea352e9a3c9e6daac0aa8a56fc275d06e))
+
+
+
 # [1.131.0](https://github.com/hei-school/hei-admin-api/compare/v1.129.1...v1.131.0) (2025-10-24)
 
 
@@ -106,15 +117,6 @@
 ### Features
 
 * **doc:** add retake exam status ([f228859](https://github.com/hei-school/hei-admin-api/commit/f228859127bc278c936d2a63e0082e6a4dd79dce))
-
-
-
-## [1.122.1](https://github.com/hei-school/hei-admin-api/compare/v1.122.0...v1.122.1) (2025-10-02)
-
-
-### Bug Fixes
-
-* increase stack size for build ([19092e9](https://github.com/hei-school/hei-admin-api/commit/19092e9f4570c356a0f45a81d995c8beb6964b80))
 
 
 
