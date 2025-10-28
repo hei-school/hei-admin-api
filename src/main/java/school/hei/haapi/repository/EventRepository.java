@@ -16,10 +16,6 @@ public interface EventRepository extends JpaRepository<Event, String> {
   List<Event> findEventsBetweenInstant(Instant from, Instant to);
 
   /**
-   * @param reference the reference identifier of the student
-   * @param attendanceStatus the attendance status to match
-   * @param from the start of the datetime range for events
-   * @param to the end of the datetime range for events
    * @param titlePattern optional title pattern (supports SQL ILIKE syntax, e.g., "%title%")
    */
   @Query(
@@ -36,16 +32,16 @@ public interface EventRepository extends JpaRepository<Event, String> {
         participant.event.place
     )
     FROM EventParticipant participant
-    WHERE participant.participant.ref = :reference
+    WHERE participant.participant.ref = :studentReference
         AND participant.status = :attendanceStatus
-        AND participant.event.beginDatetime >= :from
-        AND participant.event.endDatetime <= :to
+        AND participant.event.beginDatetime >= :fromBeginDatetime
+        AND participant.event.endDatetime <= :toEndDatetime
         AND participant.event.title ILIKE COALESCE(:titlePattern, '%%')
 """)
   List<StudentAttendance> findStudentAttendance(
-      String reference,
+      String studentReference,
       AttendanceStatus attendanceStatus,
-      Instant from,
-      Instant to,
+      Instant fromBeginDatetime,
+      Instant toEndDatetime,
       String titlePattern);
 }
