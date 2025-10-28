@@ -24,6 +24,7 @@
 
 
 
+
 ## [1.129.1](https://github.com/hei-school/hei-admin-api/compare/v1.129.0...v1.129.1) (2025-10-23)
 
 

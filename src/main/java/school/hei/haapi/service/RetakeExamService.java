@@ -4,8 +4,10 @@ import static java.time.Instant.now;
 import static java.util.Comparator.comparing;
 import static java.util.stream.Collectors.toUnmodifiableSet;
 import static school.hei.haapi.endpoint.rest.model.CourseResultStatus.INCOMPLETE;
-import static school.hei.haapi.model.RetakeExamStatus.CANCELED;
 import static school.hei.haapi.model.RetakeExamStatus.INVALIDATE;
+import static school.hei.haapi.model.RetakeExamStatus.REGISTERED;
+import static school.hei.haapi.model.RetakeExamStatus.TO_CANCEL;
+import static school.hei.haapi.model.RetakeExamStatus.VALIDATE;
 
 import java.util.List;
 import java.util.Objects;
@@ -41,18 +43,19 @@ public class RetakeExamService {
     return retakeExamRepository.saveAll(crupdateRetakeExams);
   }
 
-  public List<RetakeExam> getStudentRetakeExams(String sessionId, String studentId) {
+  public List<RetakeExam> getStudentRetakeExams(
+      String sessionId, String studentId, PageFromOne page, BoundedPageSize pageSize) {
     var session = retakeExamSessionService.getById(sessionId);
     var coursesToRetake = getCourseResultToRetake(studentId);
 
     if (session.getDateTo().isBefore(now())) {
       return retakeExamRepository.findRetakeExamsBySession_IdAndStudent_Id(
-          session.getId(), studentId);
+          session.getId(), studentId, paginationFromPageAndPageSize.apply(page, pageSize));
     }
 
     var futureSessionRetakeExams =
-        retakeExamRepository.findRetakeExamByStudent_IdAndStatusIsNotInAndSession_DateToGreaterThan(
-            studentId, List.of(INVALIDATE, CANCELED), now());
+        retakeExamRepository.findExistingRetakeExamsForCurrentAndFutureSessionsByStudentId(
+            sessionId, studentId, now());
 
     var existingCourseIds =
         futureSessionRetakeExams.stream()
@@ -71,7 +74,12 @@ public class RetakeExamService {
     // TODO: separate the responsibility of the endpoint
     //  - one for reading what's in the database
     //  - one for determining what needs retake
-    return Stream.concat(newRetakeExams, existingRetakeExamsInCurrentSession).toList();
+    var combinedList = Stream.concat(newRetakeExams, existingRetakeExamsInCurrentSession).toList();
+
+    int from = (page.getValue() - 1) * pageSize.getValue();
+    int to = Math.min(from + pageSize.getValue(), combinedList.size());
+
+    return from >= combinedList.size() ? List.of() : combinedList.subList(from, to);
   }
 
   private RetakeExam courseResultAndSessionToRetake(
@@ -127,7 +135,14 @@ public class RetakeExamService {
       BoundedPageSize pageSize) {
     var pageable = paginationFromPageAndPageSize.apply(page, pageSize);
     var retakeExams =
-        retakeExamDao.filterByCriteria(sessionId, null, studentRef, courseId, null, null, pageable);
+        retakeExamDao.filterByCriteria(
+            sessionId,
+            null,
+            studentRef,
+            courseId,
+            null,
+            List.of(REGISTERED, TO_CANCEL, INVALIDATE, VALIDATE),
+            pageable);
     return retakeExams.stream().map(RetakeExam::getStudent).toList();
   }
 }
