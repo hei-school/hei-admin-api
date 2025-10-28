@@ -2,7 +2,7 @@ package school.hei.haapi.endpoint.rest.controller;
 
 import java.time.Instant;
 import java.util.List;
-import lombok.RequiredArgsConstructor;
+import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -13,7 +13,7 @@ import school.hei.haapi.endpoint.rest.model.StudentGlobalAttendance;
 import school.hei.haapi.service.AttendanceService;
 
 @RestController
-@RequiredArgsConstructor
+@AllArgsConstructor
 public class AttendanceController {
   private final AttendanceService attendanceService;
   private final AttendanceRestMapper attendanceRestMapper;
@@ -26,7 +26,7 @@ public class AttendanceController {
       @RequestParam AttendanceStatus attendanceStatus,
       @RequestParam("title") List<String> titles) {
     var studentAttendances =
-        attendanceService.getStudentAttendanceByStudentId(
+        attendanceService.findStudentAttendanceByStudentId(
             studentId, attendanceStatus, from, to, titles);
     return studentAttendances.stream().map(attendanceRestMapper::toRest).toList();
   }

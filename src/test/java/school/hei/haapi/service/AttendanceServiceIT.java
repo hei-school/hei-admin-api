@@ -12,9 +12,11 @@ import static school.hei.haapi.model.Event.RoomName.ALGEBRE;
 import static school.hei.haapi.model.User.Role.STUDENT;
 import static school.hei.haapi.model.User.Status.ENABLED;
 
-import java.time.*;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.YearMonth;
+import java.time.ZoneOffset;
 import java.util.List;
-import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -22,13 +24,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import school.hei.haapi.integration.conf.FacadeITMockedThirdParties;
 import school.hei.haapi.model.Event;
 import school.hei.haapi.model.EventParticipant;
-import school.hei.haapi.model.StudentAttendanceStatus;
+import school.hei.haapi.model.StudentAttendance;
 import school.hei.haapi.model.User;
 import school.hei.haapi.repository.EventParticipantRepository;
 import school.hei.haapi.repository.EventRepository;
 import school.hei.haapi.repository.UserRepository;
 
-@Slf4j
 class AttendanceServiceIT extends FacadeITMockedThirdParties {
   @Autowired AttendanceService subject;
   @Autowired UserRepository userRepository;
@@ -39,9 +40,9 @@ class AttendanceServiceIT extends FacadeITMockedThirdParties {
   private Event event;
   private EventParticipant eventParticipantOne;
   private EventParticipant eventParticipantTwo;
-  private final Instant startOfActualMonth =
+  private static final Instant startOfActualMonth =
       startOfActualMonth().atStartOfDay().toInstant(ZoneOffset.UTC);
-  private final Instant endOfActualMonth =
+  private static final Instant endOfActualMonth =
       endOfActualMonth().plusDays(1L).atStartOfDay().toInstant(ZoneOffset.UTC);
 
   @BeforeEach
@@ -108,10 +109,10 @@ class AttendanceServiceIT extends FacadeITMockedThirdParties {
   @Test
   void get_student_missing_between_date() {
     var actual =
-        subject.getStudentAttendanceByStudentId(
+        subject.findStudentAttendanceByStudentId(
             studentOne.getId(), MISSING, startOfActualMonth, endOfActualMonth, List.of());
     var actualDefault =
-        subject.getStudentAttendanceByStudentId(
+        subject.findStudentAttendanceByStudentId(
             studentOne.getId(), null, startOfActualMonth, endOfActualMonth, List.of());
 
     assertEquals(actualDefault, actual);
@@ -121,14 +122,14 @@ class AttendanceServiceIT extends FacadeITMockedThirdParties {
   @Test
   void get_student_present_between_date() {
     var actual =
-        subject.getStudentAttendanceByStudentId(
+        subject.findStudentAttendanceByStudentId(
             studentTwo.getId(), PRESENT, startOfActualMonth, endOfActualMonth, List.of());
 
     assertEquals(List.of(presentStudentAttendanceStatus()), actual);
   }
 
-  private StudentAttendanceStatus missingStudentAttendanceStatus() {
-    return new StudentAttendanceStatus(
+  private static StudentAttendance missingStudentAttendanceStatus() {
+    return new StudentAttendance(
         "eventTitle",
         "eventDescription",
         COURSE,
@@ -139,8 +140,8 @@ class AttendanceServiceIT extends FacadeITMockedThirdParties {
         ANDRAHARO);
   }
 
-  private StudentAttendanceStatus presentStudentAttendanceStatus() {
-    return new StudentAttendanceStatus(
+  private static StudentAttendance presentStudentAttendanceStatus() {
+    return new StudentAttendance(
         "eventTitle",
         "eventDescription",
         COURSE,
@@ -151,13 +152,13 @@ class AttendanceServiceIT extends FacadeITMockedThirdParties {
         ANDRAHARO);
   }
 
-  private LocalDate startOfActualMonth() {
+  private static LocalDate startOfActualMonth() {
     var today = now();
     var currentMonth = YearMonth.from(today);
     return currentMonth.atDay(1);
   }
 
-  private LocalDate endOfActualMonth() {
+  private static LocalDate endOfActualMonth() {
     var today = now();
     var currentMonth = YearMonth.from(today);
     return currentMonth.atEndOfMonth();
