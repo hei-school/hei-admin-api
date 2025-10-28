@@ -1,3 +1,18 @@
+# [1.132.0](https://github.com/hei-school/hei-admin-api/compare/v1.131.1...v1.132.0) (2025-10-28)
+
+
+### Bug Fixes
+
+* get all retake exam ([307d0aa](https://github.com/hei-school/hei-admin-api/commit/307d0aa59ebd618d743bb3a5d2f22ac3a38c4b86))
+* monitor get student receipt ([8f76837](https://github.com/hei-school/hei-admin-api/commit/8f7683760c4d17135bf4b566ff60ecd3550cf4d0))
+
+
+### Features
+
+* **not-implemented:** student alumni ([f4bd3ce](https://github.com/hei-school/hei-admin-api/commit/f4bd3ce6650448c0c460ff17d6ee54af13d1635e))
+
+
+
 ## [1.131.1](https://github.com/hei-school/hei-admin-api/compare/v1.131.0...v1.131.1) (2025-10-27)
 
 
@@ -21,7 +36,6 @@
 ### Features
 
 * (doc) add get student retake exams pagination ([f220761](https://github.com/hei-school/hei-admin-api/commit/f220761826e5f5ac3a31a2e2e3be076c1fb3c10c))
-
 
 
 
@@ -102,22 +116,6 @@
 ### Bug Fixes
 
 * Cor store status ([405f96b](https://github.com/hei-school/hei-admin-api/commit/405f96bfb73500cb6e4b85425ab7f8ae1869d761))
-
-
-
-# [1.123.0](https://github.com/hei-school/hei-admin-api/compare/v1.122.1...v1.123.0) (2025-10-08)
-
-
-### Bug Fixes
-
-* add logs and tests to AdvancedFeeStatsService for receipt type  ([6e4c63c](https://github.com/hei-school/hei-admin-api/commit/6e4c63ca32d4a7848c1f34d65f6b6a01a732f7ce))
-* filter retake exam session by title ([7a5cf22](https://github.com/hei-school/hei-admin-api/commit/7a5cf22fbe180a8e4847e17b5c5e15664834ce17))
-* payment duplication on Mpbs re-verification ([c1c31d2](https://github.com/hei-school/hei-admin-api/commit/c1c31d25f695e00c5e88e915068ae31cc807f637))
-
-
-### Features
-
-* **doc:** add retake exam status ([f228859](https://github.com/hei-school/hei-admin-api/commit/f228859127bc278c936d2a63e0082e6a4dd79dce))
 
 
 
