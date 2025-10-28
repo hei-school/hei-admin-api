@@ -26,7 +26,7 @@ public class AttendanceController {
       @RequestParam AttendanceStatus attendanceStatus,
       @RequestParam("title") List<String> titles) {
     var studentAttendances =
-        attendanceService.getStudentAttendanceByStudentId(
+        attendanceService.findStudentAttendanceByStudentId(
             studentId, attendanceStatus, from, to, titles);
     return studentAttendances.stream().map(attendanceRestMapper::toRest).toList();
   }

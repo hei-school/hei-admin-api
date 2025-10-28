@@ -109,10 +109,10 @@ class AttendanceServiceIT extends FacadeITMockedThirdParties {
   @Test
   void get_student_missing_between_date() {
     var actual =
-        subject.getStudentAttendanceByStudentId(
+        subject.findStudentAttendanceByStudentId(
             studentOne.getId(), MISSING, startOfActualMonth, endOfActualMonth, List.of());
     var actualDefault =
-        subject.getStudentAttendanceByStudentId(
+        subject.findStudentAttendanceByStudentId(
             studentOne.getId(), null, startOfActualMonth, endOfActualMonth, List.of());
 
     assertEquals(actualDefault, actual);
@@ -122,7 +122,7 @@ class AttendanceServiceIT extends FacadeITMockedThirdParties {
   @Test
   void get_student_present_between_date() {
     var actual =
-        subject.getStudentAttendanceByStudentId(
+        subject.findStudentAttendanceByStudentId(
             studentTwo.getId(), PRESENT, startOfActualMonth, endOfActualMonth, List.of());
 
     assertEquals(List.of(presentStudentAttendanceStatus()), actual);

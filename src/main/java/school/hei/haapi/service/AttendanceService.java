@@ -20,7 +20,7 @@ public class AttendanceService {
   private final EventRepository eventRepository;
   private final UserRepository userRepository;
 
-  public List<StudentAttendance> getStudentAttendanceByStudentId(
+  public List<StudentAttendance> findStudentAttendanceByStudentId(
       String studentId,
       AttendanceStatus status,
       Instant from,
@@ -30,7 +30,7 @@ public class AttendanceService {
     if (titles.size() > 1) throw new NotImplementedException("Titles filter can't be more than 1");
 
     var student = userRepository.findById(studentId).orElseThrow();
-    return eventRepository.findStudentAttendance(
+    return eventRepository.findStudentAttendances(
         student.getRef(),
         status == null ? MISSING : status,
         from,

@@ -43,7 +43,7 @@ class AttendanceControllerTest {
     var to = now().plus(1L, DAYS);
     var attendanceStatus = MISSING;
 
-    when(attendanceServiceMock.getStudentAttendanceByStudentId(
+    when(attendanceServiceMock.findStudentAttendanceByStudentId(
             studentId, attendanceStatus, from, to, List.of()))
         .thenReturn(List.of(studentAttendanceStatus(attendanceStatus, from, to, PI, IVANDRY)));
 
@@ -69,7 +69,7 @@ class AttendanceControllerTest {
     var attendanceStatus = MISSING;
 
     var titlesFilter = List.of("event");
-    when(attendanceServiceMock.getStudentAttendanceByStudentId(
+    when(attendanceServiceMock.findStudentAttendanceByStudentId(
             studentId, attendanceStatus, from, to, titlesFilter))
         .thenReturn(
             List.of(studentAttendanceStatus(attendanceStatus, from, to, ALGEBRE, ANDRAHARO)));

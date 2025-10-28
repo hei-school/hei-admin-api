@@ -38,7 +38,7 @@ public interface EventRepository extends JpaRepository<Event, String> {
         AND participant.event.endDatetime <= :toDatetime
         AND participant.event.title ILIKE COALESCE(:titlePattern, '%%')
 """)
-  List<StudentAttendance> findStudentAttendance(
+  List<StudentAttendance> findStudentAttendances(
       String studentReference,
       AttendanceStatus attendanceStatus,
       Instant fromDatetime,
