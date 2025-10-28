@@ -18,16 +18,16 @@ public interface RetakeExamRepository extends JpaRepository<RetakeExam, String> 
 
   @Query(
       """
-       select re from RetakeExam re
-       where re.student.id = :studentId
-       and (
-           re.session.id = :currentSessionId
-           or (
-               re.status not in ('INVALIDATE','CANCELED')
-               and re.session.dateTo > :currentDate
-           )
-       )
-      \s""")
+        select re from RetakeExam re
+        where re.student.id = :studentId
+        and (
+            re.session.id = :currentSessionId
+            or (
+                re.status not in ('INVALIDATE','CANCELED')
+                and re.session.dateTo > :currentDate
+            )
+        )
+      """)
   List<RetakeExam> findExistingRetakeExamsForCurrentAndFutureSessionsByStudentId(
       String currentSessionId, String studentId, Instant currentDate);
 }
