@@ -10,6 +10,7 @@ import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static school.hei.haapi.endpoint.rest.model.EnableStatus.ALUMNI;
 import static school.hei.haapi.endpoint.rest.model.EnableStatus.ENABLED;
 import static school.hei.haapi.endpoint.rest.model.EnableStatus.SUSPENDED;
 import static school.hei.haapi.endpoint.rest.model.PaymentFrequency.MONTHLY;
@@ -87,6 +88,7 @@ import school.hei.haapi.endpoint.rest.model.CrupdateStudent;
 import school.hei.haapi.endpoint.rest.model.EnableStatus;
 import school.hei.haapi.endpoint.rest.model.Fee;
 import school.hei.haapi.endpoint.rest.model.Group;
+import school.hei.haapi.endpoint.rest.model.Statistics;
 import school.hei.haapi.endpoint.rest.model.Student;
 import school.hei.haapi.integration.conf.FacadeITMockedThirdParties;
 import school.hei.haapi.integration.conf.TestUtils;
@@ -853,6 +855,59 @@ public class StudentIT extends FacadeITMockedThirdParties {
     assertEquals(2, updated.size());
     assertTrue(updated.contains(updated0));
     assertTrue(updated.contains(updated1));
+  }
+
+  @Test
+  void manager_create_student_then_set_to_alumni_ok() throws ApiException {
+    ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
+    UsersApi api = new UsersApi(manager1Client);
+    List<Student> toCreate = api.createOrUpdateStudents(List.of(someCreatableStudent()), null);
+
+    Student created = toCreate.getFirst();
+    CrupdateStudent toUpdate =
+        new CrupdateStudent()
+            .birthDate(created.getBirthDate())
+            .id(created.getId())
+            .entranceDatetime(created.getEntranceDatetime())
+            .phone(created.getPhone())
+            .nic(created.getNic())
+            .birthPlace(created.getBirthPlace())
+            .email(created.getEmail())
+            .address(created.getAddress())
+            .firstName(created.getFirstName())
+            .lastName(created.getLastName())
+            .sex(created.getSex())
+            .ref(created.getRef())
+            .coordinates(coordinatesWithNullValues())
+            .specializationField(created.getSpecializationField())
+            .status(created.getStatus());
+    toUpdate.setLastName("A new name zero");
+
+    Student updated0 =
+        new Student()
+            .birthDate(toUpdate.getBirthDate())
+            .id(toUpdate.getId())
+            .entranceDatetime(toUpdate.getEntranceDatetime())
+            .phone(toUpdate.getPhone())
+            .nic(toUpdate.getNic())
+            .birthPlace(toUpdate.getBirthPlace())
+            .email(toUpdate.getEmail())
+            .address(toUpdate.getAddress())
+            .firstName(toUpdate.getFirstName())
+            .lastName("A new name zero")
+            .sex(toUpdate.getSex())
+            .ref(toUpdate.getRef())
+            .coordinates(coordinatesWithNullValues())
+            .specializationField(toUpdate.getSpecializationField())
+            .workStudyStatus(NOT_WORKING)
+            .status(ALUMNI)
+            .groups(List.of())
+            .isRepeatingYear(false);
+
+    List<Student> updated = api.createOrUpdateStudents(List.of(toUpdate), null);
+
+    assertEquals(1, updated.size());
+    assertTrue(updated.contains(updated0));
   }
 
   @Test
