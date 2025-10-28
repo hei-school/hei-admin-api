@@ -30,7 +30,7 @@ public class AttendanceService {
     if (titles.size() > 1) throw new NotImplementedException("Titles filter can't be more than 1");
 
     var student = userRepository.findById(studentId).orElseThrow();
-    return eventRepository.getStudentAttendance(
+    return eventRepository.findStudentAttendance(
         student.getRef(),
         status == null ? MISSING : status,
         from,

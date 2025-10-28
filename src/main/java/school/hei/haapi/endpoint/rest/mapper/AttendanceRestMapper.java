@@ -12,17 +12,17 @@ public class AttendanceRestMapper {
   private RoomMapper roomMapper;
   private PlaceMapper placeMapper;
 
-  public StudentGlobalAttendance toRest(StudentAttendance s) {
+  public StudentGlobalAttendance toRest(StudentAttendance domain) {
     return new StudentGlobalAttendance()
-        .title(s.eventTitle())
-        .description(s.eventDescription())
+        .title(domain.eventTitle())
+        .description(domain.eventDescription())
         .location(
             new EventLocation()
-                .room(roomMapper.toRest(s.room()))
-                .place(placeMapper.toRest(s.place())))
-        .eventType(s.eventType())
-        .attendanceStatus(s.attendanceStatus())
-        .beginDatetime(s.beginDatetime())
-        .endDatetime(s.endDatetime());
+                .room(roomMapper.toRest(domain.room()))
+                .place(placeMapper.toRest(domain.place())))
+        .eventType(domain.eventType())
+        .attendanceStatus(domain.attendanceStatus())
+        .beginDatetime(domain.beginDatetime())
+        .endDatetime(domain.endDatetime());
   }
 }
