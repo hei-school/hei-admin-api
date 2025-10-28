@@ -520,6 +520,13 @@ public class SecurityConf {
                         new SelfMatcher(
                             GET, "/students/*/fees/*/payments/*/receipt/raw", "students"))
                     .hasRole(STUDENT.getRole())
+                    .requestMatchers(
+                        new StudentMonitorMatcher(
+                            GET,
+                            "/students/*/fees/*/payments/*/receipt/raw",
+                            "students",
+                            monitoringStudentService))
+                    .hasRole(MONITOR.getRole())
                     .requestMatchers(GET, "/students/*/fees/*/payments/*/receipt/raw")
                     .hasAnyRole(MANAGER.getRole(), ADMIN.getRole())
                     .requestMatchers(new SelfMatcher(GET, "/students/*/fees/*", "students"))
