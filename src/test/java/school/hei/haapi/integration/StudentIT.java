@@ -379,6 +379,25 @@ public class StudentIT extends FacadeITMockedThirdParties {
         .isRepeatingYear(Boolean.TRUE);
   }
 
+  private static CrupdateStudent studentToCrupdateStudent(Student student, String lastName) {
+    return new CrupdateStudent()
+        .birthDate(student.getBirthDate())
+        .id(student.getId())
+        .entranceDatetime(student.getEntranceDatetime())
+        .phone(student.getPhone())
+        .nic(student.getNic())
+        .birthPlace(student.getBirthPlace())
+        .email(student.getEmail())
+        .address(student.getAddress())
+        .firstName(student.getFirstName())
+        .lastName(lastName)
+        .sex(student.getSex())
+        .ref(student.getRef())
+        .coordinates(coordinatesWithNullValues())
+        .specializationField(student.getSpecializationField())
+        .status(student.getStatus());
+  }
+
   @BeforeEach
   public void setUp() {
     setUpCasdoor(casdoorAuthServiceMock, certificateLoaderMock);
@@ -769,44 +788,10 @@ public class StudentIT extends FacadeITMockedThirdParties {
         api.createOrUpdateStudents(List.of(someCreatableStudent(), someCreatableStudent()), null);
 
     Student created0 = toCreate.getFirst();
-    CrupdateStudent toUpdate0 =
-        new CrupdateStudent()
-            .birthDate(created0.getBirthDate())
-            .id(created0.getId())
-            .entranceDatetime(created0.getEntranceDatetime())
-            .phone(created0.getPhone())
-            .nic(created0.getNic())
-            .birthPlace(created0.getBirthPlace())
-            .email(created0.getEmail())
-            .address(created0.getAddress())
-            .firstName(created0.getFirstName())
-            .lastName(created0.getLastName())
-            .sex(created0.getSex())
-            .ref(created0.getRef())
-            .coordinates(coordinatesWithNullValues())
-            .specializationField(created0.getSpecializationField())
-            .status(created0.getStatus());
-    toUpdate0.setLastName("A new name zero");
+    CrupdateStudent toUpdate0 = studentToCrupdateStudent(created0, "A new name zero");
 
     Student created1 = toCreate.get(1);
-    CrupdateStudent toUpdate1 =
-        new CrupdateStudent()
-            .birthDate(created1.getBirthDate())
-            .id(created1.getId())
-            .entranceDatetime(created1.getEntranceDatetime())
-            .phone(created1.getPhone())
-            .nic(created1.getNic())
-            .birthPlace(created1.getBirthPlace())
-            .email(created1.getEmail())
-            .address(created1.getAddress())
-            .firstName(created1.getFirstName())
-            .lastName(created1.getLastName())
-            .sex(created1.getSex())
-            .ref(created1.getRef())
-            .coordinates(coordinatesWithNullValues())
-            .specializationField(created1.getSpecializationField())
-            .status(created1.getStatus());
-    toUpdate1.setLastName("A new name one");
+    CrupdateStudent toUpdate1 = studentToCrupdateStudent(created1, "A new name one");
 
     Student updated0 =
         new Student()
@@ -859,55 +844,38 @@ public class StudentIT extends FacadeITMockedThirdParties {
 
   @Test
   void manager_create_student_then_set_to_alumni_ok() throws ApiException {
-    ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
-    UsersApi api = new UsersApi(manager1Client);
-    List<Student> toCreate = api.createOrUpdateStudents(List.of(someCreatableStudent()), null);
+    var api = new UsersApi(anApiClient(MANAGER1_TOKEN));
+    var createdStudent =
+        api.createOrUpdateStudents(List.of(someCreatableStudent()), null).getFirst();
 
-    Student created = toCreate.getFirst();
-    CrupdateStudent toUpdate =
-        new CrupdateStudent()
-            .birthDate(created.getBirthDate())
-            .id(created.getId())
-            .entranceDatetime(created.getEntranceDatetime())
-            .phone(created.getPhone())
-            .nic(created.getNic())
-            .birthPlace(created.getBirthPlace())
-            .email(created.getEmail())
-            .address(created.getAddress())
-            .firstName(created.getFirstName())
-            .lastName(created.getLastName())
-            .sex(created.getSex())
-            .ref(created.getRef())
-            .coordinates(coordinatesWithNullValues())
-            .specializationField(created.getSpecializationField())
-            .status(created.getStatus());
-    toUpdate.setLastName("A new name zero");
+    var crupdateStudent = studentToCrupdateStudent(createdStudent, "A new name zero");
+    crupdateStudent.setStatus(ALUMNI);
 
-    Student updated0 =
+    var exceptedUpdatedStudent =
         new Student()
-            .birthDate(toUpdate.getBirthDate())
-            .id(toUpdate.getId())
-            .entranceDatetime(toUpdate.getEntranceDatetime())
-            .phone(toUpdate.getPhone())
-            .nic(toUpdate.getNic())
-            .birthPlace(toUpdate.getBirthPlace())
-            .email(toUpdate.getEmail())
-            .address(toUpdate.getAddress())
-            .firstName(toUpdate.getFirstName())
+            .birthDate(crupdateStudent.getBirthDate())
+            .id(crupdateStudent.getId())
+            .entranceDatetime(crupdateStudent.getEntranceDatetime())
+            .phone(crupdateStudent.getPhone())
+            .nic(crupdateStudent.getNic())
+            .birthPlace(crupdateStudent.getBirthPlace())
+            .email(crupdateStudent.getEmail())
+            .address(crupdateStudent.getAddress())
+            .firstName(crupdateStudent.getFirstName())
             .lastName("A new name zero")
-            .sex(toUpdate.getSex())
-            .ref(toUpdate.getRef())
+            .sex(crupdateStudent.getSex())
+            .ref(crupdateStudent.getRef())
             .coordinates(coordinatesWithNullValues())
-            .specializationField(toUpdate.getSpecializationField())
+            .specializationField(crupdateStudent.getSpecializationField())
             .workStudyStatus(NOT_WORKING)
             .status(ALUMNI)
             .groups(List.of())
             .isRepeatingYear(false);
 
-    List<Student> updated = api.createOrUpdateStudents(List.of(toUpdate), null);
+    var updatedStudents = api.createOrUpdateStudents(List.of(crupdateStudent), null);
 
-    assertEquals(1, updated.size());
-    assertTrue(updated.contains(updated0));
+    assertEquals(1, updatedStudents.size());
+    assertTrue(updatedStudents.contains(exceptedUpdatedStudent));
   }
 
   @Test
