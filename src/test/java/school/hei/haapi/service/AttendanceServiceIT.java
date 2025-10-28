@@ -40,9 +40,9 @@ class AttendanceServiceIT extends FacadeITMockedThirdParties {
   private Event event;
   private EventParticipant eventParticipantOne;
   private EventParticipant eventParticipantTwo;
-  private final Instant startOfActualMonth =
+  private static final Instant startOfActualMonth =
       startOfActualMonth().atStartOfDay().toInstant(ZoneOffset.UTC);
-  private final Instant endOfActualMonth =
+  private static final Instant endOfActualMonth =
       endOfActualMonth().plusDays(1L).atStartOfDay().toInstant(ZoneOffset.UTC);
 
   @BeforeEach
@@ -128,7 +128,7 @@ class AttendanceServiceIT extends FacadeITMockedThirdParties {
     assertEquals(List.of(presentStudentAttendanceStatus()), actual);
   }
 
-  private StudentAttendance missingStudentAttendanceStatus() {
+  private static StudentAttendance missingStudentAttendanceStatus() {
     return new StudentAttendance(
         "eventTitle",
         "eventDescription",
@@ -140,7 +140,7 @@ class AttendanceServiceIT extends FacadeITMockedThirdParties {
         ANDRAHARO);
   }
 
-  private StudentAttendance presentStudentAttendanceStatus() {
+  private static StudentAttendance presentStudentAttendanceStatus() {
     return new StudentAttendance(
         "eventTitle",
         "eventDescription",
@@ -152,13 +152,13 @@ class AttendanceServiceIT extends FacadeITMockedThirdParties {
         ANDRAHARO);
   }
 
-  private LocalDate startOfActualMonth() {
+  private static LocalDate startOfActualMonth() {
     var today = now();
     var currentMonth = YearMonth.from(today);
     return currentMonth.atDay(1);
   }
 
-  private LocalDate endOfActualMonth() {
+  private static LocalDate endOfActualMonth() {
     var today = now();
     var currentMonth = YearMonth.from(today);
     return currentMonth.atEndOfMonth();
