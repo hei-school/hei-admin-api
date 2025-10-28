@@ -784,16 +784,16 @@ public class StudentIT extends FacadeITMockedThirdParties {
   void manager_write_update_ok() throws ApiException {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     UsersApi api = new UsersApi(manager1Client);
-    List<Student> toCreate =
+    var toCreate =
         api.createOrUpdateStudents(List.of(someCreatableStudent(), someCreatableStudent()), null);
 
-    Student created0 = toCreate.getFirst();
-    CrupdateStudent toUpdate0 = studentToCrupdateStudent(created0, "A new name zero");
+    var created0 = toCreate.getFirst();
+    var toUpdate0 = studentToCrupdateStudent(created0, "A new name zero");
 
-    Student created1 = toCreate.get(1);
-    CrupdateStudent toUpdate1 = studentToCrupdateStudent(created1, "A new name one");
+    var created1 = toCreate.get(1);
+    var toUpdate1 = studentToCrupdateStudent(created1, "A new name one");
 
-    Student updated0 =
+    var updated0 =
         new Student()
             .birthDate(toUpdate0.getBirthDate())
             .id(toUpdate0.getId())
@@ -814,7 +814,7 @@ public class StudentIT extends FacadeITMockedThirdParties {
             .groups(List.of())
             .isRepeatingYear(false);
 
-    Student updated1 =
+    var updated1 =
         new Student()
             .birthDate(toUpdate1.getBirthDate())
             .id(toUpdate1.getId())
@@ -835,7 +835,7 @@ public class StudentIT extends FacadeITMockedThirdParties {
             .groups(List.of())
             .isRepeatingYear(false);
 
-    List<Student> updated = api.createOrUpdateStudents(List.of(toUpdate0, toUpdate1), null);
+    var updated = api.createOrUpdateStudents(List.of(toUpdate0, toUpdate1), null);
 
     assertEquals(2, updated.size());
     assertTrue(updated.contains(updated0));
