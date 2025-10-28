@@ -6945,6 +6945,7 @@ components:
         - ENABLED
         - DISABLED
         - SUSPENDED
+        - ALUMNI
     FileType:
       type: string
       enum:
