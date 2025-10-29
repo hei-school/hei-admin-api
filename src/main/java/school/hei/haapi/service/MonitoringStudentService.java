@@ -7,6 +7,8 @@ import static school.hei.haapi.model.User.Role.STUDENT;
 import java.util.List;
 import java.util.UUID;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -18,10 +20,12 @@ import school.hei.haapi.endpoint.rest.model.CrupdateMonitor;
 import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.model.User;
+import school.hei.haapi.model.exception.BadRequestException;
 import school.hei.haapi.model.exception.NotFoundException;
 import school.hei.haapi.repository.MonitoringStudentRepository;
 import school.hei.haapi.repository.UserRepository;
 
+@Slf4j
 @Service
 @AllArgsConstructor
 public class MonitoringStudentService {
@@ -32,8 +36,17 @@ public class MonitoringStudentService {
 
   @Transactional
   public List<User> linkMonitorFollowingStudents(String monitorId, List<String> studentsIds) {
-    for (String studentId : studentsIds) {
-      monitoringStudentRepository.saveMonitorFollowingStudents(monitorId, studentId);
+    if (studentsIds == null || studentsIds.isEmpty()) {
+      return List.of();
+    }
+
+    try {
+      monitoringStudentRepository.saveMonitorFollowingStudents(monitorId, studentsIds);
+    } catch (DataIntegrityViolationException e) {
+      log.error(e.getMessage());
+      throw new BadRequestException(
+          "One of the students with id %s can't be link with the monitor with id %s"
+              .formatted(studentsIds, monitorId));
     }
     return monitoringStudentRepository.findAllById(studentsIds);
   }
