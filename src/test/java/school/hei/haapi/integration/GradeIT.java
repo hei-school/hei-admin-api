@@ -155,9 +155,9 @@ class GradeIT extends FacadeITMockedThirdParties {
     userRepository.saveAll(List.of(monitorOfAxel, monitorOfTolojanahary));
     userRepository.saveAll(List.of(studentAxel, studentTolojanahary));
     monitoringStudentRepository.saveMonitorFollowingStudents(
-        monitorOfAxel.getId(), studentAxel.getId());
+        monitorOfAxel.getId(), List.of(studentAxel.getId()));
     monitoringStudentRepository.saveMonitorFollowingStudents(
-        monitorOfTolojanahary.getId(), studentTolojanahary.getId());
+        monitorOfTolojanahary.getId(), List.of(studentTolojanahary.getId()));
     userRepository.saveAll(List.of(teacherToky));
     courseRepository.saveAll(List.of(courseProg1, courseProg2));
     groupFlowRepository.saveAll(List.of(groupFlowsAxel, groupFlowsTolojanahary));
@@ -431,7 +431,7 @@ class GradeIT extends FacadeITMockedThirdParties {
     userRepository.saveAll(List.of(monitorOfRandomStudent));
     userRepository.saveAll(List.of(studentRandomAxel));
     monitoringStudentRepository.saveMonitorFollowingStudents(
-        monitorOfRandomStudent.getId(), studentRandomAxel.getId());
+        monitorOfRandomStudent.getId(), List.of(studentRandomAxel.getId()));
     userRepository.saveAll(List.of(teacherRandomToky));
     courseRepository.saveAll(List.of(courseRandomProg3));
     groupFlowRepository.saveAll(List.of(groupFlowsRandomAxel));

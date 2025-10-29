@@ -36,15 +36,13 @@ public class MonitoringStudentService {
 
   @Transactional
   public List<User> linkMonitorFollowingStudents(String monitorId, List<String> studentsIds) {
-    for (String studentId : studentsIds) {
-      try {
-        monitoringStudentRepository.saveMonitorFollowingStudents(monitorId, studentId);
-      } catch (DataIntegrityViolationException e) {
-        log.error(e.getMessage());
-        throw new BadRequestException(
-            "Student with id %s can't be link with the monitor with id %s"
-                .formatted(studentId, monitorId));
-      }
+    try {
+      monitoringStudentRepository.saveMonitorFollowingStudents(monitorId, studentsIds);
+    } catch (DataIntegrityViolationException e) {
+      log.error(e.getMessage());
+      throw new BadRequestException(
+          "One of the students with id %s can't be link with the monitor with id %s"
+              .formatted(studentsIds, monitorId));
     }
     return monitoringStudentRepository.findAllById(studentsIds);
   }

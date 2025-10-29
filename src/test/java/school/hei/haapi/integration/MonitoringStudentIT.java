@@ -87,19 +87,19 @@ public class MonitoringStudentIT extends FacadeITMockedThirdParties {
     userRepository.saveAll(List.of(monitorOfAxel));
     userRepository.saveAll(List.of(studentAxel, studentTolojanahary));
     monitoringStudentRepository.saveMonitorFollowingStudents(
-        monitorOfAxel.getId(), studentAxel.getId());
+        monitorOfAxel.getId(), List.of(studentAxel.getId()));
   }
 
   @Test
   void reassign_axelMonitor_ko() {
     var api = new MonitoringApi(anApiClient(MANAGER1_TOKEN));
     var monitorId = monitorOfAxel.getId();
-    var studentId = studentAxel.getId();
+    var studentToLinkId = List.of(studentAxel.getId());
     var exceptedException =
-        "Student with id %s can't be link with the monitor with id %s"
-            .formatted(studentId, monitorId);
+        "One of the students with id %s can't be link with the monitor with id %s"
+            .formatted(studentToLinkId, monitorId);
     var linkStudentsByMonitorIdRequest =
-        new LinkStudentsByMonitorIdRequest().studentsIds(List.of(studentId));
+        new LinkStudentsByMonitorIdRequest().studentsIds(studentToLinkId);
 
     assertBadRequestException(
         exceptedException,
