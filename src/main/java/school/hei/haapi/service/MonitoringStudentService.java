@@ -36,6 +36,10 @@ public class MonitoringStudentService {
 
   @Transactional
   public List<User> linkMonitorFollowingStudents(String monitorId, List<String> studentsIds) {
+    if (studentsIds == null || studentsIds.isEmpty()) {
+      return List.of();
+    }
+
     try {
       monitoringStudentRepository.saveMonitorFollowingStudents(monitorId, studentsIds);
     } catch (DataIntegrityViolationException e) {

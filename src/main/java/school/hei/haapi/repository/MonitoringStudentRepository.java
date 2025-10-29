@@ -29,6 +29,9 @@ public interface MonitoringStudentRepository extends JpaRepository<User, String>
       nativeQuery = true)
   List<User> findAllStudentsByMonitorId(@Param("monitorId") String monitorId, Pageable pageable);
 
+  /**
+   * @param studentIds must not be empty
+   */
   @Modifying
   @Query(
       value =
