@@ -15,6 +15,7 @@ import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.STUDENT2_ID;
 import static school.hei.haapi.integration.conf.TestUtils.STUDENT3_ID;
 import static school.hei.haapi.integration.conf.TestUtils.TEACHER1_TOKEN;
+import static school.hei.haapi.integration.conf.TestUtils.assertBadRequestException;
 import static school.hei.haapi.integration.conf.TestUtils.assertThrowsForbiddenException;
 import static school.hei.haapi.integration.conf.TestUtils.monitor1Link;
 import static school.hei.haapi.integration.conf.TestUtils.monitor2Link;
@@ -45,6 +46,7 @@ import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
 import school.hei.haapi.endpoint.rest.mapper.UserMapper;
 import school.hei.haapi.endpoint.rest.model.Fee;
+import school.hei.haapi.endpoint.rest.model.LinkStudentsByMonitorIdRequest;
 import school.hei.haapi.endpoint.rest.model.Student;
 import school.hei.haapi.endpoint.rest.security.casdoorAuthentication.config.CertificateLoader;
 import school.hei.haapi.integration.conf.FacadeITMockedThirdParties;
@@ -86,6 +88,22 @@ public class MonitoringStudentIT extends FacadeITMockedThirdParties {
     userRepository.saveAll(List.of(studentAxel, studentTolojanahary));
     monitoringStudentRepository.saveMonitorFollowingStudents(
         monitorOfAxel.getId(), studentAxel.getId());
+  }
+
+  @Test
+  void reassign_axelMonitor_ko() {
+    var api = new MonitoringApi(anApiClient(MANAGER1_TOKEN));
+    var monitorId = monitorOfAxel.getId();
+    var studentId = studentAxel.getId();
+    var exceptedException =
+        "Student with id %s can't be link with the monitor with id %s"
+            .formatted(studentId, monitorId);
+    var linkStudentsByMonitorIdRequest =
+        new LinkStudentsByMonitorIdRequest().studentsIds(List.of(studentId));
+
+    assertBadRequestException(
+        exceptedException,
+        () -> api.linkStudentsByMonitorId(monitorId, linkStudentsByMonitorIdRequest));
   }
 
   @Test
