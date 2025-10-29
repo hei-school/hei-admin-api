@@ -1,0 +1,1 @@
+alter table "retake_exam" alter column status set default 'REGISTERED';

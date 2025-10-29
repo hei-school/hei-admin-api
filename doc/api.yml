@@ -5003,10 +5003,10 @@ paths:
           description: Filter events by title
           schema:
             type: string
-        - name: group
+        - name: group_id
           in: query
           required: false
-          description: Filter events by group
+          description: Filter events by group id
           schema:
             type: string
         - $ref: '#/components/parameters/TeacherId'
@@ -6945,6 +6945,7 @@ components:
         - ENABLED
         - DISABLED
         - SUSPENDED
+        - ALUMNI
     FileType:
       type: string
       enum:

@@ -4,7 +4,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 import school.hei.haapi.endpoint.rest.model.EventLocation;
 import school.hei.haapi.endpoint.rest.model.StudentGlobalAttendance;
-import school.hei.haapi.model.StudentAttendanceStatus;
+import school.hei.haapi.model.StudentAttendance;
 
 @Component
 @AllArgsConstructor
@@ -12,17 +12,17 @@ public class AttendanceRestMapper {
   private RoomMapper roomMapper;
   private PlaceMapper placeMapper;
 
-  public StudentGlobalAttendance toRest(StudentAttendanceStatus s) {
+  public StudentGlobalAttendance toRest(StudentAttendance domain) {
     return new StudentGlobalAttendance()
-        .title(s.eventTitle())
-        .description(s.eventDescription())
+        .title(domain.eventTitle())
+        .description(domain.eventDescription())
         .location(
             new EventLocation()
-                .room(roomMapper.toRest(s.room()))
-                .place(placeMapper.toRest(s.place())))
-        .eventType(s.eventType())
-        .attendanceStatus(s.attendanceStatus())
-        .beginDatetime(s.beginDatetime())
-        .endDatetime(s.endDatetime());
+                .room(roomMapper.toRest(domain.room()))
+                .place(placeMapper.toRest(domain.place())))
+        .eventType(domain.eventType())
+        .attendanceStatus(domain.attendanceStatus())
+        .beginDatetime(domain.beginDatetime())
+        .endDatetime(domain.endDatetime());
   }
 }

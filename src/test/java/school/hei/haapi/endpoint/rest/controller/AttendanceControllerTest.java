@@ -24,8 +24,9 @@ import school.hei.haapi.endpoint.rest.model.EventLocation;
 import school.hei.haapi.endpoint.rest.model.PlaceEnum;
 import school.hei.haapi.endpoint.rest.model.RoomEnum;
 import school.hei.haapi.endpoint.rest.model.StudentGlobalAttendance;
-import school.hei.haapi.model.Event;
-import school.hei.haapi.model.StudentAttendanceStatus;
+import school.hei.haapi.model.Event.PlaceName;
+import school.hei.haapi.model.Event.RoomName;
+import school.hei.haapi.model.StudentAttendance;
 import school.hei.haapi.service.AttendanceService;
 
 class AttendanceControllerTest {
@@ -42,7 +43,7 @@ class AttendanceControllerTest {
     var to = now().plus(1L, DAYS);
     var attendanceStatus = MISSING;
 
-    when(attendanceServiceMock.getStudentAttendanceByStudentId(
+    when(attendanceServiceMock.findStudentAttendanceByStudentId(
             studentId, attendanceStatus, from, to, List.of()))
         .thenReturn(List.of(studentAttendanceStatus(attendanceStatus, from, to, PI, IVANDRY)));
 
@@ -68,7 +69,7 @@ class AttendanceControllerTest {
     var attendanceStatus = MISSING;
 
     var titlesFilter = List.of("event");
-    when(attendanceServiceMock.getStudentAttendanceByStudentId(
+    when(attendanceServiceMock.findStudentAttendanceByStudentId(
             studentId, attendanceStatus, from, to, titlesFilter))
         .thenReturn(
             List.of(studentAttendanceStatus(attendanceStatus, from, to, ALGEBRE, ANDRAHARO)));
@@ -87,13 +88,9 @@ class AttendanceControllerTest {
                 .endDatetime(to));
   }
 
-  private StudentAttendanceStatus studentAttendanceStatus(
-      AttendanceStatus attendanceStatus,
-      Instant from,
-      Instant to,
-      Event.RoomName room,
-      Event.PlaceName place) {
-    return new StudentAttendanceStatus(
+  private static StudentAttendance studentAttendanceStatus(
+      AttendanceStatus attendanceStatus, Instant from, Instant to, RoomName room, PlaceName place) {
+    return new StudentAttendance(
         "eventTile", "eventDescription", COURSE, attendanceStatus, from, to, room, place);
   }
 }

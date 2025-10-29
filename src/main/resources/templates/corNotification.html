@@ -65,12 +65,15 @@
 <body>
 <div class="container">
     <p class="greeting">Bonjour,</p>
-    <span th:text="${description}"></span>
+    <p>
+        Nous vous informons qu’une réunion est organisée dans le cadre de la procédure de COR, pour le motif suivant :
+        <span th:text="${description}"></span>
+    </p>
     <p>
         Afin de mieux comprendre votre situation et de vous accompagner au
         mieux, nous vous convions à une réunion
         <span class="underline"
-        >en présence de l'un de vos parents ou tuteur</span
+        >en présence de l'un de vos parents ou tuteurs</span
         >.
     </p>
     <p class="persons">
@@ -88,11 +91,6 @@
         <li>Horaire : <strong>à <span th:text="${hour}"></span></strong></li>
         <li>Motif : <strong><span th:text="${description}"></span></strong></li>
     </ul>
-    <p>
-        Votre présence, ainsi que celle de votre parent ou tuteur, est
-        essentielle afin d'échanger sur les difficultés que vous rencontrez et
-        d'envisager ensemble des solutions adaptées.
-    </p>
     <p>Votre présence, ainsi que celle de vos tuteurs, est essentielle.</p>
     <p>Nous vous remercions par avance pour votre coopération.</p>
     <p class="signature">Cordialement,</p>

@@ -54,7 +54,7 @@ public class RetakeExamSessionIT extends FacadeITMockedThirdParties {
     var retakeExamSessions = api.getRetakeExamSessions(null, null, null, null, null);
 
     assertNotNull(retakeExamSessions);
-    assertEquals(3, retakeExamSessions.size());
+    assertEquals(4, retakeExamSessions.size());
   }
 
   @Test
@@ -65,7 +65,7 @@ public class RetakeExamSessionIT extends FacadeITMockedThirdParties {
     var retakeExamSessions = api.getRetakeExamSessions(null, null, null, null, null);
 
     assertNotNull(retakeExamSessions);
-    assertEquals(3, retakeExamSessions.size());
+    assertEquals(4, retakeExamSessions.size());
   }
 
   @Test
@@ -129,7 +129,7 @@ public class RetakeExamSessionIT extends FacadeITMockedThirdParties {
     Pageable pageable = PageRequest.of(0, 10);
 
     var resultAll = retakeExamSessionDao.filterByCriteria(null, pageable, null, null);
-    assertEquals(3, resultAll.size());
+    assertEquals(4, resultAll.size());
 
     var resultTitle = retakeExamSessionDao.filterByCriteria("session1", pageable, null, null);
     assertEquals(1, resultTitle.size());

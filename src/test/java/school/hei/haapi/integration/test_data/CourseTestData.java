@@ -49,7 +49,7 @@ public class CourseTestData {
         .build();
   }
 
-  public static Course course1() {
+  public static Course course1Model() {
     return Course.builder()
         .id(COURSE1_ID)
         .code("PROG1")
@@ -59,7 +59,7 @@ public class CourseTestData {
         .build();
   }
 
-  public static Course course2() {
+  public static Course course2Model() {
     return Course.builder()
         .id(COURSE2_ID)
         .code("PROG3")
@@ -69,7 +69,7 @@ public class CourseTestData {
         .build();
   }
 
-  public static Course course3() {
+  public static Course course3Model() {
     return Course.builder()
         .id(COURSE3_ID)
         .code("IA2")

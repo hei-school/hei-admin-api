@@ -1,0 +1,2 @@
+DROP FUNCTION IF EXISTS public.get_event_student_attendance(character varying, attendance_status,
+                                                            timestamp without time zone, timestamp without time zone)
