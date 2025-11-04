@@ -1,5 +1,6 @@
 package school.hei.haapi.model.dto;
 
+import static java.util.Map.entry;
 import static school.hei.haapi.endpoint.rest.model.EnableStatus.ENABLED;
 
 import jakarta.mail.internet.AddressException;
@@ -14,6 +15,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.util.StringUtil;
+import org.jetbrains.annotations.Nullable;
 import school.hei.haapi.endpoint.rest.model.CrupdateStudent;
 import school.hei.haapi.endpoint.rest.model.PaymentFrequency;
 import school.hei.haapi.endpoint.rest.model.Sex;
@@ -29,7 +31,9 @@ public class StudentImportDto {
   private String lastName;
   private String email;
   private Sex sex;
+  private String nic;
   private LocalDate birthDate;
+  private String birthPlace;
   private String address;
   private String phone;
   private Instant entranceDatetime;
@@ -43,12 +47,7 @@ public class StudentImportDto {
   }
 
   private static String getFirstNameFromCell(Cell cell) {
-    var cellValue = cell.getStringCellValue();
-    if (StringUtil.isNotBlank(cellValue)) {
-      return cellValue.trim();
-    } else {
-      return null;
-    }
+    return getNullableStringFromCell(cell);
   }
 
   private static String getLastNameFromCell(Cell cell) {
@@ -80,6 +79,11 @@ public class StudentImportDto {
   }
 
   private static String getAddressFromCell(Cell cell) {
+    return getNullableStringFromCell(cell);
+  }
+
+  @Nullable
+  private static String getNullableStringFromCell(Cell cell) {
     var cellValue = cell.getStringCellValue();
     if (StringUtil.isNotBlank(cellValue)) {
       return cellValue.trim();
@@ -88,13 +92,16 @@ public class StudentImportDto {
     }
   }
 
+  private static String getNicFromCell(Cell cell) {
+    return getNullableStringFromCell(cell);
+  }
+
+  private static String getBirthPlaceFromCell(Cell cell) {
+    return getNullableStringFromCell(cell);
+  }
+
   private static String getPhoneFromCell(Cell cell) {
-    var cellValue = cell.getStringCellValue();
-    if (StringUtil.isNotBlank(cellValue)) {
-      return cellValue.trim();
-    } else {
-      return null;
-    }
+    return getNullableStringFromCell(cell);
   }
 
   private static Instant getEntranceDatetimeFromCell(Cell cell) {
@@ -125,6 +132,8 @@ public class StudentImportDto {
         .lastName(lastName)
         .email(email)
         .sex(sex)
+        .nic(nic)
+        .birthPlace(birthPlace)
         .birthDate(birthDate)
         .address(address)
         .phone(phone)
@@ -167,17 +176,22 @@ public class StudentImportDto {
   }
 
   public static Map<String, CellMap<?>> getCellMap() {
-    return Map.of(
-        "ref", new CellMap<String>(0, StudentImportDto::getRefFromCell),
-        "firstName", new CellMap<String>(1, StudentImportDto::getFirstNameFromCell),
-        "lastName", new CellMap<String>(2, StudentImportDto::getLastNameFromCell),
-        "email", new CellMap<String>(3, StudentImportDto::getEmailFromCell),
-        "sex", new CellMap<Sex>(4, StudentImportDto::getSexFromCell),
-        "birthDate", new CellMap<LocalDate>(5, StudentImportDto::getBirthDateFromCell),
-        "address", new CellMap<String>(6, StudentImportDto::getAddressFromCell),
-        "phone", new CellMap<String>(7, StudentImportDto::getPhoneFromCell),
-        "entranceDatetime", new CellMap<Instant>(8, StudentImportDto::getEntranceDatetimeFromCell),
-        "paymentFrequency",
-            new CellMap<PaymentFrequency>(9, StudentImportDto::getPaymentFrequencyFromCell));
+    return Map.ofEntries(
+        entry("ref", new CellMap<String>(0, StudentImportDto::getRefFromCell)),
+        entry("firstName", new CellMap<String>(1, StudentImportDto::getFirstNameFromCell)),
+        entry("lastName", new CellMap<String>(2, StudentImportDto::getLastNameFromCell)),
+        entry("email", new CellMap<String>(3, StudentImportDto::getEmailFromCell)),
+        entry("sex", new CellMap<Sex>(4, StudentImportDto::getSexFromCell)),
+        entry("nic", new CellMap<String>(5, StudentImportDto::getNicFromCell)),
+        entry("birthDate", new CellMap<LocalDate>(6, StudentImportDto::getBirthDateFromCell)),
+        entry("birthPlace", new CellMap<String>(7, StudentImportDto::getBirthPlaceFromCell)),
+        entry("address", new CellMap<String>(8, StudentImportDto::getAddressFromCell)),
+        entry("phone", new CellMap<String>(9, StudentImportDto::getPhoneFromCell)),
+        entry(
+            "entranceDatetime",
+            new CellMap<Instant>(10, StudentImportDto::getEntranceDatetimeFromCell)),
+        entry(
+            "paymentFrequency",
+            new CellMap<PaymentFrequency>(11, StudentImportDto::getPaymentFrequencyFromCell)));
   }
 }
