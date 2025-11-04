@@ -100,7 +100,7 @@ public class RetakeExamIT extends FacadeITMockedThirdParties {
     ApiClient apiClient = anApiClient(ADMIN1_TOKEN);
     RetakeExamApi api = new RetakeExamApi(apiClient);
 
-    var retakeExams = api.getAllRetakeExams(null, null, null, null, null);
+    var retakeExams = api.getAllRetakeExams(null, null, null, null, null, null);
 
     assertNotNull(retakeExams);
     assertEquals(
@@ -114,7 +114,8 @@ public class RetakeExamIT extends FacadeITMockedThirdParties {
     ApiClient apiClient = anApiClient(ADMIN1_TOKEN);
     RetakeExamApi api = new RetakeExamApi(apiClient);
 
-    var retakeExamFiltered = api.getAllRetakeExams(List.of(TO_CANCEL), null, null, null, null);
+    var retakeExamFiltered =
+        api.getAllRetakeExams(List.of(TO_CANCEL), null, null, null, null, null);
 
     assertNotNull(retakeExamFiltered);
     assertEquals(2, retakeExamFiltered.size());

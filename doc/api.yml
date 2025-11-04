@@ -1477,16 +1477,15 @@ paths:
           required: false
           schema:
             type: string
-        - name: from
+        - name: level
           in: query
+          required: false
           schema:
-            type: string
-            format: date-time
-        - name: to
-          in: query
-          schema:
-            type: string
-            format: date-time
+            type: array
+            items:
+              $ref: '#/components/schemas/StudentLevel'
+        - $ref: '#/components/parameters/DatetimeFromFilter'
+        - $ref: '#/components/parameters/DatetimeToFilter'
         - $ref: '#/components/parameters/Page'
         - $ref: '#/components/parameters/PageSize'
       operationId: getRetakeExamSessions
@@ -1574,6 +1573,7 @@ paths:
       summary: Get all retake exams infos
       parameters:
         - $ref: '#/components/parameters/RetakeExamStatuses'
+        - $ref: '#/components/parameters/StudentRef'
         - $ref: '#/components/parameters/DatetimeFromFilter'
         - $ref: '#/components/parameters/DatetimeToFilter'
         - $ref: '#/components/parameters/Page'
@@ -7491,6 +7491,10 @@ components:
         date_to:
           type: string
           format: date-time
+        level:
+          type: array
+          items:
+            $ref: "#/components/schemas/StudentLevel"
     RetakeExam:
       type: object
       properties:
@@ -7500,6 +7504,10 @@ components:
           $ref: "#/components/schemas/Course"
         session:
           $ref: "#/components/schemas/RetakeExamSession"
+        student_comment:
+          type: string
+        validator_comment:
+          type: string
         registration_date:
           type: string
           format: date-time
@@ -7518,6 +7526,10 @@ components:
           type: string
         status:
           $ref: "#/components/schemas/RetakeExamStatus"
+        student_comment:
+          type: string
+        validator_comment:
+          type: string
     StudentRetakeExam:
       type: object
       allOf:
