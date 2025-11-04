@@ -1487,6 +1487,12 @@ paths:
           schema:
             type: string
             format: date-time
+        - name: level
+          in: query
+          schema:
+            type: array
+            items:
+              $ref: '#/components/schemas/StudentLevel'
         - $ref: '#/components/parameters/Page'
         - $ref: '#/components/parameters/PageSize'
       operationId: getRetakeExamSessions
@@ -1574,6 +1580,7 @@ paths:
       summary: Get all retake exams infos
       parameters:
         - $ref: '#/components/parameters/RetakeExamStatuses'
+        - $ref: '#/components/parameters/StudentRef'
         - $ref: '#/components/parameters/DatetimeFromFilter'
         - $ref: '#/components/parameters/DatetimeToFilter'
         - $ref: '#/components/parameters/Page'
@@ -7484,6 +7491,8 @@ components:
           type: string
         title:
           type: string
+        level:
+          $ref: "#/components/schemas/StudentLevel"
         date_from:
           type: string
           format: date-time
