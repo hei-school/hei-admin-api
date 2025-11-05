@@ -1598,6 +1598,78 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
+  /retake_exams/{id}/cancel:
+    patch:
+      tags:
+        - RetakeExam
+      summary: Cancel a retake exam request
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CancelReason"
+      responses:
+        '200':
+          description: Retake exam successfully canceled
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/StudentRetakeExam'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+  /retake_exams/{id}/reject:
+    patch:
+      tags:
+        - RetakeExam
+      summary: Reject a retake exam request
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RejectReason"
+      responses:
+        '200':
+          description: Retake exam successfully rejected
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/StudentRetakeExam'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
   /retake_exam_sessions/{session_id}/retake_exams:
     put:
       tags:
@@ -7507,6 +7579,10 @@ components:
         registration_date:
           type: string
           format: date-time
+        cancel_reason:
+          type: string
+        rejection_reason:
+          type: string
         status:
           $ref: "#/components/schemas/RetakeExamStatus"
     CrupdateRetakeExam:
@@ -7522,6 +7598,22 @@ components:
           type: string
         status:
           $ref: "#/components/schemas/RetakeExamStatus"
+    CancelReason:
+      type: object
+      properties:
+        cancelReason:
+          type: string
+          description: Reason provided by the student for canceling the retake request
+      required:
+        - cancelReason
+    RejectReason:
+      type: object
+      properties:
+        rejectReason:
+          type: string
+          description: Reason provided by the validator for rejecting the retake request
+      required:
+        - rejectReason
     StudentRetakeExam:
       type: object
       allOf:
