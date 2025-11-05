@@ -7604,22 +7604,16 @@ components:
         cancelReason:
           type: string
           description: Reason provided by the student for canceling the retake request
-        status:
-          $ref: "#/components/schemas/RetakeExamStatus"
       required:
         - cancelReason
-        - status
     RejectReason:
       type: object
       properties:
         rejectReason:
           type: string
           description: Reason provided by the validator for rejecting the retake request
-        status:
-          $ref: "#/components/schemas/RetakeExamStatus"
       required:
         - rejectReason
-        - status
     StudentRetakeExam:
       type: object
       allOf:
