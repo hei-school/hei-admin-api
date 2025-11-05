@@ -1,3 +1,18 @@
+# [1.133.0](https://github.com/hei-school/hei-admin-api/compare/v1.132.0...v1.133.0) (2025-11-05)
+
+
+### Bug Fixes
+
+* retake exam default value ([a47350c](https://github.com/hei-school/hei-admin-api/commit/a47350c913366cdfd875057ce5669157bfca71b0))
+
+
+### Features
+
+* (doc) add retake exam comments ([955567f](https://github.com/hei-school/hei-admin-api/commit/955567f356e4102f61e43718c2789f21980d756d))
+* (doc) add student level and filter by student ref  ([620b28e](https://github.com/hei-school/hei-admin-api/commit/620b28e1997c14f0ae668cf0e1814583c889072c))
+
+
+
 # [1.132.0](https://github.com/hei-school/hei-admin-api/compare/v1.131.1...v1.132.0) (2025-10-28)
 
 
@@ -107,15 +122,6 @@
 
 * add get retake exam session by id ([6d985cc](https://github.com/hei-school/hei-admin-api/commit/6d985ccc11ee88c591387042406f7e869258936d))
 * **not-implemented:** cor interviewers ([4ea6fd0](https://github.com/hei-school/hei-admin-api/commit/4ea6fd01d92d38516320e54f4ed39bc063177a2c))
-
-
-
-## [1.123.1](https://github.com/hei-school/hei-admin-api/compare/v1.123.0...v1.123.1) (2025-10-08)
-
-
-### Bug Fixes
-
-* Cor store status ([405f96b](https://github.com/hei-school/hei-admin-api/commit/405f96bfb73500cb6e4b85425ab7f8ae1869d761))
 
 
 
