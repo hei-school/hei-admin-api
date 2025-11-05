@@ -35,12 +35,12 @@ class ScholarshipCertificateDataProviderTest extends FacadeITMockedThirdParties 
   @Test
   void get_academic_year_ok() {
     int actualYear = LocalDate.now().getYear();
-    var firstYear = instantOf(actualYear - 1, 11, 1);
-    var secondYear = instantOf(actualYear - 2, 11, 1);
-    var thirdYear = instantOf(actualYear - 3, 11, 1);
-    var fourthYear = instantOf(actualYear - 4, 11, 1);
-    var fifthYear = instantOf(actualYear - 5, 11, 1);
-    var invalidYear = instantOf(actualYear - 6, 11, 1);
+    var firstYear = instantOf(actualYear, 11, 1);
+    var secondYear = instantOf(actualYear - 1, 11, 1);
+    var thirdYear = instantOf(actualYear - 2, 11, 1);
+    var fourthYear = instantOf(actualYear - 3, 11, 1);
+    var fifthYear = instantOf(actualYear - 4, 11, 1);
+    var invalidYear = instantOf(actualYear - 5, 11, 1);
     User studentFirstYear = randomUser(firstYear, COMMON_CORE);
     User studentSecondYear = randomUser(secondYear, TN);
     User studentThirdYear = randomUser(thirdYear, COMMON_CORE);
