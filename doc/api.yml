@@ -7507,6 +7507,10 @@ components:
         registration_date:
           type: string
           format: date-time
+        student_comment:
+          type: string
+        validator_comment:
+          type: string
         status:
           $ref: "#/components/schemas/RetakeExamStatus"
     CrupdateRetakeExam:
@@ -7519,6 +7523,10 @@ components:
         session_id:
           type: string
         student_id:
+          type: string
+        student_comment:
+          type: string
+        validator_comment:
           type: string
         status:
           $ref: "#/components/schemas/RetakeExamStatus"
