@@ -15,7 +15,6 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import java.io.Serializable;
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -47,7 +46,7 @@ public class RetakeExamSession implements Serializable {
 
   @OneToMany(mappedBy = "session")
   @JsonManagedReference
-  private List<RetakeExam> retakeExams = new ArrayList<>();
+  private List<RetakeExam> retakeExams;
 
   @ElementCollection(targetClass = StudentLevel.class)
   @CollectionTable(
@@ -55,5 +54,5 @@ public class RetakeExamSession implements Serializable {
       joinColumns = @JoinColumn(name = "retake_exam_session_id"))
   @Column(name = "\"student_level\"")
   @JdbcTypeCode(NAMED_ENUM)
-  private List<StudentLevel> studentLevels = new ArrayList<>();
+  private List<StudentLevel> studentLevels;
 }
