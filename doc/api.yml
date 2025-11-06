@@ -1615,7 +1615,7 @@ paths:
           application/json:
             schema:
               $ref: "#/components/schemas/CancelReason"
-      operationId: : requestToCancelRetakeExam
+      operationId: requestToCancelRetakeExam
       responses:
         '200':
           description: Request to cancel retake exam
