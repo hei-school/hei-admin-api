@@ -1689,7 +1689,7 @@ paths:
           application/json:
             schema:
               $ref: "#/components/schemas/RejectReason"
-      operationId: rejectToCancelRetakeExam
+      operationId: rejectToCancelRetakeExamRequest
       responses:
         '200':
           description: Retake exam successfully rejected
