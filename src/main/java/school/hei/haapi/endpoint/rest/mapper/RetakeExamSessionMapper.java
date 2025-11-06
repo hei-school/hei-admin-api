@@ -17,7 +17,8 @@ public class RetakeExamSessionMapper {
         .id(retakeExamSession.getId())
         .title(retakeExamSession.getTitle())
         .dateFrom(retakeExamSession.getDateFrom())
-        .dateTo(retakeExamSession.getDateTo());
+        .dateTo(retakeExamSession.getDateTo())
+        .studentLevels(retakeExamSession.getStudentLevels());
   }
 
   public school.hei.haapi.model.RetakeExamSession toDomain(RetakeExamSession retakeExamSession) {
@@ -30,6 +31,7 @@ public class RetakeExamSessionMapper {
         .dateFrom(retakeExamSession.getDateFrom())
         .dateTo(retakeExamSession.getDateTo())
         .retakeExams(retakeExams)
+        .studentLevels(retakeExamSession.getStudentLevels())
         .build();
   }
 

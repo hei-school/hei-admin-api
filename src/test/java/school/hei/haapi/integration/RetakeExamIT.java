@@ -37,7 +37,6 @@ import school.hei.haapi.endpoint.rest.model.ResultSummary;
 import school.hei.haapi.endpoint.rest.model.YearlyResult;
 import school.hei.haapi.integration.conf.FacadeITMockedThirdParties;
 import school.hei.haapi.integration.conf.TestUtils;
-import school.hei.haapi.repository.RetakeExamRepository;
 import school.hei.haapi.repository.dao.RetakeExamDao;
 import school.hei.haapi.service.GradeResultService;
 
@@ -46,7 +45,6 @@ import school.hei.haapi.service.GradeResultService;
 public class RetakeExamIT extends FacadeITMockedThirdParties {
   @MockBean GradeResultService gradeResultService;
   @Autowired private RetakeExamDao retakeExamDao;
-  @Autowired private RetakeExamRepository retakeExamRepository;
 
   private ApiClient anApiClient(String token) {
     return TestUtils.anApiClient(token, localPort);

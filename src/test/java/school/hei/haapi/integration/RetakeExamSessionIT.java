@@ -3,11 +3,13 @@ package school.hei.haapi.integration;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static school.hei.haapi.endpoint.rest.model.StudentLevel.M1;
 import static school.hei.haapi.integration.conf.TestUtils.ADMIN1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.assertBadRequestException;
 import static school.hei.haapi.integration.conf.TestUtils.setUpCasdoor;
 import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
+import static school.hei.haapi.integration.test_data.RetakeExamSessionTestData.passedSession;
 import static school.hei.haapi.integration.test_data.RetakeExamSessionTestData.session1;
 import static school.hei.haapi.integration.test_data.RetakeExamSessionTestData.session2;
 import static school.hei.haapi.integration.test_data.RetakeExamSessionTestData.session3;
@@ -43,7 +45,8 @@ public class RetakeExamSessionIT extends FacadeITMockedThirdParties {
   void setUp() {
     setUpCasdoor(casdoorAuthServiceMock, certificateLoaderMock);
     setUpCognito(cognitoComponentMock);
-    retakeExamSessionRepository.saveAll(List.of(session1(), session2(), session3()));
+    retakeExamSessionRepository.saveAll(
+        List.of(session1(), session2(), session3(), passedSession()));
   }
 
   @Test
@@ -128,16 +131,16 @@ public class RetakeExamSessionIT extends FacadeITMockedThirdParties {
 
     Pageable pageable = PageRequest.of(0, 10);
 
-    var resultAll = retakeExamSessionDao.filterByCriteria(null, pageable, null, null);
+    var resultAll = retakeExamSessionDao.filterByCriteria(null, null, pageable, null, null);
     assertEquals(4, resultAll.size());
 
-    var resultTitle = retakeExamSessionDao.filterByCriteria("session1", pageable, null, null);
+    var resultTitle = retakeExamSessionDao.filterByCriteria("session1", null, pageable, null, null);
     assertEquals(1, resultTitle.size());
     assertEquals("session1", resultTitle.getFirst().getTitle());
 
     Instant from = Instant.now().plus(45 * 24, ChronoUnit.HOURS);
     Instant to = Instant.now().plus(100 * 24, ChronoUnit.HOURS);
-    var resultDate = retakeExamSessionDao.filterByCriteria(null, pageable, from, to);
+    var resultDate = retakeExamSessionDao.filterByCriteria(null, null, pageable, from, to);
 
     assertTrue(
         resultDate.stream()
@@ -145,5 +148,17 @@ public class RetakeExamSessionIT extends FacadeITMockedThirdParties {
                 s ->
                     s.getDateFrom().isAfter(Instant.from(from.minusSeconds(1)))
                         && s.getDateTo().isBefore(Instant.from(to.plusSeconds(1)))));
+  }
+
+  @Test
+  void filter_retake_exam_session_by_student_level_ok() throws ApiException {
+    ApiClient apiClient = anApiClient(ADMIN1_TOKEN);
+    RetakeExamApi api = new RetakeExamApi(apiClient);
+
+    var retakeExamSessionForM1 =
+        api.getRetakeExamSessions(null, List.of(M1), null, null, null, null);
+
+    assertNotNull(retakeExamSessionForM1);
+    assertEquals(1, retakeExamSessionForM1.size());
   }
 }
