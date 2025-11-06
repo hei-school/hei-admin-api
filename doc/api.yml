@@ -1,4 +1,4 @@
-openapi: 3.0.3
+ iopenapi: 3.0.3
 info:
   version: 'latest'
   title: HEI Admin API
@@ -1598,7 +1598,7 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
-  /retake_exams/{id}/cancel:
+  /retake_exams/{id}/to_cancel:
     patch:
       tags:
         - RetakeExam
