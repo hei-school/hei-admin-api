@@ -46,7 +46,6 @@ import school.hei.haapi.service.GradeResultService;
 public class RetakeExamIT extends FacadeITMockedThirdParties {
   @MockBean GradeResultService gradeResultService;
   @Autowired private RetakeExamDao retakeExamDao;
-  @Autowired private RetakeExamRepository retakeExamRepository;
 
   private ApiClient anApiClient(String token) {
     return TestUtils.anApiClient(token, localPort);

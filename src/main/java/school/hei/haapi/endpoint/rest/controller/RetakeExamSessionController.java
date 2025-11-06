@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import school.hei.haapi.endpoint.rest.mapper.RetakeExamSessionMapper;
 import school.hei.haapi.endpoint.rest.model.RetakeExamSession;
+import school.hei.haapi.endpoint.rest.model.StudentLevel;
 import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.service.RetakeExamSessionService;
@@ -24,12 +25,14 @@ public class RetakeExamSessionController {
   @GetMapping("/retake_exam_sessions")
   public List<RetakeExamSession> getRetakeExamSessions(
       @RequestParam(value = "title", required = false) String title,
+      @RequestParam(value = "student_level", required = false) List<StudentLevel> studentLevels,
       @RequestParam(value = "page", defaultValue = "1") PageFromOne page,
       @RequestParam(value = "page_size", defaultValue = "15") BoundedPageSize pageSize,
       @RequestParam(value = "from", required = false) Instant from,
       @RequestParam(value = "to", required = false) Instant to) {
     return retakeExamSessionMapper.toRestList(
-        retakeExamSessionService.getRetakeExamSessions(title, page, pageSize, from, to));
+        retakeExamSessionService.getRetakeExamSessions(
+            title, studentLevels, page, pageSize, from, to));
   }
 
   @PutMapping("/retake_exam_sessions")
