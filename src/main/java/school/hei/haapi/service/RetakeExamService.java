@@ -110,7 +110,10 @@ public class RetakeExamService {
   }
 
   public List<RetakeExam> getAllRetakeExams(
-      List<RetakeExamStatus> statuses, PageFromOne page, BoundedPageSize pageSize) {
+      String studentref,
+      List<RetakeExamStatus> statuses,
+      PageFromOne page,
+      BoundedPageSize pageSize) {
     Pageable pageable = PageRequest.of(page.getValue() - 1, pageSize.getValue());
     return retakeExamDao.filterByCriteria(null, null, null, null, null, statuses, pageable);
   }

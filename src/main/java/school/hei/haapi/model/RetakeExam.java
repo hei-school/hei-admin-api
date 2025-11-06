@@ -57,4 +57,10 @@ public class RetakeExam implements Serializable {
   @Enumerated(EnumType.STRING)
   @Column(name = "status", nullable = false)
   private RetakeExamStatus status;
+
+  @Column(name = "cancel_reason")
+  private String cancelReason;
+
+  @Column(name = "reject_reason")
+  private String rejectReason;
 }
