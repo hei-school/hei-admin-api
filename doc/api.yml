@@ -1602,7 +1602,7 @@ paths:
     patch:
       tags:
         - RetakeExam
-      summary: Cancel a retake exam request
+      summary: request to cancel a retake
       parameters:
         - name: id
           in: path
@@ -1615,9 +1615,10 @@ paths:
           application/json:
             schema:
               $ref: "#/components/schemas/CancelReason"
+      operationId: requestToCancelRetakeExam
       responses:
         '200':
-          description: Retake exam successfully canceled
+          description: Request to cancel retake
           content:
             application/json:
               schema:
@@ -1651,9 +1652,10 @@ paths:
           application/json:
             schema:
               $ref: "#/components/schemas/RejectReason"
+      operationId: rejectToCancelRetakeExam
       responses:
         '200':
-          description: Retake exam successfully rejected
+          description: Request to cancel retake exam rejected
           content:
             application/json:
               schema:
