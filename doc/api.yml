@@ -1,4 +1,4 @@
- openapi: 3.0.3
+openapi: 3.0.3
 info:
   version: 'latest'
   title: HEI Admin API
@@ -1602,7 +1602,7 @@ paths:
     patch:
       tags:
         - RetakeExam
-      summary: To cancel a retake exam request
+      summary: Request to cancel a retake exam
       parameters:
         - name: id
           in: path
@@ -1615,10 +1615,10 @@ paths:
           application/json:
             schema:
               $ref: "#/components/schemas/CancelReason"
-      operationId: requestToCancelRetakeExam
+      operationId: : requestToCancelRetakeExam
       responses:
         '200':
-          description: Retake exam successfully canceled
+          description: Request to cancel retake exam
           content:
             application/json:
               schema:
@@ -1689,7 +1689,7 @@ paths:
           application/json:
             schema:
               $ref: "#/components/schemas/RejectReason"
-      operationId: rejectRequestToCancelRetakeExam
+      operationId: rejectToCancelRetakeExam
       responses:
         '200':
           description: Retake exam successfully rejected
