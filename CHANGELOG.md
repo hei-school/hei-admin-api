@@ -1,3 +1,13 @@
+# [1.134.0](https://github.com/hei-school/hei-admin-api/compare/v1.133.0...v1.134.0) (2025-11-07)
+
+
+### Features
+
+* (doc) add to cancel retake exam endpoint and operationId ([82cd1eb](https://github.com/hei-school/hei-admin-api/commit/82cd1eb485f6ef9788dff47d4fd65a582420c581))
+* add retake exam session student level ([9f532f7](https://github.com/hei-school/hei-admin-api/commit/9f532f7fd61540c1e43a61b681d23196e63ef149))
+
+
+
 # [1.133.0](https://github.com/hei-school/hei-admin-api/compare/v1.132.0...v1.133.0) (2025-11-05)
 
 
@@ -112,16 +122,6 @@
 ### Features
 
 * filter retake_exam_courses by course_code and participant by ref ([97af3af](https://github.com/hei-school/hei-admin-api/commit/97af3aff5bef526a74916cf958983e55af6e7e2c))
-
-
-
-# [1.124.0](https://github.com/hei-school/hei-admin-api/compare/v1.123.1...v1.124.0) (2025-10-10)
-
-
-### Features
-
-* add get retake exam session by id ([6d985cc](https://github.com/hei-school/hei-admin-api/commit/6d985ccc11ee88c591387042406f7e869258936d))
-* **not-implemented:** cor interviewers ([4ea6fd0](https://github.com/hei-school/hei-admin-api/commit/4ea6fd01d92d38516320e54f4ed39bc063177a2c))
 
 
 
