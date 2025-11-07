@@ -1,3 +1,12 @@
+## [1.134.1](https://github.com/hei-school/hei-admin-api/compare/v1.134.0...v1.134.1) (2025-11-07)
+
+
+### Bug Fixes
+
+* student stats computation timeout ([afaae35](https://github.com/hei-school/hei-admin-api/commit/afaae3596f35de61e234673923b094b845d633a7))
+
+
+
 # [1.134.0](https://github.com/hei-school/hei-admin-api/compare/v1.133.0...v1.134.0) (2025-11-07)
 
 
@@ -113,15 +122,6 @@
 * add retake exam annulation ([0d80ea1](https://github.com/hei-school/hei-admin-api/commit/0d80ea1aa25d0fbb845c93c57b4c5a9c9f72400b))
 * cor notification ([2c387cc](https://github.com/hei-school/hei-admin-api/commit/2c387ccbbf86b042b2eb406759544068e2eff092))
 * **doc:** import student from xlsx ([bc3c4c2](https://github.com/hei-school/hei-admin-api/commit/bc3c4c28e8769b00dbe6c124085b0cf334ed71a6))
-
-
-
-# [1.125.0](https://github.com/hei-school/hei-admin-api/compare/v1.124.0...v1.125.0) (2025-10-14)
-
-
-### Features
-
-* filter retake_exam_courses by course_code and participant by ref ([97af3af](https://github.com/hei-school/hei-admin-api/commit/97af3aff5bef526a74916cf958983e55af6e7e2c))
 
 
 
