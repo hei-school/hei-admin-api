@@ -1598,6 +1598,43 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
+  /retake_exams/{id}/to_cancel:
+    patch:
+      tags:
+        - RetakeExam
+      summary: Request to cancel a retake exam
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CancelReason"
+      operationId: requestToCancelRetakeExam
+      responses:
+        '200':
+          description: Request to cancel retake exam
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/StudentRetakeExam'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
   /retake_exams/{id}/cancel:
     patch:
       tags:
@@ -1615,6 +1652,7 @@ paths:
           application/json:
             schema:
               $ref: "#/components/schemas/CancelReason"
+      operationId: cancelRetakeExam
       responses:
         '200':
           description: Retake exam successfully canceled
@@ -1651,6 +1689,7 @@ paths:
           application/json:
             schema:
               $ref: "#/components/schemas/RejectReason"
+      operationId: rejectToCancelRetakeExamRequest
       responses:
         '200':
           description: Retake exam successfully rejected
