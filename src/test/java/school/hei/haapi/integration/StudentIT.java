@@ -86,7 +86,6 @@ import school.hei.haapi.endpoint.rest.model.CrupdateStudent;
 import school.hei.haapi.endpoint.rest.model.EnableStatus;
 import school.hei.haapi.endpoint.rest.model.Fee;
 import school.hei.haapi.endpoint.rest.model.Group;
-import school.hei.haapi.endpoint.rest.model.Statistics;
 import school.hei.haapi.endpoint.rest.model.Student;
 import school.hei.haapi.integration.conf.FacadeITMockedThirdParties;
 import school.hei.haapi.integration.conf.TestUtils;
@@ -1053,20 +1052,18 @@ public class StudentIT extends FacadeITMockedThirdParties {
 
   @Test
   void stats_are_exact() throws ApiException {
-    ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
-    UsersApi usersApi = new UsersApi(manager1Client);
+    var manager1Client = anApiClient(MANAGER1_TOKEN);
+    var usersApi = new UsersApi(manager1Client);
 
-    Integer women =
-        usersApi.getStudents(1, 200, null, null, null, null, null, F, null, null, null).size();
-    Integer men =
-        usersApi.getStudents(1, 200, null, null, null, null, null, M, null, null, null).size();
-    Integer totalStudents =
-        usersApi.getStudents(1, 200, null, null, null, null, null, null, null, null, null).size();
+    var women = usersApi.getStudents(1, 200, null, null, null, null, null, F, null, null, null);
+    var men = usersApi.getStudents(1, 200, null, null, null, null, null, M, null, null, null);
+    var totalStudents =
+        usersApi.getStudents(1, 200, null, null, null, null, null, null, null, null, null);
 
-    Statistics statistics = usersApi.getStats();
-    assertEquals(statistics.getWomen().getTotal(), women);
-    assertEquals(statistics.getMen().getTotal(), men);
-    assertEquals(statistics.getTotalStudents(), totalStudents);
+    var statistics = usersApi.getStats();
+    assertEquals(women.size(), statistics.getWomen().getTotal());
+    assertEquals(men.size(), statistics.getMen().getTotal());
+    assertEquals(totalStudents.size(), statistics.getTotalStudents());
   }
 
   @Test

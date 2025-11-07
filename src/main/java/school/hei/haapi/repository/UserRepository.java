@@ -11,6 +11,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 import school.hei.haapi.model.User;
 import school.hei.haapi.model.User.Role;
+import school.hei.haapi.model.dto.StatisticsDto;
 
 @Repository
 public interface UserRepository extends JpaRepository<User, String> {
@@ -157,11 +158,11 @@ public interface UserRepository extends JpaRepository<User, String> {
 """)
   List<User> findAllStudentNotDisabled();
 
-  Integer countBySexAndRole(User.Sex sex, Role role);
+  long countBySexAndRole(User.Sex sex, Role role);
 
-  Integer countByRole(Role role);
+  long countByRole(Role role);
 
-  Integer countBySexAndRoleAndStatus(User.Sex sex, Role role, User.Status status);
+  long countBySexAndRoleAndStatus(User.Sex sex, Role role, User.Status status);
 
   List<User> findAllByRefIn(List<String> refs);
 
@@ -171,4 +172,25 @@ public interface UserRepository extends JpaRepository<User, String> {
   Optional<User> findByRef(@NotBlank(message = "Reference is mandatory") String ref);
 
   List<User> findAllByRoleInAndIdIn(Collection<Role> roles, Collection<String> ids);
+
+  @Query(
+      """
+      SELECT new school.hei.haapi.model.dto.StatisticsDto(
+          new school.hei.haapi.model.dto.StatisticsDetailsDto(
+              COALESCE(SUM(CASE WHEN u.sex = 'F' AND u.status = 'DISABLED' THEN 1 ELSE 0 END), 0),
+              COALESCE(SUM(CASE WHEN u.sex = 'F' AND u.status = 'ENABLED' THEN 1 ELSE 0 END), 0),
+              COALESCE(SUM(CASE WHEN u.sex = 'F' AND u.status = 'SUSPENDED' THEN 1 ELSE 0 END), 0),
+              COALESCE(SUM(CASE WHEN u.sex = 'F' THEN 1 ELSE 0 END), 0)
+          ),
+          new school.hei.haapi.model.dto.StatisticsDetailsDto(
+              COALESCE(SUM(CASE WHEN u.sex = 'M' AND u.status = 'DISABLED' THEN 1 ELSE 0 END), 0),
+              COALESCE(SUM(CASE WHEN u.sex = 'M' AND u.status = 'ENABLED' THEN 1 ELSE 0 END), 0),
+              COALESCE(SUM(CASE WHEN u.sex = 'M' AND u.status = 'SUSPENDED' THEN 1 ELSE 0 END), 0),
+              COALESCE(SUM(CASE WHEN u.sex = 'M' THEN 1 ELSE 0 END), 0)
+          ),
+          (select count(g) from Group g),
+          count(u)
+      ) from User u where u.role = 'STUDENT'
+      """)
+  StatisticsDto getStudentsStatistics();
 }
