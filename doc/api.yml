@@ -8321,36 +8321,47 @@ components:
       properties:
         total_students:
           type: integer
+          format: int64
         students_alternating:
           type: object
           properties:
             total:
               type: integer
+              format: int64
             working:
               type: integer
+              format: int64
             have_been_working:
               type: integer
+              format: int64
             not_working:
               type: integer
+              format: int64
             will_work:
               type: integer
+              format: int64
         men:
           $ref: '#/components/schemas/StatisticsDetails'
         women:
           $ref: '#/components/schemas/StatisticsDetails'
         total_groups:
           type: integer
+          format: int64
     StatisticsDetails:
       type: object
       properties:
         total:
           type: integer
+          format: int64
         disabled:
           type: integer
+          format: int64
         enabled:
           type: integer
+          format: int64
         suspended:
           type: integer
+          format: int64
     AdvancedFeeStatisticsGeneration:
       type: object
       properties:

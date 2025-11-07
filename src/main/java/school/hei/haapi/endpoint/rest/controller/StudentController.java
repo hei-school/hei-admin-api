@@ -133,8 +133,7 @@ public class StudentController {
 
   @GetMapping("/students/stats")
   public Statistics getStats() {
-    return userService.getStudentsStat(
-        userService.getAllStudentNotDisabled().stream().map(userMapper::toRestStudent).toList());
+    return userService.getStudentsStat();
   }
 
   @GetMapping(value = "/students/raw/xlsx", produces = "application/vnd.ms-excel")

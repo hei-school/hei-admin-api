@@ -3,20 +3,12 @@ package school.hei.haapi.service;
 import static org.apache.poi.ss.usermodel.Row.MissingCellPolicy.CREATE_NULL_AS_BLANK;
 import static org.springframework.data.domain.Pageable.unpaged;
 import static org.springframework.data.domain.Sort.Direction.ASC;
-import static school.hei.haapi.endpoint.rest.model.WorkStudyStatus.HAVE_BEEN_WORKING;
-import static school.hei.haapi.endpoint.rest.model.WorkStudyStatus.NOT_WORKING;
-import static school.hei.haapi.endpoint.rest.model.WorkStudyStatus.WILL_BE_WORKING;
-import static school.hei.haapi.endpoint.rest.model.WorkStudyStatus.WORKING;
 import static school.hei.haapi.model.User.Role.STUDENT;
 import static school.hei.haapi.model.User.Role.TEACHER;
-import static school.hei.haapi.model.User.Sex.F;
-import static school.hei.haapi.model.User.Sex.M;
-import static school.hei.haapi.model.User.Status.DISABLED;
 import static school.hei.haapi.model.User.Status.ENABLED;
 import static school.hei.haapi.model.User.Status.SUSPENDED;
 import static school.hei.haapi.service.aws.FileService.getFormattedProfilePictureKey;
 
-import jakarta.ws.rs.InternalServerErrorException;
 import java.io.File;
 import java.io.IOException;
 import java.time.Instant;
@@ -41,11 +33,8 @@ import org.springframework.web.multipart.MultipartFile;
 import school.hei.haapi.endpoint.event.EventProducer;
 import school.hei.haapi.endpoint.event.model.StudentImportEvent;
 import school.hei.haapi.endpoint.event.model.UserUpserted;
-import school.hei.haapi.endpoint.rest.mapper.UserMapper;
 import school.hei.haapi.endpoint.rest.model.PaymentFrequency;
 import school.hei.haapi.endpoint.rest.model.Statistics;
-import school.hei.haapi.endpoint.rest.model.StatisticsDetails;
-import school.hei.haapi.endpoint.rest.model.StatisticsStudentsAlternating;
 import school.hei.haapi.endpoint.rest.model.Student;
 import school.hei.haapi.endpoint.rest.model.StudentImportValidationResult;
 import school.hei.haapi.endpoint.rest.model.WorkStudyStatus;
@@ -64,6 +53,7 @@ import school.hei.haapi.repository.EventParticipantRepository;
 import school.hei.haapi.repository.GroupRepository;
 import school.hei.haapi.repository.PromotionRepository;
 import school.hei.haapi.repository.UserRepository;
+import school.hei.haapi.repository.WorkDocumentRepository;
 import school.hei.haapi.repository.dao.UserManagerDao;
 import school.hei.haapi.service.aws.FileService;
 import school.hei.haapi.service.utils.XlsxCellsGenerator;
@@ -74,6 +64,7 @@ import school.hei.haapi.service.utils.excel.ExcelParser;
 @Slf4j
 public class UserService {
   private final UserRepository userRepository;
+  private final WorkDocumentRepository workDocumentRepository;
   private final EventProducer eventProducer;
   private final UserValidator userValidator;
   private final UserManagerDao userManagerDao;
@@ -87,7 +78,6 @@ public class UserService {
   private final XlsxCellsGenerator<User> userXlsxCellsGenerator;
   private final XlsxCellsGenerator<EventParticipant> eventParticipantXlsxCellsGenerator;
   private final BucketComponent bucketComponent;
-  private final UserMapper userMapper;
 
   private static final String STUDENT_XLSX_IMPORT_BUCKET_KEY = "/STUDENT_XLSX_IMPORT/";
 
@@ -254,7 +244,7 @@ public class UserService {
                   .build()));
       return new StudentImportValidationResult().validStudentNumber(importResults.size());
     } catch (IOException e) {
-      throw new InternalServerErrorException("Unable to read file");
+      throw new RuntimeException("Unable to read file");
     }
   }
 
@@ -391,41 +381,16 @@ public class UserService {
     return userRepository.findAllStudentNotDisabled();
   }
 
-  public Statistics getStudentsStat(List<Student> students) {
-    int willBeWorkingNb = getStudentsAlternatingSize(students, WILL_BE_WORKING);
-    int haveBeenWorkingNb = getStudentsAlternatingSize(students, HAVE_BEEN_WORKING);
-    int workingNb = getStudentsAlternatingSize(students, WORKING);
-    int notWorkingNb = getStudentsAlternatingSize(students, NOT_WORKING);
-    return new Statistics()
-        .women(
-            new StatisticsDetails()
-                .disabled(userRepository.countBySexAndRoleAndStatus(F, STUDENT, DISABLED))
-                .suspended(userRepository.countBySexAndRoleAndStatus(F, STUDENT, SUSPENDED))
-                .enabled(userRepository.countBySexAndRoleAndStatus(F, STUDENT, ENABLED))
-                .total(userRepository.countBySexAndRole(F, STUDENT)))
-        .totalGroups((int) groupRepository.count())
-        .totalStudents(userRepository.countByRole(STUDENT))
-        .men(
-            new StatisticsDetails()
-                .disabled(userRepository.countBySexAndRoleAndStatus(M, STUDENT, DISABLED))
-                .suspended(userRepository.countBySexAndRoleAndStatus(M, STUDENT, SUSPENDED))
-                .enabled(userRepository.countBySexAndRoleAndStatus(M, STUDENT, ENABLED))
-                .total(userRepository.countBySexAndRole(M, STUDENT)))
-        .studentsAlternating(
-            new StatisticsStudentsAlternating()
-                .total(willBeWorkingNb + haveBeenWorkingNb + workingNb)
-                .haveBeenWorking(haveBeenWorkingNb)
-                .working(workingNb)
-                .notWorking(notWorkingNb)
-                .willWork(willBeWorkingNb));
+  public Statistics getStudentsStat() {
+    var studentStatisticsDao = userRepository.getStudentsStatistics();
+    var alternatingStatisticsDao = workDocumentRepository.getStudentAlternatingStatistics();
+    return studentStatisticsDao.toRestStatistics(alternatingStatisticsDao);
   }
 
-  public int getStudentsAlternatingSize(List<Student> students, WorkStudyStatus workStudyStatus) {
-    // TODO: use long
-    return (int)
-        students.stream()
-            .filter(student -> Objects.equals(student.getWorkStudyStatus(), workStudyStatus))
-            .count();
+  public long getStudentsAlternatingSize(List<Student> students, WorkStudyStatus workStudyStatus) {
+    return students.stream()
+        .filter(student -> Objects.equals(student.getWorkStudyStatus(), workStudyStatus))
+        .count();
   }
 
   // Todo: try to move in MonitoringStudentService
