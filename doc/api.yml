@@ -1622,9 +1622,7 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/StudentRetakeExam'
+                $ref: '#/components/schemas/StudentRetakeExam'
         '400':
           $ref: '#/components/responses/400'
         '403':
@@ -1659,9 +1657,7 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/StudentRetakeExam'
+                $ref: '#/components/schemas/StudentRetakeExam'
         '400':
           $ref: '#/components/responses/400'
         '403':
@@ -1696,9 +1692,7 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/StudentRetakeExam'
+                $ref: '#/components/schemas/StudentRetakeExam'
         '400':
           $ref: '#/components/responses/400'
         '403':
