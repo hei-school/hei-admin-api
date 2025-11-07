@@ -10,7 +10,8 @@ public record EventStatsDto(
         .present(this.present)
         .late(this.late)
         .missedStats(missedEventStatsDto.toRest())
-        .total(this.present + this.late + this.missedEventStatsDto.total());
+        .total(this.total)
+        .unchecked(this.unchecked);
   }
 
   public EventParticipantStats toEventParticipantStats() {
@@ -18,6 +19,7 @@ public record EventStatsDto(
         .assistedEvents(this.present)
         .lateEvents(this.late)
         .missedEvents(this.missedEventStatsDto.toRest())
-        .totalEvents(this.present + this.late + this.missedEventStatsDto.total());
+        .totalEvents(this.total)
+        .uncheckedEvents(this.unchecked);
   }
 }

@@ -194,6 +194,7 @@ class DirtyEventServiceTest extends FacadeITMockedThirdParties {
         new EventStats()
             .late(0L)
             .missedStats(new MissedEventStats().justified(0L).unjustified(0L).total(0L))
+            .unchecked(0L)
             .total(1L)
             .present(1L);
     assertEquals(expectedStats, stats);
@@ -243,6 +244,7 @@ class DirtyEventServiceTest extends FacadeITMockedThirdParties {
             .missedEvents(new MissedEventStats().justified(0L).unjustified(1L).total(1L))
             .assistedEvents(0L)
             .lateEvents(0L)
+            .uncheckedEvents(0L)
             .totalEvents(1L);
     assertEquals(expectedStats, randomStudentStats);
   }
