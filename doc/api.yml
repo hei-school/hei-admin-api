@@ -7619,9 +7619,9 @@ components:
           type: string
           format: date-time
         cancel_reason:
-          type: string
+          $ref: "#/components/schemas/CancelReason"
         rejection_reason:
-          type: string
+          $ref: "#/components/schemas/RejectReason"
         status:
           $ref: "#/components/schemas/RetakeExamStatus"
     CrupdateRetakeExam:
