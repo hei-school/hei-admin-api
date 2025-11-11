@@ -1614,7 +1614,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/CancelReason"
+              $ref: "#/components/schemas/Reason"
       operationId: requestToCancelRetakeExam
       responses:
         '200':
@@ -1637,19 +1637,13 @@ paths:
     patch:
       tags:
         - RetakeExam
-      summary: Cancel a retake exam request
+      summary: Approve to cancel retake exam request
       parameters:
         - name: id
           in: path
           required: true
           schema:
             type: string
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/CancelReason"
       operationId: cancelRetakeExam
       responses:
         '200':
@@ -1672,7 +1666,7 @@ paths:
     patch:
       tags:
         - RetakeExam
-      summary: Reject a retake exam request
+      summary: Reject to cancel retake exam request
       parameters:
         - name: id
           in: path
@@ -1684,11 +1678,11 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/RejectReason"
+              $ref: "#/components/schemas/Reason"
       operationId: rejectToCancelRetakeExamRequest
       responses:
         '200':
-          description: Retake exam successfully rejected
+          description: Retake exam to cancel request successfully rejected
           content:
             application/json:
               schema:
@@ -7613,9 +7607,9 @@ components:
           type: string
           format: date-time
         cancel_reason:
-          $ref: "#/components/schemas/CancelReason"
+          $ref: "#/components/schemas/Reason"
         rejection_reason:
-          $ref: "#/components/schemas/RejectReason"
+          $ref: "#/components/schemas/Reason"
         status:
           $ref: "#/components/schemas/RetakeExamStatus"
     CrupdateRetakeExam:
@@ -7631,22 +7625,14 @@ components:
           type: string
         status:
           $ref: "#/components/schemas/RetakeExamStatus"
-    CancelReason:
+    Reason:
       type: object
       properties:
-        cancelReason:
+        reason:
           type: string
-          description: Reason provided by the student for canceling the retake request
+          description: Reason provided by the student for canceling the retake request and reason by validator for canceling or rejected
       required:
-        - cancelReason
-    RejectReason:
-      type: object
-      properties:
-        rejectReason:
-          type: string
-          description: Reason provided by the validator for rejecting the retake request
-      required:
-        - rejectReason
+        - reason
     StudentRetakeExam:
       type: object
       allOf:
