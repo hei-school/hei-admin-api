@@ -1,3 +1,12 @@
+## [1.134.2](https://github.com/hei-school/hei-admin-api/compare/v1.134.1...v1.134.2) (2025-11-12)
+
+
+### Bug Fixes
+
+* add unckecked field to event and participant stats ([818869c](https://github.com/hei-school/hei-admin-api/commit/818869c8a9e00f6297d278811ba307f6cb5abffd))
+
+
+
 ## [1.134.1](https://github.com/hei-school/hei-admin-api/compare/v1.134.0...v1.134.1) (2025-11-07)
 
 
@@ -104,24 +113,6 @@
 ### Features
 
 * **doc:** add new retake exam status and update endpoint ([01b76bf](https://github.com/hei-school/hei-admin-api/commit/01b76bf96daa03907da1ca237f451235a0b33617))
-
-
-
-# [1.126.0](https://github.com/hei-school/hei-admin-api/compare/v1.125.0...v1.126.0) (2025-10-20)
-
-
-### Bug Fixes
-
-* advanced fee stats receipt count type generation ([e943221](https://github.com/hei-school/hei-admin-api/commit/e943221a8c0964297089b59ec0a59c21e9ba187c))
-* crupdate retake exam ([adc5c1a](https://github.com/hei-school/hei-admin-api/commit/adc5c1a3927747c50b6468faa6a14547d5d19231))
-* get retake exam ([987d8eb](https://github.com/hei-school/hei-admin-api/commit/987d8ebab7bb4f5d247be04d80dc2338294a822e))
-
-
-### Features
-
-* add retake exam annulation ([0d80ea1](https://github.com/hei-school/hei-admin-api/commit/0d80ea1aa25d0fbb845c93c57b4c5a9c9f72400b))
-* cor notification ([2c387cc](https://github.com/hei-school/hei-admin-api/commit/2c387ccbbf86b042b2eb406759544068e2eff092))
-* **doc:** import student from xlsx ([bc3c4c2](https://github.com/hei-school/hei-admin-api/commit/bc3c4c28e8769b00dbe6c124085b0cf334ed71a6))
 
 
 
