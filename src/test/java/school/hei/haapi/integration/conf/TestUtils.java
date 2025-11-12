@@ -1421,6 +1421,7 @@ public class TestUtils {
             new EventStats()
                 .late(0L)
                 .missedStats(new MissedEventStats().justified(0L).unjustified(1L).total(1L))
+                .unchecked(0L)
                 .present(1L)
                 .total(2L))
         .location(unknownLocationEvent().place(ANDRAHARO))
@@ -1454,6 +1455,7 @@ public class TestUtils {
         .count(
             new EventStats()
                 .total(3L)
+                .unchecked(0L)
                 .missedStats(new MissedEventStats().justified(0L).unjustified(1L).total(1L))
                 .present(2L)
                 .late(0L))
@@ -1484,6 +1486,7 @@ public class TestUtils {
             new EventStats()
                 .late(0L)
                 .present(0L)
+                .unchecked(0L)
                 .missedStats(new MissedEventStats().justified(0L).unjustified(0L).total(0L))
                 .total(0L))
         .location(unknownLocationEvent())
