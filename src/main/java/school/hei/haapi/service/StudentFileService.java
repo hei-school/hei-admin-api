@@ -1,9 +1,11 @@
 package school.hei.haapi.service;
 
 import static java.time.LocalDate.now;
+import static java.time.temporal.ChronoUnit.MINUTES;
 import static org.springframework.data.domain.Sort.Direction.DESC;
 import static school.hei.haapi.service.utils.DataFormatterUtils.formatLocalDate;
 
+import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
 import lombok.AllArgsConstructor;
@@ -16,6 +18,7 @@ import org.springframework.web.multipart.MultipartFile;
 import org.thymeleaf.context.Context;
 import school.hei.haapi.endpoint.rest.model.FileType;
 import school.hei.haapi.endpoint.rest.model.ProfessionalExperienceFileTypeEnum;
+import school.hei.haapi.file.bucket.BucketComponent;
 import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.FileInfo;
 import school.hei.haapi.model.PageFromOne;
@@ -41,6 +44,10 @@ public class StudentFileService {
   private final FileInfoService fileInfoService;
   private final WorkDocumentService workDocumentService;
   private final FileInfoDao fileInfoDao;
+  private final BucketComponent bucketComponent;
+
+  private static final String STUDENT_IMPORT_TEMPLATE_KEY =
+      "STUDENT_IMPORT_TEMPLATE/etudiants.xlsx";
 
   public WorkDocument uploadStudentWorkFile(
       String studentId,
@@ -58,6 +65,10 @@ public class StudentFileService {
         commitmentEnd,
         workFile,
         professionalExperience);
+  }
+
+  public String getStudentImportTemplateURL() {
+    return bucketComponent.presign(STUDENT_IMPORT_TEMPLATE_KEY, Duration.of(5, MINUTES)).toString();
   }
 
   public List<WorkDocument> getStudentWorkFiles(

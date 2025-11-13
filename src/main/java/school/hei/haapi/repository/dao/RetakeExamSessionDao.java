@@ -3,6 +3,8 @@ package school.hei.haapi.repository.dao;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Join;
+import jakarta.persistence.criteria.JoinType;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 import java.time.Instant;
@@ -12,6 +14,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.query.QueryUtils;
 import org.springframework.stereotype.Component;
+import school.hei.haapi.endpoint.rest.model.StudentLevel;
 import school.hei.haapi.model.RetakeExamSession;
 
 @Component
@@ -20,7 +23,7 @@ public class RetakeExamSessionDao {
   private final EntityManager entityManager;
 
   public List<RetakeExamSession> filterByCriteria(
-      String title, Pageable pageable, Instant from, Instant to) {
+      String title, List<StudentLevel> studentLevels, Pageable pageable, Instant from, Instant to) {
     CriteriaBuilder builder = entityManager.getCriteriaBuilder();
     CriteriaQuery<RetakeExamSession> query = builder.createQuery(RetakeExamSession.class);
     Root<RetakeExamSession> root = query.from(RetakeExamSession.class);
@@ -28,6 +31,11 @@ public class RetakeExamSessionDao {
     if (title != null && !title.isEmpty()) {
       predicates.add(
           builder.like(builder.lower(root.get("title")), "%" + title.toLowerCase() + "%"));
+    }
+
+    if (studentLevels != null && !studentLevels.isEmpty()) {
+      Join<RetakeExamSession, StudentLevel> join = root.join("studentLevels", JoinType.INNER);
+      predicates.add(join.in(studentLevels));
     }
 
     addRetakeExamDateRangePredicates(from, to, predicates, builder, root);

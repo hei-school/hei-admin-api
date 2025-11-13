@@ -37,7 +37,6 @@ import school.hei.haapi.endpoint.rest.model.ResultSummary;
 import school.hei.haapi.endpoint.rest.model.YearlyResult;
 import school.hei.haapi.integration.conf.FacadeITMockedThirdParties;
 import school.hei.haapi.integration.conf.TestUtils;
-import school.hei.haapi.repository.RetakeExamRepository;
 import school.hei.haapi.repository.dao.RetakeExamDao;
 import school.hei.haapi.service.GradeResultService;
 
@@ -46,7 +45,6 @@ import school.hei.haapi.service.GradeResultService;
 public class RetakeExamIT extends FacadeITMockedThirdParties {
   @MockBean GradeResultService gradeResultService;
   @Autowired private RetakeExamDao retakeExamDao;
-  @Autowired private RetakeExamRepository retakeExamRepository;
 
   private ApiClient anApiClient(String token) {
     return TestUtils.anApiClient(token, localPort);
@@ -100,7 +98,7 @@ public class RetakeExamIT extends FacadeITMockedThirdParties {
     ApiClient apiClient = anApiClient(ADMIN1_TOKEN);
     RetakeExamApi api = new RetakeExamApi(apiClient);
 
-    var retakeExams = api.getAllRetakeExams(null, null, null, null, null);
+    var retakeExams = api.getAllRetakeExams(null, null, null, null, null, null);
 
     assertNotNull(retakeExams);
     assertEquals(
@@ -114,7 +112,8 @@ public class RetakeExamIT extends FacadeITMockedThirdParties {
     ApiClient apiClient = anApiClient(ADMIN1_TOKEN);
     RetakeExamApi api = new RetakeExamApi(apiClient);
 
-    var retakeExamFiltered = api.getAllRetakeExams(List.of(TO_CANCEL), null, null, null, null);
+    var retakeExamFiltered =
+        api.getAllRetakeExams(List.of(TO_CANCEL), null, null, null, null, null);
 
     assertNotNull(retakeExamFiltered);
     assertEquals(2, retakeExamFiltered.size());

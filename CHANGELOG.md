@@ -1,3 +1,55 @@
+# [1.135.0](https://github.com/hei-school/hei-admin-api/compare/v1.134.2...v1.135.0) (2025-11-13)
+
+
+### Features
+
+* add student import template endpoint ([76a8831](https://github.com/hei-school/hei-admin-api/commit/76a8831c2e1ab4d0f1815b50013dae57f7fce1c9))
+
+
+
+## [1.134.2](https://github.com/hei-school/hei-admin-api/compare/v1.134.1...v1.134.2) (2025-11-12)
+
+
+### Bug Fixes
+
+* add unckecked field to event and participant stats ([818869c](https://github.com/hei-school/hei-admin-api/commit/818869c8a9e00f6297d278811ba307f6cb5abffd))
+
+
+
+## [1.134.1](https://github.com/hei-school/hei-admin-api/compare/v1.134.0...v1.134.1) (2025-11-07)
+
+
+### Bug Fixes
+
+* student stats computation timeout ([afaae35](https://github.com/hei-school/hei-admin-api/commit/afaae3596f35de61e234673923b094b845d633a7))
+
+
+
+# [1.134.0](https://github.com/hei-school/hei-admin-api/compare/v1.133.0...v1.134.0) (2025-11-07)
+
+
+### Features
+
+* (doc) add to cancel retake exam endpoint and operationId ([82cd1eb](https://github.com/hei-school/hei-admin-api/commit/82cd1eb485f6ef9788dff47d4fd65a582420c581))
+* add retake exam session student level ([9f532f7](https://github.com/hei-school/hei-admin-api/commit/9f532f7fd61540c1e43a61b681d23196e63ef149))
+
+
+
+# [1.133.0](https://github.com/hei-school/hei-admin-api/compare/v1.132.0...v1.133.0) (2025-11-05)
+
+
+### Bug Fixes
+
+* retake exam default value ([a47350c](https://github.com/hei-school/hei-admin-api/commit/a47350c913366cdfd875057ce5669157bfca71b0))
+
+
+### Features
+
+* (doc) add retake exam comments ([955567f](https://github.com/hei-school/hei-admin-api/commit/955567f356e4102f61e43718c2789f21980d756d))
+* (doc) add student level and filter by student ref  ([620b28e](https://github.com/hei-school/hei-admin-api/commit/620b28e1997c14f0ae668cf0e1814583c889072c))
+
+
+
 # [1.132.0](https://github.com/hei-school/hei-admin-api/compare/v1.131.1...v1.132.0) (2025-10-28)
 
 
@@ -61,61 +113,6 @@
 
 * add missing status to event participant ([a4bd62b](https://github.com/hei-school/hei-admin-api/commit/a4bd62b2e021dc6b1feb6d461763631314ce3c08))
 * import student from xlsx  ([319cc70](https://github.com/hei-school/hei-admin-api/commit/319cc70dde9a6f244f49ab02f6e0b548026e8a0f))
-
-
-
-# [1.127.0](https://github.com/hei-school/hei-admin-api/compare/v1.126.0...v1.127.0) (2025-10-21)
-
-
-### Features
-
-* **doc:** add new retake exam status and update endpoint ([01b76bf](https://github.com/hei-school/hei-admin-api/commit/01b76bf96daa03907da1ca237f451235a0b33617))
-
-
-
-# [1.126.0](https://github.com/hei-school/hei-admin-api/compare/v1.125.0...v1.126.0) (2025-10-20)
-
-
-### Bug Fixes
-
-* advanced fee stats receipt count type generation ([e943221](https://github.com/hei-school/hei-admin-api/commit/e943221a8c0964297089b59ec0a59c21e9ba187c))
-* crupdate retake exam ([adc5c1a](https://github.com/hei-school/hei-admin-api/commit/adc5c1a3927747c50b6468faa6a14547d5d19231))
-* get retake exam ([987d8eb](https://github.com/hei-school/hei-admin-api/commit/987d8ebab7bb4f5d247be04d80dc2338294a822e))
-
-
-### Features
-
-* add retake exam annulation ([0d80ea1](https://github.com/hei-school/hei-admin-api/commit/0d80ea1aa25d0fbb845c93c57b4c5a9c9f72400b))
-* cor notification ([2c387cc](https://github.com/hei-school/hei-admin-api/commit/2c387ccbbf86b042b2eb406759544068e2eff092))
-* **doc:** import student from xlsx ([bc3c4c2](https://github.com/hei-school/hei-admin-api/commit/bc3c4c28e8769b00dbe6c124085b0cf334ed71a6))
-
-
-
-# [1.125.0](https://github.com/hei-school/hei-admin-api/compare/v1.124.0...v1.125.0) (2025-10-14)
-
-
-### Features
-
-* filter retake_exam_courses by course_code and participant by ref ([97af3af](https://github.com/hei-school/hei-admin-api/commit/97af3aff5bef526a74916cf958983e55af6e7e2c))
-
-
-
-# [1.124.0](https://github.com/hei-school/hei-admin-api/compare/v1.123.1...v1.124.0) (2025-10-10)
-
-
-### Features
-
-* add get retake exam session by id ([6d985cc](https://github.com/hei-school/hei-admin-api/commit/6d985ccc11ee88c591387042406f7e869258936d))
-* **not-implemented:** cor interviewers ([4ea6fd0](https://github.com/hei-school/hei-admin-api/commit/4ea6fd01d92d38516320e54f4ed39bc063177a2c))
-
-
-
-## [1.123.1](https://github.com/hei-school/hei-admin-api/compare/v1.123.0...v1.123.1) (2025-10-08)
-
-
-### Bug Fixes
-
-* Cor store status ([405f96b](https://github.com/hei-school/hei-admin-api/commit/405f96bfb73500cb6e4b85425ab7f8ae1869d761))
 
 
 

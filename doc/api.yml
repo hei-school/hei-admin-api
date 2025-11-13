@@ -722,6 +722,29 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
+  /students/import/template:
+    get:
+      tags:
+        - Users
+      summary: Get a presigned url to get the template for student import
+      operationId: getStudentImportTemplateURL
+      responses:
+        '200':
+          description: The presigned URL for getting the student import template
+          content:
+            text/plain:
+              schema:
+                type: string
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
   /students/import:
     post:
       tags:
@@ -1477,16 +1500,15 @@ paths:
           required: false
           schema:
             type: string
-        - name: from
+        - name: student_level
           in: query
+          required: false
           schema:
-            type: string
-            format: date-time
-        - name: to
-          in: query
-          schema:
-            type: string
-            format: date-time
+            type: array
+            items:
+              $ref: '#/components/schemas/StudentLevel'
+        - $ref: '#/components/parameters/DatetimeFromFilter'
+        - $ref: '#/components/parameters/DatetimeToFilter'
         - $ref: '#/components/parameters/Page'
         - $ref: '#/components/parameters/PageSize'
       operationId: getRetakeExamSessions
@@ -1574,6 +1596,7 @@ paths:
       summary: Get all retake exams infos
       parameters:
         - $ref: '#/components/parameters/RetakeExamStatuses'
+        - $ref: '#/components/parameters/StudentRef'
         - $ref: '#/components/parameters/DatetimeFromFilter'
         - $ref: '#/components/parameters/DatetimeToFilter'
         - $ref: '#/components/parameters/Page'
@@ -1588,6 +1611,111 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/StudentRetakeExam'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+  /retake_exams/{id}/to_cancel:
+    patch:
+      tags:
+        - RetakeExam
+      summary: Request to cancel a retake exam
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CancelReason"
+      operationId: requestToCancelRetakeExam
+      responses:
+        '200':
+          description: Request to cancel retake exam
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StudentRetakeExam'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+  /retake_exams/{id}/cancel:
+    patch:
+      tags:
+        - RetakeExam
+      summary: Cancel a retake exam request
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CancelReason"
+      operationId: cancelRetakeExam
+      responses:
+        '200':
+          description: Retake exam successfully canceled
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StudentRetakeExam'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+  /retake_exams/{id}/reject:
+    patch:
+      tags:
+        - RetakeExam
+      summary: Reject a retake exam request
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RejectReason"
+      operationId: rejectToCancelRetakeExamRequest
+      responses:
+        '200':
+          description: Retake exam successfully rejected
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StudentRetakeExam'
         '400':
           $ref: '#/components/responses/400'
         '403':
@@ -7491,6 +7619,10 @@ components:
         date_to:
           type: string
           format: date-time
+        student_levels:
+          type: array
+          items:
+            $ref: '#/components/schemas/StudentLevel'
     RetakeExam:
       type: object
       properties:
@@ -7503,6 +7635,10 @@ components:
         registration_date:
           type: string
           format: date-time
+        cancel_reason:
+          $ref: "#/components/schemas/CancelReason"
+        rejection_reason:
+          $ref: "#/components/schemas/RejectReason"
         status:
           $ref: "#/components/schemas/RetakeExamStatus"
     CrupdateRetakeExam:
@@ -7518,6 +7654,22 @@ components:
           type: string
         status:
           $ref: "#/components/schemas/RetakeExamStatus"
+    CancelReason:
+      type: object
+      properties:
+        cancelReason:
+          type: string
+          description: Reason provided by the student for canceling the retake request
+      required:
+        - cancelReason
+    RejectReason:
+      type: object
+      properties:
+        rejectReason:
+          type: string
+          description: Reason provided by the validator for rejecting the retake request
+      required:
+        - rejectReason
     StudentRetakeExam:
       type: object
       allOf:
@@ -7977,6 +8129,9 @@ components:
         late:
           type: integer
           format: int64
+        unchecked:
+          type: integer
+          format: int64
         total:
           type: integer
           format: int64
@@ -7989,6 +8144,9 @@ components:
           type: integer
           format: int64
         late_events:
+          type: integer
+          format: int64
+        unchecked_events:
           type: integer
           format: int64
         total_events:
@@ -8192,36 +8350,47 @@ components:
       properties:
         total_students:
           type: integer
+          format: int64
         students_alternating:
           type: object
           properties:
             total:
               type: integer
+              format: int64
             working:
               type: integer
+              format: int64
             have_been_working:
               type: integer
+              format: int64
             not_working:
               type: integer
+              format: int64
             will_work:
               type: integer
+              format: int64
         men:
           $ref: '#/components/schemas/StatisticsDetails'
         women:
           $ref: '#/components/schemas/StatisticsDetails'
         total_groups:
           type: integer
+          format: int64
     StatisticsDetails:
       type: object
       properties:
         total:
           type: integer
+          format: int64
         disabled:
           type: integer
+          format: int64
         enabled:
           type: integer
+          format: int64
         suspended:
           type: integer
+          format: int64
     AdvancedFeeStatisticsGeneration:
       type: object
       properties:

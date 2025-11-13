@@ -5,6 +5,7 @@ import java.util.List;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
+import school.hei.haapi.endpoint.rest.model.StudentLevel;
 import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.model.RetakeExamSession;
@@ -27,10 +28,15 @@ public class RetakeExamSessionService {
   }
 
   public List<RetakeExamSession> getRetakeExamSessions(
-      String title, PageFromOne page, BoundedPageSize pageSize, Instant from, Instant to) {
+      String title,
+      List<StudentLevel> studentLevels,
+      PageFromOne page,
+      BoundedPageSize pageSize,
+      Instant from,
+      Instant to) {
     PaginationFromPageAndPageSize pagination = new PaginationFromPageAndPageSize();
     Pageable pageable = pagination.apply(page, pageSize);
-    return retakeExamSessionDao.filterByCriteria(title, pageable, from, to);
+    return retakeExamSessionDao.filterByCriteria(title, studentLevels, pageable, from, to);
   }
 
   public RetakeExamSession save(RetakeExamSession retakeExamSession) {
