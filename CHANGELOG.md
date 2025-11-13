@@ -1,3 +1,12 @@
+# [1.135.0](https://github.com/hei-school/hei-admin-api/compare/v1.134.2...v1.135.0) (2025-11-13)
+
+
+### Features
+
+* add student import template endpoint ([76a8831](https://github.com/hei-school/hei-admin-api/commit/76a8831c2e1ab4d0f1815b50013dae57f7fce1c9))
+
+
+
 ## [1.134.2](https://github.com/hei-school/hei-admin-api/compare/v1.134.1...v1.134.2) (2025-11-12)
 
 
@@ -104,15 +113,6 @@
 
 * add missing status to event participant ([a4bd62b](https://github.com/hei-school/hei-admin-api/commit/a4bd62b2e021dc6b1feb6d461763631314ce3c08))
 * import student from xlsx  ([319cc70](https://github.com/hei-school/hei-admin-api/commit/319cc70dde9a6f244f49ab02f6e0b548026e8a0f))
-
-
-
-# [1.127.0](https://github.com/hei-school/hei-admin-api/compare/v1.126.0...v1.127.0) (2025-10-21)
-
-
-### Features
-
-* **doc:** add new retake exam status and update endpoint ([01b76bf](https://github.com/hei-school/hei-admin-api/commit/01b76bf96daa03907da1ca237f451235a0b33617))
 
 
 
