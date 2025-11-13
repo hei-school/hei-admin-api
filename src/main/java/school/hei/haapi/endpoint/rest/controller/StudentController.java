@@ -28,6 +28,7 @@ import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.model.User;
 import school.hei.haapi.service.GroupFlowService;
 import school.hei.haapi.service.MultipartFileConverter;
+import school.hei.haapi.service.StudentFileService;
 import school.hei.haapi.service.UserService;
 
 @RestController
@@ -41,6 +42,7 @@ public class StudentController {
   private final SexEnumMapper sexEnumMapper;
   private final MultipartFileConverter fileConverter;
   private final CoordinatesValidator validator;
+  private final StudentFileService studentFileService;
 
   @PostMapping(value = "/students/{id}/picture/raw", consumes = MULTIPART_FORM_DATA_VALUE)
   public Student uploadStudentProfilePicture(
@@ -154,5 +156,10 @@ public class StudentController {
       @RequestParam("due_datetime") Instant dueDatetime,
       @RequestPart("file_to_upload") MultipartFile fileToUpload) {
     return userService.initStudentImportFromXlsx(fileConverter.apply(fileToUpload), dueDatetime);
+  }
+
+  @GetMapping("/students/import/template")
+  public String getStudentImportTemplateURL() {
+    return studentFileService.getStudentImportTemplateURL();
   }
 }

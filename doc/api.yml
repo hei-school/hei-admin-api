@@ -722,6 +722,29 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
+  /students/import/template:
+    get:
+      tags:
+        - Users
+      summary: Get a presigned url to get the template for student import
+      operationId: getStudentImportTemplateURL
+      responses:
+        '200':
+          description: The presigned URL for getting the student import template
+          content:
+            text/plain:
+              schema:
+                type: string
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
   /students/import:
     post:
       tags:
