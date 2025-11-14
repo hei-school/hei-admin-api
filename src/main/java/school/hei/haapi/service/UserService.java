@@ -466,8 +466,9 @@ public class UserService {
   }
 
   public StudentLevel getStudentLevel(String studentId) {
-    var student = this.getById(studentId);
-    var group = student.findCurrentGroup().get();
-    return group.getPromotion().getLevelAt(now());
+    return getById(studentId)
+        .findCurrentGroup()
+        .map(g -> g.getPromotion().getLevelAt(now()))
+        .orElse(null);
   }
 }
