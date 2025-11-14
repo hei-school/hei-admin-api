@@ -2568,6 +2568,44 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
+  /exams/{exam_id}/grades/import:
+    post:
+      tags:
+        - Grades
+      summary: Import students exam grade from an excel file
+      operationId: importStudentsGrade
+      parameters:
+        - $ref: "#/components/parameters/PathExamId"
+        - in: query
+          name: due_datetime
+          required: false
+          schema:
+            type: string
+            format: date-time
+      requestBody:
+        description: Form containing the xlsx file for students Exams grade to import
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/UploadFile'
+      responses:
+        '200':
+          description: Status of the validation of imported students grade
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StudentExamGradeImportValidationResult'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
   '/teachers/{id}':
     get:
       tags:
@@ -8742,4 +8780,9 @@ components:
       type: "object"
       properties:
         validStudentNumber:
+          type: "integer"
+    StudentExamGradeImportValidationResult:
+      type: "object"
+      properties:
+        validStudentExamGradeNumber:
           type: "integer"
