@@ -1,5 +1,6 @@
 package school.hei.haapi.endpoint.rest.controller;
 
+import java.time.Instant;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -7,13 +8,16 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 import school.hei.haapi.endpoint.rest.mapper.GradeMapper;
 import school.hei.haapi.endpoint.rest.model.CreateGrade;
 import school.hei.haapi.endpoint.rest.model.ExamGradeStats;
 import school.hei.haapi.endpoint.rest.model.Grade;
 import school.hei.haapi.endpoint.rest.model.ResultSummary;
 import school.hei.haapi.endpoint.rest.model.StudentGrade;
+import school.hei.haapi.endpoint.rest.model.StudentImportValidationResult;
 import school.hei.haapi.endpoint.rest.model.StudentLevel;
 import school.hei.haapi.endpoint.rest.model.UpdateGrade;
 import school.hei.haapi.endpoint.rest.model.YearlyResult;
@@ -26,7 +30,10 @@ import school.hei.haapi.service.ExamParticipantService;
 import school.hei.haapi.service.ExamService;
 import school.hei.haapi.service.GradeResultService;
 import school.hei.haapi.service.GradeService;
+import school.hei.haapi.service.MultipartFileConverter;
 import school.hei.haapi.service.UserService;
+
+import static org.springframework.http.MediaType.MULTIPART_FORM_DATA_VALUE;
 
 @RestController
 @AllArgsConstructor
@@ -39,6 +46,7 @@ public class GradeController {
   private final GradeResultService gradeResultService;
   private final ExamService examService;
   private final ExamParticipantService examParticipantService;
+  private final MultipartFileConverter fileConverter;
 
   // todo: to review all class
   @GetMapping("/students/{student_id}/grades")
@@ -88,6 +96,12 @@ public class GradeController {
         .toList();
   }
 
+  @PostMapping(value = "/exams/{exam_id}/grades/import")
+  public StudentExamGradeImportValidationResult importStudentsExamGrade(
+          @RequestParam("due_datetime") Instant dueDatetime,
+          @RequestPart("file_to_upload") MultipartFile fileToUpload) {
+      return gradeService.initStudentExamGradeImportFromXlsx(fileConverter.apply(fileToUpload), dueDatetime);
+  }
   @PostMapping(value = "/exams/{exam_id}/grades/update")
   public List<StudentGrade> correctParticipantsGradeForExam(
       @PathVariable("exam_id") String examId, @RequestBody List<UpdateGrade> grades) {
