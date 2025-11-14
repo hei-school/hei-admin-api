@@ -1,5 +1,6 @@
 package school.hei.haapi.service;
 
+import static java.time.Instant.now;
 import static org.apache.poi.ss.usermodel.Row.MissingCellPolicy.CREATE_NULL_AS_BLANK;
 import static org.springframework.data.domain.Pageable.unpaged;
 import static org.springframework.data.domain.Sort.Direction.ASC;
@@ -37,6 +38,7 @@ import school.hei.haapi.endpoint.rest.model.PaymentFrequency;
 import school.hei.haapi.endpoint.rest.model.Statistics;
 import school.hei.haapi.endpoint.rest.model.Student;
 import school.hei.haapi.endpoint.rest.model.StudentImportValidationResult;
+import school.hei.haapi.endpoint.rest.model.StudentLevel;
 import school.hei.haapi.endpoint.rest.model.WorkStudyStatus;
 import school.hei.haapi.endpoint.rest.security.AuthProvider;
 import school.hei.haapi.file.bucket.BucketComponent;
@@ -326,7 +328,7 @@ public class UserService {
         workStatus,
         commitmentBeginDate,
         courseId,
-        Instant.now(),
+        now(),
         excludeGroupIds,
         null);
   }
@@ -453,7 +455,7 @@ public class UserService {
             workStatus,
             null,
             courseId,
-            Instant.now(),
+            now(),
             excludeGroupIds,
             null);
     return userXlsxCellsGenerator.apply(students, List.of("firstName", "lastName", "email", "sex"));
@@ -461,5 +463,11 @@ public class UserService {
 
   public List<User> getByRoleAndIds(Collection<User.Role> roles, Collection<String> ids) {
     return userRepository.findAllByRoleInAndIdIn(roles, ids);
+  }
+
+  public StudentLevel getStudentLevel(String studentId) {
+    var student = this.getById(studentId);
+    var group = student.findCurrentGroup().get();
+    return group.getPromotion().getLevelAt(now());
   }
 }
