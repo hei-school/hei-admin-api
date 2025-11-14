@@ -2533,12 +2533,6 @@ paths:
       operationId: importStudentsExamGrade
       parameters:
         - $ref: '#/components/parameters/PathExamId'
-        - in: query
-          name: due_datetime
-          required: false
-          schema:
-            type: string
-            format: date-time
       requestBody:
         description: Form containing the xlsx file for students exam grade to import
         required: true
