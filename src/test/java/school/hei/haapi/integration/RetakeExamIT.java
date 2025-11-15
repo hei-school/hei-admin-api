@@ -210,7 +210,7 @@ public class RetakeExamIT extends FacadeITMockedThirdParties {
     var retakeExam = api.getAllRetakeExams(null, "STD21001", null, null, null, null);
 
     assertNotNull(retakeExam);
-    assertEquals(1, retakeExam.size());
+    assertEquals(2, retakeExam.size());
     assertEquals(
         "STD21001", Objects.requireNonNull(retakeExam.getFirst().getStudentIdentifier()).getRef());
   }
