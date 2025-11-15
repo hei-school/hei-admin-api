@@ -110,9 +110,12 @@ public class RetakeExamService {
   }
 
   public List<RetakeExam> getAllRetakeExams(
-      List<RetakeExamStatus> statuses, PageFromOne page, BoundedPageSize pageSize) {
+      List<RetakeExamStatus> statuses,
+      String studentRef,
+      PageFromOne page,
+      BoundedPageSize pageSize) {
     Pageable pageable = PageRequest.of(page.getValue() - 1, pageSize.getValue());
-    return retakeExamDao.filterByCriteria(null, null, null, null, null, statuses, pageable);
+    return retakeExamDao.filterByCriteria(null, null, studentRef, null, null, statuses, pageable);
   }
 
   public List<school.hei.haapi.model.Course> getAllRetakeExamCoursesBySessionId(
