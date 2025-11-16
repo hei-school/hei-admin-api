@@ -1,3 +1,13 @@
+# [1.136.0](https://github.com/hei-school/hei-admin-api/compare/v1.135.0...v1.136.0) (2025-11-16)
+
+
+### Features
+
+* (doc) add get student level ([084bf27](https://github.com/hei-school/hei-admin-api/commit/084bf278611c3f81ab53cf901646c84fef3c1c75))
+* (doc) add new endpoint to import student grade for a specific exam ([a978b3c](https://github.com/hei-school/hei-admin-api/commit/a978b3c8e9793e92faad536e3cae0e74dd4e6fcf))
+
+
+
 # [1.135.0](https://github.com/hei-school/hei-admin-api/compare/v1.134.2...v1.135.0) (2025-11-13)
 
 
@@ -97,22 +107,6 @@
 ### Bug Fixes
 
 * student import xlsx multipart form handling ([c025321](https://github.com/hei-school/hei-admin-api/commit/c025321fc6b90485fb6c403167c36bc56dd7b344))
-
-
-
-# [1.129.0](https://github.com/hei-school/hei-admin-api/compare/v1.127.0...v1.129.0) (2025-10-23)
-
-
-### Bug Fixes
-
-* import student by xlsx ([f6babf8](https://github.com/hei-school/hei-admin-api/commit/f6babf83acb3899553a74aab625dfe16e1f256d5))
-* student import xlsx security conf ([08fa5f5](https://github.com/hei-school/hei-admin-api/commit/08fa5f5a92a2b38f4ada78e44aaaa27f988b8515))
-
-
-### Features
-
-* add missing status to event participant ([a4bd62b](https://github.com/hei-school/hei-admin-api/commit/a4bd62b2e021dc6b1feb6d461763631314ce3c08))
-* import student from xlsx  ([319cc70](https://github.com/hei-school/hei-admin-api/commit/319cc70dde9a6f244f49ab02f6e0b548026e8a0f))
 
 
 
