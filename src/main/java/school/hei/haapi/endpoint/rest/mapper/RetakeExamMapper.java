@@ -10,6 +10,7 @@ import school.hei.haapi.endpoint.rest.model.StudentRetakeExam;
 import school.hei.haapi.model.Course;
 import school.hei.haapi.model.RetakeExamSession;
 import school.hei.haapi.service.CourseService;
+import school.hei.haapi.service.RetakeExamService;
 import school.hei.haapi.service.RetakeExamSessionService;
 import school.hei.haapi.service.UserService;
 
@@ -22,6 +23,7 @@ public class RetakeExamMapper {
   private final CourseService courseService;
   private final RetakeExamSessionService retakeExamSessionService;
   private final UserMapper userMapper;
+  private final RetakeExamService retakeExamService;
 
   public school.hei.haapi.model.RetakeExam toDomainCrupdate(CrupdateRetakeExam crupdateRetakeExam) {
     var studentUser = userService.getById(crupdateRetakeExam.getStudentId());
@@ -35,6 +37,14 @@ public class RetakeExamMapper {
         .course(course)
         .status(
             school.hei.haapi.model.RetakeExamStatus.valueOf(crupdateRetakeExam.getStatus().name()))
+        .build();
+  }
+
+  public school.hei.haapi.model.RetakeExam toDomainCrupdate(
+      String retakeExamId, RetakeExamStatus status) {
+    return school.hei.haapi.model.RetakeExam.builder()
+        .id(retakeExamId)
+        .status(school.hei.haapi.model.RetakeExamStatus.valueOf(status.name()))
         .build();
   }
 

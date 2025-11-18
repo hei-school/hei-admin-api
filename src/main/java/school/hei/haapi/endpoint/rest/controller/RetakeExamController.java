@@ -1,8 +1,11 @@
 package school.hei.haapi.endpoint.rest.controller;
 
+import static school.hei.haapi.endpoint.rest.model.RetakeExamStatus.TO_CANCEL;
+
 import java.util.List;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -81,5 +84,28 @@ public class RetakeExamController {
     return userMapper.toRestStudents(
         retakeExamService.getAllRetakeExamParticipantByCourseAndBySessionId(
             sessionId, courseId, studentRef, page, pageSize));
+  }
+
+  @PatchMapping("/retake_exams/{retake_exam_id}/to_cancel")
+  public StudentRetakeExam requestToCancelRetakeExam(
+      @PathVariable("retake_exam_id") String retakeExamId) {
+    return retakeExamMapper.toStudentRetakeRest(
+        retakeExamService.cancelOrRejectToCancelRetakeExamRequest(
+            retakeExamMapper.toDomainCrupdate(retakeExamId, TO_CANCEL)));
+  }
+
+  @PatchMapping("/retake_exams/{retake_exam_id}/cancel")
+  public StudentRetakeExam cancelRetakeExam(@PathVariable("retake_exam_id") String retakeExamId) {
+    return retakeExamMapper.toStudentRetakeRest(
+        retakeExamService.cancelOrRejectToCancelRetakeExamRequest(
+            retakeExamMapper.toDomainCrupdate(retakeExamId, TO_CANCEL)));
+  }
+
+  @PatchMapping("/retake_exams/{retake_exam_id}/reject")
+  public StudentRetakeExam rejectToCancelRetakeExamRequest(
+      @PathVariable("retake_exam_id") String retakeExamId) {
+    return retakeExamMapper.toStudentRetakeRest(
+        retakeExamService.cancelOrRejectToCancelRetakeExamRequest(
+            retakeExamMapper.toDomainCrupdate(retakeExamId, TO_CANCEL)));
   }
 }
