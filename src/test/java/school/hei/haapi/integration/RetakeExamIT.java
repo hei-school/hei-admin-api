@@ -201,4 +201,17 @@ public class RetakeExamIT extends FacadeITMockedThirdParties {
     assertEquals("session4_id", retakeExams.getFirst().getSession().getId());
     assertEquals("course3_id", retakeExams.getFirst().getCourse().getId());
   }
+
+  @Test
+  void filter_retake_exam_by_student_ref_ok() throws ApiException {
+    ApiClient apiClient = anApiClient(ADMIN1_TOKEN);
+    RetakeExamApi api = new RetakeExamApi(apiClient);
+
+    var retakeExam = api.getAllRetakeExams(null, "STD21001", null, null, null, null);
+
+    assertNotNull(retakeExam);
+    assertEquals(2, retakeExam.size());
+    assertEquals(
+        "STD21001", Objects.requireNonNull(retakeExam.getFirst().getStudentIdentifier()).getRef());
+  }
 }
