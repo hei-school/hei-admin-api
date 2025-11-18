@@ -44,11 +44,12 @@ public class RetakeExamService {
     return retakeExamRepository.saveAll(crupdateRetakeExams);
   }
 
-    public RetakeExam getById(String id) {
-        return retakeExamRepository
-                .findById(id)
-                .orElseThrow(() -> new NotFoundException("Retake exam not found"));
-    }
+  public RetakeExam getById(String id) {
+    return retakeExamRepository
+        .findById(id)
+        .orElseThrow(() -> new NotFoundException("Retake exam not found"));
+  }
+
   public List<RetakeExam> getStudentRetakeExams(
       String sessionId, String studentId, PageFromOne page, BoundedPageSize pageSize) {
     var session = retakeExamSessionService.getById(sessionId);

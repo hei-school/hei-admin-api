@@ -61,6 +61,6 @@ public class RetakeExam implements Serializable {
   @Column(name = "cancel_reason")
   private String cancelReason;
 
-    @Column(name = "rejection_reason")
-    private String rejectionReason;
+  @Column(name = "rejection_reason")
+  private String rejectionReason;
 }

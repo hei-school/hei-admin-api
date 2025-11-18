@@ -91,8 +91,7 @@ public class RetakeExamController {
 
   @PatchMapping("/retake_exams/{retake_exam_id}/to_cancel")
   public StudentRetakeExam requestToCancelRetakeExam(
-      @PathVariable("retake_exam_id") String retakeExamId,
-      @RequestBody Reason reason) {
+      @PathVariable("retake_exam_id") String retakeExamId, @RequestBody Reason reason) {
     return retakeExamMapper.toStudentRetakeRest(
         retakeExamService.cancelOrRejectToCancelRetakeExamRequest(
             retakeExamMapper.toDomainCrupdate(retakeExamId, reason, TO_CANCEL)));
@@ -102,13 +101,12 @@ public class RetakeExamController {
   public StudentRetakeExam cancelRetakeExam(@PathVariable("retake_exam_id") String retakeExamId) {
     return retakeExamMapper.toStudentRetakeRest(
         retakeExamService.cancelOrRejectToCancelRetakeExamRequest(
-            retakeExamMapper.toDomainCrupdate(retakeExamId,null, CANCELED)));
+            retakeExamMapper.toDomainCrupdate(retakeExamId, null, CANCELED)));
   }
 
   @PatchMapping("/retake_exams/{retake_exam_id}/reject")
   public StudentRetakeExam rejectToCancelRetakeExamRequest(
-      @PathVariable("retake_exam_id") String retakeExamId,
-      @RequestBody Reason reason) {
+      @PathVariable("retake_exam_id") String retakeExamId, @RequestBody Reason reason) {
     return retakeExamMapper.toStudentRetakeRest(
         retakeExamService.cancelOrRejectToCancelRetakeExamRequest(
             retakeExamMapper.toDomainCrupdate(retakeExamId, reason, REGISTERED)));
