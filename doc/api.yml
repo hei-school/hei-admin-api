@@ -1650,13 +1650,14 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
-  /retake_exams/{id}/to_cancel:
+  /retake_exams/{retake_exam_id}/to_cancel:
     patch:
       tags:
         - RetakeExam
       summary: Request to cancel a retake exam
+      operationId: requestToCancelRetakeExam
       parameters:
-        - name: id
+        - name: retake_exam_id
           in: path
           required: true
           schema:
@@ -1666,8 +1667,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/CancelReason"
-      operationId: requestToCancelRetakeExam
+              $ref: "#/components/schemas/Reason"
       responses:
         '200':
           description: Request to cancel retake exam
@@ -1685,24 +1685,18 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
-  /retake_exams/{id}/cancel:
+  /retake_exams/{retake_exam_id}/cancel:
     patch:
       tags:
         - RetakeExam
       summary: Cancel a retake exam request
+      operationId: cancelRetakeExam
       parameters:
-        - name: id
+        - name: retake_exam_id
           in: path
           required: true
           schema:
             type: string
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/CancelReason"
-      operationId: cancelRetakeExam
       responses:
         '200':
           description: Retake exam successfully canceled
@@ -1720,13 +1714,14 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
-  /retake_exams/{id}/reject:
+  /retake_exams/{retake_exam_id}/reject:
     patch:
       tags:
         - RetakeExam
       summary: Reject a retake exam request
+      operationId: rejectToCancelRetakeExamRequest
       parameters:
-        - name: id
+        - name: retake_exam_id
           in: path
           required: true
           schema:
@@ -1736,8 +1731,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/RejectReason"
-      operationId: rejectToCancelRetakeExamRequest
+              $ref: "#/components/schemas/Reason"
       responses:
         '200':
           description: Retake exam successfully rejected
@@ -7697,9 +7691,9 @@ components:
           type: string
           format: date-time
         cancel_reason:
-          $ref: "#/components/schemas/CancelReason"
+          $ref: "#/components/schemas/Reason"
         rejection_reason:
-          $ref: "#/components/schemas/RejectReason"
+          $ref: "#/components/schemas/Reason"
         status:
           $ref: "#/components/schemas/RetakeExamStatus"
     CrupdateRetakeExam:
@@ -7715,22 +7709,14 @@ components:
           type: string
         status:
           $ref: "#/components/schemas/RetakeExamStatus"
-    CancelReason:
+    Reason:
       type: object
       properties:
-        cancelReason:
+        Reason:
           type: string
-          description: Reason provided by the student for canceling the retake request
+          description: Reason provided by the student or manager for canceling or not cancelling the retake request
       required:
-        - cancelReason
-    RejectReason:
-      type: object
-      properties:
-        rejectReason:
-          type: string
-          description: Reason provided by the validator for rejecting the retake request
-      required:
-        - rejectReason
+        - Reason
     StudentRetakeExam:
       type: object
       allOf:
