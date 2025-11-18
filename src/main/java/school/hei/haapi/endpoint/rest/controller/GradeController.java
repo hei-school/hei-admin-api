@@ -96,10 +96,9 @@ public class GradeController {
 
   @PostMapping(value = "/exams/{exam_id}/grades/import")
   public StudentExamGradeImportValidationResult importStudentsExamGrade(
-      @RequestParam("due_datetime") Instant dueDatetime,
       @RequestPart("file_to_upload") MultipartFile fileToUpload) {
     return gradeService.initStudentExamGradeImportFromXlsx(
-        fileConverter.apply(fileToUpload), dueDatetime);
+        fileConverter.apply(fileToUpload));
   }
 
   @PostMapping(value = "/exams/{exam_id}/grades/update")

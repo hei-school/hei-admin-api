@@ -18,6 +18,7 @@ import school.hei.haapi.endpoint.event.EventProducer;
 import school.hei.haapi.endpoint.event.model.GradeImportEvent;
 import school.hei.haapi.endpoint.rest.model.ExamGradeStats;
 import school.hei.haapi.endpoint.rest.model.StudentExamGradeImportValidationResult;
+import school.hei.haapi.endpoint.rest.security.AuthProvider;
 import school.hei.haapi.file.bucket.BucketComponent;
 import school.hei.haapi.model.Grade;
 import school.hei.haapi.model.Group;
@@ -146,8 +147,9 @@ public class GradeService {
   }
 
   public StudentExamGradeImportValidationResult initStudentExamGradeImportFromXlsx(
-      File excelFile, Instant dueDatetime) {
+      File excelFile) {
     var parser = new ExcelParser<>(GradeImportDto.class, StudentImportDto.getCellMap());
+    var coordinatorEmail = AuthProvider.getPrincipal().getUser().getEmail();
     try {
       var parseResult = parser.parseFile(excelFile, 0, CREATE_NULL_AS_BLANK);
       if (parseResult.skippedRows().size() > 1) {
@@ -164,7 +166,9 @@ public class GradeService {
       }
       validateDuplicateStudentGradeImport(importResults);
       bucketComponent.upload(excelFile, GRADE_XLSX_IMPORT_BUCKET_KEY + excelFile.getName());
-      eventProducer.accept(List.of(GradeImportEvent.builder().grades(importResults).build()));
+      eventProducer.accept(List.of(GradeImportEvent.builder().grades(importResults)
+                      .coordinatorEmail(coordinatorEmail)
+              .build()));
       return new StudentExamGradeImportValidationResult()
           .validStudentExamGradeNumber(importResults.size());
     } catch (IOException e) {
