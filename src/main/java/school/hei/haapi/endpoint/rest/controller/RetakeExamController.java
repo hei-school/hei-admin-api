@@ -1,5 +1,7 @@
 package school.hei.haapi.endpoint.rest.controller;
 
+import static school.hei.haapi.endpoint.rest.model.RetakeExamStatus.CANCELED;
+import static school.hei.haapi.endpoint.rest.model.RetakeExamStatus.REGISTERED;
 import static school.hei.haapi.endpoint.rest.model.RetakeExamStatus.TO_CANCEL;
 
 import java.util.List;
@@ -16,6 +18,7 @@ import school.hei.haapi.endpoint.rest.mapper.RetakeExamMapper;
 import school.hei.haapi.endpoint.rest.mapper.UserMapper;
 import school.hei.haapi.endpoint.rest.model.Course;
 import school.hei.haapi.endpoint.rest.model.CrupdateRetakeExam;
+import school.hei.haapi.endpoint.rest.model.Reason;
 import school.hei.haapi.endpoint.rest.model.RetakeExam;
 import school.hei.haapi.endpoint.rest.model.Student;
 import school.hei.haapi.endpoint.rest.model.StudentRetakeExam;
@@ -88,24 +91,26 @@ public class RetakeExamController {
 
   @PatchMapping("/retake_exams/{retake_exam_id}/to_cancel")
   public StudentRetakeExam requestToCancelRetakeExam(
-      @PathVariable("retake_exam_id") String retakeExamId) {
+      @PathVariable("retake_exam_id") String retakeExamId,
+      @RequestBody Reason reason) {
     return retakeExamMapper.toStudentRetakeRest(
         retakeExamService.cancelOrRejectToCancelRetakeExamRequest(
-            retakeExamMapper.toDomainCrupdate(retakeExamId, TO_CANCEL)));
+            retakeExamMapper.toDomainCrupdate(retakeExamId, reason, TO_CANCEL)));
   }
 
   @PatchMapping("/retake_exams/{retake_exam_id}/cancel")
   public StudentRetakeExam cancelRetakeExam(@PathVariable("retake_exam_id") String retakeExamId) {
     return retakeExamMapper.toStudentRetakeRest(
         retakeExamService.cancelOrRejectToCancelRetakeExamRequest(
-            retakeExamMapper.toDomainCrupdate(retakeExamId, TO_CANCEL)));
+            retakeExamMapper.toDomainCrupdate(retakeExamId,null, CANCELED)));
   }
 
   @PatchMapping("/retake_exams/{retake_exam_id}/reject")
   public StudentRetakeExam rejectToCancelRetakeExamRequest(
-      @PathVariable("retake_exam_id") String retakeExamId) {
+      @PathVariable("retake_exam_id") String retakeExamId,
+      @RequestBody Reason reason) {
     return retakeExamMapper.toStudentRetakeRest(
         retakeExamService.cancelOrRejectToCancelRetakeExamRequest(
-            retakeExamMapper.toDomainCrupdate(retakeExamId, TO_CANCEL)));
+            retakeExamMapper.toDomainCrupdate(retakeExamId, reason, REGISTERED)));
   }
 }

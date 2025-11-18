@@ -4,6 +4,7 @@ import java.util.List;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 import school.hei.haapi.endpoint.rest.model.CrupdateRetakeExam;
+import school.hei.haapi.endpoint.rest.model.Reason;
 import school.hei.haapi.endpoint.rest.model.RetakeExam;
 import school.hei.haapi.endpoint.rest.model.RetakeExamStatus;
 import school.hei.haapi.endpoint.rest.model.StudentRetakeExam;
@@ -13,6 +14,9 @@ import school.hei.haapi.service.CourseService;
 import school.hei.haapi.service.RetakeExamService;
 import school.hei.haapi.service.RetakeExamSessionService;
 import school.hei.haapi.service.UserService;
+
+import static school.hei.haapi.endpoint.rest.model.RetakeExamStatus.REGISTERED;
+import static school.hei.haapi.endpoint.rest.model.RetakeExamStatus.TO_CANCEL;
 
 @Component
 @AllArgsConstructor
@@ -41,11 +45,14 @@ public class RetakeExamMapper {
   }
 
   public school.hei.haapi.model.RetakeExam toDomainCrupdate(
-      String retakeExamId, RetakeExamStatus status) {
-    return school.hei.haapi.model.RetakeExam.builder()
-        .id(retakeExamId)
-        .status(school.hei.haapi.model.RetakeExamStatus.valueOf(status.name()))
-        .build();
+          String retakeExamId, Reason reason, RetakeExamStatus status) {
+      var existingRetakeExam = retakeExamService.getById(retakeExamId);
+      existingRetakeExam.setStatus(school.hei.haapi.model.RetakeExamStatus.valueOf(status.name()));
+    switch(status) {
+        case TO_CANCEL -> existingRetakeExam.setCancelReason(reason.getReason());
+        case REGISTERED -> existingRetakeExam.setRejectionReason(reason.getReason());
+    }
+      return existingRetakeExam;
   }
 
   public RetakeExam toRest(school.hei.haapi.model.RetakeExam retakeExam) {
@@ -55,7 +62,9 @@ public class RetakeExamMapper {
             .id(retakeExam.getId())
             .course(courseMapper.toRest(retakeExam.getCourse()))
             .session(retakeExamSessionMapper.toRest(retakeExam.getSession()))
-            .registrationDate(retakeExam.getRegistrationDate());
+            .registrationDate(retakeExam.getRegistrationDate())
+                .cancelReason(retakeExam.getCancelReason())
+              .rejectionReason(retakeExam.getRejectionReason());
     if (domainStatus != null) {
       retakeExamRest.status(RetakeExamStatus.valueOf(domainStatus.name()));
     }
@@ -88,6 +97,8 @@ public class RetakeExamMapper {
             .studentIdentifier(userMapper.toIdentifier(retakeExam.getStudent()))
             .course(courseMapper.toRest(retakeExam.getCourse()))
             .session(retakeExamSessionMapper.toRest(retakeExam.getSession()))
+                .cancelReason(retakeExam.getCancelReason())
+                .rejectionReason(retakeExam.getRejectionReason())
             .registrationDate(retakeExam.getRegistrationDate());
     if (domainStatus != null) {
       studentRetakeExam.status(RetakeExamStatus.valueOf(domainStatus.name()));
