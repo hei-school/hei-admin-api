@@ -1714,6 +1714,29 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
+  /retake_exams/cancel:
+    patch:
+      tags:
+        - RetakeExam
+      summary: Cancel a retake exam requests
+      operationId: cancelRetakeExams
+      responses:
+        '200':
+          description: Retake exams successfully canceled
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StudentRetakeExam'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
   /retake_exams/{retake_exam_id}/reject:
     patch:
       tags:
@@ -1739,6 +1762,39 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/StudentRetakeExam'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+  /retake_exams/reject:
+    patch:
+      tags:
+        - RetakeExam
+      summary: Reject multiple a retake exam request
+      operationId: rejectToCancelRetakeExamRequests
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: "#/components/schemas/RejectRetakeExamRequest"
+      responses:
+        '200':
+          description: Retake exam to cancel requests successfully rejected
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/StudentRetakeExam'
         '400':
           $ref: '#/components/responses/400'
         '403':
@@ -7709,6 +7765,13 @@ components:
           type: string
         status:
           $ref: "#/components/schemas/RetakeExamStatus"
+    RejectRetakeExamRequest:
+      type: object
+      properties:
+        retake_exam_id:
+          type: string
+        reason:
+          type: string
     Reason:
       type: object
       properties:
