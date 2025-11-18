@@ -7691,9 +7691,9 @@ components:
           type: string
           format: date-time
         cancel_reason:
-          $ref: "#/components/schemas/Reason"
+          type: string
         rejection_reason:
-          $ref: "#/components/schemas/Reason"
+          type: string
         status:
           $ref: "#/components/schemas/RetakeExamStatus"
     CrupdateRetakeExam:
@@ -7712,11 +7712,11 @@ components:
     Reason:
       type: object
       properties:
-        Reason:
+        reason:
           type: string
           description: Reason provided by the student or manager for canceling or not cancelling the retake request
       required:
-        - Reason
+        - reason
     StudentRetakeExam:
       type: object
       allOf:
