@@ -20,6 +20,7 @@ import static school.hei.haapi.endpoint.rest.model.Sex.M;
 import static school.hei.haapi.endpoint.rest.model.SpecializationField.COMMON_CORE;
 import static school.hei.haapi.endpoint.rest.model.SpecializationField.EL;
 import static school.hei.haapi.endpoint.rest.model.SpecializationField.TN;
+import static school.hei.haapi.endpoint.rest.model.StudentLevel.M2;
 import static school.hei.haapi.endpoint.rest.model.WorkStudyStatus.NOT_WORKING;
 import static school.hei.haapi.endpoint.rest.model.WorkStudyStatus.WORKING;
 import static school.hei.haapi.integration.GroupIT.updatedGroup3;
@@ -1142,6 +1143,17 @@ public class StudentIT extends FacadeITMockedThirdParties {
         api.getStudentsByGroupId(GROUP1_ID, 1, 10, "ryan");
     assertEquals(1, actualGroupStudentsByFirstName.size());
     assertEquals(student1(), actualGroupStudentsByFirstName.getFirst());
+  }
+
+  @Test
+  void get_actual_student_level_ok() throws ApiException {
+    ApiClient studentClient = anApiClient(STUDENT1_TOKEN);
+    UsersApi api = new UsersApi(studentClient);
+
+    var level = api.getStudentLevel(STUDENT1_ID);
+
+    assertNotNull(level);
+    assertEquals(M2, level);
   }
 
   private CrupdateStudent toCrupdateStudent(Student student) {
