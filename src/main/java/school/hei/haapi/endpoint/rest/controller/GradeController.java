@@ -16,8 +16,8 @@ import school.hei.haapi.endpoint.rest.model.CreateGrade;
 import school.hei.haapi.endpoint.rest.model.ExamGradeStats;
 import school.hei.haapi.endpoint.rest.model.Grade;
 import school.hei.haapi.endpoint.rest.model.ResultSummary;
+import school.hei.haapi.endpoint.rest.model.StudentExamGradeImportValidationResult;
 import school.hei.haapi.endpoint.rest.model.StudentGrade;
-import school.hei.haapi.endpoint.rest.model.StudentImportValidationResult;
 import school.hei.haapi.endpoint.rest.model.StudentLevel;
 import school.hei.haapi.endpoint.rest.model.UpdateGrade;
 import school.hei.haapi.endpoint.rest.model.YearlyResult;
@@ -32,8 +32,6 @@ import school.hei.haapi.service.GradeResultService;
 import school.hei.haapi.service.GradeService;
 import school.hei.haapi.service.MultipartFileConverter;
 import school.hei.haapi.service.UserService;
-
-import static org.springframework.http.MediaType.MULTIPART_FORM_DATA_VALUE;
 
 @RestController
 @AllArgsConstructor
@@ -98,10 +96,12 @@ public class GradeController {
 
   @PostMapping(value = "/exams/{exam_id}/grades/import")
   public StudentExamGradeImportValidationResult importStudentsExamGrade(
-          @RequestParam("due_datetime") Instant dueDatetime,
-          @RequestPart("file_to_upload") MultipartFile fileToUpload) {
-      return gradeService.initStudentExamGradeImportFromXlsx(fileConverter.apply(fileToUpload), dueDatetime);
+      @RequestParam("due_datetime") Instant dueDatetime,
+      @RequestPart("file_to_upload") MultipartFile fileToUpload) {
+    return gradeService.initStudentExamGradeImportFromXlsx(
+        fileConverter.apply(fileToUpload), dueDatetime);
   }
+
   @PostMapping(value = "/exams/{exam_id}/grades/update")
   public List<StudentGrade> correctParticipantsGradeForExam(
       @PathVariable("exam_id") String examId, @RequestBody List<UpdateGrade> grades) {

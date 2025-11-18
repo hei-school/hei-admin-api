@@ -1,7 +1,8 @@
 package school.hei.haapi.service;
 
-import jakarta.transaction.Transactional;
+import static org.apache.poi.ss.usermodel.Row.MissingCellPolicy.CREATE_NULL_AS_BLANK;
 
+import jakarta.transaction.Transactional;
 import java.io.File;
 import java.io.IOException;
 import java.time.Instant;
@@ -10,14 +11,13 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
-
 import lombok.AllArgsConstructor;
-import org.apache.poi.ss.usermodel.Row;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import school.hei.haapi.endpoint.event.EventProducer;
+import school.hei.haapi.endpoint.event.model.GradeImportEvent;
 import school.hei.haapi.endpoint.rest.model.ExamGradeStats;
-import school.hei.haapi.endpoint.rest.model.StudentExamGrade;
-import school.hei.haapi.endpoint.rest.model.StudentImportValidationResult;
+import school.hei.haapi.endpoint.rest.model.StudentExamGradeImportValidationResult;
 import school.hei.haapi.file.bucket.BucketComponent;
 import school.hei.haapi.model.Grade;
 import school.hei.haapi.model.Group;
@@ -32,8 +32,6 @@ import school.hei.haapi.repository.GradeRepository;
 import school.hei.haapi.repository.dao.GradeDao;
 import school.hei.haapi.service.utils.excel.ExcelParser;
 
-import static org.apache.poi.ss.usermodel.Row.MissingCellPolicy.CREATE_NULL_AS_BLANK;
-
 @Service
 @AllArgsConstructor
 public class GradeService {
@@ -43,8 +41,9 @@ public class GradeService {
   private final CourseAssignmentRepository courseAssignmentRepository;
   private final IsNewGradeChecker isNewGradeChecker;
   private final BucketComponent bucketComponent;
+  private final EventProducer eventProducer;
 
-    private static final String STUDENT_XLSX_IMPORT_GRADE_BUCKET_KEY = "/STUDENT_EXAM_GRADE_XLSX_IMPORT/";
+  private static final String GRADE_XLSX_IMPORT_BUCKET_KEY = "/STUDENT_EXAM_GRADE_XLSX_IMPORT/";
 
   public List<Grade> getGradesByStudentId(String studentId) {
     var student = userService.getById(studentId);
@@ -145,44 +144,40 @@ public class GradeService {
     }
     return gradeRepository.getGradesByStudentIdAndCourseId(studentId, courseId);
   }
-    public StudentExamGradeImportValidationResult initStudentExamGradeImportFromXlsx(
-            File excelFile, Instant dueDatetime) {
-        var parser = new ExcelParser<>(StudentImportDto.class, StudentImportDto.getCellMap());
-        try {
-            var parseResult = parser.parseFile(excelFile, 0, CREATE_NULL_AS_BLANK);
-            if (parseResult.skippedRows().size() > 1) {
-                var errorMessage =
-                        parseResult.skippedRows().values().stream()
-                                .map(Throwable::getMessage)
-                                .collect(Collectors.joining("\n"));
-                throw new BadRequestException(errorMessage);
-            }
-            var importResults = parseResult.parsedResult();
-            if (importResults.size() > 50) {
-                throw new BadRequestException(
-                        "Le nombre maximum d'importation par excel est de 50 étudiants");
-            }
-            validateDuplicateStudentGradeImport(importResults);
-            bucketComponent.upload(excelFile, STUDENT_XLSX_IMPORT_GRADE_BUCKET_KEY + excelFile.getName());
-            eventProducer.accept(
-                    List.of(
-                            StudentImportEvent.builder()
-                                    .coordinatorEmail(coordinatorEmail)
-                                    .students(importResults)
-                                    .dueDatetime(dueDatetime)
-                                    .build()));
-            return new StudentImportValidationResult().validStudentImportGradeNumber(importResults.size());
-        } catch (IOException e) {
-            throw new RuntimeException("Unable to read file");
-        }
-    }
 
-    private void validateDuplicateStudentGradeImport(List<GradeImportDto> importResults) {
-        Set<String> seenRefs = new HashSet<>();
-        for (GradeImportDto dto : importResults) {
-            if (!seenRefs.add(dto.getRef())) {
-                throw new BadRequestException("Référence dupliqués détecté: " + dto.getRef());
-            }
-        }
+  public StudentExamGradeImportValidationResult initStudentExamGradeImportFromXlsx(
+      File excelFile, Instant dueDatetime) {
+    var parser = new ExcelParser<>(GradeImportDto.class, StudentImportDto.getCellMap());
+    try {
+      var parseResult = parser.parseFile(excelFile, 0, CREATE_NULL_AS_BLANK);
+      if (parseResult.skippedRows().size() > 1) {
+        var errorMessage =
+            parseResult.skippedRows().values().stream()
+                .map(Throwable::getMessage)
+                .collect(Collectors.joining("\n"));
+        throw new BadRequestException(errorMessage);
+      }
+      var importResults = parseResult.parsedResult();
+      if (importResults.size() > 50) {
+        throw new BadRequestException(
+            "Le nombre maximum d'importation par excel est de 50 étudiants");
+      }
+      validateDuplicateStudentGradeImport(importResults);
+      bucketComponent.upload(excelFile, GRADE_XLSX_IMPORT_BUCKET_KEY + excelFile.getName());
+      eventProducer.accept(List.of(GradeImportEvent.builder().grades(importResults).build()));
+      return new StudentExamGradeImportValidationResult()
+          .validStudentExamGradeNumber(importResults.size());
+    } catch (IOException e) {
+      throw new RuntimeException("Unable to read file");
     }
+  }
+
+  private void validateDuplicateStudentGradeImport(List<GradeImportDto> importResults) {
+    Set<String> seenRefs = new HashSet<>();
+    for (GradeImportDto dto : importResults) {
+      if (!seenRefs.add(dto.getRef())) {
+        throw new BadRequestException("Référence dupliqués détecté: " + dto.getRef());
+      }
+    }
+  }
 }
