@@ -264,9 +264,9 @@ public class SecurityConf {
                     antMatcher(PUT, "/retake_exam_sessions"),
                     antMatcher(GET, "/retake_exam_sessions/*"),
                     antMatcher(GET, "/retake_exams"),
-                    antMatcher(PATCH, "/retake_exams/*/to_cancel"),
-                    antMatcher(PATCH, "/retake_exams/*/cancel"),
-                    antMatcher(PATCH, "/retake_exams/*/reject"),
+                    antMatcher(PATCH, "/retake_exams/to_cancel"),
+                    antMatcher(PATCH, "/retake_exams/cancel"),
+                    antMatcher(PATCH, "/retake_exams/reject"),
                     antMatcher(PUT, "/retake_exam_sessions/*/retake_exams"),
                     antMatcher(GET, "/students/*/sessions/*/retake_exams"),
                     antMatcher(GET, "/retake_exam_sessions/*/retake_exam_courses"),
@@ -784,12 +784,12 @@ public class SecurityConf {
                     .requestMatchers(GET, "/retake_exams")
                     .hasAnyRole(
                         TEACHER.getRole(), MANAGER.getRole(), ADMIN.getRole(), STUDENT.getRole())
-                    .requestMatchers(PATCH, "/retake_exams/*/to_cancel")
+                    .requestMatchers(PATCH, "/retake_exams/to_cancel")
                     .hasAnyRole(
                         TEACHER.getRole(), MANAGER.getRole(), ADMIN.getRole(), STUDENT.getRole())
-                    .requestMatchers(PATCH, "/retake_exams/*/cancel")
+                    .requestMatchers(PATCH, "/retake_exams/cancel")
                     .hasAnyRole(TEACHER.getRole(), MANAGER.getRole(), ADMIN.getRole())
-                    .requestMatchers(PATCH, "/retake_exams/*/reject")
+                    .requestMatchers(PATCH, "/retake_exams/reject")
                     .hasAnyRole(TEACHER.getRole(), MANAGER.getRole(), ADMIN.getRole())
                     .requestMatchers(PUT, "/retake_exam_sessions/*/retake_exams")
                     .hasAnyRole(

@@ -16,10 +16,11 @@ import org.springframework.web.bind.annotation.RestController;
 import school.hei.haapi.endpoint.rest.mapper.CourseMapper;
 import school.hei.haapi.endpoint.rest.mapper.RetakeExamMapper;
 import school.hei.haapi.endpoint.rest.mapper.UserMapper;
+import school.hei.haapi.endpoint.rest.model.CancelRetakeExamRequest;
 import school.hei.haapi.endpoint.rest.model.Course;
 import school.hei.haapi.endpoint.rest.model.CrupdateRetakeExam;
-import school.hei.haapi.endpoint.rest.model.Reason;
 import school.hei.haapi.endpoint.rest.model.RetakeExam;
+import school.hei.haapi.endpoint.rest.model.RetakeExamToCancel;
 import school.hei.haapi.endpoint.rest.model.Student;
 import school.hei.haapi.endpoint.rest.model.StudentRetakeExam;
 import school.hei.haapi.model.BoundedPageSize;
@@ -89,26 +90,29 @@ public class RetakeExamController {
             sessionId, courseId, studentRef, page, pageSize));
   }
 
-  @PatchMapping("/retake_exams/{retake_exam_id}/to_cancel")
-  public StudentRetakeExam requestToCancelRetakeExam(
-      @PathVariable("retake_exam_id") String retakeExamId, @RequestBody Reason reason) {
-    return retakeExamMapper.toStudentRetakeRest(
-        retakeExamService.cancelOrRejectToCancelRetakeExamRequest(
-            retakeExamMapper.toDomainCrupdate(retakeExamId, reason, TO_CANCEL)));
+  @PatchMapping("/retake_exams/to_cancel")
+  public List<StudentRetakeExam> requestToCancelRetakeExams(
+      @RequestBody List<CancelRetakeExamRequest> cancelRetakeExamRequests) {
+    return retakeExamMapper.toStudentRetakeRestList(
+        retakeExamService.crupdateRetakeExams(
+            retakeExamMapper.toDomainCancelRetakeExamList(
+                cancelRetakeExamRequests, null, TO_CANCEL)));
   }
 
-  @PatchMapping("/retake_exams/{retake_exam_id}/cancel")
-  public StudentRetakeExam cancelRetakeExam(@PathVariable("retake_exam_id") String retakeExamId) {
-    return retakeExamMapper.toStudentRetakeRest(
-        retakeExamService.cancelOrRejectToCancelRetakeExamRequest(
-            retakeExamMapper.toDomainCrupdate(retakeExamId, null, CANCELED)));
+  @PatchMapping("/retake_exams/cancel")
+  public List<StudentRetakeExam> cancelRetakeExams(
+      @RequestBody List<RetakeExamToCancel> cancelRetakeExams) {
+    return retakeExamMapper.toStudentRetakeRestList(
+        retakeExamService.crupdateRetakeExams(
+            retakeExamMapper.toDomainCancelRetakeExamList(null, cancelRetakeExams, CANCELED)));
   }
 
-  @PatchMapping("/retake_exams/{retake_exam_id}/reject")
-  public StudentRetakeExam rejectToCancelRetakeExamRequest(
-      @PathVariable("retake_exam_id") String retakeExamId, @RequestBody Reason reason) {
-    return retakeExamMapper.toStudentRetakeRest(
-        retakeExamService.cancelOrRejectToCancelRetakeExamRequest(
-            retakeExamMapper.toDomainCrupdate(retakeExamId, reason, REGISTERED)));
+  @PatchMapping("/retake_exams/reject")
+  public List<StudentRetakeExam> rejectToCancelRetakeExamRequests(
+      @RequestBody List<CancelRetakeExamRequest> rejectRetakeExamRequests) {
+    return retakeExamMapper.toStudentRetakeRestList(
+        retakeExamService.crupdateRetakeExams(
+            retakeExamMapper.toDomainCancelRetakeExamList(
+                rejectRetakeExamRequests, null, REGISTERED)));
   }
 }

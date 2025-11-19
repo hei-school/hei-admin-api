@@ -18,8 +18,11 @@ import static school.hei.haapi.integration.conf.TestUtils.course1;
 import static school.hei.haapi.integration.conf.TestUtils.setUpCasdoor;
 import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
 import static school.hei.haapi.integration.conf.TestUtils.setUpS3Service;
-import static school.hei.haapi.integration.test_data.RetakeExamCancelReason.rejectionReason;
-import static school.hei.haapi.integration.test_data.RetakeExamCancelReason.toCancelReason;
+import static school.hei.haapi.integration.test_data.RequestRetakeExam.cancelRetakeExamRequest1;
+import static school.hei.haapi.integration.test_data.RequestRetakeExam.cancelRetakeExamRequest2;
+import static school.hei.haapi.integration.test_data.RequestRetakeExam.rejectRetakeExamRequest1;
+import static school.hei.haapi.integration.test_data.RequestRetakeExam.rejectRetakeExamRequest2;
+import static school.hei.haapi.integration.test_data.RequestRetakeExam.retakeExamToCancel;
 
 import java.util.List;
 import java.util.Objects;
@@ -163,7 +166,7 @@ public class RetakeExamIT extends FacadeITMockedThirdParties {
             "session2_id", "course1_id", null, 1, 15);
 
     assertNotNull(students);
-    assertEquals(1, students.size());
+    assertEquals(2, students.size());
     assertEquals("student1_id", students.getFirst().getId());
   }
 
@@ -234,11 +237,16 @@ public class RetakeExamIT extends FacadeITMockedThirdParties {
     ApiClient apiClient = anApiClient(STUDENT1_TOKEN);
     RetakeExamApi api = new RetakeExamApi(apiClient);
 
-    var retakeExam = api.requestToCancelRetakeExam("retake_exam3_id", toCancelReason());
+    var retakeExams =
+        api.requestToCancelRetakeExams(
+            List.of(cancelRetakeExamRequest1(), cancelRetakeExamRequest2()));
 
-    assertNotNull(retakeExam);
-    assertEquals(toCancelReason().getReason(), retakeExam.getCancelReason());
-    assertEquals(TO_CANCEL, retakeExam.getStatus());
+    assertNotNull(retakeExams);
+    assertEquals(2, retakeExams.size());
+    assertEquals(TO_CANCEL, retakeExams.getFirst().getStatus());
+
+    assertNotNull(retakeExams);
+    assertEquals(TO_CANCEL, retakeExams.getLast().getStatus());
   }
 
   @Test
@@ -246,10 +254,10 @@ public class RetakeExamIT extends FacadeITMockedThirdParties {
     ApiClient apiClient = anApiClient(ADMIN1_TOKEN);
     RetakeExamApi api = new RetakeExamApi(apiClient);
 
-    var retakeExam = api.cancelRetakeExam("retake_exam3_id");
+    var retakeExam = api.cancelRetakeExams(List.of(retakeExamToCancel()));
 
     assertNotNull(retakeExam);
-    assertEquals(CANCELED, retakeExam.getStatus());
+    assertEquals(CANCELED, retakeExam.getFirst().getStatus());
   }
 
   @Test
@@ -257,10 +265,15 @@ public class RetakeExamIT extends FacadeITMockedThirdParties {
     ApiClient apiClient = anApiClient(ADMIN1_TOKEN);
     RetakeExamApi api = new RetakeExamApi(apiClient);
 
-    var retakeExam = api.rejectToCancelRetakeExamRequest("retake_exam2_id", rejectionReason());
+    var retakeExams =
+        api.rejectToCancelRetakeExamRequests(
+            List.of(rejectRetakeExamRequest1(), rejectRetakeExamRequest2()));
 
-    assertNotNull(retakeExam);
-    assertEquals(rejectionReason().getReason(), retakeExam.getRejectionReason());
-    assertEquals(REGISTERED, retakeExam.getStatus());
+    assertNotNull(retakeExams);
+    assertEquals(2, retakeExams.size());
+    assertEquals(REGISTERED, retakeExams.getFirst().getStatus());
+
+    assertNotNull(retakeExams);
+    assertEquals(REGISTERED, retakeExams.getLast().getStatus());
   }
 }

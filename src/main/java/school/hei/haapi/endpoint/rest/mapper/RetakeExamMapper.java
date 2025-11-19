@@ -1,15 +1,13 @@
 package school.hei.haapi.endpoint.rest.mapper;
 
-import static school.hei.haapi.endpoint.rest.model.RetakeExamStatus.REGISTERED;
-import static school.hei.haapi.endpoint.rest.model.RetakeExamStatus.TO_CANCEL;
-
 import java.util.List;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
+import school.hei.haapi.endpoint.rest.model.CancelRetakeExamRequest;
 import school.hei.haapi.endpoint.rest.model.CrupdateRetakeExam;
-import school.hei.haapi.endpoint.rest.model.Reason;
 import school.hei.haapi.endpoint.rest.model.RetakeExam;
 import school.hei.haapi.endpoint.rest.model.RetakeExamStatus;
+import school.hei.haapi.endpoint.rest.model.RetakeExamToCancel;
 import school.hei.haapi.endpoint.rest.model.StudentRetakeExam;
 import school.hei.haapi.model.Course;
 import school.hei.haapi.model.RetakeExamSession;
@@ -45,14 +43,35 @@ public class RetakeExamMapper {
   }
 
   public school.hei.haapi.model.RetakeExam toDomainCrupdate(
-      String retakeExamId, Reason reason, RetakeExamStatus status) {
-    var existingRetakeExam = retakeExamService.getById(retakeExamId);
+      CancelRetakeExamRequest cancelRetakeExamRequest, RetakeExamStatus status) {
+    var existingRetakeExam = retakeExamService.getById(cancelRetakeExamRequest.getRetakeExamId());
     existingRetakeExam.setStatus(school.hei.haapi.model.RetakeExamStatus.valueOf(status.name()));
     switch (status) {
-      case TO_CANCEL -> existingRetakeExam.setCancelReason(reason.getReason());
-      case REGISTERED -> existingRetakeExam.setRejectionReason(reason.getReason());
+      case TO_CANCEL -> existingRetakeExam.setCancelReason(cancelRetakeExamRequest.getReason());
+      case REGISTERED -> existingRetakeExam.setRejectionReason(cancelRetakeExamRequest.getReason());
     }
     return existingRetakeExam;
+  }
+
+  public school.hei.haapi.model.RetakeExam toDomainCrupdate(
+      RetakeExamToCancel retakeExamToCancel, RetakeExamStatus status) {
+    var existingRetakeExam = retakeExamService.getById(retakeExamToCancel.getRetakeExamId());
+    existingRetakeExam.setStatus(school.hei.haapi.model.RetakeExamStatus.valueOf(status.name()));
+    return existingRetakeExam;
+  }
+
+  public List<school.hei.haapi.model.RetakeExam> toDomainCancelRetakeExamList(
+      List<CancelRetakeExamRequest> cancelRetakeExamRequests,
+      List<RetakeExamToCancel> retakeExamToCancels,
+      RetakeExamStatus status) {
+    if (cancelRetakeExamRequests != null) {
+      return cancelRetakeExamRequests.stream()
+          .map(cancelRetakeExamRequest -> this.toDomainCrupdate(cancelRetakeExamRequest, status))
+          .toList();
+    }
+    return retakeExamToCancels.stream()
+        .map(retakeExamToCancel -> this.toDomainCrupdate(retakeExamToCancel, status))
+        .toList();
   }
 
   public RetakeExam toRest(school.hei.haapi.model.RetakeExam retakeExam) {

@@ -155,8 +155,4 @@ public class RetakeExamService {
             pageable);
     return retakeExams.stream().map(RetakeExam::getStudent).toList();
   }
-
-  public RetakeExam cancelOrRejectToCancelRetakeExamRequest(RetakeExam retakeExam) {
-    return retakeExamRepository.save(retakeExam);
-  }
 }
