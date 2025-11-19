@@ -25,6 +25,7 @@ import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.model.RetakeExam;
 import school.hei.haapi.model.RetakeExamSession;
 import school.hei.haapi.model.RetakeExamStatus;
+import school.hei.haapi.model.exception.NotFoundException;
 import school.hei.haapi.model.pagination.PaginationFromPageAndPageSize;
 import school.hei.haapi.repository.RetakeExamRepository;
 import school.hei.haapi.repository.dao.RetakeExamDao;
@@ -41,6 +42,12 @@ public class RetakeExamService {
 
   public List<RetakeExam> crupdateRetakeExams(List<RetakeExam> crupdateRetakeExams) {
     return retakeExamRepository.saveAll(crupdateRetakeExams);
+  }
+
+  public RetakeExam getById(String id) {
+    return retakeExamRepository
+        .findById(id)
+        .orElseThrow(() -> new NotFoundException("Retake exam not found"));
   }
 
   public List<RetakeExam> getStudentRetakeExams(
