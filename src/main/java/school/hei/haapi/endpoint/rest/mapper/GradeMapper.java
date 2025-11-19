@@ -1,5 +1,8 @@
 package school.hei.haapi.endpoint.rest.mapper;
 
+import static java.time.Instant.now;
+
+import java.util.List;
 import java.util.Optional;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -11,6 +14,7 @@ import school.hei.haapi.endpoint.rest.validator.GradeValidator;
 import school.hei.haapi.endpoint.rest.validator.UpdateGradeValidator;
 import school.hei.haapi.model.Exam;
 import school.hei.haapi.model.User;
+import school.hei.haapi.model.dto.GradeImportDto;
 import school.hei.haapi.repository.GradeRepository;
 import school.hei.haapi.service.ExamService;
 import school.hei.haapi.service.UserService;
@@ -32,6 +36,24 @@ public class GradeMapper {
         .score(grade.getScore())
         .creationDatetime(grade.getCreatedAt())
         .build();
+  }
+
+  public school.hei.haapi.model.Grade toDomain(GradeImportDto grade, String examId) {
+    var exam = examService.getExamById(examId);
+    var student = userService.findByRef(grade.getRef());
+    return school.hei.haapi.model.Grade.builder()
+        .score(grade.getScore())
+        .exam(exam)
+        .creationDatetime(now())
+        .student(student)
+        .build();
+  }
+
+  public List<school.hei.haapi.model.Grade> toDomainList(
+      List<GradeImportDto> gradeImportDtos, String examId) {
+    return gradeImportDtos.stream()
+        .map(gradeImportDto -> this.toDomain(gradeImportDto, examId))
+        .toList();
   }
 
   public Grade toRest(school.hei.haapi.model.Grade grade) {

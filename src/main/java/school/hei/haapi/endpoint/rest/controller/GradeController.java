@@ -1,6 +1,5 @@
 package school.hei.haapi.endpoint.rest.controller;
 
-import java.time.Instant;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -96,9 +95,10 @@ public class GradeController {
 
   @PostMapping(value = "/exams/{exam_id}/grades/import")
   public StudentExamGradeImportValidationResult importStudentsExamGrade(
+      @PathVariable(name = "exam_id") String examId,
       @RequestPart("file_to_upload") MultipartFile fileToUpload) {
     return gradeService.initStudentExamGradeImportFromXlsx(
-        fileConverter.apply(fileToUpload));
+        fileConverter.apply(fileToUpload), examId);
   }
 
   @PostMapping(value = "/exams/{exam_id}/grades/update")

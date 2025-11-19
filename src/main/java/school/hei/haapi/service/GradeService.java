@@ -5,7 +5,6 @@ import static org.apache.poi.ss.usermodel.Row.MissingCellPolicy.CREATE_NULL_AS_B
 import jakarta.transaction.Transactional;
 import java.io.File;
 import java.io.IOException;
-import java.time.Instant;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -23,7 +22,6 @@ import school.hei.haapi.file.bucket.BucketComponent;
 import school.hei.haapi.model.Grade;
 import school.hei.haapi.model.Group;
 import school.hei.haapi.model.dto.GradeImportDto;
-import school.hei.haapi.model.dto.StudentImportDto;
 import school.hei.haapi.model.exception.BadRequestException;
 import school.hei.haapi.model.exception.NotFoundException;
 import school.hei.haapi.model.notEntity.UpdateGrade;
@@ -147,8 +145,8 @@ public class GradeService {
   }
 
   public StudentExamGradeImportValidationResult initStudentExamGradeImportFromXlsx(
-      File excelFile) {
-    var parser = new ExcelParser<>(GradeImportDto.class, StudentImportDto.getCellMap());
+      File excelFile, String examId) {
+    var parser = new ExcelParser<>(GradeImportDto.class, GradeImportDto.getCellMap());
     var coordinatorEmail = AuthProvider.getPrincipal().getUser().getEmail();
     try {
       var parseResult = parser.parseFile(excelFile, 0, CREATE_NULL_AS_BLANK);
@@ -161,14 +159,17 @@ public class GradeService {
       }
       var importResults = parseResult.parsedResult();
       if (importResults.size() > 50) {
-        throw new BadRequestException(
-            "Le nombre maximum d'importation par excel est de 50 étudiants");
+        throw new BadRequestException("Le nombre maximum d'importation par excel est de 50 notes");
       }
       validateDuplicateStudentGradeImport(importResults);
       bucketComponent.upload(excelFile, GRADE_XLSX_IMPORT_BUCKET_KEY + excelFile.getName());
-      eventProducer.accept(List.of(GradeImportEvent.builder().grades(importResults)
-                      .coordinatorEmail(coordinatorEmail)
-              .build()));
+      eventProducer.accept(
+          List.of(
+              GradeImportEvent.builder()
+                  .grades(importResults)
+                  .coordinatorEmail(coordinatorEmail)
+                  .examId(examId)
+                  .build()));
       return new StudentExamGradeImportValidationResult()
           .validStudentExamGradeNumber(importResults.size());
     } catch (IOException e) {

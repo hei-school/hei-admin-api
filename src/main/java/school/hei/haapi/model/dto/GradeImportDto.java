@@ -29,11 +29,8 @@ public class GradeImportDto {
   private static Double getScoreFromCell(Cell cell) {
     try {
       verifyEmptyCell(cell);
-      var value = cell.getStringCellValue();
-      if (value != null) {
-        return Double.parseDouble(value);
-      }
-      return null;
+      var value = cell.getNumericCellValue();
+      return Double.parseDouble(String.valueOf(value));
     } catch (NumberFormatException e) {
       throw new IllegalStateException(
           "ligne %d ignorée en raison d'une valeur incovertible en décimal"

@@ -19,8 +19,10 @@ public class GradeImportEvent extends PojaEvent {
   @JsonProperty("grades")
   private List<GradeImportDto> grades;
 
-    @JsonProperty("coordinator_email")
-    private String coordinatorEmail;
+  @JsonProperty private String examId;
+
+  @JsonProperty("coordinator_email")
+  private String coordinatorEmail;
 
   @Override
   public Duration maxConsumerDuration() {
