@@ -61,14 +61,14 @@ public class RetakeExamMapper {
   }
 
   public List<school.hei.haapi.model.RetakeExam> toDomainCancelRetakeExamList(
-      List<CancelRetakeExamRequest> cancelRetakeExamRequests,
-      List<RetakeExamToCancel> retakeExamToCancels,
-      RetakeExamStatus status) {
-    if (cancelRetakeExamRequests != null) {
-      return cancelRetakeExamRequests.stream()
-          .map(cancelRetakeExamRequest -> this.toDomainCrupdate(cancelRetakeExamRequest, status))
-          .toList();
-    }
+      List<CancelRetakeExamRequest> cancelRetakeExamRequests, RetakeExamStatus status) {
+    return cancelRetakeExamRequests.stream()
+        .map(cancelRetakeExamRequest -> this.toDomainCrupdate(cancelRetakeExamRequest, status))
+        .toList();
+  }
+
+  public List<school.hei.haapi.model.RetakeExam> toDomainToCancelRetakeExamList(
+      List<RetakeExamToCancel> retakeExamToCancels, RetakeExamStatus status) {
     return retakeExamToCancels.stream()
         .map(retakeExamToCancel -> this.toDomainCrupdate(retakeExamToCancel, status))
         .toList();

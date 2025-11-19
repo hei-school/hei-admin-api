@@ -95,8 +95,7 @@ public class RetakeExamController {
       @RequestBody List<CancelRetakeExamRequest> cancelRetakeExamRequests) {
     return retakeExamMapper.toStudentRetakeRestList(
         retakeExamService.crupdateRetakeExams(
-            retakeExamMapper.toDomainCancelRetakeExamList(
-                cancelRetakeExamRequests, null, TO_CANCEL)));
+            retakeExamMapper.toDomainCancelRetakeExamList(cancelRetakeExamRequests, TO_CANCEL)));
   }
 
   @PatchMapping("/retake_exams/cancel")
@@ -104,7 +103,7 @@ public class RetakeExamController {
       @RequestBody List<RetakeExamToCancel> cancelRetakeExams) {
     return retakeExamMapper.toStudentRetakeRestList(
         retakeExamService.crupdateRetakeExams(
-            retakeExamMapper.toDomainCancelRetakeExamList(null, cancelRetakeExams, CANCELED)));
+            retakeExamMapper.toDomainToCancelRetakeExamList(cancelRetakeExams, CANCELED)));
   }
 
   @PatchMapping("/retake_exams/reject")
@@ -112,7 +111,6 @@ public class RetakeExamController {
       @RequestBody List<CancelRetakeExamRequest> rejectRetakeExamRequests) {
     return retakeExamMapper.toStudentRetakeRestList(
         retakeExamService.crupdateRetakeExams(
-            retakeExamMapper.toDomainCancelRetakeExamList(
-                rejectRetakeExamRequests, null, REGISTERED)));
+            retakeExamMapper.toDomainCancelRetakeExamList(rejectRetakeExamRequests, REGISTERED)));
   }
 }

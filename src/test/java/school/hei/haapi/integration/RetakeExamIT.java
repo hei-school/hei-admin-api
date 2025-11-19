@@ -32,7 +32,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.transaction.annotation.Transactional;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import school.hei.haapi.endpoint.rest.api.RetakeExamApi;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
@@ -100,7 +99,6 @@ public class RetakeExamIT extends FacadeITMockedThirdParties {
     assertEquals(retakeExam.getStudentId(), retakeExamCreated.getStudentIdentifier().getId());
   }
 
-  @Transactional
   @Test
   void admin_read_all_retake_exams_ok() throws ApiException {
     ApiClient apiClient = anApiClient(ADMIN1_TOKEN);
@@ -142,7 +140,6 @@ public class RetakeExamIT extends FacadeITMockedThirdParties {
     assertEquals("PROG3", courses.get(2).getCode());
   }
 
-  @Transactional
   @Test
   void filter_retake_exam_course_by_course_code_ok() throws ApiException {
     ApiClient apiClient = anApiClient(ADMIN1_TOKEN);

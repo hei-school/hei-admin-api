@@ -788,9 +788,9 @@ public class SecurityConf {
                     .hasAnyRole(
                         TEACHER.getRole(), MANAGER.getRole(), ADMIN.getRole(), STUDENT.getRole())
                     .requestMatchers(PATCH, "/retake_exams/cancel")
-                    .hasAnyRole(TEACHER.getRole(), MANAGER.getRole(), ADMIN.getRole())
+                    .hasAnyRole(MANAGER.getRole(), ADMIN.getRole())
                     .requestMatchers(PATCH, "/retake_exams/reject")
-                    .hasAnyRole(TEACHER.getRole(), MANAGER.getRole(), ADMIN.getRole())
+                    .hasAnyRole(MANAGER.getRole(), ADMIN.getRole())
                     .requestMatchers(PUT, "/retake_exam_sessions/*/retake_exams")
                     .hasAnyRole(
                         MANAGER.getRole(), TEACHER.getRole(), ADMIN.getRole(), STUDENT.getRole())
