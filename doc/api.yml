@@ -1650,31 +1650,29 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
-  /retake_exams/{retake_exam_id}/to_cancel:
+  /retake_exams/to_cancel:
     patch:
       tags:
         - RetakeExam
-      summary: Request to cancel a retake exam
-      operationId: requestToCancelRetakeExam
-      parameters:
-        - name: retake_exam_id
-          in: path
-          required: true
-          schema:
-            type: string
+      summary: Request to cancel multiple retake exams
+      operationId: requestToCancelRetakeExams
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/Reason"
+              type: array
+              items:
+                $ref: "#/components/schemas/CancelRetakeExamRequest"
       responses:
         '200':
-          description: Request to cancel retake exam
+          description: Request to cancel retake exams
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/StudentRetakeExam'
+                type: array
+                items:
+                  $ref: '#/components/schemas/StudentRetakeExam'
         '400':
           $ref: '#/components/responses/400'
         '403':
@@ -1685,25 +1683,29 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
-  /retake_exams/{retake_exam_id}/cancel:
+  /retake_exams/cancel:
     patch:
       tags:
         - RetakeExam
-      summary: Cancel a retake exam request
-      operationId: cancelRetakeExam
-      parameters:
-        - name: retake_exam_id
-          in: path
-          required: true
-          schema:
-            type: string
+      summary: Cancel multiple retake exams
+      operationId: cancelRetakeExams
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: "#/components/schemas/RetakeExamToCancel"
       responses:
         '200':
-          description: Retake exam successfully canceled
+          description: Retake exams successfully canceled
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/StudentRetakeExam'
+                type: array
+                items:
+                  $ref: '#/components/schemas/StudentRetakeExam'
         '400':
           $ref: '#/components/responses/400'
         '403':
@@ -1714,31 +1716,29 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
-  /retake_exams/{retake_exam_id}/reject:
+  /retake_exams/reject:
     patch:
       tags:
         - RetakeExam
-      summary: Reject a retake exam request
-      operationId: rejectToCancelRetakeExamRequest
-      parameters:
-        - name: retake_exam_id
-          in: path
-          required: true
-          schema:
-            type: string
+      summary: Reject multiple retake exam cancellation requests
+      operationId: rejectToCancelRetakeExamRequests
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/Reason"
+              type: array
+              items:
+                $ref: "#/components/schemas/CancelRetakeExamRequest"
       responses:
         '200':
           description: Retake exam successfully rejected
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/StudentRetakeExam'
+                type: array
+                items:
+                  $ref: '#/components/schemas/StudentRetakeExam'
         '400':
           $ref: '#/components/responses/400'
         '403':
@@ -7709,14 +7709,24 @@ components:
           type: string
         status:
           $ref: "#/components/schemas/RetakeExamStatus"
-    Reason:
+    CancelRetakeExamRequest:
       type: object
       properties:
+        retake_exam_id:
+          type: string
         reason:
           type: string
           description: Reason provided by the student or manager for canceling or not cancelling the retake request
       required:
         - reason
+        - retake_exam_id
+    RetakeExamToCancel:
+      type: object
+      properties:
+        retake_exam_id:
+          type: string
+      required:
+        - retake_exam_id
     StudentRetakeExam:
       type: object
       allOf:
