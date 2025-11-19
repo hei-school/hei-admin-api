@@ -1,6 +1,9 @@
 package school.hei.haapi.model.dto;
 
+import static java.sql.JDBCType.NUMERIC;
 import static java.util.Map.entry;
+import static javax.management.openmbean.SimpleType.STRING;
+import static org.apache.poi.ss.usermodel.CellType.BLANK;
 
 import java.util.Map;
 import lombok.AllArgsConstructor;
@@ -8,7 +11,6 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.util.StringUtil;
 import school.hei.haapi.service.utils.excel.CellMap;
 
 @AllArgsConstructor
@@ -29,8 +31,18 @@ public class GradeImportDto {
   private static Double getScoreFromCell(Cell cell) {
     try {
       verifyEmptyCell(cell);
-      var value = cell.getNumericCellValue();
-      return Double.parseDouble(String.valueOf(value));
+      return switch (cell.getCellType()) {
+        case NUMERIC -> cell.getNumericCellValue();
+        case STRING -> Double.parseDouble(cell.getStringCellValue().trim());
+        case FORMULA ->
+            switch (cell.getCachedFormulaResultType()) {
+              case NUMERIC -> cell.getNumericCellValue();
+              case STRING -> Double.parseDouble(cell.getStringCellValue().trim());
+              default -> throw new IllegalStateException("Type non supporté en formule");
+            };
+        default ->
+            throw new IllegalStateException("Type de cellule non supporté: " + cell.getCellType());
+      };
     } catch (NumberFormatException e) {
       throw new IllegalStateException(
           "ligne %d ignorée en raison d'une valeur incovertible en décimal"
@@ -39,7 +51,7 @@ public class GradeImportDto {
   }
 
   private static void verifyEmptyCell(Cell cell) {
-    if (StringUtil.isBlank(cell.getStringCellValue())) {
+    if (cell == null || cell.getCellType() == BLANK) {
       throw new IllegalArgumentException(
           "Ligne %d ignorée en raison d'un champ obligatoire vide".formatted(cell.getRowIndex()));
     }
