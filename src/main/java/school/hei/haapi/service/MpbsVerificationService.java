@@ -23,12 +23,12 @@ import school.hei.haapi.model.dto.MobileTransactionDetailsDto;
 import school.hei.haapi.model.exception.NoRemainingAmountFee;
 import school.hei.haapi.model.mpbs.Mpbs;
 import school.hei.haapi.model.mpbs.MpbsVerification;
+import school.hei.haapi.model.psp.vola.api.VolaPsp;
 import school.hei.haapi.repository.MpbsRepository;
 import school.hei.haapi.repository.MpbsVerificationRepository;
 import school.hei.haapi.service.aws.FileService;
 import school.hei.haapi.service.utils.CollectionUtils;
 import school.hei.haapi.service.utils.excel.ExcelParser;
-import school.hei.haapi.model.psp.vola.api.VolaPsp;
 
 @Service
 @AllArgsConstructor
@@ -116,8 +116,9 @@ public class MpbsVerificationService {
     return verifiedMpbs;
   }
 
-//Vola application
-  public List<MpbsVerification> verifyMobilePaymentAndSaveResultWithVola(List<Mpbs> pendingMpbsList){
+  // Vola application
+  public List<MpbsVerification> verifyMobilePaymentAndSaveResultWithVola(
+      List<Mpbs> pendingMpbsList) {
     List<MpbsVerification> verifiedMpbs = new ArrayList<>();
     List<Mpbs> unverifiedMpbs = new ArrayList<>();
 
@@ -149,7 +150,9 @@ public class MpbsVerificationService {
             e);
       } catch (RuntimeException e) {
         log.error(
-            "Mpbs of ref {} could not be verified with Vola because of error", pendingMbps.getPspId(), e);
+            "Mpbs of ref {} could not be verified with Vola because of error",
+            pendingMbps.getPspId(),
+            e);
         unverifiedMpbs.add(pendingMbps);
       }
     }
@@ -227,7 +230,7 @@ public class MpbsVerificationService {
     verifyMobilePaymentAndSaveResult(pendingMpbs);
   }
 
-  //Vola application
+  // Vola application
   @Transactional
   public void checkMobilePaymentThenSaveVerificationWithVola() {
     List<Mpbs> pendingMpbs = mpbsRepository.findAllByStatus(PENDING);
@@ -235,7 +238,6 @@ public class MpbsVerificationService {
 
     verifyMobilePaymentAndSaveResultWithVola(pendingMpbs);
   }
-
 
   public List<TransactionDetails> fetchThenSaveTransactionDetailsDaily() {
     return mobilePaymentService.fetchTransactionDetails();

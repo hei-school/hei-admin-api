@@ -35,7 +35,8 @@ class VerificationMpbsByXlsxTest {
           mock(),
           mock(),
           mock(),
-          new CollectionUtils());
+          new CollectionUtils(),
+          mock());
 
   private static List<MobileTransactionDetails> excelTransactionDetails() {
     return List.of(
