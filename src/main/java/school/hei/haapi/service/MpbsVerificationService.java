@@ -28,6 +28,7 @@ import school.hei.haapi.repository.MpbsVerificationRepository;
 import school.hei.haapi.service.aws.FileService;
 import school.hei.haapi.service.utils.CollectionUtils;
 import school.hei.haapi.service.utils.excel.ExcelParser;
+import school.hei.haapi.model.psp.vola.api.VolaPsp;
 
 @Service
 @AllArgsConstructor
@@ -42,6 +43,7 @@ public class MpbsVerificationService {
   private final UnverifiedMobilePaymentHandler unverifiedMobilePaymentHandler;
   private final ComputeVerifiedMobilePayment computeVerifiedMobilePayment;
   private final CollectionUtils collectionUtils;
+  private final VolaPsp volaPsp;
 
   public List<MpbsVerification> findAllByStudentIdAndFeeId(String studentId, String feeId) {
     return repository.findAllByStudentIdAndFeeId(studentId, feeId);
@@ -114,6 +116,57 @@ public class MpbsVerificationService {
     return verifiedMpbs;
   }
 
+//Vola application
+  public List<MpbsVerification> verifyMobilePaymentAndSaveResultWithVola(List<Mpbs> pendingMpbsList){
+    List<MpbsVerification> verifiedMpbs = new ArrayList<>();
+    List<Mpbs> unverifiedMpbs = new ArrayList<>();
+
+    for (Mpbs pendingMbps : pendingMpbsList) {
+      try {
+        // Use VolaPsp to get transaction details instead of mobilePaymentService
+        Mpbs verifiedMpbsFromVola = volaPsp.get(pendingMbps);
+
+        if (!SUCCESS.equals(verifiedMpbsFromVola.getStatus())) {
+          log.info(
+              "verification mobile payment details from Vola is not success for the payment {}",
+              pendingMbps.getId());
+          unverifiedMpbs.add(pendingMbps);
+          continue;
+        }
+
+        // Convert to TransactionDetails for compatibility with existing logic
+        TransactionDetails transactionDetails =
+            transactionDetailsMapper.toExternalTransactionDetails(
+                convertMpbsToMobileTransactionDetails(verifiedMpbsFromVola));
+        log.info("mapped transaction details from Vola = {}", transactionDetails);
+
+        verifiedMpbs.add(
+            computeVerifiedMobilePayment.saveTheVerifiedMpbs(pendingMbps, transactionDetails));
+      } catch (NoRemainingAmountFee e) {
+        log.error(
+            "payment %s could not be verified because fee %s has no remaining amount"
+                .formatted(pendingMbps.getId(), pendingMbps.getFee().getId()),
+            e);
+      } catch (RuntimeException e) {
+        log.error(
+            "Mpbs of ref {} could not be verified with Vola because of error", pendingMbps.getPspId(), e);
+        unverifiedMpbs.add(pendingMbps);
+      }
+    }
+
+    unverifiedMobilePaymentHandler.accept(unverifiedMpbs);
+    return verifiedMpbs;
+  }
+
+  private MobileTransactionDetails convertMpbsToMobileTransactionDetails(Mpbs mpbs) {
+    return MobileTransactionDetails.builder()
+        .pspTransactionRef(mpbs.getPspId())
+        .status(mpbs.getStatus())
+        .pspTransactionAmount(mpbs.getAmount())
+        .pspDatetimeTransactionCreation(mpbs.getCreationDatetime())
+        .build();
+  }
+
   @Transactional
   public List<Mpbs> computeFromXls(File file) throws IOException {
     List<String> pspToVerify = generateMobileTransactionDetailsFromXlsFile(file);
@@ -173,6 +226,16 @@ public class MpbsVerificationService {
 
     verifyMobilePaymentAndSaveResult(pendingMpbs);
   }
+
+  //Vola application
+  @Transactional
+  public void checkMobilePaymentThenSaveVerificationWithVola() {
+    List<Mpbs> pendingMpbs = mpbsRepository.findAllByStatus(PENDING);
+    log.info("pending mpbs = {}", pendingMpbs.size());
+
+    verifyMobilePaymentAndSaveResultWithVola(pendingMpbs);
+  }
+
 
   public List<TransactionDetails> fetchThenSaveTransactionDetailsDaily() {
     return mobilePaymentService.fetchTransactionDetails();
