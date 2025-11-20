@@ -1,9 +1,261 @@
-openapi: 3.1.0
-info:
-  title: $Title$
-  description: $Title$
-  version: 1.0.0
-servers:
-  - url: '$https$'
-paths:
-  $END$
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "OpenAPI definition",
+    "version": "v0"
+  },
+  "servers": [
+    {
+      "url": "https://ypmoi24xu4kt5ts77p7te5uhme0uyxnv.lambda-url.eu-west-3.on.aws",
+      "description": "Generated server url"
+    }
+  ],
+  "paths": {
+    "/payment": {
+      "get": {
+        "tags": [
+          "payment-controller"
+        ],
+        "operationId": "getPayment",
+        "parameters": [
+          {
+            "name": "apiKey",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "payerEmail",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "pspType",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "ORANGE_MONEY"
+              ]
+            }
+          },
+          {
+            "name": "pspPaymentId",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/Payment"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "payment-controller"
+        ],
+        "operationId": "createPayment",
+        "parameters": [
+          {
+            "name": "apiKey",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "payerEmail",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "pspType",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "ORANGE_MONEY"
+              ]
+            }
+          },
+          {
+            "name": "pspPaymentId",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/Payment"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/ping": {
+      "get": {
+        "tags": [
+          "ping-controller"
+        ],
+        "operationId": "ping",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/health/email": {
+      "get": {
+        "tags": [
+          "health-email-controller"
+        ],
+        "operationId": "send_emails",
+        "parameters": [
+          {
+            "name": "to",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Application": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "apiKey": {
+            "type": "string"
+          }
+        }
+      },
+      "Payment": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "pspPayment": {
+            "$ref": "#/components/schemas/PspPayment"
+          },
+          "creationInstant": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "lastPspVerificationInstant": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "verificationAttemptNb": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "payer": {
+            "$ref": "#/components/schemas/User"
+          },
+          "application": {
+            "$ref": "#/components/schemas/Application"
+          },
+          "verificationStatus": {
+            "type": "string",
+            "enum": [
+              "VERIFYING",
+              "SUCCEEDED",
+              "FAILED"
+            ]
+          }
+        }
+      },
+      "PspPayment": {
+        "type": "object",
+        "properties": {
+          "pspType": {
+            "type": "string",
+            "enum": [
+              "ORANGE_MONEY"
+            ]
+          },
+          "id": {
+            "type": "string"
+          },
+          "amount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "creationInstant": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "User": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}
+
+  Expliquer
