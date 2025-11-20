@@ -55,7 +55,8 @@ class MpbsVerificationTest {
         mock(),
         unverifiedMobilePaymentHandlerMock,
         computeVerifiedMobilePayment,
-        new CollectionUtils());
+        new CollectionUtils(),
+        mock());
   }
 
   @Test
