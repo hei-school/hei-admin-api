@@ -125,6 +125,11 @@ public class StudentController {
         userService.updateUser(userMapper.toDomain(toUpdate), studentId));
   }
 
+  @GetMapping("/students/{student_id}/level")
+  public StudentLevel getStudentLevel(@PathVariable(name = "student_id") String studentId) {
+    return userService.getStudentLevel(studentId);
+  }
+
   @PostMapping("/students/{id}/group_flows")
   public List<GroupFlow> moveOrDeleteStudentInGroup(
       @PathVariable(name = "id") String id, @RequestBody List<CreateGroupFlow> createGroupFlow) {
