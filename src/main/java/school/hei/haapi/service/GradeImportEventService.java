@@ -10,8 +10,8 @@ import java.util.List;
 import java.util.function.Consumer;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.thymeleaf.context.Context;
 import school.hei.haapi.endpoint.event.model.GradeImportEvent;
 import school.hei.haapi.endpoint.rest.mapper.GradeMapper;
@@ -29,39 +29,15 @@ public class GradeImportEventService implements Consumer<GradeImportEvent> {
   private final Mailer mailer;
 
   @Override
+  @Transactional
   public void accept(GradeImportEvent event) {
     var coordinatorUser = userService.getByEmail(event.getCoordinatorEmail());
     try {
       gradeService.createParticipantGrade(
           gradeMapper.toDomainList(event.getGrades(), event.getExamId()));
-    } catch (DataIntegrityViolationException e) {
-      sendDuplicatedValueEmail(event, coordinatorUser);
-      throw e;
     } catch (Exception e) {
       sendErrorEmail(event, e, coordinatorUser);
       throw e;
-    }
-  }
-
-  private void sendDuplicatedValueEmail(GradeImportEvent event, User coordinatorUser) {
-    try {
-      var coordinatorAddress = new InternetAddress(event.getCoordinatorEmail());
-      var htmlBody =
-          htmlToString("gradeXlsxImportDuplicateValueEmail", getMailContext(coordinatorUser));
-      log.info("Sending grade import failure email...");
-      mailer.accept(
-          new Email(
-              coordinatorAddress,
-              List.of(),
-              List.of(),
-              "Échec de l'import des notes - valeurs en double",
-              htmlBody,
-              List.of()));
-    } catch (AddressException e) {
-      throw new RuntimeException(
-          "Failed to send grade import failure email to invalid email address: "
-              + event.getCoordinatorEmail(),
-          e);
     }
   }
 

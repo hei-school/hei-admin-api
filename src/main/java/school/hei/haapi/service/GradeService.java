@@ -44,6 +44,12 @@ public class GradeService {
 
   private static final String GRADE_XLSX_IMPORT_BUCKET_KEY = "/STUDENT_EXAM_GRADE_XLSX_IMPORT/";
 
+  public Grade getGradeByExamIdAndStudentRef(String examId, String ref) {
+    return gradeRepository
+        .getGradeByExamIdAndStudentRef(examId, ref)
+        .orElseThrow(() -> new NotFoundException("Grade not found"));
+  }
+
   public List<Grade> getGradesByStudentId(String studentId) {
     var student = userService.getById(studentId);
     return gradeRepository.getAllByStudent(student);

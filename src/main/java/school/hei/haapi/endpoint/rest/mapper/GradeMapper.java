@@ -38,8 +38,7 @@ public class GradeMapper {
         .build();
   }
 
-  public school.hei.haapi.model.Grade toDomain(GradeImportDto grade, String examId) {
-    var exam = examService.getExamById(examId);
+  public school.hei.haapi.model.Grade toDomain(GradeImportDto grade, Exam exam) {
     var student = userService.findByRef(grade.getRef());
     return school.hei.haapi.model.Grade.builder()
         .score(grade.getScore())
@@ -51,8 +50,9 @@ public class GradeMapper {
 
   public List<school.hei.haapi.model.Grade> toDomainList(
       List<GradeImportDto> gradeImportDtos, String examId) {
+    var exam = examService.getExamById(examId);
     return gradeImportDtos.stream()
-        .map(gradeImportDto -> this.toDomain(gradeImportDto, examId))
+        .map(gradeImportDto -> this.toDomain(gradeImportDto, exam))
         .toList();
   }
 
