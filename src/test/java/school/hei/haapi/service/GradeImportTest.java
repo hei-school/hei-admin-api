@@ -30,6 +30,7 @@ public class GradeImportTest extends FacadeITMockedThirdParties {
   @MockBean Mailer mailer;
   @MockBean BucketComponent bucketComponent;
   @MockBean private EventProducer eventProducer;
+  @Autowired private UserService userService;
 
   @BeforeAll
   static void setUp() {
@@ -55,13 +56,13 @@ public class GradeImportTest extends FacadeITMockedThirdParties {
   }
 
   @Test
-  void handle_student_import_xlsx() {
+  void handle_grade_import_xlsx() {
     assertDoesNotThrow(() -> gradeImportEventService.accept(gradeImportEventMock()));
     assertNotNull(subject.getGradeByExamIdAndStudentRef("exam1_id", "STD21002"));
   }
 
   @Test
-  void import_bad_student_ko() {
+  void import_bad_grade_ko() {
     assertThrows(Exception.class, () -> gradeImportEventService.accept(badImportEvent()));
   }
 
@@ -81,7 +82,7 @@ public class GradeImportTest extends FacadeITMockedThirdParties {
     return GradeImportEvent.builder()
         .examId("exam1_id")
         .coordinatorEmail("test+manager1@hei.school")
-        .grades(List.of(GradeImportDto.builder().ref("STD21002").score(12.5).build()))
+        .grades(List.of(GradeImportDto.builder().ref("STD21010").score(12.5).build()))
         .build();
   }
 }
