@@ -17,12 +17,16 @@ public class EnvConf {
     registry.add("OWNCLOUD_PASSWORD", () -> "dummy");
     registry.add("spring.flyway.locations", () -> "classpath:/db/migration," + flywayTestdataPath);
     registry.add("CASDOOR_ORGANIZATION_NAME", () -> "dummy");
-    registry.add("CASDOOR_CERTIFICATE", () -> "dummy");
+    registry.add("CASDOOR_CERTIFICATE", () -> "ZHVtbXk=");
     registry.add("CASDOOR_APPLICATION_NAME", () -> "dummy");
     registry.add("CASDOOR_CLIENT_ID", () -> "dummy");
     registry.add("CASDOOR_CLIENT_SECRET", () -> "dummy");
     registry.add("CASDOOR_ENDPOINT", () -> "dummy");
     registry.add("CASDOOR_FRONTEND_URL", () -> "dummy");
     registry.add("CASDOOR_REDIRECT_URL", () -> "dummy");
+    registry.add(
+        "vola.api.url",
+        () -> "https://ypmoi24xu4kt5ts77p7te5uhme0uyxnv.lambda-url.eu-west-3.on.aws/");
+    registry.add("vola.api.key", () -> "ec48ed08-3a83-4b95-9f7e-ce5c07f541eb");
   }
 }
