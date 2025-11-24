@@ -4,9 +4,8 @@ import static java.util.UUID.randomUUID;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.UNPAID;
 import static school.hei.haapi.endpoint.rest.model.MobileMoneyType.ORANGE_MONEY;
+import static school.hei.haapi.endpoint.rest.model.MpbsStatus.PENDING;
 import static school.hei.haapi.endpoint.rest.model.MpbsStatus.SUCCESS;
-import static school.hei.haapi.integration.StudentIT.student1;
-import static school.hei.haapi.integration.conf.TestUtils.*;
 import static school.hei.haapi.model.User.Role.STUDENT;
 import static school.hei.haapi.model.User.Status.ENABLED;
 
@@ -77,7 +76,7 @@ class VolaPspIT extends FacadeITMockedThirdParties {
     var mpbsInserted =
         Mpbs.builder()
             .pspId("MP250917.1604.D33118")
-            .status(SUCCESS)
+            .status(PENDING)
             .fee(feeInserted.getFirst())
             .student(userInserted.getFirst())
             .mobileMoneyType(ORANGE_MONEY)
@@ -89,9 +88,6 @@ class VolaPspIT extends FacadeITMockedThirdParties {
 
   @BeforeEach
   void setUp() {
-    setUpCasdoor(casdoorAuthServiceMock, certificateLoaderMock);
-    setUpCognito(cognitoComponentMock);
-    setUpS3Service(fileService, student1());
     setUpTestData();
   }
 
