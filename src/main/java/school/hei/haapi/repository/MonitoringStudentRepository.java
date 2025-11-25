@@ -1,7 +1,6 @@
 package school.hei.haapi.repository;
 
 import jakarta.transaction.Transactional;
-import java.util.Collection;
 import java.util.List;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
@@ -56,18 +55,18 @@ public interface MonitoringStudentRepository extends JpaRepository<User, String>
   @Query(
       value =
           """
-          select mfs.id, mfs.monitor_id, mfs.student_id, mfs.status from monitor_following_student mfs
-          where mfs.status = 'PENDING'
-          """,
+select mfs.id, mfs.monitor_id, mfs.student_id, mfs.status from monitor_following_student mfs
+where mfs.status = 'PENDING'
+""",
       nativeQuery = true)
   Slice<MonitorStudentLinkDto> getAllMonitorStudentLinkRequests(Pageable pageable);
 
   @Query(
       value =
           """
-          select mfs.id, mfs.monitor_id, mfs.student_id, mfs.status from monitor_following_student mfs
-          where mfs.id in (:ids)
-          """,
+select mfs.id, mfs.monitor_id, mfs.student_id, mfs.status from monitor_following_student mfs
+where mfs.id in (:ids)
+""",
       nativeQuery = true)
   List<MonitorStudentLinkDto> getMonitorStudentLinkByIds(List<String> ids);
 

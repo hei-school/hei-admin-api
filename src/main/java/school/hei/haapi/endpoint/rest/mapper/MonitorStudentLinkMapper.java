@@ -1,7 +1,6 @@
 package school.hei.haapi.endpoint.rest.mapper;
 
 import org.springframework.stereotype.Component;
-
 import school.hei.haapi.endpoint.rest.model.MonitorStudentLink;
 import school.hei.haapi.endpoint.rest.model.UpdateMonitorStudentLink;
 import school.hei.haapi.model.dto.MonitorStudentLinkDto;

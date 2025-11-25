@@ -49,14 +49,17 @@ public class MonitoringStudentService {
     try {
       switch (principalUser.getRole()) {
         case ADMIN, MANAGER -> {
-          monitoringStudentRepository.saveMonitorFollowingStudents(monitorId, studentsIds, LINKED.toString());
+          monitoringStudentRepository.saveMonitorFollowingStudents(
+              monitorId, studentsIds, LINKED.toString());
         }
         case MONITOR -> {
-          monitoringStudentRepository.saveMonitorFollowingStudents(monitorId, studentsIds, PENDING.toString());
+          monitoringStudentRepository.saveMonitorFollowingStudents(
+              monitorId, studentsIds, PENDING.toString());
         }
         default ->
             throw new BadRequestException(
-                "User with role %s can't link monitor to students".formatted(principalUser.getRole()));
+                "User with role %s can't link monitor to students"
+                    .formatted(principalUser.getRole()));
       }
     } catch (DataIntegrityViolationException e) {
       log.error(e.getMessage());
@@ -68,18 +71,21 @@ public class MonitoringStudentService {
   }
 
   @Transactional
-  public List<MonitorStudentLinkDto> approveLinkStudentMonitor(List<MonitorStudentLinkDto> monitorStudentLinks) {
-    monitorStudentLinks.forEach(dto -> {
-      monitoringStudentRepository.updateMonitorFollowingStudentStatus(dto.id(), dto.status());
-    });
+  public List<MonitorStudentLinkDto> approveLinkStudentMonitor(
+      List<MonitorStudentLinkDto> monitorStudentLinks) {
+    monitorStudentLinks.forEach(
+        dto -> {
+          monitoringStudentRepository.updateMonitorFollowingStudentStatus(dto.id(), dto.status());
+        });
     return monitorStudentLinks;
   }
 
-  public List<MonitorStudentLinkDto> getLinkStudentRequests(PageFromOne page, BoundedPageSize pageSize) {
+  public List<MonitorStudentLinkDto> getLinkStudentRequests(
+      PageFromOne page, BoundedPageSize pageSize) {
     Pageable pageable =
         PageRequest.of(page.getValue() - 1, pageSize.getValue(), Sort.by(DESC, "created_at"));
     return monitoringStudentRepository.getAllMonitorStudentLinkRequests(pageable).toList();
-   }
+  }
 
   @Transactional
   public List<User> crupdateAndLinkMonitorFollowingStudents(List<CrupdateMonitor> monitors) {
