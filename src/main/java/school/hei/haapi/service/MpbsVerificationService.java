@@ -116,7 +116,7 @@ public class MpbsVerificationService {
     return verifiedMpbs;
   }
 
-  // Vola application
+  // Vola integration
   public List<MpbsVerification> verifyMobilePaymentAndSaveResultWithVola(
       List<Mpbs> pendingMpbsList) {
     List<MpbsVerification> verifiedMpbs = new ArrayList<>();
