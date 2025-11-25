@@ -2,7 +2,10 @@ package school.hei.haapi.service;
 
 import static java.util.stream.Collectors.toUnmodifiableList;
 import static org.springframework.data.domain.Sort.Direction.ASC;
+import static org.springframework.data.domain.Sort.Direction.DESC;
 import static school.hei.haapi.model.User.Role.STUDENT;
+import static school.hei.haapi.model.dto.MonitorStudentLinkDto.Status.LINKED;
+import static school.hei.haapi.model.dto.MonitorStudentLinkDto.Status.PENDING;
 
 import java.util.List;
 import java.util.UUID;
@@ -17,9 +20,11 @@ import org.springframework.transaction.annotation.Transactional;
 import school.hei.haapi.endpoint.rest.mapper.SexEnumMapper;
 import school.hei.haapi.endpoint.rest.mapper.StatusEnumMapper;
 import school.hei.haapi.endpoint.rest.model.CrupdateMonitor;
+import school.hei.haapi.endpoint.rest.security.AuthProvider;
 import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.model.User;
+import school.hei.haapi.model.dto.MonitorStudentLinkDto;
 import school.hei.haapi.model.exception.BadRequestException;
 import school.hei.haapi.model.exception.NotFoundException;
 import school.hei.haapi.repository.MonitoringStudentRepository;
@@ -36,12 +41,23 @@ public class MonitoringStudentService {
 
   @Transactional
   public List<User> linkMonitorFollowingStudents(String monitorId, List<String> studentsIds) {
+    var principalUser = AuthProvider.getPrincipal().getUser();
     if (studentsIds == null || studentsIds.isEmpty()) {
       return List.of();
     }
 
     try {
-      monitoringStudentRepository.saveMonitorFollowingStudents(monitorId, studentsIds);
+      switch (principalUser.getRole()) {
+        case ADMIN, MANAGER -> {
+          monitoringStudentRepository.saveMonitorFollowingStudents(monitorId, studentsIds, LINKED.toString());
+        }
+        case MONITOR -> {
+          monitoringStudentRepository.saveMonitorFollowingStudents(monitorId, studentsIds, PENDING.toString());
+        }
+        default ->
+            throw new BadRequestException(
+                "User with role %s can't link monitor to students".formatted(principalUser.getRole()));
+      }
     } catch (DataIntegrityViolationException e) {
       log.error(e.getMessage());
       throw new BadRequestException(
@@ -50,6 +66,20 @@ public class MonitoringStudentService {
     }
     return monitoringStudentRepository.findAllById(studentsIds);
   }
+
+  @Transactional
+  public List<MonitorStudentLinkDto> approveLinkStudentMonitor(List<MonitorStudentLinkDto> monitorStudentLinks) {
+    monitorStudentLinks.forEach(dto -> {
+      monitoringStudentRepository.updateMonitorFollowingStudentStatus(dto.id(), dto.status());
+    });
+    return monitorStudentLinks;
+  }
+
+  public List<MonitorStudentLinkDto> getLinkStudentRequests(PageFromOne page, BoundedPageSize pageSize) {
+    Pageable pageable =
+        PageRequest.of(page.getValue() - 1, pageSize.getValue(), Sort.by(DESC, "created_at"));
+    return monitoringStudentRepository.getAllMonitorStudentLinkRequests(pageable).toList();
+   }
 
   @Transactional
   public List<User> crupdateAndLinkMonitorFollowingStudents(List<CrupdateMonitor> monitors) {

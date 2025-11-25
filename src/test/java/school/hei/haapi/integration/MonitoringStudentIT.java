@@ -27,6 +27,7 @@ import static school.hei.haapi.integration.conf.TestUtils.student2;
 import static school.hei.haapi.integration.test_data.MonitorTestData.monitorOfAxel;
 import static school.hei.haapi.integration.test_data.StudentTestData.axel;
 import static school.hei.haapi.integration.test_data.StudentTestData.tolojanahary;
+import static school.hei.haapi.model.dto.MonitorStudentLinkDto.Status.LINKED;
 
 import java.util.List;
 import org.casbin.casdoor.entity.CasdoorRole;
@@ -87,7 +88,7 @@ public class MonitoringStudentIT extends FacadeITMockedThirdParties {
     userRepository.saveAll(List.of(monitorOfAxel));
     userRepository.saveAll(List.of(studentAxel, studentTolojanahary));
     monitoringStudentRepository.saveMonitorFollowingStudents(
-        monitorOfAxel.getId(), List.of(studentAxel.getId()));
+        monitorOfAxel.getId(), List.of(studentAxel.getId()), LINKED.toString());
   }
 
   @Test

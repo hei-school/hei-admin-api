@@ -811,6 +811,70 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
+  /monitors/link:
+    post:
+      tags:
+        - Monitoring
+      summary: Approve or deny a list of monitor student link requests
+      operationId: updateMonitorStudentLinkStatus
+      requestBody:
+        required: true
+        description: List of monitor student link ids and status to set
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                monitor_student_link:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/UpdateMonitorStudentLink'
+      responses:
+        '200':
+          description: List of student linked to a monitor
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/MonitorStudentLink'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+    get:
+      tags:
+        - Monitoring
+      parameters:
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PageSize'
+      summary: Get all link request to a monitor that is pending
+      operationId: getLinkStudentRequests
+      responses:
+        '200':
+          description: List of monitor student linked
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/MonitorStudentLink'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
   /monitors/{id}:
     put:
       tags:
@@ -7437,6 +7501,27 @@ components:
           type: integer
         total_hours:
           type: integer
+    UpdateMonitorStudentLink:
+      allOf:
+        - $ref: '#/components/schemas/MonitorStudentLink'
+      type: object
+      properties:
+        status:
+          $ref: '#/components/schemas/MonitorStudentLinkStatus'
+    MonitorStudentLinkStatus:
+      type: string
+      enum:
+        - LINKED
+        - DENIED
+    MonitorStudentLink:
+      type: object
+      properties:
+        id:
+          type: string
+        monitor_id:
+          type: string
+        student_id:
+          type: string
     Course:
       allOf:
         - $ref: '#/components/schemas/CourseTemplate'
