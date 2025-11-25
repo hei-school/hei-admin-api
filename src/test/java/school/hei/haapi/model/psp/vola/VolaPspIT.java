@@ -1,6 +1,8 @@
 package school.hei.haapi.model.psp.vola;
 
 import static java.util.UUID.randomUUID;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.UNPAID;
 import static school.hei.haapi.endpoint.rest.model.MobileMoneyType.ORANGE_MONEY;
@@ -93,9 +95,37 @@ class VolaPspIT extends FacadeITMockedThirdParties {
 
   @Test
   void read_succeeded_payment() {
-
     var verifiedMpbs = volaPsp.get(mpbs);
 
     assertEquals(SUCCESS, verifiedMpbs.getStatus());
+
+    assertEquals("MP250917.1604.D33118", verifiedMpbs.getPspId());
+
+    assertNotNull(verifiedMpbs.getAmount());
+    assertEquals(700, verifiedMpbs.getAmount());
+
+    assertNotNull(verifiedMpbs.getStudent());
+    assertEquals("tiavina.3@mail.hei.school", verifiedMpbs.getStudent().getEmail());
+
+    assertNotNull(verifiedMpbs.getFee());
+    assertEquals(mpbs.getFee().getId(), verifiedMpbs.getFee().getId());
+
+    assertNotNull(verifiedMpbs.getCreationDatetime());
+
+    assertNotNull(verifiedMpbs.getLastVerificationDatetime());
+
+    assertNotNull(verifiedMpbs.getStatusHistory());
+    assertTrue(verifiedMpbs.getStatusHistory().size() > 0);
+
+    var lastStatusHistory = verifiedMpbs.getLastStatusHistory();
+    assertTrue(lastStatusHistory.isPresent());
+    assertEquals(SUCCESS, lastStatusHistory.get().getStatus());
+
+    assertEquals(verifiedMpbs.getId(), lastStatusHistory.get().getMpbs().getId());
+
+    assertNotNull(lastStatusHistory.get().getCreationInstant());
+    assertEquals(
+        verifiedMpbs.getLastVerificationDatetime(),
+        lastStatusHistory.get().getCreationInstant());
   }
 }
