@@ -75,8 +75,8 @@ public class GradeImportTest extends FacadeITMockedThirdParties {
   private User teacherToky;
   private Exam exam1Prog1;
   private Exam exam2Prog1;
-  private CourseAssignment assign_prog1_toToky_forGroup1;
-  private CourseAssignment assign_prog2_toToky_forGroup2;
+  private CourseAssignment assignProg1ToTokyForGroup;
+  private CourseAssignment assignProg2ToTokyForGroup2;
   private Group groupG1;
   private Group groupG2;
   private GroupFlow groupFlowsAxel;
@@ -84,7 +84,7 @@ public class GradeImportTest extends FacadeITMockedThirdParties {
   private static Exam exam1Prog1Saved;
 
   @BeforeEach
-  public void setUpTestData() {
+  void setUpTestData() {
     groupG1 = g1();
     groupG2 = g2();
     studentAxel = axel();
@@ -92,10 +92,8 @@ public class GradeImportTest extends FacadeITMockedThirdParties {
     courseProg1 = prog1();
     courseProg2 = prog2();
     teacherToky = toky();
-    assign_prog1_toToky_forGroup1 =
-        createCourseAssignment(courseProg1, teacherToky, List.of(groupG1));
-    assign_prog2_toToky_forGroup2 =
-        createCourseAssignment(courseProg2, teacherToky, List.of(groupG2));
+    assignProg1ToTokyForGroup = createCourseAssignment(courseProg1, teacherToky, List.of(groupG1));
+    assignProg2ToTokyForGroup2 = createCourseAssignment(courseProg2, teacherToky, List.of(groupG2));
 
     monitorOfAxel = monitorOfAxel();
     monitorOfTolojanahary = monitorOfTolojanahary();
@@ -104,8 +102,8 @@ public class GradeImportTest extends FacadeITMockedThirdParties {
     groupFlowsAxel = createGroupFlow(studentAxel, groupG1);
     groupFlowsTolojanahary = createGroupFlow(studentTolojanahary, groupG1);
 
-    exam1Prog1 = createExam(Instant.parse("2025-07-22T10:15:30Z"), assign_prog1_toToky_forGroup1);
-    exam2Prog1 = createExam(Instant.parse("2025-09-22T10:15:30Z"), assign_prog1_toToky_forGroup1);
+    exam1Prog1 = createExam(Instant.parse("2025-07-22T10:15:30Z"), assignProg1ToTokyForGroup);
+    exam2Prog1 = createExam(Instant.parse("2025-09-22T10:15:30Z"), assignProg1ToTokyForGroup);
 
     groupRepository.saveAll(List.of(groupG1, groupG2));
     userRepository.saveAll(List.of(monitorOfAxel, monitorOfTolojanahary));
@@ -118,7 +116,7 @@ public class GradeImportTest extends FacadeITMockedThirdParties {
     courseRepository.saveAll(List.of(courseProg1, courseProg2));
     groupFlowRepository.saveAll(List.of(groupFlowsAxel, groupFlowsTolojanahary));
     courseAssignmentRepository.saveAll(
-        List.of(assign_prog1_toToky_forGroup1, assign_prog2_toToky_forGroup2));
+        List.of(assignProg1ToTokyForGroup, assignProg2ToTokyForGroup2));
     exam1Prog1Saved = examRepository.save(exam1Prog1);
     examRepository.save(exam2Prog1);
   }

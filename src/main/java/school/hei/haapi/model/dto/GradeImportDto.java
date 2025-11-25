@@ -1,10 +1,9 @@
 package school.hei.haapi.model.dto;
 
-import static java.sql.JDBCType.NUMERIC;
 import static java.util.Map.entry;
-import static javax.management.openmbean.SimpleType.STRING;
 import static org.apache.poi.ss.usermodel.CellType.BLANK;
 
+import java.io.Serializable;
 import java.util.Map;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -17,7 +16,7 @@ import school.hei.haapi.service.utils.excel.CellMap;
 @NoArgsConstructor
 @Builder
 @Getter
-public class GradeImportDto {
+public class GradeImportDto implements Serializable {
   private String ref;
   private Double score;
 
