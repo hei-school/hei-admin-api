@@ -29,7 +29,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import school.hei.haapi.endpoint.event.EventProducer;
 import school.hei.haapi.endpoint.event.model.GradeImportEvent;
-import school.hei.haapi.endpoint.rest.mapper.GradeMapper;
 import school.hei.haapi.endpoint.rest.security.AuthProvider;
 import school.hei.haapi.endpoint.rest.security.model.Principal;
 import school.hei.haapi.file.bucket.BucketComponent;
@@ -167,7 +166,9 @@ public class GradeImportTest extends FacadeITMockedThirdParties {
     return GradeImportEvent.builder()
         .examId(exam1Prog1Saved.getId())
         .coordinatorEmail("test+manager1@hei.school")
-        .grades(List.of(GradeImportDto.builder().ref(studentAxel.getRef()).score(12.5).build(),
+        .grades(
+            List.of(
+                GradeImportDto.builder().ref(studentAxel.getRef()).score(12.5).build(),
                 GradeImportDto.builder().ref(studentTolojanahary.getRef()).score(13.5).build()))
         .build();
   }
