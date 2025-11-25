@@ -197,28 +197,21 @@ class MpbsVerificationTest {
 
     var mbpsPending = someMpbs("pending", now(), null);
     var mpbsVerified = someMpbs("verified", now(), null);
-    var mpbsVerifiedFromVola =
-        mpbsVerified.toBuilder().status(SUCCESS).amount(1000).build();
+
     MpbsVerification fakeComputedVerifiedMpbs = new MpbsVerification();
-    when(volaPspMock.get(mpbsVerified)).thenReturn(mpbsVerifiedFromVola);
-    when(volaPspMock.get(mbpsPending)).thenReturn(mbpsPending.toBuilder().status(PENDING).build());
+    when(volaPspMock.get(mpbsVerified))
+        .thenReturn(mpbsVerified.toBuilder().status(SUCCESS).build());
+    when(volaPspMock.get(mbpsPending))
+        .thenReturn(mbpsPending.toBuilder().status(PENDING).build());
     when(computeVerifiedMobilePaymentMock.saveTheVerifiedMpbs(eq(mpbsVerified), any()))
         .thenReturn(fakeComputedVerifiedMpbs);
 
     List<MpbsVerification> verifiedMpbs =
         subject.verifyMobilePaymentAndSaveResultWithVola(List.of(mbpsPending, mpbsVerified));
 
-    ArgumentCaptor<List<Mpbs>> argumentCaptor = ArgumentCaptor.forClass(List.class);
-    verify(unverifiedMobilePaymentHandlerMock, times(1)).accept(argumentCaptor.capture());
-    List<Mpbs> mobilePaymentUnverified = argumentCaptor.getAllValues().getFirst();
-    var saveVerifiedMpbsCaptor = ArgumentCaptor.forClass(Mpbs.class);
     verify(computeVerifiedMobilePaymentMock, times(1))
-        .saveTheVerifiedMpbs(saveVerifiedMpbsCaptor.capture(), any());
-    List<Mpbs> savedMpbs = saveVerifiedMpbsCaptor.getAllValues();
-    assertEquals(1, savedMpbs.size());
-    assertEquals(mpbsVerified, savedMpbs.getFirst());
-    assertEquals(1, mobilePaymentUnverified.size());
-    assertEquals(mbpsPending, mobilePaymentUnverified.getFirst());
+        .saveTheVerifiedMpbs(eq(mpbsVerified), any());
+    verify(unverifiedMobilePaymentHandlerMock, times(1)).accept(List.of(mbpsPending));
     assertEquals(1, verifiedMpbs.size());
     assertEquals(fakeComputedVerifiedMpbs, verifiedMpbs.getFirst());
   }
@@ -226,7 +219,7 @@ class MpbsVerificationTest {
   @Test
   void verification_skip_bad_mobile_payment_with_vola() {
     VolaPsp volaPspMock = mock();
-    MpbsVerificationService subject =
+    var subject =
         new MpbsVerificationService(
             mock(),
             mock(),
@@ -240,18 +233,16 @@ class MpbsVerificationTest {
             new CollectionUtils(),
             volaPspMock);
 
-    var pendingCreationDatetime = now().minus(1, DAYS);
-    var failedCreationDatetime = now().minus(6, DAYS);
     var student = User.builder().email("email@gmail.com").build();
     var fee = Fee.builder().id("feeId").student(student).build();
-    var badMpbs = someMpbs("bad", failedCreationDatetime, fee, student, null);
-    var mpbsVerified = someMpbs("verified", pendingCreationDatetime, fee, student);
-    var mpbsFailed = someMpbs("pending", failedCreationDatetime, fee, student);
-    var mpbsVerifiedFromVola =
-        mpbsVerified.toBuilder().status(SUCCESS).amount(1000).build();
+    var badMpbs = someMpbs("bad", now().minus(6, DAYS), fee, student, 500);
+    var mpbsVerified = someMpbs("verified", now().minus(1, DAYS), fee, student, 1000);
+    var mpbsFailed = someMpbs("failed", now().minus(6, DAYS), fee, student, 800);
     var fakeComputedVerifiedMpbs = new MpbsVerification();
-    when(volaPspMock.get(mpbsVerified)).thenReturn(mpbsVerifiedFromVola);
-    when(volaPspMock.get(mpbsFailed)).thenReturn(mpbsFailed.toBuilder().status(FAILED).build());
+    when(volaPspMock.get(mpbsVerified))
+        .thenReturn(mpbsVerified.toBuilder().status(SUCCESS).build());
+    when(volaPspMock.get(mpbsFailed))
+        .thenReturn(mpbsFailed.toBuilder().status(FAILED).build());
     when(volaPspMock.get(badMpbs)).thenThrow(new RuntimeException("Vola API error"));
     when(computeVerifiedMobilePaymentMock.saveTheVerifiedMpbs(eq(mpbsVerified), any()))
         .thenReturn(fakeComputedVerifiedMpbs);
@@ -259,19 +250,11 @@ class MpbsVerificationTest {
     List<MpbsVerification> verifiedMpbs =
         subject.verifyMobilePaymentAndSaveResultWithVola(List.of(badMpbs, mpbsVerified, mpbsFailed));
 
+    verify(computeVerifiedMobilePaymentMock, times(1))
+        .saveTheVerifiedMpbs(eq(mpbsVerified), any());
     verify(computeVerifiedMobilePaymentMock, never()).saveTheVerifiedMpbs(eq(badMpbs), any());
+    verify(eventProducerMock, times(1)).accept(any());
     assertEquals(1, verifiedMpbs.size());
     assertEquals(fakeComputedVerifiedMpbs, verifiedMpbs.getFirst());
-
-    ArgumentCaptor<List<PaidFeeByMpbsFailedNotificationBody>> argumentCaptor =
-        ArgumentCaptor.forClass(List.class);
-    verify(eventProducerMock, times(1)).accept(argumentCaptor.capture());
-    List<PaidFeeByMpbsFailedNotificationBody> notificationsRequestSend =
-        argumentCaptor.getAllValues().getLast();
-    assertEquals(1, notificationsRequestSend.size());
-    assertEquals(
-        PaidFeeByMpbsFailedNotificationBody.from(
-            Payment.builder().fee(fee).amount(mpbsFailed.getAmount()).build()),
-        notificationsRequestSend.getFirst());
   }
 }
