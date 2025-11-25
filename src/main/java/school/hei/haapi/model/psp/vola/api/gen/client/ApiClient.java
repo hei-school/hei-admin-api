@@ -515,9 +515,6 @@ public class ApiClient {
    */
   private void updateParamsForAuth(
       String[] authNames, MultiValueMap<String, String> queryParams, HttpHeaders headerParams) {
-    if (apiKey == null) {
-      throw new IllegalArgumentException("API key is not set");
-    }
 
     String value;
     if (apiKeyPrefix != null) {
