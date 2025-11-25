@@ -29,13 +29,13 @@ import school.hei.haapi.model.Payment;
 import school.hei.haapi.model.User;
 import school.hei.haapi.model.mpbs.Mpbs;
 import school.hei.haapi.model.mpbs.MpbsVerification;
+import school.hei.haapi.model.psp.vola.api.VolaPsp;
 import school.hei.haapi.service.ComputeVerifiedMobilePayment;
 import school.hei.haapi.service.FailedMobilePaymentNotification;
 import school.hei.haapi.service.MobilePaymentService;
 import school.hei.haapi.service.MpbsVerificationService;
 import school.hei.haapi.service.UnverifiedMobilePaymentHandler;
 import school.hei.haapi.service.utils.CollectionUtils;
-import school.hei.haapi.model.psp.vola.api.VolaPsp;
 
 class MpbsVerificationTest {
   MobilePaymentService mobilePaymentServiceMock = mock();
@@ -201,16 +201,14 @@ class MpbsVerificationTest {
     MpbsVerification fakeComputedVerifiedMpbs = new MpbsVerification();
     when(volaPspMock.get(mpbsVerified))
         .thenReturn(mpbsVerified.toBuilder().status(SUCCESS).build());
-    when(volaPspMock.get(mbpsPending))
-        .thenReturn(mbpsPending.toBuilder().status(PENDING).build());
+    when(volaPspMock.get(mbpsPending)).thenReturn(mbpsPending.toBuilder().status(PENDING).build());
     when(computeVerifiedMobilePaymentMock.saveTheVerifiedMpbs(eq(mpbsVerified), any()))
         .thenReturn(fakeComputedVerifiedMpbs);
 
     List<MpbsVerification> verifiedMpbs =
         subject.verifyMobilePaymentAndSaveResultWithVola(List.of(mbpsPending, mpbsVerified));
 
-    verify(computeVerifiedMobilePaymentMock, times(1))
-        .saveTheVerifiedMpbs(eq(mpbsVerified), any());
+    verify(computeVerifiedMobilePaymentMock, times(1)).saveTheVerifiedMpbs(eq(mpbsVerified), any());
     verify(unverifiedMobilePaymentHandlerMock, times(1)).accept(List.of(mbpsPending));
     assertEquals(1, verifiedMpbs.size());
     assertEquals(fakeComputedVerifiedMpbs, verifiedMpbs.getFirst());
@@ -241,17 +239,16 @@ class MpbsVerificationTest {
     var fakeComputedVerifiedMpbs = new MpbsVerification();
     when(volaPspMock.get(mpbsVerified))
         .thenReturn(mpbsVerified.toBuilder().status(SUCCESS).build());
-    when(volaPspMock.get(mpbsFailed))
-        .thenReturn(mpbsFailed.toBuilder().status(FAILED).build());
+    when(volaPspMock.get(mpbsFailed)).thenReturn(mpbsFailed.toBuilder().status(FAILED).build());
     when(volaPspMock.get(badMpbs)).thenThrow(new RuntimeException("Vola API error"));
     when(computeVerifiedMobilePaymentMock.saveTheVerifiedMpbs(eq(mpbsVerified), any()))
         .thenReturn(fakeComputedVerifiedMpbs);
 
     List<MpbsVerification> verifiedMpbs =
-        subject.verifyMobilePaymentAndSaveResultWithVola(List.of(badMpbs, mpbsVerified, mpbsFailed));
+        subject.verifyMobilePaymentAndSaveResultWithVola(
+            List.of(badMpbs, mpbsVerified, mpbsFailed));
 
-    verify(computeVerifiedMobilePaymentMock, times(1))
-        .saveTheVerifiedMpbs(eq(mpbsVerified), any());
+    verify(computeVerifiedMobilePaymentMock, times(1)).saveTheVerifiedMpbs(eq(mpbsVerified), any());
     verify(computeVerifiedMobilePaymentMock, never()).saveTheVerifiedMpbs(eq(badMpbs), any());
     verify(eventProducerMock, times(1)).accept(any());
     assertEquals(1, verifiedMpbs.size());

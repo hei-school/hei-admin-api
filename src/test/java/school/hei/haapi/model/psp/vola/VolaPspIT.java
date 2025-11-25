@@ -125,7 +125,6 @@ class VolaPspIT extends FacadeITMockedThirdParties {
 
     assertNotNull(lastStatusHistory.get().getCreationInstant());
     assertEquals(
-        verifiedMpbs.getLastVerificationDatetime(),
-        lastStatusHistory.get().getCreationInstant());
+        verifiedMpbs.getLastVerificationDatetime(), lastStatusHistory.get().getCreationInstant());
   }
 }
