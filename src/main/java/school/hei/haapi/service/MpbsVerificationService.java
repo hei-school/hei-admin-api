@@ -230,15 +230,6 @@ public class MpbsVerificationService {
     verifyMobilePaymentAndSaveResult(pendingMpbs);
   }
 
-  // Vola application
-  @Transactional
-  public void checkMobilePaymentThenSaveVerificationWithVola() {
-    List<Mpbs> pendingMpbs = mpbsRepository.findAllByStatus(PENDING);
-    log.info("pending mpbs = {}", pendingMpbs.size());
-
-    verifyMobilePaymentAndSaveResultWithVola(pendingMpbs);
-  }
-
   public List<TransactionDetails> fetchThenSaveTransactionDetailsDaily() {
     return mobilePaymentService.fetchTransactionDetails();
   }

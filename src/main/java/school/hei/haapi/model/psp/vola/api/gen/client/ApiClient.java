@@ -12,10 +12,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Map.Entry;
 import java.util.TimeZone;
 import org.apache.commons.logging.Log;
@@ -41,10 +39,6 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
-import school.hei.haapi.model.psp.vola.api.gen.client.auth.ApiKeyAuth;
-import school.hei.haapi.model.psp.vola.api.gen.client.auth.Authentication;
-import school.hei.haapi.model.psp.vola.api.gen.client.auth.HttpBasicAuth;
-import school.hei.haapi.model.psp.vola.api.gen.client.auth.OAuth;
 
 @Component("school.hei.tsinjo.model.psp.vola.api.gen.client.ApiClient")
 public class ApiClient {
@@ -74,7 +68,10 @@ public class ApiClient {
 
   private RestTemplate restTemplate;
 
-  private Map<String, Authentication> authentications;
+  private String apiKey;
+  private String apiKeyPrefix;
+  private String apiKeyLocation = "header";
+  private String apiKeyParamName = "Authorization";
 
   private DateFormat dateFormat;
 
@@ -99,11 +96,6 @@ public class ApiClient {
 
     // Set default User-Agent.
     setUserAgent("Java-SDK");
-
-    // Setup authentications (key: authentication name, value: authentication).
-    authentications = new HashMap<String, Authentication>();
-    // Prevent the authentications from being modified.
-    authentications = Collections.unmodifiableMap(authentications);
   }
 
   /**
@@ -127,97 +119,47 @@ public class ApiClient {
   }
 
   /**
-   * Get authentications (key: authentication name, value: authentication).
-   *
-   * @return Map the currently configured authentication types
-   */
-  public Map<String, Authentication> getAuthentications() {
-    return authentications;
-  }
-
-  /**
-   * Get authentication for the given name.
-   *
-   * @param authName The authentication name
-   * @return The authentication, null if not found
-   */
-  public Authentication getAuthentication(String authName) {
-    return authentications.get(authName);
-  }
-
-  /**
-   * Helper method to set username for the first HTTP basic authentication.
-   *
-   * @param username the username
-   */
-  public void setUsername(String username) {
-    for (Authentication auth : authentications.values()) {
-      if (auth instanceof HttpBasicAuth) {
-        ((HttpBasicAuth) auth).setUsername(username);
-        return;
-      }
-    }
-    throw new RuntimeException("No HTTP basic authentication configured!");
-  }
-
-  /**
-   * Helper method to set password for the first HTTP basic authentication.
-   *
-   * @param password the password
-   */
-  public void setPassword(String password) {
-    for (Authentication auth : authentications.values()) {
-      if (auth instanceof HttpBasicAuth) {
-        ((HttpBasicAuth) auth).setPassword(password);
-        return;
-      }
-    }
-    throw new RuntimeException("No HTTP basic authentication configured!");
-  }
-
-  /**
-   * Helper method to set API key value for the first API key authentication.
+   * Set API key for authentication.
    *
    * @param apiKey the API key
+   * @return ApiClient this client
    */
-  public void setApiKey(String apiKey) {
-    for (Authentication auth : authentications.values()) {
-      if (auth instanceof ApiKeyAuth) {
-        ((ApiKeyAuth) auth).setApiKey(apiKey);
-        return;
-      }
-    }
-    throw new RuntimeException("No API key authentication configured!");
+  public ApiClient setApiKey(String apiKey) {
+    this.apiKey = apiKey;
+    return this;
   }
 
   /**
-   * Helper method to set API key prefix for the first API key authentication.
+   * Set API key prefix for authentication.
    *
    * @param apiKeyPrefix the API key prefix
+   * @return ApiClient this client
    */
-  public void setApiKeyPrefix(String apiKeyPrefix) {
-    for (Authentication auth : authentications.values()) {
-      if (auth instanceof ApiKeyAuth) {
-        ((ApiKeyAuth) auth).setApiKeyPrefix(apiKeyPrefix);
-        return;
-      }
-    }
-    throw new RuntimeException("No API key authentication configured!");
+  public ApiClient setApiKeyPrefix(String apiKeyPrefix) {
+    this.apiKeyPrefix = apiKeyPrefix;
+    return this;
   }
 
   /**
-   * Helper method to set access token for the first OAuth2 authentication.
+   * Set API key location (header or query).
    *
-   * @param accessToken the access token
+   * @param location the location ("header" or "query")
+   * @return ApiClient this client
    */
-  public void setAccessToken(String accessToken) {
-    for (Authentication auth : authentications.values()) {
-      if (auth instanceof OAuth) {
-        ((OAuth) auth).setAccessToken(accessToken);
-        return;
-      }
-    }
-    throw new RuntimeException("No OAuth2 authentication configured!");
+  public ApiClient setApiKeyLocation(String location) {
+    this.apiKeyLocation = location;
+    return this;
+  }
+
+  /**
+   * Set API key parameter name.
+   *
+   * @param paramName the parameter name
+   * @return ApiClient this client
+   */
+  public ApiClient setApiKeyParamName(String paramName) {
+    this.apiKeyParamName = paramName;
+    return this;
   }
 
   /**
@@ -573,12 +515,21 @@ public class ApiClient {
    */
   private void updateParamsForAuth(
       String[] authNames, MultiValueMap<String, String> queryParams, HttpHeaders headerParams) {
-    for (String authName : authNames) {
-      Authentication auth = authentications.get(authName);
-      if (auth == null) {
-        throw new RestClientException("Authentication undefined: " + authName);
-      }
-      auth.applyToParams(queryParams, headerParams);
+    if (apiKey == null) {
+      return;
+    }
+
+    String value;
+    if (apiKeyPrefix != null) {
+      value = apiKeyPrefix + " " + apiKey;
+    } else {
+      value = apiKey;
+    }
+
+    if ("query".equals(apiKeyLocation)) {
+      queryParams.add(apiKeyParamName, value);
+    } else if ("header".equals(apiKeyLocation)) {
+      headerParams.add(apiKeyParamName, value);
     }
   }
 
