@@ -2,7 +2,6 @@ package school.hei.haapi.service;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.when;
@@ -147,8 +146,10 @@ public class GradeImportTest extends FacadeITMockedThirdParties {
   @Test
   void handle_grade_import_xlsx() {
     assertDoesNotThrow(() -> gradeImportEventService.accept(gradeImportEventMock()));
-    assertNotNull(
-        subject.getGradeByExamIdAndStudentRef(exam1Prog1Saved.getId(), studentAxel.getRef()));
+    var grade =
+        subject.getGradeByExamIdAndStudentRef(exam1Prog1Saved.getId(), studentAxel.getRef());
+    assertEquals(studentAxel.getRef(), grade.getStudent().getRef());
+    assertEquals(exam1Prog1.getId(), grade.getExam().getId());
   }
 
   @Test
