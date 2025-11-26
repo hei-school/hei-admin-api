@@ -41,7 +41,7 @@ import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
-@Component("school.hei.tsinjo.model.psp.vola.api.gen.client.ApiClient")
+@Component("school.hei.haapi.model.psp.vola.api.gen.ApiClient")
 public class ApiClient {
   public enum CollectionFormat {
     CSV(","),
@@ -88,8 +88,6 @@ public class ApiClient {
   }
 
   protected void init() {
-    // Use RFC3339 format for date and datetime.
-    // See http://xml2rfc.ietf.org/public/rfc/html/rfc3339.html#anchor14
     this.dateFormat = new ISO8601DateFormat();
 
     // Use UTC as the default time zone.
