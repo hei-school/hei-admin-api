@@ -591,7 +591,11 @@ public class SecurityConf {
                     .hasAnyRole(TEACHER.getRole(), MANAGER.getRole(), ADMIN.getRole())
                     .requestMatchers(GET, "/students/*/level")
                     .hasAnyRole(
-                        TEACHER.getRole(), MANAGER.getRole(), ADMIN.getRole(), STUDENT.getRole())
+                        TEACHER.getRole(),
+                        MANAGER.getRole(),
+                        ADMIN.getRole(),
+                        STUDENT.getRole(),
+                        MONITOR.getRole())
                     // TODO: clarify PUT STUDENTS/** FOR MANAGERS
                     .requestMatchers(PUT, "/students/**")
                     .hasAnyRole(MANAGER.getRole(), ADMIN.getRole())
