@@ -8045,6 +8045,8 @@ components:
         end_datetime:
           type: string
           format: date-time
+        is_online:
+          type: boolean
         event_type:
           $ref: '#/components/schemas/EventType'
         location:
