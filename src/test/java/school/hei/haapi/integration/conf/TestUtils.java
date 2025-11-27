@@ -1417,6 +1417,7 @@ public class TestUtils {
         .description("Prog1 course")
         .title("PROG1")
         .planner(planner1())
+        .isOnline(false)
         .count(
             new EventStats()
                 .late(0L)
@@ -1452,6 +1453,7 @@ public class TestUtils {
         .endDatetime(Instant.parse("2022-12-08T12:00:00.00Z"))
         .course(null)
         .title("Integration Day")
+        .isOnline(false)
         .count(
             new EventStats()
                 .total(3L)
@@ -1480,6 +1482,7 @@ public class TestUtils {
         .beginDatetime(Instant.parse("2022-12-09T08:00:00.00Z"))
         .endDatetime(Instant.parse("2022-12-09T12:00:00.00Z"))
         .title("December Seminar")
+        .isOnline(true)
         .course(null)
         .color("#0000")
         .count(
@@ -1541,6 +1544,7 @@ public class TestUtils {
         .description("Another Prog1 course")
         .eventType(COURSE)
         .plannerId(MANAGER_ID)
+        .isOnline(false)
         .groups(List.of(createGroupIdentifier(group1())));
   }
 
@@ -1564,6 +1568,7 @@ public class TestUtils {
         .description("Another Prog1 course")
         .eventType(INTEGRATION)
         .plannerId(MANAGER_ID)
+        .isOnline(false)
         .groups(List.of(createGroupIdentifier(group1()), createGroupIdentifier(group2())));
   }
 

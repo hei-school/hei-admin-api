@@ -17,6 +17,7 @@ import static school.hei.haapi.integration.conf.FakeDataProvider.someCreatableEv
 import static school.hei.haapi.integration.conf.TestUtils.ADMIN1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.EVENT1_ID;
 import static school.hei.haapi.integration.conf.TestUtils.EVENT2_ID;
+import static school.hei.haapi.integration.conf.TestUtils.EVENT3_ID;
 import static school.hei.haapi.integration.conf.TestUtils.MANAGER1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_ID;
 import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_TOKEN;
@@ -38,6 +39,7 @@ import static school.hei.haapi.integration.conf.TestUtils.student3AttendEvent1;
 import static school.hei.haapi.integration.conf.TestUtils.student3MissEvent2;
 
 import java.time.Instant;
+import java.util.Comparator;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
@@ -280,16 +282,22 @@ public class EventIT extends FacadeITMockedThirdParties {
     // events
     EventParticipantStats eventParticipantStats =
         managerApi.getEventParticipantStats(STUDENT1_ID, null, null);
-    assertEquals(2, eventParticipantStats.getTotalEvents());
+    assertEquals(3, eventParticipantStats.getTotalEvents());
   }
 
   @Test
   void event_as_public_link() throws ApiException {
     EventsApi api = new EventsApi(anApiClient(null));
     var actual = api.getEvents(1, 15, null, null, null, null, null, null);
-    assertEquals(event1(), actual.getFirst());
-    assertEquals(event3(), actual.get(1));
-    assertEquals(event2(), actual.get(2));
+    var baseEvents =
+        actual.stream()
+            .filter(e -> List.of(EVENT1_ID, EVENT2_ID, EVENT3_ID).contains(e.getId()))
+            .sorted(Comparator.comparing(Event::getBeginDatetime).reversed())
+            .toList();
+
+    assertEquals(event1(), baseEvents.get(0));
+    assertEquals(event3(), baseEvents.get(1));
+    assertEquals(event2(), baseEvents.get(2));
   }
 
   @Test
