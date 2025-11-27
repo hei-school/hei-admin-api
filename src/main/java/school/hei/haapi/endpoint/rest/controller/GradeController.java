@@ -93,9 +93,9 @@ public class GradeController {
         .toList();
   }
 
-  @PostMapping(value = "/exams/{exam_id}/grades/import")
+  @PostMapping(value = "/exams/{exams_id}/grades/import")
   public StudentExamGradeImportValidationResult importStudentsExamGrade(
-      @PathVariable(name = "exam_id") String examId,
+      @PathVariable(name = "exams_id") String examId,
       @RequestPart("file_to_upload") MultipartFile fileToUpload) {
     return gradeService.initStudentExamGradeImportFromXlsx(
         fileConverter.apply(fileToUpload), examId);
