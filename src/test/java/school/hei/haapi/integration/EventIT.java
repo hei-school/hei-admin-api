@@ -395,6 +395,6 @@ public class EventIT extends FacadeITMockedThirdParties {
 
     Event actual = api.getEventById(created.getId());
     assertFalse(actual.getIsOnline(), "Event should default to offline when isOnline is null");
-    assertEquals(created.getId(), actual.getId());
+    assertEquals(created, actual);
   }
 }
