@@ -49,6 +49,7 @@ import school.hei.haapi.repository.GroupFlowRepository;
 import school.hei.haapi.repository.GroupRepository;
 import school.hei.haapi.repository.MonitoringStudentRepository;
 import school.hei.haapi.repository.UserRepository;
+import school.hei.haapi.service.event.GradeImportEventService;
 
 public class GradeImportTest extends FacadeITMockedThirdParties {
   @Autowired private GradeService subject;
