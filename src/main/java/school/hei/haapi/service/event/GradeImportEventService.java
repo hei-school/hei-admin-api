@@ -1,4 +1,4 @@
-package school.hei.haapi.service;
+package school.hei.haapi.service.event;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static school.hei.haapi.service.utils.FileUtils.createFileFromBytes;
@@ -18,6 +18,8 @@ import school.hei.haapi.endpoint.rest.mapper.GradeMapper;
 import school.hei.haapi.mail.Email;
 import school.hei.haapi.mail.Mailer;
 import school.hei.haapi.model.User;
+import school.hei.haapi.service.GradeService;
+import school.hei.haapi.service.UserService;
 
 @Service
 @AllArgsConstructor
