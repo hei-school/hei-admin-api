@@ -174,6 +174,7 @@ public class FakeDataProvider {
         faker.lorem().sentence(10),
         null,
         false,
+        true,
         beginDatetime.toInstant(),
         faker.date().between(beginDatetime, faker.date().past(10, DAYS)).toInstant(),
         null,

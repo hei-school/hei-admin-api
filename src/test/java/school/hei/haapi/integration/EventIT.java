@@ -3,6 +3,7 @@ package school.hei.haapi.integration;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static school.hei.haapi.endpoint.rest.model.AttendanceStatus.MISSING;
 import static school.hei.haapi.endpoint.rest.model.AttendanceStatus.PRESENT;
@@ -46,6 +47,7 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 import school.hei.haapi.endpoint.rest.api.EventsApi;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
+import school.hei.haapi.endpoint.rest.model.CreateEvent;
 import school.hei.haapi.endpoint.rest.model.Event;
 import school.hei.haapi.endpoint.rest.model.EventAttendance;
 import school.hei.haapi.endpoint.rest.model.EventParticipant;
@@ -347,5 +349,49 @@ public class EventIT extends FacadeITMockedThirdParties {
     assertEquals(
         student3AttendEvent1(),
         studentNameFilteredEventParticipants.getFirst().getEventParticipant());
+  }
+
+  @Test
+  void manager_create_event_with_is_online_ok() throws ApiException {
+    ApiClient apiClient = anApiClient(MANAGER1_TOKEN);
+    EventsApi api = new EventsApi(apiClient);
+
+    CreateEvent onlineEvent = someCreatableEventByManager1(INTEGRATION).isOnline(true);
+    List<Event> createdOnlineEvents =
+        api.crupdateEvents(List.of(onlineEvent), null, null, null, null);
+    Event createdOnline = createdOnlineEvents.getFirst();
+
+    CreateEvent offlineEvent = someCreatableEventByManager1(INTEGRATION).isOnline(false);
+    List<Event> createdOfflineEvents =
+        api.crupdateEvents(List.of(offlineEvent), null, null, null, null);
+    Event createdOffline = createdOfflineEvents.getFirst();
+
+    Event actualOnline = api.getEventById(createdOnline.getId());
+    assertEquals(Boolean.TRUE, actualOnline.getIsOnline(), "Event should be marked as online");
+    assertEquals(createdOnline.getId(), actualOnline.getId());
+
+    Event actualOffline = api.getEventById(createdOffline.getId());
+    assertNotEquals(Boolean.TRUE, actualOffline.getIsOnline(), "Event should be marked as offline");
+    assertEquals(createdOffline.getId(), actualOffline.getId());
+  }
+
+  @Test
+  void manager_create_event_with_is_online_null_defaults_to_false() throws ApiException {
+    ApiClient apiClient = anApiClient(MANAGER1_TOKEN);
+    EventsApi api = new EventsApi(apiClient);
+
+    CreateEvent eventWithNullIsOnline = someCreatableEventByManager1(INTEGRATION);
+
+    List<Event> createdEvents =
+        api.crupdateEvents(List.of(eventWithNullIsOnline), null, null, null, null);
+    Event created = createdEvents.getFirst();
+
+    Event actual = api.getEventById(created.getId());
+
+    assertNotEquals(
+        Boolean.TRUE,
+        actual.getIsOnline(),
+        "Event should default to offline when isOnline is null");
+    assertEquals(created.getId(), actual.getId());
   }
 }

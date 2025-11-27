@@ -67,6 +67,8 @@ public class Event {
 
   private boolean isDeleted;
 
+  private boolean isOnline;
+
   // TODO : Add promotion
 
   @Column(name = "begin_datetime")
