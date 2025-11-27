@@ -10,7 +10,7 @@ plugins {
 
     id 'jacoco'
 
-    id "org.sonarqube" version "4.4.1.3373"
+    id "org.sonarqube" version "4.4.1.3373" 
 }
 
 jacoco {
@@ -22,10 +22,10 @@ sonarqube {
         property "sonar.java.source", "21"
         property "sonar.java.target", "21"
     }
-}
+} 
 
 repositories {
-    mavenLocal()
+mavenLocal()
 
     mavenCentral()
 }
@@ -240,4 +240,5 @@ implementation 'org.casbin:casdoor-spring-boot-starter:1.7.1'
     bootRun {
         jvmArgs = ["-Xss2m"]
     }
+
 }

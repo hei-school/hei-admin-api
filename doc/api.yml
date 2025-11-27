@@ -435,6 +435,35 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
+  /students/{student_id}/level:
+    get:
+      tags:
+        - Users
+      summary: Get student level
+      operationId: getStudentLevel
+      parameters:
+        - name: student_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: The student level
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StudentLevel'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
   /students/{student_id}/grades:
     get:
       tags:
@@ -1621,31 +1650,29 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
-  /retake_exams/{id}/to_cancel:
+  /retake_exams/to_cancel:
     patch:
       tags:
         - RetakeExam
-      summary: Request to cancel a retake exam
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: string
+      summary: Request to cancel multiple retake exams
+      operationId: requestToCancelRetakeExams
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/CancelReason"
-      operationId: requestToCancelRetakeExam
+              type: array
+              items:
+                $ref: "#/components/schemas/CancelRetakeExamRequest"
       responses:
         '200':
-          description: Request to cancel retake exam
+          description: Request to cancel retake exams
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/StudentRetakeExam'
+                type: array
+                items:
+                  $ref: '#/components/schemas/StudentRetakeExam'
         '400':
           $ref: '#/components/responses/400'
         '403':
@@ -1656,31 +1683,29 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
-  /retake_exams/{id}/cancel:
+  /retake_exams/cancel:
     patch:
       tags:
         - RetakeExam
-      summary: Cancel a retake exam request
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: string
+      summary: Cancel multiple retake exams
+      operationId: cancelRetakeExams
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/CancelReason"
-      operationId: cancelRetakeExam
+              type: array
+              items:
+                $ref: "#/components/schemas/RetakeExamToCancel"
       responses:
         '200':
-          description: Retake exam successfully canceled
+          description: Retake exams successfully canceled
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/StudentRetakeExam'
+                type: array
+                items:
+                  $ref: '#/components/schemas/StudentRetakeExam'
         '400':
           $ref: '#/components/responses/400'
         '403':
@@ -1691,31 +1716,29 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
-  /retake_exams/{id}/reject:
+  /retake_exams/reject:
     patch:
       tags:
         - RetakeExam
-      summary: Reject a retake exam request
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: string
+      summary: Reject multiple retake exam cancellation requests
+      operationId: rejectToCancelRetakeExamRequests
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/RejectReason"
-      operationId: rejectToCancelRetakeExamRequest
+              type: array
+              items:
+                $ref: "#/components/schemas/CancelRetakeExamRequest"
       responses:
         '200':
           description: Retake exam successfully rejected
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/StudentRetakeExam'
+                type: array
+                items:
+                  $ref: '#/components/schemas/StudentRetakeExam'
         '400':
           $ref: '#/components/responses/400'
         '403':
@@ -2515,6 +2538,38 @@ paths:
               schema:
                 items:
                   $ref: '#/components/schemas/StudentGrade'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+  /exams/{exam_id}/grades/import:
+    post:
+      tags:
+        - Grades
+      summary: Import students exam grade from an excel file
+      operationId: importStudentsExamGrade
+      parameters:
+        - $ref: '#/components/parameters/PathExamId'
+      requestBody:
+        description: Form containing the xlsx file for students exam grade to import
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/UploadFile'
+      responses:
+        '200':
+          description: Status of the validation of imported students exam grade
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StudentExamGradeImportValidationResult'
         '400':
           $ref: '#/components/responses/400'
         '403':
@@ -7636,9 +7691,9 @@ components:
           type: string
           format: date-time
         cancel_reason:
-          $ref: "#/components/schemas/CancelReason"
+          type: string
         rejection_reason:
-          $ref: "#/components/schemas/RejectReason"
+          type: string
         status:
           $ref: "#/components/schemas/RetakeExamStatus"
     CrupdateRetakeExam:
@@ -7654,22 +7709,24 @@ components:
           type: string
         status:
           $ref: "#/components/schemas/RetakeExamStatus"
-    CancelReason:
+    CancelRetakeExamRequest:
       type: object
       properties:
-        cancelReason:
+        retake_exam_id:
           type: string
-          description: Reason provided by the student for canceling the retake request
+        reason:
+          type: string
+          description: Reason provided by the student or manager for canceling or not cancelling the retake request
       required:
-        - cancelReason
-    RejectReason:
+        - reason
+        - retake_exam_id
+    RetakeExamToCancel:
       type: object
       properties:
-        rejectReason:
+        retake_exam_id:
           type: string
-          description: Reason provided by the validator for rejecting the retake request
       required:
-        - rejectReason
+        - retake_exam_id
     StudentRetakeExam:
       type: object
       allOf:
@@ -7988,6 +8045,8 @@ components:
         end_datetime:
           type: string
           format: date-time
+        is_online:
+          type: boolean
         event_type:
           $ref: '#/components/schemas/EventType'
         location:
@@ -8742,4 +8801,9 @@ components:
       type: "object"
       properties:
         validStudentNumber:
+          type: "integer"
+    StudentExamGradeImportValidationResult:
+      type: "object"
+      properties:
+        validStudentExamGradeNumber:
           type: "integer"

@@ -7,6 +7,8 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 import static school.hei.haapi.endpoint.rest.model.ResultOverviewStatus.INVALIDATED;
+import static school.hei.haapi.endpoint.rest.model.RetakeExamStatus.CANCELED;
+import static school.hei.haapi.endpoint.rest.model.RetakeExamStatus.REGISTERED;
 import static school.hei.haapi.endpoint.rest.model.RetakeExamStatus.TO_CANCEL;
 import static school.hei.haapi.endpoint.rest.model.StudentLevel.L1;
 import static school.hei.haapi.integration.StudentIT.student1;
@@ -16,7 +18,11 @@ import static school.hei.haapi.integration.conf.TestUtils.course1;
 import static school.hei.haapi.integration.conf.TestUtils.setUpCasdoor;
 import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
 import static school.hei.haapi.integration.conf.TestUtils.setUpS3Service;
-import static school.hei.haapi.model.RetakeExamStatus.REGISTERED;
+import static school.hei.haapi.integration.test_data.RequestRetakeExam.cancelRetakeExamRequest1;
+import static school.hei.haapi.integration.test_data.RequestRetakeExam.cancelRetakeExamRequest2;
+import static school.hei.haapi.integration.test_data.RequestRetakeExam.rejectRetakeExamRequest1;
+import static school.hei.haapi.integration.test_data.RequestRetakeExam.rejectRetakeExamRequest2;
+import static school.hei.haapi.integration.test_data.RequestRetakeExam.retakeExamToCancel;
 
 import java.util.List;
 import java.util.Objects;
@@ -157,7 +163,7 @@ public class RetakeExamIT extends FacadeITMockedThirdParties {
             "session2_id", "course1_id", null, 1, 15);
 
     assertNotNull(students);
-    assertEquals(1, students.size());
+    assertEquals(2, students.size());
     assertEquals("student1_id", students.getFirst().getId());
   }
 
@@ -181,11 +187,19 @@ public class RetakeExamIT extends FacadeITMockedThirdParties {
   void filter_retake_exam_by_criteria_ok() {
     var pageable = PageRequest.of(0, 10);
     var retakeExams =
-        retakeExamDao.filterByCriteria(null, null, null, null, null, List.of(REGISTERED), pageable);
+        retakeExamDao.filterByCriteria(
+            null,
+            null,
+            null,
+            null,
+            null,
+            List.of(school.hei.haapi.model.RetakeExamStatus.REGISTERED),
+            pageable);
     assertNotNull(retakeExams);
     assertEquals(2, retakeExams.size());
     assertEquals("retake_exam3_id", retakeExams.getFirst().getId());
-    assertEquals(REGISTERED, retakeExams.getFirst().getStatus());
+    assertEquals(
+        school.hei.haapi.model.RetakeExamStatus.REGISTERED, retakeExams.getFirst().getStatus());
     assertEquals("student3_id", retakeExams.getFirst().getStudent().getId());
     assertEquals("course3_id", retakeExams.getFirst().getCourse().getId());
   }
@@ -200,5 +214,63 @@ public class RetakeExamIT extends FacadeITMockedThirdParties {
     assertNotNull(retakeExams);
     assertEquals("session4_id", retakeExams.getFirst().getSession().getId());
     assertEquals("course3_id", retakeExams.getFirst().getCourse().getId());
+  }
+
+  @Test
+  void filter_retake_exam_by_student_ref_ok() throws ApiException {
+    ApiClient apiClient = anApiClient(ADMIN1_TOKEN);
+    RetakeExamApi api = new RetakeExamApi(apiClient);
+
+    var retakeExam = api.getAllRetakeExams(null, "STD21001", null, null, null, null);
+
+    assertNotNull(retakeExam);
+    assertEquals(2, retakeExam.size());
+    assertEquals(
+        "STD21001", Objects.requireNonNull(retakeExam.getFirst().getStudentIdentifier()).getRef());
+  }
+
+  @Test
+  void request_to_cancel_retake_exam_by_student_ok() throws ApiException {
+    ApiClient apiClient = anApiClient(STUDENT1_TOKEN);
+    RetakeExamApi api = new RetakeExamApi(apiClient);
+
+    var retakeExams =
+        api.requestToCancelRetakeExams(
+            List.of(cancelRetakeExamRequest1(), cancelRetakeExamRequest2()));
+
+    assertNotNull(retakeExams);
+    assertEquals(2, retakeExams.size());
+    assertEquals(TO_CANCEL, retakeExams.getFirst().getStatus());
+
+    assertNotNull(retakeExams);
+    assertEquals(TO_CANCEL, retakeExams.getLast().getStatus());
+  }
+
+  @Test
+  void cancel_retake_exam_by_admin_ok() throws ApiException {
+    ApiClient apiClient = anApiClient(ADMIN1_TOKEN);
+    RetakeExamApi api = new RetakeExamApi(apiClient);
+
+    var retakeExam = api.cancelRetakeExams(List.of(retakeExamToCancel()));
+
+    assertNotNull(retakeExam);
+    assertEquals(CANCELED, retakeExam.getFirst().getStatus());
+  }
+
+  @Test
+  void reject_request_to_cancel_retake_exam_by_student_ok() throws ApiException {
+    ApiClient apiClient = anApiClient(ADMIN1_TOKEN);
+    RetakeExamApi api = new RetakeExamApi(apiClient);
+
+    var retakeExams =
+        api.rejectToCancelRetakeExamRequests(
+            List.of(rejectRetakeExamRequest1(), rejectRetakeExamRequest2()));
+
+    assertNotNull(retakeExams);
+    assertEquals(2, retakeExams.size());
+    assertEquals(REGISTERED, retakeExams.getFirst().getStatus());
+
+    assertNotNull(retakeExams);
+    assertEquals(REGISTERED, retakeExams.getLast().getStatus());
   }
 }

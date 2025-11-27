@@ -3,6 +3,7 @@ package school.hei.haapi.endpoint.rest.security;
 import static org.springframework.http.HttpMethod.DELETE;
 import static org.springframework.http.HttpMethod.GET;
 import static org.springframework.http.HttpMethod.OPTIONS;
+import static org.springframework.http.HttpMethod.PATCH;
 import static org.springframework.http.HttpMethod.POST;
 import static org.springframework.http.HttpMethod.PUT;
 import static org.springframework.security.web.util.matcher.AntPathRequestMatcher.antMatcher;
@@ -151,6 +152,7 @@ public class SecurityConf {
                     antMatcher(POST, "/students/*/fees"),
                     antMatcher(PUT, "/students/*/fees"),
                     antMatcher(GET, "/students/*"),
+                    antMatcher(GET, "/students/*/level"),
                     antMatcher(PUT, "/students/**"),
                     antMatcher(GET, "/students/*/grades"),
                     antMatcher(GET, "/students/*/courses/*/grades"),
@@ -198,6 +200,7 @@ public class SecurityConf {
                     antMatcher(GET, "/exams/*/grades"),
                     antMatcher(POST, "/exams/*/grades"),
                     antMatcher(POST, "/exams/*/grades/update"),
+                    antMatcher(POST, "/exams/*/grades/import"),
                     antMatcher(GET, "/exams/*/grade/stats"),
                     antMatcher(PUT, "/exams"),
                     antMatcher(GET, "/exams/*/students/*/grade"),
@@ -262,6 +265,9 @@ public class SecurityConf {
                     antMatcher(PUT, "/retake_exam_sessions"),
                     antMatcher(GET, "/retake_exam_sessions/*"),
                     antMatcher(GET, "/retake_exams"),
+                    antMatcher(PATCH, "/retake_exams/to_cancel"),
+                    antMatcher(PATCH, "/retake_exams/cancel"),
+                    antMatcher(PATCH, "/retake_exams/reject"),
                     antMatcher(PUT, "/retake_exam_sessions/*/retake_exams"),
                     antMatcher(GET, "/students/*/sessions/*/retake_exams"),
                     antMatcher(GET, "/retake_exam_sessions/*/retake_exam_courses"),
@@ -584,6 +590,13 @@ public class SecurityConf {
                     .hasAnyRole(STUDENT.getRole())
                     .requestMatchers(GET, "/students/*")
                     .hasAnyRole(TEACHER.getRole(), MANAGER.getRole(), ADMIN.getRole())
+                    .requestMatchers(GET, "/students/*/level")
+                    .hasAnyRole(
+                        TEACHER.getRole(),
+                        MANAGER.getRole(),
+                        ADMIN.getRole(),
+                        STUDENT.getRole(),
+                        MONITOR.getRole())
                     // TODO: clarify PUT STUDENTS/** FOR MANAGERS
                     .requestMatchers(PUT, "/students/**")
                     .hasAnyRole(MANAGER.getRole(), ADMIN.getRole())
@@ -757,6 +770,8 @@ public class SecurityConf {
                     .hasAnyRole(TEACHER.getRole(), MANAGER.getRole(), ADMIN.getRole())
                     .requestMatchers(POST, "/exams/*/grades")
                     .hasAnyRole(TEACHER.getRole(), MANAGER.getRole(), ADMIN.getRole())
+                    .requestMatchers(POST, "/exams/*/grades/import")
+                    .hasAnyRole(TEACHER.getRole(), MANAGER.getRole(), ADMIN.getRole())
                     .requestMatchers(POST, "/exams/*/grades/update")
                     .hasAnyRole(TEACHER.getRole(), MANAGER.getRole(), ADMIN.getRole())
                     .requestMatchers(GET, "/exams/*/grade/stats")
@@ -776,6 +791,13 @@ public class SecurityConf {
                     .requestMatchers(GET, "/retake_exams")
                     .hasAnyRole(
                         TEACHER.getRole(), MANAGER.getRole(), ADMIN.getRole(), STUDENT.getRole())
+                    .requestMatchers(PATCH, "/retake_exams/to_cancel")
+                    .hasAnyRole(
+                        TEACHER.getRole(), MANAGER.getRole(), ADMIN.getRole(), STUDENT.getRole())
+                    .requestMatchers(PATCH, "/retake_exams/cancel")
+                    .hasAnyRole(MANAGER.getRole(), ADMIN.getRole())
+                    .requestMatchers(PATCH, "/retake_exams/reject")
+                    .hasAnyRole(MANAGER.getRole(), ADMIN.getRole())
                     .requestMatchers(PUT, "/retake_exam_sessions/*/retake_exams")
                     .hasAnyRole(
                         MANAGER.getRole(), TEACHER.getRole(), ADMIN.getRole(), STUDENT.getRole())

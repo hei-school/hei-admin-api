@@ -3,13 +3,16 @@ package school.hei.haapi.endpoint.rest.mapper;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
+import school.hei.haapi.endpoint.rest.model.CancelRetakeExamRequest;
 import school.hei.haapi.endpoint.rest.model.CrupdateRetakeExam;
 import school.hei.haapi.endpoint.rest.model.RetakeExam;
 import school.hei.haapi.endpoint.rest.model.RetakeExamStatus;
+import school.hei.haapi.endpoint.rest.model.RetakeExamToCancel;
 import school.hei.haapi.endpoint.rest.model.StudentRetakeExam;
 import school.hei.haapi.model.Course;
 import school.hei.haapi.model.RetakeExamSession;
 import school.hei.haapi.service.CourseService;
+import school.hei.haapi.service.RetakeExamService;
 import school.hei.haapi.service.RetakeExamSessionService;
 import school.hei.haapi.service.UserService;
 
@@ -22,6 +25,7 @@ public class RetakeExamMapper {
   private final CourseService courseService;
   private final RetakeExamSessionService retakeExamSessionService;
   private final UserMapper userMapper;
+  private final RetakeExamService retakeExamService;
 
   public school.hei.haapi.model.RetakeExam toDomainCrupdate(CrupdateRetakeExam crupdateRetakeExam) {
     var studentUser = userService.getById(crupdateRetakeExam.getStudentId());
@@ -38,6 +42,38 @@ public class RetakeExamMapper {
         .build();
   }
 
+  public school.hei.haapi.model.RetakeExam toDomainCrupdate(
+      CancelRetakeExamRequest cancelRetakeExamRequest, RetakeExamStatus status) {
+    var existingRetakeExam = retakeExamService.getById(cancelRetakeExamRequest.getRetakeExamId());
+    existingRetakeExam.setStatus(school.hei.haapi.model.RetakeExamStatus.valueOf(status.name()));
+    switch (status) {
+      case TO_CANCEL -> existingRetakeExam.setCancelReason(cancelRetakeExamRequest.getReason());
+      case REGISTERED -> existingRetakeExam.setRejectionReason(cancelRetakeExamRequest.getReason());
+    }
+    return existingRetakeExam;
+  }
+
+  public school.hei.haapi.model.RetakeExam toDomainCrupdate(
+      RetakeExamToCancel retakeExamToCancel, RetakeExamStatus status) {
+    var existingRetakeExam = retakeExamService.getById(retakeExamToCancel.getRetakeExamId());
+    existingRetakeExam.setStatus(school.hei.haapi.model.RetakeExamStatus.valueOf(status.name()));
+    return existingRetakeExam;
+  }
+
+  public List<school.hei.haapi.model.RetakeExam> toDomainCancelRetakeExamList(
+      List<CancelRetakeExamRequest> cancelRetakeExamRequests, RetakeExamStatus status) {
+    return cancelRetakeExamRequests.stream()
+        .map(cancelRetakeExamRequest -> this.toDomainCrupdate(cancelRetakeExamRequest, status))
+        .toList();
+  }
+
+  public List<school.hei.haapi.model.RetakeExam> toDomainToCancelRetakeExamList(
+      List<RetakeExamToCancel> retakeExamToCancels, RetakeExamStatus status) {
+    return retakeExamToCancels.stream()
+        .map(retakeExamToCancel -> this.toDomainCrupdate(retakeExamToCancel, status))
+        .toList();
+  }
+
   public RetakeExam toRest(school.hei.haapi.model.RetakeExam retakeExam) {
     var domainStatus = retakeExam.getStatus();
     var retakeExamRest =
@@ -45,7 +81,9 @@ public class RetakeExamMapper {
             .id(retakeExam.getId())
             .course(courseMapper.toRest(retakeExam.getCourse()))
             .session(retakeExamSessionMapper.toRest(retakeExam.getSession()))
-            .registrationDate(retakeExam.getRegistrationDate());
+            .registrationDate(retakeExam.getRegistrationDate())
+            .cancelReason(retakeExam.getCancelReason())
+            .rejectionReason(retakeExam.getRejectionReason());
     if (domainStatus != null) {
       retakeExamRest.status(RetakeExamStatus.valueOf(domainStatus.name()));
     }
@@ -78,6 +116,8 @@ public class RetakeExamMapper {
             .studentIdentifier(userMapper.toIdentifier(retakeExam.getStudent()))
             .course(courseMapper.toRest(retakeExam.getCourse()))
             .session(retakeExamSessionMapper.toRest(retakeExam.getSession()))
+            .cancelReason(retakeExam.getCancelReason())
+            .rejectionReason(retakeExam.getRejectionReason())
             .registrationDate(retakeExam.getRegistrationDate());
     if (domainStatus != null) {
       studentRetakeExam.status(RetakeExamStatus.valueOf(domainStatus.name()));
