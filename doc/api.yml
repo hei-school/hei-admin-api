@@ -2548,7 +2548,7 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
-  /exams/{exam_id}/grades/import:
+  /exams/{exams_id}/grades/import:
     post:
       tags:
         - Grades
