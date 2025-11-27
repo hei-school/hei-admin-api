@@ -3,7 +3,6 @@ package school.hei.haapi.integration;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static school.hei.haapi.endpoint.rest.model.AttendanceStatus.MISSING;
 import static school.hei.haapi.endpoint.rest.model.AttendanceStatus.PRESENT;
@@ -375,12 +374,12 @@ public class EventIT extends FacadeITMockedThirdParties {
     Event createdOffline = createdOfflineEvents.getFirst();
 
     Event actualOnline = api.getEventById(createdOnline.getId());
-    assertEquals(Boolean.TRUE, actualOnline.getIsOnline(), "Event should be marked as online");
+    assertTrue(actualOnline.getIsOnline(), "Event should be marked as online");
     assertEquals(createdOnline.getId(), actualOnline.getId());
 
     Event actualOffline = api.getEventById(createdOffline.getId());
-    assertNotEquals(Boolean.TRUE, actualOffline.getIsOnline(), "Event should be marked as offline");
-    assertEquals(createdOffline.getId(), actualOffline.getId());
+    assertFalse(actualOffline.getIsOnline(), "Event should be marked as offline");
+    assertEquals(createdOffline, actualOffline);
   }
 
   @Test
@@ -395,11 +394,7 @@ public class EventIT extends FacadeITMockedThirdParties {
     Event created = createdEvents.getFirst();
 
     Event actual = api.getEventById(created.getId());
-
-    assertNotEquals(
-        Boolean.TRUE,
-        actual.getIsOnline(),
-        "Event should default to offline when isOnline is null");
+    assertFalse(actual.getIsOnline(), "Event should default to offline when isOnline is null");
     assertEquals(created.getId(), actual.getId());
   }
 }

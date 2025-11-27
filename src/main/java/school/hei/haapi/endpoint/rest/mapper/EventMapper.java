@@ -50,7 +50,7 @@ public class EventMapper {
                     ? null
                     : courseService.getById(createEvent.getCourseId()))
             .groups(mappedGroup)
-            .isOnline(Boolean.TRUE.equals(createEvent.getIsOnline()))
+            .isOnline(Optional.ofNullable(createEvent.getIsOnline()).orElse(false))
             .planner(userService.getById(createEvent.getPlannerId()))
             .type(createEvent.getEventType())
             .title(createEvent.getTitle());
