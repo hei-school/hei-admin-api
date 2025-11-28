@@ -1,9 +1,9 @@
 package school.hei.haapi.model.psp;
 
-import school.hei.haapi.model.mpbs.Mpbs;
+import school.hei.haapi.model.psp.vola.api.gen.client.model.Payment;
 
 public interface Psp {
-  Mpbs create(Mpbs mpbs);
+  Payment create(PspType pspType, String pspId, String email);
 
-  Mpbs get(Mpbs mpbs);
+  Payment get(PspType pspType, String pspId, String email);
 }
