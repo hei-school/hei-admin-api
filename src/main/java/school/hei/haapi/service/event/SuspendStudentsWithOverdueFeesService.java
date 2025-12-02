@@ -3,13 +3,13 @@ package school.hei.haapi.service.event;
 import static school.hei.haapi.model.User.Status.DISABLED;
 import static school.hei.haapi.model.User.Status.SUSPENDED;
 
-import jakarta.transaction.Transactional;
 import java.util.List;
 import java.util.function.Consumer;
 import lombok.AllArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import school.hei.haapi.endpoint.event.model.SuspendStudentsWithOverdueFees;
 import school.hei.haapi.model.User;
 import school.hei.haapi.repository.dao.UserManagerDao;
@@ -28,7 +28,6 @@ public class SuspendStudentsWithOverdueFeesService
   private final MpbsService mpbsService;
 
   // Suspends students with overdue fees if it hasn't been done already.
-  @Transactional
   public void suspendStudentsWithUnpaidOrLateFee() {
     List<User> students = userService.getStudentsWithUnpaidOrLateFee();
     log.info("list of student with unpaid or late fee : {} ", students);
