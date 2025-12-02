@@ -1,3 +1,38 @@
+## [1.139.1](https://github.com/hei-school/hei-admin-api/compare/v1.139.0...v1.139.1) (2025-11-27)
+
+
+### Bug Fixes
+
+* import grade event service ([6a9cc18](https://github.com/hei-school/hei-admin-api/commit/6a9cc18fb946a50a310663a2ff16821560ab991c))
+* increase build stack size ([f1d2149](https://github.com/hei-school/hei-admin-api/commit/f1d2149e84a22056f0d1c87b1cfd92b1c5f3259d))
+
+
+
+# [1.139.0](https://github.com/hei-school/hei-admin-api/compare/v1.138.0...v1.139.0) (2025-11-26)
+
+
+### Bug Fixes
+
+* increase build stack size ([f60b48e](https://github.com/hei-school/hei-admin-api/commit/f60b48e8d08b0fe3b98feb232e9541cbe86787a4))
+
+
+### Features
+
+* add import student grade for an exam ([483e42d](https://github.com/hei-school/hei-admin-api/commit/483e42d133231649c93053a269e44b8c041d60a8))
+* add monitor access to level ([5d61638](https://github.com/hei-school/hei-admin-api/commit/5d6163897addf1da50f8990103e42685233a39d6))
+* **doc:** add is_online field to EventBase ([7050d6f](https://github.com/hei-school/hei-admin-api/commit/7050d6fc79739730ac8196756d1efd6e53d9adb3))
+
+
+
+# [1.138.0](https://github.com/hei-school/hei-admin-api/compare/v1.137.0...v1.138.0) (2025-11-22)
+
+
+### Features
+
+* add reason to cancel or reject retake exam request ([35c9ecc](https://github.com/hei-school/hei-admin-api/commit/35c9ecc5bb2d135029a81719307fbc10bfd2df30))
+
+
+
 # [1.137.0](https://github.com/hei-school/hei-admin-api/compare/v1.136.0...v1.137.0) (2025-11-19)
 
 
@@ -67,47 +102,6 @@
 
 * (doc) add retake exam comments ([955567f](https://github.com/hei-school/hei-admin-api/commit/955567f356e4102f61e43718c2789f21980d756d))
 * (doc) add student level and filter by student ref  ([620b28e](https://github.com/hei-school/hei-admin-api/commit/620b28e1997c14f0ae668cf0e1814583c889072c))
-
-
-
-# [1.132.0](https://github.com/hei-school/hei-admin-api/compare/v1.131.1...v1.132.0) (2025-10-28)
-
-
-### Bug Fixes
-
-* get all retake exam ([307d0aa](https://github.com/hei-school/hei-admin-api/commit/307d0aa59ebd618d743bb3a5d2f22ac3a38c4b86))
-* monitor get student receipt ([8f76837](https://github.com/hei-school/hei-admin-api/commit/8f7683760c4d17135bf4b566ff60ecd3550cf4d0))
-
-
-### Features
-
-* **not-implemented:** student alumni ([f4bd3ce](https://github.com/hei-school/hei-admin-api/commit/f4bd3ce6650448c0c460ff17d6ee54af13d1635e))
-
-
-
-## [1.131.1](https://github.com/hei-school/hei-admin-api/compare/v1.131.0...v1.131.1) (2025-10-27)
-
-
-### Bug Fixes
-
-* getEvents filter by group id ([3da842d](https://github.com/hei-school/hei-admin-api/commit/3da842d348146af98455e5da01fe2772aa7c4aac))
-* paid fee receipt left to pay value ([96d6e12](https://github.com/hei-school/hei-admin-api/commit/96d6e12bf5ce79c1b06413b2bff5fd1e63c9636d))
-* payment duplication on Mpbs re-verification ([4d334a9](https://github.com/hei-school/hei-admin-api/commit/4d334a9ea352e9a3c9e6daac0aa8a56fc275d06e))
-
-
-
-# [1.131.0](https://github.com/hei-school/hei-admin-api/compare/v1.129.1...v1.131.0) (2025-10-24)
-
-
-### Bug Fixes
-
-* get retake exam ([e76fd06](https://github.com/hei-school/hei-admin-api/commit/e76fd069badaf2187f00d4714b9af7ee32f898b8))
-* student import xlsx multipart form handling ([02edeb6](https://github.com/hei-school/hei-admin-api/commit/02edeb6c5cffa1b2409f52f31c8bc93887d35320))
-
-
-### Features
-
-* (doc) add get student retake exams pagination ([f220761](https://github.com/hei-school/hei-admin-api/commit/f220761826e5f5ac3a31a2e2e3be076c1fb3c10c))
 
 
 

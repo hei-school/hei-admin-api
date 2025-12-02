@@ -11,7 +11,8 @@ on:
 
   workflow_call:
 
-
+env:
+  SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }} 
 
 jobs:
   test:
@@ -20,7 +21,19 @@ jobs:
 
     env:
       AWS_REGION: eu-west-3
-      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      VOLA_API_URL: ${{
+              (github.event_name == 'pull_request' && github.base_ref == 'prod') && secrets.PROD_VOLA_API_URL ||
+              (github.event_name == 'pull_request' && github.base_ref == 'preprod') && secrets.PREPROD_VOLA_API_URL ||
+              (github.ref == 'refs/heads/prod') && secrets.PROD_VOLA_API_URL ||
+              (github.ref == 'refs/heads/preprod') && secrets.PREPROD_VOLA_API_URL
+              }}
+      VOLA_API_KEY: ${{
+              (github.event_name == 'pull_request' && github.base_ref == 'prod') && secrets.PROD_VOLA_API_KEY ||
+              (github.event_name == 'pull_request' && github.base_ref == 'preprod') && secrets.PREPROD_VOLA_API_KEY ||
+              (github.ref == 'refs/heads/prod') && secrets.PROD_VOLA_API_KEY ||
+              (github.ref == 'refs/heads/preprod') && secrets.PREPROD_VOLA_API_KEY
+              }}
+
 
     steps:
       - uses: actions/checkout@v4.1.6
@@ -34,7 +47,7 @@ jobs:
       - run: ./gradlew test
 
       - name: Cache SonarCloud packages
-        uses: actions/cache@v4
+        uses: actions/cache@v4.2.2
         with:
           path: ~/.sonar/cache
           key: sonar-${{ runner.os }}-${{ hashFiles('build.gradle') }}
@@ -42,13 +55,14 @@ jobs:
 
       - name: Code quality and coverage analysis
         run: |
-          ./gradlew sonarqube --info \
-          -Dsonar.host.url=https://sonarcloud.io \
-          -Dsonar.organization=${{ vars.SONAR_ORG }} \
-          -Dsonar.projectKey=${{ vars.SONAR_PJ_KEY }} \
-          -Dsonar.projectName=${{ vars.SONAR_PJ_NAME }} \
-          -Dsonar.coverage.jacoco.xmlReportPaths=build/reports/jacoco/test/jacocoTestReport.xml \
-          -Dsonar.java.checkstyle.reportPaths=build/reports/checkstyle/main.xml,build/reports/checkstyle/test.xml
+         ./gradlew sonarqube --info \
+         -Dsonar.host.url=https://sonarcloud.io \
+         -Dsonar.organization=${{ vars.SONAR_ORG }} \
+         -Dsonar.projectKey=${{ vars.SONAR_PJ_KEY }} \
+         -Dsonar.projectName=${{ vars.SONAR_PJ_NAME }} \
+         -Dsonar.coverage.jacoco.xmlReportPaths=build/reports/jacoco/test/jacocoTestReport.xml \
+         -Dsonar.java.checkstyle.reportPaths=build/reports/checkstyle/main.xml,build/reports/checkstyle/test.xml
+ 
 
   format:
     runs-on: ubuntu-latest
