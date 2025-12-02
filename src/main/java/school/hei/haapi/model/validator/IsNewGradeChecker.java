@@ -17,16 +17,18 @@ public class IsNewGradeChecker implements Consumer<Grade> {
   public void accept(Grade grade) {
     String examId = grade.getExam().getId();
     String studentId = grade.getStudent().getId();
+    Double score = grade.getScore();
 
-    existGradeOfStudentInExam(examId, studentId);
+    existGradeOfStudentInExam(examId, studentId, score);
   }
 
-  private void existGradeOfStudentInExam(String examId, String studentId) {
+  private void existGradeOfStudentInExam(String examId, String studentId, Double score) {
     Optional<Grade> existingGrade = gradeRepository.findByExamIdAndStudentId(examId, studentId);
-    if (existingGrade.isPresent()) {
+    if (existingGrade.isPresent() && existingGrade.get().getScore().equals(score)) {
       String error =
           String.format(
-              "Grade for the student %s for the exam %s already exist", studentId, examId);
+              "Grade for the student %s for the exam %s already exist and have a same score %s",
+              studentId, examId, score);
       throw new BadRequestException(error);
     }
   }

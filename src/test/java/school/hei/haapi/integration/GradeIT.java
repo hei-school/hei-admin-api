@@ -2,6 +2,7 @@ package school.hei.haapi.integration;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.when;
@@ -21,6 +22,7 @@ import static school.hei.haapi.integration.conf.TestUtils.TEACHER1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.assertBadRequestException;
 import static school.hei.haapi.integration.conf.TestUtils.assertThrowsApiException;
 import static school.hei.haapi.integration.conf.TestUtils.assertThrowsForbiddenException;
+import static school.hei.haapi.integration.conf.TestUtils.getMockedFile;
 import static school.hei.haapi.integration.conf.TestUtils.setUpCasdoor;
 import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
 import static school.hei.haapi.integration.conf.TestUtils.setUpS3Service;
@@ -482,6 +484,17 @@ class GradeIT extends FacadeITMockedThirdParties {
     assertEquals(2, gradeHistory.size());
     assertEquals(firstModificationGrade, gradeHistory.getFirst().getScore());
     assertEquals(secondModificationGrade, gradeHistory.get(1).getScore());
+  }
+
+  @Test
+  void update_student_grade_OK() throws ApiException {
+    ApiClient apiClient = anApiClient(MANAGER1_TOKEN);
+    GradesApi api = new GradesApi(apiClient);
+
+    var gradeSavedNumber =
+        api.importStudentsExamGrade("exam1_id", getMockedFile("test-student-import", ".xlsx"));
+
+    assertNotNull(gradeSavedNumber);
   }
 
   private void setUpCasdoorMonitor(
