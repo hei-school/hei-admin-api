@@ -2549,7 +2549,7 @@ paths:
         '500':
           $ref: '#/components/responses/500'
   /exams/{exams_id}/grades/import:
-    post:
+    put:
       tags:
         - Grades
       summary: Import students exam grade from an excel file
@@ -2562,7 +2562,16 @@ paths:
         content:
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/UploadFile'
+              type: object
+              properties:
+                file_to_upload:
+                  type: string
+                  format: binary
+                comment:
+                  type: string
+                  description: Reason if the teacher or manager updated the grade
+              required:
+                - file_to_upload
       responses:
         '200':
           description: Status of the validation of imported students exam grade
