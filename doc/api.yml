@@ -2548,14 +2548,18 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
-  /exams/{exams_id}/grades/import:
+  /exams/{exam_id}/grades/import:
     put:
       tags:
         - Grades
       summary: Import students exam grade from an excel file
       operationId: importStudentsExamGrade
       parameters:
-        - $ref: '#/components/parameters/PathExamId'
+        - name: exam_id
+          in: path
+          required: true
+          schema:
+            type: string
       requestBody:
         description: Form containing the xlsx file for students exam grade to import
         required: true
