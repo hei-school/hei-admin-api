@@ -2549,7 +2549,7 @@ paths:
         '500':
           $ref: '#/components/responses/500'
   /exams/{exams_id}/grades/import:
-    put:
+    post:
       tags:
         - Grades
       summary: Import students exam grade from an excel file
