@@ -2596,17 +2596,22 @@ paths:
           schema:
             type: string
       requestBody:
-        description: Form containing the xlsx file for students exam grade to import
+        description: Form containing the xlsx file for students exam grade to update
         required: true
         content:
           multipart/form-data:
             schema:
               type: object
-              properties: 
-                allOf:
-                  $ref: "#/components/schemas/UploadFile"
+              properties:
+                file_to_upload:
+                  type: string
+                  format: binary
+                  description: User profile picture
                 comment:
                   type: string
+              required:
+                - file_to_upload
+                - comment
       responses:
         '200':
           description: Status of the validation of imported students exam grade updated
