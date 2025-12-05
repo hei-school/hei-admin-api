@@ -2562,16 +2562,7 @@ paths:
         content:
           multipart/form-data:
             schema:
-              type: object
-              properties:
-                file_to_upload:
-                  type: string
-                  format: binary
-                comment:
-                  type: string
-                  description: Reason if the teacher or manager updated the grade
-              required:
-                - file_to_upload
+              $ref: "#/components/schemas/UploadFile"
       responses:
         '200':
           description: Status of the validation of imported students exam grade
