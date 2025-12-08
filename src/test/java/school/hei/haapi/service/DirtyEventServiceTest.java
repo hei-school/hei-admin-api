@@ -5,9 +5,11 @@ import static java.time.temporal.ChronoUnit.DAYS;
 import static java.time.temporal.ChronoUnit.HOURS;
 import static java.util.Comparator.comparing;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.test.annotation.DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD;
 import static school.hei.haapi.endpoint.rest.model.AttendanceStatus.MISSING;
 import static school.hei.haapi.endpoint.rest.model.AttendanceStatus.PRESENT;
+import static school.hei.haapi.endpoint.rest.model.EnableStatus.DISABLED;
 import static school.hei.haapi.endpoint.rest.model.EventType.COURSE;
 import static school.hei.haapi.endpoint.rest.model.FrequencyScopeDay.MONDAY;
 import static school.hei.haapi.integration.StudentIT.someCreatableStudentList;
@@ -67,6 +69,49 @@ class DirtyEventServiceTest extends FacadeITMockedThirdParties {
   }
 
   @Test
+  void create_event_no_disabled_student_ok() {
+    var disabledStudents =
+        userService.saveAll(
+            someCreatableStudentList(1).stream()
+                .map(
+                    user -> {
+                      user.status(DISABLED);
+                      return userMapper.toDomain(user);
+                    })
+                .toList());
+    var randomGroup =
+        groupService.saveAll(
+            List.of(
+                new CreateGroup(
+                    groupMapper.toDomain(fakeDataProvider.createGroup()),
+                    disabledStudents.stream().map(User::getId).toList())));
+    var creatableEvent =
+        eventMapper.toDomain(
+            someCreatableEvent(
+                COURSE,
+                MANAGER_ID,
+                now(),
+                now().plusSeconds(69),
+                randomGroup.stream().map(groupMapper::toRest).toList()));
+    List<Event> createdEvents =
+        subject.createOrUpdateEvent(
+            List.of(creatableEvent), CreateEventFrequency.builder().build());
+
+    var eventParticipants =
+        participantService.getEventParticipants(
+            createdEvents.getFirst().getId(),
+            new PageFromOne(1),
+            new BoundedPageSize(10),
+            null,
+            null,
+            null,
+            null,
+            null);
+
+    assertTrue(eventParticipants.isEmpty());
+  }
+
+  @Test
   void create_event_trigger_event_participant_creation() {
     List<User> randomUsers =
         userService.saveAll(
@@ -110,7 +155,7 @@ class DirtyEventServiceTest extends FacadeITMockedThirdParties {
   }
 
   @Test
-  void create_event_by_frequence_ok() {
+  void create_event_by_frequency_ok() {
     Instant eventBeginDate = InstantUtils.mondayOfTheWeek(LocalDate.of(2023, 12, 8));
     Event creatableEvent =
         eventMapper.toDomain(
