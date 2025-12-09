@@ -2606,7 +2606,7 @@ paths:
                 file_to_upload:
                   type: string
                   format: binary
-                  description: User profile picture
+                  description: Student grade updated
                 comment:
                   type: string
               required:
@@ -2618,7 +2618,9 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/StudentExamGradeImportValidationResult'
+                type: array
+                items:
+                  $ref: '#/components/schemas/ImportGradeResult'
         '400':
           $ref: '#/components/responses/400'
         '403':
@@ -8856,3 +8858,51 @@ components:
       properties:
         validStudentExamGradeNumber:
           type: "integer"
+    ImportGradeStat:
+      type: object
+      properties:
+        totalRows:
+          type: integer
+          example: 50
+        validRows:
+          type: integer
+          example: 45
+        invalidRows:
+          type: integer
+          example: 5
+    GradeValidRow:
+      type: object
+      properties:
+        ref:
+          type: string
+          example: "STD21001"
+        score:
+          type: number
+          example: 18
+    GradeInvalidRow:
+      type: object
+      properties:
+        ref:
+          type: string
+          nullable: true
+          example: "STD21001"
+        score:
+          type: number
+          nullable: true
+          example: 30
+        reason:
+          type: string
+          example: "Score must be <= 20"
+    ImportGradeResult:
+      type: object
+      properties:
+        importGradeStats:
+          $ref: "#/components/schemas/ImportGradeStat"
+        validGrades:
+          type: array
+          items:
+            $ref: "#/components/schemas/GradeValidRow"
+        invalidGrades:
+          type: array
+          items:
+            $ref: "#/components/schemas/GradeInvalidRow"
