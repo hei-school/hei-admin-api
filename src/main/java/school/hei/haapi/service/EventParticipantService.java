@@ -2,7 +2,9 @@ package school.hei.haapi.service;
 
 import static java.time.Instant.now;
 import static org.springframework.data.domain.Sort.Direction.ASC;
-import static school.hei.haapi.endpoint.rest.model.AttendanceStatus.*;
+import static school.hei.haapi.endpoint.rest.model.AttendanceStatus.UNCHECKED;
+import static school.hei.haapi.model.User.Status.ENABLED;
+import static school.hei.haapi.model.User.Status.SUSPENDED;
 
 import java.time.Instant;
 import java.util.ArrayList;
@@ -20,7 +22,6 @@ import school.hei.haapi.model.Event;
 import school.hei.haapi.model.EventParticipant;
 import school.hei.haapi.model.Group;
 import school.hei.haapi.model.PageFromOne;
-import school.hei.haapi.model.User;
 import school.hei.haapi.model.exception.BadRequestException;
 import school.hei.haapi.model.exception.NotFoundException;
 import school.hei.haapi.repository.EventParticipantRepository;
@@ -57,14 +58,15 @@ public class EventParticipantService {
   }
 
   public void createEventParticipantsForAGroup(Group group, Event event) {
-    String groupId = group.getId();
-    String eventId = event.getId();
-    List<User> users = userService.getByGroupId(groupId, Pageable.unpaged());
-    List<EventParticipant> eventParticipants = new ArrayList<>();
+    var groupId = group.getId();
+    var eventId = event.getId();
+    var users = userService.getByGroupId(groupId, Pageable.unpaged());
+    var eventParticipants = new ArrayList<EventParticipant>();
     Group actualGroup = groupService.findById(groupId);
     users.forEach(
         user -> {
-          if (!isParticipantAlreadyInEvent(eventId, groupId, user.getId())) {
+          if (!isParticipantAlreadyInEvent(eventId, groupId, user.getId())
+              && List.of(ENABLED, SUSPENDED).contains(user.getStatus())) {
             EventParticipant newEventParticipant =
                 EventParticipant.builder()
                     .participant(user)
