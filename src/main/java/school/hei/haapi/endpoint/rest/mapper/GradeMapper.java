@@ -2,18 +2,18 @@ package school.hei.haapi.endpoint.rest.mapper;
 
 import static java.time.Instant.now;
 
+import java.math.BigDecimal;
 import java.util.List;
-import java.util.Optional;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 import school.hei.haapi.endpoint.rest.model.CreateGrade;
 import school.hei.haapi.endpoint.rest.model.Grade;
+import school.hei.haapi.endpoint.rest.model.GradeValidRow;
 import school.hei.haapi.endpoint.rest.model.StudentGrade;
 import school.hei.haapi.endpoint.rest.model.UpdateGrade;
 import school.hei.haapi.endpoint.rest.validator.GradeValidator;
 import school.hei.haapi.endpoint.rest.validator.UpdateGradeValidator;
 import school.hei.haapi.model.Exam;
-import school.hei.haapi.model.User;
 import school.hei.haapi.model.dto.GradeImportDto;
 import school.hei.haapi.repository.GradeRepository;
 import school.hei.haapi.service.ExamService;
@@ -56,6 +56,15 @@ public class GradeMapper {
         .toList();
   }
 
+  public GradeValidRow toRestValidGrade(school.hei.haapi.model.Grade grade) {
+    var ref = grade.getStudent().getRef();
+    return new GradeValidRow().ref(ref).score(BigDecimal.valueOf(grade.getScore()));
+  }
+
+  public List<GradeValidRow> toRestListValidGrade(List<school.hei.haapi.model.Grade> grades) {
+    return grades.stream().map(this::toRestValidGrade).toList();
+  }
+
   public Grade toRest(school.hei.haapi.model.Grade grade) {
     return new Grade()
         .id(grade.getId())
@@ -72,17 +81,6 @@ public class GradeMapper {
     var getStudentGrade = new StudentGrade().grade(toRest(grade));
     getStudentGrade.setStudent(userMapper.toRestStudent(grade.getStudent()));
 
-    return getStudentGrade;
-  }
-
-  public StudentGrade toRestStudentExamGrade(User student, Exam exam) {
-    Optional<school.hei.haapi.model.Grade> optionalGrade =
-        exam.getGrades().stream()
-            .filter(grade -> grade.getStudent().getId().equals(student.getId()))
-            .findFirst();
-    school.hei.haapi.model.Grade grade = optionalGrade.get();
-    var getStudentGrade = new StudentGrade().grade(toRest(grade));
-    getStudentGrade.setStudent(userMapper.toRestStudent(student));
     return getStudentGrade;
   }
 

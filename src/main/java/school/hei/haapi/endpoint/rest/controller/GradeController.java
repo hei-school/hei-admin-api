@@ -14,8 +14,8 @@ import school.hei.haapi.endpoint.rest.mapper.GradeMapper;
 import school.hei.haapi.endpoint.rest.model.CreateGrade;
 import school.hei.haapi.endpoint.rest.model.ExamGradeStats;
 import school.hei.haapi.endpoint.rest.model.Grade;
+import school.hei.haapi.endpoint.rest.model.ImportGradeResult;
 import school.hei.haapi.endpoint.rest.model.ResultSummary;
-import school.hei.haapi.endpoint.rest.model.StudentExamGradeImportValidationResult;
 import school.hei.haapi.endpoint.rest.model.StudentGrade;
 import school.hei.haapi.endpoint.rest.model.StudentLevel;
 import school.hei.haapi.endpoint.rest.model.UpdateGrade;
@@ -94,7 +94,7 @@ public class GradeController {
   }
 
   @PostMapping(value = "/exams/{exams_id}/grades/import")
-  public StudentExamGradeImportValidationResult importStudentsExamGrade(
+  public ImportGradeResult importStudentsExamGrade(
       @PathVariable(name = "exams_id") String examId,
       @RequestPart("file_to_upload") MultipartFile fileToUpload) {
     return gradeService.initStudentExamGradeImportFromXlsx(

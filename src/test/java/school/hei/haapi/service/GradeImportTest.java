@@ -1,8 +1,6 @@
 package school.hei.haapi.service;
 
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.when;
 import static school.hei.haapi.integration.conf.TestUtils.getMockedFile;
@@ -40,7 +38,6 @@ import school.hei.haapi.model.Group;
 import school.hei.haapi.model.GroupFlow;
 import school.hei.haapi.model.User;
 import school.hei.haapi.model.dto.GradeImportDto;
-import school.hei.haapi.model.exception.BadRequestException;
 import school.hei.haapi.repository.CourseAssignmentRepository;
 import school.hei.haapi.repository.CourseRepository;
 import school.hei.haapi.repository.ExamRepository;
@@ -49,11 +46,9 @@ import school.hei.haapi.repository.GroupFlowRepository;
 import school.hei.haapi.repository.GroupRepository;
 import school.hei.haapi.repository.MonitoringStudentRepository;
 import school.hei.haapi.repository.UserRepository;
-import school.hei.haapi.service.event.GradeImportEventService;
 
 public class GradeImportTest extends FacadeITMockedThirdParties {
   @Autowired private GradeService subject;
-  @Autowired private GradeImportEventService gradeImportEventService;
   @MockBean Mailer mailer;
   @MockBean BucketComponent bucketComponent;
   @MockBean private EventProducer eventProducer;
@@ -132,30 +127,16 @@ public class GradeImportTest extends FacadeITMockedThirdParties {
     var importResult =
         subject.initStudentExamGradeImportFromXlsx(
             getMockedFile("test-grade-import", ".xlsx"), "exam1_id");
-    assertEquals(2, importResult.getValidStudentExamGradeNumber());
-  }
-
-  @Test
-  void validate_bad_student_import_ko() {
-    assertThrows(
-        BadRequestException.class,
-        () ->
-            subject.initStudentExamGradeImportFromXlsx(
-                getMockedFile("test-bad-student-grade-import", ".xlsx"), "exam1_id"));
-  }
-
-  @Test
-  void handle_grade_import_xlsx() {
-    assertDoesNotThrow(() -> gradeImportEventService.accept(gradeImportEventMock()));
-    var grade =
-        subject.getGradeByExamIdAndStudentRef(exam1Prog1Saved.getId(), studentAxel.getRef());
-    assertEquals(studentAxel.getRef(), grade.getStudent().getRef());
-    assertEquals(exam1Prog1.getId(), grade.getExam().getId());
-  }
-
-  @Test
-  void import_bad_grade_ko() {
-    assertThrows(Exception.class, () -> gradeImportEventService.accept(badImportEvent()));
+    assertEquals(6, importResult.getImportGradeStats().getTotalRows());
+    assertEquals(1, importResult.getImportGradeStats().getValidRows());
+    assertEquals(5, importResult.getImportGradeStats().getInvalidRows());
+    assertEquals("STD21002", importResult.getValidGrades().getFirst().getRef());
+    assertEquals(
+        "La réference est dupliquée", importResult.getInvalidGrades().getFirst().getReason());
+    assertEquals("La note est supérieur à 20", importResult.getInvalidGrades().get(1).getReason());
+    assertEquals("La note est négative", importResult.getInvalidGrades().get(2).getReason());
+    assertEquals(
+        "La réference est null ou vide", importResult.getInvalidGrades().get(3).getReason());
   }
 
   private static Principal mockPrincipal() {
@@ -170,14 +151,6 @@ public class GradeImportTest extends FacadeITMockedThirdParties {
             List.of(
                 GradeImportDto.builder().ref(studentAxel.getRef()).score(12.5).build(),
                 GradeImportDto.builder().ref(studentTolojanahary.getRef()).score(13.5).build()))
-        .build();
-  }
-
-  private static GradeImportEvent badImportEvent() {
-    return GradeImportEvent.builder()
-        .examId("exam1_id")
-        .coordinatorEmail("test+manager1@hei.school")
-        .grades(List.of(GradeImportDto.builder().ref("STD21010").score(12.5).build()))
         .build();
   }
 }
