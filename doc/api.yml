@@ -5247,6 +5247,8 @@ paths:
           description: Filter by group ref
           schema:
             type: array
+            items:
+              type: string
           required: false
       operationId: getEvents
       responses:
