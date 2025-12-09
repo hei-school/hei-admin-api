@@ -2584,6 +2584,53 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
+    put:
+      tags:
+        - Grades
+      summary: Import students exam grade updated from an excel file
+      operationId: importStudentsExamGradeUpdated
+      parameters:
+        - name: exam_id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: Form containing the xlsx file for students exam grade to update
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file_to_upload:
+                  type: string
+                  format: binary
+                  description: Student grade updated
+                comment:
+                  type: string
+              required:
+                - file_to_upload
+                - comment
+      responses:
+        '200':
+          description: Status of the validation of imported students exam grade updated
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ImportGradeResult'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
   /exams/{exam_id}/grades/update:
     post:
       tags:
@@ -8811,3 +8858,51 @@ components:
       properties:
         validStudentExamGradeNumber:
           type: "integer"
+    ImportGradeStat:
+      type: object
+      properties:
+        totalRows:
+          type: integer
+          example: 50
+        validRows:
+          type: integer
+          example: 45
+        invalidRows:
+          type: integer
+          example: 5
+    GradeValidRow:
+      type: object
+      properties:
+        ref:
+          type: string
+          example: "STD21001"
+        score:
+          type: number
+          example: 18
+    GradeInvalidRow:
+      type: object
+      properties:
+        ref:
+          type: string
+          nullable: true
+          example: "STD21001"
+        score:
+          type: number
+          nullable: true
+          example: 30
+        reason:
+          type: string
+          example: "Score must be <= 20"
+    ImportGradeResult:
+      type: object
+      properties:
+        importGradeStats:
+          $ref: "#/components/schemas/ImportGradeStat"
+        validGrades:
+          type: array
+          items:
+            $ref: "#/components/schemas/GradeValidRow"
+        invalidGrades:
+          type: array
+          items:
+            $ref: "#/components/schemas/GradeInvalidRow"
