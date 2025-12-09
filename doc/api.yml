@@ -5242,6 +5242,12 @@ paths:
           schema:
             type: string
         - $ref: '#/components/parameters/TeacherId'
+        - name: group_ref
+          in: query
+          description: Filter by group ref
+          schema:
+            type: array
+          required: false
       operationId: getEvents
       responses:
         '200':
