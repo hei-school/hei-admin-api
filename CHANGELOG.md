@@ -1,3 +1,12 @@
+# [1.141.0](https://github.com/hei-school/hei-admin-api/compare/v1.140.0...v1.141.0) (2025-12-09)
+
+
+### Features
+
+* (doc) new endpoint to update grades ([771d66b](https://github.com/hei-school/hei-admin-api/commit/771d66ba968edc20d50291104ff3d0fe7b7e33c9))
+
+
+
 # [1.140.0](https://github.com/hei-school/hei-admin-api/compare/v1.139.1...v1.140.0) (2025-12-03)
 
 
@@ -92,16 +101,6 @@
 ### Bug Fixes
 
 * student stats computation timeout ([afaae35](https://github.com/hei-school/hei-admin-api/commit/afaae3596f35de61e234673923b094b845d633a7))
-
-
-
-# [1.134.0](https://github.com/hei-school/hei-admin-api/compare/v1.133.0...v1.134.0) (2025-11-07)
-
-
-### Features
-
-* (doc) add to cancel retake exam endpoint and operationId ([82cd1eb](https://github.com/hei-school/hei-admin-api/commit/82cd1eb485f6ef9788dff47d4fd65a582420c581))
-* add retake exam session student level ([9f532f7](https://github.com/hei-school/hei-admin-api/commit/9f532f7fd61540c1e43a61b681d23196e63ef149))
 
 
 
