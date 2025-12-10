@@ -5242,14 +5242,7 @@ paths:
           schema:
             type: string
         - $ref: '#/components/parameters/TeacherId'
-        - name: group_ref
-          in: query
-          description: Filter by group ref
-          schema:
-            type: array
-            items:
-              type: string
-          required: false
+        - $ref: '#/components/parameters/GroupRef'
       operationId: getEvents
       responses:
         '200':
@@ -6978,7 +6971,8 @@ components:
       required: false
       description: Filter by group ref
       schema:
-        type: string
+        type: array
+        items: string
     CorStatuses:
       name: cor_status
       in: query
@@ -8268,6 +8262,8 @@ components:
         total_events:
           type: integer
           format: int64
+    EventGroups:
+
     CrupdatePromotion:
       type: object
       properties:
