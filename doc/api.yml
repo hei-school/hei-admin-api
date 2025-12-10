@@ -6967,13 +6967,15 @@ components:
     GroupRef:
       name: group_ref
       in: query
-      example: G1
-      required: false
       description: Filter by group ref
+      required: false
+      example: G1
       schema:
         type: array
         items:
           type: string
+      style: form
+      explode: true
     CorStatuses:
       name: cor_status
       in: query
