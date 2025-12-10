@@ -1,6 +1,7 @@
 package school.hei.haapi.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static school.hei.haapi.integration.StudentIT.student1;
 import static school.hei.haapi.integration.conf.TestUtils.getMockedFile;
 import static school.hei.haapi.integration.conf.TestUtils.setUpCasdoor;
@@ -25,8 +26,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import school.hei.haapi.endpoint.event.model.GradeImportEvent;
-import school.hei.haapi.endpoint.rest.security.model.Principal;
 import school.hei.haapi.file.bucket.BucketComponent;
 import school.hei.haapi.integration.conf.FacadeITMockedThirdParties;
 import school.hei.haapi.model.Course;
@@ -35,7 +34,6 @@ import school.hei.haapi.model.Exam;
 import school.hei.haapi.model.Group;
 import school.hei.haapi.model.GroupFlow;
 import school.hei.haapi.model.User;
-import school.hei.haapi.model.dto.GradeImportDto;
 import school.hei.haapi.repository.CourseAssignmentRepository;
 import school.hei.haapi.repository.CourseRepository;
 import school.hei.haapi.repository.ExamRepository;
@@ -125,27 +123,18 @@ public class GradeImportTest extends FacadeITMockedThirdParties {
         subject.initStudentExamGradeImportFromXlsx(
             getMockedFile("test-grade-import", ".xlsx"), "exam1_id");
     assertEquals(7, importResult.getImportGradeStats().getTotalRows());
-    assertEquals(1, importResult.getImportGradeStats().getValidRows());
-    assertEquals(6, importResult.getImportGradeStats().getInvalidRows());
-    assertEquals("STD21002", importResult.getValidGrades().getFirst().getRef());
+    assertEquals(7, importResult.getImportGradeStats().getInvalidRows());
+    assertNotNull(importResult.getInvalidGrades());
     assertEquals(
-        "La réference est dupliquée", importResult.getInvalidGrades().getFirst().getReason());
-    assertEquals("La note est supérieur à 20", importResult.getInvalidGrades().get(1).getReason());
-    assertEquals("La note est négative", importResult.getInvalidGrades().get(2).getReason());
-  }
-
-  private static Principal mockPrincipal() {
-    return new Principal(User.builder().email("test@email.com").build(), "huh!?");
-  }
-
-  private static GradeImportEvent gradeImportEventMock() {
-    return GradeImportEvent.builder()
-        .examId(exam1Prog1Saved.getId())
-        .coordinatorEmail("test+manager1@hei.school")
-        .grades(
-            List.of(
-                GradeImportDto.builder().ref(studentAxel.getRef()).score(12.5).build(),
-                GradeImportDto.builder().ref(studentTolojanahary.getRef()).score(13.5).build()))
-        .build();
+        "La réference est null ou vide", importResult.getInvalidGrades().getFirst().getReason());
+    assertEquals("La réference est dupliquée", importResult.getInvalidGrades().get(1).getReason());
+    assertEquals("La réference est dupliquée", importResult.getInvalidGrades().get(2).getReason());
+    assertEquals(
+        "L'étudiant(e) a déjà une note pour cet examen. Veuillez choisir l'option mettre à jour"
+            + " pour modifier.",
+        importResult.getInvalidGrades().get(3).getReason());
+    assertEquals("La note est négative", importResult.getInvalidGrades().get(4).getReason());
+    assertEquals("La note est null", importResult.getInvalidGrades().get(5).getReason());
+    assertEquals("La note est supérieur à 20", importResult.getInvalidGrades().get(6).getReason());
   }
 }

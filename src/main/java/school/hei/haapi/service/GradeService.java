@@ -7,15 +7,16 @@ import java.io.File;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import lombok.AllArgsConstructor;
 import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.Row;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import school.hei.haapi.endpoint.event.EventProducer;
@@ -170,16 +171,25 @@ public class GradeService {
       var grades = gradeMapper.toDomainList(importResults, examId);
 
       var existingGrades = filterExistingGrades(grades);
+      List<String> invalidRefs = invalids.stream().map(GradeInvalidRow::getRef).toList();
 
-      var existingRefs =
-          existingGrades.stream().map(GradeInvalidRow::getRef).collect(Collectors.toSet());
+      List<String> existingRefs = existingGrades.stream().map(GradeInvalidRow::getRef).toList();
+
+      List<String> allInvalidRefs = new ArrayList<>(invalidRefs);
+      allInvalidRefs.addAll(existingRefs);
 
       var gradeFiltered =
           grades.stream()
-              .filter(grade -> !existingRefs.contains(grade.getStudent().getRef()))
+              .filter(grade -> !allInvalidRefs.contains(grade.getStudent().getRef()))
               .toList();
 
-      var allInvalidGrades = Stream.concat(invalids.stream(), existingGrades.stream()).toList();
+      var allInvalidGrades =
+          Stream.concat(invalids.stream(), existingGrades.stream())
+              .sorted(
+                  Comparator.comparing(
+                      GradeInvalidRow::getRef, Comparator.nullsFirst(String::compareTo)))
+              .toList();
+
       var totalRows =
           Stream.concat(allInvalidGrades.stream(), gradeFiltered.stream()).toList().size();
       var savedGrades = gradeMapper.toRestListValidGrade(gradeRepository.saveAll(gradeFiltered));
@@ -222,57 +232,85 @@ public class GradeService {
     List<GradeInvalidRow> allInvalids = new ArrayList<>();
     Set<String> existingRefs = new HashSet<>();
 
-    var iter = parseResult.parsedResult().iterator();
-    while (iter.hasNext()) {
-      var row = iter.next();
-      var ref = row.getRef();
-      var score = BigDecimal.valueOf(row.getScore());
-      var reason = validateRow(ref, score, existingRefs);
+    Map<String, Long> occurrences =
+        parseResult.parsedResult().stream()
+            .collect(Collectors.groupingBy(GradeImportDto::getRef, Collectors.counting()));
 
-      if (reason != null) {
-        var invalid = new GradeInvalidRow().ref(ref).score(score).reason(reason);
-        allInvalids.add(invalid);
-        iter.remove();
-      } else {
-        existingRefs.add(ref);
-      }
-    }
+    parseResult
+        .parsedResult()
+        .forEach(
+            row -> {
+              var ref = row.getRef();
+              var score = BigDecimal.valueOf(row.getScore());
+
+              if (occurrences.getOrDefault(ref, 0L) > 1) {
+                var invalid =
+                    new GradeInvalidRow()
+                        .ref(ref)
+                        .score(score)
+                        .reason("La réference est dupliquée");
+                allInvalids.add(invalid);
+                return;
+              }
+
+              var reason = validateRow(ref, score);
+              if (reason != null) {
+                var invalid = new GradeInvalidRow().ref(ref).score(score).reason(reason);
+                allInvalids.add(invalid);
+              } else {
+                existingRefs.add(ref);
+              }
+            });
 
     for (var entry : parseResult.skippedRows().entrySet()) {
+
       var row = entry.getKey();
 
       if (row.getRowNum() == 0) {
         continue;
       }
-      var refValue = getCellValue(row.getCell(0, Row.MissingCellPolicy.CREATE_NULL_AS_BLANK));
-      var scoreValue = getCellValue(row.getCell(1, Row.MissingCellPolicy.CREATE_NULL_AS_BLANK));
+      var refValue = getCellValue(row.getCell(0, CREATE_NULL_AS_BLANK));
+      Cell scoreCell = row.getCell(1, CREATE_NULL_AS_BLANK);
       BigDecimal score = null;
-      if (scoreValue instanceof Number n) score = BigDecimal.valueOf(n.doubleValue());
-      else if (scoreValue instanceof String s) {
-        try {
-          score = new BigDecimal(s);
-        } catch (Exception ignored) {
+
+      if (scoreCell != null) {
+        switch (scoreCell.getCellType()) {
+          case NUMERIC -> score = BigDecimal.valueOf(scoreCell.getNumericCellValue());
+          case STRING -> {
+            var stringScore = scoreCell.getStringCellValue().trim();
+            try {
+              if (!stringScore.isBlank()) {
+                score = new BigDecimal(stringScore);
+              }
+            } catch (Exception ignored) {
+            }
+          }
+          case FORMULA -> {
+            switch (scoreCell.getCachedFormulaResultType()) {
+              case NUMERIC -> score = BigDecimal.valueOf(scoreCell.getNumericCellValue());
+              case STRING -> {
+                var stringScore = scoreCell.getStringCellValue().trim();
+                try {
+                  if (!stringScore.isBlank()) score = new BigDecimal(stringScore);
+                } catch (Exception ignored) {
+                }
+              }
+            }
+          }
+          default -> {}
         }
       }
       var ref = refValue != null ? refValue.toString() : null;
-      var reason = validateRow(ref, score, existingRefs);
+      var reason = validateRow(ref, score);
       GradeInvalidRow invalid = new GradeInvalidRow().ref(ref).score(score).reason(reason);
       allInvalids.add(invalid);
     }
 
-    return allInvalids.stream()
-        .peek(
-            row -> {
-              row.setRef(row.getRef());
-              row.setScore(row.getScore());
-              row.setReason(row.getReason());
-            })
-        .toList();
+    return allInvalids;
   }
 
-  private String validateRow(String ref, BigDecimal score, Set<String> existingRefs) {
+  private String validateRow(String ref, BigDecimal score) {
     if (ref == null || ref.isBlank()) return "La réference est null ou vide";
-    if (existingRefs.contains(ref)) return "La réference est dupliquée";
     if (score == null) return "La note est null";
     if (score.compareTo(BigDecimal.valueOf(20)) > 0) return "La note est supérieur à 20";
     if (score.compareTo(BigDecimal.ZERO) < 0) return "La note est négative";
