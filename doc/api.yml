@@ -6972,7 +6972,8 @@ components:
       description: Filter by group ref
       schema:
         type: array
-        items: string
+        items:
+          type: string
     CorStatuses:
       name: cor_status
       in: query
