@@ -181,7 +181,7 @@ class ExamIT extends FacadeITMockedThirdParties {
             teacher1().getId(),
             exam2().getTitle(),
             course1().getCode(),
-            group1().getRef(),
+            List.of(group1().getRef()),
             exam2().getExaminationDate().minusSeconds(1),
             null,
             1,
@@ -204,7 +204,7 @@ class ExamIT extends FacadeITMockedThirdParties {
   void teacher_read_ok() throws ApiException {
     ApiClient teacher1Client = anApiClient(TEACHER1_TOKEN);
     ExamsApi api = new ExamsApi(teacher1Client);
-    List<Exam> actual = api.getAllExams(null, null, "", "", null, null, 1, 10);
+    List<Exam> actual = api.getAllExams(null, null, "", null, null, null, 1, 10);
 
     assertTrue(actual.contains(exam1()));
     assertTrue(actual.contains(exam2()));
