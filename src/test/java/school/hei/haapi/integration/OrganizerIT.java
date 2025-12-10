@@ -139,7 +139,7 @@ public class OrganizerIT extends FacadeITMockedThirdParties {
   void read_events_ok() throws ApiException {
     ApiClient organizerClient = anApiClient(ORGANIZER1_TOKEN);
     EventsApi api = new EventsApi(organizerClient);
-    var events = api.getEvents(1, 10, null, null, null, null, null, null);
+    var events = api.getEvents(1, 10, null, null, null, null, null, null, null);
 
     assertFalse(events.isEmpty());
   }
