@@ -6967,15 +6967,13 @@ components:
     GroupRef:
       name: group_ref
       in: query
-      description: Filter by group ref
-      required: false
       example: G1
+      required: false
+      description: Filter by group ref
       schema:
         type: array
         items:
-          type: string
-      style: form
-      explode: true
+          string
     CorStatuses:
       name: cor_status
       in: query
@@ -8265,8 +8263,6 @@ components:
         total_events:
           type: integer
           format: int64
-    EventGroups:
-
     CrupdatePromotion:
       type: object
       properties:
