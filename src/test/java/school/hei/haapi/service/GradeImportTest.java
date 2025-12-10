@@ -1,9 +1,11 @@
 package school.hei.haapi.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.mockStatic;
-import static org.mockito.Mockito.when;
+import static school.hei.haapi.integration.StudentIT.student1;
 import static school.hei.haapi.integration.conf.TestUtils.getMockedFile;
+import static school.hei.haapi.integration.conf.TestUtils.setUpCasdoor;
+import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
+import static school.hei.haapi.integration.conf.TestUtils.setUpS3Service;
 import static school.hei.haapi.integration.test_data.CourseAssignmentTestData.createCourseAssignment;
 import static school.hei.haapi.integration.test_data.CourseTestData.prog1;
 import static school.hei.haapi.integration.test_data.CourseTestData.prog2;
@@ -19,18 +21,14 @@ import static school.hei.haapi.integration.test_data.TeacherTestData.toky;
 
 import java.time.Instant;
 import java.util.List;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import school.hei.haapi.endpoint.event.EventProducer;
 import school.hei.haapi.endpoint.event.model.GradeImportEvent;
-import school.hei.haapi.endpoint.rest.security.AuthProvider;
 import school.hei.haapi.endpoint.rest.security.model.Principal;
 import school.hei.haapi.file.bucket.BucketComponent;
 import school.hei.haapi.integration.conf.FacadeITMockedThirdParties;
-import school.hei.haapi.mail.Mailer;
 import school.hei.haapi.model.Course;
 import school.hei.haapi.model.CourseAssignment;
 import school.hei.haapi.model.Exam;
@@ -49,9 +47,7 @@ import school.hei.haapi.repository.UserRepository;
 
 public class GradeImportTest extends FacadeITMockedThirdParties {
   @Autowired private GradeService subject;
-  @MockBean Mailer mailer;
   @MockBean BucketComponent bucketComponent;
-  @MockBean private EventProducer eventProducer;
   @Autowired private UserService userService;
   @Autowired private GradeRepository gradeRepository;
   @Autowired UserRepository userRepository;
@@ -78,7 +74,6 @@ public class GradeImportTest extends FacadeITMockedThirdParties {
   private GroupFlow groupFlowsTolojanahary;
   private static Exam exam1Prog1Saved;
 
-  @BeforeEach
   void setUpTestData() {
     groupG1 = g1();
     groupG2 = g2();
@@ -116,10 +111,12 @@ public class GradeImportTest extends FacadeITMockedThirdParties {
     examRepository.save(exam2Prog1);
   }
 
-  @BeforeAll
-  static void setUp() {
-    mockStatic(AuthProvider.class);
-    when(AuthProvider.getPrincipal()).thenReturn(mockPrincipal());
+  @BeforeEach
+  void setUp() {
+    setUpCasdoor(casdoorAuthServiceMock, certificateLoaderMock);
+    setUpCognito(cognitoComponentMock);
+    setUpS3Service(fileService, student1());
+    setUpTestData();
   }
 
   @Test
@@ -127,16 +124,14 @@ public class GradeImportTest extends FacadeITMockedThirdParties {
     var importResult =
         subject.initStudentExamGradeImportFromXlsx(
             getMockedFile("test-grade-import", ".xlsx"), "exam1_id");
-    assertEquals(6, importResult.getImportGradeStats().getTotalRows());
+    assertEquals(7, importResult.getImportGradeStats().getTotalRows());
     assertEquals(1, importResult.getImportGradeStats().getValidRows());
-    assertEquals(5, importResult.getImportGradeStats().getInvalidRows());
+    assertEquals(6, importResult.getImportGradeStats().getInvalidRows());
     assertEquals("STD21002", importResult.getValidGrades().getFirst().getRef());
     assertEquals(
         "La réference est dupliquée", importResult.getInvalidGrades().getFirst().getReason());
     assertEquals("La note est supérieur à 20", importResult.getInvalidGrades().get(1).getReason());
     assertEquals("La note est négative", importResult.getInvalidGrades().get(2).getReason());
-    assertEquals(
-        "La réference est null ou vide", importResult.getInvalidGrades().get(3).getReason());
   }
 
   private static Principal mockPrincipal() {

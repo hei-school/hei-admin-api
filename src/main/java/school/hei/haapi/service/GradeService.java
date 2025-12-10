@@ -11,6 +11,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import lombok.AllArgsConstructor;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
@@ -49,6 +51,7 @@ public class GradeService {
   private final GradeMapper gradeMapper;
 
   private static final String GRADE_XLSX_IMPORT_BUCKET_KEY = "/STUDENT_EXAM_GRADE_XLSX_IMPORT/";
+  private final GradeResultService gradeResultService;
 
   public Grade getGradeByExamIdAndStudentRef(String examId, String ref) {
     return gradeRepository
@@ -165,19 +168,54 @@ public class GradeService {
       var importResults = parseResult.parsedResult();
       bucketComponent.upload(excelFile, GRADE_XLSX_IMPORT_BUCKET_KEY + excelFile.getName());
       var grades = gradeMapper.toDomainList(importResults, examId);
-      var valids = gradeMapper.toRestListValidGrade(createParticipantGrade(grades));
+
+      var existingGrades = filterExistingGrades(grades);
+
+      var existingRefs =
+          existingGrades.stream().map(GradeInvalidRow::getRef).collect(Collectors.toSet());
+
+      var gradeFiltered =
+          grades.stream()
+              .filter(grade -> !existingRefs.contains(grade.getStudent().getRef()))
+              .toList();
+
+      var allInvalidGrades = Stream.concat(invalids.stream(), existingGrades.stream()).toList();
+      var totalRows =
+          Stream.concat(allInvalidGrades.stream(), gradeFiltered.stream()).toList().size();
+      var savedGrades = gradeMapper.toRestListValidGrade(gradeRepository.saveAll(gradeFiltered));
+
       var importGradeStat =
           new ImportGradeStat()
-              .totalRows(invalids.size() + valids.size())
-              .invalidRows(invalids.size())
-              .validRows(valids.size());
+              .totalRows(totalRows)
+              .invalidRows(allInvalidGrades.size())
+              .validRows(savedGrades.size());
+
       return new ImportGradeResult()
           .importGradeStats(importGradeStat)
-          .validGrades(valids)
-          .invalidGrades(invalids);
+          .validGrades(savedGrades)
+          .invalidGrades(allInvalidGrades);
     } catch (IOException e) {
       throw new RuntimeException("Unable to read file");
     }
+  }
+
+  public List<GradeInvalidRow> filterExistingGrades(List<Grade> grades) {
+    var existingGrades = new ArrayList<GradeInvalidRow>();
+    for (Grade grade : grades) {
+      var existing =
+          gradeRepository.findByExamIdAndStudentId(
+              grade.getExam().getId(), grade.getStudent().getId());
+      if (existing.isPresent()) {
+        existingGrades.add(
+            new GradeInvalidRow()
+                .ref(grade.getStudent().getRef())
+                .score(BigDecimal.valueOf(grade.getScore()))
+                .reason(
+                    "L'étudiant(e) a déjà une note pour cet examen. Veuillez choisir l'option"
+                        + " mettre à jour pour modifier."));
+      }
+    }
+    return existingGrades;
   }
 
   public List<GradeInvalidRow> checkAllRows(ParseResult<GradeImportDto> parseResult) {
@@ -189,7 +227,6 @@ public class GradeService {
       var row = iter.next();
       var ref = row.getRef();
       var score = BigDecimal.valueOf(row.getScore());
-
       var reason = validateRow(ref, score, existingRefs);
 
       if (reason != null) {
@@ -224,12 +261,11 @@ public class GradeService {
     }
 
     return allInvalids.stream()
-        .map(
+        .peek(
             row -> {
               row.setRef(row.getRef());
               row.setScore(row.getScore());
               row.setReason(row.getReason());
-              return row;
             })
         .toList();
   }
