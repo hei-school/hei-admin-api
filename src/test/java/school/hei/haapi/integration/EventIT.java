@@ -314,7 +314,7 @@ public class EventIT extends FacadeITMockedThirdParties {
             Instant.parse("2022-12-08T07:59:59.00Z"),
             Instant.parse("2022-12-08T08:00:01.00Z"),
             PRESENT,
-            String.valueOf(List.of(StudentIT.student1().getGroups().getFirst().getRef())),
+            List.of(StudentIT.student1().getGroups().getFirst().getRef()),
             student1().getRef(),
             student1().getFirstName());
     List<EventAttendance> eventParticipantsInEventDateRange =
@@ -332,15 +332,7 @@ public class EventIT extends FacadeITMockedThirdParties {
         api.getAllEventParticipants(null, null, null, null, null, MISSING, null, null, null);
     List<EventAttendance> groupFilteredEventParticipants =
         api.getAllEventParticipants(
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            String.valueOf(List.of(group1().getRef())),
-            null,
-            null);
+            null, null, null, null, null, null, List.of(group1().getRef()), null, null);
     List<EventAttendance> studentRefFilteredEventParticipants =
         api.getAllEventParticipants(
             null, null, null, null, null, null, null, student3().getRef(), null);
