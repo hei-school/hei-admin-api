@@ -25,6 +25,7 @@ public interface FeeRepository extends JpaRepository<Fee, String> {
 
   @Query(
       "select f from Fee f where f.status = 'UNPAID' "
+          + "and f.student.status <> 'DISABLED'"
           + "and f.remainingAmount > 0 "
           + "and f.dueDatetime < :now")
   List<Fee> getUnpaidFees(@Param(value = "now") Instant now);
