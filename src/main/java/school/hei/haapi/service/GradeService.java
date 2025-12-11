@@ -7,6 +7,7 @@ import java.io.File;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -20,6 +21,7 @@ import school.hei.haapi.endpoint.event.EventProducer;
 import school.hei.haapi.endpoint.rest.mapper.GradeMapper;
 import school.hei.haapi.endpoint.rest.model.ExamGradeStats;
 import school.hei.haapi.endpoint.rest.model.GradeInvalidRow;
+import school.hei.haapi.endpoint.rest.model.GradeValidRow;
 import school.hei.haapi.endpoint.rest.model.ImportGradeResult;
 import school.hei.haapi.endpoint.rest.model.ImportGradeStat;
 import school.hei.haapi.file.bucket.BucketComponent;
@@ -187,11 +189,22 @@ public class GradeService {
               .toList();
 
       var allInvalidGrades = mapAllInvalidGrades(skippedGrades, duplicateGrades, existingGrades);
+      allInvalidGrades =
+          allInvalidGrades.stream()
+              .sorted(
+                  Comparator.comparing(
+                      GradeInvalidRow::getRef, Comparator.nullsLast(String::compareTo)))
+              .toList();
 
       var totalRows =
           Stream.concat(allInvalidGrades.stream(), gradeFiltered.stream()).toList().size();
       var savedGrades = gradeMapper.toRestListValidGrade(gradeRepository.saveAll(gradeFiltered));
-
+      savedGrades =
+          savedGrades.stream()
+              .sorted(
+                  Comparator.comparing(
+                      GradeValidRow::getRef, Comparator.nullsLast(String::compareTo)))
+              .toList();
       var importGradeStat =
           new ImportGradeStat()
               .totalRows(totalRows)
