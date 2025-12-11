@@ -1,3 +1,18 @@
+# [1.142.0](https://github.com/hei-school/hei-admin-api/compare/v1.141.0...v1.142.0) (2025-12-11)
+
+
+### Bug Fixes
+
+* disabled students initialized as event participant on event creation ([7c6badb](https://github.com/hei-school/hei-admin-api/commit/7c6badbb42703a16a950d8710b1fec34794fe9e7))
+* increase build stack size ([30eb9b8](https://github.com/hei-school/hei-admin-api/commit/30eb9b821139f79871c3253bcef8c362f073ee26))
+
+
+### Features
+
+* **doc:** add group_ref filter documentation for events ([d2b45b7](https://github.com/hei-school/hei-admin-api/commit/d2b45b73e8ba0c4cec9e1f485233270609991a27))
+
+
+
 # [1.141.0](https://github.com/hei-school/hei-admin-api/compare/v1.140.0...v1.141.0) (2025-12-09)
 
 
@@ -92,15 +107,6 @@
 ### Bug Fixes
 
 * add unckecked field to event and participant stats ([818869c](https://github.com/hei-school/hei-admin-api/commit/818869c8a9e00f6297d278811ba307f6cb5abffd))
-
-
-
-## [1.134.1](https://github.com/hei-school/hei-admin-api/compare/v1.134.0...v1.134.1) (2025-11-07)
-
-
-### Bug Fixes
-
-* student stats computation timeout ([afaae35](https://github.com/hei-school/hei-admin-api/commit/afaae3596f35de61e234673923b094b845d633a7))
 
 
 
