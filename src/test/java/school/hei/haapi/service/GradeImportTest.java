@@ -123,18 +123,18 @@ public class GradeImportTest extends FacadeITMockedThirdParties {
         subject.initStudentExamGradeImportFromXlsx(
             getMockedFile("test-grade-import", ".xlsx"), "exam1_id");
     assertEquals(7, importResult.getImportGradeStats().getTotalRows());
-    assertEquals(7, importResult.getImportGradeStats().getInvalidRows());
+    assertEquals(6, importResult.getImportGradeStats().getInvalidRows());
+    assertEquals(1, importResult.getImportGradeStats().getValidRows());
     assertNotNull(importResult.getInvalidGrades());
     assertEquals(
-        "La réference est null ou vide", importResult.getInvalidGrades().getFirst().getReason());
-    assertEquals("La réference est dupliquée", importResult.getInvalidGrades().get(1).getReason());
-    assertEquals("La réference est dupliquée", importResult.getInvalidGrades().get(2).getReason());
+        "La note est supérieur à 20", importResult.getInvalidGrades().getFirst().getReason());
+    assertEquals("La note est négative", importResult.getInvalidGrades().get(1).getReason());
+    assertEquals("La note est null", importResult.getInvalidGrades().get(2).getReason());
     assertEquals(
-        "L'étudiant(e) a déjà une note pour cet examen. Veuillez choisir l'option mettre à jour"
-            + " pour modifier.",
-        importResult.getInvalidGrades().get(3).getReason());
-    assertEquals("La note est négative", importResult.getInvalidGrades().get(4).getReason());
-    assertEquals("La note est null", importResult.getInvalidGrades().get(5).getReason());
-    assertEquals("La note est supérieur à 20", importResult.getInvalidGrades().get(6).getReason());
+        "La réference est null ou vide", importResult.getInvalidGrades().get(3).getReason());
+    assertEquals(
+        "La réference étudiant(e) est dupliquée, veuillez supprimer les autres pour ajouter une"
+            + " note.",
+        importResult.getInvalidGrades().get(4).getReason());
   }
 }
