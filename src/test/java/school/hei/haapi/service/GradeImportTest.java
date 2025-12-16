@@ -62,7 +62,6 @@ public class GradeImportTest extends FacadeITMockedThirdParties {
   private Course courseProg1;
   private Course courseProg2;
   private User teacherToky;
-  private Exam exam1Prog1;
   private Exam exam2Prog1;
   private CourseAssignment assignProg1ToTokyForGroup;
   private CourseAssignment assignProg2ToTokyForGroup2;

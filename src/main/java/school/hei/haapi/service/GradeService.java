@@ -231,9 +231,7 @@ public class GradeService {
         parseResult.stream()
             .collect(Collectors.groupingBy(GradeImportDto::getRef, Collectors.counting()));
 
-    return parseResult.stream()
-        .filter(dto -> occurrences.get(dto.getRef()) > 1)
-        .collect(Collectors.toList());
+    return parseResult.stream().filter(dto -> occurrences.get(dto.getRef()) > 1).toList();
   }
 
   public List<GradeImportDto> filterExistingGrades(List<Grade> grades) {
@@ -285,7 +283,6 @@ public class GradeService {
               score = Double.valueOf(stringScore);
             }
           }
-          default -> {}
         }
       }
       var ref = refValue != null ? refValue.toString() : null;
