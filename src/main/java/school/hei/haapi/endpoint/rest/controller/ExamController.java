@@ -47,7 +47,7 @@ public class ExamController {
       @RequestParam(value = "title", required = false) String title,
       @RequestParam(value = "teacher_id", required = false) String teacherId,
       @RequestParam(value = "course_code", required = false) String courseCode,
-      @RequestParam(value = "group_ref", required = false) List<String> groupRef,
+      @RequestParam(value = "group_ref", required = false, defaultValue = "") List<String> groupRef,
       @RequestParam(value = "examination_date_from", required = false) Instant examinationDateFrom,
       @RequestParam(value = "examination_date_to", required = false) Instant examinationDateTo) {
     return examMapper.toRestList(

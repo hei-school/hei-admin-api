@@ -1,6 +1,5 @@
 package school.hei.haapi.endpoint.rest.controller;
 
-import static java.util.stream.Collectors.toUnmodifiableList;
 
 import java.time.Instant;
 import java.util.List;
@@ -67,7 +66,7 @@ public class EventController {
         .createOrUpdateEvent(eventsToSave.stream().map(mapper::toDomain).toList(), evenFrequency)
         .stream()
         .map(mapper::toRest)
-        .collect(toUnmodifiableList());
+        .toList();
   }
 
   @GetMapping("/events")
@@ -76,7 +75,7 @@ public class EventController {
       @RequestParam(name = "page_size") BoundedPageSize pageSize,
       @RequestParam(name = "event_type", required = false) EventType eventType,
       @RequestParam(name = "group_id", required = false) String groupId,
-      @RequestParam(name = "group_ref", required = false) List<String> groupRef,
+      @RequestParam(name = "group_ref", required = false, defaultValue = "") List<String> groupRef,
       @RequestParam(required = false) String title,
       @RequestParam(required = false) Instant from,
       @RequestParam(required = false) Instant to) {
@@ -114,7 +113,7 @@ public class EventController {
         .getEventParticipants(eventId, page, pageSize, groupRef, name, ref, attendanceStatus, null)
         .stream()
         .map(eventParticipantMapper::toRest)
-        .collect(toUnmodifiableList());
+        .toList();
   }
 
   @GetMapping("/events/students/{student_id}/stats")
@@ -131,12 +130,10 @@ public class EventController {
       @RequestBody List<UpdateEventParticipant> eventParticipantsToUpdate) {
     return eventParticipantService
         .updateEventParticipants(
-            eventParticipantsToUpdate.stream()
-                .map(eventParticipantMapper::toDomain)
-                .collect(toUnmodifiableList()))
+            eventParticipantsToUpdate.stream().map(eventParticipantMapper::toDomain).toList())
         .stream()
         .map(eventParticipantMapper::toRest)
-        .collect(toUnmodifiableList());
+        .toList();
   }
 
   @GetMapping(value = "/event/{event_id}/students/raw/xlsx", produces = "application/vnd.ms-excel")
