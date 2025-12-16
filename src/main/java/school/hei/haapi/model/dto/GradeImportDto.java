@@ -3,12 +3,15 @@ package school.hei.haapi.model.dto;
 import static java.util.Map.entry;
 import static org.apache.poi.ss.usermodel.CellType.BLANK;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import java.io.Serializable;
 import java.util.Map;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.apache.poi.ss.usermodel.Cell;
 import school.hei.haapi.service.utils.excel.CellMap;
 
@@ -16,8 +19,12 @@ import school.hei.haapi.service.utils.excel.CellMap;
 @NoArgsConstructor
 @Builder
 @Getter
+@Setter
 public class GradeImportDto implements Serializable {
   private String ref;
+
+  @JsonProperty("score")
+  @JsonInclude(JsonInclude.Include.ALWAYS)
   private Double score;
 
   private static final String REF_REGEX = "^STD[\\w-]+$";
