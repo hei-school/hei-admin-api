@@ -247,25 +247,26 @@ public class GradeService {
   }
 
   public List<GradeImportDto> checkSkippedRows(ParseResult<GradeImportDto> parseResult) {
-    var allInvalids = new ArrayList<GradeImportDto>();
     var parsedGrades =
         parseResult.parsedResult().stream()
-            .filter(
-                gradeImportDto -> gradeImportDto.getScore() < 0 || gradeImportDto.getScore() > 20)
+            .filter(gradeDto -> gradeDto.getScore() < 0 || gradeDto.getScore() > 20)
+            .map(
+                grade -> {
+                  var invalid = new GradeImportDto();
+                  invalid.setRef(grade.getRef());
+                  invalid.setScore(grade.getScore());
+                  return invalid;
+                })
             .toList();
-    for (var grade : parsedGrades) {
-      var invalid = new GradeImportDto();
-      invalid.setRef(grade.getRef());
-      invalid.setScore(grade.getScore());
-      allInvalids.add(invalid);
-    }
+
+    var allInvalids = new ArrayList<>(parsedGrades);
 
     for (var entry : parseResult.skippedRows().entrySet()) {
       var row = entry.getKey();
       if (row.getRowNum() == 0) {
         continue;
       }
-      var refValue = getCellValue(row.getCell(0, CREATE_NULL_AS_BLANK));
+      Object refValue = row.getCell(0, CREATE_NULL_AS_BLANK).getStringCellValue();
       Cell scoreCell = row.getCell(1, CREATE_NULL_AS_BLANK);
       Double score = null;
 
@@ -274,11 +275,8 @@ public class GradeService {
           case NUMERIC -> score = scoreCell.getNumericCellValue();
           case STRING -> {
             var stringScore = scoreCell.getStringCellValue().trim();
-            try {
-              if (!stringScore.isBlank()) {
-                score = Double.valueOf(stringScore);
-              }
-            } catch (Exception ignored) {
+            if (!stringScore.isBlank()) {
+              score = Double.valueOf(stringScore);
             }
           }
           default -> {}
@@ -301,38 +299,35 @@ public class GradeService {
     var invalidGrades = new ArrayList<GradeInvalidRow>();
 
     skippedRows.forEach(
-        gradeImportDto -> {
-          invalidGrades.add(
-              new GradeInvalidRow()
-                  .ref(gradeImportDto.getRef())
-                  .score(
-                      gradeImportDto.getScore() != null
-                          ? BigDecimal.valueOf(gradeImportDto.getScore())
-                          : null)
-                  .reason(validateRow(gradeImportDto.getRef(), gradeImportDto.getScore())));
-        });
+        gradeImportDto ->
+            invalidGrades.add(
+                new GradeInvalidRow()
+                    .ref(gradeImportDto.getRef())
+                    .score(
+                        gradeImportDto.getScore() != null
+                            ? BigDecimal.valueOf(gradeImportDto.getScore())
+                            : null)
+                    .reason(validateRow(gradeImportDto.getRef(), gradeImportDto.getScore()))));
 
     existingGrades.forEach(
-        gradeImportDto -> {
-          invalidGrades.add(
-              new GradeInvalidRow()
-                  .ref(gradeImportDto.getRef())
-                  .score(BigDecimal.valueOf(gradeImportDto.getScore()))
-                  .reason(
-                      "L'étudiant(e) a déjà une note pour cet examen. Veuillez choisir l'option"
-                          + " mettre à jour pour modifier."));
-        });
+        gradeImportDto ->
+            invalidGrades.add(
+                new GradeInvalidRow()
+                    .ref(gradeImportDto.getRef())
+                    .score(BigDecimal.valueOf(gradeImportDto.getScore()))
+                    .reason(
+                        "L'étudiant(e) a déjà une note pour cet examen. Veuillez choisir l'option"
+                            + " mettre à jour pour modifier.")));
 
     duplicateGrades.forEach(
-        gradeImportDto -> {
-          invalidGrades.add(
-              new GradeInvalidRow()
-                  .ref(gradeImportDto.getRef())
-                  .score(BigDecimal.valueOf(gradeImportDto.getScore()))
-                  .reason(
-                      "La réference étudiant(e) est dupliquée, veuillez supprimer les autres pour"
-                          + " ajouter une note."));
-        });
+        gradeImportDto ->
+            invalidGrades.add(
+                new GradeInvalidRow()
+                    .ref(gradeImportDto.getRef())
+                    .score(BigDecimal.valueOf(gradeImportDto.getScore()))
+                    .reason(
+                        "La réference étudiant(e) est dupliquée, veuillez supprimer les autres pour"
+                            + " ajouter une note.")));
 
     return invalidGrades;
   }
@@ -343,17 +338,5 @@ public class GradeService {
     if (score > 20) return "La note est supérieur à 20";
     if (score < 0) return "La note est négative";
     return null;
-  }
-
-  private Object getCellValue(Cell cell) {
-    if (cell == null) return null;
-
-    return switch (cell.getCellType()) {
-      case STRING -> cell.getStringCellValue();
-      case NUMERIC -> cell.getNumericCellValue();
-      case BOOLEAN -> cell.getBooleanCellValue();
-      case FORMULA -> cell.getCellFormula();
-      default -> null;
-    };
   }
 }

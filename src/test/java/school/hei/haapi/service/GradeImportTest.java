@@ -70,7 +70,6 @@ public class GradeImportTest extends FacadeITMockedThirdParties {
   private Group groupG2;
   private GroupFlow groupFlowsAxel;
   private GroupFlow groupFlowsTolojanahary;
-  private static Exam exam1Prog1Saved;
 
   void setUpTestData() {
     groupG1 = g1();
@@ -90,7 +89,6 @@ public class GradeImportTest extends FacadeITMockedThirdParties {
     groupFlowsAxel = createGroupFlow(studentAxel, groupG1);
     groupFlowsTolojanahary = createGroupFlow(studentTolojanahary, groupG1);
 
-    exam1Prog1 = createExam(Instant.parse("2025-07-22T10:15:30Z"), assignProg1ToTokyForGroup);
     exam2Prog1 = createExam(Instant.parse("2025-09-22T10:15:30Z"), assignProg1ToTokyForGroup);
 
     groupRepository.saveAll(List.of(groupG1, groupG2));
@@ -105,7 +103,6 @@ public class GradeImportTest extends FacadeITMockedThirdParties {
     groupFlowRepository.saveAll(List.of(groupFlowsAxel, groupFlowsTolojanahary));
     courseAssignmentRepository.saveAll(
         List.of(assignProg1ToTokyForGroup, assignProg2ToTokyForGroup2));
-    exam1Prog1Saved = examRepository.save(exam1Prog1);
     examRepository.save(exam2Prog1);
   }
 
