@@ -123,11 +123,11 @@ public class GradeImportTest extends FacadeITMockedThirdParties {
     assertEquals(6, importResult.getImportGradeStats().getInvalidRows());
     assertEquals(1, importResult.getImportGradeStats().getValidRows());
     assertNotNull(importResult.getInvalidGrades());
-    assertEquals("La note est supérieur à 20", importResult.getInvalidGrades().get(3).getReason());
-    assertEquals("La note est négative", importResult.getInvalidGrades().get(4).getReason());
-    assertEquals("La note est null", importResult.getInvalidGrades().getFirst().getReason());
+    assertEquals("La note est supérieur à 20", importResult.getInvalidGrades().get(4).getReason());
+    assertEquals("La note est négative", importResult.getInvalidGrades().get(5).getReason());
+    assertEquals("La note est null", importResult.getInvalidGrades().get(1).getReason());
     assertEquals(
-        "La réference est null ou vide", importResult.getInvalidGrades().get(5).getReason());
+        "La réference est null ou vide", importResult.getInvalidGrades().getFirst().getReason());
     assertEquals(
         "La réference étudiant(e) est dupliquée, veuillez supprimer les autres pour ajouter une"
             + " note.",

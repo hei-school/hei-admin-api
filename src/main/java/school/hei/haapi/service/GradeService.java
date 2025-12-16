@@ -188,7 +188,13 @@ public class GradeService {
               .filter(grade -> !allInvalidRefs.contains(grade.getStudent().getRef()))
               .toList();
 
-      var allInvalidGrades = mapAllInvalidGrades(skippedGrades, duplicateGrades, existingGrades);
+      var skippedGradesMapped = mapSkippedGrades(skippedGrades);
+      var existingGradesMapped = mapExistingGrades(existingGrades);
+      var duplicateGradesMapped = mapDuplicateGrades(duplicateGrades);
+      List<GradeInvalidRow> allInvalidGrades = new ArrayList<>(skippedGradesMapped);
+      allInvalidGrades.addAll(existingGradesMapped);
+      allInvalidGrades.addAll(duplicateGradesMapped);
+
       allInvalidGrades =
           allInvalidGrades.stream()
               .sorted(
@@ -292,12 +298,8 @@ public class GradeService {
     return allInvalids;
   }
 
-  public List<GradeInvalidRow> mapAllInvalidGrades(
-      List<GradeImportDto> skippedRows,
-      List<GradeImportDto> duplicateGrades,
-      List<GradeImportDto> existingGrades) {
+  public List<GradeInvalidRow> mapSkippedGrades(List<GradeImportDto> skippedRows) {
     var invalidGrades = new ArrayList<GradeInvalidRow>();
-
     skippedRows.forEach(
         gradeImportDto ->
             invalidGrades.add(
@@ -309,6 +311,11 @@ public class GradeService {
                             : null)
                     .reason(validateRow(gradeImportDto.getRef(), gradeImportDto.getScore()))));
 
+    return invalidGrades;
+  }
+
+  public List<GradeInvalidRow> mapExistingGrades(List<GradeImportDto> existingGrades) {
+    var invalidGrades = new ArrayList<GradeInvalidRow>();
     existingGrades.forEach(
         gradeImportDto ->
             invalidGrades.add(
@@ -318,7 +325,11 @@ public class GradeService {
                     .reason(
                         "L'étudiant(e) a déjà une note pour cet examen. Veuillez choisir l'option"
                             + " mettre à jour pour modifier.")));
+    return invalidGrades;
+  }
 
+  private List<GradeInvalidRow> mapDuplicateGrades(List<GradeImportDto> duplicateGrades) {
+    var invalidGrades = new ArrayList<GradeInvalidRow>();
     duplicateGrades.forEach(
         gradeImportDto ->
             invalidGrades.add(
