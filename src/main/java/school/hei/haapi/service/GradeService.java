@@ -16,6 +16,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import lombok.AllArgsConstructor;
 import org.apache.poi.ss.usermodel.Cell;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import school.hei.haapi.endpoint.event.EventProducer;
@@ -170,9 +171,13 @@ public class GradeService {
       var skippedGrades = checkSkippedRows(parseResult);
       var importResults = parseResult.parsedResult();
       var duplicateGrades = checkDuplicateGrade(importResults);
+      var gradeInvalidScores = checkInvalidScore(parseResult);
 
       var skippedRefs = skippedGrades.stream().map(GradeImportDto::getRef).toList();
+      var gradeInvalidScoreRefs = gradeInvalidScores.stream().map(GradeImportDto::getRef).toList();
       List<String> allInvalidRefs = new ArrayList<>(skippedRefs);
+      allInvalidRefs.addAll(gradeInvalidScoreRefs);
+
       importResults =
           importResults.stream().filter(grade -> !allInvalidRefs.contains(grade.getRef())).toList();
 
@@ -189,12 +194,14 @@ public class GradeService {
               .filter(grade -> !allInvalidRefs.contains(grade.getStudent().getRef()))
               .toList();
 
-      var skippedGradesMapped = mapSkippedGrades(skippedGrades);
+      var skippedGradesMapped = mpaGradeInvalidRows(skippedGrades);
       var existingGradesMapped = mapExistingGrades(existingGrades);
       var duplicateGradesMapped = mapDuplicateGrades(duplicateGrades);
+      var gradeInvalidScoresMapped = mpaGradeInvalidRows(gradeInvalidScores);
       List<GradeInvalidRow> allInvalidGrades = new ArrayList<>(skippedGradesMapped);
       allInvalidGrades.addAll(existingGradesMapped);
       allInvalidGrades.addAll(duplicateGradesMapped);
+      allInvalidGrades.addAll(gradeInvalidScoresMapped);
 
       allInvalidGrades =
           allInvalidGrades.stream()
@@ -252,20 +259,7 @@ public class GradeService {
   }
 
   public List<GradeImportDto> checkSkippedRows(ParseResult<GradeImportDto> parseResult) {
-    var parsedGrades =
-        parseResult.parsedResult().stream()
-            .filter(gradeDto -> gradeDto.getScore() < 0 || gradeDto.getScore() > 20)
-            .map(
-                grade -> {
-                  var invalid = new GradeImportDto();
-                  invalid.setRef(grade.getRef());
-                  invalid.setScore(grade.getScore());
-                  return invalid;
-                })
-            .toList();
-
-    var allInvalids = new ArrayList<>(parsedGrades);
-
+    List<GradeImportDto> allInvalids = new ArrayList<>();
     for (var entry : parseResult.skippedRows().entrySet()) {
       var row = entry.getKey();
       if (row.getRowNum() == 0) {
@@ -295,9 +289,23 @@ public class GradeService {
     return allInvalids;
   }
 
-  public List<GradeInvalidRow> mapSkippedGrades(List<GradeImportDto> skippedRows) {
+  private List<GradeImportDto> checkInvalidScore(ParseResult<GradeImportDto> parseResult) {
+    return parseResult.parsedResult().stream()
+        .filter(gradeDto -> gradeDto.getScore() < 0 || gradeDto.getScore() > 20)
+        .map(
+            grade -> {
+              var invalid = new GradeImportDto();
+              invalid.setRef(grade.getRef());
+              invalid.setScore(grade.getScore());
+              return invalid;
+            })
+        .toList();
+  }
+
+  @NotNull
+  private List<GradeInvalidRow> mpaGradeInvalidRows(List<GradeImportDto> gradeInvalidScores) {
     var invalidGrades = new ArrayList<GradeInvalidRow>();
-    skippedRows.forEach(
+    gradeInvalidScores.forEach(
         gradeImportDto ->
             invalidGrades.add(
                 new GradeInvalidRow()
