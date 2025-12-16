@@ -1,5 +1,6 @@
 package school.hei.haapi.service;
 
+import static org.apache.poi.ss.usermodel.CellType.NUMERIC;
 import static org.apache.poi.ss.usermodel.Row.MissingCellPolicy.CREATE_NULL_AS_BLANK;
 
 import jakarta.transaction.Transactional;
@@ -275,13 +276,12 @@ public class GradeService {
       Double score = null;
 
       if (scoreCell != null) {
-        switch (scoreCell.getCellType()) {
-          case NUMERIC -> score = scoreCell.getNumericCellValue();
-          case STRING -> {
-            var stringScore = scoreCell.getStringCellValue().trim();
-            if (!stringScore.isBlank()) {
-              score = Double.valueOf(stringScore);
-            }
+        if (scoreCell.getCellType() == NUMERIC) {
+          score = scoreCell.getNumericCellValue();
+        } else {
+          var stringScore = scoreCell.getStringCellValue().trim();
+          if (!stringScore.isBlank()) {
+            score = Double.valueOf(stringScore);
           }
         }
       }
