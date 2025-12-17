@@ -22,6 +22,20 @@ public class MonitorTestData {
         .build();
   }
 
+  public static User monitorOfFreddy() {
+    return User.builder()
+        .id(randomUUID().toString())
+        .firstName("Freddy")
+        .lastName("Monitor")
+        .ref("MON" + randomUUID())
+        .email("freddy+monitor@mail.com")
+        .entranceDatetime(Instant.parse("2025-07-22T10:15:30Z"))
+        .phone("+07123456789")
+        .status(User.Status.ENABLED)
+        .role(MONITOR)
+        .build();
+  }
+
   public static User monitorOfTolojanahary() {
     return User.builder()
         .id(randomUUID().toString())

@@ -74,9 +74,9 @@ public class MonitoringStudentService {
   public List<MonitorStudentLinkDto> approveLinkStudentMonitor(
       List<MonitorStudentLinkDto> monitorStudentLinks) {
     monitorStudentLinks.forEach(
-        dto -> {
-          monitoringStudentRepository.updateMonitorFollowingStudentStatus(dto.id(), dto.status());
-        });
+        dto ->
+            monitoringStudentRepository.updateMonitorFollowingStudentStatus(
+                dto.id(), dto.status()));
     return monitorStudentLinks;
   }
 

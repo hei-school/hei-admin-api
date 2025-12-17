@@ -17,6 +17,7 @@ import static school.hei.haapi.integration.conf.TestUtils.STUDENT3_ID;
 import static school.hei.haapi.integration.conf.TestUtils.TEACHER1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.assertBadRequestException;
 import static school.hei.haapi.integration.conf.TestUtils.assertThrowsForbiddenException;
+import static school.hei.haapi.integration.conf.TestUtils.getCasdoorUserMonitor1;
 import static school.hei.haapi.integration.conf.TestUtils.monitor1Link;
 import static school.hei.haapi.integration.conf.TestUtils.monitor2Link;
 import static school.hei.haapi.integration.conf.TestUtils.setUpCasdoor;
@@ -25,7 +26,9 @@ import static school.hei.haapi.integration.conf.TestUtils.setUpEventBridge;
 import static school.hei.haapi.integration.conf.TestUtils.student1;
 import static school.hei.haapi.integration.conf.TestUtils.student2;
 import static school.hei.haapi.integration.test_data.MonitorTestData.monitorOfAxel;
+import static school.hei.haapi.integration.test_data.MonitorTestData.monitorOfFreddy;
 import static school.hei.haapi.integration.test_data.StudentTestData.axel;
+import static school.hei.haapi.integration.test_data.StudentTestData.freddy;
 import static school.hei.haapi.integration.test_data.StudentTestData.tolojanahary;
 import static school.hei.haapi.model.dto.MonitorStudentLinkDto.Status.LINKED;
 
@@ -49,6 +52,8 @@ import school.hei.haapi.endpoint.rest.mapper.UserMapper;
 import school.hei.haapi.endpoint.rest.model.Fee;
 import school.hei.haapi.endpoint.rest.model.LinkStudentsByMonitorIdRequest;
 import school.hei.haapi.endpoint.rest.model.Student;
+import school.hei.haapi.endpoint.rest.model.UpdateMonitorStudentLink;
+import school.hei.haapi.endpoint.rest.model.UpdateMonitorStudentLinkStatusRequest;
 import school.hei.haapi.endpoint.rest.security.casdoorAuthentication.config.CertificateLoader;
 import school.hei.haapi.integration.conf.FacadeITMockedThirdParties;
 import school.hei.haapi.integration.conf.TestUtils;
@@ -65,9 +70,12 @@ public class MonitoringStudentIT extends FacadeITMockedThirdParties {
   @Autowired UserRepository userRepository;
   @Autowired MonitoringStudentRepository monitoringStudentRepository;
 
-  private User studentAxel = axel();
-  private User studentTolojanahary = tolojanahary();
-  private User monitorOfAxel = monitorOfAxel();
+  private final User studentAxel = axel();
+  private final User studentTolojanahary = tolojanahary();
+  private final User studentFreddy = freddy();
+  private final User monitorOfAxel = monitorOfAxel();
+  private final User monitorOfFreddy = monitorOfFreddy();
+  private final String FREDDY_MONITOR_TOKEN = "freddy-monitor-token";
 
   private ApiClient anApiClient(String token) {
     return TestUtils.anApiClient(token, localPort);
@@ -76,19 +84,27 @@ public class MonitoringStudentIT extends FacadeITMockedThirdParties {
   @BeforeEach
   public void setUp() {
     setUpCasdoor(casdoorAuthServiceMock, certificateLoaderMock);
+    setUpFreddyMonitorCasdoorUser(casdoorAuthServiceMock);
     setUpCognito(cognitoComponentMock);
     setUpEventBridge(eventBridgeClientMock);
     setUpTestData();
   }
 
   private void setUpTestData() {
-    studentAxel = axel();
-    studentTolojanahary = tolojanahary();
-    monitorOfAxel = monitorOfAxel();
-    userRepository.saveAll(List.of(monitorOfAxel));
-    userRepository.saveAll(List.of(studentAxel, studentTolojanahary));
+    userRepository.saveAll(List.of(monitorOfAxel, monitorOfFreddy));
+    userRepository.saveAll(List.of(studentAxel, studentTolojanahary, studentFreddy));
     monitoringStudentRepository.saveMonitorFollowingStudents(
         monitorOfAxel.getId(), List.of(studentAxel.getId()), LINKED.toString());
+  }
+
+  private void setUpFreddyMonitorCasdoorUser(CasdoorAuthService authService) {
+    when(authService.parseJwtToken(FREDDY_MONITOR_TOKEN)).thenReturn(getFreddyMonitorUser());
+  }
+
+  private CasdoorUser getFreddyMonitorUser() {
+    var user = getCasdoorUserMonitor1();
+    user.setEmail(monitorOfFreddy.getEmail());
+    return user;
   }
 
   @Test
@@ -105,6 +121,35 @@ public class MonitoringStudentIT extends FacadeITMockedThirdParties {
     assertBadRequestException(
         exceptedException,
         () -> api.linkStudentsByMonitorId(monitorId, linkStudentsByMonitorIdRequest));
+  }
+
+  @Test
+  void student_monitor_validation_ok() throws ApiException {
+    var api = new MonitoringApi(anApiClient(FREDDY_MONITOR_TOKEN));
+    var managerApi = new MonitoringApi(anApiClient(MANAGER1_TOKEN));
+
+    api.linkStudentsByMonitorId(
+        monitorOfFreddy.getId(),
+        new LinkStudentsByMonitorIdRequest().studentsIds(List.of(studentFreddy.getId())));
+    var linkRequests = managerApi.getLinkStudentRequests(1, 10);
+    assertEquals(1, linkRequests.size());
+    assertEquals(0, api.getLinkedStudentsByMonitorId(monitorOfFreddy.getId(), 1, 10).size());
+
+    managerApi.updateMonitorStudentLinkStatus(
+        new UpdateMonitorStudentLinkStatusRequest()
+            .monitorStudentLink(
+                linkRequests.stream()
+                    .map(
+                        e ->
+                            new UpdateMonitorStudentLink()
+                                .id(e.getId())
+                                .studentId(e.getMonitorId())
+                                .monitorId(e.getMonitorId()))
+                    .toList()));
+
+    var emptyLinkRequests = managerApi.getLinkStudentRequests(1, 10);
+    assertEquals(0, emptyLinkRequests.size());
+    assertEquals(1, api.getLinkedStudentsByMonitorId(monitorOfFreddy.getId(), 1, 10).size());
   }
 
   @Test
