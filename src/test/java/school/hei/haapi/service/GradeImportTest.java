@@ -117,8 +117,8 @@ public class GradeImportTest extends FacadeITMockedThirdParties {
   void validate_import_student_grade_ok() {
     var importResult =
         subject.initStudentExamGradeImportFromXlsx(
-            getMockedFile("test-grade-import", ".xlsx"), "exam2_id", null);
-    assertEquals(6, importResult.getImportGradeStats().getTotalRows());
+            getMockedFile("test-grade-import", ".xlsx"), "exam5_id", null);
+    assertEquals(7, importResult.getImportGradeStats().getTotalRows());
     assertEquals(6, importResult.getImportGradeStats().getInvalidRows());
     assertNotNull(importResult.getInvalidGrades());
     assertEquals("La note est supérieur à 20", importResult.getInvalidGrades().get(4).getReason());
@@ -136,9 +136,10 @@ public class GradeImportTest extends FacadeITMockedThirdParties {
   void update_grade_via_excel_file_OK() {
     var updateGrades =
         subject.initStudentExamGradeImportFromXlsx(
-            getMockedFile("test-update-grade", ".xlsx"), "exam2_id", "test comment");
+            getMockedFile("test-update-grade", ".xlsx"), "exam5_id", "test comment");
     assertNotNull(updateGrades);
     assertNotNull(updateGrades.getInvalidGrades());
     assertEquals(6, updateGrades.getImportGradeStats().getInvalidRows());
+    assertEquals(1, updateGrades.getImportGradeStats().getValidRows());
   }
 }
