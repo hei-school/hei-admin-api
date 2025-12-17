@@ -27,6 +27,8 @@ import static school.hei.haapi.integration.conf.TestUtils.createIntegrationEvent
 import static school.hei.haapi.integration.conf.TestUtils.event1;
 import static school.hei.haapi.integration.conf.TestUtils.event2;
 import static school.hei.haapi.integration.conf.TestUtils.event3;
+import static school.hei.haapi.integration.conf.TestUtils.event4;
+import static school.hei.haapi.integration.conf.TestUtils.event5;
 import static school.hei.haapi.integration.conf.TestUtils.group1;
 import static school.hei.haapi.integration.conf.TestUtils.setUpCasdoor;
 import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
@@ -298,6 +300,28 @@ public class EventIT extends FacadeITMockedThirdParties {
     assertEquals(event1(), baseEvents.get(0));
     assertEquals(event3(), baseEvents.get(1));
     assertEquals(event2(), baseEvents.get(2));
+  }
+
+  @Test
+  void event_as_public_link_filter_by_groupRef() throws ApiException {
+    EventsApi api = new EventsApi(anApiClient(null));
+    List<String> groupRef = List.of("J1", "J2");
+    var actual = api.getEvents(1, 15, null, null, null, null, null, null, groupRef);
+
+    assertEquals(2, actual.size());
+    assertEquals(event5(), actual.get(0));
+    assertEquals(event4(), actual.get(1));
+  }
+
+  @Test
+  void event_as_private_link_filter_by_groupRef() throws ApiException {
+    EventsApi api = new EventsApi(anApiClient(MANAGER1_TOKEN));
+    List<String> groupRef = List.of("J1", "J2");
+    var actual = api.getEvents(1, 15, null, null, null, null, null, null, groupRef);
+
+    assertEquals(2, actual.size());
+    assertEquals(event5(), actual.get(0));
+    assertEquals(event4(), actual.get(1));
   }
 
   @Test
