@@ -135,8 +135,6 @@ public class GradeImportTest extends FacadeITMockedThirdParties {
 
   @Test
   void update_grade_via_excel_file_OK() {
-    subject.initStudentExamGradeImportFromXlsx(
-        getMockedFile("test-grade-import", ".xlsx"), "exam1_id", null);
     var updateGrades =
         subject.initStudentExamGradeImportFromXlsx(
             getMockedFile("test-update-grade", ".xlsx"), "exam1_id", "test comment");
