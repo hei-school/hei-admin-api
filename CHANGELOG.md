@@ -1,3 +1,18 @@
+# [1.143.0](https://github.com/hei-school/hei-admin-api/compare/v1.142.0...v1.143.0) (2025-12-17)
+
+
+### Bug Fixes
+
+* exclude disabled student fees status update to LATE ([4ca6599](https://github.com/hei-school/hei-admin-api/commit/4ca659939e5003404b0150079a827be8016ee710))
+* mark suspended students as MISSING on event participant initialization ([28c338a](https://github.com/hei-school/hei-admin-api/commit/28c338a9eee718c5c44f5962befdf5610c99dfef))
+
+
+### Features
+
+* implement event calendar filter by groupRef ([b848815](https://github.com/hei-school/hei-admin-api/commit/b848815c7b3e15cfd744889f210ae68db188602a))
+
+
+
 # [1.142.0](https://github.com/hei-school/hei-admin-api/compare/v1.141.0...v1.142.0) (2025-12-11)
 
 
@@ -98,15 +113,6 @@
 ### Features
 
 * add student import template endpoint ([76a8831](https://github.com/hei-school/hei-admin-api/commit/76a8831c2e1ab4d0f1815b50013dae57f7fce1c9))
-
-
-
-## [1.134.2](https://github.com/hei-school/hei-admin-api/compare/v1.134.1...v1.134.2) (2025-11-12)
-
-
-### Bug Fixes
-
-* add unckecked field to event and participant stats ([818869c](https://github.com/hei-school/hei-admin-api/commit/818869c8a9e00f6297d278811ba307f6cb5abffd))
 
 
 
