@@ -117,7 +117,7 @@ public class GradeImportTest extends FacadeITMockedThirdParties {
   void validate_import_student_grade_ok() {
     var importResult =
         subject.initStudentExamGradeImportFromXlsx(
-            getMockedFile("test-grade-import", ".xlsx"), "exam1_id");
+            getMockedFile("test-grade-import", ".xlsx"), "exam1_id", null);
     assertEquals(7, importResult.getImportGradeStats().getTotalRows());
     assertEquals(6, importResult.getImportGradeStats().getInvalidRows());
     assertEquals(1, importResult.getImportGradeStats().getValidRows());
@@ -131,5 +131,20 @@ public class GradeImportTest extends FacadeITMockedThirdParties {
         "La réference étudiant(e) est dupliquée, veuillez supprimer les autres pour ajouter une"
             + " note.",
         importResult.getInvalidGrades().get(2).getReason());
+  }
+
+  @Test
+  void update_grade_via_excel_file_OK() {
+    subject.initStudentExamGradeImportFromXlsx(
+        getMockedFile("test-grade-import", ".xlsx"), "exam1_id", null);
+    var updateGrades =
+        subject.initStudentExamGradeImportFromXlsx(
+            getMockedFile("test-update-grade", ".xlsx"), "exam1_id", "test comment");
+    assertNotNull(updateGrades);
+    assertNotNull(updateGrades.getInvalidGrades());
+    assertEquals(7, updateGrades.getImportGradeStats().getInvalidRows());
+    assertEquals(
+        "La note insérée est identique à la note existante. Aucune mise à jour n’a été effectuée.",
+        updateGrades.getInvalidGrades().get(1).getReason());
   }
 }
