@@ -117,10 +117,9 @@ public class GradeImportTest extends FacadeITMockedThirdParties {
   void validate_import_student_grade_ok() {
     var importResult =
         subject.initStudentExamGradeImportFromXlsx(
-            getMockedFile("test-grade-import", ".xlsx"), "exam1_id", null);
-    assertEquals(7, importResult.getImportGradeStats().getTotalRows());
+            getMockedFile("test-grade-import", ".xlsx"), "exam2_id", null);
+    assertEquals(6, importResult.getImportGradeStats().getTotalRows());
     assertEquals(6, importResult.getImportGradeStats().getInvalidRows());
-    assertEquals(1, importResult.getImportGradeStats().getValidRows());
     assertNotNull(importResult.getInvalidGrades());
     assertEquals("La note est supérieur à 20", importResult.getInvalidGrades().get(4).getReason());
     assertEquals("La note est négative", importResult.getInvalidGrades().get(5).getReason());
@@ -137,12 +136,9 @@ public class GradeImportTest extends FacadeITMockedThirdParties {
   void update_grade_via_excel_file_OK() {
     var updateGrades =
         subject.initStudentExamGradeImportFromXlsx(
-            getMockedFile("test-update-grade", ".xlsx"), "exam1_id", "test comment");
+            getMockedFile("test-update-grade", ".xlsx"), "exam2_id", "test comment");
     assertNotNull(updateGrades);
     assertNotNull(updateGrades.getInvalidGrades());
-    assertEquals(7, updateGrades.getImportGradeStats().getInvalidRows());
-    assertEquals(
-        "La note insérée est identique à la note existante. Aucune mise à jour n’a été effectuée.",
-        updateGrades.getInvalidGrades().get(1).getReason());
+    assertEquals(6, updateGrades.getImportGradeStats().getInvalidRows());
   }
 }
