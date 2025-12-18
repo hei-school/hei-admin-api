@@ -22,6 +22,7 @@ import static school.hei.haapi.integration.test_data.TeacherTestData.toky;
 
 import java.time.Instant;
 import java.util.List;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,34 +48,38 @@ public class GradeImportTest extends FacadeITMockedThirdParties {
   @Autowired private GradeService subject;
   @MockBean BucketComponent bucketComponent;
   @Autowired private UserService userService;
-  @Autowired private GradeRepository gradeRepository;
-  @Autowired UserRepository userRepository;
-  @Autowired CourseRepository courseRepository;
-  @Autowired GroupFlowRepository groupFlowRepository;
-  @Autowired GroupRepository groupRepository;
-  @Autowired CourseAssignmentRepository courseAssignmentRepository;
-  @Autowired MonitoringStudentRepository monitoringStudentRepository;
-  @Autowired ExamRepository examRepository;
-  private static User studentAxel;
   private static User studentTolojanahary;
-  private User monitorOfAxel;
-  private User monitorOfTolojanahary;
-  private Course courseProg1;
-  private Course courseProg2;
-  private User teacherToky;
-  private Exam exam2Prog1;
-  private CourseAssignment assignProg1ToTokyForGroup;
-  private CourseAssignment assignProg2ToTokyForGroup2;
-  private Group groupG1;
-  private Group groupG2;
-  private GroupFlow groupFlowsAxel;
-  private GroupFlow groupFlowsTolojanahary;
+  private static User studentAxel;
+  private static User monitorOfAxel;
+  private static User monitorOfTolojanahary;
+  private static Course courseProg1;
+  private static Course courseProg2;
+  private static User teacherToky;
+  private static Exam exam2Prog1;
+  private static CourseAssignment assignProg1ToTokyForGroup;
+  private static CourseAssignment assignProg2ToTokyForGroup2;
+  private static Group groupG1;
+  private static Group groupG2;
+  private static GroupFlow groupFlowsAxel;
+  private static GroupFlow groupFlowsTolojanahary;
+  private static String exam2prog1Id;
 
-  void setUpTestData() {
+  @BeforeAll
+  static void setUpTestData(
+      @Autowired GradeRepository gradeRepository,
+      @Autowired UserRepository userRepository,
+      @Autowired CourseRepository courseRepository,
+      @Autowired GroupFlowRepository groupFlowRepository,
+      @Autowired GroupRepository groupRepository,
+      @Autowired CourseAssignmentRepository courseAssignmentRepository,
+      @Autowired MonitoringStudentRepository monitoringStudentRepository,
+      @Autowired ExamRepository examRepository) {
     groupG1 = g1();
     groupG2 = g2();
     studentAxel = axel();
+    studentAxel.setRef("STD22033");
     studentTolojanahary = tolojanahary();
+    studentTolojanahary.setRef("STD22031");
     courseProg1 = prog1();
     courseProg2 = prog2();
     teacherToky = toky();
@@ -102,7 +107,7 @@ public class GradeImportTest extends FacadeITMockedThirdParties {
     groupFlowRepository.saveAll(List.of(groupFlowsAxel, groupFlowsTolojanahary));
     courseAssignmentRepository.saveAll(
         List.of(assignProg1ToTokyForGroup, assignProg2ToTokyForGroup2));
-    examRepository.save(exam2Prog1);
+    exam2prog1Id = examRepository.save(exam2Prog1).getId();
   }
 
   @BeforeEach
@@ -110,16 +115,17 @@ public class GradeImportTest extends FacadeITMockedThirdParties {
     setUpCasdoor(casdoorAuthServiceMock, certificateLoaderMock);
     setUpCognito(cognitoComponentMock);
     setUpS3Service(fileService, student1());
-    setUpTestData();
   }
 
   @Test
   void validate_import_student_grade_ok() {
     var importResult =
         subject.initStudentExamGradeImportFromXlsx(
-            getMockedFile("test-grade-import", ".xlsx"), "exam5_id", null);
-    assertEquals(7, importResult.getImportGradeStats().getTotalRows());
+            getMockedFile("test-grade-import", ".xlsx"), exam2prog1Id, null);
+    assertNotNull(importResult.getImportGradeStats());
+    assertEquals(8, importResult.getImportGradeStats().getTotalRows());
     assertEquals(6, importResult.getImportGradeStats().getInvalidRows());
+    assertEquals(2, importResult.getImportGradeStats().getValidRows());
     assertNotNull(importResult.getInvalidGrades());
     assertEquals("La note est supérieur à 20", importResult.getInvalidGrades().get(4).getReason());
     assertEquals("La note est négative", importResult.getInvalidGrades().get(5).getReason());
@@ -136,10 +142,12 @@ public class GradeImportTest extends FacadeITMockedThirdParties {
   void update_grade_via_excel_file_OK() {
     var updateGrades =
         subject.initStudentExamGradeImportFromXlsx(
-            getMockedFile("test-update-grade", ".xlsx"), "exam5_id", "test comment");
+            getMockedFile("test-update-grade", ".xlsx"), exam2prog1Id, "test comment");
     assertNotNull(updateGrades);
     assertNotNull(updateGrades.getInvalidGrades());
-    assertEquals(6, updateGrades.getImportGradeStats().getInvalidRows());
+    assertNotNull(updateGrades.getImportGradeStats());
+    assertEquals(8, updateGrades.getImportGradeStats().getTotalRows());
+    assertEquals(7, updateGrades.getImportGradeStats().getInvalidRows());
     assertEquals(1, updateGrades.getImportGradeStats().getValidRows());
   }
 }
