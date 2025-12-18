@@ -97,7 +97,7 @@ public class GradeController {
   @PostMapping(value = "/exams/{exams_id}/grades/import")
   public ImportGradeResult importStudentsExamGrade(
       @PathVariable(name = "exams_id") String examId,
-      @RequestPart("file_to_upload") MultipartFile fileToUpload) {
+      @RequestPart(value = "file_to_upload") MultipartFile fileToUpload) {
     return gradeService.initStudentExamGradeImportFromXlsx(
         fileConverter.apply(fileToUpload), examId, null);
   }
@@ -105,8 +105,8 @@ public class GradeController {
   @PutMapping(value = "/exams/{exams_id}/grades/import")
   public ImportGradeResult importStudentsExamGradeUpdated(
       @PathVariable(name = "exams_id") String examId,
-      @RequestPart("comment") String comment,
-      @RequestPart("file_to_upload") MultipartFile fileToUpload) {
+      @RequestParam(value = "comment") String comment,
+      @RequestPart(value = "file_to_upload") MultipartFile fileToUpload) {
     return gradeService.initStudentExamGradeImportFromXlsx(
         fileConverter.apply(fileToUpload), examId, comment);
   }
