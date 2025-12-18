@@ -19,6 +19,7 @@ import static school.hei.haapi.integration.test_data.MonitorTestData.monitorOfTo
 import static school.hei.haapi.integration.test_data.StudentTestData.axel;
 import static school.hei.haapi.integration.test_data.StudentTestData.tolojanahary;
 import static school.hei.haapi.integration.test_data.TeacherTestData.toky;
+import static school.hei.haapi.model.dto.MonitorStudentLinkDto.Status.LINKED;
 
 import java.time.Instant;
 import java.util.List;
@@ -99,9 +100,9 @@ public class GradeImportTest extends FacadeITMockedThirdParties {
     userRepository.saveAll(List.of(monitorOfAxel, monitorOfTolojanahary));
     userRepository.saveAll(List.of(studentAxel, studentTolojanahary));
     monitoringStudentRepository.saveMonitorFollowingStudents(
-        monitorOfAxel.getId(), List.of(studentAxel.getId()));
+        monitorOfAxel.getId(), List.of(studentAxel.getId()), LINKED.toString());
     monitoringStudentRepository.saveMonitorFollowingStudents(
-        monitorOfTolojanahary.getId(), List.of(studentTolojanahary.getId()));
+        monitorOfTolojanahary.getId(), List.of(studentTolojanahary.getId()), LINKED.toString());
     userRepository.saveAll(List.of(teacherToky));
     courseRepository.saveAll(List.of(courseProg1, courseProg2));
     groupFlowRepository.saveAll(List.of(groupFlowsAxel, groupFlowsTolojanahary));
