@@ -89,11 +89,12 @@ public class EventService {
       String title,
       EventType eventType,
       String groupId,
+      List<String> groupRef,
       PageFromOne page,
       BoundedPageSize pageSize) {
     Pageable pageable =
         PageRequest.of(page.getValue() - 1, pageSize.getValue(), Sort.by(DESC, "beginDatetime"));
-    return eventDao.findByCriteria(title, from, to, eventType, groupId, pageable);
+    return eventDao.findByCriteria(title, from, to, eventType, groupId, groupRef, pageable);
   }
 
   private List<Event> generateEventFromFrequency(

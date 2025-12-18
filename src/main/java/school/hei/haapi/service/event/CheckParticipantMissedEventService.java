@@ -38,6 +38,7 @@ public class CheckParticipantMissedEventService
             LocalDateTime.of(LocalDate.now(), LocalTime.MAX).toInstant(ZoneOffset.ofHours(3)),
             null,
             null,
+            null,
             null);
 
     todayEvents.forEach(

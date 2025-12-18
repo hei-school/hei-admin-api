@@ -1,3 +1,57 @@
+# [1.143.0](https://github.com/hei-school/hei-admin-api/compare/v1.142.0...v1.143.0) (2025-12-17)
+
+
+### Bug Fixes
+
+* exclude disabled student fees status update to LATE ([4ca6599](https://github.com/hei-school/hei-admin-api/commit/4ca659939e5003404b0150079a827be8016ee710))
+* mark suspended students as MISSING on event participant initialization ([28c338a](https://github.com/hei-school/hei-admin-api/commit/28c338a9eee718c5c44f5962befdf5610c99dfef))
+
+
+### Features
+
+* implement event calendar filter by groupRef ([b848815](https://github.com/hei-school/hei-admin-api/commit/b848815c7b3e15cfd744889f210ae68db188602a))
+
+
+
+# [1.142.0](https://github.com/hei-school/hei-admin-api/compare/v1.141.0...v1.142.0) (2025-12-11)
+
+
+### Bug Fixes
+
+* disabled students initialized as event participant on event creation ([7c6badb](https://github.com/hei-school/hei-admin-api/commit/7c6badbb42703a16a950d8710b1fec34794fe9e7))
+* increase build stack size ([30eb9b8](https://github.com/hei-school/hei-admin-api/commit/30eb9b821139f79871c3253bcef8c362f073ee26))
+
+
+### Features
+
+* **doc:** add group_ref filter documentation for events ([d2b45b7](https://github.com/hei-school/hei-admin-api/commit/d2b45b73e8ba0c4cec9e1f485233270609991a27))
+
+
+
+# [1.141.0](https://github.com/hei-school/hei-admin-api/compare/v1.140.0...v1.141.0) (2025-12-09)
+
+
+### Features
+
+* (doc) new endpoint to update grades ([771d66b](https://github.com/hei-school/hei-admin-api/commit/771d66ba968edc20d50291104ff3d0fe7b7e33c9))
+
+
+
+# [1.140.0](https://github.com/hei-school/hei-admin-api/compare/v1.139.1...v1.140.0) (2025-12-03)
+
+
+### Bug Fixes
+
+* grade import endpoint ([3369b71](https://github.com/hei-school/hei-admin-api/commit/3369b71eb259431368391a71cc7872cfb0b8237c))
+* suspend student with overdue fees transaction error ([6bdcefc](https://github.com/hei-school/hei-admin-api/commit/6bdcefc8c98ccff38990901add1f0d46c14dcb0d))
+
+
+### Features
+
+* implement-online-event-support ([5a5b66e](https://github.com/hei-school/hei-admin-api/commit/5a5b66ee6da5f248516873d2e91a9ce5a2297ba5))
+
+
+
 ## [1.139.1](https://github.com/hei-school/hei-admin-api/compare/v1.139.0...v1.139.1) (2025-11-27)
 
 
@@ -59,49 +113,6 @@
 ### Features
 
 * add student import template endpoint ([76a8831](https://github.com/hei-school/hei-admin-api/commit/76a8831c2e1ab4d0f1815b50013dae57f7fce1c9))
-
-
-
-## [1.134.2](https://github.com/hei-school/hei-admin-api/compare/v1.134.1...v1.134.2) (2025-11-12)
-
-
-### Bug Fixes
-
-* add unckecked field to event and participant stats ([818869c](https://github.com/hei-school/hei-admin-api/commit/818869c8a9e00f6297d278811ba307f6cb5abffd))
-
-
-
-## [1.134.1](https://github.com/hei-school/hei-admin-api/compare/v1.134.0...v1.134.1) (2025-11-07)
-
-
-### Bug Fixes
-
-* student stats computation timeout ([afaae35](https://github.com/hei-school/hei-admin-api/commit/afaae3596f35de61e234673923b094b845d633a7))
-
-
-
-# [1.134.0](https://github.com/hei-school/hei-admin-api/compare/v1.133.0...v1.134.0) (2025-11-07)
-
-
-### Features
-
-* (doc) add to cancel retake exam endpoint and operationId ([82cd1eb](https://github.com/hei-school/hei-admin-api/commit/82cd1eb485f6ef9788dff47d4fd65a582420c581))
-* add retake exam session student level ([9f532f7](https://github.com/hei-school/hei-admin-api/commit/9f532f7fd61540c1e43a61b681d23196e63ef149))
-
-
-
-# [1.133.0](https://github.com/hei-school/hei-admin-api/compare/v1.132.0...v1.133.0) (2025-11-05)
-
-
-### Bug Fixes
-
-* retake exam default value ([a47350c](https://github.com/hei-school/hei-admin-api/commit/a47350c913366cdfd875057ce5669157bfca71b0))
-
-
-### Features
-
-* (doc) add retake exam comments ([955567f](https://github.com/hei-school/hei-admin-api/commit/955567f356e4102f61e43718c2789f21980d756d))
-* (doc) add student level and filter by student ref  ([620b28e](https://github.com/hei-school/hei-admin-api/commit/620b28e1997c14f0ae668cf0e1814583c889072c))
 
 
 

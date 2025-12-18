@@ -27,6 +27,8 @@ import static school.hei.haapi.integration.conf.TestUtils.createIntegrationEvent
 import static school.hei.haapi.integration.conf.TestUtils.event1;
 import static school.hei.haapi.integration.conf.TestUtils.event2;
 import static school.hei.haapi.integration.conf.TestUtils.event3;
+import static school.hei.haapi.integration.conf.TestUtils.event4;
+import static school.hei.haapi.integration.conf.TestUtils.event5;
 import static school.hei.haapi.integration.conf.TestUtils.group1;
 import static school.hei.haapi.integration.conf.TestUtils.setUpCasdoor;
 import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
@@ -111,14 +113,14 @@ public class EventIT extends FacadeITMockedThirdParties {
     ApiClient apiClient = anApiClient(MANAGER1_TOKEN);
     EventsApi api = new EventsApi(apiClient);
 
-    var actual = api.getEvents(1, 500, null, null, null, null, null, null);
+    var actual = api.getEvents(1, 500, null, null, null, null, null, null, null);
 
     System.out.println(actual);
     assertTrue(actual.containsAll(List.of(event1(), event2(), event3())));
 
     var eventsBeginAfterAnInstant =
         api.getEvents(
-            1, 15, Instant.parse("2022-12-15T10:00:00.00Z"), null, null, null, null, null);
+            1, 15, Instant.parse("2022-12-15T10:00:00.00Z"), null, null, null, null, null, null);
 
     assertTrue(eventsBeginAfterAnInstant.contains(event1()));
     assertFalse(eventsBeginAfterAnInstant.contains(event2()));
@@ -132,6 +134,7 @@ public class EventIT extends FacadeITMockedThirdParties {
             null,
             null,
             null,
+            null,
             null);
 
     assertTrue(eventsBeginBetweenTwoInstant.containsAll(List.of(event2(), event3())));
@@ -139,17 +142,17 @@ public class EventIT extends FacadeITMockedThirdParties {
 
     var eventsBeginBeforeAnInstant =
         api.getEvents(
-            1, 15, null, Instant.parse("2022-12-08T08:00:00.00Z"), null, null, null, null);
+            1, 15, null, Instant.parse("2022-12-08T08:00:00.00Z"), null, null, null, null, null);
 
     assertTrue(eventsBeginBeforeAnInstant.contains(event2()));
     assertFalse(eventsBeginBeforeAnInstant.containsAll(List.of(event1(), event3())));
 
-    var eventsFilterByType = api.getEvents(1, 15, null, null, COURSE, null, null, null);
+    var eventsFilterByType = api.getEvents(1, 15, null, null, COURSE, null, null, null, null);
     assertTrue(eventsFilterByType.contains(event1()));
     assertFalse(eventsFilterByType.contains(event3()));
     assertFalse(eventsFilterByType.contains(event2()));
 
-    var eventsFilterByTitle = api.getEvents(1, 15, null, null, null, "PROG1", null, null);
+    var eventsFilterByTitle = api.getEvents(1, 15, null, null, null, "PROG1", null, null, null);
     assertTrue(eventsFilterByTitle.contains(event1()));
     assertFalse(eventsFilterByTitle.contains(event3()));
     assertFalse(eventsFilterByTitle.contains(event2()));
@@ -287,7 +290,7 @@ public class EventIT extends FacadeITMockedThirdParties {
   @Test
   void event_as_public_link() throws ApiException {
     EventsApi api = new EventsApi(anApiClient(null));
-    var actual = api.getEvents(1, 15, null, null, null, null, null, null);
+    var actual = api.getEvents(1, 15, null, null, null, null, null, null, null);
     var baseEvents =
         actual.stream()
             .filter(e -> List.of(EVENT1_ID, EVENT2_ID, EVENT3_ID).contains(e.getId()))
@@ -297,6 +300,28 @@ public class EventIT extends FacadeITMockedThirdParties {
     assertEquals(event1(), baseEvents.get(0));
     assertEquals(event3(), baseEvents.get(1));
     assertEquals(event2(), baseEvents.get(2));
+  }
+
+  @Test
+  void event_as_public_link_filter_by_groupRef() throws ApiException {
+    EventsApi api = new EventsApi(anApiClient(null));
+    List<String> groupRef = List.of("J1", "J2");
+    var actual = api.getEvents(1, 15, null, null, null, null, null, null, groupRef);
+
+    assertEquals(2, actual.size());
+    assertEquals(event5(), actual.get(0));
+    assertEquals(event4(), actual.get(1));
+  }
+
+  @Test
+  void event_as_private_link_filter_by_groupRef() throws ApiException {
+    EventsApi api = new EventsApi(anApiClient(MANAGER1_TOKEN));
+    List<String> groupRef = List.of("J1", "J2");
+    var actual = api.getEvents(1, 15, null, null, null, null, null, null, groupRef);
+
+    assertEquals(2, actual.size());
+    assertEquals(event5(), actual.get(0));
+    assertEquals(event4(), actual.get(1));
   }
 
   @Test
@@ -313,7 +338,7 @@ public class EventIT extends FacadeITMockedThirdParties {
             Instant.parse("2022-12-08T07:59:59.00Z"),
             Instant.parse("2022-12-08T08:00:01.00Z"),
             PRESENT,
-            student1().getGroups().getFirst().getRef(),
+            List.of(StudentIT.student1().getGroups().getFirst().getRef()),
             student1().getRef(),
             student1().getFirstName());
     List<EventAttendance> eventParticipantsInEventDateRange =
@@ -331,7 +356,7 @@ public class EventIT extends FacadeITMockedThirdParties {
         api.getAllEventParticipants(null, null, null, null, null, MISSING, null, null, null);
     List<EventAttendance> groupFilteredEventParticipants =
         api.getAllEventParticipants(
-            null, null, null, null, null, null, group1().getRef(), null, null);
+            null, null, null, null, null, null, List.of(group1().getRef()), null, null);
     List<EventAttendance> studentRefFilteredEventParticipants =
         api.getAllEventParticipants(
             null, null, null, null, null, null, null, student3().getRef(), null);

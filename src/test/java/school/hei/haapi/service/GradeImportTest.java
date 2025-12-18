@@ -1,11 +1,12 @@
 package school.hei.haapi.service;
 
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.mockStatic;
-import static org.mockito.Mockito.when;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static school.hei.haapi.integration.StudentIT.student1;
 import static school.hei.haapi.integration.conf.TestUtils.getMockedFile;
+import static school.hei.haapi.integration.conf.TestUtils.setUpCasdoor;
+import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
+import static school.hei.haapi.integration.conf.TestUtils.setUpS3Service;
 import static school.hei.haapi.integration.test_data.CourseAssignmentTestData.createCourseAssignment;
 import static school.hei.haapi.integration.test_data.CourseTestData.prog1;
 import static school.hei.haapi.integration.test_data.CourseTestData.prog2;
@@ -26,21 +27,14 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import school.hei.haapi.endpoint.event.EventProducer;
-import school.hei.haapi.endpoint.event.model.GradeImportEvent;
-import school.hei.haapi.endpoint.rest.security.AuthProvider;
-import school.hei.haapi.endpoint.rest.security.model.Principal;
 import school.hei.haapi.file.bucket.BucketComponent;
 import school.hei.haapi.integration.conf.FacadeITMockedThirdParties;
-import school.hei.haapi.mail.Mailer;
 import school.hei.haapi.model.Course;
 import school.hei.haapi.model.CourseAssignment;
 import school.hei.haapi.model.Exam;
 import school.hei.haapi.model.Group;
 import school.hei.haapi.model.GroupFlow;
 import school.hei.haapi.model.User;
-import school.hei.haapi.model.dto.GradeImportDto;
-import school.hei.haapi.model.exception.BadRequestException;
 import school.hei.haapi.repository.CourseAssignmentRepository;
 import school.hei.haapi.repository.CourseRepository;
 import school.hei.haapi.repository.ExamRepository;
@@ -49,46 +43,43 @@ import school.hei.haapi.repository.GroupFlowRepository;
 import school.hei.haapi.repository.GroupRepository;
 import school.hei.haapi.repository.MonitoringStudentRepository;
 import school.hei.haapi.repository.UserRepository;
-import school.hei.haapi.service.event.GradeImportEventService;
 
 public class GradeImportTest extends FacadeITMockedThirdParties {
   @Autowired private GradeService subject;
-  @Autowired private GradeImportEventService gradeImportEventService;
-  @MockBean Mailer mailer;
   @MockBean BucketComponent bucketComponent;
-  @MockBean private EventProducer eventProducer;
   @Autowired private UserService userService;
-  @Autowired private GradeRepository gradeRepository;
-  @Autowired UserRepository userRepository;
-  @Autowired CourseRepository courseRepository;
-  @Autowired GroupFlowRepository groupFlowRepository;
-  @Autowired GroupRepository groupRepository;
-  @Autowired CourseAssignmentRepository courseAssignmentRepository;
-  @Autowired MonitoringStudentRepository monitoringStudentRepository;
-  @Autowired ExamRepository examRepository;
-  private static User studentAxel;
   private static User studentTolojanahary;
-  private User monitorOfAxel;
-  private User monitorOfTolojanahary;
-  private Course courseProg1;
-  private Course courseProg2;
-  private User teacherToky;
-  private Exam exam1Prog1;
-  private Exam exam2Prog1;
-  private CourseAssignment assignProg1ToTokyForGroup;
-  private CourseAssignment assignProg2ToTokyForGroup2;
-  private Group groupG1;
-  private Group groupG2;
-  private GroupFlow groupFlowsAxel;
-  private GroupFlow groupFlowsTolojanahary;
-  private static Exam exam1Prog1Saved;
+  private static User studentAxel;
+  private static User monitorOfAxel;
+  private static User monitorOfTolojanahary;
+  private static Course courseProg1;
+  private static Course courseProg2;
+  private static User teacherToky;
+  private static Exam exam2Prog1;
+  private static CourseAssignment assignProg1ToTokyForGroup;
+  private static CourseAssignment assignProg2ToTokyForGroup2;
+  private static Group groupG1;
+  private static Group groupG2;
+  private static GroupFlow groupFlowsAxel;
+  private static GroupFlow groupFlowsTolojanahary;
+  private static String exam2prog1Id;
 
-  @BeforeEach
-  void setUpTestData() {
+  @BeforeAll
+  static void setUpTestData(
+      @Autowired GradeRepository gradeRepository,
+      @Autowired UserRepository userRepository,
+      @Autowired CourseRepository courseRepository,
+      @Autowired GroupFlowRepository groupFlowRepository,
+      @Autowired GroupRepository groupRepository,
+      @Autowired CourseAssignmentRepository courseAssignmentRepository,
+      @Autowired MonitoringStudentRepository monitoringStudentRepository,
+      @Autowired ExamRepository examRepository) {
     groupG1 = g1();
     groupG2 = g2();
     studentAxel = axel();
+    studentAxel.setRef("STD22033");
     studentTolojanahary = tolojanahary();
+    studentTolojanahary.setRef("STD22031");
     courseProg1 = prog1();
     courseProg2 = prog2();
     teacherToky = toky();
@@ -102,7 +93,6 @@ public class GradeImportTest extends FacadeITMockedThirdParties {
     groupFlowsAxel = createGroupFlow(studentAxel, groupG1);
     groupFlowsTolojanahary = createGroupFlow(studentTolojanahary, groupG1);
 
-    exam1Prog1 = createExam(Instant.parse("2025-07-22T10:15:30Z"), assignProg1ToTokyForGroup);
     exam2Prog1 = createExam(Instant.parse("2025-09-22T10:15:30Z"), assignProg1ToTokyForGroup);
 
     groupRepository.saveAll(List.of(groupG1, groupG2));
@@ -117,67 +107,47 @@ public class GradeImportTest extends FacadeITMockedThirdParties {
     groupFlowRepository.saveAll(List.of(groupFlowsAxel, groupFlowsTolojanahary));
     courseAssignmentRepository.saveAll(
         List.of(assignProg1ToTokyForGroup, assignProg2ToTokyForGroup2));
-    exam1Prog1Saved = examRepository.save(exam1Prog1);
-    examRepository.save(exam2Prog1);
+    exam2prog1Id = examRepository.save(exam2Prog1).getId();
   }
 
-  @BeforeAll
-  static void setUp() {
-    mockStatic(AuthProvider.class);
-    when(AuthProvider.getPrincipal()).thenReturn(mockPrincipal());
+  @BeforeEach
+  void setUp() {
+    setUpCasdoor(casdoorAuthServiceMock, certificateLoaderMock);
+    setUpCognito(cognitoComponentMock);
+    setUpS3Service(fileService, student1());
   }
 
   @Test
   void validate_import_student_grade_ok() {
     var importResult =
         subject.initStudentExamGradeImportFromXlsx(
-            getMockedFile("test-grade-import", ".xlsx"), "exam1_id");
-    assertEquals(2, importResult.getValidStudentExamGradeNumber());
+            getMockedFile("test-grade-import", ".xlsx"), exam2prog1Id, null);
+    assertNotNull(importResult.getImportGradeStats());
+    assertEquals(8, importResult.getImportGradeStats().getTotalRows());
+    assertEquals(6, importResult.getImportGradeStats().getInvalidRows());
+    assertEquals(2, importResult.getImportGradeStats().getValidRows());
+    assertNotNull(importResult.getInvalidGrades());
+    assertEquals("La note est supérieur à 20", importResult.getInvalidGrades().get(4).getReason());
+    assertEquals("La note est négative", importResult.getInvalidGrades().get(5).getReason());
+    assertEquals("La note est null", importResult.getInvalidGrades().get(1).getReason());
+    assertEquals(
+        "La réference est null ou vide", importResult.getInvalidGrades().getFirst().getReason());
+    assertEquals(
+        "La réference étudiant(e) est dupliquée, veuillez supprimer les autres pour ajouter une"
+            + " note.",
+        importResult.getInvalidGrades().get(2).getReason());
   }
 
   @Test
-  void validate_bad_student_import_ko() {
-    assertThrows(
-        BadRequestException.class,
-        () ->
-            subject.initStudentExamGradeImportFromXlsx(
-                getMockedFile("test-bad-student-grade-import", ".xlsx"), "exam1_id"));
-  }
-
-  @Test
-  void handle_grade_import_xlsx() {
-    assertDoesNotThrow(() -> gradeImportEventService.accept(gradeImportEventMock()));
-    var grade =
-        subject.getGradeByExamIdAndStudentRef(exam1Prog1Saved.getId(), studentAxel.getRef());
-    assertEquals(studentAxel.getRef(), grade.getStudent().getRef());
-    assertEquals(exam1Prog1.getId(), grade.getExam().getId());
-  }
-
-  @Test
-  void import_bad_grade_ko() {
-    assertThrows(Exception.class, () -> gradeImportEventService.accept(badImportEvent()));
-  }
-
-  private static Principal mockPrincipal() {
-    return new Principal(User.builder().email("test@email.com").build(), "huh!?");
-  }
-
-  private static GradeImportEvent gradeImportEventMock() {
-    return GradeImportEvent.builder()
-        .examId(exam1Prog1Saved.getId())
-        .coordinatorEmail("test+manager1@hei.school")
-        .grades(
-            List.of(
-                GradeImportDto.builder().ref(studentAxel.getRef()).score(12.5).build(),
-                GradeImportDto.builder().ref(studentTolojanahary.getRef()).score(13.5).build()))
-        .build();
-  }
-
-  private static GradeImportEvent badImportEvent() {
-    return GradeImportEvent.builder()
-        .examId("exam1_id")
-        .coordinatorEmail("test+manager1@hei.school")
-        .grades(List.of(GradeImportDto.builder().ref("STD21010").score(12.5).build()))
-        .build();
+  void update_grade_via_excel_file_OK() {
+    var updateGrades =
+        subject.initStudentExamGradeImportFromXlsx(
+            getMockedFile("test-update-grade", ".xlsx"), exam2prog1Id, "test comment");
+    assertNotNull(updateGrades);
+    assertNotNull(updateGrades.getInvalidGrades());
+    assertNotNull(updateGrades.getImportGradeStats());
+    assertEquals(8, updateGrades.getImportGradeStats().getTotalRows());
+    assertEquals(7, updateGrades.getImportGradeStats().getInvalidRows());
+    assertEquals(1, updateGrades.getImportGradeStats().getValidRows());
   }
 }
