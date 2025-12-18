@@ -1,5 +1,7 @@
 package school.hei.haapi.endpoint.rest.controller;
 
+import static org.springframework.http.MediaType.MULTIPART_FORM_DATA_VALUE;
+
 import java.util.List;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -102,7 +104,7 @@ public class GradeController {
         fileConverter.apply(fileToUpload), examId, null);
   }
 
-  @PutMapping(value = "/exams/{exams_id}/grades/import")
+  @PutMapping(value = "/exams/{exams_id}/grades/import", consumes = MULTIPART_FORM_DATA_VALUE)
   public ImportGradeResult importStudentsExamGradeUpdated(
       @PathVariable(name = "exams_id") String examId,
       @RequestParam(value = "comment") String comment,
@@ -111,7 +113,7 @@ public class GradeController {
         fileConverter.apply(fileToUpload), examId, comment);
   }
 
-  @PostMapping(value = "/exams/{exam_id}/grades/update")
+  @PostMapping(value = "/exams/{exam_id}/grades/update", consumes = MULTIPART_FORM_DATA_VALUE)
   public List<StudentGrade> correctParticipantsGradeForExam(
       @PathVariable("exam_id") String examId, @RequestBody List<UpdateGrade> grades) {
     return gradeService
