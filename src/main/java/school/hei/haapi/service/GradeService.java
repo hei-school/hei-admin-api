@@ -260,7 +260,7 @@ public class GradeService {
         if (Objects.equals(grade.getScore(), existing.get().getScore())) {
           existingGrades.add(grade);
         }
-      } else if (existing.isPresent()) {
+      } else if (existing.isPresent() && existing.get().getScore() != null) {
         existingGrades.add(grade);
       }
     }
