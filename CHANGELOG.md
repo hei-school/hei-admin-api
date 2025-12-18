@@ -1,3 +1,12 @@
+## [1.144.2](https://github.com/hei-school/hei-admin-api/compare/v1.144.1...v1.144.2) (2025-12-18)
+
+
+### Bug Fixes
+
+* advanced fee stats exclude retake exam fees from category count ([0fb7a33](https://github.com/hei-school/hei-admin-api/commit/0fb7a336f014a5ccf9e6fd86aed78e11342130f3))
+
+
+
 ## [1.144.1](https://github.com/hei-school/hei-admin-api/compare/v1.144.0...v1.144.1) (2025-12-18)
 
 
@@ -103,16 +112,6 @@
 ### Features
 
 * add reason to cancel or reject retake exam request ([35c9ecc](https://github.com/hei-school/hei-admin-api/commit/35c9ecc5bb2d135029a81719307fbc10bfd2df30))
-
-
-
-# [1.137.0](https://github.com/hei-school/hei-admin-api/compare/v1.136.0...v1.137.0) (2025-11-19)
-
-
-### Features
-
-* add filter retake exam by student ref ([c4aef7e](https://github.com/hei-school/hei-admin-api/commit/c4aef7ed4e55e644d9a897b4b13f1a77ed082237))
-* add get actual student level ([df1fc61](https://github.com/hei-school/hei-admin-api/commit/df1fc614f15bf91e22f8a48c2149af4469bbaa48))
 
 
 
