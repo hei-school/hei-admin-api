@@ -216,6 +216,7 @@ public class AdvancedFeeStatsService {
 
   private void handleTotalFeesCount(
       AdvancedFeeStats feeStats, TotalExpectedFeesStats totalExpectedFeesStats) {
+    feeStats.setRemedialFeesCount(totalExpectedFeesStats.getRetakeExamFeesCount());
     feeStats.setFirstGradeCount(totalExpectedFeesStats.getFirstGrade());
     feeStats.setSecondGradeCount(totalExpectedFeesStats.getSecondGrade());
     feeStats.setThirdGradeCount(totalExpectedFeesStats.getThirdGrade());
@@ -234,7 +235,7 @@ public class AdvancedFeeStatsService {
     List<Fee> tuitionFees = feesByType.getOrDefault(TUITION, List.of());
     Map<FeeFrequency, Long> feesCountByPaymentFrequency = countFeesByPaymentFrequency(tuitionFees);
     return new LateFeesStats()
-        .retakeExamFeesCount(BigDecimal.valueOf(countRemedialFees(lateFees)))
+        .retakeExamFeesCount(countRemedialFees(lateFees))
         .workStudy(feeCountByCategory.get(WORK_FEES))
         .monthly(feesCountByPaymentFrequency.get(MONTHLY))
         .yearly(feesCountByPaymentFrequency.get(YEARLY))
@@ -253,7 +254,7 @@ public class AdvancedFeeStatsService {
     Map<FeeFrequency, Long> feesCountByPaymentFrequency = countFeesByPaymentFrequency(tuitionFees);
     Map<PaymentType, Long> feesCountByPaymentType = countFeesByPaymentType(tuitionFees);
     return new PaidFeesStats()
-        .retakeExamFeesCount(BigDecimal.valueOf(countRemedialFees(paidFees)))
+        .retakeExamFeesCount(countRemedialFees(paidFees))
         .workStudy(feeCountByCategory.get(WORK_FEES))
         .monthly(feesCountByPaymentFrequency.get(MONTHLY))
         .yearly(feesCountByPaymentFrequency.get(YEARLY))
@@ -273,7 +274,7 @@ public class AdvancedFeeStatsService {
     List<Fee> tuitionFees = feesByType.getOrDefault(TUITION, List.of());
     Map<FeeFrequency, Long> feesCountByPaymentFrequency = countFeesByPaymentFrequency(tuitionFees);
     return new PendingFeesStats()
-        .retakeExamFeesCount(BigDecimal.valueOf(countRemedialFees(pendingFees)))
+        .retakeExamFeesCount(countRemedialFees(pendingFees))
         .workStudy(feeCountByCategory.get(WORK_FEES))
         .monthly(feesCountByPaymentFrequency.get(MONTHLY))
         .yearly(feesCountByPaymentFrequency.get(YEARLY))
@@ -290,6 +291,7 @@ public class AdvancedFeeStatsService {
     List<Fee> tuitionFees = feesByType.getOrDefault(TUITION, List.of());
     Map<FeeFrequency, Long> feesCountByPaymentFrequency = countFeesByPaymentFrequency(tuitionFees);
     return new TotalExpectedFeesStats()
+        .retakeExamFeesCount(countRemedialFees(fees))
         .firstGrade(feeCountByCategory.get(L1))
         .secondGrade(feeCountByCategory.get(L2))
         .thirdGrade(feeCountByCategory.get(L3))
@@ -314,7 +316,9 @@ public class AdvancedFeeStatsService {
   private Map<FeeCategory, Long> countFeesByGrades(List<Fee> fees) {
     var feesByGradeCount = new HashMap<FeeCategory, Long>();
     Map<FeeCategory, List<Fee>> feesByGrade =
-        fees.stream().collect(groupingByConcurrent(Fee::getCategory));
+        fees.stream()
+            .filter(fee -> !REMEDIAL_COSTS.equals(fee.getType()))
+            .collect(groupingByConcurrent(Fee::getCategory));
     for (FeeCategory category : FeeCategory.values()) {
       feesByGradeCount.put(category, (long) feesByGrade.getOrDefault(category, List.of()).size());
     }
