@@ -108,4 +108,19 @@ public class GradeMapper {
         grade.getComment(),
         examService.getExamById(examId));
   }
+
+  public school.hei.haapi.model.notEntity.UpdateGrade toDomain(
+      GradeImportDto gradeDto, String ref, Exam exam, String comment) {
+    var student = userService.findByRef(ref);
+    var grade = new school.hei.haapi.model.Grade(exam, student, gradeDto.getScore());
+    return new school.hei.haapi.model.notEntity.UpdateGrade(grade, student, comment, exam);
+  }
+
+  public List<school.hei.haapi.model.notEntity.UpdateGrade> toDomainList(
+      List<GradeImportDto> gradeDtos, String examId, String comment) {
+    var exam = examService.getExamById(examId);
+    return gradeDtos.stream()
+        .map(gradeImportDto -> toDomain(gradeImportDto, gradeImportDto.getRef(), exam, comment))
+        .toList();
+  }
 }
