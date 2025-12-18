@@ -113,7 +113,7 @@ public class GradeController {
         fileConverter.apply(fileToUpload), examId, comment);
   }
 
-  @PostMapping(value = "/exams/{exam_id}/grades/update", consumes = MULTIPART_FORM_DATA_VALUE)
+  @PostMapping(value = "/exams/{exam_id}/grades/update")
   public List<StudentGrade> correctParticipantsGradeForExam(
       @PathVariable("exam_id") String examId, @RequestBody List<UpdateGrade> grades) {
     return gradeService
