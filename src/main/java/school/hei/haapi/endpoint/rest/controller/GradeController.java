@@ -96,7 +96,7 @@ public class GradeController {
         .toList();
   }
 
-  @PostMapping(value = "/exams/{exams_id}/grades/import")
+  @PostMapping(value = "/exams/{exams_id}/grades/import", consumes = MULTIPART_FORM_DATA_VALUE)
   public ImportGradeResult importStudentsExamGrade(
       @PathVariable(name = "exams_id") String examId,
       @RequestPart(value = "file_to_upload") MultipartFile fileToUpload) {
