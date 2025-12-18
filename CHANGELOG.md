@@ -1,3 +1,12 @@
+## [1.144.1](https://github.com/hei-school/hei-admin-api/compare/v1.144.0...v1.144.1) (2025-12-18)
+
+
+### Bug Fixes
+
+* (doc) add refactor import grade ([bd92f9a](https://github.com/hei-school/hei-admin-api/commit/bd92f9a0579f0b1606d56340ef114bbd8fa319dc))
+
+
+
 # [1.144.0](https://github.com/hei-school/hei-admin-api/compare/v1.143.0...v1.144.0) (2025-12-18)
 
 
@@ -104,16 +113,6 @@
 
 * add filter retake exam by student ref ([c4aef7e](https://github.com/hei-school/hei-admin-api/commit/c4aef7ed4e55e644d9a897b4b13f1a77ed082237))
 * add get actual student level ([df1fc61](https://github.com/hei-school/hei-admin-api/commit/df1fc614f15bf91e22f8a48c2149af4469bbaa48))
-
-
-
-# [1.136.0](https://github.com/hei-school/hei-admin-api/compare/v1.135.0...v1.136.0) (2025-11-16)
-
-
-### Features
-
-* (doc) add get student level ([084bf27](https://github.com/hei-school/hei-admin-api/commit/084bf278611c3f81ab53cf901646c84fef3c1c75))
-* (doc) add new endpoint to import student grade for a specific exam ([a978b3c](https://github.com/hei-school/hei-admin-api/commit/a978b3c8e9793e92faad536e3cae0e74dd4e6fcf))
 
 
 
