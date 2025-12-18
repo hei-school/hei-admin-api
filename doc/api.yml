@@ -8647,6 +8647,7 @@ components:
       type: object
       allOf:
         - $ref: "#/components/schemas/BaseFeesStats"
+        - $ref: "#/components/schemas/RetakeExamFeesCount"
     PaidFeesStats:
       type: object
       allOf:
@@ -8673,7 +8674,7 @@ components:
       type: object
       properties:
         retakeExam_fees_count:
-          type: number
+          type: integer
           format: int64
     FeesStatistics:
       type: object
