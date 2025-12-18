@@ -49,11 +49,7 @@ import school.hei.haapi.endpoint.rest.api.UsersApi;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
 import school.hei.haapi.endpoint.rest.mapper.UserMapper;
-import school.hei.haapi.endpoint.rest.model.Fee;
-import school.hei.haapi.endpoint.rest.model.LinkStudentsByMonitorIdRequest;
-import school.hei.haapi.endpoint.rest.model.Student;
-import school.hei.haapi.endpoint.rest.model.UpdateMonitorStudentLink;
-import school.hei.haapi.endpoint.rest.model.UpdateMonitorStudentLinkStatusRequest;
+import school.hei.haapi.endpoint.rest.model.*;
 import school.hei.haapi.endpoint.rest.security.casdoorAuthentication.config.CertificateLoader;
 import school.hei.haapi.integration.conf.FacadeITMockedThirdParties;
 import school.hei.haapi.integration.conf.TestUtils;
@@ -64,7 +60,7 @@ import software.amazon.awssdk.services.eventbridge.EventBridgeClient;
 
 @Testcontainers
 @AutoConfigureMockMvc
-public class MonitoringStudentIT extends FacadeITMockedThirdParties {
+class MonitoringStudentIT extends FacadeITMockedThirdParties {
   @MockBean private EventBridgeClient eventBridgeClientMock;
   @Autowired private UserMapper userMapper;
   @Autowired UserRepository userRepository;
@@ -144,7 +140,8 @@ public class MonitoringStudentIT extends FacadeITMockedThirdParties {
                             new UpdateMonitorStudentLink()
                                 .id(e.getId())
                                 .studentId(e.getMonitorId())
-                                .monitorId(e.getMonitorId()))
+                                .monitorId(e.getMonitorId())
+                                .status(MonitorStudentLinkStatus.LINKED))
                     .toList()));
 
     var emptyLinkRequests = managerApi.getLinkStudentRequests(1, 10);

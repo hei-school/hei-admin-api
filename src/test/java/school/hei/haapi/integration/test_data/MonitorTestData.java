@@ -28,7 +28,7 @@ public class MonitorTestData {
         .firstName("Freddy")
         .lastName("Monitor")
         .ref("MON" + randomUUID())
-        .email("freddy+monitor@mail.com")
+        .email(new Faker().internet().emailAddress())
         .entranceDatetime(Instant.parse("2025-07-22T10:15:30Z"))
         .phone("+07123456789")
         .status(User.Status.ENABLED)

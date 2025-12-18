@@ -1,5 +1,6 @@
 package school.hei.haapi.repository;
 
+import jakarta.persistence.Tuple;
 import jakarta.transaction.Transactional;
 import java.util.List;
 import org.springframework.data.domain.Pageable;
@@ -11,7 +12,6 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import school.hei.haapi.model.User;
 import school.hei.haapi.model.dto.MonitorStudentLinkDto;
-import school.hei.haapi.model.dto.MonitorStudentLinkDto.Status;
 
 @Repository
 public interface MonitoringStudentRepository extends JpaRepository<User, String> {
@@ -55,11 +55,11 @@ public interface MonitoringStudentRepository extends JpaRepository<User, String>
   @Query(
       value =
           """
-select mfs.id, mfs.monitor_id, mfs.student_id, mfs.status from monitor_following_student mfs
+select cast(mfs.id as varchar) as id, cast(mfs.monitor_id as varchar) as monitor_id, cast(mfs.student_id as varchar) as student_id, mfs.status from monitor_following_student mfs
 where mfs.status = 'PENDING'
 """,
       nativeQuery = true)
-  Slice<MonitorStudentLinkDto> getAllMonitorStudentLinkRequests(Pageable pageable);
+  Slice<Tuple> getAllMonitorStudentLinkRequests(Pageable pageable);
 
   @Query(
       value =
@@ -75,12 +75,12 @@ where mfs.id in (:ids)
       value =
           """
           UPDATE monitor_following_student
-          SET status = :status
+          SET status = cast(:status as mfs_status)
           WHERE id = :monitorFollowingStudentId
           """,
       nativeQuery = true)
   @Transactional
-  void updateMonitorFollowingStudentStatus(String monitorFollowingStudentId, Status status);
+  void updateMonitorFollowingStudentStatus(String monitorFollowingStudentId, String status);
 
   boolean existsByIdAndMonitors_Id(String monitorId, String studentId);
 }

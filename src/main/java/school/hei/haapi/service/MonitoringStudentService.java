@@ -2,11 +2,11 @@ package school.hei.haapi.service;
 
 import static java.util.stream.Collectors.toUnmodifiableList;
 import static org.springframework.data.domain.Sort.Direction.ASC;
-import static org.springframework.data.domain.Sort.Direction.DESC;
 import static school.hei.haapi.model.User.Role.STUDENT;
 import static school.hei.haapi.model.dto.MonitorStudentLinkDto.Status.LINKED;
 import static school.hei.haapi.model.dto.MonitorStudentLinkDto.Status.PENDING;
 
+import jakarta.persistence.Tuple;
 import java.util.List;
 import java.util.UUID;
 import lombok.AllArgsConstructor;
@@ -14,6 +14,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,6 +26,7 @@ import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.model.User;
 import school.hei.haapi.model.dto.MonitorStudentLinkDto;
+import school.hei.haapi.model.dto.MonitorStudentLinkDto.Status;
 import school.hei.haapi.model.exception.BadRequestException;
 import school.hei.haapi.model.exception.NotFoundException;
 import school.hei.haapi.repository.MonitoringStudentRepository;
@@ -76,15 +78,24 @@ public class MonitoringStudentService {
     monitorStudentLinks.forEach(
         dto ->
             monitoringStudentRepository.updateMonitorFollowingStudentStatus(
-                dto.id(), dto.status()));
+                dto.id(), dto.status().name()));
     return monitorStudentLinks;
   }
 
   public List<MonitorStudentLinkDto> getLinkStudentRequests(
       PageFromOne page, BoundedPageSize pageSize) {
-    Pageable pageable =
-        PageRequest.of(page.getValue() - 1, pageSize.getValue(), Sort.by(DESC, "created_at"));
-    return monitoringStudentRepository.getAllMonitorStudentLinkRequests(pageable).toList();
+    Pageable pageable = PageRequest.of(page.getValue() - 1, pageSize.getValue());
+    Slice<Tuple> monitorFollowingStudentTuples =
+        monitoringStudentRepository.getAllMonitorStudentLinkRequests(pageable);
+    return monitorFollowingStudentTuples.stream()
+        .map(
+            tuple ->
+                new MonitorStudentLinkDto(
+                    String.valueOf(tuple.get("id")),
+                    String.valueOf(tuple.get("monitor_id")),
+                    String.valueOf(tuple.get("student_id")),
+                    Status.valueOf(tuple.get("status", String.class))))
+        .toList();
   }
 
   @Transactional
