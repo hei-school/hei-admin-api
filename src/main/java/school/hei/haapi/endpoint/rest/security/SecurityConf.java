@@ -203,7 +203,7 @@ public class SecurityConf {
                     antMatcher(POST, "/exams/*/grades"),
                     antMatcher(POST, "/exams/*/grades/update"),
                     antMatcher(POST, "/exams/*/grades/import"),
-                    antMatcher(PUT, "/exams/*/grades/import"),
+                    antMatcher(POST, "/exams/*/grades/import/update"),
                     antMatcher(GET, "/exams/*/grade/stats"),
                     antMatcher(PUT, "/exams"),
                     antMatcher(GET, "/exams/*/students/*/grade"),
@@ -779,7 +779,7 @@ public class SecurityConf {
                     .hasAnyRole(TEACHER.getRole(), MANAGER.getRole(), ADMIN.getRole())
                     .requestMatchers(POST, "/exams/*/grades/import")
                     .hasAnyRole(TEACHER.getRole(), MANAGER.getRole(), ADMIN.getRole())
-                    .requestMatchers(PUT, "/exams/*/grades/import")
+                    .requestMatchers(POST, "/exams/*/grades/import/update")
                     .hasAnyRole(TEACHER.getRole(), MANAGER.getRole(), ADMIN.getRole())
                     .requestMatchers(POST, "/exams/*/grades/update")
                     .hasAnyRole(TEACHER.getRole(), MANAGER.getRole(), ADMIN.getRole())
