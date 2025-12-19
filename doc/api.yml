@@ -2648,7 +2648,8 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
-    put:
+  /exams/{exam_id}/grades/import/update:
+    post:
       tags:
         - Grades
       summary: Import students exam grade updated from an excel file
@@ -2659,18 +2660,24 @@ paths:
           required: true
           schema:
             type: string
-        - name: comment
-          in: query
-          required: true
-          schema:
-            type: string
       requestBody:
         description: Form containing the xlsx file for students exam grade to update
-        required: true
         content:
           multipart/form-data:
             schema:
-              $ref: "#/components/schemas/UploadFile"
+              type: object
+              required:
+                - comment
+                - file_to_upload
+              properties:
+                comment:
+                  type: string
+                  description: Comment or description for this import
+                  example: "Updated grades for final exam"
+                file_to_upload:
+                  type: string
+                  format: binary
+                  description: XLSX file containing students grades
       responses:
         '200':
           description: Status of the validation of imported students exam grade updated
