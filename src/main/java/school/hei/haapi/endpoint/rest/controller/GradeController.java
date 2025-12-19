@@ -108,7 +108,7 @@ public class GradeController {
       consumes = MULTIPART_FORM_DATA_VALUE)
   public ImportGradeResult importStudentsExamGradeUpdated(
       @PathVariable(name = "exam_id") String examId,
-      @RequestPart(value = "comment") String comment,
+      @RequestParam(value = "comment") String comment,
       @RequestPart(value = "file_to_upload") MultipartFile fileToUpload) {
     return gradeService.initStudentExamGradeImportFromXlsx(
         fileConverter.apply(fileToUpload), examId, comment);
