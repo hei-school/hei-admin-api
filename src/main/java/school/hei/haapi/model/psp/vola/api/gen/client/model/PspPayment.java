@@ -17,8 +17,10 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonValue;
 import java.util.Date;
 import java.util.Objects;
+import lombok.Builder;
 
 /** PspPayment */
+@Builder
 public class PspPayment {
   /** Gets or Sets pspType */
   public enum PspTypeEnum {

@@ -16,6 +16,7 @@ import org.springframework.web.client.RestClientException;
 import org.springframework.web.util.UriComponentsBuilder;
 import school.hei.haapi.model.psp.vola.api.gen.client.ApiClient;
 import school.hei.haapi.model.psp.vola.api.gen.client.model.Payment;
+import school.hei.haapi.model.psp.vola.api.gen.client.model.PaymentInfo;
 
 @Component("school.hei.haapi.model.psp.vola.api.gen.client.api.PaymentControllerApi")
 public class PaymentControllerApi {
@@ -141,6 +142,19 @@ public class PaymentControllerApi {
   /**
    * <b>200</b> - OK
    *
+   * @param paymentInfos (required)
+   * @param apiKey (required)
+   * @return List&lt;Payment&gt;
+   * @throws RestClientException if an error occurs while attempting to invoke the API
+   */
+  public List<Payment> getPayments(List<PaymentInfo> paymentInfos, String apiKey)
+      throws RestClientException {
+    return getPaymentsWithHttpInfo(paymentInfos, apiKey).getBody();
+  }
+
+  /**
+   * <b>200</b> - OK
+   *
    * @param apiKey (required)
    * @param payerEmail (required)
    * @param pspType (required)
@@ -197,6 +211,61 @@ public class PaymentControllerApi {
     return apiClient.invokeAPI(
         path,
         HttpMethod.GET,
+        queryParams,
+        postBody,
+        headerParams,
+        formParams,
+        accept,
+        contentType,
+        authNames,
+        returnType);
+  }
+
+  /**
+   * <b>200</b> - OK
+   *
+   * @param paymentInfos (required)
+   * @param apiKey (required)
+   * @return ResponseEntity&lt;List&lt;Payment&gt;&gt;
+   * @throws RestClientException if an error occurs while attempting to invoke the API
+   */
+  public ResponseEntity<List<Payment>> getPaymentsWithHttpInfo(
+      List<PaymentInfo> paymentInfos, String apiKey) throws RestClientException {
+    Object postBody = paymentInfos;
+
+    if (paymentInfos == null) {
+      throw new HttpClientErrorException(
+          HttpStatus.BAD_REQUEST,
+          "Missing the required parameter 'paymentInfos' when calling getPayments");
+    }
+    if (apiKey == null) {
+      throw new HttpClientErrorException(
+          HttpStatus.BAD_REQUEST,
+          "Missing the required parameter 'apiKey' when calling getPayments");
+    }
+
+    String path =
+        UriComponentsBuilder.fromPath("/payments")
+            .build()
+            .toUriString(); // ← Changé de /payments/batch à /payments
+
+    final MultiValueMap<String, String> queryParams = new LinkedMultiValueMap<String, String>();
+    final HttpHeaders headerParams = new HttpHeaders();
+    final MultiValueMap<String, Object> formParams = new LinkedMultiValueMap<String, Object>();
+    queryParams.putAll(apiClient.parameterToMultiValueMap(null, "apiKey", apiKey));
+
+    final String[] accepts = {"*/*"};
+    final List<MediaType> accept = apiClient.selectHeaderAccept(accepts);
+    final String[] contentTypes = {"application/json"};
+    final MediaType contentType = apiClient.selectHeaderContentType(contentTypes);
+
+    String[] authNames = new String[] {};
+
+    ParameterizedTypeReference<List<Payment>> returnType =
+        new ParameterizedTypeReference<List<Payment>>() {};
+    return apiClient.invokeAPI(
+        path,
+        HttpMethod.POST,
         queryParams,
         postBody,
         headerParams,

@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -24,6 +25,9 @@ import school.hei.haapi.model.exception.NoRemainingAmountFee;
 import school.hei.haapi.model.mpbs.Mpbs;
 import school.hei.haapi.model.mpbs.MpbsVerification;
 import school.hei.haapi.model.psp.vola.api.VolaPsp;
+import school.hei.haapi.model.psp.vola.api.gen.client.model.Payment;
+import school.hei.haapi.model.psp.vola.api.gen.client.model.PaymentInfo;
+import school.hei.haapi.model.psp.vola.api.gen.client.model.mapper.VolaMapper;
 import school.hei.haapi.repository.MpbsRepository;
 import school.hei.haapi.repository.MpbsVerificationRepository;
 import school.hei.haapi.service.aws.FileService;
@@ -44,6 +48,7 @@ public class MpbsVerificationService {
   private final ComputeVerifiedMobilePayment computeVerifiedMobilePayment;
   private final CollectionUtils collectionUtils;
   private final VolaPsp volaPsp;
+  private final VolaMapper volaMapper;
 
   public List<MpbsVerification> findAllByStudentIdAndFeeId(String studentId, String feeId) {
     return repository.findAllByStudentIdAndFeeId(studentId, feeId);
@@ -122,52 +127,58 @@ public class MpbsVerificationService {
     List<MpbsVerification> verifiedMpbs = new ArrayList<>();
     List<Mpbs> unverifiedMpbs = new ArrayList<>();
 
-    for (Mpbs pendingMbps : pendingMpbsList) {
-      try {
-        // Use VolaPsp to get transaction details instead of mobilePaymentService
-        Mpbs verifiedMpbsFromVola = volaPsp.get(pendingMbps);
+    try {
+      List<Payment> volaPayments =
+          volaPsp.getPayments(
+              pendingMpbsList.stream()
+                  .map(
+                      mpbs ->
+                          PaymentInfo.builder()
+                              .payerEmail(mpbs.getStudent().getEmail())
+                              .pspType(volaMapper.toPspType(mpbs.getMobileMoneyType()))
+                              .pspPaymentId(mpbs.getPspId())
+                              .build())
+                  .toList());
 
-        if (!SUCCESS.equals(verifiedMpbsFromVola.getStatus())) {
-          log.info(
-              "verification mobile payment details from Vola is not success for the payment {}",
-              pendingMbps.getId());
+      var paymentMap =
+          volaPayments.stream()
+              .collect(
+                  Collectors.toMap(
+                      payment -> payment.getPspPayment().getId(), Function.identity()));
+
+      for (Mpbs pendingMbps : pendingMpbsList) {
+        Payment volaPayment = paymentMap.get(pendingMbps.getPspId());
+
+        if (volaPayment != null && isPaymentSuccessful(volaPayment)) {
+          processVerifiedPayment(pendingMbps, volaPayment, verifiedMpbs, unverifiedMpbs);
+        } else {
+          if (volaPayment == null) {
+            log.info("No payment found in Vola for PSP ID: {}", pendingMbps.getPspId());
+          } else if (volaPayment.getVerificationStatus() == Payment.VerificationStatusEnum.FAILED) {
+            log.warn(
+                "Payment returned by Vola with FAILED status for PSP ID: {}",
+                pendingMbps.getPspId());
+          } else {
+            log.info(
+                "Payment from Vola is not successful for PSP ID: {} (status: {})",
+                pendingMbps.getPspId(),
+                volaPayment.getVerificationStatus());
+          }
           unverifiedMpbs.add(pendingMbps);
-          continue;
         }
-
-        // Convert to TransactionDetails for compatibility with existing logic
-        TransactionDetails transactionDetails =
-            transactionDetailsMapper.toExternalTransactionDetails(
-                convertMpbsToMobileTransactionDetails(verifiedMpbsFromVola));
-        log.info("mapped transaction details from Vola = {}", transactionDetails);
-
-        verifiedMpbs.add(
-            computeVerifiedMobilePayment.saveTheVerifiedMpbs(pendingMbps, transactionDetails));
-      } catch (NoRemainingAmountFee e) {
-        log.error(
-            "payment %s could not be verified because fee %s has no remaining amount"
-                .formatted(pendingMbps.getId(), pendingMbps.getFee().getId()),
-            e);
-      } catch (RuntimeException e) {
-        log.error(
-            "Mpbs of ref {} could not be verified with Vola because of error",
-            pendingMbps.getPspId(),
-            e);
-        unverifiedMpbs.add(pendingMbps);
       }
+
+    } catch (Exception e) {
+      log.error("Error fetching payments from Vola", e);
+      unverifiedMpbs.addAll(pendingMpbsList);
     }
 
     unverifiedMobilePaymentHandler.accept(unverifiedMpbs);
     return verifiedMpbs;
   }
 
-  private MobileTransactionDetails convertMpbsToMobileTransactionDetails(Mpbs mpbs) {
-    return MobileTransactionDetails.builder()
-        .pspTransactionRef(mpbs.getPspId())
-        .status(mpbs.getStatus())
-        .pspTransactionAmount(mpbs.getAmount())
-        .pspDatetimeTransactionCreation(mpbs.getCreationDatetime())
-        .build();
+  private boolean isPaymentSuccessful(Payment payment) {
+    return payment.getVerificationStatus() == Payment.VerificationStatusEnum.SUCCEEDED;
   }
 
   @Transactional
@@ -232,5 +243,29 @@ public class MpbsVerificationService {
 
   public List<TransactionDetails> fetchThenSaveTransactionDetailsDaily() {
     return mobilePaymentService.fetchTransactionDetails();
+  }
+
+  private void processVerifiedPayment(
+      Mpbs pendingMbps,
+      Payment volaPayment,
+      List<MpbsVerification> verifiedMpbs,
+      List<Mpbs> unverifiedMpbs) {
+    try {
+      var transactionDetails = transactionDetailsMapper.fromVolaPayment(volaPayment);
+      log.info("Mapped transaction details from Vola = {}", transactionDetails);
+
+      verifiedMpbs.add(
+          computeVerifiedMobilePayment.saveTheVerifiedMpbs(pendingMbps, transactionDetails));
+    } catch (NoRemainingAmountFee e) {
+      log.error(
+          "Payment {} could not be verified because fee {} has no remaining amount",
+          pendingMbps.getId(),
+          pendingMbps.getFee().getId(),
+          e);
+      unverifiedMpbs.add(pendingMbps);
+    } catch (RuntimeException e) {
+      log.error("Mpbs of ref {} could not be verified because of error", pendingMbps.getPspId(), e);
+      unverifiedMpbs.add(pendingMbps);
+    }
   }
 }

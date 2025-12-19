@@ -1,5 +1,32 @@
 package school.hei.haapi.unit;
 
+import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
+import school.hei.haapi.endpoint.event.EventProducer;
+import school.hei.haapi.endpoint.event.model.PaidFeeByMpbsFailedNotificationBody;
+import school.hei.haapi.endpoint.rest.model.MobileMoneyType;
+import school.hei.haapi.http.mapper.TransactionDetailsMapper;
+import school.hei.haapi.http.model.TransactionDetails;
+import school.hei.haapi.model.Fee;
+import school.hei.haapi.model.MobileTransactionDetails;
+import school.hei.haapi.model.Payment;
+import school.hei.haapi.model.User;
+import school.hei.haapi.model.mpbs.Mpbs;
+import school.hei.haapi.model.mpbs.MpbsVerification;
+import school.hei.haapi.model.psp.vola.api.VolaPsp;
+import school.hei.haapi.model.psp.vola.api.gen.client.model.PspPayment;
+import school.hei.haapi.model.psp.vola.api.gen.client.model.mapper.VolaMapper;
+import school.hei.haapi.service.ComputeVerifiedMobilePayment;
+import school.hei.haapi.service.FailedMobilePaymentNotification;
+import school.hei.haapi.service.MobilePaymentService;
+import school.hei.haapi.service.MpbsVerificationService;
+import school.hei.haapi.service.UnverifiedMobilePaymentHandler;
+import school.hei.haapi.service.utils.CollectionUtils;
+
+import java.time.Instant;
+import java.util.Date;
+import java.util.List;
+
 import static java.time.Instant.now;
 import static java.time.temporal.ChronoUnit.DAYS;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -11,37 +38,18 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static school.hei.haapi.endpoint.rest.model.MpbsStatus.FAILED;
-import static school.hei.haapi.endpoint.rest.model.MpbsStatus.PENDING;
+import static school.hei.haapi.endpoint.rest.model.MobileMoneyType.ORANGE_MONEY;
 import static school.hei.haapi.endpoint.rest.model.MpbsStatus.SUCCESS;
-
-import java.time.Instant;
-import java.util.List;
-import org.junit.jupiter.api.Test;
-import org.mockito.ArgumentCaptor;
-import school.hei.haapi.endpoint.event.EventProducer;
-import school.hei.haapi.endpoint.event.model.PaidFeeByMpbsFailedNotificationBody;
-import school.hei.haapi.http.mapper.TransactionDetailsMapper;
-import school.hei.haapi.http.model.TransactionDetails;
-import school.hei.haapi.model.Fee;
-import school.hei.haapi.model.MobileTransactionDetails;
-import school.hei.haapi.model.Payment;
-import school.hei.haapi.model.User;
-import school.hei.haapi.model.mpbs.Mpbs;
-import school.hei.haapi.model.mpbs.MpbsVerification;
-import school.hei.haapi.model.psp.vola.api.VolaPsp;
-import school.hei.haapi.service.ComputeVerifiedMobilePayment;
-import school.hei.haapi.service.FailedMobilePaymentNotification;
-import school.hei.haapi.service.MobilePaymentService;
-import school.hei.haapi.service.MpbsVerificationService;
-import school.hei.haapi.service.UnverifiedMobilePaymentHandler;
-import school.hei.haapi.service.utils.CollectionUtils;
+import static school.hei.haapi.model.psp.vola.api.gen.client.model.Payment.VerificationStatusEnum.FAILED;
+import static school.hei.haapi.model.psp.vola.api.gen.client.model.Payment.VerificationStatusEnum.SUCCEEDED;
+import static school.hei.haapi.model.psp.vola.api.gen.client.model.Payment.VerificationStatusEnum.VERIFYING;
 
 class MpbsVerificationTest {
+  VolaMapper volaMapper = new VolaMapper();
   MobilePaymentService mobilePaymentServiceMock = mock();
   UnverifiedMobilePaymentHandler unverifiedMobilePaymentHandlerMock = mock();
   ComputeVerifiedMobilePayment computeVerifiedMobilePaymentMock = mock();
-  TransactionDetailsMapper transactionDetailsMapper = new TransactionDetailsMapper();
+  TransactionDetailsMapper transactionDetailsMapper = new TransactionDetailsMapper(volaMapper);
   EventProducer<PaidFeeByMpbsFailedNotificationBody> eventProducerMock = mock();
 
   private MpbsVerificationService initMpbsVerificationService(
@@ -59,7 +67,8 @@ class MpbsVerificationTest {
         unverifiedMobilePaymentHandlerMock,
         computeVerifiedMobilePayment,
         new CollectionUtils(),
-        mock());
+        mock(),
+        volaMapper);
   }
 
   @Test
@@ -166,7 +175,19 @@ class MpbsVerificationTest {
         .fee(fee)
         .student(student)
         .amount(amount)
+        .mobileMoneyType(ORANGE_MONEY)
         .statusHistory(List.of())
+        .build();
+  }
+
+  public static Mpbs someMpbs(
+      String pspId, Instant creationDateTime, User student, MobileMoneyType mobileMoneyType) {
+    return Mpbs.builder()
+        .pspId(pspId)
+        .creationDatetime(creationDateTime)
+        .student(student)
+        .statusHistory(List.of())
+        .mobileMoneyType(mobileMoneyType)
         .build();
   }
 
@@ -180,7 +201,7 @@ class MpbsVerificationTest {
   }
 
   @Test
-  void verification_split_verification_for_mbps_with_vola() {
+  void vola_verification_split_verification_for_mbps() {
     VolaPsp volaPspMock = mock();
     var subject =
         new MpbsVerificationService(
@@ -193,29 +214,63 @@ class MpbsVerificationTest {
             unverifiedMobilePaymentHandlerMock,
             computeVerifiedMobilePaymentMock,
             new CollectionUtils(),
-            volaPspMock);
+            volaPspMock,
+            new VolaMapper());
 
-    var mbpsPending = someMpbs("pending", now(), null);
-    var mpbsVerified = someMpbs("verified", now(), null);
+    var mbpsPending =
+        someMpbs("pending", now(), User.builder().email("Arandom@gmail.com").build(), ORANGE_MONEY);
+    var mpbsVerified =
+        someMpbs(
+            "verified", now(), User.builder().email("Arandom@gmail.com").build(), ORANGE_MONEY);
+    var verifiedPaymentInfo = volaMapper.mpbsToPaymentInfos(mpbsVerified);
+    var pendingPaymentInfo = volaMapper.mpbsToPaymentInfos(mbpsPending);
 
     MpbsVerification fakeComputedVerifiedMpbs = new MpbsVerification();
-    when(volaPspMock.get(mpbsVerified))
-        .thenReturn(mpbsVerified.toBuilder().status(SUCCESS).build());
-    when(volaPspMock.get(mbpsPending)).thenReturn(mbpsPending.toBuilder().status(PENDING).build());
-    when(computeVerifiedMobilePaymentMock.saveTheVerifiedMpbs(eq(mpbsVerified), any()))
+
+    when(volaPspMock.getPayments(anyList()))
+        .thenReturn(
+            List.of(
+                school.hei.haapi.model.psp.vola.api.gen.client.model.Payment.builder()
+                    .id("payment-verified-id")
+                    .pspPayment(
+                        PspPayment.builder()
+                            .id(verifiedPaymentInfo.pspPaymentId())
+                            .pspType(volaMapper.toPspPaymentType(verifiedPaymentInfo.pspType()))
+                            .amount(10000)
+                            .creationInstant(new Date())
+                            .build())
+                    .creationInstant(new Date())
+                    .lastPspVerificationInstant(new Date())
+                    .verificationStatus(SUCCEEDED)
+                    .build(),
+                school.hei.haapi.model.psp.vola.api.gen.client.model.Payment.builder()
+                    .id("payment-pending-id")
+                    .pspPayment(
+                        PspPayment.builder()
+                            .id(pendingPaymentInfo.pspPaymentId())
+                            .pspType(volaMapper.toPspPaymentType(pendingPaymentInfo.pspType()))
+                            .amount(null)
+                            .creationInstant(new Date())
+                            .build())
+                    .creationInstant(new Date())
+                    .lastPspVerificationInstant(new Date())
+                    .verificationStatus(VERIFYING)
+                    .build()));
+
+    when(computeVerifiedMobilePaymentMock.saveTheVerifiedMpbs(any(), any()))
         .thenReturn(fakeComputedVerifiedMpbs);
 
     List<MpbsVerification> verifiedMpbs =
         subject.verifyMobilePaymentAndSaveResultWithVola(List.of(mbpsPending, mpbsVerified));
 
-    verify(computeVerifiedMobilePaymentMock, times(1)).saveTheVerifiedMpbs(eq(mpbsVerified), any());
+    verify(computeVerifiedMobilePaymentMock, times(1)).saveTheVerifiedMpbs(any(), any());
     verify(unverifiedMobilePaymentHandlerMock, times(1)).accept(List.of(mbpsPending));
     assertEquals(1, verifiedMpbs.size());
     assertEquals(fakeComputedVerifiedMpbs, verifiedMpbs.getFirst());
   }
 
   @Test
-  void verification_skip_bad_mobile_payment_with_vola() {
+  void vola_verification_skip_bad_mobile_payment() {
     VolaPsp volaPspMock = mock();
     var subject =
         new MpbsVerificationService(
@@ -229,7 +284,8 @@ class MpbsVerificationTest {
                 mock(), new FailedMobilePaymentNotification(eventProducerMock)),
             computeVerifiedMobilePaymentMock,
             new CollectionUtils(),
-            volaPspMock);
+            volaPspMock,
+            new VolaMapper());
 
     var student = User.builder().email("email@gmail.com").build();
     var fee = Fee.builder().id("feeId").student(student).build();
@@ -237,19 +293,62 @@ class MpbsVerificationTest {
     var mpbsVerified = someMpbs("verified", now().minus(1, DAYS), fee, student, 1000);
     var mpbsFailed = someMpbs("failed", now().minus(6, DAYS), fee, student, 800);
     var fakeComputedVerifiedMpbs = new MpbsVerification();
-    when(volaPspMock.get(mpbsVerified))
-        .thenReturn(mpbsVerified.toBuilder().status(SUCCESS).build());
-    when(volaPspMock.get(mpbsFailed)).thenReturn(mpbsFailed.toBuilder().status(FAILED).build());
-    when(volaPspMock.get(badMpbs)).thenThrow(new RuntimeException("Vola API error"));
-    when(computeVerifiedMobilePaymentMock.saveTheVerifiedMpbs(eq(mpbsVerified), any()))
+
+    var verifiedPaymentInfo = volaMapper.mpbsToPaymentInfos(mpbsVerified);
+    var failedPaymentInfo = volaMapper.mpbsToPaymentInfos(mpbsFailed);
+    var badPaymentInfo = volaMapper.mpbsToPaymentInfos(badMpbs);
+
+    when(volaPspMock.getPayments(anyList()))
+        .thenReturn(
+            List.of(
+                school.hei.haapi.model.psp.vola.api.gen.client.model.Payment.builder()
+                    .id("payment-verified-id")
+                    .pspPayment(
+                        PspPayment.builder()
+                            .id(verifiedPaymentInfo.pspPaymentId())
+                            .pspType(volaMapper.toPspPaymentType(verifiedPaymentInfo.pspType()))
+                            .amount(1000)
+                            .creationInstant(new Date())
+                            .build())
+                    .creationInstant(new Date())
+                    .lastPspVerificationInstant(new Date())
+                    .verificationStatus(SUCCEEDED)
+                    .build(),
+                school.hei.haapi.model.psp.vola.api.gen.client.model.Payment.builder()
+                    .id(null) // Payment FAILED retourné par Vola
+                    .pspPayment(
+                        PspPayment.builder()
+                            .id(failedPaymentInfo.pspPaymentId())
+                            .pspType(volaMapper.toPspPaymentType(failedPaymentInfo.pspType()))
+                            .amount(null)
+                            .creationInstant(null)
+                            .build())
+                    .creationInstant(null)
+                    .lastPspVerificationInstant(null)
+                    .verificationStatus(FAILED)
+                    .build(),
+                school.hei.haapi.model.psp.vola.api.gen.client.model.Payment.builder()
+                    .id(null) // Payment FAILED retourné par Vola
+                    .pspPayment(
+                        PspPayment.builder()
+                            .id(badPaymentInfo.pspPaymentId())
+                            .pspType(volaMapper.toPspPaymentType(badPaymentInfo.pspType()))
+                            .amount(null)
+                            .creationInstant(null)
+                            .build())
+                    .creationInstant(null)
+                    .lastPspVerificationInstant(null)
+                    .verificationStatus(FAILED)
+                    .build()));
+
+    when(computeVerifiedMobilePaymentMock.saveTheVerifiedMpbs(any(), any()))
         .thenReturn(fakeComputedVerifiedMpbs);
 
     List<MpbsVerification> verifiedMpbs =
         subject.verifyMobilePaymentAndSaveResultWithVola(
             List.of(badMpbs, mpbsVerified, mpbsFailed));
 
-    verify(computeVerifiedMobilePaymentMock, times(1)).saveTheVerifiedMpbs(eq(mpbsVerified), any());
-    verify(computeVerifiedMobilePaymentMock, never()).saveTheVerifiedMpbs(eq(badMpbs), any());
+    verify(computeVerifiedMobilePaymentMock, times(1)).saveTheVerifiedMpbs(any(), any());
     verify(eventProducerMock, times(1)).accept(any());
     assertEquals(1, verifiedMpbs.size());
     assertEquals(fakeComputedVerifiedMpbs, verifiedMpbs.getFirst());
