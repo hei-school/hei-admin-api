@@ -16,6 +16,7 @@ import static school.hei.haapi.integration.conf.FakeDataProvider.someCreatableEv
 import static school.hei.haapi.integration.conf.TestUtils.ADMIN1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.EVENT1_ID;
 import static school.hei.haapi.integration.conf.TestUtils.EVENT2_ID;
+import static school.hei.haapi.integration.conf.TestUtils.EVENT3_ID;
 import static school.hei.haapi.integration.conf.TestUtils.MANAGER1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_ID;
 import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_TOKEN;
@@ -26,6 +27,8 @@ import static school.hei.haapi.integration.conf.TestUtils.createIntegrationEvent
 import static school.hei.haapi.integration.conf.TestUtils.event1;
 import static school.hei.haapi.integration.conf.TestUtils.event2;
 import static school.hei.haapi.integration.conf.TestUtils.event3;
+import static school.hei.haapi.integration.conf.TestUtils.event4;
+import static school.hei.haapi.integration.conf.TestUtils.event5;
 import static school.hei.haapi.integration.conf.TestUtils.group1;
 import static school.hei.haapi.integration.conf.TestUtils.setUpCasdoor;
 import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
@@ -37,6 +40,7 @@ import static school.hei.haapi.integration.conf.TestUtils.student3AttendEvent1;
 import static school.hei.haapi.integration.conf.TestUtils.student3MissEvent2;
 
 import java.time.Instant;
+import java.util.Comparator;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
@@ -46,6 +50,7 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 import school.hei.haapi.endpoint.rest.api.EventsApi;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
+import school.hei.haapi.endpoint.rest.model.CreateEvent;
 import school.hei.haapi.endpoint.rest.model.Event;
 import school.hei.haapi.endpoint.rest.model.EventAttendance;
 import school.hei.haapi.endpoint.rest.model.EventParticipant;
@@ -108,14 +113,14 @@ public class EventIT extends FacadeITMockedThirdParties {
     ApiClient apiClient = anApiClient(MANAGER1_TOKEN);
     EventsApi api = new EventsApi(apiClient);
 
-    var actual = api.getEvents(1, 500, null, null, null, null, null, null);
+    var actual = api.getEvents(1, 500, null, null, null, null, null, null, null);
 
     System.out.println(actual);
     assertTrue(actual.containsAll(List.of(event1(), event2(), event3())));
 
     var eventsBeginAfterAnInstant =
         api.getEvents(
-            1, 15, Instant.parse("2022-12-15T10:00:00.00Z"), null, null, null, null, null);
+            1, 15, Instant.parse("2022-12-15T10:00:00.00Z"), null, null, null, null, null, null);
 
     assertTrue(eventsBeginAfterAnInstant.contains(event1()));
     assertFalse(eventsBeginAfterAnInstant.contains(event2()));
@@ -129,6 +134,7 @@ public class EventIT extends FacadeITMockedThirdParties {
             null,
             null,
             null,
+            null,
             null);
 
     assertTrue(eventsBeginBetweenTwoInstant.containsAll(List.of(event2(), event3())));
@@ -136,17 +142,17 @@ public class EventIT extends FacadeITMockedThirdParties {
 
     var eventsBeginBeforeAnInstant =
         api.getEvents(
-            1, 15, null, Instant.parse("2022-12-08T08:00:00.00Z"), null, null, null, null);
+            1, 15, null, Instant.parse("2022-12-08T08:00:00.00Z"), null, null, null, null, null);
 
     assertTrue(eventsBeginBeforeAnInstant.contains(event2()));
     assertFalse(eventsBeginBeforeAnInstant.containsAll(List.of(event1(), event3())));
 
-    var eventsFilterByType = api.getEvents(1, 15, null, null, COURSE, null, null, null);
+    var eventsFilterByType = api.getEvents(1, 15, null, null, COURSE, null, null, null, null);
     assertTrue(eventsFilterByType.contains(event1()));
     assertFalse(eventsFilterByType.contains(event3()));
     assertFalse(eventsFilterByType.contains(event2()));
 
-    var eventsFilterByTitle = api.getEvents(1, 15, null, null, null, "PROG1", null, null);
+    var eventsFilterByTitle = api.getEvents(1, 15, null, null, null, "PROG1", null, null, null);
     assertTrue(eventsFilterByTitle.contains(event1()));
     assertFalse(eventsFilterByTitle.contains(event3()));
     assertFalse(eventsFilterByTitle.contains(event2()));
@@ -278,16 +284,44 @@ public class EventIT extends FacadeITMockedThirdParties {
     // events
     EventParticipantStats eventParticipantStats =
         managerApi.getEventParticipantStats(STUDENT1_ID, null, null);
-    assertEquals(2, eventParticipantStats.getTotalEvents());
+    assertEquals(3, eventParticipantStats.getTotalEvents());
   }
 
   @Test
   void event_as_public_link() throws ApiException {
     EventsApi api = new EventsApi(anApiClient(null));
-    var actual = api.getEvents(1, 15, null, null, null, null, null, null);
-    assertEquals(event1(), actual.getFirst());
-    assertEquals(event3(), actual.get(1));
-    assertEquals(event2(), actual.get(2));
+    var actual = api.getEvents(1, 15, null, null, null, null, null, null, null);
+    var baseEvents =
+        actual.stream()
+            .filter(e -> List.of(EVENT1_ID, EVENT2_ID, EVENT3_ID).contains(e.getId()))
+            .sorted(Comparator.comparing(Event::getBeginDatetime).reversed())
+            .toList();
+
+    assertEquals(event1(), baseEvents.get(0));
+    assertEquals(event3(), baseEvents.get(1));
+    assertEquals(event2(), baseEvents.get(2));
+  }
+
+  @Test
+  void event_as_public_link_filter_by_groupRef() throws ApiException {
+    EventsApi api = new EventsApi(anApiClient(null));
+    List<String> groupRef = List.of("J1", "J2");
+    var actual = api.getEvents(1, 15, null, null, null, null, null, null, groupRef);
+
+    assertEquals(2, actual.size());
+    assertEquals(event5(), actual.get(0));
+    assertEquals(event4(), actual.get(1));
+  }
+
+  @Test
+  void event_as_private_link_filter_by_groupRef() throws ApiException {
+    EventsApi api = new EventsApi(anApiClient(MANAGER1_TOKEN));
+    List<String> groupRef = List.of("J1", "J2");
+    var actual = api.getEvents(1, 15, null, null, null, null, null, null, groupRef);
+
+    assertEquals(2, actual.size());
+    assertEquals(event5(), actual.get(0));
+    assertEquals(event4(), actual.get(1));
   }
 
   @Test
@@ -304,7 +338,7 @@ public class EventIT extends FacadeITMockedThirdParties {
             Instant.parse("2022-12-08T07:59:59.00Z"),
             Instant.parse("2022-12-08T08:00:01.00Z"),
             PRESENT,
-            student1().getGroups().getFirst().getRef(),
+            List.of(StudentIT.student1().getGroups().getFirst().getRef()),
             student1().getRef(),
             student1().getFirstName());
     List<EventAttendance> eventParticipantsInEventDateRange =
@@ -322,7 +356,7 @@ public class EventIT extends FacadeITMockedThirdParties {
         api.getAllEventParticipants(null, null, null, null, null, MISSING, null, null, null);
     List<EventAttendance> groupFilteredEventParticipants =
         api.getAllEventParticipants(
-            null, null, null, null, null, null, group1().getRef(), null, null);
+            null, null, null, null, null, null, List.of(group1().getRef()), null, null);
     List<EventAttendance> studentRefFilteredEventParticipants =
         api.getAllEventParticipants(
             null, null, null, null, null, null, null, student3().getRef(), null);
@@ -347,5 +381,45 @@ public class EventIT extends FacadeITMockedThirdParties {
     assertEquals(
         student3AttendEvent1(),
         studentNameFilteredEventParticipants.getFirst().getEventParticipant());
+  }
+
+  @Test
+  void manager_create_event_with_is_online_ok() throws ApiException {
+    ApiClient apiClient = anApiClient(MANAGER1_TOKEN);
+    EventsApi api = new EventsApi(apiClient);
+
+    CreateEvent onlineEvent = someCreatableEventByManager1(INTEGRATION).isOnline(true);
+    List<Event> createdOnlineEvents =
+        api.crupdateEvents(List.of(onlineEvent), null, null, null, null);
+    Event createdOnline = createdOnlineEvents.getFirst();
+
+    CreateEvent offlineEvent = someCreatableEventByManager1(INTEGRATION).isOnline(false);
+    List<Event> createdOfflineEvents =
+        api.crupdateEvents(List.of(offlineEvent), null, null, null, null);
+    Event createdOffline = createdOfflineEvents.getFirst();
+
+    Event actualOnline = api.getEventById(createdOnline.getId());
+    assertTrue(actualOnline.getIsOnline(), "Event should be marked as online");
+    assertEquals(createdOnline.getId(), actualOnline.getId());
+
+    Event actualOffline = api.getEventById(createdOffline.getId());
+    assertFalse(actualOffline.getIsOnline(), "Event should be marked as offline");
+    assertEquals(createdOffline, actualOffline);
+  }
+
+  @Test
+  void manager_create_event_with_is_online_null_defaults_to_false() throws ApiException {
+    ApiClient apiClient = anApiClient(MANAGER1_TOKEN);
+    EventsApi api = new EventsApi(apiClient);
+
+    CreateEvent eventWithNullIsOnline = someCreatableEventByManager1(INTEGRATION);
+
+    List<Event> createdEvents =
+        api.crupdateEvents(List.of(eventWithNullIsOnline), null, null, null, null);
+    Event created = createdEvents.getFirst();
+
+    Event actual = api.getEventById(created.getId());
+    assertFalse(actual.getIsOnline(), "Event should default to offline when isOnline is null");
+    assertEquals(created, actual);
   }
 }

@@ -811,6 +811,70 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
+  /monitors/link:
+    post:
+      tags:
+        - Monitoring
+      summary: Approve or deny a list of monitor student link requests
+      operationId: updateMonitorStudentLinkStatus
+      requestBody:
+        required: true
+        description: List of monitor student link ids and status to set
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                monitor_student_link:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/UpdateMonitorStudentLink'
+      responses:
+        '200':
+          description: List of student linked to a monitor
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/MonitorStudentLink'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+    get:
+      tags:
+        - Monitoring
+      parameters:
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PageSize'
+      summary: Get all link request to a monitor that is pending
+      operationId: getLinkStudentRequests
+      responses:
+        '200':
+          description: List of monitor student linked
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/MonitorStudentLink'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
   /monitors/{id}:
     put:
       tags:
@@ -2555,21 +2619,65 @@ paths:
       summary: Import students exam grade from an excel file
       operationId: importStudentsExamGrade
       parameters:
-        - $ref: '#/components/parameters/PathExamId'
+        - name: exam_id
+          in: path
+          required: true
+          schema:
+            type: string
       requestBody:
         description: Form containing the xlsx file for students exam grade to import
         required: true
         content:
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/UploadFile'
+              $ref: "#/components/schemas/UploadFile"
       responses:
         '200':
           description: Status of the validation of imported students exam grade
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/StudentExamGradeImportValidationResult'
+                $ref: '#/components/schemas/ImportGradeResult'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+    put:
+      tags:
+        - Grades
+      summary: Import students exam grade updated from an excel file
+      operationId: importStudentsExamGradeUpdated
+      parameters:
+        - name: exam_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: comment
+          in: query
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: Form containing the xlsx file for students exam grade to update
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              $ref: "#/components/schemas/UploadFile"
+      responses:
+        '200':
+          description: Status of the validation of imported students exam grade updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ImportGradeResult'
         '400':
           $ref: '#/components/responses/400'
         '403':
@@ -5193,6 +5301,7 @@ paths:
           schema:
             type: string
         - $ref: '#/components/parameters/TeacherId'
+        - $ref: '#/components/parameters/GroupRef'
       operationId: getEvents
       responses:
         '200':
@@ -6917,11 +7026,12 @@ components:
     GroupRef:
       name: group_ref
       in: query
-      example: G1
       required: false
       description: Filter by group ref
       schema:
-        type: string
+        type: array
+        items:
+          type: string
     CorStatuses:
       name: cor_status
       in: query
@@ -7386,6 +7496,27 @@ components:
           type: integer
         total_hours:
           type: integer
+    UpdateMonitorStudentLink:
+      allOf:
+        - $ref: '#/components/schemas/MonitorStudentLink'
+      type: object
+      properties:
+        status:
+          $ref: '#/components/schemas/MonitorStudentLinkStatus'
+    MonitorStudentLinkStatus:
+      type: string
+      enum:
+        - LINKED
+        - DENIED
+    MonitorStudentLink:
+      type: object
+      properties:
+        id:
+          type: string
+        monitor_id:
+          type: string
+        student_id:
+          type: string
     Course:
       allOf:
         - $ref: '#/components/schemas/CourseTemplate'
@@ -8511,6 +8642,7 @@ components:
       type: object
       allOf:
         - $ref: "#/components/schemas/BaseFeesStats"
+        - $ref: "#/components/schemas/RetakeExamFeesCount"
     PaidFeesStats:
       type: object
       allOf:
@@ -8537,7 +8669,7 @@ components:
       type: object
       properties:
         retakeExam_fees_count:
-          type: number
+          type: integer
           format: int64
     FeesStatistics:
       type: object
@@ -8807,3 +8939,51 @@ components:
       properties:
         validStudentExamGradeNumber:
           type: "integer"
+    ImportGradeStat:
+      type: object
+      properties:
+        totalRows:
+          type: integer
+          example: 50
+        validRows:
+          type: integer
+          example: 45
+        invalidRows:
+          type: integer
+          example: 5
+    GradeValidRow:
+      type: object
+      properties:
+        ref:
+          type: string
+          example: "STD21001"
+        score:
+          type: number
+          example: 18
+    GradeInvalidRow:
+      type: object
+      properties:
+        ref:
+          type: string
+          nullable: true
+          example: "STD21001"
+        score:
+          type: number
+          nullable: true
+          example: 30
+        reason:
+          type: string
+          example: "Score must be <= 20"
+    ImportGradeResult:
+      type: object
+      properties:
+        importGradeStats:
+          $ref: "#/components/schemas/ImportGradeStat"
+        validGrades:
+          type: array
+          items:
+            $ref: "#/components/schemas/GradeValidRow"
+        invalidGrades:
+          type: array
+          items:
+            $ref: "#/components/schemas/GradeInvalidRow"

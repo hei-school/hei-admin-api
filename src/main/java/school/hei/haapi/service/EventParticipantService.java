@@ -2,7 +2,10 @@ package school.hei.haapi.service;
 
 import static java.time.Instant.now;
 import static org.springframework.data.domain.Sort.Direction.ASC;
-import static school.hei.haapi.endpoint.rest.model.AttendanceStatus.*;
+import static school.hei.haapi.endpoint.rest.model.AttendanceStatus.MISSING;
+import static school.hei.haapi.endpoint.rest.model.AttendanceStatus.UNCHECKED;
+import static school.hei.haapi.model.User.Status.ENABLED;
+import static school.hei.haapi.model.User.Status.SUSPENDED;
 
 import java.time.Instant;
 import java.util.ArrayList;
@@ -15,12 +18,8 @@ import org.springframework.stereotype.Service;
 import school.hei.haapi.endpoint.rest.model.AttendanceStatus;
 import school.hei.haapi.endpoint.rest.model.EventParticipantStats;
 import school.hei.haapi.endpoint.rest.model.EventStats;
-import school.hei.haapi.model.BoundedPageSize;
-import school.hei.haapi.model.Event;
-import school.hei.haapi.model.EventParticipant;
-import school.hei.haapi.model.Group;
-import school.hei.haapi.model.PageFromOne;
-import school.hei.haapi.model.User;
+import school.hei.haapi.model.*;
+import school.hei.haapi.model.User.Status;
 import school.hei.haapi.model.exception.BadRequestException;
 import school.hei.haapi.model.exception.NotFoundException;
 import school.hei.haapi.repository.EventParticipantRepository;
@@ -57,20 +56,22 @@ public class EventParticipantService {
   }
 
   public void createEventParticipantsForAGroup(Group group, Event event) {
-    String groupId = group.getId();
-    String eventId = event.getId();
-    List<User> users = userService.getByGroupId(groupId, Pageable.unpaged());
-    List<EventParticipant> eventParticipants = new ArrayList<>();
+    var groupId = group.getId();
+    var eventId = event.getId();
+    var users = userService.getByGroupId(groupId, Pageable.unpaged());
+    var eventParticipants = new ArrayList<EventParticipant>();
     Group actualGroup = groupService.findById(groupId);
     users.forEach(
         user -> {
-          if (!isParticipantAlreadyInEvent(eventId, groupId, user.getId())) {
+          Status userStatus = user.getStatus();
+          if (!isParticipantAlreadyInEvent(eventId, groupId, user.getId())
+              && List.of(ENABLED, SUSPENDED).contains(userStatus)) {
             EventParticipant newEventParticipant =
                 EventParticipant.builder()
                     .participant(user)
                     .group(actualGroup)
                     .event(event)
-                    .status(UNCHECKED)
+                    .status(SUSPENDED.equals(userStatus) ? MISSING : UNCHECKED)
                     .build();
             eventParticipants.add(newEventParticipant);
           }

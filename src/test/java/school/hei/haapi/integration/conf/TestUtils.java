@@ -172,7 +172,6 @@ public class TestUtils {
   public static final String GRADE5_ID = "grade5_id";
   public static final String GRADE6_ID = "grade6_id";
   public static final String GRADE7_ID = "grade7_id";
-  public static final String GROUP2_REF = "GRP21002";
   public static final String BAD_TOKEN = "bad_token";
   public static final String STUDENT1_TOKEN = "student1_token";
   public static final String STUDENT2_TOKEN = "student2_token";
@@ -195,6 +194,8 @@ public class TestUtils {
   public static final String EVENT1_ID = "event1_id";
   public static final String EVENT2_ID = "event2_id";
   public static final String EVENT3_ID = "event3_id";
+  public static final String EVENT4_ID = "event4_id";
+  public static final String EVENT5_ID = "event5_id";
   public static final String EVENT_PARTICIPANT1_ID = "event_participant1_id";
   public static final String EVENT_PARTICIPANT2_ID = "event_participant2_id";
 
@@ -606,6 +607,15 @@ public class TestUtils {
         .size(0);
   }
 
+  public static Group group6() {
+    return new Group()
+        .id("group6_id")
+        .ref("J2")
+        .name("GRP23002")
+        .creationDatetime(Instant.parse("2021-11-08T08:30:24.00Z"))
+        .size(0);
+  }
+
   public static Student student1() {
     Student student = new Student();
     student.setId("student1_id");
@@ -904,7 +914,7 @@ public class TestUtils {
     return new Course()
         .id(COURSE3_ID)
         .code("IA2")
-        .credits(null)
+        .credits(3)
         .totalHours(null)
         .name("Implemented IA")
         .level(L2);
@@ -1417,6 +1427,7 @@ public class TestUtils {
         .description("Prog1 course")
         .title("PROG1")
         .planner(planner1())
+        .isOnline(false)
         .count(
             new EventStats()
                 .late(0L)
@@ -1452,6 +1463,7 @@ public class TestUtils {
         .endDatetime(Instant.parse("2022-12-08T12:00:00.00Z"))
         .course(null)
         .title("Integration Day")
+        .isOnline(false)
         .count(
             new EventStats()
                 .total(3L)
@@ -1480,6 +1492,7 @@ public class TestUtils {
         .beginDatetime(Instant.parse("2022-12-09T08:00:00.00Z"))
         .endDatetime(Instant.parse("2022-12-09T12:00:00.00Z"))
         .title("December Seminar")
+        .isOnline(true)
         .course(null)
         .color("#0000")
         .count(
@@ -1491,6 +1504,52 @@ public class TestUtils {
                 .total(0L))
         .location(unknownLocationEvent())
         .groups(List.of());
+  }
+
+  public static Event event4() {
+    return new Event()
+        .id(EVENT4_ID)
+        .type(COURSE)
+        .color("#0000")
+        .course(course2())
+        .beginDatetime(Instant.parse("2023-01-15T08:00:00.00Z"))
+        .endDatetime(Instant.parse("2023-01-15T10:00:00.00Z"))
+        .description("Web1 course for J1")
+        .title("WEB1")
+        .planner(planner1())
+        .isOnline(false)
+        .count(
+            new EventStats()
+                .late(0L)
+                .missedStats(new MissedEventStats().justified(0L).unjustified(0L).total(0L))
+                .unchecked(0L)
+                .present(1L)
+                .total(1L))
+        .location(new EventLocation().place(ANDRAHARO).room(RoomEnum.PI))
+        .groups(List.of(createGroupIdentifier(group5())));
+  }
+
+  public static Event event5() {
+    return new Event()
+        .id(EVENT5_ID)
+        .type(COURSE)
+        .color("#0000")
+        .course(course3())
+        .beginDatetime(Instant.parse("2023-01-20T08:00:00.00Z"))
+        .endDatetime(Instant.parse("2023-01-20T10:00:00.00Z"))
+        .description("Database course for J2")
+        .title("DONNEES1")
+        .planner(planner1())
+        .isOnline(false)
+        .count(
+            new EventStats()
+                .late(0L)
+                .missedStats(new MissedEventStats().justified(0L).unjustified(0L).total(0L))
+                .unchecked(0L)
+                .present(1L)
+                .total(1L))
+        .location(new EventLocation().place(ANDRAHARO).room(RoomEnum.NP))
+        .groups(List.of(createGroupIdentifier(group6())));
   }
 
   public static EventParticipant createParticipant(
@@ -1541,6 +1600,7 @@ public class TestUtils {
         .description("Another Prog1 course")
         .eventType(COURSE)
         .plannerId(MANAGER_ID)
+        .isOnline(false)
         .groups(List.of(createGroupIdentifier(group1())));
   }
 
@@ -1564,6 +1624,7 @@ public class TestUtils {
         .description("Another Prog1 course")
         .eventType(INTEGRATION)
         .plannerId(MANAGER_ID)
+        .isOnline(false)
         .groups(List.of(createGroupIdentifier(group1()), createGroupIdentifier(group2())));
   }
 

@@ -50,7 +50,7 @@ public class ExamService {
       String title,
       String courseCode,
       String teacherId,
-      String groupRef,
+      List<String> groupRef,
       Instant examinationDateStart,
       Instant examinationDateEnd) {
     Pageable pageable =

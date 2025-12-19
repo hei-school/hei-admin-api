@@ -1,10 +1,13 @@
 package school.hei.haapi.endpoint.rest.controller;
 
+import static org.springframework.http.MediaType.MULTIPART_FORM_DATA_VALUE;
+
 import java.util.List;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
@@ -14,8 +17,8 @@ import school.hei.haapi.endpoint.rest.mapper.GradeMapper;
 import school.hei.haapi.endpoint.rest.model.CreateGrade;
 import school.hei.haapi.endpoint.rest.model.ExamGradeStats;
 import school.hei.haapi.endpoint.rest.model.Grade;
+import school.hei.haapi.endpoint.rest.model.ImportGradeResult;
 import school.hei.haapi.endpoint.rest.model.ResultSummary;
-import school.hei.haapi.endpoint.rest.model.StudentExamGradeImportValidationResult;
 import school.hei.haapi.endpoint.rest.model.StudentGrade;
 import school.hei.haapi.endpoint.rest.model.StudentLevel;
 import school.hei.haapi.endpoint.rest.model.UpdateGrade;
@@ -93,12 +96,21 @@ public class GradeController {
         .toList();
   }
 
-  @PostMapping(value = "/exams/{exam_id}/grades/import")
-  public StudentExamGradeImportValidationResult importStudentsExamGrade(
-      @PathVariable(name = "exam_id") String examId,
-      @RequestPart("file_to_upload") MultipartFile fileToUpload) {
+  @PostMapping(value = "/exams/{exams_id}/grades/import", consumes = MULTIPART_FORM_DATA_VALUE)
+  public ImportGradeResult importStudentsExamGrade(
+      @PathVariable(name = "exams_id") String examId,
+      @RequestPart(value = "file_to_upload") MultipartFile fileToUpload) {
     return gradeService.initStudentExamGradeImportFromXlsx(
-        fileConverter.apply(fileToUpload), examId);
+        fileConverter.apply(fileToUpload), examId, null);
+  }
+
+  @PutMapping(value = "/exams/{exams_id}/grades/import", consumes = MULTIPART_FORM_DATA_VALUE)
+  public ImportGradeResult importStudentsExamGradeUpdated(
+      @PathVariable(name = "exams_id") String examId,
+      @RequestParam(value = "comment") String comment,
+      @RequestPart(value = "file_to_upload") MultipartFile fileToUpload) {
+    return gradeService.initStudentExamGradeImportFromXlsx(
+        fileConverter.apply(fileToUpload), examId, comment);
   }
 
   @PostMapping(value = "/exams/{exam_id}/grades/update")

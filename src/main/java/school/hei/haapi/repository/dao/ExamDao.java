@@ -29,7 +29,7 @@ public class ExamDao {
       String title,
       String courseCode,
       String teacherId,
-      String groupRef,
+      List<String> groupRef,
       Instant from,
       Instant to) {
     CriteriaBuilder builder = entityManager.getCriteriaBuilder();
@@ -58,8 +58,7 @@ public class ExamDao {
 
     if (groupRef != null && !groupRef.isEmpty()) {
       Join<CourseAssignment, Group> groupJoin = courseAssignmentJoin.join("groups", JoinType.LEFT);
-      predicates.add(
-          builder.like(builder.lower(groupJoin.get("ref")), "%" + groupRef.toLowerCase() + "%"));
+      predicates.add(groupJoin.get("ref").in(groupRef));
     }
     addExaminationDateRangePredicates(from, to, predicates, builder, root);
     query
