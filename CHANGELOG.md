@@ -1,3 +1,20 @@
+# [1.145.0](https://github.com/hei-school/hei-admin-api/compare/v1.144.2...v1.145.0) (2025-12-19)
+
+
+### Bug Fixes
+
+* (doc) import grade ([d216fbc](https://github.com/hei-school/hei-admin-api/commit/d216fbce22c43479db0bb52fb2733e5e61e07854))
+* import grade ([f387add](https://github.com/hei-school/hei-admin-api/commit/f387add9467b5aa089928795de9117dbb6175205))
+* import grade ([b1762c7](https://github.com/hei-school/hei-admin-api/commit/b1762c7b8ce473eb84013c435cd4439e0817c08d))
+* import grade ([607ac57](https://github.com/hei-school/hei-admin-api/commit/607ac574c20cbf21056613c6d30c7774f66af1d9))
+
+
+### Features
+
+* implement student alumni ([882d0ac](https://github.com/hei-school/hei-admin-api/commit/882d0ac446d3a0fd1e1cc3ef05a58fafed5fa68b))
+
+
+
 ## [1.144.2](https://github.com/hei-school/hei-admin-api/compare/v1.144.1...v1.144.2) (2025-12-18)
 
 
@@ -103,15 +120,6 @@
 * add import student grade for an exam ([483e42d](https://github.com/hei-school/hei-admin-api/commit/483e42d133231649c93053a269e44b8c041d60a8))
 * add monitor access to level ([5d61638](https://github.com/hei-school/hei-admin-api/commit/5d6163897addf1da50f8990103e42685233a39d6))
 * **doc:** add is_online field to EventBase ([7050d6f](https://github.com/hei-school/hei-admin-api/commit/7050d6fc79739730ac8196756d1efd6e53d9adb3))
-
-
-
-# [1.138.0](https://github.com/hei-school/hei-admin-api/compare/v1.137.0...v1.138.0) (2025-11-22)
-
-
-### Features
-
-* add reason to cancel or reject retake exam request ([35c9ecc](https://github.com/hei-school/hei-admin-api/commit/35c9ecc5bb2d135029a81719307fbc10bfd2df30))
 
 
 
