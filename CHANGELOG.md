@@ -1,3 +1,13 @@
+## [1.145.1](https://github.com/hei-school/hei-admin-api/compare/v1.145.0...v1.145.1) (2025-12-19)
+
+
+### Bug Fixes
+
+* (doc) update grade via excel file ([36641ab](https://github.com/hei-school/hei-admin-api/commit/36641ab566f12aeba745602782682739ceb0f49d))
+* import updated grade ([a197587](https://github.com/hei-school/hei-admin-api/commit/a197587bf118bbc3eac4538f350a1c2fcef4bc3c))
+
+
+
 # [1.145.0](https://github.com/hei-school/hei-admin-api/compare/v1.144.2...v1.145.0) (2025-12-19)
 
 
@@ -104,22 +114,6 @@
 
 * import grade event service ([6a9cc18](https://github.com/hei-school/hei-admin-api/commit/6a9cc18fb946a50a310663a2ff16821560ab991c))
 * increase build stack size ([f1d2149](https://github.com/hei-school/hei-admin-api/commit/f1d2149e84a22056f0d1c87b1cfd92b1c5f3259d))
-
-
-
-# [1.139.0](https://github.com/hei-school/hei-admin-api/compare/v1.138.0...v1.139.0) (2025-11-26)
-
-
-### Bug Fixes
-
-* increase build stack size ([f60b48e](https://github.com/hei-school/hei-admin-api/commit/f60b48e8d08b0fe3b98feb232e9541cbe86787a4))
-
-
-### Features
-
-* add import student grade for an exam ([483e42d](https://github.com/hei-school/hei-admin-api/commit/483e42d133231649c93053a269e44b8c041d60a8))
-* add monitor access to level ([5d61638](https://github.com/hei-school/hei-admin-api/commit/5d6163897addf1da50f8990103e42685233a39d6))
-* **doc:** add is_online field to EventBase ([7050d6f](https://github.com/hei-school/hei-admin-api/commit/7050d6fc79739730ac8196756d1efd6e53d9adb3))
 
 
 
