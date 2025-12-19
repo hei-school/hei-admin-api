@@ -5,8 +5,10 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonValue;
 import java.util.Date;
 import java.util.Objects;
+import lombok.Builder;
 
 /** Payment */
+@Builder
 public class Payment {
   @JsonProperty("id")
   private String id = null;

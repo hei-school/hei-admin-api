@@ -1,130 +1,36 @@
 package school.hei.haapi.model.psp.vola;
 
-import static java.util.UUID.randomUUID;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.UNPAID;
-import static school.hei.haapi.endpoint.rest.model.MobileMoneyType.ORANGE_MONEY;
-import static school.hei.haapi.endpoint.rest.model.MpbsStatus.PENDING;
-import static school.hei.haapi.endpoint.rest.model.MpbsStatus.SUCCESS;
-import static school.hei.haapi.model.User.Role.STUDENT;
-import static school.hei.haapi.model.User.Status.ENABLED;
+import static org.junit.Assert.assertEquals;
+import static school.hei.haapi.model.psp.PspType.ORANGE_MONEY;
+import static school.hei.haapi.model.psp.vola.api.gen.client.model.Payment.VerificationStatusEnum.SUCCEEDED;
 
-import java.time.Instant;
-import java.util.ArrayList;
-import java.util.List;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import school.hei.haapi.endpoint.rest.model.FeeCategory;
-import school.hei.haapi.endpoint.rest.model.FeeFrequency;
-import school.hei.haapi.endpoint.rest.model.FeeTypeEnum;
+import org.springframework.beans.factory.annotation.Value;
 import school.hei.haapi.integration.conf.FacadeITMockedThirdParties;
-import school.hei.haapi.model.Fee;
-import school.hei.haapi.model.User;
-import school.hei.haapi.model.mpbs.Mpbs;
-import school.hei.haapi.model.mpbs.MpbsStatusHistory;
+import school.hei.haapi.model.psp.PspType;
+import school.hei.haapi.model.psp.vola.api.VolaClient;
 import school.hei.haapi.model.psp.vola.api.VolaPsp;
-import school.hei.haapi.repository.FeeRepository;
-import school.hei.haapi.repository.MpbsRepository;
-import school.hei.haapi.repository.UserRepository;
 
 class VolaPspIT extends FacadeITMockedThirdParties {
-  @Autowired VolaPsp volaPsp;
+  private final VolaPsp volaPsp;
 
-  @Autowired MpbsRepository mpbsRepository;
-
-  @Autowired FeeRepository feeRepository;
-
-  @Autowired UserRepository userRepository;
-
-  private Mpbs mpbs;
-
-  private void setUpTestData() {
-    var userInserted =
-        userRepository.saveAll(
-            List.of(
-                User.builder()
-                    .id(randomUUID().toString())
-                    .address("dummy Adresse")
-                    .email("tiavina.3@mail.hei.school")
-                    .entranceDatetime(Instant.now())
-                    .lastName("Woods")
-                    .ref("OLIVIA_WOODS")
-                    .role(STUDENT)
-                    .status(ENABLED)
-                    .build()));
-
-    var feeInserted =
-        feeRepository.saveAll(
-            List.of(
-                Fee.builder()
-                    .id(randomUUID().toString())
-                    .comment("Test fee")
-                    .totalAmount(10000)
-                    .remainingAmount(10000)
-                    .student(userInserted.getFirst())
-                    .creationDatetime(Instant.now())
-                    .status(UNPAID)
-                    .updatedAt(Instant.now())
-                    .dueDatetime(Instant.now())
-                    .isDeleted(false)
-                    .type(FeeTypeEnum.TUITION)
-                    .category(FeeCategory.L1)
-                    .frequency(FeeFrequency.MONTHLY)
-                    .build()));
-
-    var mpbsInserted =
-        Mpbs.builder()
-            .pspId("MP250917.1604.D33118")
-            .status(PENDING)
-            .fee(feeInserted.getFirst())
-            .student(userInserted.getFirst())
-            .mobileMoneyType(ORANGE_MONEY)
-            .statusHistory(new ArrayList<MpbsStatusHistory>())
-            .build();
-
-    mpbs = mpbsRepository.save(mpbsInserted);
+  public VolaPspIT(
+      @Value("${vola.api.url}") String volaApiUrl, @Value("${vola.api.key}") String volaApiKey) {
+    VolaClient volaclient = new VolaClient(volaApiUrl, volaApiKey);
+    this.volaPsp = new VolaPsp(volaclient);
   }
 
-  @BeforeEach
-  void setUp() {
-    setUpTestData();
-  }
+  // Will be used in more tests later
+  private final String TEST_EMAIL = "tiavina.3@mail.hei.school";
+  private final String TEST_PSP_ID = "MP250917.1604.D33118";
+  private final PspType TEST_MOBILE_MONEY_TYPE = ORANGE_MONEY;
 
   @Test
   void read_succeeded_payment() {
-    var verifiedMpbs = volaPsp.get(mpbs);
 
-    assertEquals(SUCCESS, verifiedMpbs.getStatus());
+    var verifiedPayment = volaPsp.get(TEST_MOBILE_MONEY_TYPE, TEST_PSP_ID, TEST_EMAIL);
 
-    assertEquals("MP250917.1604.D33118", verifiedMpbs.getPspId());
-
-    assertNotNull(verifiedMpbs.getAmount());
-    assertEquals(700, verifiedMpbs.getAmount());
-
-    assertNotNull(verifiedMpbs.getStudent());
-    assertEquals("tiavina.3@mail.hei.school", verifiedMpbs.getStudent().getEmail());
-
-    assertNotNull(verifiedMpbs.getFee());
-    assertEquals(mpbs.getFee().getId(), verifiedMpbs.getFee().getId());
-
-    assertNotNull(verifiedMpbs.getCreationDatetime());
-
-    assertNotNull(verifiedMpbs.getLastVerificationDatetime());
-
-    assertNotNull(verifiedMpbs.getStatusHistory());
-    assertTrue(verifiedMpbs.getStatusHistory().size() > 0);
-
-    var lastStatusHistory = verifiedMpbs.getLastStatusHistory();
-    assertTrue(lastStatusHistory.isPresent());
-    assertEquals(SUCCESS, lastStatusHistory.get().getStatus());
-
-    assertEquals(verifiedMpbs.getId(), lastStatusHistory.get().getMpbs().getId());
-
-    assertNotNull(lastStatusHistory.get().getCreationInstant());
-    assertEquals(
-        verifiedMpbs.getLastVerificationDatetime(), lastStatusHistory.get().getCreationInstant());
+    assertEquals(SUCCEEDED, verifiedPayment.getVerificationStatus());
+    assertEquals(700L, verifiedPayment.getPspPayment().getAmount().longValue());
   }
 }
