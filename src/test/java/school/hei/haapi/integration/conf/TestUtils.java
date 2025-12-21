@@ -1738,6 +1738,7 @@ public class TestUtils {
   public static Letter letter5() {
     return new Letter()
         .id(LETTER5_ID)
+        .ref("letter5_ref")
         .user(teacherLetter())
         .status(RECEIVED)
         .fileUrl(null)

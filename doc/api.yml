@@ -7819,12 +7819,16 @@ components:
         - IVANDRY
         - ANDRAHARO
         - UNKNOWN
-    RoleParamEnum:
+    RoleEnum:
       type: string
       enum:
         - STUDENT
         - TEACHER
         - STAFF_MEMBER
+    RoleParamEnum:
+      type: array
+      items:
+        $ref: '#/components/schemas/RoleEnum'
     CreateFee:
       type: object
       properties:
