@@ -26,6 +26,7 @@ import school.hei.haapi.endpoint.rest.model.LetterStatus;
 import school.hei.haapi.endpoint.rest.model.UpdateLettersStatus;
 import school.hei.haapi.endpoint.rest.security.model.Principal;
 import school.hei.haapi.model.*;
+import school.hei.haapi.model.dto.letterStatsDto;
 import school.hei.haapi.model.exception.BadRequestException;
 import school.hei.haapi.model.exception.NotFoundException;
 import school.hei.haapi.repository.FileInfoRepository;
@@ -56,17 +57,17 @@ public class LetterService {
       String name,
       String feeId,
       Boolean isLinkedWithFee,
-      User.Role role,
+      List<User.Role> roles,
       PageFromOne page,
       BoundedPageSize pageSize) {
     Pageable pageable =
         PageRequest.of(page.getValue() - 1, pageSize.getValue(), Sort.by(DESC, "creationDatetime"));
     return letterDao.findByCriteria(
-        ref, studentRef, status, name, feeId, isLinkedWithFee, role, pageable);
+        ref, studentRef, status, name, feeId, isLinkedWithFee, roles, pageable);
   }
 
   public List<Letter> getLettersByEventParticipantId(String eventParticipantId) {
-    return letterRepository.findByEventParticipantId(eventParticipantId).orElse(List.of());
+    return letterRepository.findByEventParticipantId(eventParticipantId).stream().toList();
   }
 
   public Letter getLetterById(String id) {
@@ -182,17 +183,14 @@ public class LetterService {
         .toList();
   }
 
-  public LetterStats getStats(User.Role role) {
-    if (Objects.nonNull(role)) {
-      return new LetterStats()
-          .pending(letterRepository.countByStatusAndUserRole(PENDING, role))
-          .rejected(letterRepository.countByStatusAndUserRole(REJECTED, role))
-          .received(letterRepository.countByStatusAndUserRole(RECEIVED, role));
+  public LetterStats getStats(List<User.Role> role) {
+    letterStatsDto letterStatsDto;
+    if (Objects.nonNull(role) && !role.isEmpty()) {
+      letterStatsDto = letterRepository.getLetterStatisticsForRoles(role);
+    } else {
+      letterStatsDto = letterRepository.getLetterStatistics();
     }
-    return new LetterStats()
-        .pending(letterRepository.countByStatus(PENDING))
-        .rejected(letterRepository.countByStatus(REJECTED))
-        .received(letterRepository.countByStatus(RECEIVED));
+    return letterStatsDto.toLetterStats();
   }
 
   public String getBucketKey(String studentRef, String filename) {

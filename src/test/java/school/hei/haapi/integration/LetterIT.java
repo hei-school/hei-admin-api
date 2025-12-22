@@ -31,6 +31,7 @@ import static school.hei.haapi.integration.conf.TestUtils.getMockedFile;
 import static school.hei.haapi.integration.conf.TestUtils.letter1;
 import static school.hei.haapi.integration.conf.TestUtils.letter2;
 import static school.hei.haapi.integration.conf.TestUtils.letter3;
+import static school.hei.haapi.integration.conf.TestUtils.letter5;
 import static school.hei.haapi.integration.conf.TestUtils.setUpCasdoor;
 import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
 import static school.hei.haapi.integration.conf.TestUtils.setUpEventBridge;
@@ -61,6 +62,7 @@ import school.hei.haapi.endpoint.rest.model.Fee;
 import school.hei.haapi.endpoint.rest.model.FileInfo;
 import school.hei.haapi.endpoint.rest.model.Letter;
 import school.hei.haapi.endpoint.rest.model.LetterStats;
+import school.hei.haapi.endpoint.rest.model.RoleEnum;
 import school.hei.haapi.endpoint.rest.model.UpdateLettersStatus;
 import school.hei.haapi.integration.conf.FacadeITMockedThirdParties;
 import school.hei.haapi.integration.conf.TestUtils;
@@ -413,5 +415,20 @@ class LetterIT extends FacadeITMockedThirdParties {
     Letter createdLetter = objectMapper.readValue(response.body(), Letter.class);
     assertEquals("Certificat", createdLetter.getDescription());
     assertEquals(PENDING, createdLetter.getStatus());
+  }
+
+  @Test
+  void admin_filter_letters_by_multiple_roles() throws ApiException {
+    ApiClient apiClient = anApiClient(ADMIN1_TOKEN);
+    LettersApi api = new LettersApi(apiClient);
+    List<RoleEnum> roles = List.of(RoleEnum.TEACHER, RoleEnum.STAFF_MEMBER);
+    List<Letter> letters = api.getLetters(1, 15, null, null, null, null, null, null, roles);
+
+    assertFalse(letters.contains(letter1()));
+    assertFalse(letters.contains(letter2()));
+    assertFalse(letters.contains(letter3()));
+
+    assertEquals(3, letters.size());
+    assertTrue(letters.stream().anyMatch(l -> l.getId().equals(letter5().getId())));
   }
 }
