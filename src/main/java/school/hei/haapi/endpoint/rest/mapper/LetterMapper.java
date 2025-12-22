@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component;
 import school.hei.haapi.endpoint.rest.model.Letter;
 import school.hei.haapi.endpoint.rest.model.LetterFee;
 import school.hei.haapi.endpoint.rest.model.LetterUser;
-import school.hei.haapi.endpoint.rest.model.RoleParamEnum;
+import school.hei.haapi.endpoint.rest.model.RoleEnum;
 import school.hei.haapi.model.User;
 import school.hei.haapi.service.aws.FileService;
 
@@ -17,7 +17,7 @@ public class LetterMapper {
 
   private final FileService fileService;
 
-  public User.Role toDomainStatus(RoleParamEnum role) {
+  public User.Role toDomainStatus(RoleEnum role) {
     return switch (role) {
       case STUDENT -> User.Role.STUDENT;
       case TEACHER -> User.Role.TEACHER;
