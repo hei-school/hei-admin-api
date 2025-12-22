@@ -26,6 +26,7 @@ import school.hei.haapi.endpoint.rest.model.LetterStatus;
 import school.hei.haapi.endpoint.rest.model.UpdateLettersStatus;
 import school.hei.haapi.endpoint.rest.security.model.Principal;
 import school.hei.haapi.model.*;
+import school.hei.haapi.model.dto.LetterDto;
 import school.hei.haapi.model.exception.BadRequestException;
 import school.hei.haapi.model.exception.NotFoundException;
 import school.hei.haapi.repository.FileInfoRepository;
@@ -66,7 +67,7 @@ public class LetterService {
   }
 
   public List<Letter> getLettersByEventParticipantId(String eventParticipantId) {
-    return letterRepository.findByEventParticipantId(eventParticipantId).orElse(List.of());
+    return letterRepository.findByEventParticipantId(eventParticipantId).stream().toList();
   }
 
   public Letter getLetterById(String id) {
@@ -182,27 +183,14 @@ public class LetterService {
         .toList();
   }
 
-  public LetterStats getStats(List<User.Role> roles) {
-    if (Objects.nonNull(roles) && !roles.isEmpty()) {
-      long pending = 0;
-      long rejected = 0;
-      long received = 0;
-
-      for (User.Role role : roles) {
-        pending += letterRepository.countByStatusAndUserRole(PENDING, role);
-        rejected += letterRepository.countByStatusAndUserRole(REJECTED, role);
-        received += letterRepository.countByStatusAndUserRole(RECEIVED, role);
-      }
-
-      return new LetterStats()
-          .pending((int) pending)
-          .rejected((int) rejected)
-          .received((int) received);
+  public LetterStats getStats(List<User.Role> role) {
+    LetterDto letterDto;
+    if (Objects.nonNull(role) && !role.isEmpty()) {
+      letterDto = letterRepository.getLetterStatisticsForRoles(role);
+    } else {
+      letterDto = letterRepository.getLetterStatistics();
     }
-    return new LetterStats()
-        .pending(letterRepository.countByStatus(PENDING))
-        .rejected(letterRepository.countByStatus(REJECTED))
-        .received(letterRepository.countByStatus(RECEIVED));
+    return letterDto.toLetterStats();
   }
 
   public String getBucketKey(String studentRef, String filename) {

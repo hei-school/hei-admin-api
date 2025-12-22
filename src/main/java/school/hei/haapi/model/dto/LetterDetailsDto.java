@@ -1,4 +1,3 @@
 package school.hei.haapi.model.dto;
 
-public class LetterDetailsDto {
-}
+public record LetterDetailsDto(long pending, long rejected, long received, long total) {}

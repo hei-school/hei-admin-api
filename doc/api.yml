@@ -5945,11 +5945,7 @@ paths:
           required: false
           schema:
             type: boolean
-        - name: role
-          in: query
-          required: false
-          schema:
-            $ref: '#/components/schemas/RoleParamEnum'
+        - $ref: '#/components/parameters/RoleParamEnum'
       responses:
         '200':
           description: Letters
@@ -6060,11 +6056,7 @@ paths:
       summary: Get stats for letters
       operationId: getLetterStats
       parameters:
-        - name: role
-          in: query
-          required: false
-          schema:
-            $ref: '#/components/schemas/RoleParamEnum'
+        - $ref: '#/components/parameters/RoleParamEnum'
       responses:
         '200':
           description: Some stats for letters
@@ -7048,6 +7040,15 @@ components:
         type: array
         items:
           $ref: '#/components/schemas/RetakeExamStatus'
+    RoleParamEnum:
+      name: role
+      in: query
+      description: Filter by role
+      required: false
+      schema:
+        type: array
+        items:
+          $ref: '#/components/schemas/RoleEnum'
   responses:
     '400':
       description: Bad request
@@ -7825,10 +7826,6 @@ components:
         - STUDENT
         - TEACHER
         - STAFF_MEMBER
-    RoleParamEnum:
-      type: array
-      items:
-        $ref: '#/components/schemas/RoleEnum'
     CreateFee:
       type: object
       properties:

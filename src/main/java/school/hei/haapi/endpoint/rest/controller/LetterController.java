@@ -86,7 +86,7 @@ public class LetterController {
 
   @GetMapping(value = "/students/letters/stats")
   public LetterStats getStudentsStats() {
-    return letterService.getStats(Collections.singletonList(STUDENT));
+    return letterService.getStats(List.of(STUDENT));
   }
 
   @PutMapping(value = "/letters")
