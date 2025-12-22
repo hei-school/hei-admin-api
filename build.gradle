@@ -227,18 +227,10 @@ implementation 'org.dhatim:fastexcel:0.18.4'
 testImplementation 'org.mockito:mockito-core:5.3.1'
 implementation 'org.springdoc:springdoc-openapi-ui:1.7.0'
 implementation 'org.casbin:casdoor-spring-boot-starter:1.7.1'
+    tasks.withType(JavaCompile).configureEach { options.fork = true; options.forkOptions.jvmArgs << "-Xss2m" }
+    tasks.withType(Test).configureEach { jvmArgs "-Xss2m" }
+    bootRun { jvmArgs = ["-Xss2m"] }
 
-    tasks.withType(JavaCompile).configureEach {
-        options.fork = true
-        options.forkOptions.jvmArgs << "-Xss2m"
-    }
-
-    tasks.withType(Test).configureEach {
-        jvmArgs "-Xss2m"
-    }
-
-    bootRun {
-        jvmArgs = ["-Xss2m"]
-    }
+    
 
 }
