@@ -10,7 +10,7 @@ import org.springframework.stereotype.Repository;
 import school.hei.haapi.endpoint.rest.model.LetterStatus;
 import school.hei.haapi.model.Letter;
 import school.hei.haapi.model.User;
-import school.hei.haapi.model.dto.LetterDto;
+import school.hei.haapi.model.dto.letterStatsDto;
 
 @Repository
 public interface LetterRepository extends JpaRepository<Letter, String> {
@@ -32,7 +32,7 @@ public interface LetterRepository extends JpaRepository<Letter, String> {
 
   @Query(
       """
-      SELECT new school.hei.haapi.model.dto.LetterDto(
+      SELECT new school.hei.haapi.model.dto.letterStatsDto(
           new school.hei.haapi.model.dto.LetterDetailsDto(
               COALESCE(SUM(CASE WHEN l.status = 'PENDING' THEN 1 ELSE 0 END), 0),
               COALESCE(SUM(CASE WHEN l.status = 'REJECTED' THEN 1 ELSE 0 END), 0),
@@ -43,11 +43,11 @@ public interface LetterRepository extends JpaRepository<Letter, String> {
       FROM Letter l
       WHERE l.user.role IN :roles
       """)
-  LetterDto getLetterStatisticsForRoles(@Param("roles") List<User.Role> roles);
+  letterStatsDto getLetterStatisticsForRoles(@Param("roles") List<User.Role> roles);
 
   @Query(
       """
-      SELECT new school.hei.haapi.model.dto.LetterDto(
+      SELECT new school.hei.haapi.model.dto.letterStatsDto(
           new school.hei.haapi.model.dto.LetterDetailsDto(
               COALESCE(SUM(CASE WHEN l.status = 'PENDING' THEN 1 ELSE 0 END), 0),
               COALESCE(SUM(CASE WHEN l.status = 'REJECTED' THEN 1 ELSE 0 END), 0),
@@ -57,5 +57,5 @@ public interface LetterRepository extends JpaRepository<Letter, String> {
       )
       FROM Letter l
       """)
-  LetterDto getLetterStatistics();
+  letterStatsDto getLetterStatistics();
 }

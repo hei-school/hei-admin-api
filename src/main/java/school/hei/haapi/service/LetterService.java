@@ -26,7 +26,7 @@ import school.hei.haapi.endpoint.rest.model.LetterStatus;
 import school.hei.haapi.endpoint.rest.model.UpdateLettersStatus;
 import school.hei.haapi.endpoint.rest.security.model.Principal;
 import school.hei.haapi.model.*;
-import school.hei.haapi.model.dto.LetterDto;
+import school.hei.haapi.model.dto.letterStatsDto;
 import school.hei.haapi.model.exception.BadRequestException;
 import school.hei.haapi.model.exception.NotFoundException;
 import school.hei.haapi.repository.FileInfoRepository;
@@ -184,13 +184,13 @@ public class LetterService {
   }
 
   public LetterStats getStats(List<User.Role> role) {
-    LetterDto letterDto;
+    letterStatsDto letterStatsDto;
     if (Objects.nonNull(role) && !role.isEmpty()) {
-      letterDto = letterRepository.getLetterStatisticsForRoles(role);
+      letterStatsDto = letterRepository.getLetterStatisticsForRoles(role);
     } else {
-      letterDto = letterRepository.getLetterStatistics();
+      letterStatsDto = letterRepository.getLetterStatistics();
     }
-    return letterDto.toLetterStats();
+    return letterStatsDto.toLetterStats();
   }
 
   public String getBucketKey(String studentRef, String filename) {

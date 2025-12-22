@@ -2,7 +2,7 @@ package school.hei.haapi.model.dto;
 
 import school.hei.haapi.endpoint.rest.model.LetterStats;
 
-public record LetterDto(LetterDetailsDto details) {
+public record letterStatsDto(LetterDetailsDto details) {
 
   public LetterStats toLetterStats() {
     return new LetterStats()
