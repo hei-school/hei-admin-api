@@ -745,7 +745,10 @@ public class SecurityConf {
                     .hasAnyRole(MANAGER.getRole(), ADMIN.getRole())
                     .requestMatchers(
                         new CourseAssignmentTeacherMatcher(
-                            courseAssignmentService, PUT, "/groups/*/course_assignments/*/exams"))
+                            PUT,
+                            "/groups/*/course_assignments/*/exams",
+                            "course_assignments",
+                            courseAssignmentService))
                     .hasAnyRole(TEACHER.getRole())
                     .requestMatchers(GET, "/groups/*/course_assignments/*/exams")
                     .hasAnyRole(TEACHER.getRole(), MANAGER.getRole(), ADMIN.getRole())
@@ -821,7 +824,10 @@ public class SecurityConf {
                     .hasAnyRole(MANAGER.getRole(), TEACHER.getRole(), ADMIN.getRole())
                     .requestMatchers(
                         new CourseAssignmentTeacherMatcher(
-                            courseAssignmentService, PUT, "/groups/*/course_assignments/*/exams"))
+                            PUT,
+                            "/groups/*/course_assignments/*/exams",
+                            "course_assignments",
+                            courseAssignmentService))
                     .hasAnyRole(TEACHER.getRole())
                     .requestMatchers(GET, "/groups/*/course_assignments/*/exams")
                     .hasAnyRole(TEACHER.getRole(), MANAGER.getRole(), ADMIN.getRole())

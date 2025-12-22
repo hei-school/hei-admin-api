@@ -1,40 +1,31 @@
 package school.hei.haapi.endpoint.rest.security;
 
 import jakarta.servlet.http.HttpServletRequest;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import lombok.AllArgsConstructor;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
-import org.springframework.security.web.util.matcher.RequestMatcher;
-import school.hei.haapi.endpoint.rest.security.model.Principal;
 import school.hei.haapi.service.CourseAssignmentService;
 
-@AllArgsConstructor
-public class CourseAssignmentTeacherMatcher implements RequestMatcher {
+public class CourseAssignmentTeacherMatcher extends RequestIdMatcher {
   private final CourseAssignmentService courseAssignmentService;
-  private final HttpMethod method;
-  private final String antPattern;
+
+  public CourseAssignmentTeacherMatcher(
+      HttpMethod method,
+      String antPattern,
+      String stringBeforeId,
+      CourseAssignmentService courseAssignmentService) {
+    super(method, antPattern, stringBeforeId);
+    this.courseAssignmentService = courseAssignmentService;
+  }
 
   @Override
   public boolean matches(HttpServletRequest request) {
-    AntPathRequestMatcher antMatcher = new AntPathRequestMatcher(antPattern, method.toString());
+    var antMatcher = new AntPathRequestMatcher(antPattern, method.toString());
     if (!antMatcher.matches(request)) {
       return false;
     }
-    Principal principal = AuthProvider.getPrincipal();
-    String courseAssignmentIdFromRequest = getCourseAssignmentId(request, "course_assignments");
+    var principal = AuthProvider.getPrincipal();
+    var courseAssignmentIdFromRequest = getRequestId(request);
     return courseAssignmentService.checkTeacherOfCourseAssignment(
         principal.getUserId(), courseAssignmentIdFromRequest);
-  }
-
-  /*
-   * TODO: Refactor make a superclass for this
-   *  Same function in SelfMatcher
-   */
-  private String getCourseAssignmentId(HttpServletRequest request, String stringBeforeId) {
-    Pattern SELFABLE_URI_PATTERN = Pattern.compile(stringBeforeId + "/(?<id>[^/]+)(/.*)?");
-    Matcher uriMatcher = SELFABLE_URI_PATTERN.matcher(request.getRequestURI());
-    return uriMatcher.find() ? uriMatcher.group("id") : null;
   }
 }
