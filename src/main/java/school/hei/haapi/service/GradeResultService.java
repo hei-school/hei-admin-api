@@ -160,6 +160,7 @@ public class GradeResultService {
         }
         return handleAvailableGenerationRequest(request, studentYearlyResult);
       }
+      generateTranscript(studentId, studentYearlyResult);
     } else generateTranscript(studentId, studentYearlyResult);
     return new YearlyResultGenerationTranscript().status(GENERATING);
   }

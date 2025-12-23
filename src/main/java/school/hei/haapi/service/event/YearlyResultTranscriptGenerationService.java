@@ -40,7 +40,7 @@ public class YearlyResultTranscriptGenerationService
     try {
       sendGeneratedEmail(yearlyResultTranscriptGeneration.getPrincipal(), request);
     } catch (Exception e) {
-      log.error("Cannot send yearly result generation email for : {}", request.getFileName());
+      log.error("Cannot send yearly result generation email for : {}", request);
     }
   }
 

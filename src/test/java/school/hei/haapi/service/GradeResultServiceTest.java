@@ -9,6 +9,7 @@ import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.only;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -37,6 +38,8 @@ import school.hei.haapi.endpoint.event.model.YearlyResultTranscriptGeneration;
 import school.hei.haapi.endpoint.rest.mapper.CourseMapper;
 import school.hei.haapi.endpoint.rest.model.CourseResultStatus;
 import school.hei.haapi.endpoint.rest.model.YearlyResult;
+import school.hei.haapi.endpoint.rest.security.AuthProvider;
+import school.hei.haapi.endpoint.rest.security.model.Principal;
 import school.hei.haapi.file.bucket.BucketComponent;
 import school.hei.haapi.mail.Mailer;
 import school.hei.haapi.model.Course;
@@ -617,7 +620,10 @@ class GradeResultServiceTest {
 
   @Test
   void yearly_result_generation_should_regenerate_when_generation_times_out() {
-
+    var mockedAuthProvider = mockStatic(AuthProvider.class);
+    mockedAuthProvider
+        .when(AuthProvider::getPrincipal)
+        .thenReturn(new Principal(student1, "dummy"));
     when(userService.getById(anyString())).thenReturn(student1);
     when(yearlyResultGenerationService.findGenerationRequestByFileName(anyString()))
         .thenReturn(
@@ -626,7 +632,6 @@ class GradeResultServiceTest {
                     .status(GENERATING)
                     .datetime(now().minus(Duration.ofHours(1L)))
                     .build()));
-
     var result = subject.getYearlyResultTranscript(STUDENT1_ID, L1);
     assertEquals(GENERATING, result.getStatus());
     verify(eventProducer, only()).accept(anyList());
@@ -648,6 +653,7 @@ class GradeResultServiceTest {
         () -> {
           yearlyResultTranscriptGenerationService.accept(
               YearlyResultTranscriptGeneration.builder()
+                  .principal(student1)
                   .yearlyResult(student1YearlyResult)
                   .userId(STUDENT1_ID)
                   .build());
