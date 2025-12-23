@@ -29,6 +29,7 @@ import school.hei.haapi.endpoint.rest.model.ResultSummary;
 import school.hei.haapi.endpoint.rest.model.StudentLevel;
 import school.hei.haapi.endpoint.rest.model.YearlyResult;
 import school.hei.haapi.endpoint.rest.model.YearlyResultGenerationTranscript;
+import school.hei.haapi.endpoint.rest.security.AuthProvider;
 import school.hei.haapi.file.bucket.BucketComponent;
 import school.hei.haapi.model.FileInfo;
 import school.hei.haapi.model.YearlyResultGenerationRequest;
@@ -152,12 +153,12 @@ public class GradeResultService {
     if (studentTranscriptRequestInfo.isPresent()) {
       var request = studentTranscriptRequestInfo.get();
       if (AVAILABLE.equals(request.getStatus())) {
+        if (Duration.between(request.getDatetime(), now())
+            .minus(TRANSCRIPT_GENERATION_TIMEOUT)
+            .isPositive()) {
+          generateTranscript(studentId, studentYearlyResult);
+        }
         return handleAvailableGenerationRequest(request, studentYearlyResult);
-      }
-      if (Duration.between(request.getDatetime(), now())
-          .minus(TRANSCRIPT_GENERATION_TIMEOUT)
-          .isPositive()) {
-        generateTranscript(studentId, studentYearlyResult);
       }
     } else generateTranscript(studentId, studentYearlyResult);
     return new YearlyResultGenerationTranscript().status(GENERATING);
@@ -181,15 +182,18 @@ public class GradeResultService {
   }
 
   private void generateTranscript(String studentId, YearlyResult studentYearlyResult) {
+    var principalUser = AuthProvider.getPrincipal().getUser();
     eventProducer.accept(
         List.of(
             YearlyResultTranscriptGeneration.builder()
                 .userId(studentId)
                 .yearlyResult(studentYearlyResult)
+                .principal(principalUser)
                 .build()));
   }
 
-  public void uploadYearlyResultTranscript(String studentId, YearlyResult yearlyResult) {
+  public YearlyResultGenerationRequest uploadYearlyResultTranscript(
+      String studentId, YearlyResult yearlyResult) {
     var student = userService.getById(studentId);
     var fileName =
         String.format(TRANSCRIPT_FILENAME_FORMAT, student.getRef(), yearlyResult.getLevel());
@@ -208,17 +212,16 @@ public class GradeResultService {
       var uploadedFileInfo =
           fileInfoService.uploadFile(
               fileName, TRANSCRIPT, student.getId(), multipartFileFromFile(yearlyResultTranscript));
-      yearlyResultGenerationService.saveGenerationRequest(
+      return yearlyResultGenerationService.saveGenerationRequest(
           YearlyResultGenerationRequest.builder()
               .datetime(now())
               .fileName(fileName)
               .status(AVAILABLE)
               .fileInfo(uploadedFileInfo)
               .build());
-      return;
     }
 
-    yearlyResultGenerationService.saveGenerationRequest(
+    return yearlyResultGenerationService.saveGenerationRequest(
         YearlyResultGenerationRequest.builder()
             .datetime(now())
             .fileName(fileName)

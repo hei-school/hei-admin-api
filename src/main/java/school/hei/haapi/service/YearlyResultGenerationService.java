@@ -42,8 +42,8 @@ public class YearlyResultGenerationService {
             fileName);
   }
 
-  public void saveGenerationRequest(YearlyResultGenerationRequest toSave) {
-    yearlyResultGenerationRequestRepository.save(toSave);
+  public YearlyResultGenerationRequest saveGenerationRequest(YearlyResultGenerationRequest toSave) {
+    return yearlyResultGenerationRequestRepository.save(toSave);
   }
 
   private Context loadContext(User student, YearlyResult yearlyResult) {
