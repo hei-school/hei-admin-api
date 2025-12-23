@@ -1,3 +1,12 @@
+## [1.145.2](https://github.com/hei-school/hei-admin-api/compare/v1.145.1...v1.145.2) (2025-12-23)
+
+
+### Bug Fixes
+
+* update grade ([0178032](https://github.com/hei-school/hei-admin-api/commit/0178032ad80b1e2b06c28b7cb4c32e811208f2c1))
+
+
+
 ## [1.145.1](https://github.com/hei-school/hei-admin-api/compare/v1.145.0...v1.145.1) (2025-12-19)
 
 
@@ -104,16 +113,6 @@
 ### Features
 
 * implement-online-event-support ([5a5b66e](https://github.com/hei-school/hei-admin-api/commit/5a5b66ee6da5f248516873d2e91a9ce5a2297ba5))
-
-
-
-## [1.139.1](https://github.com/hei-school/hei-admin-api/compare/v1.139.0...v1.139.1) (2025-11-27)
-
-
-### Bug Fixes
-
-* import grade event service ([6a9cc18](https://github.com/hei-school/hei-admin-api/commit/6a9cc18fb946a50a310663a2ff16821560ab991c))
-* increase build stack size ([f1d2149](https://github.com/hei-school/hei-admin-api/commit/f1d2149e84a22056f0d1c87b1cfd92b1c5f3259d))
 
 
 
