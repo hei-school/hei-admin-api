@@ -38,6 +38,7 @@ import school.hei.haapi.endpoint.rest.mapper.CourseMapper;
 import school.hei.haapi.endpoint.rest.model.CourseResultStatus;
 import school.hei.haapi.endpoint.rest.model.YearlyResult;
 import school.hei.haapi.file.bucket.BucketComponent;
+import school.hei.haapi.mail.Mailer;
 import school.hei.haapi.model.Course;
 import school.hei.haapi.model.CourseAssignment;
 import school.hei.haapi.model.Exam;
@@ -65,6 +66,7 @@ class GradeResultServiceTest {
   private final BucketComponent bucketComponent = mock();
   private final FileInfoService fileInfoService = mock();
   private final EventProducer eventProducer = mock();
+  private final Mailer mailer = mock();
   private final YearlyResultGenerationRequestRepository yearlyResultGenerationRequestRepository =
       mock();
   private final YearlyResultGenerationService yearlyResultGenerationService =
@@ -89,7 +91,7 @@ class GradeResultServiceTest {
           fileInfoService,
           eventProducer);
   private final YearlyResultTranscriptGenerationService yearlyResultTranscriptGenerationService =
-      new YearlyResultTranscriptGenerationService(subject);
+      new YearlyResultTranscriptGenerationService(subject, mailer, bucketComponent);
 
   private static final String STUDENT1_ID = "id";
   private static final String STUDENT2_ID = "bad student";
