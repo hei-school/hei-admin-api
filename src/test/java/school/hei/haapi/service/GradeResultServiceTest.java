@@ -655,6 +655,7 @@ class GradeResultServiceTest {
     YearlyResult student1YearlyResult = subject.getLeveledYearlyResultByStudentId(L1, STUDENT1_ID);
 
     when(userService.getById(anyString())).thenReturn(student1);
+    when(yearlyResultGenerationRequestRepository.save(any())).thenAnswer(e -> e.getArgument(0));
     assertDoesNotThrow(
         () -> {
           yearlyResultTranscriptGenerationService.accept(
