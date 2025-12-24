@@ -1,3 +1,12 @@
+# [1.146.0](https://github.com/hei-school/hei-admin-api/compare/v1.145.2...v1.146.0) (2025-12-24)
+
+
+### Features
+
+* (doc) add new endpoint for grade template ([7706546](https://github.com/hei-school/hei-admin-api/commit/77065467e84e1a958077f60a65667c77b87f21ad))
+
+
+
 ## [1.145.2](https://github.com/hei-school/hei-admin-api/compare/v1.145.1...v1.145.2) (2025-12-23)
 
 
@@ -98,21 +107,6 @@
 ### Features
 
 * (doc) new endpoint to update grades ([771d66b](https://github.com/hei-school/hei-admin-api/commit/771d66ba968edc20d50291104ff3d0fe7b7e33c9))
-
-
-
-# [1.140.0](https://github.com/hei-school/hei-admin-api/compare/v1.139.1...v1.140.0) (2025-12-03)
-
-
-### Bug Fixes
-
-* grade import endpoint ([3369b71](https://github.com/hei-school/hei-admin-api/commit/3369b71eb259431368391a71cc7872cfb0b8237c))
-* suspend student with overdue fees transaction error ([6bdcefc](https://github.com/hei-school/hei-admin-api/commit/6bdcefc8c98ccff38990901add1f0d46c14dcb0d))
-
-
-### Features
-
-* implement-online-event-support ([5a5b66e](https://github.com/hei-school/hei-admin-api/commit/5a5b66ee6da5f248516873d2e91a9ce5a2297ba5))
 
 
 
