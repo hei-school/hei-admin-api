@@ -9,6 +9,7 @@ import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.only;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -37,7 +38,10 @@ import school.hei.haapi.endpoint.event.model.YearlyResultTranscriptGeneration;
 import school.hei.haapi.endpoint.rest.mapper.CourseMapper;
 import school.hei.haapi.endpoint.rest.model.CourseResultStatus;
 import school.hei.haapi.endpoint.rest.model.YearlyResult;
+import school.hei.haapi.endpoint.rest.security.AuthProvider;
+import school.hei.haapi.endpoint.rest.security.model.Principal;
 import school.hei.haapi.file.bucket.BucketComponent;
+import school.hei.haapi.mail.Mailer;
 import school.hei.haapi.model.Course;
 import school.hei.haapi.model.CourseAssignment;
 import school.hei.haapi.model.Exam;
@@ -65,6 +69,7 @@ class GradeResultServiceTest {
   private final BucketComponent bucketComponent = mock();
   private final FileInfoService fileInfoService = mock();
   private final EventProducer eventProducer = mock();
+  private final Mailer mailer = mock();
   private final YearlyResultGenerationRequestRepository yearlyResultGenerationRequestRepository =
       mock();
   private final YearlyResultGenerationService yearlyResultGenerationService =
@@ -89,7 +94,7 @@ class GradeResultServiceTest {
           fileInfoService,
           eventProducer);
   private final YearlyResultTranscriptGenerationService yearlyResultTranscriptGenerationService =
-      new YearlyResultTranscriptGenerationService(subject);
+      new YearlyResultTranscriptGenerationService(subject, mailer, bucketComponent);
 
   private static final String STUDENT1_ID = "id";
   private static final String STUDENT2_ID = "bad student";
@@ -603,31 +608,39 @@ class GradeResultServiceTest {
 
   @Test
   void yearly_result_generation_should_return_generating_status_when_file_is_missing() {
-    when(userService.getById(anyString())).thenReturn(student1);
-    when(yearlyResultGenerationService.findGenerationRequestByFileName(anyString()))
-        .thenReturn(empty());
+    try (var mockedAuthProvider = mockStatic(AuthProvider.class)) {
+      mockedAuthProvider
+          .when(AuthProvider::getPrincipal)
+          .thenReturn(new Principal(student1, "dummy"));
+      when(userService.getById(anyString())).thenReturn(student1);
+      when(yearlyResultGenerationService.findGenerationRequestByFileName(anyString()))
+          .thenReturn(empty());
 
-    var result = subject.getYearlyResultTranscript(student1.getId(), L1);
+      var result = subject.getYearlyResultTranscript(student1.getId(), L1);
 
-    assertEquals(GENERATING, result.getStatus());
-    assertNull(result.getLink());
+      assertEquals(GENERATING, result.getStatus());
+      assertNull(result.getLink());
+    }
   }
 
   @Test
   void yearly_result_generation_should_regenerate_when_generation_times_out() {
-
-    when(userService.getById(anyString())).thenReturn(student1);
-    when(yearlyResultGenerationService.findGenerationRequestByFileName(anyString()))
-        .thenReturn(
-            Optional.of(
-                YearlyResultGenerationRequest.builder()
-                    .status(GENERATING)
-                    .datetime(now().minus(Duration.ofHours(1L)))
-                    .build()));
-
-    var result = subject.getYearlyResultTranscript(STUDENT1_ID, L1);
-    assertEquals(GENERATING, result.getStatus());
-    verify(eventProducer, only()).accept(anyList());
+    try (var mockedAuthProvider = mockStatic(AuthProvider.class)) {
+      mockedAuthProvider
+          .when(AuthProvider::getPrincipal)
+          .thenReturn(new Principal(student1, "dummy"));
+      when(userService.getById(anyString())).thenReturn(student1);
+      when(yearlyResultGenerationService.findGenerationRequestByFileName(anyString()))
+          .thenReturn(
+              Optional.of(
+                  YearlyResultGenerationRequest.builder()
+                      .status(GENERATING)
+                      .datetime(now().minus(Duration.ofHours(1L)))
+                      .build()));
+      var result = subject.getYearlyResultTranscript(STUDENT1_ID, L1);
+      assertEquals(GENERATING, result.getStatus());
+      verify(eventProducer, only()).accept(anyList());
+    }
   }
 
   @Test
@@ -642,10 +655,12 @@ class GradeResultServiceTest {
     YearlyResult student1YearlyResult = subject.getLeveledYearlyResultByStudentId(L1, STUDENT1_ID);
 
     when(userService.getById(anyString())).thenReturn(student1);
+    when(yearlyResultGenerationRequestRepository.save(any())).thenAnswer(e -> e.getArgument(0));
     assertDoesNotThrow(
         () -> {
           yearlyResultTranscriptGenerationService.accept(
               YearlyResultTranscriptGeneration.builder()
+                  .principal(student1)
                   .yearlyResult(student1YearlyResult)
                   .userId(STUDENT1_ID)
                   .build());
