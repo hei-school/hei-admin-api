@@ -608,33 +608,39 @@ class GradeResultServiceTest {
 
   @Test
   void yearly_result_generation_should_return_generating_status_when_file_is_missing() {
-    when(userService.getById(anyString())).thenReturn(student1);
-    when(yearlyResultGenerationService.findGenerationRequestByFileName(anyString()))
-        .thenReturn(empty());
+    try (var mockedAuthProvider = mockStatic(AuthProvider.class)) {
+      mockedAuthProvider
+          .when(AuthProvider::getPrincipal)
+          .thenReturn(new Principal(student1, "dummy"));
+      when(userService.getById(anyString())).thenReturn(student1);
+      when(yearlyResultGenerationService.findGenerationRequestByFileName(anyString()))
+          .thenReturn(empty());
 
-    var result = subject.getYearlyResultTranscript(student1.getId(), L1);
+      var result = subject.getYearlyResultTranscript(student1.getId(), L1);
 
-    assertEquals(GENERATING, result.getStatus());
-    assertNull(result.getLink());
+      assertEquals(GENERATING, result.getStatus());
+      assertNull(result.getLink());
+    }
   }
 
   @Test
   void yearly_result_generation_should_regenerate_when_generation_times_out() {
-    var mockedAuthProvider = mockStatic(AuthProvider.class);
-    mockedAuthProvider
-        .when(AuthProvider::getPrincipal)
-        .thenReturn(new Principal(student1, "dummy"));
-    when(userService.getById(anyString())).thenReturn(student1);
-    when(yearlyResultGenerationService.findGenerationRequestByFileName(anyString()))
-        .thenReturn(
-            Optional.of(
-                YearlyResultGenerationRequest.builder()
-                    .status(GENERATING)
-                    .datetime(now().minus(Duration.ofHours(1L)))
-                    .build()));
-    var result = subject.getYearlyResultTranscript(STUDENT1_ID, L1);
-    assertEquals(GENERATING, result.getStatus());
-    verify(eventProducer, only()).accept(anyList());
+    try (var mockedAuthProvider = mockStatic(AuthProvider.class)) {
+      mockedAuthProvider
+          .when(AuthProvider::getPrincipal)
+          .thenReturn(new Principal(student1, "dummy"));
+      when(userService.getById(anyString())).thenReturn(student1);
+      when(yearlyResultGenerationService.findGenerationRequestByFileName(anyString()))
+          .thenReturn(
+              Optional.of(
+                  YearlyResultGenerationRequest.builder()
+                      .status(GENERATING)
+                      .datetime(now().minus(Duration.ofHours(1L)))
+                      .build()));
+      var result = subject.getYearlyResultTranscript(STUDENT1_ID, L1);
+      assertEquals(GENERATING, result.getStatus());
+      verify(eventProducer, only()).accept(anyList());
+    }
   }
 
   @Test
