@@ -40,7 +40,7 @@ public class YearlyResultGenerationService {
   public File generateYearlyResultTranscript(User student, YearlyResult yearlyResult) {
     var context = new Context();
     context.setVariable(
-        "transcriptContent", generateYearlyResultTranscriptHTML(student, yearlyResult));
+        "transcriptContent", generateYearlyResultTranscriptHTML(student, yearlyResult, true));
     var html = htmlParser.apply("yearlyResult", context);
     var filename = YEARLY_RESULT_FILENAME_PREFIX + context.getVariable("promotion");
     return createFileFromBytes(pdfRenderer.apply(html), filename, ".pdf");
@@ -48,13 +48,14 @@ public class YearlyResultGenerationService {
 
   public File generateResultSummaryTranscript(User student, ResultSummary summary) {
     var transcriptContentStringBuilder = new StringBuilder();
-
-    for (var yearlyResult :
+    var yearlyResults =
         summary.getYearlyResults().stream()
             .filter(e -> RESULT_SUMMARY_FILE_LEVEL_CONTENT.contains(e.getLevel()))
-            .toList()) {
+            .toList();
+    for (int i = 0; i < yearlyResults.size(); i++) {
+      var isLastPage = i == yearlyResults.size() - 1;
       transcriptContentStringBuilder.append(
-          generateYearlyResultTranscriptHTML(student, yearlyResult));
+          generateYearlyResultTranscriptHTML(student, yearlyResults.get(i), isLastPage));
       transcriptContentStringBuilder.append("\n");
     }
     var context = new Context();
@@ -63,8 +64,9 @@ public class YearlyResultGenerationService {
     return createFileFromBytes(pdfRenderer.apply(html), RESULT_SUMMARY_FILENAME_PREFIX, ".pdf");
   }
 
-  private String generateYearlyResultTranscriptHTML(User student, YearlyResult yearlyResult) {
-    return htmlParser.apply("yearlyResultContent", loadContext(student, yearlyResult));
+  private String generateYearlyResultTranscriptHTML(
+      User student, YearlyResult yearlyResult, boolean isLastPage) {
+    return htmlParser.apply("yearlyResultContent", loadContext(student, yearlyResult, isLastPage));
   }
 
   public Optional<YearlyResultGenerationRequest> findGenerationRequestByFileName(String fileName) {
@@ -77,7 +79,7 @@ public class YearlyResultGenerationService {
     return yearlyResultGenerationRequestRepository.save(toSave);
   }
 
-  private Context loadContext(User student, YearlyResult yearlyResult) {
+  private Context loadContext(User student, YearlyResult yearlyResult, boolean isLastPage) {
     Context context = new Context();
     var logoResource = classPathResourceResolver.apply("HEI_logo", ".png");
     context.setVariable("logo", base64Converter.apply(logoResource));
@@ -108,6 +110,7 @@ public class YearlyResultGenerationService {
     context.setVariable("malus_total", "Non disponible");
     var isTemporaryResult = !VALIDATED.equals(yearlyResult.getStatus());
     context.setVariable("isTemporaryResult", isTemporaryResult);
+    context.setVariable("isLastPage", isLastPage);
     return context;
   }
 }
