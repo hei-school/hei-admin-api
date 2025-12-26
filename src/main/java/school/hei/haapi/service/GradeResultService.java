@@ -9,6 +9,9 @@ import static school.hei.haapi.endpoint.rest.model.ResultOverviewStatus.INVALIDA
 import static school.hei.haapi.endpoint.rest.model.ResultOverviewStatus.IN_PROGRESS;
 import static school.hei.haapi.endpoint.rest.model.ResultOverviewStatus.NOT_STARTED;
 import static school.hei.haapi.endpoint.rest.model.ResultOverviewStatus.VALIDATED;
+import static school.hei.haapi.endpoint.rest.model.StudentLevel.L1;
+import static school.hei.haapi.endpoint.rest.model.StudentLevel.L2;
+import static school.hei.haapi.endpoint.rest.model.StudentLevel.L3;
 import static school.hei.haapi.endpoint.rest.model.YearlyResultGenerationStatus.AVAILABLE;
 import static school.hei.haapi.endpoint.rest.model.YearlyResultGenerationStatus.GENERATING;
 import static school.hei.haapi.service.utils.FileUtils.multipartFileFromFile;
@@ -125,13 +128,23 @@ public class GradeResultService {
             .divide(BigDecimal.valueOf(yearlyResults.size()), DECIMAL128));
   }
 
+  private static boolean hasPassedLicence(List<YearlyResult> yearlyResults) {
+    return yearlyResults.stream()
+        .filter(e -> List.of(L1, L2, L3).contains(e.getLevel()))
+        .allMatch(e -> VALIDATED.equals(e.getStatus()));
+  }
+
+  private static boolean hasPassedMaster(List<YearlyResult> yearlyResults) {
+    return yearlyResults.stream().allMatch(e -> VALIDATED.equals(e.getStatus()));
+  }
+
   private static ResultOverviewStatus resultSummaryStatusFromYearlyResults(
       List<YearlyResult> yearlyResultList) {
     var yearlyResultsStatus = yearlyResultList.stream().map(YearlyResult::getStatus).toList();
 
     if (yearlyResultsStatus.stream().anyMatch(IN_PROGRESS::equals)) {
       return IN_PROGRESS;
-    } else if (yearlyResultsStatus.stream().allMatch(VALIDATED::equals)) {
+    } else if (hasPassedMaster(yearlyResultList) || hasPassedLicence(yearlyResultList)) {
       return VALIDATED;
     } else {
       return INVALIDATED;
@@ -160,8 +173,8 @@ public class GradeResultService {
         }
         return handleAvailableGenerationRequest(request, studentYearlyResult);
       }
-      generateTranscript(studentId, studentYearlyResult);
-    } else generateTranscript(studentId, studentYearlyResult);
+    }
+    generateTranscript(studentId, studentYearlyResult);
     return new YearlyResultGenerationTranscript().status(GENERATING);
   }
 
@@ -229,5 +242,13 @@ public class GradeResultService {
             .status(AVAILABLE)
             .fileInfo(availableFileInfo.get())
             .build());
+  }
+
+  public void uploadResultSummaryTranscript(String studentId) {
+    var student = userService.getById(studentId);
+    var resultSummary = getStudentResultSummary(studentId);
+    var resultSummaryTranscriptFile =
+        yearlyResultGenerationService.generateResultSummaryTranscript(student, resultSummary);
+    return;
   }
 }
