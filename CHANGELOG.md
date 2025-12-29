@@ -1,3 +1,12 @@
+# [1.148.0](https://github.com/hei-school/hei-admin-api/compare/v1.147.0...v1.148.0) (2025-12-29)
+
+
+### Features
+
+* add user details in get monitor link student requests ([c0cedb3](https://github.com/hei-school/hei-admin-api/commit/c0cedb311fb8173c46323cbc3ce431ea3dc43c1e))
+
+
+
 # [1.147.0](https://github.com/hei-school/hei-admin-api/compare/v1.146.0...v1.147.0) (2025-12-29)
 
 
@@ -92,21 +101,6 @@
 ### Features
 
 * implement event calendar filter by groupRef ([b848815](https://github.com/hei-school/hei-admin-api/commit/b848815c7b3e15cfd744889f210ae68db188602a))
-
-
-
-# [1.142.0](https://github.com/hei-school/hei-admin-api/compare/v1.141.0...v1.142.0) (2025-12-11)
-
-
-### Bug Fixes
-
-* disabled students initialized as event participant on event creation ([7c6badb](https://github.com/hei-school/hei-admin-api/commit/7c6badbb42703a16a950d8710b1fec34794fe9e7))
-* increase build stack size ([30eb9b8](https://github.com/hei-school/hei-admin-api/commit/30eb9b821139f79871c3253bcef8c362f073ee26))
-
-
-### Features
-
-* **doc:** add group_ref filter documentation for events ([d2b45b7](https://github.com/hei-school/hei-admin-api/commit/d2b45b73e8ba0c4cec9e1f485233270609991a27))
 
 
 
