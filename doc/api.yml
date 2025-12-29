@@ -7529,10 +7529,14 @@ components:
         total_hours:
           type: integer
     UpdateMonitorStudentLink:
-      allOf:
-        - $ref: '#/components/schemas/MonitorStudentLink'
       type: object
       properties:
+        id:
+          type: string
+        student_id:
+          type: string
+        monitor_id:
+          type: string
         status:
           $ref: '#/components/schemas/MonitorStudentLinkStatus'
     MonitorStudentLinkStatus:
@@ -7545,10 +7549,10 @@ components:
       properties:
         id:
           type: string
-        monitor_id:
-          type: string
-        student_id:
-          type: string
+        monitor:
+          $ref: '#/components/schemas/Monitor'
+        student:
+          $ref: '#/components/schemas/Student'
     Course:
       allOf:
         - $ref: '#/components/schemas/CourseTemplate'
