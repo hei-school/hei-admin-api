@@ -139,8 +139,8 @@ class MonitoringStudentIT extends FacadeITMockedThirdParties {
                         e ->
                             new UpdateMonitorStudentLink()
                                 .id(e.getId())
-                                .studentId(e.getMonitorId())
-                                .monitorId(e.getMonitorId())
+                                .studentId(e.getStudent().getId())
+                                .monitorId(e.getMonitor().getId())
                                 .status(MonitorStudentLinkStatus.LINKED))
                     .toList()));
 
