@@ -18,6 +18,7 @@ import school.hei.haapi.service.aws.FileService;
 public class EventParticipantMapper {
 
   private final EventParticipantService eventParticipantService;
+  private final StatusEnumMapper statusEnumMapper;
   private final FileService fileService;
   private final LetterService letterService;
 
@@ -41,6 +42,7 @@ public class EventParticipantMapper {
     return new school.hei.haapi.endpoint.rest.model.EventParticipant()
         .email(participant.getEmail())
         .eventStatus(domain.getStatus())
+        .studentStatus(statusEnumMapper.toRestStatus(participant.getStatus()))
         .id(domain.getId())
         .nic(participant.getNic())
         .ref(participant.getRef())

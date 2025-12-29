@@ -1564,6 +1564,7 @@ public class TestUtils {
         .email(student.getEmail())
         .groupName(groupName)
         .eventStatus(status)
+        .studentStatus(ENABLED)
         .letter(List.of());
   }
 

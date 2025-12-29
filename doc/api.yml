@@ -8297,6 +8297,8 @@ components:
         - $ref: '#/components/schemas/UserIdentifier'
       type: object
       properties:
+        student_status:
+          $ref: '#/components/schemas/EnableStatus'
         group_name:
           type: string
         event_status:
