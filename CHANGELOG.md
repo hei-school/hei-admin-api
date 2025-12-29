@@ -1,3 +1,12 @@
+# [1.147.0](https://github.com/hei-school/hei-admin-api/compare/v1.146.0...v1.147.0) (2025-12-29)
+
+
+### Features
+
+* add student status to event participant ([8dfb6a4](https://github.com/hei-school/hei-admin-api/commit/8dfb6a4f1184c0c569d4f6daf882447ba60de4dd))
+
+
+
 # [1.146.0](https://github.com/hei-school/hei-admin-api/compare/v1.145.2...v1.146.0) (2025-12-24)
 
 
@@ -98,15 +107,6 @@
 ### Features
 
 * **doc:** add group_ref filter documentation for events ([d2b45b7](https://github.com/hei-school/hei-admin-api/commit/d2b45b73e8ba0c4cec9e1f485233270609991a27))
-
-
-
-# [1.141.0](https://github.com/hei-school/hei-admin-api/compare/v1.140.0...v1.141.0) (2025-12-09)
-
-
-### Features
-
-* (doc) new endpoint to update grades ([771d66b](https://github.com/hei-school/hei-admin-api/commit/771d66ba968edc20d50291104ff3d0fe7b7e33c9))
 
 
 
