@@ -28,4 +28,7 @@ public interface GradeRepository extends JpaRepository<Grade, String> {
       @Param("student_id") String studentId, @Param("course_id") String courseId);
 
   List<Grade> getAllByStudent(User student);
+
+  @Query("select g.student.ref as ref, g.score as score from Grade g where g.exam.id = :exam_id")
+  List<Object[]> getGradesByExamId(@Param("exam_id") String examId);
 }
