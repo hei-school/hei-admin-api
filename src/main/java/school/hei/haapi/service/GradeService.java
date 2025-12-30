@@ -399,7 +399,11 @@ public class GradeService {
     }
     var participants = examRepository.findStudentRefsByExamId(examId);
     try (Workbook workbook = new XSSFWorkbook()) {
-      Sheet sheet = workbook.createSheet(String.format("note_%s", exam.get().getTitle()));
+      String fileName = "note";
+      if (exam.isPresent()) {
+        fileName = String.format("note_%s", exam.get().getTitle());
+      }
+      Sheet sheet = workbook.createSheet(fileName);
       Row headerRow = sheet.createRow(0);
       headerRow.createCell(0).setCellValue("ref");
       headerRow.createCell(1).setCellValue("score");

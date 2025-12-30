@@ -1,6 +1,6 @@
 package school.hei.haapi.service;
 
-import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static school.hei.haapi.integration.StudentIT.student1;
@@ -165,7 +165,7 @@ public class GradeImportTest extends FacadeITMockedThirdParties {
     byte[] file = subject.generateGradesTemplate(exam2prog1Id);
 
     assertNotNull(file);
-    assertFalse(file.length == 0);
+    assertNotEquals(0, file.length);
 
     try (Workbook workbook = new XSSFWorkbook(new ByteArrayInputStream(file))) {
       Sheet sheet = workbook.getSheetAt(0);
