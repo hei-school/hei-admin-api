@@ -25,4 +25,15 @@ public interface ExamRepository extends JpaRepository<Exam, String> {
       @Param("group_id") String courseId,
       @Param("course_assignment_id") String courseAssignmentId,
       Pageable pageable);
+
+  @Query(
+      """
+          select distinct u.ref
+          from Exam e
+          join e.courseAssignment.groups g
+          join g.groupFlows gf
+          join gf.student u
+          where e.id = :exam_id
+      """)
+  List<String> findStudentRefsByExamId(@Param("exam_id") String examId);
 }

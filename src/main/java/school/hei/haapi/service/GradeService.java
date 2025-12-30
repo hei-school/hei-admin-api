@@ -4,19 +4,26 @@ import static org.apache.poi.ss.usermodel.CellType.NUMERIC;
 import static org.apache.poi.ss.usermodel.Row.MissingCellPolicy.CREATE_NULL_AS_BLANK;
 
 import jakarta.transaction.Transactional;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import lombok.AllArgsConstructor;
 import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -36,6 +43,7 @@ import school.hei.haapi.model.exception.NotFoundException;
 import school.hei.haapi.model.notEntity.UpdateGrade;
 import school.hei.haapi.model.validator.IsNewGradeChecker;
 import school.hei.haapi.repository.CourseAssignmentRepository;
+import school.hei.haapi.repository.ExamRepository;
 import school.hei.haapi.repository.GradeRepository;
 import school.hei.haapi.repository.dao.GradeDao;
 import school.hei.haapi.service.utils.excel.ExcelParser;
@@ -52,6 +60,7 @@ public class GradeService {
   private final BucketComponent bucketComponent;
   private final EventProducer eventProducer;
   private final GradeMapper gradeMapper;
+  private final ExamRepository examRepository;
 
   private static final String GRADE_XLSX_IMPORT_BUCKET_KEY = "/STUDENT_EXAM_GRADE_XLSX_IMPORT/";
   private final GradeResultService gradeResultService;
@@ -377,5 +386,46 @@ public class GradeService {
     if (score > 20) return "La note est supérieur à 20";
     if (score < 0) return "La note est négative";
     return null;
+  }
+
+  public byte[] generateGradesTemplate(String examId) {
+    var existingGrades = gradeRepository.getGradesByExamId(examId);
+    var exam = examRepository.findById(examId);
+    Map<String, Double> studentScoreAndRefs = new HashMap<>();
+    for (Object[] grade : existingGrades) {
+      var ref = (String) grade[0];
+      var score = (Double) grade[1];
+      studentScoreAndRefs.put(ref, score);
+    }
+    var participants = examRepository.findStudentRefsByExamId(examId);
+    try (Workbook workbook = new XSSFWorkbook()) {
+      Sheet sheet = workbook.createSheet(String.format("note_%s", exam.get().getTitle()));
+      Row headerRow = sheet.createRow(0);
+      headerRow.createCell(0).setCellValue("ref");
+      headerRow.createCell(1).setCellValue("score");
+
+      IntStream.range(0, participants.size())
+          .forEach(
+              i -> {
+                String ref = participants.get(i);
+                Row row = sheet.createRow(i + 1);
+                row.createCell(0).setCellValue(ref);
+                Double score = studentScoreAndRefs.get(ref);
+                if (score != null) {
+                  row.createCell(1).setCellValue(score);
+                } else {
+                  row.createCell(1);
+                }
+              });
+
+      sheet.autoSizeColumn(0);
+      sheet.autoSizeColumn(1);
+      try (ByteArrayOutputStream template = new ByteArrayOutputStream()) {
+        workbook.write(template);
+        return template.toByteArray();
+      }
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
   }
 }

@@ -1,5 +1,6 @@
 package school.hei.haapi.service;
 
+import static org.junit.Assert.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static school.hei.haapi.integration.StudentIT.student1;
@@ -21,8 +22,14 @@ import static school.hei.haapi.integration.test_data.StudentTestData.tolojanahar
 import static school.hei.haapi.integration.test_data.TeacherTestData.toky;
 import static school.hei.haapi.model.dto.MonitorStudentLinkDto.Status.LINKED;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.time.Instant;
 import java.util.List;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -64,6 +71,7 @@ public class GradeImportTest extends FacadeITMockedThirdParties {
   private static GroupFlow groupFlowsAxel;
   private static GroupFlow groupFlowsTolojanahary;
   private static String exam2prog1Id;
+  @Autowired private GradeRepository gradeRepository;
 
   @BeforeAll
   static void setUpTestData(
@@ -150,5 +158,21 @@ public class GradeImportTest extends FacadeITMockedThirdParties {
     assertEquals(8, updateGrades.getImportGradeStats().getTotalRows());
     assertEquals(7, updateGrades.getImportGradeStats().getInvalidRows());
     assertEquals(1, updateGrades.getImportGradeStats().getValidRows());
+  }
+
+  @Test
+  void generateGradesTemplate_returns_file() throws IOException {
+    byte[] file = subject.generateGradesTemplate(exam2prog1Id);
+
+    assertNotNull(file);
+    assertFalse(file.length == 0);
+
+    try (Workbook workbook = new XSSFWorkbook(new ByteArrayInputStream(file))) {
+      Sheet sheet = workbook.getSheetAt(0);
+      Row headerRow = sheet.getRow(0);
+
+      assertEquals("ref", headerRow.getCell(0).getStringCellValue());
+      assertEquals("score", headerRow.getCell(1).getStringCellValue());
+    }
   }
 }
