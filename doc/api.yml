@@ -165,7 +165,36 @@ paths:
           $ref: '#/components/responses/400'
         '500':
           $ref: '#/components/responses/500'
-
+  '/globalSearch':
+    get:
+      tags:
+        - Search
+      summary: Search across all entities
+      description: Retrieve results from multiple entities based on a search term.
+      parameters:
+        - name: search
+          in: query
+          description: The search term to look for in various entities.
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Search results
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SearchResults'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
   '/groups/{id}':
     get:
       tags:
@@ -9025,3 +9054,30 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/GradeInvalidRow"
+    SearchResults:
+      type: object
+      properties:
+        students:
+          type: array
+          items:
+            $ref: "#/components/schemas/Student"
+        teachers:
+          type: array
+          items:
+            $ref: "#/components/schemas/Teacher"
+        managers:
+          type: array
+          items:
+            $ref: "#/components/schemas/Manager"
+        organisers:
+          type: array
+          items:
+            $ref: '#/components/schemas/Organizer'
+        monitors:
+          type: array
+          items:
+            $ref: '#/components/schemas/Monitor'
+        staffMembers:
+          type: array
+          items:
+            $ref: '#/components/schemas/StaffMember'
