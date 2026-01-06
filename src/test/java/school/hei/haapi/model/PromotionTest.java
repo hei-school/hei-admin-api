@@ -16,6 +16,8 @@ import java.time.ZoneId;
 import org.junit.jupiter.api.Test;
 
 class PromotionTest {
+  private static LocalDate fixedDate = LocalDate.of(2025, 12, 6);
+
   @Test
   void correct_level() {
     var instantToBeL1 = pastInstant(6, 4, 10);
@@ -26,7 +28,7 @@ class PromotionTest {
     var instantOutOfRange = Instant.now();
     var promotionCreated6YearsAgo =
         Promotion.builder()
-            .startDatetime(LocalDate.now().minusYears(6).atTime(MIDNIGHT).toInstant(UTC))
+            .startDatetime(fixedDate.minusYears(6).atTime(MIDNIGHT).toInstant(UTC))
             .build();
 
     assertEquals(L1, promotionCreated6YearsAgo.findLevelAt(instantToBeL1).get());
@@ -42,7 +44,7 @@ class PromotionTest {
   }
 
   private static Instant pastInstant(int yearsToSubtract, int monthsOffset, int daysOffset) {
-    return LocalDate.now()
+    return fixedDate
         .minusYears(yearsToSubtract)
         .plusMonths(monthsOffset)
         .plusDays(daysOffset)
