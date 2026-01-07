@@ -114,6 +114,13 @@ public class GradeController {
         fileConverter.apply(fileToUpload), examId, comment);
   }
 
+  @GetMapping(
+      value = "/exams/{exam_id}/grades/import/template",
+      produces = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+  public byte[] getStudentsGradesTemplateForExam(@PathVariable("exam_id") String examId) {
+    return gradeService.generateGradesTemplate(examId);
+  }
+
   @PostMapping(value = "/exams/{exam_id}/grades/update")
   public List<StudentGrade> correctParticipantsGradeForExam(
       @PathVariable("exam_id") String examId, @RequestBody List<UpdateGrade> grades) {

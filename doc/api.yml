@@ -2689,6 +2689,36 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
+  /exams/{exam_id}/grades/import/template:
+    get:
+      tags:
+        - Grades
+      summary: Return grade template
+      operationId: getStudentsGradesTemplateForExam
+      parameters:
+        - name: exam_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Grades template for a specific exam
+          content:
+            application/vnd.openxmlformats-officedocument.spreadsheetml.sheet:
+              schema:
+                type: string
+                format: binary
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
   /exams/{exam_id}/grades/update:
     post:
       tags:
@@ -7499,10 +7529,14 @@ components:
         total_hours:
           type: integer
     UpdateMonitorStudentLink:
-      allOf:
-        - $ref: '#/components/schemas/MonitorStudentLink'
       type: object
       properties:
+        id:
+          type: string
+        student_id:
+          type: string
+        monitor_id:
+          type: string
         status:
           $ref: '#/components/schemas/MonitorStudentLinkStatus'
     MonitorStudentLinkStatus:
@@ -7515,10 +7549,10 @@ components:
       properties:
         id:
           type: string
-        monitor_id:
-          type: string
-        student_id:
-          type: string
+        monitor:
+          $ref: '#/components/schemas/Monitor'
+        student:
+          $ref: '#/components/schemas/Student'
     Course:
       allOf:
         - $ref: '#/components/schemas/CourseTemplate'
@@ -8267,6 +8301,8 @@ components:
         - $ref: '#/components/schemas/UserIdentifier'
       type: object
       properties:
+        student_status:
+          $ref: '#/components/schemas/EnableStatus'
         group_name:
           type: string
         event_status:

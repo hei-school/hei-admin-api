@@ -1,3 +1,39 @@
+# [1.148.0](https://github.com/hei-school/hei-admin-api/compare/v1.147.0...v1.148.0) (2025-12-29)
+
+
+### Features
+
+* add user details in get monitor link student requests ([c0cedb3](https://github.com/hei-school/hei-admin-api/commit/c0cedb311fb8173c46323cbc3ce431ea3dc43c1e))
+
+
+
+# [1.147.0](https://github.com/hei-school/hei-admin-api/compare/v1.146.0...v1.147.0) (2025-12-29)
+
+
+### Features
+
+* add student status to event participant ([8dfb6a4](https://github.com/hei-school/hei-admin-api/commit/8dfb6a4f1184c0c569d4f6daf882447ba60de4dd))
+
+
+
+# [1.146.0](https://github.com/hei-school/hei-admin-api/compare/v1.145.2...v1.146.0) (2025-12-24)
+
+
+### Features
+
+* (doc) add new endpoint for grade template ([7706546](https://github.com/hei-school/hei-admin-api/commit/77065467e84e1a958077f60a65667c77b87f21ad))
+
+
+
+## [1.145.2](https://github.com/hei-school/hei-admin-api/compare/v1.145.1...v1.145.2) (2025-12-23)
+
+
+### Bug Fixes
+
+* update grade ([0178032](https://github.com/hei-school/hei-admin-api/commit/0178032ad80b1e2b06c28b7cb4c32e811208f2c1))
+
+
+
 ## [1.145.1](https://github.com/hei-school/hei-admin-api/compare/v1.145.0...v1.145.1) (2025-12-19)
 
 
@@ -65,55 +101,6 @@
 ### Features
 
 * implement event calendar filter by groupRef ([b848815](https://github.com/hei-school/hei-admin-api/commit/b848815c7b3e15cfd744889f210ae68db188602a))
-
-
-
-# [1.142.0](https://github.com/hei-school/hei-admin-api/compare/v1.141.0...v1.142.0) (2025-12-11)
-
-
-### Bug Fixes
-
-* disabled students initialized as event participant on event creation ([7c6badb](https://github.com/hei-school/hei-admin-api/commit/7c6badbb42703a16a950d8710b1fec34794fe9e7))
-* increase build stack size ([30eb9b8](https://github.com/hei-school/hei-admin-api/commit/30eb9b821139f79871c3253bcef8c362f073ee26))
-
-
-### Features
-
-* **doc:** add group_ref filter documentation for events ([d2b45b7](https://github.com/hei-school/hei-admin-api/commit/d2b45b73e8ba0c4cec9e1f485233270609991a27))
-
-
-
-# [1.141.0](https://github.com/hei-school/hei-admin-api/compare/v1.140.0...v1.141.0) (2025-12-09)
-
-
-### Features
-
-* (doc) new endpoint to update grades ([771d66b](https://github.com/hei-school/hei-admin-api/commit/771d66ba968edc20d50291104ff3d0fe7b7e33c9))
-
-
-
-# [1.140.0](https://github.com/hei-school/hei-admin-api/compare/v1.139.1...v1.140.0) (2025-12-03)
-
-
-### Bug Fixes
-
-* grade import endpoint ([3369b71](https://github.com/hei-school/hei-admin-api/commit/3369b71eb259431368391a71cc7872cfb0b8237c))
-* suspend student with overdue fees transaction error ([6bdcefc](https://github.com/hei-school/hei-admin-api/commit/6bdcefc8c98ccff38990901add1f0d46c14dcb0d))
-
-
-### Features
-
-* implement-online-event-support ([5a5b66e](https://github.com/hei-school/hei-admin-api/commit/5a5b66ee6da5f248516873d2e91a9ce5a2297ba5))
-
-
-
-## [1.139.1](https://github.com/hei-school/hei-admin-api/compare/v1.139.0...v1.139.1) (2025-11-27)
-
-
-### Bug Fixes
-
-* import grade event service ([6a9cc18](https://github.com/hei-school/hei-admin-api/commit/6a9cc18fb946a50a310663a2ff16821560ab991c))
-* increase build stack size ([f1d2149](https://github.com/hei-school/hei-admin-api/commit/f1d2149e84a22056f0d1c87b1cfd92b1c5f3259d))
 
 
 
