@@ -12,7 +12,7 @@ import school.hei.haapi.service.SearchService;
 public class SearchController {
   private final SearchService searchService;
 
-  @GetMapping("/globalSearch")
+  @GetMapping("/global_search/user")
   public SearchResults globalSearch(@RequestParam(required = false) String search) {
     return searchService.searchAll(search);
   }

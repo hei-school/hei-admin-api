@@ -165,16 +165,16 @@ paths:
           $ref: '#/components/responses/400'
         '500':
           $ref: '#/components/responses/500'
-  '/globalSearch':
+  '/global_search/user':
     get:
       tags:
         - Search
-      summary: Search across all entities
-      description: Retrieve results from multiple entities based on a search term.
+      summary: Global search across user entities
+      description: Retrieve users from multiple user-related entities based on a search term.
       parameters:
         - name: search
           in: query
-          description: The search term to look for in various entities.
+          description: Search term used to filter users.
           required: false
           schema:
             type: string
@@ -184,7 +184,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/SearchResults'
+                $ref: '#/components/schemas/SearchResultsUser'
         '400':
           $ref: '#/components/responses/400'
         '403':
@@ -9054,7 +9054,7 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/GradeInvalidRow"
-    SearchResults:
+    SearchResultsUser:
       type: object
       properties:
         students:

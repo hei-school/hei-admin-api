@@ -1168,7 +1168,6 @@ public class StudentIT extends FacadeITMockedThirdParties {
   }
 
   @Test
-  @Disabled("TODO")
   void get_actual_student_level_ok() throws ApiException {
     ApiClient studentClient = anApiClient(STUDENT1_TOKEN);
     UsersApi api = new UsersApi(studentClient);
