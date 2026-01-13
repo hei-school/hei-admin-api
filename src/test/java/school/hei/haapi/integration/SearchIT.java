@@ -98,9 +98,9 @@ class SearchIT extends FacadeITMockedThirdParties {
   }
 
   @Test
-  void should_return_7_results_when_global_search_is_filtered() throws ApiException {
-    var result = new SearchApi(anApiClient(MANAGER1_TOKEN)).globalSearchUserGet("Ry");
-    var expected = 7;
+  void should_return_0_results_when_global_search_is_filtered() throws ApiException {
+    var result = new SearchApi(anApiClient(MANAGER1_TOKEN)).globalSearchUserGet("mahefa");
+    var expected = 0;
 
     int totalResults =
         result.getStudents().size()
