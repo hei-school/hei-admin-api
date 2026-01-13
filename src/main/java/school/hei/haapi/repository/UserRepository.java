@@ -181,12 +181,14 @@ public interface UserRepository extends JpaRepository<User, String> {
               COALESCE(SUM(CASE WHEN u.sex = 'F' AND u.status = 'DISABLED' THEN 1 ELSE 0 END), 0),
               COALESCE(SUM(CASE WHEN u.sex = 'F' AND u.status = 'ENABLED' THEN 1 ELSE 0 END), 0),
               COALESCE(SUM(CASE WHEN u.sex = 'F' AND u.status = 'SUSPENDED' THEN 1 ELSE 0 END), 0),
+              COALESCE(SUM(CASE WHEN u.sex = 'F' AND u.status = 'ALUMNI' THEN 1 ELSE 0 END ), 0),
               COALESCE(SUM(CASE WHEN u.sex = 'F' THEN 1 ELSE 0 END), 0)
           ),
           new school.hei.haapi.model.dto.StatisticsDetailsDto(
               COALESCE(SUM(CASE WHEN u.sex = 'M' AND u.status = 'DISABLED' THEN 1 ELSE 0 END), 0),
               COALESCE(SUM(CASE WHEN u.sex = 'M' AND u.status = 'ENABLED' THEN 1 ELSE 0 END), 0),
               COALESCE(SUM(CASE WHEN u.sex = 'M' AND u.status = 'SUSPENDED' THEN 1 ELSE 0 END), 0),
+              COALESCE(SUM(CASE WHEN u.sex = 'M' AND u.status = 'ALUMNI' THEN 1 ELSE 0 END), 0),
               COALESCE(SUM(CASE WHEN u.sex = 'M' THEN 1 ELSE 0 END), 0)
           ),
           (select count(g) from Group g),
