@@ -626,15 +626,15 @@ paths:
     get:
       tags:
         - Grades
-      summary: Get the results summary of a given student
+      summary: Get over all the results summary transcript of a given student
       operationId: getResultsSummaryTranscript
       parameters:
         - $ref: "#/components/parameters/PathStudentId"
       responses:
         '200':
-          description: Results summary transcript of the specified student.
+          description: Pdf file of all results summary transcript of the specified student.
           content:
-            application/vnd.openxmlformats-officedocument.spreadsheetml.sheet:
+            application/pdf:
               schema:
                 type: string
                 format: binary
