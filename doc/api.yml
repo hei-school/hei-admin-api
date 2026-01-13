@@ -651,6 +651,32 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
+  /students/{student_id}/results_summary_transcript:
+    get:
+      tags:
+        - Grades
+      summary: Get over all the results summary transcript of a given student
+      operationId: getResultsSummaryTranscript
+      parameters:
+        - $ref: "#/components/parameters/PathStudentId"
+      responses:
+        '200':
+          description: Pdf file of all results summary transcript of the specified student.
+          content:
+            application/pdf:
+              schema:
+                type: string
+                format: binary
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
   /students:
     get:
       tags:
