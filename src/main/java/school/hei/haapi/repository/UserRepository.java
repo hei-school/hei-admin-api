@@ -8,6 +8,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import school.hei.haapi.model.User;
 import school.hei.haapi.model.User.Role;
@@ -193,4 +194,18 @@ public interface UserRepository extends JpaRepository<User, String> {
       ) from User u where u.role = 'STUDENT'
       """)
   StatisticsDto getStudentsStatistics();
+
+  @Query(
+      """
+    SELECT u FROM User u
+    WHERE u.status <> 'DISABLED'
+      AND (
+           :search IS NULL
+        OR :search = ''
+        OR LOWER(u.ref) LIKE LOWER(CONCAT('%', :search, '%'))
+        OR LOWER(u.firstName) LIKE LOWER(CONCAT('%', :search, '%'))
+        OR LOWER(u.lastName) LIKE LOWER(CONCAT('%', :search, '%'))
+      )
+""")
+  List<User> searchUsers(@Param("search") String search);
 }

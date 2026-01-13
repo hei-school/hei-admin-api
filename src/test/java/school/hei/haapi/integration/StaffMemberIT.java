@@ -66,10 +66,11 @@ public class StaffMemberIT extends FacadeITMockedThirdParties {
   void admin_read_staff_members_ok() throws ApiException {
     ApiClient apiClient = anApiClient(ADMIN1_TOKEN);
     UsersApi api = new UsersApi(apiClient);
+    var expected = 3;
 
     List<StaffMember> actual = api.getStaffMembers(1, 15, null, null, null, null);
     log.info(actual.toString());
-    assertEquals(3, actual.size());
+    assertEquals(expected, actual.size());
   }
 
   @Test
@@ -147,10 +148,11 @@ public class StaffMemberIT extends FacadeITMockedThirdParties {
     assertEquals(1, actual.size());
     assertEquals(staffMember.getDegree(), actual.getFirst().getDegree());
     assertEquals(staffMember.getFunction(), actual.getFirst().getFunction());
+    var expected = 4;
 
     List<StaffMember> after = api.getStaffMembers(1, 15, null, null, null, null);
     log.info(after.toString());
-    assertEquals(4, after.size());
+    assertEquals(expected, after.size());
   }
 
   @Test

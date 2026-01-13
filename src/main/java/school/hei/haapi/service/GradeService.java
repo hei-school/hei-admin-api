@@ -37,6 +37,7 @@ import school.hei.haapi.endpoint.rest.model.ImportGradeStat;
 import school.hei.haapi.file.bucket.BucketComponent;
 import school.hei.haapi.model.Grade;
 import school.hei.haapi.model.Group;
+import school.hei.haapi.model.GroupFlow;
 import school.hei.haapi.model.dto.GradeImportDto;
 import school.hei.haapi.model.exception.BadRequestException;
 import school.hei.haapi.model.exception.NotFoundException;
@@ -88,8 +89,7 @@ public class GradeService {
         .orElseThrow(() -> new NotFoundException("grade with id " + id + " not found"));
   }
 
-  // TODO: make this obey the single-responsibility rule, at least in the name.
-  private Grade checkGradeToCreate(Grade grade) {
+  public Grade checkGradeToCreate(Grade grade) {
     String examId = grade.getExam().getId();
     String studentId = grade.getStudent().getId();
 
@@ -101,9 +101,11 @@ public class GradeService {
       throw new BadRequestException(error);
     }
 
+    var studentGroups =
+        grade.getStudent().getGroupFlows().stream().map(GroupFlow::getGroup).toList();
     boolean isInAssignedGroup =
         grade.getExam().getCourseAssignment().getGroups().stream()
-            .anyMatch(group -> group.getId().equals(studentGroup.get().getId()));
+            .anyMatch(studentGroups::contains);
     if (!isInAssignedGroup) {
       String error = String.format("Student with id %s is not in exam %s", studentId, examId);
       throw new BadRequestException(error);
