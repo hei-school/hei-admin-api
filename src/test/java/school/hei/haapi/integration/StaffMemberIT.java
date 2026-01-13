@@ -69,7 +69,7 @@ public class StaffMemberIT extends FacadeITMockedThirdParties {
 
     List<StaffMember> actual = api.getStaffMembers(1, 15, null, null, null, null);
     log.info(actual.toString());
-    assertEquals(3, actual.size());
+    assertEquals(4, actual.size());
   }
 
   @Test
@@ -150,7 +150,7 @@ public class StaffMemberIT extends FacadeITMockedThirdParties {
 
     List<StaffMember> after = api.getStaffMembers(1, 15, null, null, null, null);
     log.info(after.toString());
-    assertEquals(4, after.size());
+    assertEquals(5, after.size());
   }
 
   @Test
