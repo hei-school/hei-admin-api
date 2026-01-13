@@ -165,7 +165,36 @@ paths:
           $ref: '#/components/responses/400'
         '500':
           $ref: '#/components/responses/500'
-
+  '/global_search/user':
+    get:
+      tags:
+        - Search
+      summary: Global search across user entities
+      description: Retrieve users from multiple user-related entities based on a search term.
+      parameters:
+        - name: search
+          in: query
+          description: Search term used to filter users.
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Search results
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SearchResultsUser'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
   '/groups/{id}':
     get:
       tags:
@@ -9025,3 +9054,30 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/GradeInvalidRow"
+    SearchResultsUser:
+      type: object
+      properties:
+        students:
+          type: array
+          items:
+            $ref: "#/components/schemas/Student"
+        teachers:
+          type: array
+          items:
+            $ref: "#/components/schemas/Teacher"
+        managers:
+          type: array
+          items:
+            $ref: "#/components/schemas/Manager"
+        organisers:
+          type: array
+          items:
+            $ref: '#/components/schemas/Organizer'
+        monitors:
+          type: array
+          items:
+            $ref: '#/components/schemas/Monitor'
+        staffMembers:
+          type: array
+          items:
+            $ref: '#/components/schemas/StaffMember'
