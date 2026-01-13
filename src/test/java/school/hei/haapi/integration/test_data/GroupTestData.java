@@ -37,4 +37,14 @@ public class GroupTestData {
         .groupFlowType(GroupFlow.GroupFlowType.JOIN)
         .build();
   }
+
+  public static GroupFlow createGroupFlowAt(User student, Group toJoin, Instant flowDatetime) {
+    return GroupFlow.builder()
+        .id(randomUUID().toString())
+        .group(toJoin)
+        .flowDatetime(flowDatetime)
+        .student(student)
+        .groupFlowType(GroupFlow.GroupFlowType.JOIN)
+        .build();
+  }
 }
