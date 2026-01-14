@@ -481,9 +481,9 @@ class GradeResultServiceTest {
         .thenReturn(List.of(lv1Exam()));
     when(examService.getExamsByCourseAssignmentIds(eq(List.of(SECU3_COURSE_ASSIGNMENT_ID))))
         .thenReturn(List.of());
-    when(examService.getExamsByCourseAssignmentIds(eq(List.of(L2_COURSE_ASSIGNMENT_ID))))
+    when(examService.getExamsByCourseAssignmentIds(List.of(L2_COURSE_ASSIGNMENT_ID)))
         .thenReturn(List.of(l2Exam()));
-    when(examService.getExamsByCourseAssignmentIds(eq(List.of(L3_COURSE_ASSIGNMENT_ID))))
+    when(examService.getExamsByCourseAssignmentIds(List.of(L3_COURSE_ASSIGNMENT_ID)))
         .thenReturn(List.of(l3Exam()));
     when(examService.getExamsByCourseId(eq(MGT1_COURSE_ID))).thenReturn(List.of(mgt1Exam()));
     when(examService.getExamsByCourseId(eq(PROG1_COURSE_ID))).thenReturn(List.of(prog1Exam()));
@@ -492,8 +492,8 @@ class GradeResultServiceTest {
     when(examService.getExamsByCourseId(eq(SYS1_COURSE_ID))).thenReturn(List.of(sys1Exam()));
     when(examService.getExamsByCourseId(eq(LV1_COURSE_ID))).thenReturn(List.of(lv1Exam()));
     when(examService.getExamsByCourseId(eq(SECU3_COURSE_ID))).thenReturn(List.of());
-    when(examService.getExamsByCourseId(eq(L2_COURSE_ID))).thenReturn(List.of(l2Exam()));
-    when(examService.getExamsByCourseId(eq(L3_COURSE_ID))).thenReturn(List.of(l3Exam()));
+    when(examService.getExamsByCourseId(L2_COURSE_ID)).thenReturn(List.of(l2Exam()));
+    when(examService.getExamsByCourseId(L3_COURSE_ID)).thenReturn(List.of(l3Exam()));
   }
 
   @Test
