@@ -1,3 +1,21 @@
+# [1.149.0](https://github.com/hei-school/hei-admin-api/compare/v1.148.0...v1.149.0) (2026-01-14)
+
+
+### Bug Fixes
+
+* enable repeater grades for their previous groups ([39d5dc9](https://github.com/hei-school/hei-admin-api/commit/39d5dc93c56d5e6bedd226e2e6fd89449aeb306e))
+* promotion and scholarship test ([8da7eab](https://github.com/hei-school/hei-admin-api/commit/8da7eab686cae8351970a39da0d4c478f0695650))
+* promotion and scholarship test ([1103727](https://github.com/hei-school/hei-admin-api/commit/1103727584144792eaef42f9cb0774bd3df6510f))
+
+
+### Features
+
+* (doc) add new endpoint to download student results summary transcript ([5405043](https://github.com/hei-school/hei-admin-api/commit/5405043298883dd7c26bd1656c727049d2e5c48d))
+* add global search ([b3afb06](https://github.com/hei-school/hei-admin-api/commit/b3afb06dc20edbdc9932485b0f55f80c87f98ead))
+* add grade template generator ([16b0edf](https://github.com/hei-school/hei-admin-api/commit/16b0edf802b6aeebf3ee84ebe428c6f14d3dd672))
+
+
+
 # [1.148.0](https://github.com/hei-school/hei-admin-api/compare/v1.147.0...v1.148.0) (2025-12-29)
 
 
@@ -86,21 +104,6 @@
 
 * add monitor link validation ([4d10721](https://github.com/hei-school/hei-admin-api/commit/4d1072189f6bf9078931cd425b4729de20c91040))
 * udpate grade via excel file  ([b3e68b1](https://github.com/hei-school/hei-admin-api/commit/b3e68b159dc283fc35ce748412f9e54d8a53401f))
-
-
-
-# [1.143.0](https://github.com/hei-school/hei-admin-api/compare/v1.142.0...v1.143.0) (2025-12-17)
-
-
-### Bug Fixes
-
-* exclude disabled student fees status update to LATE ([4ca6599](https://github.com/hei-school/hei-admin-api/commit/4ca659939e5003404b0150079a827be8016ee710))
-* mark suspended students as MISSING on event participant initialization ([28c338a](https://github.com/hei-school/hei-admin-api/commit/28c338a9eee718c5c44f5962befdf5610c99dfef))
-
-
-### Features
-
-* implement event calendar filter by groupRef ([b848815](https://github.com/hei-school/hei-admin-api/commit/b848815c7b3e15cfd744889f210ae68db188602a))
 
 
 

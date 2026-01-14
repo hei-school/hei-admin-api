@@ -134,93 +134,15 @@
             background-position: center;
             background-repeat: no-repeat;
         }
+        #page-breaker {
+            page-break-after: always;
+            width: 100%;
+        }
     </style>
 </head>
 
 <body>
-    <header>
-        <div class="logo">
-            <div class="logo-content" th:style="'background-image: url(data:image/png;base64,'+${logo}+');'"></div>
-        </div>
-        <h2>Haute École d'Informatique</h2>
-        <p>Lot 2J 161 R Ivandry, 101 Antananarivo, Madagascar</p>
-        <p>+261 34 94 041 16</p>
-        <p>contact@mail.hei.school</p>
-    </header>
-    <h1>Relevé de notes <span th:text="${student_level}"></span></h1>
-    <main>
-        <div class="student-info">
-            <table>
-                <tr>
-                    <td><strong>Nom :</strong></td>
-                    <td th:text="${last_name}"></td>
-                </tr>
-                <tr>
-                    <td><strong>Prénom(s) :</strong></td>
-                    <td th:text="${first_name}"></td>
-                </tr>
-                <tr>
-                    <td><strong>Numéro d'inscription :</strong></td>
-                    <td th:text="${ref}"></td>
-                </tr>
-            </table>
-        </div>
-        <p class="introduction">Inscrit(e) en <span class="bold"><span th:text="${student_level_full_letters}"></span> année - <span th:text="${specialization}"></span></span>, pour l'année
-            scolaire <span th:text="${promotion}"></span> ,<br/> A obtenu les notes suivantes :</p>
-        <table class="course-results">
-            <thead>
-                <tr>
-                    <th>Code UE</th>
-                    <th>Intitulé UE</th>
-                    <th class="center">Crédits acquérables</th>
-                    <th class="center">Note sur 20</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr th:each="course_result : ${course_results}">
-                    <td class="bold" th:text="${course_result.course.code}"></td>
-                    <td th:text="${course_result.course.name}"></td>
-                    <td class="center" th:text="${course_result.course.credits}"></td>
-                    <td class="center" >
-                        <span th:if="${course_result.status.toString() == 'VALIDATED' or course_result.status.toString() == 'INCOMPLETE'}" th:text="${course_result.weightedAverage}"></span>
-                        <span th:unless="${course_result.status.toString() == 'VALIDATED' or course_result.status.toString() == 'INCOMPLETE'}">Non disponible</span>
-                    </td>
-                </tr>
-            </tbody>
-            <tfoot>
-                <tr>
-                    <td colspan="4">
-                        <p>Nombre d'absences : <span th:text="${total_absences}"></span></p>
-                        <p>Justification d'absence:
-                            <span th:text="${justified_count}"></span>
-                        </p>
-                        <p>Malus des absences : <span th:text="${malus_total}"></span></p>
-                    </td>
-                </tr>
-            </tfoot>
-        </table>
-        <p th:if="${isTemporaryResult}" class="temporary-result-container"> <span>NB</span>: Ce résultat affiche est temporaire et ne reflette pas le resultat final.</p>
-        <p th:unless="${isTemporaryResult}"></p>
-        <div class="bold">
-            Résultat
-            <ul>
-                <li>Crédits acquis : <span th:text="${obtained_credits}"></span> / <span th:text="${total_credits}"></span></li>
-                <li>Moyenne pondérée par les crédits : <span th:text="${yearly_average}"></span> / 20</li>
-            </ul>
-        </div>
-    </main>
-    <footer>
-        <p>
-            Fait à Antananarivo, le <span th:text="${current_date}"></span>
-        </p>
-        <p>
-            Le directeur pédagogique
-        </p>
-        <div id="signature" th:style="'background-image: url(data:image/png;base64,'+${email_signature}+');'"></div>
-        <p>
-            Dr Fonenantsoa MAURICA A.
-        </p>
-    </footer>
+    <div th:utext="${transcriptContent}">
+    </div>
 </body>
-
 </html>

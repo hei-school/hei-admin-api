@@ -2,6 +2,7 @@ package school.hei.haapi.endpoint.rest.controller;
 
 import static org.springframework.http.MediaType.MULTIPART_FORM_DATA_VALUE;
 
+import java.io.IOException;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -149,6 +150,12 @@ public class GradeController {
   @GetMapping("/students/{student_id}/results_summary")
   public ResultSummary getResultSummary(@PathVariable("student_id") String studentId) {
     return gradeResultService.getStudentResultSummary(studentId);
+  }
+
+  @GetMapping("/students/{student_id}/results_summary_transcript")
+  public byte[] getResultsSummaryTranscript(@PathVariable("student_id") String studentId)
+      throws IOException {
+    return gradeResultService.uploadResultSummaryTranscript(studentId);
   }
 
   @GetMapping("/students/{student_id}/courses/{course_id}/grades")
