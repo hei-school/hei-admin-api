@@ -16,7 +16,9 @@ import static school.hei.haapi.endpoint.rest.model.YearlyResultGenerationStatus.
 import static school.hei.haapi.endpoint.rest.model.YearlyResultGenerationStatus.GENERATING;
 import static school.hei.haapi.service.utils.FileUtils.multipartFileFromFile;
 
+import java.io.IOException;
 import java.math.BigDecimal;
+import java.nio.file.Files;
 import java.time.Duration;
 import java.util.Arrays;
 import java.util.List;
@@ -244,11 +246,11 @@ public class GradeResultService {
             .build());
   }
 
-  public void uploadResultSummaryTranscript(String studentId) {
+  public byte[] uploadResultSummaryTranscript(String studentId) throws IOException {
     var student = userService.getById(studentId);
     var resultSummary = getStudentResultSummary(studentId);
     var resultSummaryTranscriptFile =
         yearlyResultGenerationService.generateResultSummaryTranscript(student, resultSummary);
-    return;
+    return Files.readAllBytes(resultSummaryTranscriptFile.toPath());
   }
 }
