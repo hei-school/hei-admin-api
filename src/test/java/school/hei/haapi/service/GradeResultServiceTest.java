@@ -19,6 +19,7 @@ import static school.hei.haapi.endpoint.rest.model.ResultOverviewStatus.NOT_STAR
 import static school.hei.haapi.endpoint.rest.model.ResultOverviewStatus.VALIDATED;
 import static school.hei.haapi.endpoint.rest.model.StudentLevel.L1;
 import static school.hei.haapi.endpoint.rest.model.StudentLevel.L2;
+import static school.hei.haapi.endpoint.rest.model.StudentLevel.L3;
 import static school.hei.haapi.endpoint.rest.model.StudentLevel.M1;
 import static school.hei.haapi.endpoint.rest.model.StudentLevel.M2;
 import static school.hei.haapi.endpoint.rest.model.YearlyResultGenerationStatus.AVAILABLE;
@@ -37,6 +38,7 @@ import school.hei.haapi.endpoint.event.EventProducer;
 import school.hei.haapi.endpoint.event.model.YearlyResultTranscriptGeneration;
 import school.hei.haapi.endpoint.rest.mapper.CourseMapper;
 import school.hei.haapi.endpoint.rest.model.CourseResultStatus;
+import school.hei.haapi.endpoint.rest.model.StudentLevel;
 import school.hei.haapi.endpoint.rest.model.YearlyResult;
 import school.hei.haapi.endpoint.rest.security.AuthProvider;
 import school.hei.haapi.endpoint.rest.security.model.Principal;
@@ -120,6 +122,8 @@ class GradeResultServiceTest {
   private static final String SYS1_COURSE_ASSIGNMENT_ID = "sys1-ca";
   private static final String LV1_COURSE_ASSIGNMENT_ID = "lv1-ca";
   private static final String SECU3_COURSE_ASSIGNMENT_ID = "secu3-ca";
+  private static final String L2_COURSE_ASSIGNMENT_ID = "l2-ca";
+  private static final String L3_COURSE_ASSIGNMENT_ID = "l3-ca";
   private static final String BAD_COURSE_ASSIGNMENT_ID = "bad-ca";
 
   private static User teacher() {
@@ -154,6 +158,14 @@ class GradeResultServiceTest {
     return mockCourseAssignment(SECU3_COURSE_ASSIGNMENT_ID, teacher());
   }
 
+  private static CourseAssignment l2CourseAssignment() {
+    return mockCourseAssignment(L2_COURSE_ASSIGNMENT_ID, teacher());
+  }
+
+  private static CourseAssignment l3CourseAssignment() {
+    return mockCourseAssignment(L3_COURSE_ASSIGNMENT_ID, teacher());
+  }
+
   private static CourseAssignment badCourseAssignment() {
     return mockCourseAssignment(BAD_COURSE_ASSIGNMENT_ID, teacher());
   }
@@ -164,6 +176,8 @@ class GradeResultServiceTest {
   private static final String WEB1_EXAM_ID = "web1 exam";
   private static final String SYS1_EXAM_ID = "sys1 exam";
   private static final String LV1_EXAM_ID = "lv1 exam";
+  private static final String L2_EXAM_ID = "l2 exam";
+  private static final String L3_EXAM_ID = "l3 exam";
   private static final String BAD_EXAM_ID = "bad exam";
 
   private static Exam mgt1Exam() {
@@ -188,6 +202,14 @@ class GradeResultServiceTest {
 
   private static Exam lv1Exam() {
     return mockExam(LV1_EXAM_ID, 1, 1, lv1CourseAssignment());
+  }
+
+  private static Exam l2Exam() {
+    return mockExam(L2_EXAM_ID, 1, 1, l2CourseAssignment());
+  }
+
+  private static Exam l3Exam() {
+    return mockExam(L3_EXAM_ID, 1, 1, l3CourseAssignment());
   }
 
   private static Exam badExam() {
@@ -220,6 +242,14 @@ class GradeResultServiceTest {
 
   private static Grade student1Lv1Grade() {
     return mockGrade(lv1Exam(), 13.91);
+  }
+
+  private static Grade student1L2Grade() {
+    return mockGrade(l2Exam(), 15);
+  }
+
+  private static Grade student1L3Grade() {
+    return mockGrade(l3Exam(), 15);
   }
 
   private static Grade student2Mgt1Grade() {
@@ -291,46 +321,62 @@ class GradeResultServiceTest {
   private static final String SECU3_COURSE_ID = "secu3";
   private static final String SECU3_COURSE_CODE = "SECU1";
   private static final String SECU3_COURSE_NAME = "Securite 3";
+  private static final String L2_COURSE_ID = "l2";
+  private static final String L2_COURSE_CODE = "L2";
+  private static final String L2_COURSE_NAME = "Cours L2";
+  private static final String L3_COURSE_ID = "l3";
+  private static final String L3_COURSE_CODE = "L3";
+  private static final String L3_COURSE_NAME = "Cours L3";
   private static final String BAD1_COURSE_ID = "bad course";
   private static final String BAD1_COURSE_CODE = "bad course";
   private static final String BAD1_COURSE_NAME = "Bad course";
 
   private static Course mgt1Course() {
     return mockCourse(
-        MGT1_COURSE_ID, MGT1_COURSE_CODE, MGT1_COURSE_NAME, 4, mgt1CourseAssignment());
+        MGT1_COURSE_ID, MGT1_COURSE_CODE, MGT1_COURSE_NAME, 8, mgt1CourseAssignment(), L1);
   }
 
   private static Course prog1Course() {
     return mockCourse(
-        PROG1_COURSE_ID, PROG1_COURSE_CODE, PROG1_COURSE_NAME, 6, prog1CourseAssignment());
+        PROG1_COURSE_ID, PROG1_COURSE_CODE, PROG1_COURSE_NAME, 12, prog1CourseAssignment(), L1);
   }
 
   private static Course donne1Course() {
     return mockCourse(
-        DONNE1_COURSE_ID, DONNE1_COURSE_CODE, DONNE1_COURSE_NAME, 4, donne1CourseAssignment());
+        DONNE1_COURSE_ID, DONNE1_COURSE_CODE, DONNE1_COURSE_NAME, 8, donne1CourseAssignment(), L1);
   }
 
   private static Course web1Course() {
     return mockCourse(
-        WEB1_COURSE_ID, WEB1_COURSE_CODE, WEB1_COURSE_NAME, 6, web1CourseAssignment());
+        WEB1_COURSE_ID, WEB1_COURSE_CODE, WEB1_COURSE_NAME, 12, web1CourseAssignment(), L1);
   }
 
   private static Course sys1Course() {
     return mockCourse(
-        SYS1_COURSE_ID, SYS1_COURSE_CODE, SYS1_COURSE_NAME, 6, sys1CourseAssignment());
+        SYS1_COURSE_ID, SYS1_COURSE_CODE, SYS1_COURSE_NAME, 12, sys1CourseAssignment(), L1);
   }
 
   private static Course lv1Course() {
-    return mockCourse(LV1_COURSE_ID, LV1_COURSE_CODE, LV1_COURSE_NAME, 4, lv1CourseAssignment());
+    return mockCourse(
+        LV1_COURSE_ID, LV1_COURSE_CODE, LV1_COURSE_NAME, 8, lv1CourseAssignment(), L1);
   }
 
   private static Course secu3Course() {
     return mockCourse(
-        SECU3_COURSE_ID, SECU3_COURSE_CODE, SECU3_COURSE_NAME, 4, secu3CourseAssignment());
+        SECU3_COURSE_ID, SECU3_COURSE_CODE, SECU3_COURSE_NAME, 8, secu3CourseAssignment(), L1);
+  }
+
+  private static Course l2Course() {
+    return mockCourse(L2_COURSE_ID, L2_COURSE_CODE, L2_COURSE_NAME, 60, l2CourseAssignment(), L2);
+  }
+
+  private static Course l3Course() {
+    return mockCourse(L3_COURSE_ID, L3_COURSE_CODE, L3_COURSE_NAME, 60, l3CourseAssignment(), L3);
   }
 
   private static Course badCourse() {
-    return mockCourse(BAD1_COURSE_ID, BAD1_COURSE_CODE, BAD1_COURSE_NAME, 0, badCourseAssignment());
+    return mockCourse(
+        BAD1_COURSE_ID, BAD1_COURSE_CODE, BAD1_COURSE_NAME, 0, badCourseAssignment(), L1);
   }
 
   @BeforeEach
@@ -347,6 +393,7 @@ class GradeResultServiceTest {
     when(student2.getId()).thenReturn(STUDENT2_ID);
     when(student3.getId()).thenReturn(STUDENT3_ID);
 
+    // Mock student1 grades
     when(gradeDao.getStudentGradesByCourseId(MGT1_COURSE_ID, STUDENT1_ID))
         .thenReturn(List.of(student1Mgt1Grade()));
     when(gradeDao.getStudentGradesByCourseId(PROG1_COURSE_ID, STUDENT1_ID))
@@ -359,6 +406,10 @@ class GradeResultServiceTest {
         .thenReturn(List.of(student1Sys1Grade()));
     when(gradeDao.getStudentGradesByCourseId(LV1_COURSE_ID, STUDENT1_ID))
         .thenReturn(List.of(student1Lv1Grade()));
+    when(gradeDao.getStudentGradesByCourseId(L2_COURSE_ID, STUDENT1_ID))
+        .thenReturn(List.of(student1L2Grade()));
+    when(gradeDao.getStudentGradesByCourseId(L3_COURSE_ID, STUDENT1_ID))
+        .thenReturn(List.of(student1L3Grade()));
 
     // Mock student2 grades
     when(gradeDao.getStudentGradesByCourseId(MGT1_COURSE_ID, STUDENT2_ID))
@@ -393,6 +444,8 @@ class GradeResultServiceTest {
     when(examService.getExamsByCourseId(WEB1_COURSE_ID)).thenReturn(List.of(web1Exam()));
     when(examService.getExamsByCourseId(SYS1_COURSE_ID)).thenReturn(List.of(sys1Exam()));
     when(examService.getExamsByCourseId(LV1_COURSE_ID)).thenReturn(List.of(lv1Exam()));
+    when(examService.getExamsByCourseId(L2_COURSE_ID)).thenReturn(List.of(l2Exam()));
+    when(examService.getExamsByCourseId(L3_COURSE_ID)).thenReturn(List.of(l3Exam()));
 
     when(courseService.getByStudentLevel(L1))
         .thenReturn(
@@ -403,6 +456,8 @@ class GradeResultServiceTest {
                 web1Course(),
                 sys1Course(),
                 lv1Course()));
+    when(courseService.getByStudentLevel(L2)).thenReturn(List.of(l2Course()));
+    when(courseService.getByStudentLevel(L3)).thenReturn(List.of(l3Course()));
     when(courseService.getByStudentLevel(M1)).thenReturn(List.of(secu3Course()));
 
     when(userService.getById(STUDENT1_ID)).thenReturn(student1);
@@ -426,6 +481,10 @@ class GradeResultServiceTest {
         .thenReturn(List.of(lv1Exam()));
     when(examService.getExamsByCourseAssignmentIds(eq(List.of(SECU3_COURSE_ASSIGNMENT_ID))))
         .thenReturn(List.of());
+    when(examService.getExamsByCourseAssignmentIds(List.of(L2_COURSE_ASSIGNMENT_ID)))
+        .thenReturn(List.of(l2Exam()));
+    when(examService.getExamsByCourseAssignmentIds(List.of(L3_COURSE_ASSIGNMENT_ID)))
+        .thenReturn(List.of(l3Exam()));
     when(examService.getExamsByCourseId(eq(MGT1_COURSE_ID))).thenReturn(List.of(mgt1Exam()));
     when(examService.getExamsByCourseId(eq(PROG1_COURSE_ID))).thenReturn(List.of(prog1Exam()));
     when(examService.getExamsByCourseId(eq(DONNE1_COURSE_ID))).thenReturn(List.of(donnees1Exam()));
@@ -433,6 +492,8 @@ class GradeResultServiceTest {
     when(examService.getExamsByCourseId(eq(SYS1_COURSE_ID))).thenReturn(List.of(sys1Exam()));
     when(examService.getExamsByCourseId(eq(LV1_COURSE_ID))).thenReturn(List.of(lv1Exam()));
     when(examService.getExamsByCourseId(eq(SECU3_COURSE_ID))).thenReturn(List.of());
+    when(examService.getExamsByCourseId(L2_COURSE_ID)).thenReturn(List.of(l2Exam()));
+    when(examService.getExamsByCourseId(L3_COURSE_ID)).thenReturn(List.of(l3Exam()));
   }
 
   @Test
@@ -442,11 +503,11 @@ class GradeResultServiceTest {
     var result = subject.getLeveledYearlyResultByStudentId(targetLevel, student1.getId());
 
     assertEquals(targetLevel, result.getLevel());
-    assertEquals(30., result.getObtainedCredits().doubleValue());
+    assertEquals(60., result.getObtainedCredits().doubleValue());
     assertEquals(6, result.getCourseResults().size());
     assertEquals(15.347666666666667, result.getWeightedAverage().doubleValue());
     assertEquals(VALIDATED, result.getStatus());
-    assertEquals(30., result.getTotalCredits().doubleValue());
+    assertEquals(60., result.getTotalCredits().doubleValue());
   }
 
   @Test
@@ -456,11 +517,11 @@ class GradeResultServiceTest {
     var result = subject.getLeveledYearlyResultByStudentId(targetLevel, STUDENT2_ID);
 
     assertEquals(targetLevel, result.getLevel());
-    assertEquals(10., result.getObtainedCredits().doubleValue());
+    assertEquals(20., result.getObtainedCredits().doubleValue());
     assertEquals(6, result.getCourseResults().size());
     assertEquals(7.68, result.getWeightedAverage().doubleValue());
     assertEquals(INVALIDATED, result.getStatus());
-    assertEquals(30., result.getTotalCredits().doubleValue());
+    assertEquals(60., result.getTotalCredits().doubleValue());
   }
 
   @Test
@@ -475,7 +536,7 @@ class GradeResultServiceTest {
     assertEquals(CourseResultStatus.NOT_STARTED, result.getCourseResults().getFirst().getStatus());
     assertNull(result.getWeightedAverage());
     assertEquals(NOT_STARTED, result.getStatus());
-    assertEquals(4., result.getTotalCredits().doubleValue());
+    assertEquals(8., result.getTotalCredits().doubleValue());
   }
 
   @Test
@@ -485,7 +546,7 @@ class GradeResultServiceTest {
     var result = subject.getLeveledYearlyResultByStudentId(targetLevel, STUDENT3_ID);
 
     assertEquals(targetLevel, result.getLevel());
-    assertEquals(26., result.getObtainedCredits().doubleValue());
+    assertEquals(52., result.getObtainedCredits().doubleValue());
     assertEquals(6, result.getCourseResults().size());
     var lv1Result = result.getCourseResults().get(5);
     assertEquals(LV1_COURSE_ID, lv1Result.getCourse().getId());
@@ -493,13 +554,21 @@ class GradeResultServiceTest {
     assertNull(lv1Result.getWeightedAverage());
     assertEquals(13.493, result.getWeightedAverage().doubleValue());
     assertEquals(IN_PROGRESS, result.getStatus());
-    assertEquals(30., result.getTotalCredits().doubleValue());
+    assertEquals(60., result.getTotalCredits().doubleValue());
   }
 
   @Test
   void generate_result_pdf_okay() throws CoursesCreditSumZero {
     var result = subject.getLeveledYearlyResultByStudentId(L1, STUDENT1_ID);
     var resultFile = yearlyResultGenerationService.generateYearlyResultTranscript(student1, result);
+    assertTrue(resultFile.isFile());
+  }
+
+  @Test
+  void generate_result_summary_pdf_okay() {
+    var result = subject.getStudentResultSummary(STUDENT1_ID);
+    var resultFile =
+        yearlyResultGenerationService.generateResultSummaryTranscript(student1, result);
     assertTrue(resultFile.isFile());
   }
 
@@ -525,10 +594,10 @@ class GradeResultServiceTest {
     var result = subject.getStudentResultSummary(STUDENT1_ID);
 
     assertEquals(5, result.getYearlyResults().size());
-    assertEquals(30., result.getObtainedCredits().doubleValue());
-    assertEquals(15.3476666666666667, result.getWeightedAverage().doubleValue());
-    assertEquals(INVALIDATED, result.getStatus());
-    assertEquals(30., result.getTotalCredits().doubleValue());
+    assertEquals(180., result.getObtainedCredits().doubleValue());
+    assertEquals(15.11588888888889, result.getWeightedAverage().doubleValue());
+    assertEquals(VALIDATED, result.getStatus());
+    assertEquals(180., result.getTotalCredits().doubleValue());
   }
 
   @Test
@@ -536,10 +605,10 @@ class GradeResultServiceTest {
     var result = subject.getStudentResultSummary(STUDENT2_ID);
 
     assertEquals(5, result.getYearlyResults().size());
-    assertEquals(10., result.getObtainedCredits().doubleValue());
+    assertEquals(20., result.getObtainedCredits().doubleValue());
     assertEquals(7.68, result.getWeightedAverage().doubleValue());
     assertEquals(INVALIDATED, result.getStatus());
-    assertEquals(30., result.getTotalCredits().doubleValue());
+    assertEquals(60., result.getTotalCredits().doubleValue());
   }
 
   @Test
@@ -547,10 +616,10 @@ class GradeResultServiceTest {
     var result = subject.getStudentResultSummary(STUDENT3_ID);
 
     assertEquals(5, result.getYearlyResults().size());
-    assertEquals(26., result.getObtainedCredits().doubleValue());
+    assertEquals(52., result.getObtainedCredits().doubleValue());
     assertEquals(13.493, result.getWeightedAverage().doubleValue());
     assertEquals(IN_PROGRESS, result.getStatus());
-    assertEquals(30., result.getTotalCredits().doubleValue());
+    assertEquals(60., result.getTotalCredits().doubleValue());
   }
 
   @Test
@@ -703,7 +772,7 @@ class GradeResultServiceTest {
   }
 
   private static Course mockCourse(
-      String id, String code, String name, int credits, CourseAssignment ca) {
+      String id, String code, String name, int credits, CourseAssignment ca, StudentLevel level) {
     var course =
         Course.builder()
             .id(id)
@@ -711,6 +780,7 @@ class GradeResultServiceTest {
             .code(code)
             .name(name)
             .credits(credits)
+            .studentLevel(level)
             .build();
     ca.setCourse(course);
     return course;
