@@ -8674,6 +8674,9 @@ components:
         suspended:
           type: integer
           format: int64
+        alumni:
+          type: integer
+          format: int64
     AdvancedFeeStatisticsGeneration:
       type: object
       properties:
