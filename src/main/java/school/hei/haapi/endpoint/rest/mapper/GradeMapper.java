@@ -125,7 +125,8 @@ public class GradeMapper {
   }
 
   public GradeImportDto mapToDto(String ref, Double score) {
-    return new GradeImportDto().builder().ref(ref).score(score).build();
+    new GradeImportDto();
+    return GradeImportDto.builder().ref(ref).score(score).build();
   }
 
   public List<GradeImportDto> mapToListDtos(List<Object[]> grades) {

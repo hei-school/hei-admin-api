@@ -291,10 +291,10 @@ public class GradeService {
       List<GradeImportDto> grades, String examId, String comment) {
     var savedGrades = gradeMapper.mapToListDtos(gradeRepository.getGradesByExamId(examId));
     Set<String> existingRefs =
-        savedGrades.stream().map(grade -> grade.getRef()).collect(Collectors.toSet());
+        savedGrades.stream().map(GradeImportDto::getRef).collect(Collectors.toSet());
     List<GradeImportDto> filterGrades;
     if (comment != null) {
-      filterGrades = grades.stream().filter(gradeDto -> savedGrades.contains(gradeDto)).toList();
+      filterGrades = grades.stream().filter(savedGrades::contains).toList();
     } else {
       filterGrades =
           grades.stream().filter(grade -> existingRefs.contains(grade.getRef())).toList();
