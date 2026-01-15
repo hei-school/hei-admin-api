@@ -13,8 +13,8 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -24,7 +24,6 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import school.hei.haapi.endpoint.event.EventProducer;
@@ -195,6 +194,7 @@ public class GradeService {
           importResults.stream().filter(grade -> !allInvalidRefs.contains(grade.getRef())).toList();
 
       var existingGrades = filterExistingGrades(importResults, examId, comment);
+
       var duplicateRefs = duplicateGrades.stream().map(GradeImportDto::getRef).toList();
       var existingGradeRefs = existingGrades.stream().map(GradeImportDto::getRef).toList();
 
@@ -206,52 +206,77 @@ public class GradeService {
               .filter(gradeImportDto -> !allInvalidRefs.contains(gradeImportDto.getRef()))
               .toList();
 
-      var skippedGradesMapped = mapGradeInvalidRows(skippedGrades);
-      var existingGradesMapped = mapExistingGrades(existingGrades, comment);
-      var duplicateGradesMapped = mapDuplicateGrades(duplicateGrades);
-      var gradeInvalidScoresMapped = mapGradeInvalidRows(gradeInvalidScores);
+      var allInvalidGrades =
+          mergeGradeInvalidRows(
+              skippedGrades, existingGrades, duplicateGrades, gradeInvalidScores, comment);
 
-      List<GradeInvalidRow> allInvalidGrades = new ArrayList<>(skippedGradesMapped);
-      allInvalidGrades.addAll(existingGradesMapped);
-      allInvalidGrades.addAll(duplicateGradesMapped);
-      allInvalidGrades.addAll(gradeInvalidScoresMapped);
-
-      allInvalidGrades =
-          allInvalidGrades.stream()
-              .sorted(
-                  Comparator.comparing(
-                      GradeInvalidRow::getRef, Comparator.nullsLast(String::compareTo)))
-              .toList();
-
-      var totalRows =
-          Stream.concat(allInvalidGrades.stream(), gradeFiltered.stream()).toList().size();
-      List<GradeValidRow> validGrades;
-      if (comment != null) {
-        var grades = gradeMapper.toDomainList(gradeFiltered, examId, comment);
-        validGrades = gradeMapper.toRestListValidGrade(updateParticipantGrade(grades));
-      } else {
-        var grades = gradeMapper.toDomainList(gradeFiltered, examId);
-        validGrades = gradeMapper.toRestListValidGrade(createParticipantGrade(grades));
-      }
-      validGrades =
-          validGrades.stream()
-              .sorted(
-                  Comparator.comparing(
-                      GradeValidRow::getRef, Comparator.nullsLast(String::compareTo)))
-              .toList();
-      var importGradeStat =
-          new ImportGradeStat()
-              .totalRows(totalRows)
-              .invalidRows(allInvalidGrades.size())
-              .validRows(validGrades.size());
-
-      return new ImportGradeResult()
-          .importGradeStats(importGradeStat)
-          .validGrades(validGrades)
-          .invalidGrades(allInvalidGrades);
+      return getImportGradeResult(examId, comment, allInvalidGrades, gradeFiltered);
     } catch (IOException e) {
       throw new RuntimeException("Unable to read file");
     }
+  }
+
+  private ImportGradeResult getImportGradeResult(
+      String examId,
+      String comment,
+      List<GradeInvalidRow> allInvalidGrades,
+      List<GradeImportDto> gradeFiltered) {
+    var totalRows =
+        Stream.concat(allInvalidGrades.stream(), gradeFiltered.stream()).toList().size();
+    var validGrades = mergeGradeValidRows(examId, comment, gradeFiltered);
+    var importGradeStat =
+        new ImportGradeStat()
+            .totalRows(totalRows)
+            .invalidRows(allInvalidGrades.size())
+            .validRows(validGrades.size());
+
+    return new ImportGradeResult()
+        .importGradeStats(importGradeStat)
+        .validGrades(validGrades)
+        .invalidGrades(allInvalidGrades);
+  }
+
+  private List<GradeValidRow> mergeGradeValidRows(
+      String examId, String comment, List<GradeImportDto> gradeFiltered) {
+    List<GradeValidRow> validGrades;
+    if (comment != null) {
+      var grades = gradeMapper.toDomainList(gradeFiltered, examId, comment);
+      validGrades = gradeMapper.toRestListValidGrade(updateParticipantGrade(grades));
+    } else {
+      var grades = gradeMapper.toDomainList(gradeFiltered, examId);
+      validGrades = gradeMapper.toRestListValidGrade(createParticipantGrade(grades));
+    }
+    validGrades =
+        validGrades.stream()
+            .sorted(
+                Comparator.comparing(
+                    GradeValidRow::getRef, Comparator.nullsLast(String::compareTo)))
+            .toList();
+    return validGrades;
+  }
+
+  private static List<GradeInvalidRow> mergeGradeInvalidRows(
+      List<GradeImportDto> skippedGrades,
+      List<GradeImportDto> existingGrades,
+      List<GradeImportDto> duplicateGrades,
+      List<GradeImportDto> gradeInvalidScores,
+      String comment) {
+    var skippedGradesMapped = mapGradeInvalidRows(skippedGrades);
+    var existingGradesMapped = mapExistingGrades(existingGrades, comment);
+    var duplicateGradesMapped = mapDuplicateGrades(duplicateGrades);
+    var gradeInvalidScoresMapped = mapGradeInvalidRows(gradeInvalidScores);
+    List<GradeInvalidRow> allInvalidGrades = new ArrayList<>(skippedGradesMapped);
+    allInvalidGrades.addAll(existingGradesMapped);
+    allInvalidGrades.addAll(duplicateGradesMapped);
+    allInvalidGrades.addAll(gradeInvalidScoresMapped);
+
+    allInvalidGrades =
+        allInvalidGrades.stream()
+            .sorted(
+                Comparator.comparing(
+                    GradeInvalidRow::getRef, Comparator.nullsLast(String::compareTo)))
+            .toList();
+    return allInvalidGrades;
   }
 
   public List<GradeImportDto> checkDuplicateGrade(List<GradeImportDto> parseResult) {
@@ -264,18 +289,18 @@ public class GradeService {
 
   public List<GradeImportDto> filterExistingGrades(
       List<GradeImportDto> grades, String examId, String comment) {
-    var existingGrades = new ArrayList<GradeImportDto>();
-    for (GradeImportDto grade : grades) {
-      var existing = gradeRepository.getGradeByExamIdAndStudentRef(examId, grade.getRef());
-      if (existing.isPresent() && comment != null) {
-        if (Objects.equals(grade.getScore(), existing.get().getScore())) {
-          existingGrades.add(grade);
-        }
-      } else if (existing.isPresent() && existing.get().getScore() != null) {
-        existingGrades.add(grade);
-      }
+    var savedGrades = gradeMapper.mapToListDtos(gradeRepository.getGradesByExamId(examId));
+    Set<String> existingRefs =
+        savedGrades.stream().map(grade -> grade.getRef()).collect(Collectors.toSet());
+    List<GradeImportDto> filterGrades;
+    if (comment != null) {
+      filterGrades = grades.stream().filter(gradeDto -> savedGrades.contains(gradeDto)).toList();
+    } else {
+      filterGrades =
+          grades.stream().filter(grade -> existingRefs.contains(grade.getRef())).toList();
     }
-    return existingGrades;
+
+    return filterGrades;
   }
 
   public List<GradeImportDto> checkSkippedRows(ParseResult<GradeImportDto> parseResult) {
@@ -322,8 +347,8 @@ public class GradeService {
         .toList();
   }
 
-  @NotNull
-  private List<GradeInvalidRow> mapGradeInvalidRows(List<GradeImportDto> gradeInvalidScores) {
+  private static List<GradeInvalidRow> mapGradeInvalidRows(
+      List<GradeImportDto> gradeInvalidScores) {
     var invalidGrades = new ArrayList<GradeInvalidRow>();
     gradeInvalidScores.forEach(
         gradeImportDto ->
@@ -339,7 +364,7 @@ public class GradeService {
     return invalidGrades;
   }
 
-  public List<GradeInvalidRow> mapExistingGrades(
+  public static List<GradeInvalidRow> mapExistingGrades(
       List<GradeImportDto> existingGrades, String comment) {
     var invalidGrades = new ArrayList<GradeInvalidRow>();
     if (comment != null) {
@@ -367,7 +392,7 @@ public class GradeService {
     return invalidGrades;
   }
 
-  private List<GradeInvalidRow> mapDuplicateGrades(List<GradeImportDto> duplicateGrades) {
+  private static List<GradeInvalidRow> mapDuplicateGrades(List<GradeImportDto> duplicateGrades) {
     var invalidGrades = new ArrayList<GradeInvalidRow>();
     duplicateGrades.forEach(
         gradeImportDto ->
@@ -382,7 +407,7 @@ public class GradeService {
     return invalidGrades;
   }
 
-  private String validateRow(String ref, Double score) {
+  private static String validateRow(String ref, Double score) {
     if (ref == null || ref.isBlank()) return "La réference est null ou vide";
     if (score == null) return "La note est null";
     if (score > 20) return "La note est supérieur à 20";
