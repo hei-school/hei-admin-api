@@ -26,6 +26,7 @@ import static school.hei.haapi.endpoint.rest.model.WorkStudyStatus.NOT_WORKING;
 import static school.hei.haapi.endpoint.rest.model.WorkStudyStatus.WORKING;
 import static school.hei.haapi.integration.GroupIT.updatedGroup3;
 import static school.hei.haapi.integration.GroupIT.updatedGroup5;
+import static school.hei.haapi.integration.conf.TestUtils.ADMIN1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.EVENT1_ID;
 import static school.hei.haapi.integration.conf.TestUtils.GROUP1_ID;
 import static school.hei.haapi.integration.conf.TestUtils.MANAGER1_TOKEN;
@@ -783,6 +784,68 @@ public class StudentIT extends FacadeITMockedThirdParties {
   void manager_write_update_ok() throws ApiException {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     UsersApi api = new UsersApi(manager1Client);
+    var toCreate =
+        api.createOrUpdateStudents(List.of(someCreatableStudent(), someCreatableStudent()), null);
+
+    var created0 = toCreate.getFirst();
+    var toUpdate0 = studentToCrupdateStudent(created0, "A new name zero");
+
+    var created1 = toCreate.get(1);
+    var toUpdate1 = studentToCrupdateStudent(created1, "A new name one");
+
+    var updated0 =
+        new Student()
+            .birthDate(toUpdate0.getBirthDate())
+            .id(toUpdate0.getId())
+            .entranceDatetime(toUpdate0.getEntranceDatetime())
+            .phone(toUpdate0.getPhone())
+            .nic(toUpdate0.getNic())
+            .birthPlace(toUpdate0.getBirthPlace())
+            .email(toUpdate0.getEmail())
+            .address(toUpdate0.getAddress())
+            .firstName(toUpdate0.getFirstName())
+            .lastName("A new name zero")
+            .sex(toUpdate0.getSex())
+            .ref(toUpdate0.getRef())
+            .coordinates(coordinatesWithNullValues())
+            .specializationField(toUpdate0.getSpecializationField())
+            .workStudyStatus(NOT_WORKING)
+            .status(toUpdate0.getStatus())
+            .groups(List.of())
+            .isRepeatingYear(false);
+
+    var updated1 =
+        new Student()
+            .birthDate(toUpdate1.getBirthDate())
+            .id(toUpdate1.getId())
+            .entranceDatetime(toUpdate1.getEntranceDatetime())
+            .phone(toUpdate1.getPhone())
+            .nic(toUpdate1.getNic())
+            .birthPlace(toUpdate1.getBirthPlace())
+            .email(toUpdate1.getEmail())
+            .address(toUpdate1.getAddress())
+            .firstName(toUpdate1.getFirstName())
+            .lastName("A new name one")
+            .sex(toUpdate1.getSex())
+            .ref(toUpdate1.getRef())
+            .specializationField(toUpdate1.getSpecializationField())
+            .coordinates(coordinatesWithNullValues())
+            .workStudyStatus(NOT_WORKING)
+            .status(toUpdate1.getStatus())
+            .groups(List.of())
+            .isRepeatingYear(false);
+
+    var updated = api.createOrUpdateStudents(List.of(toUpdate0, toUpdate1), null);
+
+    assertEquals(2, updated.size());
+    assertTrue(updated.contains(updated0));
+    assertTrue(updated.contains(updated1));
+  }
+
+  @Test
+  void admin_write_update_ok() throws ApiException {
+    ApiClient admin1Client = anApiClient(ADMIN1_TOKEN);
+    UsersApi api = new UsersApi(admin1Client);
     var toCreate =
         api.createOrUpdateStudents(List.of(someCreatableStudent(), someCreatableStudent()), null);
 
