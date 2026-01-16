@@ -42,7 +42,7 @@ public class ExamDao {
     }
 
     Join<Exam, CourseAssignment> courseAssignmentJoin =
-        root.join("courseAssignment", JoinType.LEFT);
+        root.join("courseAssignment", JoinType.INNER);
     predicates.add(builder.equal(courseAssignmentJoin.get("isDeleted"), false));
     if (courseCode != null && !courseCode.isEmpty()) {
       Join<CourseAssignment, Course> courseJoin =
