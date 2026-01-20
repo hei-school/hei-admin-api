@@ -8698,6 +8698,8 @@ components:
           $ref: "#/components/schemas/PendingFeesStats"
         late_fees_count:
           $ref: "#/components/schemas/LateFeesStats"
+        unpaid_fees_count:
+          $ref: "#/components/schemas/UnpaidFeesStats"
         update_datetime:
           type: string
           format: date-time
@@ -8757,6 +8759,11 @@ components:
         - $ref: "#/components/schemas/BaseFeesStats"
         - $ref: "#/components/schemas/RetakeExamFeesCount"
     LateFeesStats:
+      type: object
+      allOf:
+        - $ref: "#/components/schemas/BaseFeesStats"
+        - $ref: "#/components/schemas/RetakeExamFeesCount"
+    UnpaidFeesStats:
       type: object
       allOf:
         - $ref: "#/components/schemas/BaseFeesStats"

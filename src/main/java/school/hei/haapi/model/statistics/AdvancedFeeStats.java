@@ -65,6 +65,7 @@ public class AdvancedFeeStats {
     TOTAL_COUNT,
     PAID_COUNT,
     LATE_COUNT,
+    UNPAID_COUNT,
     PENDING_COUNT
   }
 

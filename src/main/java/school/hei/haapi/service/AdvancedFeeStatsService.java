@@ -49,6 +49,7 @@ import school.hei.haapi.endpoint.rest.model.LateFeesStats;
 import school.hei.haapi.endpoint.rest.model.PaidFeesStats;
 import school.hei.haapi.endpoint.rest.model.PendingFeesStats;
 import school.hei.haapi.endpoint.rest.model.TotalExpectedFeesStats;
+import school.hei.haapi.endpoint.rest.model.UnpaidFeesStats;
 import school.hei.haapi.model.Fee;
 import school.hei.haapi.model.fee.PaymentType;
 import school.hei.haapi.model.statistics.AdvancedFeeStats;
@@ -137,9 +138,19 @@ public class AdvancedFeeStatsService {
 
     Collection<AdvancedFeeStats> stats =
         feeDao.getAdvancedFeeStatsOnDateBetween(fromDate, toDate, type).values();
+    log.info(
+        "Stats after getAdvancedFeeStatsOnDateBetween, for dates between {} and {} : {}",
+        fromDate,
+        toDate,
+        stats);
     Optional<LocalDate> date = statCountDateMapper(type, toDate);
 
     AdvancedFeesStatistics restStats = generateAdvancedFeeStats(allFees, date);
+    log.info(
+        "Stats after generateAdvancedFeeStats, for dates between {} and {} : {}",
+        fromDate,
+        toDate,
+        restStats);
     if (!stats.isEmpty()) {
       stats.forEach(
           stat -> {
@@ -147,6 +158,7 @@ public class AdvancedFeeStatsService {
               case PENDING_COUNT -> handlePendingFeesCount(stat, restStats.getPendingFeesCount());
               case LATE_COUNT -> handleLateFeesCount(stat, restStats.getLateFeesCount());
               case PAID_COUNT -> handlePaidFeesCount(stat, restStats.getPaidFeesCount());
+              case UNPAID_COUNT -> handleUnpaidFeesCount(stat, restStats.getUnpaidFeesCount());
               case TOTAL_COUNT -> handleTotalFeesCount(stat, restStats.getTotalExpectedFeesCount());
             }
           });
@@ -169,6 +181,7 @@ public class AdvancedFeeStatsService {
         .lateFeesCount(getLateFeesStats(fees, statusDate))
         .paidFeesCount(getPaidFeesStats(fees, statusDate))
         .pendingFeesCount(getPendingFeesStats(fees, statusDate))
+        .unpaidFeesCount(getUnpaidFeeStats(fees, statusDate))
         .totalExpectedFeesCount(getTotalExpectedFeesStats(fees));
   }
 
@@ -184,6 +197,19 @@ public class AdvancedFeeStatsService {
     feeStats.setYearlyCount(pendingFeesStats.getYearly());
     feeStats.setUpdateDatetime(now());
     feeStats.setUnknownFrequencyCount(pendingFeesStats.getUnknownFrequency());
+  }
+
+  private void handleUnpaidFeesCount(AdvancedFeeStats feeStats, UnpaidFeesStats unpaidFeesStats) {
+    feeStats.setFirstGradeCount(unpaidFeesStats.getFirstGrade());
+    feeStats.setSecondGradeCount(unpaidFeesStats.getSecondGrade());
+    feeStats.setThirdGradeCount(unpaidFeesStats.getThirdGrade());
+    feeStats.setUnknownGradeCount(unpaidFeesStats.getUnknownGrade());
+    feeStats.setWorkStudyCount(unpaidFeesStats.getWorkStudy());
+    feeStats.setRemedialFeesCount(unpaidFeesStats.getRetakeExamFeesCount().longValue());
+    feeStats.setMonthlyCount(unpaidFeesStats.getMonthly());
+    feeStats.setYearlyCount(unpaidFeesStats.getYearly());
+    feeStats.setUpdateDatetime(now());
+    feeStats.setUnknownFrequencyCount(unpaidFeesStats.getUnknownFrequency());
   }
 
   private void handleLateFeesCount(AdvancedFeeStats feeStats, LateFeesStats lateFeesStats) {
@@ -300,6 +326,24 @@ public class AdvancedFeeStatsService {
         .yearly(feesCountByPaymentFrequency.get(YEARLY))
         .unknownFrequency(feesCountByPaymentFrequency.get(UNKNOWN))
         .workStudy(feeCountByCategory.get(WORK_FEES));
+  }
+
+  private UnpaidFeesStats getUnpaidFeeStats(List<Fee> fees, Optional<LocalDate> statusDate) {
+    List<Fee> unpaidFees = filterFeesByStatus(fees, UNPAID, statusDate);
+    Map<FeeCategory, Long> feeCountByCategory = countFeesByGrades(unpaidFees);
+    Map<FeeTypeEnum, List<Fee>> feesByType = groupFeesByType(unpaidFees);
+    List<Fee> tuitionFees = feesByType.getOrDefault(TUITION, List.of());
+    Map<FeeFrequency, Long> feesCountByPaymentFrequency = countFeesByPaymentFrequency(tuitionFees);
+    return new UnpaidFeesStats()
+        .retakeExamFeesCount(countRemedialFees(unpaidFees))
+        .workStudy(feeCountByCategory.get(WORK_FEES))
+        .monthly(feesCountByPaymentFrequency.get(MONTHLY))
+        .yearly(feesCountByPaymentFrequency.get(YEARLY))
+        .unknownFrequency(feesCountByPaymentFrequency.get(UNKNOWN))
+        .firstGrade(feeCountByCategory.get(L1))
+        .secondGrade(feeCountByCategory.get(L2))
+        .thirdGrade(feeCountByCategory.get(L3))
+        .unknownGrade(feeCountByCategory.get(FeeCategory.UNKNOWN));
   }
 
   @Transactional
