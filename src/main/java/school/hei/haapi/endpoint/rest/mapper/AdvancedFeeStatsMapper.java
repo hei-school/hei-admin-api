@@ -193,6 +193,19 @@ public class AdvancedFeeStatsMapper {
         .unknownFrequency(modelStat.getUnknownFrequencyCount());
   }
 
+  private UnpaidFeesStats getRestUnpaidFeeStats(AdvancedFeeStats modelStat) {
+    return new UnpaidFeesStats()
+        .firstGrade(modelStat.getFirstGradeCount())
+        .secondGrade(modelStat.getSecondGradeCount())
+        .thirdGrade(modelStat.getThirdGradeCount())
+        .unknownGrade(modelStat.getUnknownGradeCount())
+        .retakeExamFeesCount(modelStat.getRemedialFeesCount())
+        .workStudy(modelStat.getWorkStudyCount())
+        .monthly(modelStat.getMonthlyCount())
+        .yearly(modelStat.getYearlyCount())
+        .unknownFrequency(modelStat.getUnknownFrequencyCount());
+  }
+
   private PaidFeesStats getRestPaidFeeStats(AdvancedFeeStats modelStat) {
     return new PaidFeesStats()
         .firstGrade(modelStat.getFirstGradeCount())
@@ -228,6 +241,7 @@ public class AdvancedFeeStatsMapper {
         case PENDING_COUNT -> restStat.pendingFeesCount(getRestPendingFeeStats(entry.getValue()));
         case LATE_COUNT -> restStat.lateFeesCount(getRestLateFeeStats(entry.getValue()));
         case PAID_COUNT -> restStat.paidFeesCount(getRestPaidFeeStats(entry.getValue()));
+        case UNPAID_COUNT -> restStat.unpaidFeesCount(getRestUnpaidFeeStats(entry.getValue()));
         case TOTAL_COUNT -> restStat.totalExpectedFeesCount(getRestTotalFeeStats(entry.getValue()));
       }
       restStat.updateDatetime(entry.getValue().getUpdateDatetime());

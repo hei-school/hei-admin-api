@@ -138,19 +138,9 @@ public class AdvancedFeeStatsService {
 
     Collection<AdvancedFeeStats> stats =
         feeDao.getAdvancedFeeStatsOnDateBetween(fromDate, toDate, type).values();
-    log.info(
-        "Stats after getAdvancedFeeStatsOnDateBetween, for dates between {} and {} : {}",
-        fromDate,
-        toDate,
-        stats);
     Optional<LocalDate> date = statCountDateMapper(type, toDate);
 
     AdvancedFeesStatistics restStats = generateAdvancedFeeStats(allFees, date);
-    log.info(
-        "Stats after generateAdvancedFeeStats, for dates between {} and {} : {}",
-        fromDate,
-        toDate,
-        restStats);
     if (!stats.isEmpty()) {
       stats.forEach(
           stat -> {
@@ -200,6 +190,7 @@ public class AdvancedFeeStatsService {
   }
 
   private void handleUnpaidFeesCount(AdvancedFeeStats feeStats, UnpaidFeesStats unpaidFeesStats) {
+    log.info("TESTED");
     feeStats.setFirstGradeCount(unpaidFeesStats.getFirstGrade());
     feeStats.setSecondGradeCount(unpaidFeesStats.getSecondGrade());
     feeStats.setThirdGradeCount(unpaidFeesStats.getThirdGrade());
