@@ -13,6 +13,7 @@ public class UserDto {
   private String firstName;
   private String lastName;
   private String email;
+  private String profilePicture;
   private String ref;
 
   public static UserDto from(User user) {
@@ -22,6 +23,7 @@ public class UserDto {
         .lastName(user.getLastName())
         .email(user.getEmail())
         .ref(user.getRef())
+        .profilePicture(user.getProfilePictureKey())
         .build();
   }
 }
