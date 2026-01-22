@@ -1,3 +1,18 @@
+# [1.150.0](https://github.com/hei-school/hei-admin-api/compare/v1.149.0...v1.150.0) (2026-01-22)
+
+
+### Bug Fixes
+
+* get all exams ([1f40bcf](https://github.com/hei-school/hei-admin-api/commit/1f40bcf49c85572f7d0c053f74ce255dd83df2f5))
+
+
+### Features
+
+* add result summary generation ([4ca97a5](https://github.com/hei-school/hei-admin-api/commit/4ca97a562949bcdefdb0a2027d95a7ef29d58eb6))
+* allow admin to create a new student ([4b5814e](https://github.com/hei-school/hei-admin-api/commit/4b5814e6ab01e0eef887b2178ed13efe92f6f6f5))
+
+
+
 # [1.149.0](https://github.com/hei-school/hei-admin-api/compare/v1.148.0...v1.149.0) (2026-01-14)
 
 
@@ -94,16 +109,6 @@
 ### Bug Fixes
 
 * (doc) add refactor import grade ([bd92f9a](https://github.com/hei-school/hei-admin-api/commit/bd92f9a0579f0b1606d56340ef114bbd8fa319dc))
-
-
-
-# [1.144.0](https://github.com/hei-school/hei-admin-api/compare/v1.143.0...v1.144.0) (2025-12-18)
-
-
-### Features
-
-* add monitor link validation ([4d10721](https://github.com/hei-school/hei-admin-api/commit/4d1072189f6bf9078931cd425b4729de20c91040))
-* udpate grade via excel file  ([b3e68b1](https://github.com/hei-school/hei-admin-api/commit/b3e68b159dc283fc35ce748412f9e54d8a53401f))
 
 
 
