@@ -160,7 +160,14 @@ class AdvancedFeeStatsServiceTest extends FacadeITMockedThirdParties {
                   stat.setStatEndDate(null);
                 })
             .collect(toSet());
+    AdvancedFeeStats unpaidStat =
+        actualStats.stream()
+            .filter(s -> s.getStatType() == UNPAID_COUNT)
+            .findFirst()
+            .orElseThrow(() -> new AssertionError("UNPAID_COUNT stat not generated"));
 
+    assertEquals(2, unpaidStat.getSecondGradeCount(), "L2 unpaid");
+    assertEquals(2, unpaidStat.getMonthlyCount()); // both are MONTHLY
     assertEquals(expectedStats, actualStats);
   }
 
