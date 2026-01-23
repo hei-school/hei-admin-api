@@ -20,6 +20,7 @@ import school.hei.haapi.mail.Mailer;
 import school.hei.haapi.model.User;
 import school.hei.haapi.model.YearlyResultGenerationRequest;
 import school.hei.haapi.service.GradeResultService;
+import school.hei.haapi.service.UserService;
 
 @Slf4j
 @Service
@@ -29,16 +30,18 @@ public class YearlyResultTranscriptGenerationService
   private final GradeResultService gradeResultService;
   private final Mailer mailer;
   private final BucketComponent bucketComponent;
+  private final UserService userService;
 
   @Override
   @Transactional
   public void accept(YearlyResultTranscriptGeneration yearlyResultTranscriptGeneration) {
+    var principal = userService.getById(yearlyResultTranscriptGeneration.getPrincipalId());
     var request =
         gradeResultService.uploadYearlyResultTranscript(
             yearlyResultTranscriptGeneration.getUserId(),
             yearlyResultTranscriptGeneration.getYearlyResult());
     try {
-      sendGeneratedEmail(yearlyResultTranscriptGeneration.getPrincipal(), request);
+      sendGeneratedEmail(principal, request);
     } catch (Exception e) {
       log.error("Cannot send yearly result generation email for : {}", request);
     }

@@ -27,7 +27,6 @@ import java.util.Optional;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import school.hei.haapi.endpoint.event.EventProducer;
 import school.hei.haapi.endpoint.event.model.YearlyResultTranscriptGeneration;
 import school.hei.haapi.endpoint.rest.model.ResultOverviewStatus;
@@ -154,7 +153,6 @@ public class GradeResultService {
     }
   }
 
-  @Transactional
   public YearlyResultGenerationTranscript getYearlyResultTranscript(
       String studentId, StudentLevel level) {
     var studentYearlyResult = getLeveledYearlyResultByStudentId(level, studentId);
@@ -206,7 +204,7 @@ public class GradeResultService {
             YearlyResultTranscriptGeneration.builder()
                 .userId(studentId)
                 .yearlyResult(studentYearlyResult)
-                .principal(principalUser)
+                .principalId(principalUser.getId())
                 .build()));
   }
 
