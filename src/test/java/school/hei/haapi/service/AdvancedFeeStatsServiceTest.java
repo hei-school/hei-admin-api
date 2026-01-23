@@ -35,6 +35,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import school.hei.haapi.endpoint.event.EventProducer;
 import school.hei.haapi.endpoint.rest.mapper.AdvancedFeeStatsMapper;
+import school.hei.haapi.endpoint.rest.model.UnpaidFeesStats;
 import school.hei.haapi.integration.conf.FacadeITMockedThirdParties;
 import school.hei.haapi.model.Fee;
 import school.hei.haapi.model.FeeStatusHistory;
@@ -87,6 +88,34 @@ class AdvancedFeeStatsServiceTest extends FacadeITMockedThirdParties {
     when(feeDao.getAdvancedFeeStatsOnDateBetween(from, to, RECEIPT)).thenReturn(oldStatsMap);
     var result = subject.getAdvancedFeeStats(from, to, Optional.of(RECEIPT));
     assertEquals(Boolean.TRUE, result.getExpired());
+  }
+
+  @Test
+  void handleUnpaidFeesCount_copies_all_unpaidFeeStat_toAdvancedStat_ok() {
+    UnpaidFeesStats input =
+        new UnpaidFeesStats()
+            .firstGrade(5L)
+            .secondGrade(12L)
+            .thirdGrade(0L)
+            .unknownGrade(1L)
+            .workStudy(3L)
+            .retakeExamFeesCount(4L)
+            .monthly(7L)
+            .yearly(2L)
+            .unknownFrequency(0L);
+    AdvancedFeeStats target = AdvancedFeeStats.builder().statType(UNPAID_COUNT).build();
+
+    subject.handleUnpaidFeesCount(target, input);
+
+    assertEquals(5, target.getFirstGradeCount());
+    assertEquals(12, target.getSecondGradeCount());
+    assertEquals(0, target.getThirdGradeCount());
+    assertEquals(1, target.getUnknownGradeCount());
+    assertEquals(3, target.getWorkStudyCount());
+    assertEquals(4, target.getRemedialFeesCount());
+    assertEquals(7, target.getMonthlyCount());
+    assertEquals(2, target.getYearlyCount());
+    assertEquals(0, target.getUnknownFrequencyCount());
   }
 
   @Test

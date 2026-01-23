@@ -189,8 +189,7 @@ public class AdvancedFeeStatsService {
     feeStats.setUnknownFrequencyCount(pendingFeesStats.getUnknownFrequency());
   }
 
-  private void handleUnpaidFeesCount(AdvancedFeeStats feeStats, UnpaidFeesStats unpaidFeesStats) {
-    log.info("TESTED");
+  public void handleUnpaidFeesCount(AdvancedFeeStats feeStats, UnpaidFeesStats unpaidFeesStats) {
     feeStats.setFirstGradeCount(unpaidFeesStats.getFirstGrade());
     feeStats.setSecondGradeCount(unpaidFeesStats.getSecondGrade());
     feeStats.setThirdGradeCount(unpaidFeesStats.getThirdGrade());
