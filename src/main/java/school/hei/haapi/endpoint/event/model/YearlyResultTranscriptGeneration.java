@@ -5,7 +5,6 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import school.hei.haapi.endpoint.rest.model.YearlyResult;
-import school.hei.haapi.model.User;
 
 @Data
 @Builder
@@ -13,7 +12,7 @@ import school.hei.haapi.model.User;
 public class YearlyResultTranscriptGeneration extends PojaEvent {
   private final String userId;
   private final YearlyResult yearlyResult;
-  private final User principal;
+  private final String principalId;
 
   @Override
   public Duration maxConsumerDuration() {

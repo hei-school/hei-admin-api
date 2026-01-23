@@ -154,7 +154,6 @@ public class GradeResultService {
     }
   }
 
-  @Transactional
   public YearlyResultGenerationTranscript getYearlyResultTranscript(
       String studentId, StudentLevel level) {
     var studentYearlyResult = getLeveledYearlyResultByStudentId(level, studentId);
@@ -206,7 +205,7 @@ public class GradeResultService {
             YearlyResultTranscriptGeneration.builder()
                 .userId(studentId)
                 .yearlyResult(studentYearlyResult)
-                .principal(principalUser)
+                .principalId(principalUser.getId())
                 .build()));
   }
 
