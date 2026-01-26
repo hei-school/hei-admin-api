@@ -32,6 +32,13 @@ public class UserMapper {
   private final IsStudentRepeatingYear isStudentRepeatingYear;
   private final UserRepository userRepository;
 
+  public String getPresignedProfilePictureUrl(User user) {
+    String profilePictureKey = user.getProfilePictureKey();
+    return profilePictureKey != null
+        ? fileService.getPresignedUrl(profilePictureKey, ONE_DAY_DURATION_AS_LONG)
+        : null;
+  }
+
   public UserIdentifier toIdentifier(User user) {
     return new UserIdentifier()
         .id(user.getId())
@@ -44,11 +51,7 @@ public class UserMapper {
 
   public StaffMember toRestStaffMember(User user) {
     StaffMember staffMember = new StaffMember();
-    String profilePictureKey = user.getProfilePictureKey();
-    String url =
-        profilePictureKey != null
-            ? fileService.getPresignedUrl(profilePictureKey, ONE_DAY_DURATION_AS_LONG)
-            : null;
+    String url = getPresignedProfilePictureUrl(user);
 
     staffMember.setId(user.getId());
     staffMember.setFirstName(user.getFirstName());
@@ -82,11 +85,7 @@ public class UserMapper {
     Student restStudent = new Student();
     Optional<WorkDocument> studentLastWorkDocument =
         workDocumentService.findLastWorkDocumentByStudentId(user.getId());
-    String profilePictureKey = user.getProfilePictureKey();
-    String url =
-        profilePictureKey != null
-            ? fileService.getPresignedUrl(profilePictureKey, ONE_DAY_DURATION_AS_LONG)
-            : null;
+    String url = getPresignedProfilePictureUrl(user);
 
     restStudent.setId(user.getId());
     restStudent.setFirstName(user.getFirstName());
@@ -123,11 +122,7 @@ public class UserMapper {
 
   public Teacher toRestTeacher(User user) {
     Teacher teacher = new Teacher();
-    String profilePictureKey = user.getProfilePictureKey();
-    String url =
-        profilePictureKey != null
-            ? fileService.getPresignedUrl(profilePictureKey, ONE_DAY_DURATION_AS_LONG)
-            : null;
+    String url = getPresignedProfilePictureUrl(user);
 
     teacher.setId(user.getId());
     teacher.setFirstName(user.getFirstName());
@@ -151,11 +146,7 @@ public class UserMapper {
 
   public Manager toRestManager(User user) {
     Manager manager = new Manager();
-    String profilePictureKey = user.getProfilePictureKey();
-    String url =
-        profilePictureKey != null
-            ? fileService.getPresignedUrl(profilePictureKey, ONE_DAY_DURATION_AS_LONG)
-            : null;
+    String url = getPresignedProfilePictureUrl(user);
 
     manager.setId(user.getId());
     manager.setFirstName(user.getFirstName());
@@ -179,11 +170,7 @@ public class UserMapper {
 
   public Admin toRestAdmin(User user) {
     Admin admin = new Admin();
-    String profilePictureKey = user.getProfilePictureKey();
-    String url =
-        profilePictureKey != null
-            ? fileService.getPresignedUrl(profilePictureKey, ONE_DAY_DURATION_AS_LONG)
-            : null;
+    String url = getPresignedProfilePictureUrl(user);
 
     admin.setId(user.getId());
     admin.setFirstName(user.getFirstName());
@@ -207,11 +194,7 @@ public class UserMapper {
 
   public Monitor toRestMonitor(User user) {
     Monitor monitor = new Monitor();
-    String profilePictureKey = user.getProfilePictureKey();
-    String url =
-        profilePictureKey != null
-            ? fileService.getPresignedUrl(profilePictureKey, ONE_DAY_DURATION_AS_LONG)
-            : null;
+    String url = getPresignedProfilePictureUrl(user);
 
     monitor.setId(user.getId());
     monitor.setFirstName(user.getFirstName());
@@ -235,11 +218,7 @@ public class UserMapper {
 
   public Organizer toRestOrganizer(User user) {
     Organizer organizer = new Organizer();
-    String profilePictureKey = user.getProfilePictureKey();
-    String url =
-        profilePictureKey != null
-            ? fileService.getPresignedUrl(profilePictureKey, ONE_DAY_DURATION_AS_LONG)
-            : null;
+    String url = getPresignedProfilePictureUrl(user);
 
     organizer.setId(user.getId());
     organizer.setFirstName(user.getFirstName());
