@@ -3,7 +3,12 @@ package school.hei.haapi.service;
 import static java.time.Instant.now;
 import static java.util.Optional.empty;
 import static java.util.UUID.randomUUID;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -96,7 +101,7 @@ class GradeResultServiceTest {
           fileInfoService,
           eventProducer);
   private final YearlyResultTranscriptGenerationService yearlyResultTranscriptGenerationService =
-      new YearlyResultTranscriptGenerationService(subject, mailer, bucketComponent);
+      new YearlyResultTranscriptGenerationService(subject, mailer, bucketComponent, userService);
 
   private static final String STUDENT1_ID = "id";
   private static final String STUDENT2_ID = "bad student";
@@ -729,7 +734,7 @@ class GradeResultServiceTest {
         () -> {
           yearlyResultTranscriptGenerationService.accept(
               YearlyResultTranscriptGeneration.builder()
-                  .principal(student1)
+                  .principalId(student1.getId())
                   .yearlyResult(student1YearlyResult)
                   .userId(STUDENT1_ID)
                   .build());
