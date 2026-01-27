@@ -1,20 +1,20 @@
 package school.hei.haapi.service;
 
 import java.util.List;
+import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
+import school.hei.haapi.endpoint.rest.mapper.UserDtoMapper;
 import school.hei.haapi.model.User;
 import school.hei.haapi.model.dto.SearchResults;
 import school.hei.haapi.model.dto.UserDto;
 import school.hei.haapi.repository.UserRepository;
 
 @Service
+@AllArgsConstructor
 public class SearchService {
 
   private final UserRepository userRepository;
-
-  public SearchService(UserRepository userRepository) {
-    this.userRepository = userRepository;
-  }
+  private final UserDtoMapper userDtoMapper;
 
   public SearchResults searchAll(String search) {
     List<User> allUsers = userRepository.searchUsers(search);
@@ -31,6 +31,9 @@ public class SearchService {
   }
 
   private List<UserDto> filterAndConvertByRole(List<User> users, User.Role role) {
-    return users.stream().filter(user -> role.equals(user.getRole())).map(UserDto::from).toList();
+    return users.stream()
+        .filter(user -> role.equals(user.getRole()))
+        .map(userDtoMapper::toDto)
+        .toList();
   }
 }
