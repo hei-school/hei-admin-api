@@ -17,10 +17,7 @@ import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.PENDING;
 import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.UNPAID;
 import static school.hei.haapi.endpoint.rest.model.FeeTypeEnum.TUITION;
 import static school.hei.haapi.model.statistics.AdvancedFeeStats.AdvancedFeeStatsCountType.RECEIPT;
-import static school.hei.haapi.model.statistics.AdvancedFeeStats.AdvancedFeeStatsType.LATE_COUNT;
-import static school.hei.haapi.model.statistics.AdvancedFeeStats.AdvancedFeeStatsType.PAID_COUNT;
 import static school.hei.haapi.model.statistics.AdvancedFeeStats.AdvancedFeeStatsType.PENDING_COUNT;
-import static school.hei.haapi.model.statistics.AdvancedFeeStats.AdvancedFeeStatsType.TOTAL_COUNT;
 import static school.hei.haapi.model.statistics.AdvancedFeeStats.AdvancedFeeStatsType.UNPAID_COUNT;
 
 import java.time.Instant;
@@ -29,7 +26,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -92,60 +88,6 @@ class AdvancedFeeStatsServiceTest extends FacadeITMockedThirdParties {
   @Test
   void advanced_fee_statistics_count_ok() {
     var rangeDate = Optional.of(Instant.now());
-    var expectedStats =
-        Set.of(
-            AdvancedFeeStats.builder()
-                .statType(LATE_COUNT)
-                .firstGradeCount(1)
-                .secondGradeCount(1)
-                .thirdGradeCount(1)
-                .workStudyCount(1)
-                .yearlyCount(2)
-                .monthlyCount(2)
-                .countType(RECEIPT)
-                .build(),
-            AdvancedFeeStats.builder()
-                .statType(PAID_COUNT)
-                .firstGradeCount(3)
-                .secondGradeCount(1)
-                .thirdGradeCount(1)
-                .workStudyCount(1)
-                .yearlyCount(4)
-                .monthlyCount(2)
-                .bankTransferCount(6L)
-                .mpbsCount(0L)
-                .countType(RECEIPT)
-                .build(),
-            AdvancedFeeStats.builder()
-                .statType(PENDING_COUNT)
-                .firstGradeCount(0)
-                .secondGradeCount(1)
-                .thirdGradeCount(1)
-                .workStudyCount(0)
-                .yearlyCount(1)
-                .monthlyCount(1)
-                .countType(RECEIPT)
-                .build(),
-            AdvancedFeeStats.builder()
-                .statType(UNPAID_COUNT)
-                .firstGradeCount(0)
-                .secondGradeCount(2)
-                .thirdGradeCount(0)
-                .workStudyCount(0)
-                .yearlyCount(0)
-                .monthlyCount(2)
-                .countType(RECEIPT)
-                .build(),
-            AdvancedFeeStats.builder()
-                .statType(TOTAL_COUNT)
-                .firstGradeCount(4)
-                .secondGradeCount(5)
-                .thirdGradeCount(3)
-                .workStudyCount(2)
-                .yearlyCount(7)
-                .monthlyCount(7)
-                .countType(RECEIPT)
-                .build());
 
     Map<AdvancedFeeStats.AdvancedFeeStatsType, AdvancedFeeStats> daoResult =
         Map.of(
