@@ -92,7 +92,7 @@ class AdvancedFeeStatsServiceTest extends FacadeITMockedThirdParties {
 
   @Test
   void handleUnpaidFeesCount_copies_all_unpaidFeeStat_toAdvancedStat_ok() {
-    UnpaidFeesStats input =
+    var input =
         new UnpaidFeesStats()
             .firstGrade(5L)
             .secondGrade(12L)
@@ -121,7 +121,7 @@ class AdvancedFeeStatsServiceTest extends FacadeITMockedThirdParties {
   @Test
   void advanced_fee_statistics_count_ok() {
     var rangeDate = Optional.of(Instant.now());
-    Set<AdvancedFeeStats> expectedStats =
+    var expectedStats =
         Set.of(
             AdvancedFeeStats.builder()
                 .statType(LATE_COUNT)
@@ -179,8 +179,8 @@ class AdvancedFeeStatsServiceTest extends FacadeITMockedThirdParties {
     when(feeRepository.findDistinctByStatusHistoriesDatetimeBetween(any(), any()))
         .thenReturn(getFeeList());
     when(feeDao.getAdvancedFeeStatsOnDateBetween(any(), any(), any())).thenReturn(Map.of());
-    List<AdvancedFeeStats> stats = subject.generateAdvancedFeeStats(rangeDate, rangeDate, RECEIPT);
-    Set<AdvancedFeeStats> actualStats =
+    var stats = subject.generateAdvancedFeeStats(rangeDate, rangeDate, RECEIPT);
+    var actualStats =
         stats.stream()
             .peek(
                 stat -> {
