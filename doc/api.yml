@@ -4017,7 +4017,7 @@ paths:
         tags:
           - Paying
         summary: Generate advanced fees statistics file
-        description: Generates an advanced fees statistics file (Excel or CSV),
+        description: Generates an advanced fees statistics excel file,
           stores it in ownCloud (S3 compatible storage), and returns a presigned URL that can later
           be used to view the file in ownCloud.
         operationId: exportAdvancedFeesStats
@@ -4038,13 +4038,6 @@ paths:
             in: query
             schema:
               $ref: "#/components/schemas/AdvancedFeeStatisticsType"
-          - name: format
-            in: query
-            required: false
-            schema:
-              type: string
-              enum: [ xlsx, csv ]
-              default: xlsx
         responses:
           '200':
             description: File successfully generated and stored
