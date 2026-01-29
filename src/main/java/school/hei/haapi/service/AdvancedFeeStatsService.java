@@ -24,11 +24,12 @@ import static school.hei.haapi.model.fee.PaymentType.MPBS;
 import static school.hei.haapi.model.statistics.AdvancedFeeStats.AdvancedFeeStatsCountType.ACCOUNTING;
 
 import jakarta.transaction.Transactional;
-
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.math.BigDecimal;
-import java.nio.file.Files;
+import java.net.URL;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDate;
@@ -40,7 +41,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.IntStream;
-
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.ss.usermodel.Row;
@@ -61,6 +61,7 @@ import school.hei.haapi.endpoint.rest.model.PaidFeesStats;
 import school.hei.haapi.endpoint.rest.model.PendingFeesStats;
 import school.hei.haapi.endpoint.rest.model.TotalExpectedFeesStats;
 import school.hei.haapi.endpoint.rest.model.UnpaidFeesStats;
+import school.hei.haapi.file.bucket.BucketComponent;
 import school.hei.haapi.model.Fee;
 import school.hei.haapi.model.fee.PaymentType;
 import school.hei.haapi.model.statistics.AdvancedFeeStats;
@@ -70,7 +71,6 @@ import school.hei.haapi.repository.AdvancedFeeStatsRepository;
 import school.hei.haapi.repository.FeeRepository;
 import school.hei.haapi.repository.dao.FeeDao;
 import school.hei.haapi.service.utils.DateUtils;
-import software.amazon.awssdk.services.cognitoidentityprovider.model.RecoveryOptionNameType;
 
 @Service
 @RequiredArgsConstructor
@@ -81,6 +81,7 @@ public class AdvancedFeeStatsService {
   private final AdvancedFeeStatsMapper advancedFeeStatsMapper;
   private final FeeRepository feeRepository;
   private final EventProducer<AdvancedFeeStatsComputationTriggered> eventProducer;
+  private final BucketComponent bucketComponent;
 
   private static final Duration ADVANCED_FEE_STATS_EXPIRATION = Duration.of(3, DAYS);
 
@@ -122,49 +123,70 @@ public class AdvancedFeeStatsService {
         .anyMatch(e -> e.getUpdateDatetime().isBefore(now().minus(ADVANCED_FEE_STATS_EXPIRATION)));
   }
 
-  public void generateAdvancedFeesStatsFile(Optional<Instant> fromInstant, Optional<Instant> toInstant, AdvancedFeeStatsCountType type) throws IOException {
-     var advancedFeesStats = generateAdvancedFeeStats(fromInstant, toInstant, type);
-     File file = Files.createTempFile("advanced-fees-stats", ".xlsx").toFile();
+  public URL generateAdvancedFeesStatsFile(
+      Optional<Instant> fromInstant,
+      Optional<Instant> toInstant,
+      Optional<AdvancedFeeStatsType> feeStatsType,
+      AdvancedFeeStatsCountType countType)
+      throws IOException {
+    var advancedFeesStats = generateAdvancedFeeStats(fromInstant, toInstant, countType);
+    var filteredAdvancedStats =
+        advancedFeesStats.stream()
+            .filter(advancedFeeStats -> !feeStatsType.equals(advancedFeeStats.getStatType()))
+            .toList();
+    var file = File.createTempFile("advanced-fees-stats", ".xlsx");
 
-      try(Workbook workbook = new XSSFWorkbook()){
-          Sheet sheet = workbook.createSheet("STATS");
-          Row header = sheet.createRow(0);
-          header.createCell(0).setCellValue("Date de création");
-          header.createCell(1).setCellValue("L1");
-          header.createCell(2).setCellValue("L2");
-          header.createCell(3).setCellValue("L3");
-          header.createCell(4).setCellValue("Niveau non défini");
-          header.createCell(5).setCellValue("Alternants");
-          header.createCell(6).setCellValue("Mensuel");
-          header.createCell(7).setCellValue("Annuel");
-          header.createCell(8).setCellValue("Fréquence non défini");
-          header.createCell(9).setCellValue("Virement bancaire");
-          header.createCell(10).setCellValue("Orange money");
-          header.createCell(11).setCellValue("Date de modification");
-          header.createCell(12).setCellValue("Type de Statistique");
-
-          IntStream.range(0, advancedFeesStats.size())
-                  .forEach(
-                          i -> {
-                              var advancedFeesStatuse  = advancedFeesStats.get(i);
-                              Row row = sheet.createRow(i + 1);
-                              row.createCell(0).setCellValue(Date.from(advancedFeesStatuse.getCreationDatetime()));
-                              row.createCell(1).setCellValue(advancedFeesStatuse.getFirstGradeCount());
-                              row.createCell(2).setCellValue(advancedFeesStatuse.getSecondGradeCount());
-                              row.createCell(3).setCellValue(advancedFeesStatuse.getThirdGradeCount());
-                              row.createCell(4).setCellValue(advancedFeesStatuse.getUnknownGradeCount());
-                              row.createCell(5).setCellValue(advancedFeesStatuse.getWorkStudyCount());
-                              row.createCell(6).setCellValue(advancedFeesStatuse.getMonthlyCount());
-                              row.createCell(7).setCellValue(advancedFeesStatuse.getYearlyCount());
-                              row.createCell(8).setCellValue(advancedFeesStatuse.getUnknownFrequencyCount());
-                              row.createCell(9).setCellValue(advancedFeesStatuse.getBankTransferCount());
-                              row.createCell(10).setCellValue(advancedFeesStatuse.getMpbsCount());
-                              row.createCell(11).setCellValue(Date.from(advancedFeesStatuse.getUpdateDatetime()));
-                              row.createCell(12).setCellValue(String.valueOf(advancedFeesStatuse.getStatType()));
-                          });
-      } catch (IOException e) {
-          throw new RuntimeException(e);
+    try (Workbook workbook = new XSSFWorkbook()) {
+      Sheet sheet = workbook.createSheet("STATS");
+      Row headerToUse = sheet.createRow(0);
+      var headers =
+          List.of(
+              "Date de création",
+              "L1",
+              "L2",
+              "L3",
+              "Niveau non défini",
+              "Alternants",
+              "Mensuel",
+              "Annuel",
+              "Fréquence non défini",
+              "Virement bancaire",
+              "Orange money",
+              "Date de modification",
+              "Type de stats");
+      for (int i = 0; i < headers.size(); i++) {
+        headerToUse.createCell(i).setCellValue(headers.get(i));
       }
+      IntStream.range(0, filteredAdvancedStats.size())
+          .forEach(
+              j -> {
+                var advancedFeesStatuse = filteredAdvancedStats.get(j);
+                Row row = sheet.createRow(j + 1);
+                row.createCell(0)
+                    .setCellValue(Date.from(advancedFeesStatuse.getCreationDatetime()));
+                row.createCell(1).setCellValue(advancedFeesStatuse.getFirstGradeCount());
+                row.createCell(2).setCellValue(advancedFeesStatuse.getSecondGradeCount());
+                row.createCell(3).setCellValue(advancedFeesStatuse.getThirdGradeCount());
+                row.createCell(4).setCellValue(advancedFeesStatuse.getUnknownGradeCount());
+                row.createCell(5).setCellValue(advancedFeesStatuse.getWorkStudyCount());
+                row.createCell(6).setCellValue(advancedFeesStatuse.getMonthlyCount());
+                row.createCell(7).setCellValue(advancedFeesStatuse.getYearlyCount());
+                row.createCell(8).setCellValue(advancedFeesStatuse.getUnknownFrequencyCount());
+                row.createCell(9).setCellValue(advancedFeesStatuse.getBankTransferCount());
+                row.createCell(10).setCellValue(advancedFeesStatuse.getMpbsCount());
+                row.createCell(11).setCellValue(Date.from(advancedFeesStatuse.getUpdateDatetime()));
+                row.createCell(12).setCellValue(String.valueOf(advancedFeesStatuse.getStatType()));
+              });
+
+      try (OutputStream os = new FileOutputStream(file)) {
+        workbook.write(os);
+      }
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
+    var bucketKey = "advanced-fees-stats-" + now();
+    bucketComponent.upload(file, bucketKey);
+    return bucketComponent.presign(bucketKey, Duration.ofDays(1));
   }
 
   public List<AdvancedFeeStats> generateAdvancedFeeStats(
