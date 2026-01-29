@@ -43,6 +43,8 @@ import java.util.Optional;
 import java.util.stream.IntStream;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.CreationHelper;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -123,7 +125,7 @@ public class AdvancedFeeStatsService {
         .anyMatch(e -> e.getUpdateDatetime().isBefore(now().minus(ADVANCED_FEE_STATS_EXPIRATION)));
   }
 
-  public URL generateAdvancedFeesStatsFile(
+  public URL generateAdvancedFeesStatsExcelFile(
       Optional<Instant> fromInstant,
       Optional<Instant> toInstant,
       Optional<AdvancedFeeStatsType> feeStatsType,
@@ -132,7 +134,9 @@ public class AdvancedFeeStatsService {
     var advancedFeesStats = generateAdvancedFeeStats(fromInstant, toInstant, countType);
     var filteredAdvancedStats =
         advancedFeesStats.stream()
-            .filter(advancedFeeStats -> !feeStatsType.equals(advancedFeeStats.getStatType()))
+            .filter(
+                advancedFeeStats ->
+                    feeStatsType == null || !feeStatsType.equals(advancedFeeStats.getStatType()))
             .toList();
     var file = File.createTempFile("advanced-fees-stats", ".xlsx");
 
@@ -157,29 +161,57 @@ public class AdvancedFeeStatsService {
       for (int i = 0; i < headers.size(); i++) {
         headerToUse.createCell(i).setCellValue(headers.get(i));
       }
+      CreationHelper createHelper = workbook.getCreationHelper();
+      CellStyle dateCellStyle = workbook.createCellStyle();
+      dateCellStyle.setDataFormat(createHelper.createDataFormat().getFormat("yyyy-MM-dd HH:mm"));
       IntStream.range(0, filteredAdvancedStats.size())
           .forEach(
               j -> {
-                var advancedFeesStatuse = filteredAdvancedStats.get(j);
+                var stat = filteredAdvancedStats.get(j);
                 Row row = sheet.createRow(j + 1);
-                row.createCell(0)
-                    .setCellValue(Date.from(advancedFeesStatuse.getCreationDatetime()));
-                row.createCell(1).setCellValue(advancedFeesStatuse.getFirstGradeCount());
-                row.createCell(2).setCellValue(advancedFeesStatuse.getSecondGradeCount());
-                row.createCell(3).setCellValue(advancedFeesStatuse.getThirdGradeCount());
-                row.createCell(4).setCellValue(advancedFeesStatuse.getUnknownGradeCount());
-                row.createCell(5).setCellValue(advancedFeesStatuse.getWorkStudyCount());
-                row.createCell(6).setCellValue(advancedFeesStatuse.getMonthlyCount());
-                row.createCell(7).setCellValue(advancedFeesStatuse.getYearlyCount());
-                row.createCell(8).setCellValue(advancedFeesStatuse.getUnknownFrequencyCount());
-                row.createCell(9).setCellValue(advancedFeesStatuse.getBankTransferCount());
-                row.createCell(10).setCellValue(advancedFeesStatuse.getMpbsCount());
-                row.createCell(11).setCellValue(Date.from(advancedFeesStatuse.getUpdateDatetime()));
-                row.createCell(12).setCellValue(String.valueOf(advancedFeesStatuse.getStatType()));
+                var creationCell = row.createCell(0);
+                Optional.ofNullable(stat.getCreationDatetime())
+                    .ifPresent(
+                        d -> {
+                          creationCell.setCellValue(Date.from(d));
+                          creationCell.setCellStyle(dateCellStyle);
+                        });
+                row.createCell(1)
+                    .setCellValue(Optional.ofNullable(stat.getFirstGradeCount()).orElse(0L));
+                row.createCell(2)
+                    .setCellValue(Optional.ofNullable(stat.getSecondGradeCount()).orElse(0L));
+                row.createCell(3)
+                    .setCellValue(Optional.ofNullable(stat.getThirdGradeCount()).orElse(0L));
+                row.createCell(4)
+                    .setCellValue(Optional.ofNullable(stat.getUnknownGradeCount()).orElse(0L));
+                row.createCell(5)
+                    .setCellValue(Optional.ofNullable(stat.getWorkStudyCount()).orElse(0L));
+                row.createCell(6)
+                    .setCellValue(Optional.ofNullable(stat.getMonthlyCount()).orElse(0L));
+                row.createCell(7)
+                    .setCellValue(Optional.ofNullable(stat.getYearlyCount()).orElse(0L));
+                row.createCell(8)
+                    .setCellValue(Optional.ofNullable(stat.getUnknownFrequencyCount()).orElse(0L));
+                row.createCell(9)
+                    .setCellValue(Optional.ofNullable(stat.getBankTransferCount()).orElse(0L));
+                row.createCell(10)
+                    .setCellValue(Optional.ofNullable(stat.getMpbsCount()).orElse(0L));
+                var updateCell = row.createCell(11);
+                Optional.ofNullable(stat.getUpdateDatetime())
+                    .ifPresent(
+                        d -> {
+                          updateCell.setCellValue(Date.from(d));
+                          updateCell.setCellStyle(dateCellStyle);
+                        });
+                var typeCell = row.createCell(12);
+                Optional.ofNullable(stat.getStatType())
+                    .ifPresent(t -> typeCell.setCellValue(t.name()));
               });
-
       try (OutputStream os = new FileOutputStream(file)) {
         workbook.write(os);
+      }
+      for (int i = 0; i < headers.size(); i++) {
+        sheet.autoSizeColumn(i);
       }
     } catch (IOException e) {
       throw new RuntimeException(e);
