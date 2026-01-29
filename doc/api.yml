@@ -4018,7 +4018,7 @@ paths:
         - Paying
       summary: Generate advanced fees statistics file
       description: Generates an advanced fees statistics excel file, stores it in 
-        ownCloud (S3 compatible storage), and returns a presigned URL that can 
+        (S3 compatible storage), and returns a presigned URL that can 
         later be used to view the file in ownCloud.
       operationId: exportAdvancedFeesStats
       parameters:
@@ -4052,7 +4052,13 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ExportedFileUrl'
+                type: object
+                properties:
+                  url:
+                    type: string
+                    format: uri
+                required:
+                - url
         '400':
           $ref: '#/components/responses/400'
         '403':
@@ -8843,20 +8849,6 @@ components:
           type: integer
         total_yearly_fees:
           type: integer
-    ExportedFileUrl:
-      type: object
-      properties:
-        fileName:
-          type: string
-          example: advanced-fees-stats-2026-01.xlsx
-        url:
-          type: string
-          format: uri
-          example: https://owncloud.example.com/s/exported
-        expiresAt:
-          type: string
-          format: date-time
-          example: 2026-01-29T11:30:00Z
       required:
         - url
         - expiresAt
