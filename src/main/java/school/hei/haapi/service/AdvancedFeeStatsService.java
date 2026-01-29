@@ -24,18 +24,29 @@ import static school.hei.haapi.model.fee.PaymentType.MPBS;
 import static school.hei.haapi.model.statistics.AdvancedFeeStats.AdvancedFeeStatsCountType.ACCOUNTING;
 
 import jakarta.transaction.Transactional;
+
+import java.io.File;
+import java.io.IOException;
 import java.math.BigDecimal;
+import java.nio.file.Files;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.IntStream;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.stereotype.Service;
 import school.hei.haapi.endpoint.event.EventProducer;
 import school.hei.haapi.endpoint.event.model.AdvancedFeeStatsComputationTriggered;
@@ -59,6 +70,7 @@ import school.hei.haapi.repository.AdvancedFeeStatsRepository;
 import school.hei.haapi.repository.FeeRepository;
 import school.hei.haapi.repository.dao.FeeDao;
 import school.hei.haapi.service.utils.DateUtils;
+import software.amazon.awssdk.services.cognitoidentityprovider.model.RecoveryOptionNameType;
 
 @Service
 @RequiredArgsConstructor
@@ -108,6 +120,51 @@ public class AdvancedFeeStatsService {
   private boolean shouldBeUpdated(Map<AdvancedFeeStatsType, AdvancedFeeStats> advancedStats) {
     return advancedStats.values().stream()
         .anyMatch(e -> e.getUpdateDatetime().isBefore(now().minus(ADVANCED_FEE_STATS_EXPIRATION)));
+  }
+
+  public void generateAdvancedFeesStatsFile(Optional<Instant> fromInstant, Optional<Instant> toInstant, AdvancedFeeStatsCountType type) throws IOException {
+     var advancedFeesStats = generateAdvancedFeeStats(fromInstant, toInstant, type);
+     File file = Files.createTempFile("advanced-fees-stats", ".xlsx").toFile();
+
+      try(Workbook workbook = new XSSFWorkbook()){
+          Sheet sheet = workbook.createSheet("STATS");
+          Row header = sheet.createRow(0);
+          header.createCell(0).setCellValue("Date de création");
+          header.createCell(1).setCellValue("L1");
+          header.createCell(2).setCellValue("L2");
+          header.createCell(3).setCellValue("L3");
+          header.createCell(4).setCellValue("Niveau non défini");
+          header.createCell(5).setCellValue("Alternants");
+          header.createCell(6).setCellValue("Mensuel");
+          header.createCell(7).setCellValue("Annuel");
+          header.createCell(8).setCellValue("Fréquence non défini");
+          header.createCell(9).setCellValue("Virement bancaire");
+          header.createCell(10).setCellValue("Orange money");
+          header.createCell(11).setCellValue("Date de modification");
+          header.createCell(12).setCellValue("Type de Statistique");
+
+          IntStream.range(0, advancedFeesStats.size())
+                  .forEach(
+                          i -> {
+                              var advancedFeesStatuse  = advancedFeesStats.get(i);
+                              Row row = sheet.createRow(i + 1);
+                              row.createCell(0).setCellValue(Date.from(advancedFeesStatuse.getCreationDatetime()));
+                              row.createCell(1).setCellValue(advancedFeesStatuse.getFirstGradeCount());
+                              row.createCell(2).setCellValue(advancedFeesStatuse.getSecondGradeCount());
+                              row.createCell(3).setCellValue(advancedFeesStatuse.getThirdGradeCount());
+                              row.createCell(4).setCellValue(advancedFeesStatuse.getUnknownGradeCount());
+                              row.createCell(5).setCellValue(advancedFeesStatuse.getWorkStudyCount());
+                              row.createCell(6).setCellValue(advancedFeesStatuse.getMonthlyCount());
+                              row.createCell(7).setCellValue(advancedFeesStatuse.getYearlyCount());
+                              row.createCell(8).setCellValue(advancedFeesStatuse.getUnknownFrequencyCount());
+                              row.createCell(9).setCellValue(advancedFeesStatuse.getBankTransferCount());
+                              row.createCell(10).setCellValue(advancedFeesStatuse.getMpbsCount());
+                              row.createCell(11).setCellValue(Date.from(advancedFeesStatuse.getUpdateDatetime()));
+                              row.createCell(12).setCellValue(String.valueOf(advancedFeesStatuse.getStatType()));
+                          });
+      } catch (IOException e) {
+          throw new RuntimeException(e);
+      }
   }
 
   public List<AdvancedFeeStats> generateAdvancedFeeStats(
