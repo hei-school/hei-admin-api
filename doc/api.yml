@@ -4012,6 +4012,55 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
+    /fees/advanced-stats/export:
+      get:
+        tags:
+          - Paying
+        summary: Generate advanced fees statistics file
+        description: Generates an advanced fees statistics file (Excel or CSV),
+          stores it in ownCloud (S3 compatible storage), and returns a presigned URL that can later
+          be used to view the file in ownCloud.
+        operationId: exportAdvancedFeesStats
+        parameters:
+          - name: month_from
+            in: query
+            schema:
+              type: string
+              format: date
+            required: false
+          - name: month_to
+            in: query
+            schema:
+              type: string
+              format: date
+            required: false
+          - name: type
+            in: query
+            schema:
+              $ref: "#/components/schemas/AdvancedFeeStatisticsType"
+          - name: format
+            in: query
+            required: false
+            schema:
+              type: string
+              enum: [ xlsx, csv ]
+              default: xlsx
+        responses:
+          '200':
+            description: File successfully generated and stored
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/ExportedFileUrl'
+          '400':
+            $ref: '#/components/responses/400'
+          '403':
+            $ref: '#/components/responses/403'
+          '429':
+            $ref: '#/components/responses/429'
+          '500':
+            $ref: '#/components/responses/500'
+
   /fees/templates:
     get:
       tags:
@@ -8698,14 +8747,29 @@ components:
           $ref: "#/components/schemas/PendingFeesStats"
         late_fees_count:
           $ref: "#/components/schemas/LateFeesStats"
-        unpaid_fees_count:
-          $ref: "#/components/schemas/UnpaidFeesStats"
         update_datetime:
           type: string
           format: date-time
         expired:
           type: boolean
           description: Ths field will be `true` when the returned stats is outdated or needs to be generated.
+    ExportedFileUrl:
+      type: object
+      properties:
+        fileName:
+          type: string
+          example: advanced-fees-stats-2026-01.xlsx
+        url:
+          type: string
+          format: uri
+          example: https://owncloud.example.com/s/AbCdEfGhIj
+        expiresAt:
+          type: string
+          format: date-time
+          example: 2026-01-29T11:30:00Z
+      required:
+        - url
+        - expiresAt
     BaseFeesStats:
       type: object
       properties:
@@ -8759,11 +8823,6 @@ components:
         - $ref: "#/components/schemas/BaseFeesStats"
         - $ref: "#/components/schemas/RetakeExamFeesCount"
     LateFeesStats:
-      type: object
-      allOf:
-        - $ref: "#/components/schemas/BaseFeesStats"
-        - $ref: "#/components/schemas/RetakeExamFeesCount"
-    UnpaidFeesStats:
       type: object
       allOf:
         - $ref: "#/components/schemas/BaseFeesStats"
