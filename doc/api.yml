@@ -8849,9 +8849,6 @@ components:
           type: integer
         total_yearly_fees:
           type: integer
-      required:
-        - url
-        - expiresAt
     Letter:
       type: object
       properties:
