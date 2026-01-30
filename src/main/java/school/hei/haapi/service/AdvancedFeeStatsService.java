@@ -168,7 +168,7 @@ public class AdvancedFeeStatsService {
       }
       workbook.write(bytes);
     } catch (IOException e) {
-      throw new RuntimeException(e);
+      throw new RuntimeException("Failed to write Excel workbook", e);
     }
     var file = createFileFromBytes(bytes.toByteArray(), "advanced-fees-stats-" + now(), ".xlsx");
     var bucketKey = "advanced-fees-stats-" + now();

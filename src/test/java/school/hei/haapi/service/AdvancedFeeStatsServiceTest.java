@@ -20,7 +20,6 @@ import static school.hei.haapi.model.statistics.AdvancedFeeStats.AdvancedFeeStat
 import static school.hei.haapi.model.statistics.AdvancedFeeStats.AdvancedFeeStatsType.PENDING_COUNT;
 import static school.hei.haapi.model.statistics.AdvancedFeeStats.AdvancedFeeStatsType.UNPAID_COUNT;
 
-import java.io.IOException;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.HashMap;
@@ -95,7 +94,7 @@ class AdvancedFeeStatsServiceTest extends FacadeITMockedThirdParties {
   }
 
   @Test
-  void advanced_fee_statistics_count_ok() throws IOException {
+  void advanced_fee_statistics_count_ok() {
     var rangeDate = Optional.of(Instant.now());
     Map<AdvancedFeeStats.AdvancedFeeStatsType, AdvancedFeeStats> daoResult =
         Map.of(
