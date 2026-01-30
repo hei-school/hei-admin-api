@@ -4012,6 +4012,62 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
+  /fees/advanced-stats/export:
+    get:
+      tags:
+        - Paying
+      summary: Generate advanced fees statistics file
+      description: Generates an advanced fees statistics excel file, stores it in 
+        (S3 compatible storage), and returns a presigned URL that can 
+        later be used to view the file in ownCloud.
+      operationId: exportAdvancedFeesStats
+      parameters:
+        - name: month_from
+          in: query
+          schema:
+            type: string
+            format: date
+          required: false
+        - name: month_to
+          in: query
+          schema:
+            type: string
+            format: date
+          required: false
+        - name: status
+          in: query
+          description: "See the PaymentStatus object for its value."
+          required: false
+          schema:
+            type: string
+            allOf:
+              - $ref: '#/components/schemas/FeeStatusEnum'
+        - name: type
+          in: query
+          required: false
+          schema:
+            $ref: "#/components/schemas/AdvancedFeeStatisticsType"
+      responses:
+        '200':
+          description: File successfully generated and stored
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  url:
+                    type: string
+                    format: uri
+                required:
+                - url
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
   /fees/templates:
     get:
       tags:
