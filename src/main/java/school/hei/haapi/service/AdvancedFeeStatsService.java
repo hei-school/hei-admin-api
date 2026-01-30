@@ -133,7 +133,8 @@ public class AdvancedFeeStatsService {
         advancedFeesStats.stream()
             .filter(
                 advancedFeeStats ->
-                    feeStatsType.isEmpty() || !feeStatsType.equals(advancedFeeStats.getStatType()))
+                    feeStatsType.isEmpty()
+                        || !feeStatsType.get().equals(advancedFeeStats.getStatType()))
             .toList();
     var bytes = new ByteArrayOutputStream();
     try (var workbook = new XSSFWorkbook()) {
@@ -169,7 +170,7 @@ public class AdvancedFeeStatsService {
     } catch (IOException e) {
       throw new RuntimeException(e);
     }
-    var file = createFileFromBytes(bytes.toByteArray(), "advanced-fees-stats" + now(), ".xlsx");
+    var file = createFileFromBytes(bytes.toByteArray(), "advanced-fees-stats-" + now(), ".xlsx");
     var bucketKey = "advanced-fees-stats-" + now();
     bucketComponent.upload(file, bucketKey);
     return bucketComponent.presign(bucketKey, Duration.ofDays(1));

@@ -154,7 +154,7 @@ public class FeeController {
         monthFrom, monthTo, Optional.ofNullable(advancedFeeStatsCountType));
   }
 
-  @GetMapping("/fees/advanced-stats-export")
+  @GetMapping("/fees/advanced-stats/export")
   public URL exportAdvancedFeesStats(
       @RequestParam(name = "month_from", required = false) Instant monthFrom,
       @RequestParam(name = "month_to", required = false) Instant monthTo,
