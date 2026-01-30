@@ -4,6 +4,7 @@ import static school.hei.haapi.model.statistics.AdvancedFeeStats.AdvancedFeeStat
 import static school.hei.haapi.model.statistics.AdvancedFeeStats.AdvancedFeeStatsType.PAID_COUNT;
 import static school.hei.haapi.model.statistics.AdvancedFeeStats.AdvancedFeeStatsType.PENDING_COUNT;
 import static school.hei.haapi.model.statistics.AdvancedFeeStats.AdvancedFeeStatsType.TOTAL_COUNT;
+import static school.hei.haapi.model.statistics.AdvancedFeeStats.AdvancedFeeStatsType.UNPAID_COUNT;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -17,6 +18,7 @@ import school.hei.haapi.endpoint.rest.model.LateFeesStats;
 import school.hei.haapi.endpoint.rest.model.PaidFeesStats;
 import school.hei.haapi.endpoint.rest.model.PendingFeesStats;
 import school.hei.haapi.endpoint.rest.model.TotalExpectedFeesStats;
+import school.hei.haapi.endpoint.rest.model.UnpaidFeesStats;
 import school.hei.haapi.model.statistics.AdvancedFeeStats;
 import school.hei.haapi.model.statistics.AdvancedFeeStats.AdvancedFeeStatsCountType;
 import school.hei.haapi.model.statistics.AdvancedFeeStats.AdvancedFeeStatsType;
@@ -38,6 +40,9 @@ public class AdvancedFeeStatsMapper {
     statsModels.put(
         PENDING_COUNT,
         getModelPendingFeeStats(restStat.getPendingFeesCount(), statStartDate, statEndDate, type));
+    statsModels.put(
+        UNPAID_COUNT,
+        getModelUnpaidFeeStats(restStat.getUnpaidFeesCount(), statStartDate, statStartDate, type));
     statsModels.put(
         TOTAL_COUNT,
         getModelTotalFeeStats(
@@ -116,6 +121,29 @@ public class AdvancedFeeStatsMapper {
         .build();
   }
 
+  private AdvancedFeeStats getModelUnpaidFeeStats(
+      UnpaidFeesStats restStat,
+      LocalDate statStartDate,
+      LocalDate statEndDate,
+      AdvancedFeeStatsCountType type) {
+    return AdvancedFeeStats.builder()
+        .id(UUID.randomUUID().toString())
+        .statType(UNPAID_COUNT)
+        .firstGradeCount(restStat.getFirstGrade())
+        .secondGradeCount(restStat.getSecondGrade())
+        .thirdGradeCount(restStat.getThirdGrade())
+        .unknownGradeCount(restStat.getUnknownGrade())
+        .remedialFeesCount(restStat.getRetakeExamFeesCount().longValue())
+        .monthlyCount(restStat.getMonthly())
+        .yearlyCount(restStat.getYearly())
+        .unknownFrequencyCount(restStat.getUnknownFrequency())
+        .workStudyCount(restStat.getWorkStudy())
+        .statStartDate(statStartDate)
+        .statEndDate(statEndDate)
+        .countType(type)
+        .build();
+  }
+
   private AdvancedFeeStats getModelLateFeeStats(
       LateFeesStats restStat,
       LocalDate statStartDate,
@@ -165,6 +193,19 @@ public class AdvancedFeeStatsMapper {
         .unknownFrequency(modelStat.getUnknownFrequencyCount());
   }
 
+  private UnpaidFeesStats getRestUnpaidFeeStats(AdvancedFeeStats modelStat) {
+    return new UnpaidFeesStats()
+        .firstGrade(modelStat.getFirstGradeCount())
+        .secondGrade(modelStat.getSecondGradeCount())
+        .thirdGrade(modelStat.getThirdGradeCount())
+        .unknownGrade(modelStat.getUnknownGradeCount())
+        .retakeExamFeesCount(modelStat.getRemedialFeesCount())
+        .workStudy(modelStat.getWorkStudyCount())
+        .monthly(modelStat.getMonthlyCount())
+        .yearly(modelStat.getYearlyCount())
+        .unknownFrequency(modelStat.getUnknownFrequencyCount());
+  }
+
   private PaidFeesStats getRestPaidFeeStats(AdvancedFeeStats modelStat) {
     return new PaidFeesStats()
         .firstGrade(modelStat.getFirstGradeCount())
@@ -200,6 +241,7 @@ public class AdvancedFeeStatsMapper {
         case PENDING_COUNT -> restStat.pendingFeesCount(getRestPendingFeeStats(entry.getValue()));
         case LATE_COUNT -> restStat.lateFeesCount(getRestLateFeeStats(entry.getValue()));
         case PAID_COUNT -> restStat.paidFeesCount(getRestPaidFeeStats(entry.getValue()));
+        case UNPAID_COUNT -> restStat.unpaidFeesCount(getRestUnpaidFeeStats(entry.getValue()));
         case TOTAL_COUNT -> restStat.totalExpectedFeesCount(getRestTotalFeeStats(entry.getValue()));
       }
       restStat.updateDatetime(entry.getValue().getUpdateDatetime());
