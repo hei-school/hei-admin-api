@@ -30,6 +30,8 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.math.BigDecimal;
 import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDate;
@@ -138,7 +140,12 @@ public class AdvancedFeeStatsService {
                 advancedFeeStats ->
                     feeStatsType == null || !feeStatsType.equals(advancedFeeStats.getStatType()))
             .toList();
-    var file = File.createTempFile("advanced-fees-stats", ".xlsx");
+    var tempDir = Paths.get("/tmp");
+    Files.createDirectories(tempDir);
+
+    var filePath = Files.createTempFile(tempDir, "advanced-fees-stats-" + now(), ".xlsx");
+
+    File file = filePath.toFile();
 
     try (Workbook workbook = new XSSFWorkbook()) {
       Sheet sheet = workbook.createSheet("STATS");
