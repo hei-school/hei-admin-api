@@ -127,7 +127,7 @@ public class AdvancedFeeStatsService {
       Optional<Instant> fromInstant,
       Optional<Instant> toInstant,
       Optional<AdvancedFeeStatsType> feeStatsType,
-      AdvancedFeeStatsCountType countType) throws Exception {
+      AdvancedFeeStatsCountType countType) {
     var advancedFeesStats = generateAdvancedFeeStats(fromInstant, toInstant, countType);
     var filteredAdvancedStats =
         advancedFeesStats.stream()
@@ -168,7 +168,7 @@ public class AdvancedFeeStatsService {
       }
       workbook.write(bytes);
     } catch (IOException e) {
-        throw new Exception("Failed to write Excel workbook", e);
+      throw new RuntimeException(e);
     }
     var file = createFileFromBytes(bytes.toByteArray(), "advanced-fees-stats-" + now(), ".xlsx");
     var bucketKey = "advanced-fees-stats-" + now();

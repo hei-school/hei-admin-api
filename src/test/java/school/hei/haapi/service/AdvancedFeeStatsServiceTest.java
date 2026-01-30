@@ -94,7 +94,7 @@ class AdvancedFeeStatsServiceTest extends FacadeITMockedThirdParties {
   }
 
   @Test
-  void advanced_fee_statistics_count_ok() throws Exception {
+  void advanced_fee_statistics_count_ok() {
     var rangeDate = Optional.of(Instant.now());
     Map<AdvancedFeeStats.AdvancedFeeStatsType, AdvancedFeeStats> daoResult =
         Map.of(
