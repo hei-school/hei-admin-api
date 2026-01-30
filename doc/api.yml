@@ -4044,6 +4044,7 @@ paths:
               - $ref: '#/components/schemas/FeeStatusEnum'
         - name: type
           in: query
+          required: false
           schema:
             $ref: "#/components/schemas/AdvancedFeeStatisticsType"
       responses:
@@ -4067,7 +4068,6 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
-
   /fees/templates:
     get:
       tags:
