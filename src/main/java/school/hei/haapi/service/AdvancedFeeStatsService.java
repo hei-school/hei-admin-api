@@ -22,16 +22,13 @@ import static school.hei.haapi.endpoint.rest.model.FeeTypeEnum.TUITION;
 import static school.hei.haapi.model.fee.PaymentType.BANK;
 import static school.hei.haapi.model.fee.PaymentType.MPBS;
 import static school.hei.haapi.model.statistics.AdvancedFeeStats.AdvancedFeeStatsCountType.ACCOUNTING;
+import static school.hei.haapi.service.utils.FileUtils.createFileFromBytes;
 
 import jakarta.transaction.Transactional;
-import java.io.File;
-import java.io.FileOutputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.math.BigDecimal;
 import java.net.URL;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDate;
@@ -49,7 +46,6 @@ import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.CreationHelper;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.stereotype.Service;
 import school.hei.haapi.endpoint.event.EventProducer;
@@ -131,23 +127,16 @@ public class AdvancedFeeStatsService {
       Optional<Instant> fromInstant,
       Optional<Instant> toInstant,
       Optional<AdvancedFeeStatsType> feeStatsType,
-      AdvancedFeeStatsCountType countType)
-      throws IOException {
+      AdvancedFeeStatsCountType countType) {
     var advancedFeesStats = generateAdvancedFeeStats(fromInstant, toInstant, countType);
     var filteredAdvancedStats =
         advancedFeesStats.stream()
             .filter(
                 advancedFeeStats ->
-                    feeStatsType == null || !feeStatsType.equals(advancedFeeStats.getStatType()))
+                    feeStatsType.isEmpty() || !feeStatsType.equals(advancedFeeStats.getStatType()))
             .toList();
-    var tempDir = Paths.get("/tmp");
-    Files.createDirectories(tempDir);
-
-    var filePath = Files.createTempFile(tempDir, "advanced-fees-stats-" + now(), ".xlsx");
-
-    File file = filePath.toFile();
-
-    try (Workbook workbook = new XSSFWorkbook()) {
+    var bytes = new ByteArrayOutputStream();
+    try (var workbook = new XSSFWorkbook()) {
       Sheet sheet = workbook.createSheet("STATS");
       Row headerToUse = sheet.createRow(0);
       var headers =
@@ -171,61 +160,64 @@ public class AdvancedFeeStatsService {
       CreationHelper createHelper = workbook.getCreationHelper();
       CellStyle dateCellStyle = workbook.createCellStyle();
       dateCellStyle.setDataFormat(createHelper.createDataFormat().getFormat("yyyy-MM-dd HH:mm"));
-      IntStream.range(0, filteredAdvancedStats.size())
-          .forEach(
-              j -> {
-                var stat = filteredAdvancedStats.get(j);
-                Row row = sheet.createRow(j + 1);
-                var creationCell = row.createCell(0);
-                Optional.ofNullable(stat.getCreationDatetime())
-                    .ifPresent(
-                        d -> {
-                          creationCell.setCellValue(Date.from(d));
-                          creationCell.setCellStyle(dateCellStyle);
-                        });
-                row.createCell(1)
-                    .setCellValue(Optional.ofNullable(stat.getFirstGradeCount()).orElse(0L));
-                row.createCell(2)
-                    .setCellValue(Optional.ofNullable(stat.getSecondGradeCount()).orElse(0L));
-                row.createCell(3)
-                    .setCellValue(Optional.ofNullable(stat.getThirdGradeCount()).orElse(0L));
-                row.createCell(4)
-                    .setCellValue(Optional.ofNullable(stat.getUnknownGradeCount()).orElse(0L));
-                row.createCell(5)
-                    .setCellValue(Optional.ofNullable(stat.getWorkStudyCount()).orElse(0L));
-                row.createCell(6)
-                    .setCellValue(Optional.ofNullable(stat.getMonthlyCount()).orElse(0L));
-                row.createCell(7)
-                    .setCellValue(Optional.ofNullable(stat.getYearlyCount()).orElse(0L));
-                row.createCell(8)
-                    .setCellValue(Optional.ofNullable(stat.getUnknownFrequencyCount()).orElse(0L));
-                row.createCell(9)
-                    .setCellValue(Optional.ofNullable(stat.getBankTransferCount()).orElse(0L));
-                row.createCell(10)
-                    .setCellValue(Optional.ofNullable(stat.getMpbsCount()).orElse(0L));
-                var updateCell = row.createCell(11);
-                Optional.ofNullable(stat.getUpdateDatetime())
-                    .ifPresent(
-                        d -> {
-                          updateCell.setCellValue(Date.from(d));
-                          updateCell.setCellStyle(dateCellStyle);
-                        });
-                var typeCell = row.createCell(12);
-                Optional.ofNullable(stat.getStatType())
-                    .ifPresent(t -> typeCell.setCellValue(t.name()));
-              });
-      try (OutputStream os = new FileOutputStream(file)) {
-        workbook.write(os);
-      }
+      fillingRows(filteredAdvancedStats, sheet, dateCellStyle);
+
       for (int i = 0; i < headers.size(); i++) {
         sheet.autoSizeColumn(i);
       }
+      workbook.write(bytes);
     } catch (IOException e) {
       throw new RuntimeException(e);
     }
+    var file = createFileFromBytes(bytes.toByteArray(), "advanced-fees-stats" + now(), ".xlsx");
     var bucketKey = "advanced-fees-stats-" + now();
     bucketComponent.upload(file, bucketKey);
     return bucketComponent.presign(bucketKey, Duration.ofDays(1));
+  }
+
+  private static void fillingRows(
+      List<AdvancedFeeStats> filteredAdvancedStats, Sheet sheet, CellStyle dateCellStyle) {
+    IntStream.range(0, filteredAdvancedStats.size())
+        .forEach(
+            j -> {
+              var stat = filteredAdvancedStats.get(j);
+              Row row = sheet.createRow(j + 1);
+              var creationCell = row.createCell(0);
+              Optional.ofNullable(stat.getCreationDatetime())
+                  .ifPresent(
+                      d -> {
+                        creationCell.setCellValue(Date.from(d));
+                        creationCell.setCellStyle(dateCellStyle);
+                      });
+              row.createCell(1)
+                  .setCellValue(Optional.ofNullable(stat.getFirstGradeCount()).orElse(0L));
+              row.createCell(2)
+                  .setCellValue(Optional.ofNullable(stat.getSecondGradeCount()).orElse(0L));
+              row.createCell(3)
+                  .setCellValue(Optional.ofNullable(stat.getThirdGradeCount()).orElse(0L));
+              row.createCell(4)
+                  .setCellValue(Optional.ofNullable(stat.getUnknownGradeCount()).orElse(0L));
+              row.createCell(5)
+                  .setCellValue(Optional.ofNullable(stat.getWorkStudyCount()).orElse(0L));
+              row.createCell(6)
+                  .setCellValue(Optional.ofNullable(stat.getMonthlyCount()).orElse(0L));
+              row.createCell(7).setCellValue(Optional.ofNullable(stat.getYearlyCount()).orElse(0L));
+              row.createCell(8)
+                  .setCellValue(Optional.ofNullable(stat.getUnknownFrequencyCount()).orElse(0L));
+              row.createCell(9)
+                  .setCellValue(Optional.ofNullable(stat.getBankTransferCount()).orElse(0L));
+              row.createCell(10).setCellValue(Optional.ofNullable(stat.getMpbsCount()).orElse(0L));
+              var updateCell = row.createCell(11);
+              Optional.ofNullable(stat.getUpdateDatetime())
+                  .ifPresent(
+                      d -> {
+                        updateCell.setCellValue(Date.from(d));
+                        updateCell.setCellStyle(dateCellStyle);
+                      });
+              var typeCell = row.createCell(12);
+              Optional.ofNullable(stat.getStatType())
+                  .ifPresent(type -> typeCell.setCellValue(type.name()));
+            });
   }
 
   public List<AdvancedFeeStats> generateAdvancedFeeStats(
