@@ -8,6 +8,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import school.hei.haapi.model.Grade;
 import school.hei.haapi.model.User;
+import school.hei.haapi.model.dto.GradeDto;
 
 @Repository
 public interface GradeRepository extends JpaRepository<Grade, String> {
@@ -29,6 +30,8 @@ public interface GradeRepository extends JpaRepository<Grade, String> {
 
   List<Grade> getAllByStudent(User student);
 
-  @Query("select g.student.ref as ref, g.score as score from Grade g where g.exam.id = :exam_id")
-  List<Object[]> getGradesByExamId(@Param("exam_id") String examId);
+  @Query(
+      "select g.id as id, g.student.ref as ref, g.score as score from Grade g where g.exam.id ="
+          + " :exam_id")
+  List<GradeDto> getGradesByExamId(@Param("exam_id") String examId);
 }

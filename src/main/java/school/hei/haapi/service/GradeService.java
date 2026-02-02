@@ -37,6 +37,7 @@ import school.hei.haapi.file.bucket.BucketComponent;
 import school.hei.haapi.model.Grade;
 import school.hei.haapi.model.Group;
 import school.hei.haapi.model.GroupFlow;
+import school.hei.haapi.model.dto.GradeDto;
 import school.hei.haapi.model.dto.GradeImportDto;
 import school.hei.haapi.model.exception.BadRequestException;
 import school.hei.haapi.model.exception.NotFoundException;
@@ -44,6 +45,7 @@ import school.hei.haapi.model.notEntity.UpdateGrade;
 import school.hei.haapi.model.validator.IsNewGradeChecker;
 import school.hei.haapi.repository.CourseAssignmentRepository;
 import school.hei.haapi.repository.ExamRepository;
+import school.hei.haapi.repository.GradeChangeHistoryRepository;
 import school.hei.haapi.repository.GradeRepository;
 import school.hei.haapi.repository.dao.GradeDao;
 import school.hei.haapi.service.utils.excel.ExcelParser;
@@ -63,13 +65,7 @@ public class GradeService {
   private final ExamRepository examRepository;
 
   private static final String GRADE_XLSX_IMPORT_BUCKET_KEY = "/STUDENT_EXAM_GRADE_XLSX_IMPORT/";
-  private final GradeResultService gradeResultService;
-
-  public Grade getGradeByExamIdAndStudentRef(String examId, String ref) {
-    return gradeRepository
-        .getGradeByExamIdAndStudentRef(examId, ref)
-        .orElseThrow(() -> new NotFoundException("Grade not found"));
-  }
+  private final GradeChangeHistoryRepository gradeChangeHistoryRepository;
 
   public List<Grade> getGradesByStudentId(String studentId) {
     var student = userService.getById(studentId);
@@ -289,17 +285,31 @@ public class GradeService {
 
   public List<GradeImportDto> filterExistingGrades(
       List<GradeImportDto> grades, String examId, String comment) {
-    var savedGrades = gradeMapper.mapToListDtos(gradeRepository.getGradesByExamId(examId));
-    Set<String> existingRefs =
-        savedGrades.stream().map(GradeImportDto::getRef).collect(Collectors.toSet());
+    var savedGrades = gradeRepository.getGradesByExamId(examId);
+    var savedGradeIds = savedGrades.stream().map(savedGrade -> savedGrade.getId()).toList();
+    var gradeChangeHistories =
+        gradeChangeHistoryRepository.findByGradeIdsOrderedByChangeInstantAsc(savedGradeIds);
+    Set<String> gradeRefs =
+        savedGrades.stream().map(grade -> grade.getRef()).collect(Collectors.toSet());
     List<GradeImportDto> filterGrades;
     if (comment != null) {
-      filterGrades = grades.stream().filter(savedGrades::contains).toList();
+      filterGrades = grades.stream().filter(grade -> gradeRefs.contains(grade.getRef())).toList();
     } else {
       filterGrades =
-          grades.stream().filter(grade -> existingRefs.contains(grade.getRef())).toList();
+          grades.stream()
+              .filter(
+                  grade -> {
+                    var histories =
+                        gradeChangeHistories.stream()
+                            .filter(
+                                gradeChangeHistory ->
+                                    gradeChangeHistory.getRef().equals(grade.getRef()))
+                            .toList();
+                    return histories.stream()
+                        .anyMatch(history -> history.getScore().equals(grade.getScore()));
+                  })
+              .toList();
     }
-
     return filterGrades;
   }
 
@@ -417,19 +427,30 @@ public class GradeService {
 
   public byte[] generateGradesTemplate(String examId) {
     var existingGrades = gradeRepository.getGradesByExamId(examId);
-    var exam = examRepository.findById(examId);
+    var gradeIds = existingGrades.stream().map(GradeDto::getId).toList();
+    var gradeChangeHistories =
+        gradeChangeHistoryRepository.findByGradeIdsOrderedByChangeInstantAsc(gradeIds);
+    Map<String, List<GradeDto>> historiesByGradeId =
+        gradeChangeHistories.stream().collect(Collectors.groupingBy(GradeDto::getId));
+
+    var gradeDtos =
+        existingGrades.stream()
+            .map(
+                grade -> {
+                  var gradeHistories = historiesByGradeId.get(grade.getId());
+                  if (gradeHistories != null || !gradeHistories.isEmpty()) {
+                    return gradeHistories.getLast();
+                  }
+                  return grade;
+                })
+            .toList();
     Map<String, Double> studentScoreAndRefs = new HashMap<>();
-    for (Object[] grade : existingGrades) {
-      var ref = (String) grade[0];
-      var score = (Double) grade[1];
-      studentScoreAndRefs.put(ref, score);
+    for (var grade : gradeDtos) {
+      studentScoreAndRefs.put(grade.getRef(), grade.getScore());
     }
     var participants = examRepository.findStudentRefsByExamId(examId);
     try (Workbook workbook = new XSSFWorkbook()) {
-      String fileName = "note";
-      if (exam.isPresent()) {
-        fileName = String.format("note_%s", exam.get().getTitle());
-      }
+      String fileName = "note_d_examen_" + examId;
       Sheet sheet = workbook.createSheet(fileName);
       Row headerRow = sheet.createRow(0);
       headerRow.createCell(0).setCellValue("ref");
