@@ -135,7 +135,7 @@ public class MpbsVerificationService {
                       mpbs ->
                           PaymentInfo.builder()
                               .payerEmail(mpbs.getStudent().getEmail())
-                              .pspType(volaMapper.toPspType(mpbs.getMobileMoneyType()))
+                              .pspType(volaMapper.toPspTypeEnum(mpbs.getMobileMoneyType()))
                               .pspPaymentId(mpbs.getPspId())
                               .build())
                   .toList());

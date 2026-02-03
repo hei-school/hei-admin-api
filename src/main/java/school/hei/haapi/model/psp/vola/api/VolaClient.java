@@ -27,6 +27,6 @@ public class VolaClient {
   }
 
   public List<Payment> getPayments(List<PaymentInfo> paymentInfos) {
-    return paymentControllerApi.getPayments(paymentInfos, apiKey);
+    return paymentControllerApi.getPayments(apiKey, paymentInfos);
   }
 }
