@@ -15,10 +15,10 @@ import school.hei.haapi.model.psp.vola.api.gen.client.model.PspPayment;
 @Component
 public class VolaMapper {
 
-  public PspType toPspType(MobileMoneyType mobileMoneyType) {
+  public PaymentInfo.PspTypeEnum toPspTypeEnum(MobileMoneyType mobileMoneyType) {
     switch (mobileMoneyType) {
       case ORANGE_MONEY -> {
-        return ORANGE_MONEY;
+        return PaymentInfo.PspTypeEnum.ORANGE_MONEY;
       }
       default ->
           throw new UnsupportedOperationException(
@@ -71,7 +71,7 @@ public class VolaMapper {
     return PaymentInfo.builder()
         .pspPaymentId(mpbs.getPspId())
         .payerEmail(mpbs.getStudent().getEmail())
-        .pspType(toPspType(mpbs.getMobileMoneyType()))
+        .pspType(toPspTypeEnum(mpbs.getMobileMoneyType()))
         .build();
   }
 }
