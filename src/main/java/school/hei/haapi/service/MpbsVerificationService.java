@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -124,57 +125,102 @@ public class MpbsVerificationService {
   // Vola integration
   public List<MpbsVerification> verifyMobilePaymentAndSaveResultWithVola(
       List<Mpbs> pendingMpbsList) {
+    log.info("Starting Vola verification for {} pending MPBS", pendingMpbsList.size());
+
     List<MpbsVerification> verifiedMpbs = new ArrayList<>();
     List<Mpbs> unverifiedMpbs = new ArrayList<>();
 
     try {
-      List<Payment> volaPayments =
-          volaPsp.getPayments(
-              pendingMpbsList.stream()
-                  .map(
-                      mpbs ->
-                          PaymentId.builder()
-                              .payerEmail(mpbs.getStudent().getEmail())
-                              .pspType(volaMapper.toPspTypeEnum(mpbs.getMobileMoneyType()))
-                              .pspPaymentId(mpbs.getPspId())
-                              .build())
-                  .toList());
-
-      var paymentMap =
-          volaPayments.stream()
-              .collect(
-                  Collectors.toMap(
-                      payment -> payment.getPspPayment().getId(), Function.identity()));
-
-      for (Mpbs pendingMbps : pendingMpbsList) {
-        Payment volaPayment = paymentMap.get(pendingMbps.getPspId());
-
-        if (volaPayment != null && isPaymentSuccessful(volaPayment)) {
-          processVerifiedPayment(pendingMbps, volaPayment, verifiedMpbs, unverifiedMpbs);
-        } else {
-          if (volaPayment == null) {
-            log.info("No payment found in Vola for PSP ID: {}", pendingMbps.getPspId());
-          } else if (volaPayment.getVerificationStatus() == Payment.VerificationStatusEnum.FAILED) {
-            log.warn(
-                "Payment returned by Vola with FAILED status for PSP ID: {}",
-                pendingMbps.getPspId());
-          } else {
-            log.info(
-                "Payment from Vola is not successful for PSP ID: {} (status: {})",
-                pendingMbps.getPspId(),
-                volaPayment.getVerificationStatus());
-          }
-          unverifiedMpbs.add(pendingMbps);
-        }
-      }
-
+      var paymentMap = fetchAndMapVolaPayments(pendingMpbsList);
+      processPayments(pendingMpbsList, paymentMap, verifiedMpbs, unverifiedMpbs);
     } catch (Exception e) {
-      log.error("Error fetching payments from Vola", e);
+      log.error("Error fetching payments from Vola for {} MPBS", pendingMpbsList.size(), e);
       unverifiedMpbs.addAll(pendingMpbsList);
     }
 
-    unverifiedMobilePaymentHandler.accept(unverifiedMpbs);
+    handleUnverifiedPayments(unverifiedMpbs);
+    logVerificationResults(verifiedMpbs, unverifiedMpbs);
+
     return verifiedMpbs;
+  }
+
+  private Map<String, Payment> fetchAndMapVolaPayments(List<Mpbs> pendingMpbsList) {
+    log.info("Fetching {} payments from Vola", pendingMpbsList.size());
+
+    List<PaymentId> paymentIds = buildPaymentIds(pendingMpbsList);
+    List<Payment> volaPayments = volaPsp.getPayments(paymentIds);
+
+    log.info("Successfully fetched {} payments from Vola", volaPayments.size());
+
+    return volaPayments.stream()
+        .collect(Collectors.toMap(payment -> payment.getPspPayment().getId(), Function.identity()));
+  }
+
+  private List<PaymentId> buildPaymentIds(List<Mpbs> pendingMpbsList) {
+    return pendingMpbsList.stream()
+        .map(
+            mpbs ->
+                PaymentId.builder()
+                    .payerEmail(mpbs.getStudent().getEmail())
+                    .pspType(volaMapper.toPspTypeEnum(mpbs.getMobileMoneyType()))
+                    .pspPaymentId(mpbs.getPspId())
+                    .build())
+        .toList();
+  }
+
+  private void processPayments(
+      List<Mpbs> pendingMpbsList,
+      Map<String, Payment> paymentMap,
+      List<MpbsVerification> verifiedMpbs,
+      List<Mpbs> unverifiedMpbs) {
+
+    log.info("Processing {} MPBS against Vola payments", pendingMpbsList.size());
+
+    for (Mpbs pendingMpbs : pendingMpbsList) {
+      Payment volaPayment = paymentMap.get(pendingMpbs.getPspId());
+
+      if (shouldVerifyPayment(volaPayment, pendingMpbs.getPspId())) {
+        processVerifiedPayment(pendingMpbs, volaPayment, verifiedMpbs, unverifiedMpbs);
+      } else {
+        logUnverifiedReason(volaPayment, pendingMpbs.getPspId());
+        unverifiedMpbs.add(pendingMpbs);
+      }
+    }
+  }
+
+  private boolean shouldVerifyPayment(Payment volaPayment, String pspId) {
+    if (volaPayment == null) {
+      return false;
+    }
+    return isPaymentSuccessful(volaPayment);
+  }
+
+  private void logUnverifiedReason(Payment volaPayment, String pspId) {
+    if (volaPayment == null) {
+      log.info("No payment found in Vola for PSP ID: {}", pspId);
+    } else if (volaPayment.getVerificationStatus() == Payment.VerificationStatusEnum.FAILED) {
+      log.warn("Payment returned by Vola with FAILED status for PSP ID: {}", pspId);
+    } else {
+      log.info(
+          "Payment from Vola is not successful for PSP ID: {} (status: {})",
+          pspId,
+          volaPayment.getVerificationStatus());
+    }
+  }
+
+  private void handleUnverifiedPayments(List<Mpbs> unverifiedMpbs) {
+    if (!unverifiedMpbs.isEmpty()) {
+      log.info("Handling {} unverified payments", unverifiedMpbs.size());
+      unverifiedMobilePaymentHandler.accept(unverifiedMpbs);
+    }
+  }
+
+  private void logVerificationResults(
+      List<MpbsVerification> verifiedMpbs, List<Mpbs> unverifiedMpbs) {
+    log.info(
+        "Vola verification completed - Verified: {}, Unverified: {}",
+        verifiedMpbs.size(),
+        unverifiedMpbs.size());
   }
 
   private boolean isPaymentSuccessful(Payment payment) {
