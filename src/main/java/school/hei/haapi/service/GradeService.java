@@ -17,14 +17,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -37,7 +33,6 @@ import school.hei.haapi.endpoint.rest.model.ImportGradeResult;
 import school.hei.haapi.endpoint.rest.model.ImportGradeStat;
 import school.hei.haapi.file.bucket.BucketComponent;
 import school.hei.haapi.model.Grade;
-import school.hei.haapi.model.GradeChangeHistory;
 import school.hei.haapi.model.Group;
 import school.hei.haapi.model.GroupFlow;
 import school.hei.haapi.model.dto.GradeDto;
@@ -433,56 +428,55 @@ public class GradeService {
   }
 
   public byte[] generateGradesTemplate(String examId) {
-      var existingGrades = gradeRepository.getGradesByExamId(examId);
-      var gradeIds = existingGrades.stream().map(GradeDto::getId).toList();
-      var gradeHistories = gradeChangeHistoryRepository.findByGradeIdsOrderedByChangeInstantAsc(gradeIds);
-      var lastHistoryByGradeId =
-              gradeHistories.stream()
-                      .collect(Collectors.toMap(
-                              GradeDto::getId,
-                              identity(),
-                              (oldChange, newChange) -> newChange
-                      ));
-      var allGrades =
-              existingGrades.stream()
-                      .map(existing -> {
-                          var lastGradeChangeHistory = lastHistoryByGradeId.get(existing.getId());
-                          if (lastGradeChangeHistory != null) {
-                              return lastGradeChangeHistory;
-                          }
-                          return existing;
-                      })
-                      .toList();
-      Map<String, Double> studentScoreAndRefs = new HashMap<>();
-      for (var grade : allGrades) {
-          studentScoreAndRefs.put(grade.getRef(), grade.getScore());
+    var existingGrades = gradeRepository.getGradesByExamId(examId);
+    var gradeIds = existingGrades.stream().map(GradeDto::getId).toList();
+    var gradeHistories =
+        gradeChangeHistoryRepository.findByGradeIdsOrderedByChangeInstantAsc(gradeIds);
+    var lastHistoryByGradeId =
+        gradeHistories.stream()
+            .collect(
+                Collectors.toMap(GradeDto::getId, identity(), (oldChange, newChange) -> newChange));
+    var allGrades =
+        existingGrades.stream()
+            .map(
+                existing -> {
+                  var lastGradeChangeHistory = lastHistoryByGradeId.get(existing.getId());
+                  if (lastGradeChangeHistory != null) {
+                    return lastGradeChangeHistory;
+                  }
+                  return existing;
+                })
+            .toList();
+    Map<String, Double> studentScoreAndRefs = new HashMap<>();
+    for (var grade : allGrades) {
+      studentScoreAndRefs.put(grade.getRef(), grade.getScore());
+    }
+    var participants = examRepository.findStudentRefsByExamId(examId);
+    try (var workbook = new XSSFWorkbook()) {
+      var fileName = "note_" + examId;
+      var sheet = workbook.createSheet(fileName);
+      var headerRow = sheet.createRow(0);
+      headerRow.createCell(0).setCellValue("ref");
+      headerRow.createCell(1).setCellValue("score");
+      int rowIndex = 1;
+      for (var ref : participants) {
+        var row = sheet.createRow(rowIndex++);
+        row.createCell(0).setCellValue(ref);
+        var score = studentScoreAndRefs.get(ref);
+        if (score != null) {
+          row.createCell(1).setCellValue(score);
+        } else {
+          row.createCell(1);
+        }
       }
-      var participants = examRepository.findStudentRefsByExamId(examId);
-      try (var workbook = new XSSFWorkbook()) {
-          var fileName = "note_" + examId;
-          var sheet = workbook.createSheet(fileName);
-          var headerRow = sheet.createRow(0);
-          headerRow.createCell(0).setCellValue("ref");
-          headerRow.createCell(1).setCellValue("score");
-          int rowIndex = 1;
-          for (var ref : participants) {
-              var row = sheet.createRow(rowIndex++);
-              row.createCell(0).setCellValue(ref);
-              var score = studentScoreAndRefs.get(ref);
-              if (score != null) {
-                  row.createCell(1).setCellValue(score);
-              } else {
-                  row.createCell(1);
-              }
-          }
-          sheet.autoSizeColumn(0);
-          sheet.autoSizeColumn(1);
-          try (ByteArrayOutputStream template = new ByteArrayOutputStream()) {
-              workbook.write(template);
-              return template.toByteArray();
-          }
-      } catch (IOException e) {
-          throw new ApiException(SERVER_EXCEPTION, e);
+      sheet.autoSizeColumn(0);
+      sheet.autoSizeColumn(1);
+      try (ByteArrayOutputStream template = new ByteArrayOutputStream()) {
+        workbook.write(template);
+        return template.toByteArray();
       }
+    } catch (IOException e) {
+      throw new ApiException(SERVER_EXCEPTION, e);
+    }
   }
 }
