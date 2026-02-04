@@ -5,7 +5,7 @@ import school.hei.haapi.model.psp.PspType;
 import school.hei.haapi.model.psp.vola.api.gen.client.ApiClient;
 import school.hei.haapi.model.psp.vola.api.gen.client.api.PaymentControllerApi;
 import school.hei.haapi.model.psp.vola.api.gen.client.model.Payment;
-import school.hei.haapi.model.psp.vola.api.gen.client.model.PaymentInfo;
+import school.hei.haapi.model.psp.vola.api.gen.client.model.PaymentId;
 
 public class VolaClient {
   private final String apiKey;
@@ -22,11 +22,11 @@ public class VolaClient {
     return paymentControllerApi.createPayment(apiKey, email, pspType.toString(), pspId);
   }
 
-  public Payment get(PspType pspType, String pspId, String email) {
-    return paymentControllerApi.getPayment(apiKey, email, pspType.toString(), pspId);
+  public Payment get(PaymentId paymentId) {
+    return paymentControllerApi.getPayment(apiKey, paymentId);
   }
 
-  public List<Payment> getPayments(List<PaymentInfo> paymentInfos) {
-    return paymentControllerApi.getPayments(apiKey, paymentInfos);
+  public List<Payment> getPayments(List<PaymentId> paymentIds) {
+    return paymentControllerApi.getPayments(apiKey, paymentIds);
   }
 }

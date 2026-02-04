@@ -26,7 +26,7 @@ import school.hei.haapi.model.mpbs.Mpbs;
 import school.hei.haapi.model.mpbs.MpbsVerification;
 import school.hei.haapi.model.psp.vola.api.VolaPsp;
 import school.hei.haapi.model.psp.vola.api.gen.client.model.Payment;
-import school.hei.haapi.model.psp.vola.api.gen.client.model.PaymentInfo;
+import school.hei.haapi.model.psp.vola.api.gen.client.model.PaymentId;
 import school.hei.haapi.model.psp.vola.api.gen.client.model.mapper.VolaMapper;
 import school.hei.haapi.repository.MpbsRepository;
 import school.hei.haapi.repository.MpbsVerificationRepository;
@@ -133,7 +133,7 @@ public class MpbsVerificationService {
               pendingMpbsList.stream()
                   .map(
                       mpbs ->
-                          PaymentInfo.builder()
+                          PaymentId.builder()
                               .payerEmail(mpbs.getStudent().getEmail())
                               .pspType(volaMapper.toPspTypeEnum(mpbs.getMobileMoneyType()))
                               .pspPaymentId(mpbs.getPspId())

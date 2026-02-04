@@ -19,16 +19,16 @@ import lombok.Builder;
 
 /** PaymentInfo */
 @JsonPropertyOrder({
-  PaymentInfo.JSON_PROPERTY_PAYER_EMAIL,
-  PaymentInfo.JSON_PROPERTY_PSP_TYPE,
-  PaymentInfo.JSON_PROPERTY_PSP_PAYMENT_ID
+  PaymentId.JSON_PROPERTY_PAYER_EMAIL,
+  PaymentId.JSON_PROPERTY_PSP_TYPE,
+  PaymentId.JSON_PROPERTY_PSP_PAYMENT_ID
 })
 @jakarta.annotation.Generated(
     value = "org.openapitools.codegen.languages.JavaClientCodegen",
     date = "2026-02-03T14:02:49.018577350+03:00[Indian/Antananarivo]")
 @Builder
 @AllArgsConstructor
-public class PaymentInfo {
+public class PaymentId {
   public static final String JSON_PROPERTY_PAYER_EMAIL = "payerEmail";
   private String payerEmail;
 
@@ -69,9 +69,9 @@ public class PaymentInfo {
   public static final String JSON_PROPERTY_PSP_PAYMENT_ID = "pspPaymentId";
   private String pspPaymentId;
 
-  public PaymentInfo() {}
+  public PaymentId() {}
 
-  public PaymentInfo payerEmail(String payerEmail) {
+  public PaymentId payerEmail(String payerEmail) {
 
     this.payerEmail = payerEmail;
     return this;
@@ -95,7 +95,7 @@ public class PaymentInfo {
     this.payerEmail = payerEmail;
   }
 
-  public PaymentInfo pspType(PspTypeEnum pspType) {
+  public PaymentId pspType(PspTypeEnum pspType) {
 
     this.pspType = pspType;
     return this;
@@ -119,7 +119,7 @@ public class PaymentInfo {
     this.pspType = pspType;
   }
 
-  public PaymentInfo pspPaymentId(String pspPaymentId) {
+  public PaymentId pspPaymentId(String pspPaymentId) {
 
     this.pspPaymentId = pspPaymentId;
     return this;
@@ -151,7 +151,7 @@ public class PaymentInfo {
     if (o == null || getClass() != o.getClass()) {
       return false;
     }
-    PaymentInfo paymentInfo = (PaymentInfo) o;
+    PaymentId paymentInfo = (PaymentId) o;
     return Objects.equals(this.payerEmail, paymentInfo.payerEmail)
         && Objects.equals(this.pspType, paymentInfo.pspType)
         && Objects.equals(this.pspPaymentId, paymentInfo.pspPaymentId);
