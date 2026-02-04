@@ -233,8 +233,8 @@ class MpbsVerificationTest {
                     .id("payment-verified-id")
                     .pspPayment(
                         PspPayment.builder()
-                            .id(verifiedPaymentInfo.pspPaymentId())
-                            .pspType(volaMapper.toPspPaymentType(verifiedPaymentInfo.pspType()))
+                            .id(verifiedPaymentInfo.getPspPaymentId())
+                            .pspType(volaMapper.toPspPaymentType(verifiedPaymentInfo.getPspType()))
                             .amount(10000)
                             .creationInstant(new Date())
                             .build())
@@ -246,8 +246,8 @@ class MpbsVerificationTest {
                     .id("payment-pending-id")
                     .pspPayment(
                         PspPayment.builder()
-                            .id(pendingPaymentInfo.pspPaymentId())
-                            .pspType(volaMapper.toPspPaymentType(pendingPaymentInfo.pspType()))
+                            .id(pendingPaymentInfo.getPspPaymentId())
+                            .pspType(volaMapper.toPspPaymentType(pendingPaymentInfo.getPspType()))
                             .amount(null)
                             .creationInstant(new Date())
                             .build())
@@ -304,8 +304,8 @@ class MpbsVerificationTest {
                     .id("payment-verified-id")
                     .pspPayment(
                         PspPayment.builder()
-                            .id(verifiedPaymentInfo.pspPaymentId())
-                            .pspType(volaMapper.toPspPaymentType(verifiedPaymentInfo.pspType()))
+                            .id(verifiedPaymentInfo.getPspPaymentId())
+                            .pspType(volaMapper.toPspPaymentType(verifiedPaymentInfo.getPspType()))
                             .amount(1000)
                             .creationInstant(new Date())
                             .build())
@@ -317,8 +317,8 @@ class MpbsVerificationTest {
                     .id(null) // Payment FAILED retourné par Vola
                     .pspPayment(
                         PspPayment.builder()
-                            .id(failedPaymentInfo.pspPaymentId())
-                            .pspType(volaMapper.toPspPaymentType(failedPaymentInfo.pspType()))
+                            .id(failedPaymentInfo.getPspPaymentId())
+                            .pspType(volaMapper.toPspPaymentType(failedPaymentInfo.getPspType()))
                             .amount(null)
                             .creationInstant(null)
                             .build())
@@ -330,8 +330,8 @@ class MpbsVerificationTest {
                     .id(null) // Payment FAILED retourné par Vola
                     .pspPayment(
                         PspPayment.builder()
-                            .id(badPaymentInfo.pspPaymentId())
-                            .pspType(volaMapper.toPspPaymentType(badPaymentInfo.pspType()))
+                            .id(badPaymentInfo.getPspPaymentId())
+                            .pspType(volaMapper.toPspPaymentType(badPaymentInfo.getPspType()))
                             .amount(null)
                             .creationInstant(null)
                             .build())

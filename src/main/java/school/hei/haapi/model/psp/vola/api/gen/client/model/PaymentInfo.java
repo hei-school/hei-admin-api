@@ -14,6 +14,7 @@ package school.hei.haapi.model.psp.vola.api.gen.client.model;
 
 import com.fasterxml.jackson.annotation.*;
 import java.util.Objects;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 
 /** PaymentInfo */
@@ -26,6 +27,7 @@ import lombok.Builder;
     value = "org.openapitools.codegen.languages.JavaClientCodegen",
     date = "2026-02-03T14:02:49.018577350+03:00[Indian/Antananarivo]")
 @Builder
+@AllArgsConstructor
 public class PaymentInfo {
   public static final String JSON_PROPERTY_PAYER_EMAIL = "payerEmail";
   private String payerEmail;

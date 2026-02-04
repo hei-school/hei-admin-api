@@ -35,6 +35,15 @@ public class VolaMapper {
     }
   }
 
+  public PspPayment.PspTypeEnum toPspPaymentType(PaymentInfo.PspTypeEnum pspType) {
+    switch (pspType) {
+      case ORANGE_MONEY -> {
+        return PspPayment.PspTypeEnum.ORANGE_MONEY;
+      }
+      default -> throw new UnsupportedOperationException("Unsupported pspType: " + pspType);
+    }
+  }
+
   public Mpbs toMpbs(Mpbs mpbs, Payment volaPayment) {
     var statusHistory = mpbs.getStatusHistory();
     statusHistory.add(
