@@ -1,7 +1,9 @@
 package school.hei.haapi.service;
 
+import static java.util.function.Function.identity;
 import static org.apache.poi.ss.usermodel.CellType.NUMERIC;
 import static org.apache.poi.ss.usermodel.Row.MissingCellPolicy.CREATE_NULL_AS_BLANK;
+import static school.hei.haapi.model.exception.ApiException.ExceptionType.SERVER_EXCEPTION;
 
 import jakarta.transaction.Transactional;
 import java.io.ByteArrayOutputStream;
@@ -10,10 +12,12 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -33,10 +37,12 @@ import school.hei.haapi.endpoint.rest.model.ImportGradeResult;
 import school.hei.haapi.endpoint.rest.model.ImportGradeStat;
 import school.hei.haapi.file.bucket.BucketComponent;
 import school.hei.haapi.model.Grade;
+import school.hei.haapi.model.GradeChangeHistory;
 import school.hei.haapi.model.Group;
 import school.hei.haapi.model.GroupFlow;
 import school.hei.haapi.model.dto.GradeDto;
 import school.hei.haapi.model.dto.GradeImportDto;
+import school.hei.haapi.model.exception.ApiException;
 import school.hei.haapi.model.exception.BadRequestException;
 import school.hei.haapi.model.exception.NotFoundException;
 import school.hei.haapi.model.notEntity.UpdateGrade;
@@ -427,49 +433,56 @@ public class GradeService {
   }
 
   public byte[] generateGradesTemplate(String examId) {
-    var existingGrades = gradeRepository.getGradesByExamId(examId);
-    var gradeIds = existingGrades.stream().map(GradeDto::getId).toList();
-    var gradeChangeHistories =
-        gradeChangeHistoryRepository.findByGradeIdsOrderedByChangeInstantAsc(gradeIds);
-    Map<String, List<GradeDto>> historiesByGradeId =
-        gradeChangeHistories.stream().collect(Collectors.groupingBy(GradeDto::getId));
-    var gradeDtos =
-        existingGrades.stream()
-            .map(
-                grade -> {
-                  var gradeHistories = historiesByGradeId.get(grade.getId());
-                  if (gradeHistories != null) {
-                    return gradeHistories.getLast();
-                  }
-                  return grade;
-                })
-            .toList();
-    try (Workbook workbook = new XSSFWorkbook()) {
-      String fileName = "note_d_examen_" + examId;
-      Sheet sheet = workbook.createSheet(fileName);
-      Row headerRow = sheet.createRow(0);
-      headerRow.createCell(0).setCellValue("ref");
-      headerRow.createCell(1).setCellValue("score");
-      var rowIndex = 0;
-      for (var grade : gradeDtos) {
-        var ref = grade.getRef();
-        var row = sheet.createRow(rowIndex + 1);
-        row.createCell(0).setCellValue(ref);
-        Double score = grade.getScore();
-        if (score != null) {
-          row.createCell(1).setCellValue(score);
-        } else {
-          row.createCell(1);
-        }
+      var existingGrades = gradeRepository.getGradesByExamId(examId);
+      var gradeIds = existingGrades.stream().map(GradeDto::getId).toList();
+      var gradeHistories = gradeChangeHistoryRepository.findByGradeIdsOrderedByChangeInstantAsc(gradeIds);
+      var lastHistoryByGradeId =
+              gradeHistories.stream()
+                      .collect(Collectors.toMap(
+                              GradeDto::getId,
+                              identity(),
+                              (oldChange, newChange) -> newChange
+                      ));
+      var allGrades =
+              existingGrades.stream()
+                      .map(existing -> {
+                          var lastGradeChangeHistory = lastHistoryByGradeId.get(existing.getId());
+                          if (lastGradeChangeHistory != null) {
+                              return lastGradeChangeHistory;
+                          }
+                          return existing;
+                      })
+                      .toList();
+      Map<String, Double> studentScoreAndRefs = new HashMap<>();
+      for (var grade : allGrades) {
+          studentScoreAndRefs.put(grade.getRef(), grade.getScore());
       }
-      sheet.autoSizeColumn(0);
-      sheet.autoSizeColumn(1);
-      try (ByteArrayOutputStream template = new ByteArrayOutputStream()) {
-        workbook.write(template);
-        return template.toByteArray();
+      var participants = examRepository.findStudentRefsByExamId(examId);
+      try (var workbook = new XSSFWorkbook()) {
+          var fileName = "note_" + examId;
+          var sheet = workbook.createSheet(fileName);
+          var headerRow = sheet.createRow(0);
+          headerRow.createCell(0).setCellValue("ref");
+          headerRow.createCell(1).setCellValue("score");
+          int rowIndex = 1;
+          for (var ref : participants) {
+              var row = sheet.createRow(rowIndex++);
+              row.createCell(0).setCellValue(ref);
+              var score = studentScoreAndRefs.get(ref);
+              if (score != null) {
+                  row.createCell(1).setCellValue(score);
+              } else {
+                  row.createCell(1);
+              }
+          }
+          sheet.autoSizeColumn(0);
+          sheet.autoSizeColumn(1);
+          try (ByteArrayOutputStream template = new ByteArrayOutputStream()) {
+              workbook.write(template);
+              return template.toByteArray();
+          }
+      } catch (IOException e) {
+          throw new ApiException(SERVER_EXCEPTION, e);
       }
-    } catch (IOException e) {
-      throw new RuntimeException(e);
-    }
   }
 }
