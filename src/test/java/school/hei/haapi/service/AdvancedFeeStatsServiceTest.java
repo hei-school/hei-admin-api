@@ -31,6 +31,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import school.hei.haapi.endpoint.event.EventProducer;
 import school.hei.haapi.endpoint.rest.mapper.AdvancedFeeStatsMapper;
+import school.hei.haapi.file.bucket.BucketComponent;
 import school.hei.haapi.integration.conf.FacadeITMockedThirdParties;
 import school.hei.haapi.model.Fee;
 import school.hei.haapi.model.FeeStatusHistory;
@@ -46,6 +47,7 @@ class AdvancedFeeStatsServiceTest extends FacadeITMockedThirdParties {
   private AdvancedFeeStatsRepository repository;
   @Autowired private AdvancedFeeStatsMapper advancedFeeStatsMapper;
   private FeeRepository feeRepository;
+  private BucketComponent bucketComponent;
 
   @BeforeEach
   void setUp() {
@@ -53,10 +55,16 @@ class AdvancedFeeStatsServiceTest extends FacadeITMockedThirdParties {
     repository = mock(AdvancedFeeStatsRepository.class);
     feeRepository = mock(FeeRepository.class);
     eventProducer = mock(EventProducer.class);
+    bucketComponent = mock(BucketComponent.class);
 
     subject =
         new AdvancedFeeStatsService(
-            feeDao, repository, advancedFeeStatsMapper, feeRepository, eventProducer);
+            feeDao,
+            repository,
+            advancedFeeStatsMapper,
+            feeRepository,
+            eventProducer,
+            bucketComponent);
   }
 
   @Test
@@ -88,7 +96,6 @@ class AdvancedFeeStatsServiceTest extends FacadeITMockedThirdParties {
   @Test
   void advanced_fee_statistics_count_ok() {
     var rangeDate = Optional.of(Instant.now());
-
     Map<AdvancedFeeStats.AdvancedFeeStatsType, AdvancedFeeStats> daoResult =
         Map.of(
             UNPAID_COUNT,
@@ -125,6 +132,7 @@ class AdvancedFeeStatsServiceTest extends FacadeITMockedThirdParties {
             .findFirst()
             .orElseThrow(() -> new AssertionError("UNPAID_COUNT stat not generated"));
 
+    subject.generateAdvancedFeesStatsExcelFile(rangeDate, rangeDate, Optional.empty(), RECEIPT);
     assertEquals(2, unpaidStat.getSecondGradeCount(), "L2 unpaid");
     assertEquals(2, unpaidStat.getMonthlyCount()); // both are MONTHLY\
   }

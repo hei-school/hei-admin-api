@@ -450,10 +450,10 @@ public class GradeService {
       Row headerRow = sheet.createRow(0);
       headerRow.createCell(0).setCellValue("ref");
       headerRow.createCell(1).setCellValue("score");
-      var i = 0;
+      var rowIndex = 0;
       for (var grade : gradeDtos) {
         var ref = grade.getRef();
-        var row = sheet.createRow(i + 1);
+        var row = sheet.createRow(rowIndex + 1);
         row.createCell(0).setCellValue(ref);
         Double score = grade.getScore();
         if (score != null) {

@@ -5,6 +5,7 @@ import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toUnmodifiableList;
 import static org.springframework.format.annotation.DateTimeFormat.ISO.DATE_TIME;
 
+import java.net.URL;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.List;
@@ -151,6 +152,16 @@ public class FeeController {
           AdvancedFeeStatsCountType advancedFeeStatsCountType) {
     return advancedFeeStatsService.getAdvancedFeeStats(
         monthFrom, monthTo, Optional.ofNullable(advancedFeeStatsCountType));
+  }
+
+  @GetMapping("/fees/advanced-stats/export")
+  public URL exportAdvancedFeesStats(
+      @RequestParam(name = "month_from", required = false) Instant monthFrom,
+      @RequestParam(name = "month_to", required = false) Instant monthTo,
+      @RequestParam(name = "status", required = false) AdvancedFeeStats.AdvancedFeeStatsType status,
+      @RequestParam(name = "type", required = false) AdvancedFeeStatsCountType type) {
+    return advancedFeeStatsService.generateAdvancedFeesStatsExcelFile(
+        Optional.of(monthFrom), Optional.of(monthTo), Optional.of(status), type);
   }
 
   @PostMapping("/fees/advanced-stats-generate")
