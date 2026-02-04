@@ -285,7 +285,7 @@ public class GradeService {
   public List<GradeImportDto> filterExistingGrades(
       List<GradeImportDto> grades, String examId, String comment) {
     var savedGrades = gradeRepository.getGradesByExamId(examId);
-    var savedGradeIds = savedGrades.stream().map(savedGrade -> savedGrade.getId()).toList();
+    var savedGradeIds = savedGrades.stream().map(GradeDto::getId).toList();
     var gradeChangeHistories =
         gradeChangeHistoryRepository.findByGradeIdsOrderedByChangeInstantAsc(savedGradeIds);
     List<GradeImportDto> filterGrades;
