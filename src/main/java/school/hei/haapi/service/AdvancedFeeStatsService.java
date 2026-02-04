@@ -19,6 +19,7 @@ import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.PENDING;
 import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.UNPAID;
 import static school.hei.haapi.endpoint.rest.model.FeeTypeEnum.REMEDIAL_COSTS;
 import static school.hei.haapi.endpoint.rest.model.FeeTypeEnum.TUITION;
+import static school.hei.haapi.model.exception.ApiException.ExceptionType.SERVER_EXCEPTION;
 import static school.hei.haapi.model.fee.PaymentType.BANK;
 import static school.hei.haapi.model.fee.PaymentType.MPBS;
 import static school.hei.haapi.model.statistics.AdvancedFeeStats.AdvancedFeeStatsCountType.ACCOUNTING;
@@ -39,12 +40,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.stream.IntStream;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.ss.usermodel.CellStyle;
-import org.apache.poi.ss.usermodel.CreationHelper;
-import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.stereotype.Service;
@@ -63,6 +61,7 @@ import school.hei.haapi.endpoint.rest.model.TotalExpectedFeesStats;
 import school.hei.haapi.endpoint.rest.model.UnpaidFeesStats;
 import school.hei.haapi.file.bucket.BucketComponent;
 import school.hei.haapi.model.Fee;
+import school.hei.haapi.model.exception.ApiException;
 import school.hei.haapi.model.fee.PaymentType;
 import school.hei.haapi.model.statistics.AdvancedFeeStats;
 import school.hei.haapi.model.statistics.AdvancedFeeStats.AdvancedFeeStatsCountType;
@@ -84,6 +83,21 @@ public class AdvancedFeeStatsService {
   private final BucketComponent bucketComponent;
 
   private static final Duration ADVANCED_FEE_STATS_EXPIRATION = Duration.of(3, DAYS);
+  private static final List<String> headers =
+      List.of(
+          "Date de création",
+          "L1",
+          "L2",
+          "L3",
+          "Niveau non défini",
+          "Alternants",
+          "Mensuel",
+          "Annuel",
+          "Fréquence non défini",
+          "Virement bancaire",
+          "Orange money",
+          "Date de modification",
+          "Type de stats");
 
   @Transactional
   public AdvancedFeesStatistics getAdvancedFeeStats(
@@ -124,101 +138,75 @@ public class AdvancedFeeStatsService {
   }
 
   public URL generateAdvancedFeesStatsExcelFile(
-      Optional<Instant> fromInstant,
-      Optional<Instant> toInstant,
+      Optional<Instant> from,
+      Optional<Instant> to,
       Optional<AdvancedFeeStatsType> feeStatsType,
       AdvancedFeeStatsCountType countType) {
-    var advancedFeesStats = generateAdvancedFeeStats(fromInstant, toInstant, countType);
+    var advancedFeesStats = generateAdvancedFeeStats(from, to, countType);
     var filteredAdvancedStats =
         advancedFeesStats.stream()
-            .filter(
-                advancedFeeStats ->
-                    feeStatsType.isEmpty()
-                        || !feeStatsType.get().equals(advancedFeeStats.getStatType()))
+            .filter(advancedFeeStats -> feeStatsType.get().equals(advancedFeeStats.getStatType()))
             .toList();
-    var bytes = new ByteArrayOutputStream();
-    try (var workbook = new XSSFWorkbook()) {
-      Sheet sheet = workbook.createSheet("STATS");
-      Row headerToUse = sheet.createRow(0);
-      var headers =
-          List.of(
-              "Date de création",
-              "L1",
-              "L2",
-              "L3",
-              "Niveau non défini",
-              "Alternants",
-              "Mensuel",
-              "Annuel",
-              "Fréquence non défini",
-              "Virement bancaire",
-              "Orange money",
-              "Date de modification",
-              "Type de stats");
+    try (var bytes = new ByteArrayOutputStream();
+        var workbook = new XSSFWorkbook()) {
+      var sheet = workbook.createSheet("STATS");
+      var headerToUse = sheet.createRow(0);
+
       for (int i = 0; i < headers.size(); i++) {
         headerToUse.createCell(i).setCellValue(headers.get(i));
       }
-      CreationHelper createHelper = workbook.getCreationHelper();
-      CellStyle dateCellStyle = workbook.createCellStyle();
+
+      var createHelper = workbook.getCreationHelper();
+      var dateCellStyle = workbook.createCellStyle();
       dateCellStyle.setDataFormat(createHelper.createDataFormat().getFormat("yyyy-MM-dd HH:mm"));
-      fillingRows(filteredAdvancedStats, sheet, dateCellStyle);
+      fillRows(filteredAdvancedStats, sheet, dateCellStyle);
 
       for (int i = 0; i < headers.size(); i++) {
         sheet.autoSizeColumn(i);
       }
       workbook.write(bytes);
+      var file = createFileFromBytes(bytes.toByteArray(), "advanced-fees-stats-" + now(), ".xlsx");
+      var bucketKey = "advanced-fees-stats-" + now();
+      bucketComponent.upload(file, bucketKey);
+      return bucketComponent.presign(bucketKey, Duration.ofDays(1));
     } catch (IOException e) {
-      throw new RuntimeException(e);
+      throw new ApiException(SERVER_EXCEPTION, e);
     }
-    var file = createFileFromBytes(bytes.toByteArray(), "advanced-fees-stats-" + now(), ".xlsx");
-    var bucketKey = "advanced-fees-stats-" + now();
-    bucketComponent.upload(file, bucketKey);
-    return bucketComponent.presign(bucketKey, Duration.ofDays(1));
   }
 
-  private static void fillingRows(
+  private static void fillRows(
       List<AdvancedFeeStats> filteredAdvancedStats, Sheet sheet, CellStyle dateCellStyle) {
-    IntStream.range(0, filteredAdvancedStats.size())
-        .forEach(
-            j -> {
-              var stat = filteredAdvancedStats.get(j);
-              Row row = sheet.createRow(j + 1);
-              var creationCell = row.createCell(0);
-              Optional.ofNullable(stat.getCreationDatetime())
-                  .ifPresent(
-                      d -> {
-                        creationCell.setCellValue(Date.from(d));
-                        creationCell.setCellStyle(dateCellStyle);
-                      });
-              row.createCell(1)
-                  .setCellValue(Optional.ofNullable(stat.getFirstGradeCount()).orElse(0L));
-              row.createCell(2)
-                  .setCellValue(Optional.ofNullable(stat.getSecondGradeCount()).orElse(0L));
-              row.createCell(3)
-                  .setCellValue(Optional.ofNullable(stat.getThirdGradeCount()).orElse(0L));
-              row.createCell(4)
-                  .setCellValue(Optional.ofNullable(stat.getUnknownGradeCount()).orElse(0L));
-              row.createCell(5)
-                  .setCellValue(Optional.ofNullable(stat.getWorkStudyCount()).orElse(0L));
-              row.createCell(6)
-                  .setCellValue(Optional.ofNullable(stat.getMonthlyCount()).orElse(0L));
-              row.createCell(7).setCellValue(Optional.ofNullable(stat.getYearlyCount()).orElse(0L));
-              row.createCell(8)
-                  .setCellValue(Optional.ofNullable(stat.getUnknownFrequencyCount()).orElse(0L));
-              row.createCell(9)
-                  .setCellValue(Optional.ofNullable(stat.getBankTransferCount()).orElse(0L));
-              row.createCell(10).setCellValue(Optional.ofNullable(stat.getMpbsCount()).orElse(0L));
-              var updateCell = row.createCell(11);
-              Optional.ofNullable(stat.getUpdateDatetime())
-                  .ifPresent(
-                      d -> {
-                        updateCell.setCellValue(Date.from(d));
-                        updateCell.setCellStyle(dateCellStyle);
-                      });
-              var typeCell = row.createCell(12);
-              Optional.ofNullable(stat.getStatType())
-                  .ifPresent(type -> typeCell.setCellValue(type.name()));
-            });
+    var rowIndex = 1;
+    for (var stat : filteredAdvancedStats) {
+      var row = sheet.createRow(rowIndex++);
+      var creationCell = row.createCell(0);
+      Optional.ofNullable(stat.getCreationDatetime())
+          .ifPresent(
+              d -> {
+                creationCell.setCellValue(Date.from(d));
+                creationCell.setCellStyle(dateCellStyle);
+              });
+      row.createCell(1).setCellValue(Optional.ofNullable(stat.getFirstGradeCount()).orElse(0L));
+      row.createCell(2).setCellValue(Optional.ofNullable(stat.getSecondGradeCount()).orElse(0L));
+      row.createCell(3).setCellValue(Optional.ofNullable(stat.getThirdGradeCount()).orElse(0L));
+      row.createCell(4).setCellValue(Optional.ofNullable(stat.getUnknownGradeCount()).orElse(0L));
+      row.createCell(5).setCellValue(Optional.ofNullable(stat.getWorkStudyCount()).orElse(0L));
+      row.createCell(6).setCellValue(Optional.ofNullable(stat.getMonthlyCount()).orElse(0L));
+      row.createCell(7).setCellValue(Optional.ofNullable(stat.getYearlyCount()).orElse(0L));
+      row.createCell(8)
+          .setCellValue(Optional.ofNullable(stat.getUnknownFrequencyCount()).orElse(0L));
+      row.createCell(9).setCellValue(Optional.ofNullable(stat.getBankTransferCount()).orElse(0L));
+      row.createCell(10).setCellValue(Optional.ofNullable(stat.getMpbsCount()).orElse(0L));
+      var updateCell = row.createCell(11);
+      Optional.ofNullable(stat.getUpdateDatetime())
+          .ifPresent(
+              date -> {
+                updateCell.setCellValue(Date.from(date));
+                updateCell.setCellStyle(dateCellStyle);
+              });
+      var typeCell = row.createCell(12);
+      Optional.ofNullable(stat.getStatType()).ifPresent(type -> typeCell.setCellValue(type.name()));
+    }
   }
 
   public List<AdvancedFeeStats> generateAdvancedFeeStats(
