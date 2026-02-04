@@ -2,12 +2,12 @@ package school.hei.haapi.endpoint.rest.controller;
 
 import static org.springframework.http.MediaType.MULTIPART_FORM_DATA_VALUE;
 
+import java.io.IOException;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
@@ -96,21 +96,30 @@ public class GradeController {
         .toList();
   }
 
-  @PostMapping(value = "/exams/{exams_id}/grades/import", consumes = MULTIPART_FORM_DATA_VALUE)
+  @PostMapping(value = "/exams/{exam_id}/grades/import", consumes = MULTIPART_FORM_DATA_VALUE)
   public ImportGradeResult importStudentsExamGrade(
-      @PathVariable(name = "exams_id") String examId,
+      @PathVariable(name = "exam_id") String examId,
       @RequestPart(value = "file_to_upload") MultipartFile fileToUpload) {
     return gradeService.initStudentExamGradeImportFromXlsx(
         fileConverter.apply(fileToUpload), examId, null);
   }
 
-  @PutMapping(value = "/exams/{exams_id}/grades/import", consumes = MULTIPART_FORM_DATA_VALUE)
+  @PostMapping(
+      value = "/exams/{exam_id}/grades/import/update",
+      consumes = MULTIPART_FORM_DATA_VALUE)
   public ImportGradeResult importStudentsExamGradeUpdated(
-      @PathVariable(name = "exams_id") String examId,
+      @PathVariable(name = "exam_id") String examId,
       @RequestParam(value = "comment") String comment,
       @RequestPart(value = "file_to_upload") MultipartFile fileToUpload) {
     return gradeService.initStudentExamGradeImportFromXlsx(
         fileConverter.apply(fileToUpload), examId, comment);
+  }
+
+  @GetMapping(
+      value = "/exams/{exam_id}/grades/import/template",
+      produces = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+  public byte[] getStudentsGradesTemplateForExam(@PathVariable("exam_id") String examId) {
+    return gradeService.generateGradesTemplate(examId);
   }
 
   @PostMapping(value = "/exams/{exam_id}/grades/update")
@@ -141,6 +150,12 @@ public class GradeController {
   @GetMapping("/students/{student_id}/results_summary")
   public ResultSummary getResultSummary(@PathVariable("student_id") String studentId) {
     return gradeResultService.getStudentResultSummary(studentId);
+  }
+
+  @GetMapping("/students/{student_id}/results_summary_transcript")
+  public byte[] getResultsSummaryTranscript(@PathVariable("student_id") String studentId)
+      throws IOException {
+    return gradeResultService.uploadResultSummaryTranscript(studentId);
   }
 
   @GetMapping("/students/{student_id}/courses/{course_id}/grades")

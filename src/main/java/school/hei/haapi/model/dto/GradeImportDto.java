@@ -9,6 +9,7 @@ import java.io.Serializable;
 import java.util.Map;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -20,6 +21,7 @@ import school.hei.haapi.service.utils.excel.CellMap;
 @Builder
 @Getter
 @Setter
+@EqualsAndHashCode
 public class GradeImportDto implements Serializable {
   private String ref;
 

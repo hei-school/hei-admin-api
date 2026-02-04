@@ -265,7 +265,8 @@ public class User implements Serializable {
   public enum Status {
     ENABLED,
     DISABLED,
-    SUSPENDED;
+    SUSPENDED,
+    ALUMNI,
   }
 
   public enum Role {
@@ -285,6 +286,10 @@ public class User implements Serializable {
       case EL -> "Écosystème Logiciel";
       default -> throw new ApiException(SERVER_EXCEPTION, "Invalid specialization field");
     };
+  }
+
+  public String getFullName() {
+    return firstName + " " + lastName;
   }
 
   public static User.UserBuilder builder() {

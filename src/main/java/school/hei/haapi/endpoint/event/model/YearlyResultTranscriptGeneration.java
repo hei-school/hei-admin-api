@@ -12,6 +12,7 @@ import school.hei.haapi.endpoint.rest.model.YearlyResult;
 public class YearlyResultTranscriptGeneration extends PojaEvent {
   private final String userId;
   private final YearlyResult yearlyResult;
+  private final String principalId;
 
   @Override
   public Duration maxConsumerDuration() {

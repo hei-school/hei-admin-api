@@ -165,7 +165,36 @@ paths:
           $ref: '#/components/responses/400'
         '500':
           $ref: '#/components/responses/500'
-
+  '/global_search/user':
+    get:
+      tags:
+        - Search
+      summary: Global search across user entities
+      description: Retrieve users from multiple user-related entities based on a search term.
+      parameters:
+        - name: search
+          in: query
+          description: Search term used to filter users.
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Search results
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SearchResultsUser'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
   '/groups/{id}':
     get:
       tags:
@@ -612,6 +641,32 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ResultSummary"
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+  /students/{student_id}/results_summary_transcript:
+    get:
+      tags:
+        - Grades
+      summary: Get over all the results summary transcript of a given student
+      operationId: getResultsSummaryTranscript
+      parameters:
+        - $ref: "#/components/parameters/PathStudentId"
+      responses:
+        '200':
+          description: Pdf file of all results summary transcript of the specified student.
+          content:
+            application/pdf:
+              schema:
+                type: string
+                format: binary
         '400':
           $ref: '#/components/responses/400'
         '403':
@@ -2648,7 +2703,8 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
-    put:
+  /exams/{exam_id}/grades/import/update:
+    post:
       tags:
         - Grades
       summary: Import students exam grade updated from an excel file
@@ -2670,7 +2726,7 @@ paths:
         content:
           multipart/form-data:
             schema:
-              $ref: "#/components/schemas/UploadFile"
+              $ref: '#/components/schemas/UploadFile'
       responses:
         '200':
           description: Status of the validation of imported students exam grade updated
@@ -2678,6 +2734,36 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ImportGradeResult'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+  /exams/{exam_id}/grades/import/template:
+    get:
+      tags:
+        - Grades
+      summary: Return grade template
+      operationId: getStudentsGradesTemplateForExam
+      parameters:
+        - name: exam_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Grades template for a specific exam
+          content:
+            application/vnd.openxmlformats-officedocument.spreadsheetml.sheet:
+              schema:
+                type: string
+                format: binary
         '400':
           $ref: '#/components/responses/400'
         '403':
@@ -3922,6 +4008,62 @@ paths:
           $ref: '#/components/responses/403'
         '404':
           $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+  /fees/advanced-stats/export:
+    get:
+      tags:
+        - Paying
+      summary: Generate advanced fees statistics file
+      description: Generates an advanced fees statistics excel file, stores it in 
+        (S3 compatible storage), and returns a presigned URL that can 
+        later be used to view the file in ownCloud.
+      operationId: exportAdvancedFeesStats
+      parameters:
+        - name: month_from
+          in: query
+          schema:
+            type: string
+            format: date
+          required: false
+        - name: month_to
+          in: query
+          schema:
+            type: string
+            format: date
+          required: false
+        - name: status
+          in: query
+          description: "See the PaymentStatus object for its value."
+          required: false
+          schema:
+            type: string
+            allOf:
+              - $ref: '#/components/schemas/FeeStatusEnum'
+        - name: type
+          in: query
+          required: false
+          schema:
+            $ref: "#/components/schemas/AdvancedFeeStatisticsType"
+      responses:
+        '200':
+          description: File successfully generated and stored
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  url:
+                    type: string
+                    format: uri
+                required:
+                - url
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
         '429':
           $ref: '#/components/responses/429'
         '500':
@@ -6004,11 +6146,7 @@ paths:
           required: false
           schema:
             type: boolean
-        - name: role
-          in: query
-          required: false
-          schema:
-            $ref: '#/components/schemas/RoleParamEnum'
+        - $ref: '#/components/parameters/RoleParamEnum'
       responses:
         '200':
           description: Letters
@@ -6119,11 +6257,7 @@ paths:
       summary: Get stats for letters
       operationId: getLetterStats
       parameters:
-        - name: role
-          in: query
-          required: false
-          schema:
-            $ref: '#/components/schemas/RoleParamEnum'
+        - $ref: '#/components/parameters/RoleParamEnum'
       responses:
         '200':
           description: Some stats for letters
@@ -7107,6 +7241,15 @@ components:
         type: array
         items:
           $ref: '#/components/schemas/RetakeExamStatus'
+    RoleParamEnum:
+      name: role
+      in: query
+      description: Filter by role
+      required: false
+      schema:
+        type: array
+        items:
+          $ref: '#/components/schemas/RoleEnum'
   responses:
     '400':
       description: Bad request
@@ -7497,10 +7640,14 @@ components:
         total_hours:
           type: integer
     UpdateMonitorStudentLink:
-      allOf:
-        - $ref: '#/components/schemas/MonitorStudentLink'
       type: object
       properties:
+        id:
+          type: string
+        student_id:
+          type: string
+        monitor_id:
+          type: string
         status:
           $ref: '#/components/schemas/MonitorStudentLinkStatus'
     MonitorStudentLinkStatus:
@@ -7513,10 +7660,10 @@ components:
       properties:
         id:
           type: string
-        monitor_id:
-          type: string
-        student_id:
-          type: string
+        monitor:
+          $ref: '#/components/schemas/Monitor'
+        student:
+          $ref: '#/components/schemas/Student'
     Course:
       allOf:
         - $ref: '#/components/schemas/CourseTemplate'
@@ -7899,7 +8046,7 @@ components:
         - IVANDRY
         - ANDRAHARO
         - UNKNOWN
-    RoleParamEnum:
+    RoleEnum:
       type: string
       enum:
         - STUDENT
@@ -8265,6 +8412,8 @@ components:
         - $ref: '#/components/schemas/UserIdentifier'
       type: object
       properties:
+        student_status:
+          $ref: '#/components/schemas/EnableStatus'
         group_name:
           type: string
         event_status:
@@ -8581,6 +8730,9 @@ components:
         suspended:
           type: integer
           format: int64
+        alumni:
+          type: integer
+          format: int64
     AdvancedFeeStatisticsGeneration:
       type: object
       properties:
@@ -8602,6 +8754,8 @@ components:
           $ref: "#/components/schemas/PendingFeesStats"
         late_fees_count:
           $ref: "#/components/schemas/LateFeesStats"
+        unpaid_fees_count:
+          $ref: "#/components/schemas/UnpaidFeesStats"
         update_datetime:
           type: string
           format: date-time
@@ -8661,6 +8815,11 @@ components:
         - $ref: "#/components/schemas/BaseFeesStats"
         - $ref: "#/components/schemas/RetakeExamFeesCount"
     LateFeesStats:
+      type: object
+      allOf:
+        - $ref: "#/components/schemas/BaseFeesStats"
+        - $ref: "#/components/schemas/RetakeExamFeesCount"
+    UnpaidFeesStats:
       type: object
       allOf:
         - $ref: "#/components/schemas/BaseFeesStats"
@@ -8987,3 +9146,30 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/GradeInvalidRow"
+    SearchResultsUser:
+      type: object
+      properties:
+        students:
+          type: array
+          items:
+            $ref: "#/components/schemas/Student"
+        teachers:
+          type: array
+          items:
+            $ref: "#/components/schemas/Teacher"
+        managers:
+          type: array
+          items:
+            $ref: "#/components/schemas/Manager"
+        organisers:
+          type: array
+          items:
+            $ref: '#/components/schemas/Organizer'
+        monitors:
+          type: array
+          items:
+            $ref: '#/components/schemas/Monitor'
+        staffMembers:
+          type: array
+          items:
+            $ref: '#/components/schemas/StaffMember'

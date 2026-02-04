@@ -481,7 +481,7 @@ class FeeIT extends FacadeITMockedThirdParties {
 
     var client = anApiClient(MANAGER1_TOKEN);
     var payingApi = new PayingApi(client);
-    var expectedStats = new AdvancedFeeStatisticsGeneration().data("Total stats generated: 4");
+    var expectedStats = new AdvancedFeeStatisticsGeneration().data("Total stats generated: 5");
     var actualStat =
         payingApi.generateAdvancedStats(fromDateTime.toInstant(UTC), toDateTime.toInstant(UTC));
 

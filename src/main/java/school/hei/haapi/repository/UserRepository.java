@@ -8,6 +8,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import school.hei.haapi.model.User;
 import school.hei.haapi.model.User.Role;
@@ -180,12 +181,14 @@ public interface UserRepository extends JpaRepository<User, String> {
               COALESCE(SUM(CASE WHEN u.sex = 'F' AND u.status = 'DISABLED' THEN 1 ELSE 0 END), 0),
               COALESCE(SUM(CASE WHEN u.sex = 'F' AND u.status = 'ENABLED' THEN 1 ELSE 0 END), 0),
               COALESCE(SUM(CASE WHEN u.sex = 'F' AND u.status = 'SUSPENDED' THEN 1 ELSE 0 END), 0),
+              COALESCE(SUM(CASE WHEN u.sex = 'F' AND u.status = 'ALUMNI' THEN 1 ELSE 0 END ), 0),
               COALESCE(SUM(CASE WHEN u.sex = 'F' THEN 1 ELSE 0 END), 0)
           ),
           new school.hei.haapi.model.dto.StatisticsDetailsDto(
               COALESCE(SUM(CASE WHEN u.sex = 'M' AND u.status = 'DISABLED' THEN 1 ELSE 0 END), 0),
               COALESCE(SUM(CASE WHEN u.sex = 'M' AND u.status = 'ENABLED' THEN 1 ELSE 0 END), 0),
               COALESCE(SUM(CASE WHEN u.sex = 'M' AND u.status = 'SUSPENDED' THEN 1 ELSE 0 END), 0),
+              COALESCE(SUM(CASE WHEN u.sex = 'M' AND u.status = 'ALUMNI' THEN 1 ELSE 0 END), 0),
               COALESCE(SUM(CASE WHEN u.sex = 'M' THEN 1 ELSE 0 END), 0)
           ),
           (select count(g) from Group g),
@@ -193,4 +196,18 @@ public interface UserRepository extends JpaRepository<User, String> {
       ) from User u where u.role = 'STUDENT'
       """)
   StatisticsDto getStudentsStatistics();
+
+  @Query(
+      """
+    SELECT u FROM User u
+    WHERE u.status <> 'DISABLED'
+      AND (
+           :search IS NULL
+        OR :search = ''
+        OR LOWER(u.ref) LIKE LOWER(CONCAT('%', :search, '%'))
+        OR LOWER(u.firstName) LIKE LOWER(CONCAT('%', :search, '%'))
+        OR LOWER(u.lastName) LIKE LOWER(CONCAT('%', :search, '%'))
+      )
+""")
+  List<User> searchUsers(@Param("search") String search);
 }

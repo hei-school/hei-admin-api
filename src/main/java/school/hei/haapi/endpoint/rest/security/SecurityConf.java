@@ -125,6 +125,7 @@ public class SecurityConf {
                     antMatcher(POST, "/admins/*/picture/raw"),
                     antMatcher(POST, "/staff_members/*/picture/raw"),
                     antMatcher(GET, "/students"),
+                    antMatcher(PUT, "/students"),
                     antMatcher(PUT, "/fees"),
                     antMatcher(GET, "/fees"),
                     antMatcher(GET, "/fees/raw"),
@@ -203,7 +204,8 @@ public class SecurityConf {
                     antMatcher(POST, "/exams/*/grades"),
                     antMatcher(POST, "/exams/*/grades/update"),
                     antMatcher(POST, "/exams/*/grades/import"),
-                    antMatcher(PUT, "/exams/*/grades/import"),
+                    antMatcher(GET, "/exams/*/grades/import/template"),
+                    antMatcher(POST, "/exams/*/grades/import/update"),
                     antMatcher(GET, "/exams/*/grade/stats"),
                     antMatcher(PUT, "/exams"),
                     antMatcher(GET, "/exams/*/students/*/grade"),
@@ -229,6 +231,7 @@ public class SecurityConf {
                     antMatcher(GET, "/students/*/yearly_results/*"),
                     antMatcher(GET, "/students/*/yearly_results/*/transcript"),
                     antMatcher(GET, "/students/*/results_summary"),
+                    antMatcher(GET, "/students/*/results_summary_transcript"),
                     antMatcher(GET, "/students/*/attendance"),
                     antMatcher(GET, "/comments"),
                     antMatcher(GET, "/students/*/comments"),
@@ -275,6 +278,7 @@ public class SecurityConf {
                     antMatcher(GET, "/students/*/sessions/*/retake_exams"),
                     antMatcher(GET, "/retake_exam_sessions/*/retake_exam_courses"),
                     antMatcher(GET, "/retake_exam_sessions/*/retake_exam_courses/*/participants"),
+                    antMatcher(GET, "/global_search/user"),
                     nonAccessibleBySuspendedUserPath)),
             AnonymousAuthenticationFilter.class)
         .addFilterAfter(
@@ -444,6 +448,8 @@ public class SecurityConf {
                     // STUDENTS
                     //
                     // MONITORS FOLLOWING STUDENTS
+                    .requestMatchers(PUT, "/students")
+                    .hasAnyRole(MANAGER.getRole(), ADMIN.getRole())
                     .requestMatchers(PUT, "/monitors/*/students")
                     .hasAnyRole(MANAGER.getRole(), MONITOR.getRole(), ADMIN.getRole())
                     .requestMatchers(new SelfMatcher(GET, "/monitors/*/students", "monitors"))
@@ -617,6 +623,8 @@ public class SecurityConf {
                     .hasAnyRole(MONITOR.getRole())
                     .requestMatchers(GET, "/students/*/results_summary")
                     .hasAnyRole(TEACHER.getRole(), MANAGER.getRole(), ADMIN.getRole())
+                    .requestMatchers(GET, "/students/*/results_summary_transcript")
+                    .hasAnyRole(TEACHER.getRole(), MANAGER.getRole(), ADMIN.getRole())
                     .requestMatchers(
                         new SelfMatcher(GET, "/students/*/results_summary", "students"))
                     .hasAnyRole(STUDENT.getRole())
@@ -745,7 +753,10 @@ public class SecurityConf {
                     .hasAnyRole(MANAGER.getRole(), ADMIN.getRole())
                     .requestMatchers(
                         new CourseAssignmentTeacherMatcher(
-                            courseAssignmentService, PUT, "/groups/*/course_assignments/*/exams"))
+                            PUT,
+                            "/groups/*/course_assignments/*/exams",
+                            "course_assignments",
+                            courseAssignmentService))
                     .hasAnyRole(TEACHER.getRole())
                     .requestMatchers(GET, "/groups/*/course_assignments/*/exams")
                     .hasAnyRole(TEACHER.getRole(), MANAGER.getRole(), ADMIN.getRole())
@@ -779,7 +790,9 @@ public class SecurityConf {
                     .hasAnyRole(TEACHER.getRole(), MANAGER.getRole(), ADMIN.getRole())
                     .requestMatchers(POST, "/exams/*/grades/import")
                     .hasAnyRole(TEACHER.getRole(), MANAGER.getRole(), ADMIN.getRole())
-                    .requestMatchers(PUT, "/exams/*/grades/import")
+                    .requestMatchers(GET, "/exams/*/grades/import/template")
+                    .hasAnyRole(TEACHER.getRole(), MANAGER.getRole(), ADMIN.getRole())
+                    .requestMatchers(POST, "/exams/*/grades/import/update")
                     .hasAnyRole(TEACHER.getRole(), MANAGER.getRole(), ADMIN.getRole())
                     .requestMatchers(POST, "/exams/*/grades/update")
                     .hasAnyRole(TEACHER.getRole(), MANAGER.getRole(), ADMIN.getRole())
@@ -821,7 +834,10 @@ public class SecurityConf {
                     .hasAnyRole(MANAGER.getRole(), TEACHER.getRole(), ADMIN.getRole())
                     .requestMatchers(
                         new CourseAssignmentTeacherMatcher(
-                            courseAssignmentService, PUT, "/groups/*/course_assignments/*/exams"))
+                            PUT,
+                            "/groups/*/course_assignments/*/exams",
+                            "course_assignments",
+                            courseAssignmentService))
                     .hasAnyRole(TEACHER.getRole())
                     .requestMatchers(GET, "/groups/*/course_assignments/*/exams")
                     .hasAnyRole(TEACHER.getRole(), MANAGER.getRole(), ADMIN.getRole())
@@ -1043,6 +1059,8 @@ public class SecurityConf {
                     .requestMatchers(GET, "/students/*/courses")
                     .hasAnyRole(TEACHER.getRole(), MANAGER.getRole(), ADMIN.getRole())
                     .requestMatchers(PUT, "/students/*/courses")
+                    .hasAnyRole(MANAGER.getRole(), ADMIN.getRole())
+                    .requestMatchers(GET, "global_search/user")
                     .hasAnyRole(MANAGER.getRole(), ADMIN.getRole())
                     .requestMatchers(nonAccessibleBySuspendedUserPath)
                     .authenticated()

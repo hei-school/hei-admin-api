@@ -28,7 +28,7 @@ public class LetterDao {
       String name,
       String feeId,
       Boolean isLinkedWithFee,
-      User.Role role,
+      List<User.Role> roles,
       Pageable pageable) {
     CriteriaBuilder builder = entityManager.getCriteriaBuilder();
     CriteriaQuery<Letter> query = builder.createQuery(Letter.class);
@@ -54,9 +54,9 @@ public class LetterDao {
               builder.like(userJoin.get("lastName"), "%" + name + "%")));
     }
 
-    if (role != null) {
+    if (roles != null && !roles.isEmpty()) {
       Join<Letter, User> userJoin = root.join("user", INNER);
-      predicates.add(builder.equal(userJoin.get("role"), role));
+      predicates.add(userJoin.get("role").in(roles));
     }
 
     if (isLinkedWithFee != null) {

@@ -3,8 +3,8 @@ package school.hei.haapi.endpoint.rest.controller;
 import static org.springframework.http.MediaType.MULTIPART_FORM_DATA_VALUE;
 import static school.hei.haapi.model.User.Role.STUDENT;
 
+import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -34,7 +34,16 @@ public class LetterController {
       @RequestParam(name = "fee_id", required = false) String feeId,
       @RequestParam(name = "is_linked_with_fee", required = false) Boolean isLinkedWithFee) {
     return letterService
-        .getLetters(ref, studentRef, status, name, feeId, isLinkedWithFee, STUDENT, page, pageSize)
+        .getLetters(
+            ref,
+            studentRef,
+            status,
+            name,
+            feeId,
+            isLinkedWithFee,
+            Collections.singletonList(STUDENT),
+            page,
+            pageSize)
         .stream()
         .map(letterMapper::toRest)
         .toList();
@@ -49,7 +58,7 @@ public class LetterController {
       @RequestParam(name = "status", required = false) LetterStatus status,
       @RequestParam(name = "student_ref", required = false) String studentRef,
       @RequestParam(name = "fee_id", required = false) String feeId,
-      @RequestParam(name = "role", required = false) RoleParamEnum role,
+      @RequestParam(name = "role", required = false) List<RoleEnum> roles,
       @RequestParam(name = "is_linked_with_fee", required = false) Boolean isLinkedWithFee) {
 
     return letterService
@@ -60,7 +69,7 @@ public class LetterController {
             name,
             feeId,
             isLinkedWithFee,
-            Objects.isNull(role) ? null : letterMapper.toDomainStatus(role),
+            roles == null ? null : roles.stream().map(letterMapper::toDomainStatus).toList(),
             page,
             pageSize)
         .stream()
@@ -69,13 +78,15 @@ public class LetterController {
   }
 
   @GetMapping(value = "/letters/stats")
-  public LetterStats getStats(@RequestParam(required = false) RoleParamEnum role) {
-    return letterService.getStats(Objects.isNull(role) ? null : letterMapper.toDomainStatus(role));
+  public LetterStats getStats(@RequestParam(required = false) List<RoleEnum> roles) {
+
+    return letterService.getStats(
+        roles == null ? null : roles.stream().map(letterMapper::toDomainStatus).toList());
   }
 
   @GetMapping(value = "/students/letters/stats")
   public LetterStats getStudentsStats() {
-    return letterService.getStats(STUDENT);
+    return letterService.getStats(List.of(STUDENT));
   }
 
   @PutMapping(value = "/letters")

@@ -123,4 +123,13 @@ public class GradeMapper {
         .map(gradeImportDto -> toDomain(gradeImportDto, gradeImportDto.getRef(), exam, comment))
         .toList();
   }
+
+  public GradeImportDto mapToDto(String ref, Double score) {
+    new GradeImportDto();
+    return GradeImportDto.builder().ref(ref).score(score).build();
+  }
+
+  public List<GradeImportDto> mapToListDtos(List<Object[]> grades) {
+    return grades.stream().map(grade -> mapToDto((String) grade[0], (Double) grade[1])).toList();
+  }
 }

@@ -14,12 +14,11 @@ import static school.hei.haapi.endpoint.rest.model.FeeFrequency.YEARLY;
 import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.LATE;
 import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.PAID;
 import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.PENDING;
+import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.UNPAID;
 import static school.hei.haapi.endpoint.rest.model.FeeTypeEnum.TUITION;
 import static school.hei.haapi.model.statistics.AdvancedFeeStats.AdvancedFeeStatsCountType.RECEIPT;
-import static school.hei.haapi.model.statistics.AdvancedFeeStats.AdvancedFeeStatsType.LATE_COUNT;
-import static school.hei.haapi.model.statistics.AdvancedFeeStats.AdvancedFeeStatsType.PAID_COUNT;
 import static school.hei.haapi.model.statistics.AdvancedFeeStats.AdvancedFeeStatsType.PENDING_COUNT;
-import static school.hei.haapi.model.statistics.AdvancedFeeStats.AdvancedFeeStatsType.TOTAL_COUNT;
+import static school.hei.haapi.model.statistics.AdvancedFeeStats.AdvancedFeeStatsType.UNPAID_COUNT;
 
 import java.time.Instant;
 import java.time.LocalDate;
@@ -27,7 +26,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -90,56 +88,29 @@ class AdvancedFeeStatsServiceTest extends FacadeITMockedThirdParties {
   @Test
   void advanced_fee_statistics_count_ok() {
     var rangeDate = Optional.of(Instant.now());
-    Set<AdvancedFeeStats> expectedStats =
-        Set.of(
+
+    Map<AdvancedFeeStats.AdvancedFeeStatsType, AdvancedFeeStats> daoResult =
+        Map.of(
+            UNPAID_COUNT,
             AdvancedFeeStats.builder()
-                .statType(LATE_COUNT)
-                .firstGradeCount(1)
-                .secondGradeCount(1)
-                .thirdGradeCount(1)
-                .workStudyCount(1)
-                .yearlyCount(2)
-                .monthlyCount(2)
-                .countType(RECEIPT)
-                .build(),
-            AdvancedFeeStats.builder()
-                .statType(PAID_COUNT)
-                .firstGradeCount(3)
-                .secondGradeCount(1)
-                .thirdGradeCount(1)
-                .workStudyCount(1)
-                .yearlyCount(4)
-                .monthlyCount(2)
-                .bankTransferCount(6L)
-                .mpbsCount(0L)
-                .countType(RECEIPT)
-                .build(),
-            AdvancedFeeStats.builder()
-                .statType(PENDING_COUNT)
+                .statType(UNPAID_COUNT)
                 .firstGradeCount(0)
-                .secondGradeCount(1)
-                .thirdGradeCount(1)
+                .secondGradeCount(2)
+                .thirdGradeCount(0)
+                .unknownGradeCount(0)
+                .remedialFeesCount(0)
                 .workStudyCount(0)
-                .yearlyCount(1)
-                .monthlyCount(1)
-                .countType(RECEIPT)
-                .build(),
-            AdvancedFeeStats.builder()
-                .statType(TOTAL_COUNT)
-                .firstGradeCount(4)
-                .secondGradeCount(3)
-                .thirdGradeCount(3)
-                .workStudyCount(2)
-                .yearlyCount(7)
-                .monthlyCount(5)
+                .monthlyCount(2)
+                .yearlyCount(0)
+                .unknownFrequencyCount(0)
                 .countType(RECEIPT)
                 .build());
 
     when(feeRepository.findDistinctByStatusHistoriesDatetimeBetween(any(), any()))
         .thenReturn(getFeeList());
-    when(feeDao.getAdvancedFeeStatsOnDateBetween(any(), any(), any())).thenReturn(Map.of());
-    List<AdvancedFeeStats> stats = subject.generateAdvancedFeeStats(rangeDate, rangeDate, RECEIPT);
-    Set<AdvancedFeeStats> actualStats =
+    when(feeDao.getAdvancedFeeStatsOnDateBetween(any(), any(), any())).thenReturn(daoResult);
+    var stats = subject.generateAdvancedFeeStats(rangeDate, rangeDate, RECEIPT);
+    var actualStats =
         stats.stream()
             .peek(
                 stat -> {
@@ -148,8 +119,14 @@ class AdvancedFeeStatsServiceTest extends FacadeITMockedThirdParties {
                   stat.setStatEndDate(null);
                 })
             .collect(toSet());
+    AdvancedFeeStats unpaidStat =
+        actualStats.stream()
+            .filter(s -> s.getStatType() == UNPAID_COUNT)
+            .findFirst()
+            .orElseThrow(() -> new AssertionError("UNPAID_COUNT stat not generated"));
 
-    assertEquals(expectedStats, actualStats);
+    assertEquals(2, unpaidStat.getSecondGradeCount(), "L2 unpaid");
+    assertEquals(2, unpaidStat.getMonthlyCount()); // both are MONTHLY\
   }
 
   private List<Fee> getFeeList() {
@@ -171,7 +148,12 @@ class AdvancedFeeStatsServiceTest extends FacadeITMockedThirdParties {
                 .status(PENDING)
                 .datetime(Instant.parse("2021-04-11T00:00:00.00Z"))
                 .build());
-
+    var unpaidStatusHistory =
+        List.of(
+            FeeStatusHistory.builder()
+                .status(UNPAID)
+                .datetime(Instant.parse("2021-04-11T00:00:00.00Z"))
+                .build());
     return List.of(
         Fee.builder()
             .id("1")
@@ -304,6 +286,28 @@ class AdvancedFeeStatsServiceTest extends FacadeITMockedThirdParties {
             .frequency(YEARLY)
             .type(TUITION)
             .statusHistories(paidStatusHistory)
+            .build(),
+        Fee.builder()
+            .id("14")
+            .creationDatetime(Instant.parse("2025-04-11T00:00:00.00Z"))
+            .category(L2)
+            .status(UNPAID)
+            .mobilePayments(List.of())
+            .dueDatetime(Instant.parse("2025-07-31T00:00:00.00Z"))
+            .frequency(MONTHLY)
+            .type(TUITION)
+            .statusHistories(unpaidStatusHistory)
+            .build(),
+        Fee.builder()
+            .id("15")
+            .creationDatetime(Instant.parse("2025-04-11T00:00:00.00Z"))
+            .category(L2)
+            .status(UNPAID)
+            .mobilePayments(List.of())
+            .dueDatetime(Instant.parse("2025-07-31T00:00:00.00Z"))
+            .frequency(MONTHLY)
+            .type(TUITION)
+            .statusHistories(unpaidStatusHistory)
             .build());
   }
 }

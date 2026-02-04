@@ -32,6 +32,13 @@ public class UserMapper {
   private final IsStudentRepeatingYear isStudentRepeatingYear;
   private final UserRepository userRepository;
 
+  public String getPresignedProfilePictureUrl(User user) {
+    String profilePictureKey = user.getProfilePictureKey();
+    return profilePictureKey != null
+        ? fileService.getPresignedUrl(profilePictureKey, ONE_DAY_DURATION_AS_LONG)
+        : null;
+  }
+
   public UserIdentifier toIdentifier(User user) {
     return new UserIdentifier()
         .id(user.getId())
@@ -44,12 +51,6 @@ public class UserMapper {
 
   public StaffMember toRestStaffMember(User user) {
     StaffMember staffMember = new StaffMember();
-    String profilePictureKey = user.getProfilePictureKey();
-    String url =
-        profilePictureKey != null
-            ? fileService.getPresignedUrl(profilePictureKey, ONE_DAY_DURATION_AS_LONG)
-            : null;
-
     staffMember.setId(user.getId());
     staffMember.setFirstName(user.getFirstName());
     staffMember.setLastName(user.getLastName());
@@ -63,7 +64,7 @@ public class UserMapper {
     staffMember.setAddress(user.getAddress());
     staffMember.setBirthPlace(user.getBirthPlace());
     staffMember.setNic(user.getNic());
-    staffMember.setProfilePicture(url);
+    staffMember.setProfilePicture(getPresignedProfilePictureUrl(user));
     staffMember.setCoordinates(
         new Coordinates().longitude(user.getLongitude()).latitude(user.getLatitude()));
     staffMember.setHighSchoolOrigin(user.getHighSchoolOrigin());
@@ -72,9 +73,6 @@ public class UserMapper {
     staffMember.setFunction(user.getFunction());
     staffMember.setEndingService(user.getEndingService());
     staffMember.setOstie(user.getOstie());
-
-    log.info(staffMember.toString());
-    log.info("to rest aiza");
     return staffMember;
   }
 
@@ -82,12 +80,6 @@ public class UserMapper {
     Student restStudent = new Student();
     Optional<WorkDocument> studentLastWorkDocument =
         workDocumentService.findLastWorkDocumentByStudentId(user.getId());
-    String profilePictureKey = user.getProfilePictureKey();
-    String url =
-        profilePictureKey != null
-            ? fileService.getPresignedUrl(profilePictureKey, ONE_DAY_DURATION_AS_LONG)
-            : null;
-
     restStudent.setId(user.getId());
     restStudent.setFirstName(user.getFirstName());
     restStudent.setLastName(user.getLastName());
@@ -102,7 +94,7 @@ public class UserMapper {
     restStudent.setNic(user.getNic());
     restStudent.setBirthPlace(user.getBirthPlace());
     restStudent.setSpecializationField(user.getSpecializationField());
-    restStudent.setProfilePicture(url);
+    restStudent.setProfilePicture(getPresignedProfilePictureUrl(user));
     restStudent.groups(
         groupRepository.findByStudentId(user.getId()).stream().map(groupMapper::toRest).toList());
     restStudent.setCoordinates(
@@ -123,12 +115,6 @@ public class UserMapper {
 
   public Teacher toRestTeacher(User user) {
     Teacher teacher = new Teacher();
-    String profilePictureKey = user.getProfilePictureKey();
-    String url =
-        profilePictureKey != null
-            ? fileService.getPresignedUrl(profilePictureKey, ONE_DAY_DURATION_AS_LONG)
-            : null;
-
     teacher.setId(user.getId());
     teacher.setFirstName(user.getFirstName());
     teacher.setLastName(user.getLastName());
@@ -142,7 +128,7 @@ public class UserMapper {
     teacher.setAddress(user.getAddress());
     teacher.setBirthPlace(user.getBirthPlace());
     teacher.setNic(user.getNic());
-    teacher.setProfilePicture(url);
+    teacher.setProfilePicture(getPresignedProfilePictureUrl(user));
     teacher.setCoordinates(
         new Coordinates().longitude(user.getLongitude()).latitude(user.getLatitude()));
     teacher.setHighSchoolOrigin(user.getHighSchoolOrigin());
@@ -151,12 +137,6 @@ public class UserMapper {
 
   public Manager toRestManager(User user) {
     Manager manager = new Manager();
-    String profilePictureKey = user.getProfilePictureKey();
-    String url =
-        profilePictureKey != null
-            ? fileService.getPresignedUrl(profilePictureKey, ONE_DAY_DURATION_AS_LONG)
-            : null;
-
     manager.setId(user.getId());
     manager.setFirstName(user.getFirstName());
     manager.setLastName(user.getLastName());
@@ -170,7 +150,7 @@ public class UserMapper {
     manager.setAddress(user.getAddress());
     manager.setBirthPlace(user.getBirthPlace());
     manager.setNic(user.getNic());
-    manager.setProfilePicture(url);
+    manager.setProfilePicture(getPresignedProfilePictureUrl(user));
     manager.setCoordinates(
         new Coordinates().longitude(user.getLongitude()).latitude(user.getLatitude()));
     manager.setHighSchoolOrigin(user.getHighSchoolOrigin());
@@ -179,12 +159,6 @@ public class UserMapper {
 
   public Admin toRestAdmin(User user) {
     Admin admin = new Admin();
-    String profilePictureKey = user.getProfilePictureKey();
-    String url =
-        profilePictureKey != null
-            ? fileService.getPresignedUrl(profilePictureKey, ONE_DAY_DURATION_AS_LONG)
-            : null;
-
     admin.setId(user.getId());
     admin.setFirstName(user.getFirstName());
     admin.setLastName(user.getLastName());
@@ -198,7 +172,7 @@ public class UserMapper {
     admin.setAddress(user.getAddress());
     admin.setBirthPlace(user.getBirthPlace());
     admin.setNic(user.getNic());
-    admin.setProfilePicture(url);
+    admin.setProfilePicture(getPresignedProfilePictureUrl(user));
     admin.setCoordinates(
         new Coordinates().longitude(user.getLongitude()).latitude(user.getLatitude()));
     admin.setHighSchoolOrigin(user.getHighSchoolOrigin());
@@ -207,12 +181,6 @@ public class UserMapper {
 
   public Monitor toRestMonitor(User user) {
     Monitor monitor = new Monitor();
-    String profilePictureKey = user.getProfilePictureKey();
-    String url =
-        profilePictureKey != null
-            ? fileService.getPresignedUrl(profilePictureKey, ONE_DAY_DURATION_AS_LONG)
-            : null;
-
     monitor.setId(user.getId());
     monitor.setFirstName(user.getFirstName());
     monitor.setLastName(user.getLastName());
@@ -226,7 +194,7 @@ public class UserMapper {
     monitor.setAddress(user.getAddress());
     monitor.setBirthPlace(user.getBirthPlace());
     monitor.setNic(user.getNic());
-    monitor.setProfilePicture(url);
+    monitor.setProfilePicture(getPresignedProfilePictureUrl(user));
     monitor.setCoordinates(
         new Coordinates().longitude(user.getLongitude()).latitude(user.getLatitude()));
     monitor.setHighSchoolOrigin(user.getHighSchoolOrigin());
@@ -235,12 +203,6 @@ public class UserMapper {
 
   public Organizer toRestOrganizer(User user) {
     Organizer organizer = new Organizer();
-    String profilePictureKey = user.getProfilePictureKey();
-    String url =
-        profilePictureKey != null
-            ? fileService.getPresignedUrl(profilePictureKey, ONE_DAY_DURATION_AS_LONG)
-            : null;
-
     organizer.setId(user.getId());
     organizer.setFirstName(user.getFirstName());
     organizer.setLastName(user.getLastName());
@@ -254,7 +216,7 @@ public class UserMapper {
     organizer.setAddress(user.getAddress());
     organizer.setBirthPlace(user.getBirthPlace());
     organizer.setNic(user.getNic());
-    organizer.setProfilePicture(url);
+    organizer.setProfilePicture(getPresignedProfilePictureUrl(user));
     organizer.setCoordinates(
         new Coordinates().longitude(user.getLongitude()).latitude(user.getLatitude()));
     organizer.setHighSchoolOrigin(user.getHighSchoolOrigin());

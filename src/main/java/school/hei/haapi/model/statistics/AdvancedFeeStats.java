@@ -65,38 +65,12 @@ public class AdvancedFeeStats {
     TOTAL_COUNT,
     PAID_COUNT,
     LATE_COUNT,
+    UNPAID_COUNT,
     PENDING_COUNT
   }
 
   public enum AdvancedFeeStatsCountType {
     ACCOUNTING,
     RECEIPT;
-  }
-
-  public AdvancedFeeStats(
-      Long firstGradeCount,
-      Long secondGradeCount,
-      Long thirdGradeCount,
-      Long unknownGradeCount,
-      Long remedialFeesCount,
-      Long workStudyCount,
-      Long monthlyCount,
-      Long yearlyCount,
-      Long unknownFrequencyCount,
-      Long bankTransferCount,
-      Long mpbsCount,
-      AdvancedFeeStatsType statType) {
-    this.statType = statType;
-    this.firstGradeCount = firstGradeCount;
-    this.secondGradeCount = secondGradeCount;
-    this.thirdGradeCount = thirdGradeCount;
-    this.unknownGradeCount = unknownGradeCount;
-    this.remedialFeesCount = remedialFeesCount;
-    this.workStudyCount = workStudyCount;
-    this.monthlyCount = monthlyCount;
-    this.yearlyCount = yearlyCount;
-    this.unknownFrequencyCount = unknownFrequencyCount;
-    this.bankTransferCount = bankTransferCount;
-    this.mpbsCount = mpbsCount;
   }
 }

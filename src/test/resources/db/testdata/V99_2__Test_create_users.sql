@@ -56,3 +56,4 @@ values ('student1_id', 'Ryan', 'Andria', 'test+ryan@hei.school', 'STD21001', 'EN
        ('student_disabled', 'Student', 'Disabled', 'test+disabled+student@hei.school', 'STD22020', 'DISABLED', 'F',
         '1890-01-01',
         '2022-09-08T08:25:29.00Z', '0322411113', 'Adr 24', 'ORGANIZER', '', '', 55.555, -55.555, 'Lycée Andohalo');
+

@@ -2,15 +2,21 @@ package school.hei.haapi.service;
 
 import static java.time.Instant.now;
 import static school.hei.haapi.endpoint.rest.model.ResultOverviewStatus.VALIDATED;
+import static school.hei.haapi.endpoint.rest.model.StudentLevel.L1;
+import static school.hei.haapi.endpoint.rest.model.StudentLevel.L2;
+import static school.hei.haapi.endpoint.rest.model.StudentLevel.L3;
 import static school.hei.haapi.service.utils.DataFormatterUtils.instantToCommonDate;
 import static school.hei.haapi.service.utils.FileUtils.createFileFromBytes;
 
 import java.io.File;
 import java.math.MathContext;
+import java.util.List;
 import java.util.Optional;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.context.Context;
+import school.hei.haapi.endpoint.rest.model.ResultSummary;
+import school.hei.haapi.endpoint.rest.model.StudentLevel;
 import school.hei.haapi.endpoint.rest.model.YearlyResult;
 import school.hei.haapi.model.Promotion;
 import school.hei.haapi.model.User;
@@ -27,13 +33,40 @@ public class YearlyResultGenerationService {
   private final YearlyResultGenerationRequestRepository yearlyResultGenerationRequestRepository;
   private final ClassPathResourceResolver classPathResourceResolver;
   private static final String YEARLY_RESULT_FILENAME_PREFIX = "Bulletin-";
+  private static final String RESULT_SUMMARY_FILENAME_PREFIX = "Bulletin-Globale-";
+  private static final List<StudentLevel> RESULT_SUMMARY_FILE_LEVEL_CONTENT = List.of(L1, L2, L3);
   private static final String TOTAL_YEARLY_CREDITS = "60";
 
   public File generateYearlyResultTranscript(User student, YearlyResult yearlyResult) {
-    Context context = loadContext(student, yearlyResult);
-    String html = htmlParser.apply("yearlyResult", context);
-    String filename = YEARLY_RESULT_FILENAME_PREFIX + context.getVariable("promotion");
+    var context = new Context();
+    context.setVariable(
+        "transcriptContent", generateYearlyResultTranscriptHTML(student, yearlyResult, true));
+    var html = htmlParser.apply("yearlyResult", context);
+    var filename = YEARLY_RESULT_FILENAME_PREFIX + context.getVariable("promotion");
     return createFileFromBytes(pdfRenderer.apply(html), filename, ".pdf");
+  }
+
+  public File generateResultSummaryTranscript(User student, ResultSummary summary) {
+    var transcriptContentStringBuilder = new StringBuilder();
+    var yearlyResults =
+        summary.getYearlyResults().stream()
+            .filter(e -> RESULT_SUMMARY_FILE_LEVEL_CONTENT.contains(e.getLevel()))
+            .toList();
+    for (int i = 0; i < yearlyResults.size(); i++) {
+      var isLastPage = i == yearlyResults.size() - 1;
+      transcriptContentStringBuilder.append(
+          generateYearlyResultTranscriptHTML(student, yearlyResults.get(i), isLastPage));
+      transcriptContentStringBuilder.append("\n");
+    }
+    var context = new Context();
+    context.setVariable("transcriptContent", transcriptContentStringBuilder.toString());
+    var html = htmlParser.apply("yearlyResult", context);
+    return createFileFromBytes(pdfRenderer.apply(html), RESULT_SUMMARY_FILENAME_PREFIX, ".pdf");
+  }
+
+  private String generateYearlyResultTranscriptHTML(
+      User student, YearlyResult yearlyResult, boolean isLastPage) {
+    return htmlParser.apply("yearlyResultContent", loadContext(student, yearlyResult, isLastPage));
   }
 
   public Optional<YearlyResultGenerationRequest> findGenerationRequestByFileName(String fileName) {
@@ -42,11 +75,11 @@ public class YearlyResultGenerationService {
             fileName);
   }
 
-  public void saveGenerationRequest(YearlyResultGenerationRequest toSave) {
-    yearlyResultGenerationRequestRepository.save(toSave);
+  public YearlyResultGenerationRequest saveGenerationRequest(YearlyResultGenerationRequest toSave) {
+    return yearlyResultGenerationRequestRepository.save(toSave);
   }
 
-  private Context loadContext(User student, YearlyResult yearlyResult) {
+  private Context loadContext(User student, YearlyResult yearlyResult, boolean isLastPage) {
     Context context = new Context();
     var logoResource = classPathResourceResolver.apply("HEI_logo", ".png");
     context.setVariable("logo", base64Converter.apply(logoResource));
@@ -77,6 +110,7 @@ public class YearlyResultGenerationService {
     context.setVariable("malus_total", "Non disponible");
     var isTemporaryResult = !VALIDATED.equals(yearlyResult.getStatus());
     context.setVariable("isTemporaryResult", isTemporaryResult);
+    context.setVariable("isLastPage", isLastPage);
     return context;
   }
 }
