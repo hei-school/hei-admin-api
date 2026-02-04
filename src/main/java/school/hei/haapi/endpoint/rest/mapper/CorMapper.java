@@ -58,6 +58,12 @@ public class CorMapper {
             .build();
   }
 
+  public void toDomainUpdate(CrupdateCor corDto, school.hei.haapi.model.Cor cor) {
+    cor.setDescription(corDto.getDescription());
+    cor.setInterviewDatetime(corDto.getInterviewDate());
+    cor.setStatus(toDomainStatus(corDto.getStatus()));
+  }
+
   private List<UserIdentifier> getRestInterviewers(school.hei.haapi.model.Cor cor) {
     if (cor.getInterviewers() == null) {
       return List.of();

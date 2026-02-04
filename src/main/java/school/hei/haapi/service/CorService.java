@@ -7,6 +7,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import school.hei.haapi.endpoint.event.EventProducer;
 import school.hei.haapi.endpoint.event.model.CorNotificationRequested;
+import school.hei.haapi.endpoint.rest.mapper.CorMapper;
+import school.hei.haapi.endpoint.rest.model.CrupdateCor;
 import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.Cor;
 import school.hei.haapi.model.CorStatus;
@@ -23,6 +25,7 @@ public class CorService {
   private final PaginationFromPageAndPageSize paginationFromPageAndPageSize;
   private final CorDao corDao;
   private final EventProducer<CorNotificationRequested> eventProducer;
+  private final CorMapper corMapper;
 
   public List<Cor> getCors(
       Instant from,
@@ -39,13 +42,11 @@ public class CorService {
         studentId, paginationFromPageAndPageSize.apply(page, size));
   }
 
-  public Cor save(Cor cor) {
-    var isUpdate = cor.getId() != null && corRepository.existsById(cor.getId());
-    var savedCor = corRepository.save(cor);
-    if (!isUpdate) {
-      eventProducer.accept(List.of(new CorNotificationRequested(savedCor.getId())));
-    }
-    return savedCor;
+  public school.hei.haapi.endpoint.rest.model.Cor crupdate(CrupdateCor dto) {
+    Cor entity = corRepository.findById(dto.getId()).orElseGet(() -> corMapper.toDomain(dto));
+    corMapper.toDomainUpdate(dto, entity);
+    Cor saved = corRepository.save(entity);
+    return corMapper.toRest(saved);
   }
 
   public Cor getById(String id) {
