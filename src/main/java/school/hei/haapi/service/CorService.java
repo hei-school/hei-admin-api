@@ -42,11 +42,24 @@ public class CorService {
         studentId, paginationFromPageAndPageSize.apply(page, size));
   }
 
-  public school.hei.haapi.endpoint.rest.model.Cor crupdate(CrupdateCor dto) {
-    Cor entity = corRepository.findById(dto.getId()).orElseGet(() -> corMapper.toDomain(dto));
-    corMapper.toDomainUpdate(dto, entity);
-    Cor saved = corRepository.save(entity);
-    return corMapper.toRest(saved);
+  public Cor crupdate(CrupdateCor dto) {
+    boolean isCreate = dto.getId() == null;
+    Cor cor;
+    if (isCreate) {
+      cor = corMapper.toDomain(dto);
+    } else {
+      cor =
+          corRepository
+              .findById(dto.getId())
+              .orElseThrow(
+                  () -> new NotFoundException("Cor with id " + dto.getId() + " not found"));
+    }
+    corMapper.toDomainUpdate(dto, cor);
+    Cor saved = corRepository.save(cor);
+    if (isCreate) {
+      eventProducer.accept(List.of(new CorNotificationRequested(saved.getId())));
+    }
+    return saved;
   }
 
   public Cor getById(String id) {
