@@ -10,15 +10,13 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -51,6 +49,7 @@ import school.hei.haapi.repository.dao.GradeDao;
 import school.hei.haapi.service.utils.excel.ExcelParser;
 import school.hei.haapi.service.utils.excel.ParseResult;
 
+@Slf4j
 @Service
 @AllArgsConstructor
 public class GradeService {
@@ -289,25 +288,27 @@ public class GradeService {
     var savedGradeIds = savedGrades.stream().map(savedGrade -> savedGrade.getId()).toList();
     var gradeChangeHistories =
         gradeChangeHistoryRepository.findByGradeIdsOrderedByChangeInstantAsc(savedGradeIds);
-    Set<String> gradeRefs =
-        savedGrades.stream().map(grade -> grade.getRef()).collect(Collectors.toSet());
     List<GradeImportDto> filterGrades;
-    if (comment != null) {
-      filterGrades = grades.stream().filter(grade -> gradeRefs.contains(grade.getRef())).toList();
-    } else {
+    if (comment == null) {
       filterGrades =
           grades.stream()
               .filter(
-                  grade -> {
-                    var histories =
-                        gradeChangeHistories.stream()
-                            .filter(
-                                gradeChangeHistory ->
-                                    gradeChangeHistory.getRef().equals(grade.getRef()))
-                            .toList();
-                    return histories.stream()
-                        .anyMatch(history -> history.getScore().equals(grade.getScore()));
-                  })
+                  grade ->
+                      savedGrades.stream()
+                          .anyMatch(gradeSaved -> grade.getRef().equals(gradeSaved.getRef())))
+              .toList();
+    } else {
+      var existingGrades =
+          Stream.concat(gradeChangeHistories.stream(), savedGrades.stream()).toList();
+      filterGrades =
+          grades.stream()
+              .filter(
+                  grade ->
+                      existingGrades.stream()
+                          .anyMatch(
+                              existingGrade ->
+                                  existingGrade.getRef().equals(grade.getRef())
+                                      && existingGrade.getScore().equals(grade.getScore())))
               .toList();
     }
     return filterGrades;
@@ -432,44 +433,35 @@ public class GradeService {
         gradeChangeHistoryRepository.findByGradeIdsOrderedByChangeInstantAsc(gradeIds);
     Map<String, List<GradeDto>> historiesByGradeId =
         gradeChangeHistories.stream().collect(Collectors.groupingBy(GradeDto::getId));
-
     var gradeDtos =
         existingGrades.stream()
             .map(
                 grade -> {
                   var gradeHistories = historiesByGradeId.get(grade.getId());
-                  if (gradeHistories != null || !gradeHistories.isEmpty()) {
+                  if (gradeHistories != null) {
                     return gradeHistories.getLast();
                   }
                   return grade;
                 })
             .toList();
-    Map<String, Double> studentScoreAndRefs = new HashMap<>();
-    for (var grade : gradeDtos) {
-      studentScoreAndRefs.put(grade.getRef(), grade.getScore());
-    }
-    var participants = examRepository.findStudentRefsByExamId(examId);
     try (Workbook workbook = new XSSFWorkbook()) {
       String fileName = "note_d_examen_" + examId;
       Sheet sheet = workbook.createSheet(fileName);
       Row headerRow = sheet.createRow(0);
       headerRow.createCell(0).setCellValue("ref");
       headerRow.createCell(1).setCellValue("score");
-
-      IntStream.range(0, participants.size())
-          .forEach(
-              i -> {
-                String ref = participants.get(i);
-                Row row = sheet.createRow(i + 1);
-                row.createCell(0).setCellValue(ref);
-                Double score = studentScoreAndRefs.get(ref);
-                if (score != null) {
-                  row.createCell(1).setCellValue(score);
-                } else {
-                  row.createCell(1);
-                }
-              });
-
+      var i = 0;
+      for (var grade : gradeDtos) {
+        var ref = grade.getRef();
+        var row = sheet.createRow(i + 1);
+        row.createCell(0).setCellValue(ref);
+        Double score = grade.getScore();
+        if (score != null) {
+          row.createCell(1).setCellValue(score);
+        } else {
+          row.createCell(1);
+        }
+      }
       sheet.autoSizeColumn(0);
       sheet.autoSizeColumn(1);
       try (ByteArrayOutputStream template = new ByteArrayOutputStream()) {

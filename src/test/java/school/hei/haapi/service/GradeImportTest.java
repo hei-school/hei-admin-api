@@ -26,6 +26,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.time.Instant;
 import java.util.List;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -52,6 +53,7 @@ import school.hei.haapi.repository.GroupRepository;
 import school.hei.haapi.repository.MonitoringStudentRepository;
 import school.hei.haapi.repository.UserRepository;
 
+@Slf4j
 public class GradeImportTest extends FacadeITMockedThirdParties {
   @Autowired private GradeService subject;
   @MockBean BucketComponent bucketComponent;

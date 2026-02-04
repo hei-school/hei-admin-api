@@ -10,12 +10,10 @@ import school.hei.haapi.model.dto.GradeDto;
 public interface GradeChangeHistoryRepository extends JpaRepository<GradeChangeHistory, String> {
   @Query(
       """
-      SELECT gch.id as id, gch.grade.student.ref as ref, gch.score as score
+      SELECT  new school.hei.haapi.model.dto.GradeDto(gch.id, gch.grade.student.ref, gch.score)
       FROM GradeChangeHistory gch
       WHERE gch.grade.id IN :gradeIds
       ORDER BY gch.changeInstant ASC
       """)
   List<GradeDto> findByGradeIdsOrderedByChangeInstantAsc(@Param("gradeIds") List<String> gradeIds);
-
-  List<String> gradeId(String gradeId);
 }
