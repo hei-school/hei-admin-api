@@ -83,7 +83,7 @@ public class AdvancedFeeStatsService {
   private final BucketComponent bucketComponent;
 
   private static final Duration ADVANCED_FEE_STATS_EXPIRATION = Duration.of(3, DAYS);
-  private static final List<String> headers =
+  private static final List<String> STATS_HEADERS =
       List.of(
           "Date de création",
           "L1",
@@ -143,25 +143,26 @@ public class AdvancedFeeStatsService {
       Optional<AdvancedFeeStatsType> feeStatsType,
       AdvancedFeeStatsCountType countType) {
     var advancedFeesStats = generateAdvancedFeeStats(from, to, countType);
-    var filteredAdvancedStats =
-        advancedFeesStats.stream()
-            .filter(advancedFeeStats -> feeStatsType.get().equals(advancedFeeStats.getStatType()))
-            .toList();
-    try (var bytes = new ByteArrayOutputStream();
-        var workbook = new XSSFWorkbook()) {
+    if (feeStatsType.isPresent()) {
+      advancedFeesStats =
+          advancedFeesStats.stream()
+              .filter(advancedFeeStats -> feeStatsType.get().equals(advancedFeeStats.getStatType()))
+              .toList();
+    }
+    try (var workbook = new XSSFWorkbook();
+        var bytes = new ByteArrayOutputStream()) {
       var sheet = workbook.createSheet("STATS");
       var headerToUse = sheet.createRow(0);
-
-      for (int i = 0; i < headers.size(); i++) {
-        headerToUse.createCell(i).setCellValue(headers.get(i));
+      var cellIndex = 0;
+      for (var header : STATS_HEADERS) {
+        headerToUse.createCell(cellIndex).setCellValue(header);
       }
-
       var createHelper = workbook.getCreationHelper();
       var dateCellStyle = workbook.createCellStyle();
       dateCellStyle.setDataFormat(createHelper.createDataFormat().getFormat("yyyy-MM-dd HH:mm"));
-      fillRows(filteredAdvancedStats, sheet, dateCellStyle);
+      fillRows(advancedFeesStats, sheet, dateCellStyle);
 
-      for (int i = 0; i < headers.size(); i++) {
+      for (int i = 0; i < STATS_HEADERS.size(); i++) {
         sheet.autoSizeColumn(i);
       }
       workbook.write(bytes);
@@ -176,9 +177,10 @@ public class AdvancedFeeStatsService {
 
   private static void fillRows(
       List<AdvancedFeeStats> filteredAdvancedStats, Sheet sheet, CellStyle dateCellStyle) {
-    var rowIndex = 1;
+    int rowIndex = 1;
     for (var stat : filteredAdvancedStats) {
       var row = sheet.createRow(rowIndex++);
+
       var creationCell = row.createCell(0);
       Optional.ofNullable(stat.getCreationDatetime())
           .ifPresent(
@@ -186,6 +188,7 @@ public class AdvancedFeeStatsService {
                 creationCell.setCellValue(Date.from(d));
                 creationCell.setCellStyle(dateCellStyle);
               });
+
       row.createCell(1).setCellValue(Optional.ofNullable(stat.getFirstGradeCount()).orElse(0L));
       row.createCell(2).setCellValue(Optional.ofNullable(stat.getSecondGradeCount()).orElse(0L));
       row.createCell(3).setCellValue(Optional.ofNullable(stat.getThirdGradeCount()).orElse(0L));
@@ -197,13 +200,15 @@ public class AdvancedFeeStatsService {
           .setCellValue(Optional.ofNullable(stat.getUnknownFrequencyCount()).orElse(0L));
       row.createCell(9).setCellValue(Optional.ofNullable(stat.getBankTransferCount()).orElse(0L));
       row.createCell(10).setCellValue(Optional.ofNullable(stat.getMpbsCount()).orElse(0L));
+
       var updateCell = row.createCell(11);
       Optional.ofNullable(stat.getUpdateDatetime())
           .ifPresent(
-              date -> {
-                updateCell.setCellValue(Date.from(date));
+              d -> {
+                updateCell.setCellValue(Date.from(d));
                 updateCell.setCellStyle(dateCellStyle);
               });
+
       var typeCell = row.createCell(12);
       Optional.ofNullable(stat.getStatType()).ifPresent(type -> typeCell.setCellValue(type.name()));
     }
