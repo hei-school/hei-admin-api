@@ -5,7 +5,6 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataRetrievalFailureException;
 import school.hei.haapi.model.psp.Psp;
-import school.hei.haapi.model.psp.PspType;
 import school.hei.haapi.model.psp.vola.api.gen.client.model.Payment;
 import school.hei.haapi.model.psp.vola.api.gen.client.model.PaymentId;
 
@@ -15,33 +14,33 @@ public class VolaPsp implements Psp {
   private final VolaClient volaClient;
 
   @Override
-  public Payment create(PspType pspType, String pspId, String email) {
-    try {
-      log.info("Creating MPBS via Vola for student: {}", email);
-      return volaClient.create(pspType, pspId, email);
-    } catch (Exception e) {
-      log.error("Error creating MPBS via Vola", e);
-      throw new DataRetrievalFailureException("Failed to create MPBS via Vola", e);
-    }
-  }
-
-  @Override
   public Payment get(PaymentId paymentId) {
     try {
-      log.info("Retrieving MPBS via Vola for student: {}", paymentId.getPspPaymentId());
+      log.info("Retrieving Payment via Vola for PaymentId: {}", paymentId);
       return volaClient.get(paymentId);
     } catch (Exception e) {
-      log.error("Error retrieving MPBS via Vola", e);
-      throw new DataRetrievalFailureException("Failed to retrieve MPBS via Vola", e);
+      log.error("Error retrieving Payment via Vola", e);
+      throw new DataRetrievalFailureException("Failed to retrieve Payment via Vola", e);
     }
   }
 
   @Override
   public List<Payment> getPayments(List<PaymentId> paymentIds) {
     try {
-      return volaClient.getPayments(paymentIds);
+      log.info("Retrieving {} payments via Vola - paymentIds: {}", paymentIds.size(), paymentIds);
+
+      var paymentRetrieved = volaClient.getPayments(paymentIds);
+
+      log.info("Successfully retrieved {} payments via Vola", paymentRetrieved.size());
+      log.debug("Retrieved payments: {}", paymentRetrieved);
+
+      return paymentRetrieved;
     } catch (Exception e) {
-      log.error("Error retrieving multiple MPBS via Vola", e);
+      log.error(
+          "Error retrieving {} payments via Vola - paymentIds: {}",
+          paymentIds.size(),
+          paymentIds,
+          e);
       throw new DataRetrievalFailureException("Failed to retrieve multiple MPBS via Vola", e);
     }
   }
