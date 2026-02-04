@@ -1,7 +1,6 @@
 package school.hei.haapi.model.psp.vola.api;
 
 import java.util.List;
-import school.hei.haapi.model.psp.PspType;
 import school.hei.haapi.model.psp.vola.api.gen.client.ApiClient;
 import school.hei.haapi.model.psp.vola.api.gen.client.api.PaymentControllerApi;
 import school.hei.haapi.model.psp.vola.api.gen.client.model.Payment;
@@ -16,10 +15,6 @@ public class VolaClient {
     var apiClient = new ApiClient();
     apiClient.setBasePath(baseUrl);
     this.paymentControllerApi = new PaymentControllerApi(apiClient);
-  }
-
-  public Payment create(PspType pspType, String pspId, String email) {
-    return paymentControllerApi.createPayment(apiKey, email, pspType.toString(), pspId);
   }
 
   public Payment get(PaymentId paymentId) {
