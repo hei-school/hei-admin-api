@@ -43,23 +43,27 @@ public class CorService {
   }
 
   public Cor crupdate(CrupdateCor dto) {
-    boolean isCreate = dto.getId() == null;
-    Cor cor;
-    if (isCreate) {
-      cor = corMapper.toDomain(dto);
-    } else {
-      cor =
-          corRepository
-              .findById(dto.getId())
-              .orElseThrow(
-                  () -> new NotFoundException("Cor with id " + dto.getId() + " not found"));
-    }
+    Cor cor = getOrCreateCor(dto);
     corMapper.toDomainUpdate(dto, cor);
     Cor saved = corRepository.save(cor);
-    if (isCreate) {
+    publishCreationEventIfNeeded(dto, saved);
+
+    return saved;
+  }
+
+  private Cor getOrCreateCor(CrupdateCor dto) {
+    if (dto.getId() == null) {
+      return corMapper.toDomain(dto);
+    }
+    return corRepository
+        .findById(dto.getId())
+        .orElseThrow(() -> new NotFoundException("Cor with id " + dto.getId() + " not found"));
+  }
+
+  private void publishCreationEventIfNeeded(CrupdateCor dto, Cor saved) {
+    if (dto.getId() == null) {
       eventProducer.accept(List.of(new CorNotificationRequested(saved.getId())));
     }
-    return saved;
   }
 
   public Cor getById(String id) {
