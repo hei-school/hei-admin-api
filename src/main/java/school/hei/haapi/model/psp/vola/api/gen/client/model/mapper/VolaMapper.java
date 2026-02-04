@@ -1,7 +1,5 @@
 package school.hei.haapi.model.psp.vola.api.gen.client.model.mapper;
 
-import static school.hei.haapi.model.psp.PspType.ORANGE_MONEY;
-
 import org.springframework.stereotype.Component;
 import school.hei.haapi.endpoint.rest.model.MobileMoneyType;
 import school.hei.haapi.endpoint.rest.model.MpbsStatus;
@@ -9,16 +7,16 @@ import school.hei.haapi.model.mpbs.Mpbs;
 import school.hei.haapi.model.mpbs.MpbsStatusHistory;
 import school.hei.haapi.model.psp.PspType;
 import school.hei.haapi.model.psp.vola.api.gen.client.model.Payment;
-import school.hei.haapi.model.psp.vola.api.gen.client.model.PaymentInfo;
+import school.hei.haapi.model.psp.vola.api.gen.client.model.PaymentId;
 import school.hei.haapi.model.psp.vola.api.gen.client.model.PspPayment;
 
 @Component
 public class VolaMapper {
 
-  public PaymentInfo.PspTypeEnum toPspTypeEnum(MobileMoneyType mobileMoneyType) {
+  public PaymentId.PspTypeEnum toPspTypeEnum(MobileMoneyType mobileMoneyType) {
     switch (mobileMoneyType) {
       case ORANGE_MONEY -> {
-        return PaymentInfo.PspTypeEnum.ORANGE_MONEY;
+        return PaymentId.PspTypeEnum.ORANGE_MONEY;
       }
       default ->
           throw new UnsupportedOperationException(
@@ -35,7 +33,7 @@ public class VolaMapper {
     }
   }
 
-  public PspPayment.PspTypeEnum toPspPaymentType(PaymentInfo.PspTypeEnum pspType) {
+  public PspPayment.PspTypeEnum toPspPaymentType(PaymentId.PspTypeEnum pspType) {
     switch (pspType) {
       case ORANGE_MONEY -> {
         return PspPayment.PspTypeEnum.ORANGE_MONEY;
@@ -76,8 +74,8 @@ public class VolaMapper {
     };
   }
 
-  public PaymentInfo mpbsToPaymentInfos(Mpbs mpbs) {
-    return PaymentInfo.builder()
+  public PaymentId mpbsToPaymentInfos(Mpbs mpbs) {
+    return PaymentId.builder()
         .pspPaymentId(mpbs.getPspId())
         .payerEmail(mpbs.getStudent().getEmail())
         .pspType(toPspTypeEnum(mpbs.getMobileMoneyType()))

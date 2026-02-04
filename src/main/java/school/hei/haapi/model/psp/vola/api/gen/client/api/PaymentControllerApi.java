@@ -17,7 +17,7 @@ import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestClientException;
 import school.hei.haapi.model.psp.vola.api.gen.client.ApiClient;
 import school.hei.haapi.model.psp.vola.api.gen.client.model.Payment;
-import school.hei.haapi.model.psp.vola.api.gen.client.model.PaymentInfo;
+import school.hei.haapi.model.psp.vola.api.gen.client.model.PaymentId;
 import school.hei.haapi.model.psp.vola.api.gen.client.model.RecoveryResult;
 
 @Component("school.hei.haapi.model.psp.vola.api.gen.client.api.PaymentControllerApi")
@@ -141,15 +141,17 @@ public class PaymentControllerApi {
    * <b>200</b> - OK
    *
    * @param apiKey (required)
-   * @param payerEmail (required)
-   * @param pspType (required)
-   * @param pspPaymentId (required)
+   * @param paymentId (required)
    * @return Payment
    * @throws RestClientException if an error occurs while attempting to invoke the API
    */
-  public Payment getPayment(String apiKey, String payerEmail, String pspType, String pspPaymentId)
-      throws RestClientException {
-    return getPaymentWithHttpInfo(apiKey, payerEmail, pspType, pspPaymentId).getBody();
+  public Payment getPayment(String apiKey, PaymentId paymentId) throws RestClientException {
+    return getPaymentWithHttpInfo(
+            apiKey,
+            paymentId.getPayerEmail(),
+            paymentId.getPspType().toString(),
+            paymentId.getPspPaymentId())
+        .getBody();
   }
 
   /**
@@ -237,25 +239,25 @@ public class PaymentControllerApi {
    * <b>200</b> - OK
    *
    * @param apiKey (required)
-   * @param paymentInfos (required)
+   * @param paymentIds (required)
    * @return List&lt;Payment&gt;
    * @throws RestClientException if an error occurs while attempting to invoke the API
    */
-  public List<Payment> getPayments(String apiKey, List<PaymentInfo> paymentInfos)
+  public List<Payment> getPayments(String apiKey, List<PaymentId> paymentIds)
       throws RestClientException {
-    return getPaymentsWithHttpInfo(apiKey, paymentInfos).getBody();
+    return getPaymentsWithHttpInfo(apiKey, paymentIds).getBody();
   }
 
   /**
    * <b>200</b> - OK
    *
    * @param apiKey (required)
-   * @param paymentInfos (required)
+   * @param paymentIds (required)
    * @return ResponseEntity&lt;List&lt;Payment&gt;&gt;
    * @throws RestClientException if an error occurs while attempting to invoke the API
    */
   public ResponseEntity<List<Payment>> getPaymentsWithHttpInfo(
-      String apiKey, List<PaymentInfo> paymentInfos) throws RestClientException {
+      String apiKey, List<PaymentId> paymentIds) throws RestClientException {
     Object localVarPostBody = null;
 
     // verify the required parameter 'apiKey' is set
@@ -266,7 +268,7 @@ public class PaymentControllerApi {
     }
 
     // verify the required parameter 'paymentInfos' is set
-    if (paymentInfos == null) {
+    if (paymentIds == null) {
       throw new HttpClientErrorException(
           HttpStatus.BAD_REQUEST,
           "Missing the required parameter 'paymentInfos' when calling getPayments");
@@ -285,7 +287,7 @@ public class PaymentControllerApi {
         apiClient.parameterToMultiValueMap(
             ApiClient.CollectionFormat.valueOf("multi".toUpperCase(Locale.ROOT)),
             "paymentInfos",
-            paymentInfos));
+            paymentIds));
 
     final String[] localVarAccepts = {"*/*"};
     final List<MediaType> localVarAccept = apiClient.selectHeaderAccept(localVarAccepts);

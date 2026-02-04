@@ -7,7 +7,7 @@ import org.springframework.dao.DataRetrievalFailureException;
 import school.hei.haapi.model.psp.Psp;
 import school.hei.haapi.model.psp.PspType;
 import school.hei.haapi.model.psp.vola.api.gen.client.model.Payment;
-import school.hei.haapi.model.psp.vola.api.gen.client.model.PaymentInfo;
+import school.hei.haapi.model.psp.vola.api.gen.client.model.PaymentId;
 
 @Slf4j
 @AllArgsConstructor
@@ -26,10 +26,10 @@ public class VolaPsp implements Psp {
   }
 
   @Override
-  public Payment get(PspType pspType, String pspId, String email) {
+  public Payment get(PaymentId paymentId) {
     try {
-      log.info("Retrieving MPBS via Vola for student: {}", email);
-      return volaClient.get(pspType, pspId, email);
+      log.info("Retrieving MPBS via Vola for student: {}", paymentId.getPspPaymentId());
+      return volaClient.get(paymentId);
     } catch (Exception e) {
       log.error("Error retrieving MPBS via Vola", e);
       throw new DataRetrievalFailureException("Failed to retrieve MPBS via Vola", e);
@@ -37,9 +37,9 @@ public class VolaPsp implements Psp {
   }
 
   @Override
-  public List<Payment> getPayments(List<PaymentInfo> paymentInfos) {
+  public List<Payment> getPayments(List<PaymentId> paymentIds) {
     try {
-      return volaClient.getPayments(paymentInfos);
+      return volaClient.getPayments(paymentIds);
     } catch (Exception e) {
       log.error("Error retrieving multiple MPBS via Vola", e);
       throw new DataRetrievalFailureException("Failed to retrieve multiple MPBS via Vola", e);
