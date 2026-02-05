@@ -3,6 +3,7 @@ package school.hei.haapi.service;
 import static java.time.Instant.now;
 import static java.time.ZoneOffset.UTC;
 import static java.time.temporal.ChronoUnit.DAYS;
+import static java.time.temporal.ChronoUnit.SECONDS;
 import static java.time.temporal.TemporalAdjusters.lastDayOfMonth;
 import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.groupingByConcurrent;
@@ -174,8 +175,9 @@ public class AdvancedFeeStatsService {
         sheet.autoSizeColumn(i);
       }
       workbook.write(bytes);
-      var file = createFileFromBytes(bytes.toByteArray(), "advanced-fees-stats-" + now(), ".xlsx");
-      var bucketKey = "advanced-fees-stats-" + now();
+      var now = Instant.now().truncatedTo(SECONDS);
+      var file = createFileFromBytes(bytes.toByteArray(), "advanced-fees-stats-" + now, ".xlsx");
+      var bucketKey = "advanced-fees-stats-" + now + ".xlsx";
       bucketComponent.upload(file, bucketKey);
       return bucketComponent.presign(bucketKey, Duration.ofDays(1)).toString();
     } catch (IOException e) {
