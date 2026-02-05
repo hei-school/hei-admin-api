@@ -142,6 +142,10 @@ class AdvancedFeeStatsServiceTest extends FacadeITMockedThirdParties {
     var stats =
         subject.generateAdvancedFeeStats(
             Optional.ofNullable(rangeDate), Optional.ofNullable(rangeDate), RECEIPT);
+
+    when(bucketComponent.presign(any(), any()))
+        .thenAnswer(invocation -> new URL("https://example.com/file.xlsx"));
+    when(bucketComponent.upload(any(), any())).thenReturn(mock());
     var actualStats =
         stats.stream()
             .peek(
