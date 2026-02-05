@@ -122,21 +122,29 @@ public class MpbsVerificationService {
     return verifiedMpbs;
   }
 
-  // Vola integration
   public List<MpbsVerification> verifyMobilePaymentAndSaveResultWithVola(
       List<Mpbs> pendingMpbsList) {
     log.info("Starting Vola verification for {} pending MPBS", pendingMpbsList.size());
 
+    List<Mpbs> pendingMpbsCopy = new ArrayList<>(pendingMpbsList);
     List<MpbsVerification> verifiedMpbs = new ArrayList<>();
     List<Mpbs> unverifiedMpbs = new ArrayList<>();
 
+    Map<String, Payment> paymentMap;
     try {
-      var paymentMap = fetchAndMapVolaPayments(pendingMpbsList);
-      processPayments(pendingMpbsList, paymentMap, verifiedMpbs, unverifiedMpbs);
+      paymentMap = fetchAndMapVolaPayments(pendingMpbsCopy);
     } catch (Exception e) {
-      log.error("Error fetching payments from Vola for {} MPBS", pendingMpbsList.size(), e);
-      unverifiedMpbs.addAll(pendingMpbsList);
+      log.error(
+          "Fatal error fetching payments from Vola for {} MPBS - marking all as unverified",
+          pendingMpbsCopy.size(),
+          e);
+      // If fetch fail all payments become unverified
+      handleUnverifiedPayments(pendingMpbsCopy);
+      logVerificationResults(verifiedMpbs, pendingMpbsCopy);
+      return verifiedMpbs;
     }
+
+    processPaymentsIndividually(pendingMpbsCopy, paymentMap, verifiedMpbs, unverifiedMpbs);
 
     handleUnverifiedPayments(unverifiedMpbs);
     logVerificationResults(verifiedMpbs, unverifiedMpbs);
@@ -168,7 +176,7 @@ public class MpbsVerificationService {
         .toList();
   }
 
-  private void processPayments(
+  private void processPaymentsIndividually(
       List<Mpbs> pendingMpbsList,
       Map<String, Payment> paymentMap,
       List<MpbsVerification> verifiedMpbs,
@@ -177,22 +185,45 @@ public class MpbsVerificationService {
     log.info("Processing {} MPBS against Vola payments", pendingMpbsList.size());
 
     for (Mpbs pendingMpbs : pendingMpbsList) {
-      Payment volaPayment = paymentMap.get(pendingMpbs.getPspId());
-
-      if (shouldVerifyPayment(volaPayment, pendingMpbs.getPspId())) {
-        processVerifiedPayment(pendingMpbs, volaPayment, verifiedMpbs, unverifiedMpbs);
-      } else {
-        logUnverifiedReason(volaPayment, pendingMpbs.getPspId());
+      try {
+        processSinglePayment(pendingMpbs, paymentMap, verifiedMpbs, unverifiedMpbs);
+      } catch (Exception e) {
+        log.error(
+            "Unexpected error processing payment with PSP ID: {} - marking as unverified",
+            pendingMpbs.getPspId(),
+            e);
         unverifiedMpbs.add(pendingMpbs);
       }
+    }
+
+    log.info(
+        "Processed all payments - Verified: {}, Unverified: {}",
+        verifiedMpbs.size(),
+        unverifiedMpbs.size());
+  }
+
+  private void processSinglePayment(
+      Mpbs pendingMpbs,
+      Map<String, Payment> paymentMap,
+      List<MpbsVerification> verifiedMpbs,
+      List<Mpbs> unverifiedMpbs) {
+
+    Payment volaPayment = paymentMap.get(pendingMpbs.getPspId());
+
+    if (shouldVerifyPayment(volaPayment, pendingMpbs.getPspId())) {
+      processVerifiedPayment(pendingMpbs, volaPayment, verifiedMpbs, unverifiedMpbs);
+    } else {
+      logUnverifiedReason(volaPayment, pendingMpbs.getPspId());
+      unverifiedMpbs.add(pendingMpbs);
     }
   }
 
   private boolean shouldVerifyPayment(Payment volaPayment, String pspId) {
-    if (volaPayment == null) {
-      return false;
-    }
-    return isPaymentSuccessful(volaPayment);
+    return volaPayment != null && isPaymentSuccessful(volaPayment);
+  }
+
+  private boolean isPaymentSuccessful(Payment payment) {
+    return payment.getVerificationStatus() == Payment.VerificationStatusEnum.SUCCEEDED;
   }
 
   private void logUnverifiedReason(Payment volaPayment, String pspId) {
@@ -221,10 +252,6 @@ public class MpbsVerificationService {
         "Vola verification completed - Verified: {}, Unverified: {}",
         verifiedMpbs.size(),
         unverifiedMpbs.size());
-  }
-
-  private boolean isPaymentSuccessful(Payment payment) {
-    return payment.getVerificationStatus() == Payment.VerificationStatusEnum.SUCCEEDED;
   }
 
   @Transactional
