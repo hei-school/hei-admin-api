@@ -18,6 +18,7 @@ import org.springframework.web.multipart.MultipartFile;
 import school.hei.haapi.http.mapper.TransactionDetailsMapper;
 import school.hei.haapi.http.model.TransactionDetails;
 import school.hei.haapi.model.MobileTransactionDetails;
+import school.hei.haapi.model.PaymentProcessingResult;
 import school.hei.haapi.model.dto.MobileTransactionDetailsDto;
 import school.hei.haapi.model.exception.NoRemainingAmountFee;
 import school.hei.haapi.model.mpbs.Mpbs;
@@ -56,8 +57,6 @@ public class MpbsVerificationService {
     log.info("Starting Vola verification for {} pending MPBS", pendingMpbsList.size());
 
     List<Mpbs> pendingMpbsCopy = new ArrayList<>(pendingMpbsList);
-    List<MpbsVerification> verifiedMpbs = new ArrayList<>();
-    List<Mpbs> unverifiedMpbs = new ArrayList<>();
 
     Map<String, Payment> paymentMap;
     try {
@@ -67,18 +66,89 @@ public class MpbsVerificationService {
           "Fatal error fetching payments from Vola for {} MPBS - marking all as unverified",
           pendingMpbsCopy.size(),
           e);
-      // If fetch fail all payments become unverified
+
       handleUnverifiedPayments(pendingMpbsCopy);
-      logVerificationResults(verifiedMpbs, pendingMpbsCopy);
-      return verifiedMpbs;
+      logVerificationResults(List.of(), pendingMpbsCopy);
+      return List.of();
     }
 
-    processPaymentsIndividually(pendingMpbsCopy, paymentMap, verifiedMpbs, unverifiedMpbs);
+    var result = processPaymentsIndividually(pendingMpbsCopy, paymentMap);
 
-    handleUnverifiedPayments(unverifiedMpbs);
-    logVerificationResults(verifiedMpbs, unverifiedMpbs);
+    handleUnverifiedPayments(result.unverifiedMpbs());
+    logVerificationResults(result.verifiedMpbs(), result.unverifiedMpbs());
 
-    return verifiedMpbs;
+    return result.verifiedMpbs();
+  }
+
+  private PaymentProcessingResult processPaymentsIndividually(
+      List<Mpbs> pendingMpbsList, Map<String, Payment> paymentMap) {
+
+    log.info("Processing {} MPBS against Vola payments", pendingMpbsList.size());
+
+    List<MpbsVerification> verifiedMpbs = new ArrayList<>();
+    List<Mpbs> unverifiedMpbs = new ArrayList<>();
+
+    for (Mpbs pendingMpbs : pendingMpbsList) {
+      try {
+        processSinglePayment(pendingMpbs, paymentMap, verifiedMpbs, unverifiedMpbs);
+      } catch (Exception e) {
+        log.error(
+            "Unexpected error processing payment with PSP ID: {} - marking as unverified",
+            pendingMpbs.getPspId(),
+            e);
+        unverifiedMpbs.add(pendingMpbs);
+      }
+    }
+
+    log.info(
+        "Processed all payments - Verified: {}, Unverified: {}",
+        verifiedMpbs.size(),
+        unverifiedMpbs.size());
+
+    return new PaymentProcessingResult(verifiedMpbs, unverifiedMpbs);
+  }
+
+  private void processSinglePayment(
+      Mpbs pendingMpbs,
+      Map<String, Payment> paymentMap,
+      List<MpbsVerification> verifiedMpbs,
+      List<Mpbs> unverifiedMpbs) {
+
+    Payment volaPayment = paymentMap.get(pendingMpbs.getPspId());
+
+    if (shouldVerifyPayment(volaPayment, pendingMpbs.getPspId())) {
+      processVerifiedPayment(pendingMpbs, volaPayment, verifiedMpbs, unverifiedMpbs);
+    } else {
+      logUnverifiedReason(volaPayment, pendingMpbs.getPspId());
+      unverifiedMpbs.add(pendingMpbs);
+    }
+  }
+
+  private void processVerifiedPayment(
+      Mpbs pendingMpbs,
+      Payment volaPayment,
+      List<MpbsVerification> verifiedMpbs,
+      List<Mpbs> unverifiedMpbs) {
+
+    try {
+      var transactionDetails = transactionDetailsMapper.fromVolaPayment(volaPayment);
+      log.info("Mapped transaction details from Vola = {}", transactionDetails);
+
+      verifiedMpbs.add(
+          computeVerifiedMobilePayment.saveTheVerifiedMpbs(pendingMpbs, transactionDetails));
+
+    } catch (NoRemainingAmountFee e) {
+      log.error(
+          "Payment {} could not be verified because fee {} has no remaining amount",
+          pendingMpbs.getId(),
+          pendingMpbs.getFee().getId(),
+          e);
+      unverifiedMpbs.add(pendingMpbs);
+
+    } catch (RuntimeException e) {
+      log.error("Mpbs of ref {} could not be verified because of error", pendingMpbs.getPspId(), e);
+      unverifiedMpbs.add(pendingMpbs);
+    }
   }
 
   private Map<String, Payment> fetchAndMapVolaPayments(List<Mpbs> pendingMpbsList) {
@@ -103,48 +173,6 @@ public class MpbsVerificationService {
                     .pspPaymentId(mpbs.getPspId())
                     .build())
         .toList();
-  }
-
-  private void processPaymentsIndividually(
-      List<Mpbs> pendingMpbsList,
-      Map<String, Payment> paymentMap,
-      List<MpbsVerification> verifiedMpbs,
-      List<Mpbs> unverifiedMpbs) {
-
-    log.info("Processing {} MPBS against Vola payments", pendingMpbsList.size());
-
-    for (Mpbs pendingMpbs : pendingMpbsList) {
-      try {
-        processSinglePayment(pendingMpbs, paymentMap, verifiedMpbs, unverifiedMpbs);
-      } catch (Exception e) {
-        log.error(
-            "Unexpected error processing payment with PSP ID: {} - marking as unverified",
-            pendingMpbs.getPspId(),
-            e);
-        unverifiedMpbs.add(pendingMpbs);
-      }
-    }
-
-    log.info(
-        "Processed all payments - Verified: {}, Unverified: {}",
-        verifiedMpbs.size(),
-        unverifiedMpbs.size());
-  }
-
-  private void processSinglePayment(
-      Mpbs pendingMpbs,
-      Map<String, Payment> paymentMap,
-      List<MpbsVerification> verifiedMpbs,
-      List<Mpbs> unverifiedMpbs) {
-
-    Payment volaPayment = paymentMap.get(pendingMpbs.getPspId());
-
-    if (shouldVerifyPayment(volaPayment, pendingMpbs.getPspId())) {
-      processVerifiedPayment(pendingMpbs, volaPayment, verifiedMpbs, unverifiedMpbs);
-    } else {
-      logUnverifiedReason(volaPayment, pendingMpbs.getPspId());
-      unverifiedMpbs.add(pendingMpbs);
-    }
   }
 
   private boolean shouldVerifyPayment(Payment volaPayment, String pspId) {
@@ -186,9 +214,7 @@ public class MpbsVerificationService {
   @Transactional
   public List<Mpbs> computeFromXls(File file) throws IOException {
     List<String> pspToVerify = generateMobileTransactionDetailsFromXlsFile(file);
-
     List<Mpbs> mpbsToVerify = mpbsRepository.findByPspIdIn(pspToVerify);
-
     verifyMobilePaymentAndSaveResult(mpbsToVerify);
     return mpbsToVerify;
   }
@@ -214,8 +240,10 @@ public class MpbsVerificationService {
                 .filterDistinctByField(transactions, MobileTransactionDetails::getPspTransactionRef)
                 .stream()
                 .toList());
+
     mobilePaymentService.saveAll(unsavedTransactions);
     log.info("Verification done...");
+
     return transactions.stream()
         .map(MobileTransactionDetails::getPspTransactionRef)
         .collect(Collectors.toList());
@@ -223,8 +251,10 @@ public class MpbsVerificationService {
 
   private List<MobileTransactionDetails> getUnsavedTransactions(
       List<MobileTransactionDetails> transactions) {
+
     List<String> transactionRefs =
         transactions.stream().map(MobileTransactionDetails::getPspTransactionRef).toList();
+
     List<String> savedTransactionRefs =
         mobilePaymentService.findAllTransactionByRefs(transactionRefs).stream()
             .map(MobileTransactionDetails::getPspTransactionRef)
@@ -239,35 +269,10 @@ public class MpbsVerificationService {
   public void checkMobilePaymentThenSaveVerification() {
     List<Mpbs> pendingMpbs = mpbsRepository.findAllByStatus(PENDING);
     log.info("pending mpbs = {}", pendingMpbs.size());
-
     verifyMobilePaymentAndSaveResult(pendingMpbs);
   }
 
   public List<TransactionDetails> fetchThenSaveTransactionDetailsDaily() {
     return mobilePaymentService.fetchTransactionDetails();
-  }
-
-  private void processVerifiedPayment(
-      Mpbs pendingMbps,
-      Payment volaPayment,
-      List<MpbsVerification> verifiedMpbs,
-      List<Mpbs> unverifiedMpbs) {
-    try {
-      var transactionDetails = transactionDetailsMapper.fromVolaPayment(volaPayment);
-      log.info("Mapped transaction details from Vola = {}", transactionDetails);
-
-      verifiedMpbs.add(
-          computeVerifiedMobilePayment.saveTheVerifiedMpbs(pendingMbps, transactionDetails));
-    } catch (NoRemainingAmountFee e) {
-      log.error(
-          "Payment {} could not be verified because fee {} has no remaining amount",
-          pendingMbps.getId(),
-          pendingMbps.getFee().getId(),
-          e);
-      unverifiedMpbs.add(pendingMbps);
-    } catch (RuntimeException e) {
-      log.error("Mpbs of ref {} could not be verified because of error", pendingMbps.getPspId(), e);
-      unverifiedMpbs.add(pendingMbps);
-    }
   }
 }
