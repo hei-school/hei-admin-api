@@ -162,7 +162,9 @@ class AdvancedFeeStatsServiceTest extends FacadeITMockedThirdParties {
             .orElseThrow(() -> new AssertionError("UNPAID_COUNT stat not generated"));
 
     subject.generateAdvancedFeesStatsExcelFile(
-        rangeDate, rangeDate, null, AdvancedFeeStatisticsType.RECEIPT);
+        rangeDate, rangeDate, LATE, AdvancedFeeStatisticsType.RECEIPT);
+    subject.generateAdvancedFeesStatsExcelFile(
+        rangeDate, rangeDate, PENDING, AdvancedFeeStatisticsType.RECEIPT);
     assertEquals(2, unpaidStat.getSecondGradeCount(), "L2 unpaid");
     assertEquals(2, unpaidStat.getMonthlyCount()); // both are MONTHLY\
   }

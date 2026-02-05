@@ -203,8 +203,8 @@ public class AdvancedFeeStatsService {
       var creationCell = row.createCell(0);
       Optional.ofNullable(stat.getCreationDatetime())
           .ifPresent(
-              d -> {
-                creationCell.setCellValue(Date.from(d));
+              date -> {
+                creationCell.setCellValue(Date.from(date));
                 creationCell.setCellStyle(dateCellStyle);
               });
 
