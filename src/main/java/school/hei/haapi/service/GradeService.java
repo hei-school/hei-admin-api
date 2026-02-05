@@ -1,7 +1,9 @@
 package school.hei.haapi.service;
 
+import static java.util.function.Function.identity;
 import static org.apache.poi.ss.usermodel.CellType.NUMERIC;
 import static org.apache.poi.ss.usermodel.Row.MissingCellPolicy.CREATE_NULL_AS_BLANK;
+import static school.hei.haapi.model.exception.ApiException.ExceptionType.SERVER_EXCEPTION;
 
 import jakarta.transaction.Transactional;
 import java.io.ByteArrayOutputStream;
@@ -10,6 +12,7 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -18,9 +21,6 @@ import java.util.stream.Stream;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -37,6 +37,7 @@ import school.hei.haapi.model.Group;
 import school.hei.haapi.model.GroupFlow;
 import school.hei.haapi.model.dto.GradeDto;
 import school.hei.haapi.model.dto.GradeImportDto;
+import school.hei.haapi.model.exception.ApiException;
 import school.hei.haapi.model.exception.BadRequestException;
 import school.hei.haapi.model.exception.NotFoundException;
 import school.hei.haapi.model.notEntity.UpdateGrade;
@@ -429,33 +430,39 @@ public class GradeService {
   public byte[] generateGradesTemplate(String examId) {
     var existingGrades = gradeRepository.getGradesByExamId(examId);
     var gradeIds = existingGrades.stream().map(GradeDto::getId).toList();
-    var gradeChangeHistories =
+    var gradeHistories =
         gradeChangeHistoryRepository.findByGradeIdsOrderedByChangeInstantAsc(gradeIds);
-    Map<String, List<GradeDto>> historiesByGradeId =
-        gradeChangeHistories.stream().collect(Collectors.groupingBy(GradeDto::getId));
-    var gradeDtos =
+    var lastHistoryByGradeId =
+        gradeHistories.stream()
+            .collect(
+                Collectors.toMap(GradeDto::getId, identity(), (oldChange, newChange) -> newChange));
+    var allGrades =
         existingGrades.stream()
             .map(
-                grade -> {
-                  var gradeHistories = historiesByGradeId.get(grade.getId());
-                  if (gradeHistories != null) {
-                    return gradeHistories.getLast();
+                existing -> {
+                  var lastGradeChangeHistory = lastHistoryByGradeId.get(existing.getId());
+                  if (lastGradeChangeHistory != null) {
+                    return lastGradeChangeHistory;
                   }
-                  return grade;
+                  return existing;
                 })
             .toList();
-    try (Workbook workbook = new XSSFWorkbook()) {
-      String fileName = "note_d_examen_" + examId;
-      Sheet sheet = workbook.createSheet(fileName);
-      Row headerRow = sheet.createRow(0);
+    Map<String, Double> studentScoreAndRefs = new HashMap<>();
+    for (var grade : allGrades) {
+      studentScoreAndRefs.put(grade.getRef(), grade.getScore());
+    }
+    var participants = examRepository.findStudentRefsByExamId(examId);
+    try (var workbook = new XSSFWorkbook()) {
+      var fileName = "note_" + examId;
+      var sheet = workbook.createSheet(fileName);
+      var headerRow = sheet.createRow(0);
       headerRow.createCell(0).setCellValue("ref");
       headerRow.createCell(1).setCellValue("score");
-      var rowIndex = 0;
-      for (var grade : gradeDtos) {
-        var ref = grade.getRef();
-        var row = sheet.createRow(rowIndex + 1);
+      int rowIndex = 1;
+      for (var ref : participants) {
+        var row = sheet.createRow(rowIndex++);
         row.createCell(0).setCellValue(ref);
-        Double score = grade.getScore();
+        var score = studentScoreAndRefs.get(ref);
         if (score != null) {
           row.createCell(1).setCellValue(score);
         } else {
@@ -469,7 +476,7 @@ public class GradeService {
         return template.toByteArray();
       }
     } catch (IOException e) {
-      throw new RuntimeException(e);
+      throw new ApiException(SERVER_EXCEPTION, e);
     }
   }
 }
