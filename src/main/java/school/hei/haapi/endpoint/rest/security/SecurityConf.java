@@ -488,7 +488,7 @@ public class SecurityConf {
                     .hasAnyRole(MANAGER.getRole(), ADMIN.getRole())
                     .requestMatchers(POST, "/fees/advanced-stats-generate")
                     .hasAnyRole(MANAGER.getRole(), ADMIN.getRole())
-                    .requestMatchers(POST, "/fees/advanced-stats/export")
+                    .requestMatchers(GET, "/fees/advanced-stats/export")
                     .hasAnyRole(MANAGER.getRole(), ADMIN.getRole())
                     .requestMatchers(POST, "/mpbs/verify")
                     .hasAnyRole(MANAGER.getRole(), ADMIN.getRole())
