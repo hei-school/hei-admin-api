@@ -2,6 +2,7 @@ package school.hei.haapi.service;
 
 import static java.util.stream.Collectors.toSet;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -16,23 +17,37 @@ import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.PAID;
 import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.PENDING;
 import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.UNPAID;
 import static school.hei.haapi.endpoint.rest.model.FeeTypeEnum.TUITION;
+import static school.hei.haapi.integration.StudentIT.student1;
+import static school.hei.haapi.integration.conf.TestUtils.MANAGER1_TOKEN;
+import static school.hei.haapi.integration.conf.TestUtils.setUpCasdoor;
+import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
+import static school.hei.haapi.integration.conf.TestUtils.setUpS3Service;
 import static school.hei.haapi.model.statistics.AdvancedFeeStats.AdvancedFeeStatsCountType.RECEIPT;
 import static school.hei.haapi.model.statistics.AdvancedFeeStats.AdvancedFeeStatsType.PENDING_COUNT;
 import static school.hei.haapi.model.statistics.AdvancedFeeStats.AdvancedFeeStatsType.UNPAID_COUNT;
 
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import school.hei.haapi.endpoint.event.EventProducer;
+import school.hei.haapi.endpoint.rest.api.PayingApi;
+import school.hei.haapi.endpoint.rest.client.ApiClient;
+import school.hei.haapi.endpoint.rest.client.ApiException;
 import school.hei.haapi.endpoint.rest.mapper.AdvancedFeeStatsMapper;
+import school.hei.haapi.endpoint.rest.model.AdvancedFeeStatisticsType;
 import school.hei.haapi.file.bucket.BucketComponent;
 import school.hei.haapi.integration.conf.FacadeITMockedThirdParties;
+import school.hei.haapi.integration.conf.TestUtils;
 import school.hei.haapi.model.Fee;
 import school.hei.haapi.model.FeeStatusHistory;
 import school.hei.haapi.model.statistics.AdvancedFeeStats;
@@ -40,6 +55,7 @@ import school.hei.haapi.repository.AdvancedFeeStatsRepository;
 import school.hei.haapi.repository.FeeRepository;
 import school.hei.haapi.repository.dao.FeeDao;
 
+@Slf4j
 class AdvancedFeeStatsServiceTest extends FacadeITMockedThirdParties {
   private AdvancedFeeStatsService subject;
   private FeeDao feeDao;
@@ -47,7 +63,11 @@ class AdvancedFeeStatsServiceTest extends FacadeITMockedThirdParties {
   private AdvancedFeeStatsRepository repository;
   @Autowired private AdvancedFeeStatsMapper advancedFeeStatsMapper;
   private FeeRepository feeRepository;
-  private BucketComponent bucketComponent;
+  @MockBean private BucketComponent bucketComponent;
+
+  private ApiClient anApiClient(String token) {
+    return TestUtils.anApiClient(token, localPort);
+  }
 
   @BeforeEach
   void setUp() {
@@ -55,7 +75,10 @@ class AdvancedFeeStatsServiceTest extends FacadeITMockedThirdParties {
     repository = mock(AdvancedFeeStatsRepository.class);
     feeRepository = mock(FeeRepository.class);
     eventProducer = mock(EventProducer.class);
-    bucketComponent = mock(BucketComponent.class);
+
+    setUpCasdoor(casdoorAuthServiceMock, certificateLoaderMock);
+    setUpCognito(cognitoComponentMock);
+    setUpS3Service(fileService, student1());
 
     subject =
         new AdvancedFeeStatsService(
@@ -95,7 +118,7 @@ class AdvancedFeeStatsServiceTest extends FacadeITMockedThirdParties {
 
   @Test
   void advanced_fee_statistics_count_ok() {
-    var rangeDate = Optional.of(Instant.now());
+    var rangeDate = Instant.now();
     Map<AdvancedFeeStats.AdvancedFeeStatsType, AdvancedFeeStats> daoResult =
         Map.of(
             UNPAID_COUNT,
@@ -116,7 +139,9 @@ class AdvancedFeeStatsServiceTest extends FacadeITMockedThirdParties {
     when(feeRepository.findDistinctByStatusHistoriesDatetimeBetween(any(), any()))
         .thenReturn(getFeeList());
     when(feeDao.getAdvancedFeeStatsOnDateBetween(any(), any(), any())).thenReturn(daoResult);
-    var stats = subject.generateAdvancedFeeStats(rangeDate, rangeDate, RECEIPT);
+    var stats =
+        subject.generateAdvancedFeeStats(
+            Optional.ofNullable(rangeDate), Optional.ofNullable(rangeDate), RECEIPT);
     var actualStats =
         stats.stream()
             .peek(
@@ -132,9 +157,22 @@ class AdvancedFeeStatsServiceTest extends FacadeITMockedThirdParties {
             .findFirst()
             .orElseThrow(() -> new AssertionError("UNPAID_COUNT stat not generated"));
 
-    subject.generateAdvancedFeesStatsExcelFile(rangeDate, rangeDate, Optional.empty(), RECEIPT);
+    subject.generateAdvancedFeesStatsExcelFile(
+        rangeDate, rangeDate, null, AdvancedFeeStatisticsType.RECEIPT);
     assertEquals(2, unpaidStat.getSecondGradeCount(), "L2 unpaid");
     assertEquals(2, unpaidStat.getMonthlyCount()); // both are MONTHLY\
+  }
+
+  @Test
+  void return_presigned_url_ok() throws ApiException, MalformedURLException {
+    when(bucketComponent.presign(any(), any()))
+        .thenAnswer(invocation -> new URL("https://example.com/file.xlsx"));
+    when(bucketComponent.upload(any(), any())).thenReturn(mock());
+    var apiClient = anApiClient(MANAGER1_TOKEN);
+    var api = new PayingApi(apiClient);
+    var presignedUrl =
+        api.exportAdvancedFeesStats(AdvancedFeeStatisticsType.RECEIPT, null, null, UNPAID);
+    assertNotNull(presignedUrl);
   }
 
   private List<Fee> getFeeList() {
