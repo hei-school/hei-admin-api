@@ -2,16 +2,13 @@ package school.hei.haapi.service;
 
 import static org.apache.poi.ss.usermodel.Row.MissingCellPolicy.CREATE_NULL_AS_BLANK;
 import static school.hei.haapi.endpoint.rest.model.MpbsStatus.PENDING;
-import static school.hei.haapi.endpoint.rest.model.MpbsStatus.SUCCESS;
 
 import jakarta.transaction.Transactional;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
@@ -56,74 +53,6 @@ public class MpbsVerificationService {
   }
 
   public List<MpbsVerification> verifyMobilePaymentAndSaveResult(List<Mpbs> pendingMpbsList) {
-    List<MpbsVerification> verifiedMpbs = new ArrayList<>();
-    List<Mpbs> unverifiedMpbs = new ArrayList<>();
-
-    // Find all corresponding transaction in database
-    List<MobileTransactionDetails> mobileTransactionResponseDetails =
-        mobilePaymentService.findAllTransactionByMpbs(pendingMpbsList);
-
-    // TIPS: do not use exception to continue script
-    for (Mpbs pendingMbps : pendingMpbsList) {
-      List<MobileTransactionDetails> correspondingTransactionsPendingDetails =
-          mobileTransactionResponseDetails.stream()
-              .filter(
-                  transactionDetail ->
-                      pendingMbps.getPspId().equals(transactionDetail.getPspTransactionRef()))
-              .toList();
-      if (correspondingTransactionsPendingDetails.size() > 1) {
-        log.warn(
-            "The payment has more than one transaction: {}",
-            correspondingTransactionsPendingDetails);
-      }
-      Optional<MobileTransactionDetails> correspondingTransactionPendingDetails =
-          correspondingTransactionsPendingDetails.stream()
-              .max(
-                  Comparator.comparing(
-                      MobileTransactionDetails::getPspDatetimeTransactionCreation));
-
-      if (!correspondingTransactionPendingDetails.isPresent()) {
-        log.info(
-            "no verification mobile payment details stored for the payment {}",
-            pendingMbps.getId());
-        unverifiedMpbs.add(pendingMbps);
-        continue;
-      }
-
-      MobileTransactionDetails lastTransactionDetails =
-          correspondingTransactionPendingDetails.get();
-      if (!SUCCESS.equals(lastTransactionDetails.getStatus())) {
-        log.info(
-            "verification mobile payment details stored is not success for the payment {}",
-            pendingMbps.getId());
-        unverifiedMpbs.add(pendingMbps);
-        continue;
-      }
-
-      try {
-        TransactionDetails transactionDetails =
-            transactionDetailsMapper.toExternalTransactionDetails(lastTransactionDetails);
-        log.info("mapped transaction details = {}", transactionDetails);
-
-        verifiedMpbs.add(
-            computeVerifiedMobilePayment.saveTheVerifiedMpbs(pendingMbps, transactionDetails));
-      } catch (NoRemainingAmountFee e) {
-        log.error(
-            "payment %s could not be verified because fee %s has no remaining amount"
-                .formatted(pendingMbps.getId(), pendingMbps.getFee().getId()),
-            e);
-      } catch (RuntimeException e) {
-        log.error(
-            "Mpbs of ref {} could not be verified because of error", pendingMbps.getPspId(), e);
-      }
-    }
-
-    unverifiedMobilePaymentHandler.accept(unverifiedMpbs);
-    return verifiedMpbs;
-  }
-
-  public List<MpbsVerification> verifyMobilePaymentAndSaveResultWithVola(
-      List<Mpbs> pendingMpbsList) {
     log.info("Starting Vola verification for {} pending MPBS", pendingMpbsList.size());
 
     List<Mpbs> pendingMpbsCopy = new ArrayList<>(pendingMpbsList);
