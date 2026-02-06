@@ -1,8 +1,9 @@
 package school.hei.haapi.service;
 
-import static java.util.function.Function.identity;
 import static org.apache.poi.ss.usermodel.CellType.NUMERIC;
 import static org.apache.poi.ss.usermodel.Row.MissingCellPolicy.CREATE_NULL_AS_BLANK;
+import static school.hei.haapi.model.User.Status.ALUMNI;
+import static school.hei.haapi.model.User.Status.ENABLED;
 import static school.hei.haapi.model.exception.ApiException.ExceptionType.SERVER_EXCEPTION;
 
 import jakarta.transaction.Transactional;
@@ -15,6 +16,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -63,6 +65,7 @@ public class GradeService {
   private final EventProducer eventProducer;
   private final GradeMapper gradeMapper;
   private final ExamRepository examRepository;
+  private final ExamParticipantService examParticipantService;
 
   private static final String GRADE_XLSX_IMPORT_BUCKET_KEY = "/STUDENT_EXAM_GRADE_XLSX_IMPORT/";
   private final GradeChangeHistoryRepository gradeChangeHistoryRepository;
@@ -285,7 +288,7 @@ public class GradeService {
 
   public List<GradeImportDto> filterExistingGrades(
       List<GradeImportDto> grades, String examId, String comment) {
-    var savedGrades = gradeRepository.getGradesByExamId(examId);
+    var savedGrades = gradeRepository.getGradesByExamId(examId, List.of(ENABLED, ALUMNI));
     var savedGradeIds = savedGrades.stream().map(GradeDto::getId).toList();
     var gradeChangeHistories =
         gradeChangeHistoryRepository.findByGradeIdsOrderedByChangeInstantAsc(savedGradeIds);
@@ -428,30 +431,33 @@ public class GradeService {
   }
 
   public byte[] generateGradesTemplate(String examId) {
-    var existingGrades = gradeRepository.getGradesByExamId(examId);
+    var existingGrades = gradeRepository.getGradesByExamId(examId, List.of(ENABLED, ALUMNI));
     var gradeIds = existingGrades.stream().map(GradeDto::getId).toList();
     var gradeHistories =
         gradeChangeHistoryRepository.findByGradeIdsOrderedByChangeInstantAsc(gradeIds);
-    var lastHistoryByGradeId =
-        gradeHistories.stream()
-            .collect(
-                Collectors.toMap(GradeDto::getId, identity(), (oldChange, newChange) -> newChange));
-    var allGrades =
+    List<GradeDto> allGrades =
         existingGrades.stream()
             .map(
                 existing -> {
-                  var lastGradeChangeHistory = lastHistoryByGradeId.get(existing.getId());
-                  if (lastGradeChangeHistory != null) {
-                    return lastGradeChangeHistory;
+                  var lastGradeChangeHistory =
+                      gradeHistories.stream()
+                          .filter(gradeDto -> Objects.equals(gradeDto.getRef(), existing.getRef()))
+                          .toList();
+                  if (!lastGradeChangeHistory.isEmpty()) {
+                    return lastGradeChangeHistory.getLast();
                   }
-                  return existing;
+                  return GradeDto.builder()
+                      .id(existing.getId())
+                      .ref(existing.getRef())
+                      .score(existing.getScore())
+                      .build();
                 })
             .toList();
     Map<String, Double> studentScoreAndRefs = new HashMap<>();
     for (var grade : allGrades) {
       studentScoreAndRefs.put(grade.getRef(), grade.getScore());
     }
-    var participants = examRepository.findStudentRefsByExamId(examId);
+    var participants = examParticipantService.getExamParticipantsGrade(examId, null, null, null);
     try (var workbook = new XSSFWorkbook()) {
       var fileName = "note_" + examId;
       var sheet = workbook.createSheet(fileName);
@@ -459,8 +465,9 @@ public class GradeService {
       headerRow.createCell(0).setCellValue("ref");
       headerRow.createCell(1).setCellValue("score");
       int rowIndex = 1;
-      for (var ref : participants) {
+      for (var participant : participants) {
         var row = sheet.createRow(rowIndex++);
+        var ref = participant.getStudent().getRef();
         row.createCell(0).setCellValue(ref);
         var score = studentScoreAndRefs.get(ref);
         if (score != null) {

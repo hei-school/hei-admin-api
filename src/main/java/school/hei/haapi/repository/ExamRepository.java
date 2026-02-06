@@ -33,7 +33,7 @@ public interface ExamRepository extends JpaRepository<Exam, String> {
           join e.courseAssignment.groups g
           join g.groupFlows gf
           join gf.student u
-          where e.id = :exam_id
+          where e.id = :exam_id and gf.student.status = 'ENABLED'
       """)
   List<String> findStudentRefsByExamId(@Param("exam_id") String examId);
 }
