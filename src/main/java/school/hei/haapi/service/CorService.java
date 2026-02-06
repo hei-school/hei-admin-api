@@ -7,6 +7,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import school.hei.haapi.endpoint.event.EventProducer;
 import school.hei.haapi.endpoint.event.model.CorNotificationRequested;
+import school.hei.haapi.endpoint.rest.mapper.CorMapper;
+import school.hei.haapi.endpoint.rest.model.CrupdateCor;
 import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.Cor;
 import school.hei.haapi.model.CorStatus;
@@ -23,6 +25,7 @@ public class CorService {
   private final PaginationFromPageAndPageSize paginationFromPageAndPageSize;
   private final CorDao corDao;
   private final EventProducer<CorNotificationRequested> eventProducer;
+  private final CorMapper corMapper;
 
   public List<Cor> getCors(
       Instant from,
@@ -39,13 +42,28 @@ public class CorService {
         studentId, paginationFromPageAndPageSize.apply(page, size));
   }
 
-  public Cor save(Cor cor) {
-    var isUpdate = cor.getId() != null && corRepository.existsById(cor.getId());
-    var savedCor = corRepository.save(cor);
-    if (!isUpdate) {
-      eventProducer.accept(List.of(new CorNotificationRequested(savedCor.getId())));
+  public Cor save(CrupdateCor dto) {
+    var cor = getOrCreateCor(dto);
+    corMapper.toDomainUpdate(dto, cor);
+    var saved = corRepository.save(cor);
+    publishCreationEventIfNeeded(dto, saved);
+
+    return saved;
+  }
+
+  private Cor getOrCreateCor(CrupdateCor dto) {
+    if (dto.getId() == null) {
+      return corMapper.toDomain(dto);
     }
-    return savedCor;
+    return corRepository
+        .findById(dto.getId())
+        .orElseThrow(() -> new NotFoundException("Cor with id " + dto.getId() + " not found"));
+  }
+
+  private void publishCreationEventIfNeeded(CrupdateCor dto, Cor saved) {
+    if (dto.getId() == null) {
+      eventProducer.accept(List.of(new CorNotificationRequested(saved.getId())));
+    }
   }
 
   public Cor getById(String id) {

@@ -79,6 +79,6 @@ public class CorController {
   public Cor crupdateStudentCors(
       @PathVariable(name = "student_id") String studentId, @RequestBody CrupdateCor cors) {
     validator.accept(cors);
-    return corMapper.toRest(corService.save(corMapper.toDomain(cors)));
+    return corMapper.toRest(corService.save(cors));
   }
 }
