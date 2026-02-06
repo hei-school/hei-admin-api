@@ -32,6 +32,7 @@ public interface GradeRepository extends JpaRepository<Grade, String> {
 
   @Query(
       "select new school.hei.haapi.model.dto.GradeDto(g.id, g.student.ref, g.score) from Grade g"
-          + " where g.exam.id = :exam_id")
-  List<GradeDto> getGradesByExamId(@Param("exam_id") String examId);
+          + " where g.exam.id = :exam_id and g.student.status in :statuses")
+  List<GradeDto> getGradesByExamId(
+      @Param("exam_id") String examId, @Param("statuses") List<User.Status> statuses);
 }
