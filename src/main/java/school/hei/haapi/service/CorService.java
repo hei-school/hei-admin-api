@@ -42,10 +42,10 @@ public class CorService {
         studentId, paginationFromPageAndPageSize.apply(page, size));
   }
 
-  public Cor crupdate(CrupdateCor dto) {
-    Cor cor = getOrCreateCor(dto);
+  public Cor save(CrupdateCor dto) {
+    var cor = getOrCreateCor(dto);
     corMapper.toDomainUpdate(dto, cor);
-    Cor saved = corRepository.save(cor);
+    var saved = corRepository.save(cor);
     publishCreationEventIfNeeded(dto, saved);
 
     return saved;
