@@ -44,7 +44,9 @@ public class CorService {
 
   public Cor save(CrupdateCor dto) {
     if (dto.getId() == null) {
-      return corRepository.save(corMapper.toDomain(dto));
+      Cor created = corRepository.save(corMapper.toDomain(dto));
+      eventProducer.accept(List.of(new CorNotificationRequested(created.getId())));
+      return created;
     }
     Cor existing =
         corRepository
