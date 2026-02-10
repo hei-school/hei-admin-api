@@ -72,7 +72,7 @@ public class MpbsVerificationService {
       return List.of();
     }
 
-    var result = processPaymentsIndividually(pendingMpbsCopy, paymentMap);
+    var result = verifyPaymentsIndividually(pendingMpbsCopy, paymentMap);
 
     handleUnverifiedPayments(result.unverifiedMpbs());
     logVerificationResults(result.verifiedMpbs(), result.unverifiedMpbs());
@@ -80,20 +80,19 @@ public class MpbsVerificationService {
     return result.verifiedMpbs();
   }
 
-  private PaymentVerificationResult processPaymentsIndividually(
+  private PaymentVerificationResult verifyPaymentsIndividually(
       List<Mpbs> pendingMpbsList, Map<String, Payment> paymentMap) {
-
-    log.info("Processing {} MPBS against Vola payments", pendingMpbsList.size());
+    log.info("Verifying {} MPBS against Vola payments", pendingMpbsList.size());
 
     List<MpbsVerification> verifiedMpbs = new ArrayList<>();
     List<Mpbs> unverifiedMpbs = new ArrayList<>();
 
     for (Mpbs pendingMpbs : pendingMpbsList) {
       try {
-        processSinglePayment(pendingMpbs, paymentMap, verifiedMpbs, unverifiedMpbs);
+        verifySinglePayment(pendingMpbs, paymentMap, verifiedMpbs, unverifiedMpbs);
       } catch (Exception e) {
         log.error(
-            "Unexpected error processing payment with PSP ID: {} - marking as unverified",
+            "Unexpected error verifying payment with PSP ID: {} - marking as unverified",
             pendingMpbs.getPspId(),
             e);
         unverifiedMpbs.add(pendingMpbs);
@@ -101,30 +100,29 @@ public class MpbsVerificationService {
     }
 
     log.info(
-        "Processed all payments - Verified: {}, Unverified: {}",
+        "Verified all payments - Verified: {}, Unverified: {}",
         verifiedMpbs.size(),
         unverifiedMpbs.size());
 
     return new PaymentVerificationResult(verifiedMpbs, unverifiedMpbs);
   }
 
-  private void processSinglePayment(
+  private void verifySinglePayment(
       Mpbs pendingMpbs,
       Map<String, Payment> paymentMap,
       List<MpbsVerification> verifiedMpbs,
       List<Mpbs> unverifiedMpbs) {
-
     Payment volaPayment = paymentMap.get(pendingMpbs.getPspId());
 
     if (shouldVerifyPayment(volaPayment, pendingMpbs.getPspId())) {
-      processVerifiedPayment(pendingMpbs, volaPayment, verifiedMpbs, unverifiedMpbs);
+      verifyVerifiedPayment(pendingMpbs, volaPayment, verifiedMpbs, unverifiedMpbs);
     } else {
       logUnverifiedReason(volaPayment, pendingMpbs.getPspId());
       unverifiedMpbs.add(pendingMpbs);
     }
   }
 
-  private void processVerifiedPayment(
+  private void verifyVerifiedPayment(
       Mpbs pendingMpbs,
       Payment volaPayment,
       List<MpbsVerification> verifiedMpbs,
