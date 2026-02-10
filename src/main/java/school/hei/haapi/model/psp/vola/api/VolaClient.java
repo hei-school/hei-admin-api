@@ -17,7 +17,7 @@ public class VolaClient {
     this.paymentControllerApi = new PaymentControllerApi(apiClient);
   }
 
-  public Payment get(PaymentId paymentId) {
+  public Payment getPayment(PaymentId paymentId) {
     return paymentControllerApi.getPayment(apiKey, paymentId);
   }
 
