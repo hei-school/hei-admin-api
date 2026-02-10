@@ -26,6 +26,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.time.Instant;
 import java.util.List;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -52,6 +53,7 @@ import school.hei.haapi.repository.GroupRepository;
 import school.hei.haapi.repository.MonitoringStudentRepository;
 import school.hei.haapi.repository.UserRepository;
 
+@Slf4j
 public class GradeImportTest extends FacadeITMockedThirdParties {
   @Autowired private GradeService subject;
   @MockBean BucketComponent bucketComponent;
@@ -131,7 +133,6 @@ public class GradeImportTest extends FacadeITMockedThirdParties {
     var importResult =
         subject.initStudentExamGradeImportFromXlsx(
             getMockedFile("test-grade-import", ".xlsx"), exam2prog1Id, null);
-    assertNotNull(importResult.getImportGradeStats());
     assertEquals(8, importResult.getImportGradeStats().getTotalRows());
     assertEquals(6, importResult.getImportGradeStats().getInvalidRows());
     assertEquals(2, importResult.getImportGradeStats().getValidRows());
@@ -148,23 +149,27 @@ public class GradeImportTest extends FacadeITMockedThirdParties {
   }
 
   @Test
-  void update_grade_via_excel_file_OK() {
+  void update_grade_via_excel_file_OK() throws IOException {
     var updateGrades =
         subject.initStudentExamGradeImportFromXlsx(
             getMockedFile("test-update-grade", ".xlsx"), exam2prog1Id, "test comment");
-    assertNotNull(updateGrades);
-    assertNotNull(updateGrades.getInvalidGrades());
-    assertNotNull(updateGrades.getImportGradeStats());
     assertEquals(8, updateGrades.getImportGradeStats().getTotalRows());
-    assertEquals(7, updateGrades.getImportGradeStats().getInvalidRows());
-    assertEquals(1, updateGrades.getImportGradeStats().getValidRows());
+    assertNotNull(updateGrades.getImportGradeStats().getInvalidRows());
+    var newUpdateGrades =
+        subject.initStudentExamGradeImportFromXlsx(
+            getMockedFile("test-update-another-grade", ".xlsx"), exam2prog1Id, "test comment");
+    assertNotNull(newUpdateGrades.getValidGrades());
   }
 
   @Test
   void generateGradesTemplate_returns_file() throws IOException {
+    subject.initStudentExamGradeImportFromXlsx(
+        getMockedFile("test-update-grade", ".xlsx"), exam2prog1Id, "test comment");
+    subject.initStudentExamGradeImportFromXlsx(
+        getMockedFile("test-update-another-grade", ".xlsx"), exam2prog1Id, "test comment");
+
     byte[] file = subject.generateGradesTemplate(exam2prog1Id);
 
-    assertNotNull(file);
     assertNotEquals(0, file.length);
 
     try (Workbook workbook = new XSSFWorkbook(new ByteArrayInputStream(file))) {

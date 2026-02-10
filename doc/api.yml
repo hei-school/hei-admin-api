@@ -4034,6 +4034,11 @@ paths:
             type: string
             format: date
           required: false
+        - name: type
+          in: query
+          required: true
+          schema:
+            $ref: "#/components/schemas/AdvancedFeeStatisticsType"
         - name: status
           in: query
           description: "See the PaymentStatus object for its value."
@@ -4042,24 +4047,13 @@ paths:
             type: string
             allOf:
               - $ref: '#/components/schemas/FeeStatusEnum'
-        - name: type
-          in: query
-          required: false
-          schema:
-            $ref: "#/components/schemas/AdvancedFeeStatisticsType"
       responses:
         '200':
           description: File successfully generated and stored
           content:
-            application/json:
+            text/plain:
               schema:
-                type: object
-                properties:
-                  url:
-                    type: string
-                    format: uri
-                required:
-                - url
+                type: string
         '400':
           $ref: '#/components/responses/400'
         '403':
