@@ -2,6 +2,7 @@ package school.hei.haapi.service;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Optional;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -43,18 +44,30 @@ public class CorService {
   }
 
   public Cor save(CrupdateCor dto) {
-    if (dto.getId() == null) {
-      Cor created = corRepository.save(corMapper.toDomain(dto));
-      eventProducer.accept(List.of(new CorNotificationRequested(created.getId())));
-      return created;
-    }
-    Cor existing =
-        corRepository
-            .findById(dto.getId())
-            .orElseThrow(() -> new NotFoundException("Cor with id " + dto.getId() + " not found"));
+    boolean isUpdate = isUpdate(dto);
+    var cor = buildCor(dto);
+    var saved = corRepository.save(cor);
+    publishCreationEventIfNeeded(isUpdate, saved);
 
-    corMapper.toDomainUpdate(dto, existing);
-    return corRepository.save(existing);
+    return saved;
+  }
+
+  private boolean isUpdate(CrupdateCor dto) {
+    return Optional.ofNullable(dto.getId()).map(corRepository::existsById).orElse(false);
+  }
+
+  private Cor buildCor(CrupdateCor dto) {
+    return Optional.ofNullable(dto.getId())
+        .flatMap(corRepository::findById)
+        .map(existing -> corMapper.toDomainUpdate(dto, existing))
+        .orElseGet(() -> corMapper.toDomain(dto));
+  }
+
+  private void publishCreationEventIfNeeded(boolean isUpdate, Cor saved) {
+    Optional.of(isUpdate)
+        .filter(updated -> !updated)
+        .ifPresent(
+            ignored -> eventProducer.accept(List.of(new CorNotificationRequested(saved.getId()))));
   }
 
   public Cor getById(String id) {
