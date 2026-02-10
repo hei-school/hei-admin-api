@@ -2,6 +2,7 @@ package school.hei.haapi.service;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Optional;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -13,6 +14,8 @@ import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.Cor;
 import school.hei.haapi.model.CorStatus;
 import school.hei.haapi.model.PageFromOne;
+import school.hei.haapi.model.exception.BadRequestException;
+import school.hei.haapi.model.exception.ForbiddenException;
 import school.hei.haapi.model.exception.NotFoundException;
 import school.hei.haapi.model.pagination.PaginationFromPageAndPageSize;
 import school.hei.haapi.repository.CorRepository;
@@ -42,19 +45,28 @@ public class CorService {
         studentId, paginationFromPageAndPageSize.apply(page, size));
   }
 
-  public Cor save(CrupdateCor dto) {
-    if (dto.getId() == null) {
-      Cor created = corRepository.save(corMapper.toDomain(dto));
-      eventProducer.accept(List.of(new CorNotificationRequested(created.getId())));
-      return created;
-    }
-    Cor existing =
-        corRepository
-            .findById(dto.getId())
-            .orElseThrow(() -> new NotFoundException("Cor with id " + dto.getId() + " not found"));
-
-    corMapper.toDomainUpdate(dto, existing);
-    return corRepository.save(existing);
+  public Cor save(String studentId, CrupdateCor dto) {
+    Cor cor =
+        Optional.ofNullable(dto.getId())
+            .flatMap(corRepository::findById)
+            .map(
+                existing -> {
+                  if (!existing.getStudent().getId().equals(studentId)) {
+                    throw new ForbiddenException("Cannot update Cor of another student");
+                  }
+                  return corMapper.toDomainUpdate(dto, existing);
+                })
+            .orElseGet(
+                () -> {
+                  Cor created = corMapper.toDomain(dto);
+                  if (!created.getStudent().getId().equals(studentId)) {
+                    throw new BadRequestException("Student mismatch");
+                  }
+                  return created;
+                });
+    Cor saved = corRepository.save(cor);
+    eventProducer.accept(List.of(new CorNotificationRequested(saved.getId())));
+    return saved;
   }
 
   public Cor getById(String id) {

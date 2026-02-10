@@ -77,8 +77,8 @@ public class CorController {
 
   @PutMapping("/students/{student_id}/cors")
   public Cor crupdateStudentCors(
-      @PathVariable(name = "student_id") String studentId, @RequestBody CrupdateCor cors) {
+      @PathVariable("student_id") String studentId, @RequestBody CrupdateCor cors) {
     validator.accept(cors);
-    return corMapper.toRest(corService.save(cors));
+    return corMapper.toRest(corService.save(studentId, cors));
   }
 }
