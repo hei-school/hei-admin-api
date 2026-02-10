@@ -63,7 +63,7 @@ public class CorMapper {
     cor.setDescription(corDto.getDescription());
     cor.setInterviewDatetime(corDto.getInterviewDate());
     cor.setStatus(toDomainStatus(corDto.getStatus()));
-    cor.setInterviewers(getDomainInterviewers(corDto.interviewerIds(List.of())));
+    cor.setInterviewers(getDomainInterviewers(corDto));
     return cor;
   }
 

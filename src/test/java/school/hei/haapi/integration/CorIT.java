@@ -152,6 +152,7 @@ class CorIT extends FacadeITMockedThirdParties {
     var api = new CorApi(anApiClient(MANAGER1_TOKEN));
     var updateCor = someCreatableCor(axelWithCor.getId(), LEAVE, List.of(manager.getId()));
     updateCor.setId(corAxel.getId());
+    var expectedLengthOfInterviewers = 1;
 
     var updatedCor = api.crupdateStudentCors(axelWithCor.getId(), updateCor);
 
@@ -162,7 +163,7 @@ class CorIT extends FacadeITMockedThirdParties {
 
     assertNotNull(updateCor.getInterviewerIds());
     assertNotNull(updatedCor.getInterviewers());
-    assertEquals(1, updatedCor.getInterviewers().size());
+    assertEquals(expectedLengthOfInterviewers, updatedCor.getInterviewers().size());
     assertEquals(userMapper.toIdentifier(manager), updatedCor.getInterviewers().getFirst());
   }
 
