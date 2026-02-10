@@ -2,6 +2,8 @@ package school.hei.haapi.service;
 
 import static org.apache.poi.ss.usermodel.Row.MissingCellPolicy.CREATE_NULL_AS_BLANK;
 import static school.hei.haapi.endpoint.rest.model.MpbsStatus.PENDING;
+import static school.hei.haapi.model.psp.vola.api.gen.client.model.Payment.VerificationStatusEnum.FAILED;
+import static school.hei.haapi.model.psp.vola.api.gen.client.model.Payment.VerificationStatusEnum.SUCCEEDED;
 
 import jakarta.transaction.Transactional;
 import java.io.File;
@@ -115,14 +117,14 @@ public class MpbsVerificationService {
     Payment volaPayment = paymentMap.get(pendingMpbs.getPspId());
 
     if (shouldVerifyPayment(volaPayment, pendingMpbs.getPspId())) {
-      verifyVerifiedPayment(pendingMpbs, volaPayment, verifiedMpbs, unverifiedMpbs);
+      saveVerifiedPayment(pendingMpbs, volaPayment, verifiedMpbs, unverifiedMpbs);
     } else {
       logUnverifiedReason(volaPayment, pendingMpbs.getPspId());
       unverifiedMpbs.add(pendingMpbs);
     }
   }
 
-  private void verifyVerifiedPayment(
+  private void saveVerifiedPayment(
       Mpbs pendingMpbs,
       Payment volaPayment,
       List<MpbsVerification> verifiedMpbs,
@@ -134,7 +136,6 @@ public class MpbsVerificationService {
 
       verifiedMpbs.add(
           computeVerifiedMobilePayment.saveTheVerifiedMpbs(pendingMpbs, transactionDetails));
-
     } catch (NoRemainingAmountFee e) {
       log.error(
           "Payment {} could not be verified because fee {} has no remaining amount",
@@ -178,13 +179,13 @@ public class MpbsVerificationService {
   }
 
   private boolean isPaymentSuccessful(Payment payment) {
-    return payment.getVerificationStatus() == Payment.VerificationStatusEnum.SUCCEEDED;
+    return payment.getVerificationStatus() == SUCCEEDED;
   }
 
   private void logUnverifiedReason(Payment volaPayment, String pspId) {
     if (volaPayment == null) {
       log.info("No payment found in Vola for PSP ID: {}", pspId);
-    } else if (volaPayment.getVerificationStatus() == Payment.VerificationStatusEnum.FAILED) {
+    } else if (volaPayment.getVerificationStatus() == FAILED) {
       log.warn("Payment returned by Vola with FAILED status for PSP ID: {}", pspId);
     } else {
       log.info(
