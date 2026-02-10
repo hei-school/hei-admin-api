@@ -15,7 +15,6 @@ import school.hei.haapi.model.Cor;
 import school.hei.haapi.model.CorStatus;
 import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.model.exception.BadRequestException;
-import school.hei.haapi.model.exception.ForbiddenException;
 import school.hei.haapi.model.exception.NotFoundException;
 import school.hei.haapi.model.pagination.PaginationFromPageAndPageSize;
 import school.hei.haapi.repository.CorRepository;
@@ -52,7 +51,7 @@ public class CorService {
             .map(
                 existing -> {
                   if (!existing.getStudent().getId().equals(studentId)) {
-                    throw new ForbiddenException("Cannot update Cor of another student");
+                    throw new BadRequestException("Mismatch between studentId and Cor's student");
                   }
                   return corMapper.toDomainUpdate(dto, existing);
                 })
@@ -60,7 +59,7 @@ public class CorService {
                 () -> {
                   Cor created = corMapper.toDomain(dto);
                   if (!created.getStudent().getId().equals(studentId)) {
-                    throw new BadRequestException("Student mismatch");
+                    throw new BadRequestException("Mismatch between studentId and Cor's student");
                   }
                   return created;
                 });
