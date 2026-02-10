@@ -18,7 +18,7 @@ import org.springframework.web.multipart.MultipartFile;
 import school.hei.haapi.http.mapper.TransactionDetailsMapper;
 import school.hei.haapi.http.model.TransactionDetails;
 import school.hei.haapi.model.MobileTransactionDetails;
-import school.hei.haapi.model.PaymentProcessingResult;
+import school.hei.haapi.model.PaymentVerificationResult;
 import school.hei.haapi.model.dto.MobileTransactionDetailsDto;
 import school.hei.haapi.model.exception.NoRemainingAmountFee;
 import school.hei.haapi.model.mpbs.Mpbs;
@@ -80,7 +80,7 @@ public class MpbsVerificationService {
     return result.verifiedMpbs();
   }
 
-  private PaymentProcessingResult processPaymentsIndividually(
+  private PaymentVerificationResult processPaymentsIndividually(
       List<Mpbs> pendingMpbsList, Map<String, Payment> paymentMap) {
 
     log.info("Processing {} MPBS against Vola payments", pendingMpbsList.size());
@@ -105,7 +105,7 @@ public class MpbsVerificationService {
         verifiedMpbs.size(),
         unverifiedMpbs.size());
 
-    return new PaymentProcessingResult(verifiedMpbs, unverifiedMpbs);
+    return new PaymentVerificationResult(verifiedMpbs, unverifiedMpbs);
   }
 
   private void processSinglePayment(

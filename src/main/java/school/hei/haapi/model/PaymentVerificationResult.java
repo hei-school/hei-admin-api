@@ -4,5 +4,5 @@ import java.util.List;
 import school.hei.haapi.model.mpbs.Mpbs;
 import school.hei.haapi.model.mpbs.MpbsVerification;
 
-public record PaymentProcessingResult(
+public record PaymentVerificationResult(
     List<MpbsVerification> verifiedMpbs, List<Mpbs> unverifiedMpbs) {}
