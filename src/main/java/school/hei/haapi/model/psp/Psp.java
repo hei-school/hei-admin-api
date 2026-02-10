@@ -5,7 +5,7 @@ import school.hei.haapi.model.psp.vola.api.gen.client.model.Payment;
 import school.hei.haapi.model.psp.vola.api.gen.client.model.PaymentId;
 
 public interface Psp {
-  Payment get(PaymentId paymentId);
+  Payment getPayment(PaymentId paymentId);
 
   List<Payment> getPayments(List<PaymentId> paymentId);
 }
