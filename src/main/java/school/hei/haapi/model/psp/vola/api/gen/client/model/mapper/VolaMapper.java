@@ -74,7 +74,7 @@ public class VolaMapper {
     };
   }
 
-  public PaymentId mpbsToPaymentInfos(Mpbs mpbs) {
+  public PaymentId mpbsToPaymentIds(Mpbs mpbs) {
     return PaymentId.builder()
         .pspPaymentId(mpbs.getPspId())
         .payerEmail(mpbs.getStudent().getEmail())

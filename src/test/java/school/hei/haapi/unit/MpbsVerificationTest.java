@@ -99,8 +99,8 @@ class MpbsVerificationTest {
     var mpbsVerified =
         someMpbs(
             "verified", now(), User.builder().email("Arandom@gmail.com").build(), ORANGE_MONEY);
-    var verifiedPaymentInfo = volaMapper.mpbsToPaymentInfos(mpbsVerified);
-    var pendingPaymentInfo = volaMapper.mpbsToPaymentInfos(mbpsPending);
+    var verifiedPaymentInfo = volaMapper.mpbsToPaymentIds(mpbsVerified);
+    var pendingPaymentInfo = volaMapper.mpbsToPaymentIds(mbpsPending);
 
     MpbsVerification fakeComputedVerifiedMpbs = new MpbsVerification();
 
@@ -171,9 +171,9 @@ class MpbsVerificationTest {
     var mpbsFailed = someMpbs("failed", now().minus(6, DAYS), fee, student, 800);
     var fakeComputedVerifiedMpbs = new MpbsVerification();
 
-    var verifiedPaymentInfo = volaMapper.mpbsToPaymentInfos(mpbsVerified);
-    var failedPaymentInfo = volaMapper.mpbsToPaymentInfos(mpbsFailed);
-    var badPaymentInfo = volaMapper.mpbsToPaymentInfos(badMpbs);
+    var verifiedPaymentInfo = volaMapper.mpbsToPaymentIds(mpbsVerified);
+    var failedPaymentInfo = volaMapper.mpbsToPaymentIds(mpbsFailed);
+    var badPaymentInfo = volaMapper.mpbsToPaymentIds(badMpbs);
 
     when(volaPspMock.getPayments(anyList()))
         .thenReturn(
