@@ -2,11 +2,14 @@ package school.hei.haapi.service;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Optional;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import school.hei.haapi.endpoint.event.EventProducer;
 import school.hei.haapi.endpoint.event.model.CorNotificationRequested;
+import school.hei.haapi.endpoint.rest.mapper.CorMapper;
+import school.hei.haapi.endpoint.rest.model.CrupdateCor;
 import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.Cor;
 import school.hei.haapi.model.CorStatus;
@@ -23,6 +26,7 @@ public class CorService {
   private final PaginationFromPageAndPageSize paginationFromPageAndPageSize;
   private final CorDao corDao;
   private final EventProducer<CorNotificationRequested> eventProducer;
+  private final CorMapper corMapper;
 
   public List<Cor> getCors(
       Instant from,
@@ -39,13 +43,31 @@ public class CorService {
         studentId, paginationFromPageAndPageSize.apply(page, size));
   }
 
-  public Cor save(Cor cor) {
-    var isUpdate = cor.getId() != null && corRepository.existsById(cor.getId());
-    var savedCor = corRepository.save(cor);
-    if (!isUpdate) {
-      eventProducer.accept(List.of(new CorNotificationRequested(savedCor.getId())));
-    }
-    return savedCor;
+  public Cor save(CrupdateCor dto) {
+    boolean isUpdate = isUpdate(dto);
+    var cor = buildCor(dto);
+    var saved = corRepository.save(cor);
+    publishCreationEventIfNeeded(isUpdate, saved);
+
+    return saved;
+  }
+
+  private boolean isUpdate(CrupdateCor dto) {
+    return Optional.ofNullable(dto.getId()).map(corRepository::existsById).orElse(false);
+  }
+
+  private Cor buildCor(CrupdateCor dto) {
+    return Optional.ofNullable(dto.getId())
+        .flatMap(corRepository::findById)
+        .map(existing -> corMapper.toDomainUpdate(dto, existing))
+        .orElseGet(() -> corMapper.toDomain(dto));
+  }
+
+  private void publishCreationEventIfNeeded(boolean isUpdate, Cor saved) {
+    Optional.of(isUpdate)
+        .filter(updated -> !updated)
+        .ifPresent(
+            ignored -> eventProducer.accept(List.of(new CorNotificationRequested(saved.getId()))));
   }
 
   public Cor getById(String id) {
