@@ -9,6 +9,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -72,7 +73,7 @@ public class MpbsVerificationService {
         "Retrieving payments from Vola PSP for {} payment IDs", paymentsRetrievedFromVola.size());
     var successPayments =
         paymentsRetrievedFromVola.stream()
-            .filter(payment -> payment.getVerificationStatus().equals(SUCCEEDED))
+            .filter(payment -> SUCCEEDED.equals(payment.getVerificationStatus()))
             .toList();
     log.debug(
         "Found {} succeeded payments in {} payments",
@@ -85,7 +86,9 @@ public class MpbsVerificationService {
     var verifiedMpbs =
         pendingMpbsCopy.stream().filter(mpbs -> successIdList.contains(mpbs.getPspId())).toList();
     var unverifiedMpbs =
-        pendingMpbsCopy.stream().filter(mpbs -> !successIdList.contains(mpbs.getPspId())).toList();
+        pendingMpbsCopy.stream()
+            .filter(Predicate.not(mpbs -> successIdList.contains(mpbs.getPspId())))
+            .toList();
 
     unverifiedMobilePaymentHandler.accept(unverifiedMpbs);
 
@@ -96,16 +99,16 @@ public class MpbsVerificationService {
       List<Mpbs> mpbsList, List<Payment> volaPayments) {
     var result = new ArrayList<MpbsVerification>();
 
-    for (Mpbs mbps : mpbsList) {
+    for (Mpbs mpbs : mpbsList) {
       var associateVolaPayment =
           volaPayments.stream()
-              .filter(payment -> payment.getPspPayment().getId().equals(mbps.getPspId()))
+              .filter(payment -> mpbs.getPspId().equals(payment.getPspPayment().getId()))
               .findFirst()
               .get();
       var associateTransactionDetail =
           transactionDetailsMapper.fromVolaPayment(associateVolaPayment);
       result.add(
-          computeVerifiedMobilePayment.saveTheVerifiedMpbs(mbps, associateTransactionDetail));
+          computeVerifiedMobilePayment.saveTheVerifiedMpbs(mpbs, associateTransactionDetail));
     }
 
     return result;

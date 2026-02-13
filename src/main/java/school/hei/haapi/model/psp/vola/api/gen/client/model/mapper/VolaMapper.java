@@ -2,7 +2,6 @@ package school.hei.haapi.model.psp.vola.api.gen.client.model.mapper;
 
 import static school.hei.haapi.model.psp.PspType.ORANGE_MONEY;
 
-import java.util.Objects;
 import org.springframework.stereotype.Component;
 import school.hei.haapi.endpoint.rest.model.MobileMoneyType;
 import school.hei.haapi.endpoint.rest.model.MpbsStatus;
@@ -15,7 +14,7 @@ import school.hei.haapi.model.psp.vola.api.gen.client.model.PaymentId;
 public class VolaMapper {
 
   public PspType toPspTypeEnum(MobileMoneyType mobileMoneyType) {
-    if (Objects.requireNonNull(mobileMoneyType) == MobileMoneyType.ORANGE_MONEY) {
+    if (MobileMoneyType.ORANGE_MONEY.equals(mobileMoneyType)) {
       return ORANGE_MONEY;
     }
     throw new UnsupportedOperationException("Unsupported mobileMoneyType: " + mobileMoneyType);
