@@ -12,49 +12,18 @@
 
 package school.hei.haapi.model.psp.vola.api.gen.client.model;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonValue;
 import java.util.Date;
 import java.util.Objects;
 import lombok.Builder;
+import school.hei.haapi.model.psp.PspType;
 
 /** PspPayment */
 @Builder
 public class PspPayment {
-  /** Gets or Sets pspType */
-  public enum PspTypeEnum {
-    ORANGE_MONEY("ORANGE_MONEY");
-
-    private String value;
-
-    PspTypeEnum(String value) {
-      this.value = value;
-    }
-
-    @JsonValue
-    public String getValue() {
-      return value;
-    }
-
-    @Override
-    public String toString() {
-      return String.valueOf(value);
-    }
-
-    @JsonCreator
-    public static PspTypeEnum fromValue(String input) {
-      for (PspTypeEnum b : PspTypeEnum.values()) {
-        if (b.value.equals(input)) {
-          return b;
-        }
-      }
-      return null;
-    }
-  }
 
   @JsonProperty("pspType")
-  private PspTypeEnum pspType = null;
+  private PspType pspType = null;
 
   @JsonProperty("id")
   private String id = null;
@@ -65,7 +34,7 @@ public class PspPayment {
   @JsonProperty("creationInstant")
   private Date creationInstant = null;
 
-  public PspPayment pspType(PspTypeEnum pspType) {
+  public PspPayment pspType(PspType pspType) {
     this.pspType = pspType;
     return this;
   }
@@ -75,11 +44,11 @@ public class PspPayment {
    *
    * @return pspType
    */
-  public PspTypeEnum getPspType() {
+  public PspType getPspType() {
     return pspType;
   }
 
-  public void setPspType(PspTypeEnum pspType) {
+  public void setPspType(PspType pspType) {
     this.pspType = pspType;
   }
 
