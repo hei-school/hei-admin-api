@@ -99,8 +99,8 @@ class MpbsVerificationTest {
     var mpbsVerified =
         someMpbs(
             "verified", now(), User.builder().email("Arandom@gmail.com").build(), ORANGE_MONEY);
-    var verifiedPaymentInfo = volaMapper.mpbsToPaymentIds(mpbsVerified);
-    var pendingPaymentInfo = volaMapper.mpbsToPaymentIds(mbpsPending);
+    var verifiedPaymentId = volaMapper.mpbsToPaymentIds(mpbsVerified);
+    var pendingPaymentId = volaMapper.mpbsToPaymentIds(mbpsPending);
 
     MpbsVerification fakeComputedVerifiedMpbs = new MpbsVerification();
 
@@ -111,8 +111,8 @@ class MpbsVerificationTest {
                     .id("payment-verified-id")
                     .pspPayment(
                         PspPayment.builder()
-                            .id(verifiedPaymentInfo.getPspPaymentId())
-                            .pspType(volaMapper.toPspPaymentType(verifiedPaymentInfo.getPspType()))
+                            .id(verifiedPaymentId.getPspPaymentId())
+                            .pspType(verifiedPaymentId.getPspType())
                             .amount(10000)
                             .creationInstant(new Date())
                             .build())
@@ -124,8 +124,8 @@ class MpbsVerificationTest {
                     .id("payment-pending-id")
                     .pspPayment(
                         PspPayment.builder()
-                            .id(pendingPaymentInfo.getPspPaymentId())
-                            .pspType(volaMapper.toPspPaymentType(pendingPaymentInfo.getPspType()))
+                            .id(pendingPaymentId.getPspPaymentId())
+                            .pspType(pendingPaymentId.getPspType())
                             .amount(null)
                             .creationInstant(new Date())
                             .build())
@@ -171,9 +171,9 @@ class MpbsVerificationTest {
     var mpbsFailed = someMpbs("failed", now().minus(6, DAYS), fee, student, 800);
     var fakeComputedVerifiedMpbs = new MpbsVerification();
 
-    var verifiedPaymentInfo = volaMapper.mpbsToPaymentIds(mpbsVerified);
-    var failedPaymentInfo = volaMapper.mpbsToPaymentIds(mpbsFailed);
-    var badPaymentInfo = volaMapper.mpbsToPaymentIds(badMpbs);
+    var verifiedPaymentId = volaMapper.mpbsToPaymentIds(mpbsVerified);
+    var failedPaymentId = volaMapper.mpbsToPaymentIds(mpbsFailed);
+    var badPaymentId = volaMapper.mpbsToPaymentIds(badMpbs);
 
     when(volaPspMock.getPayments(anyList()))
         .thenReturn(
@@ -182,8 +182,8 @@ class MpbsVerificationTest {
                     .id("payment-verified-id")
                     .pspPayment(
                         PspPayment.builder()
-                            .id(verifiedPaymentInfo.getPspPaymentId())
-                            .pspType(volaMapper.toPspPaymentType(verifiedPaymentInfo.getPspType()))
+                            .id(verifiedPaymentId.getPspPaymentId())
+                            .pspType(verifiedPaymentId.getPspType())
                             .amount(1000)
                             .creationInstant(new Date())
                             .build())
@@ -195,8 +195,8 @@ class MpbsVerificationTest {
                     .id(null) // Payment FAILED retourné par Vola
                     .pspPayment(
                         PspPayment.builder()
-                            .id(failedPaymentInfo.getPspPaymentId())
-                            .pspType(volaMapper.toPspPaymentType(failedPaymentInfo.getPspType()))
+                            .id(failedPaymentId.getPspPaymentId())
+                            .pspType(failedPaymentId.getPspType())
                             .amount(null)
                             .creationInstant(null)
                             .build())
@@ -208,8 +208,8 @@ class MpbsVerificationTest {
                     .id(null) // Payment FAILED retourné par Vola
                     .pspPayment(
                         PspPayment.builder()
-                            .id(badPaymentInfo.getPspPaymentId())
-                            .pspType(volaMapper.toPspPaymentType(badPaymentInfo.getPspType()))
+                            .id(badPaymentId.getPspPaymentId())
+                            .pspType(badPaymentId.getPspType())
                             .amount(null)
                             .creationInstant(null)
                             .build())

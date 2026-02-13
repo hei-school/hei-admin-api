@@ -16,6 +16,7 @@ import com.fasterxml.jackson.annotation.*;
 import java.util.Objects;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import school.hei.haapi.model.psp.PspType;
 
 /** PaymentInfo */
 @JsonPropertyOrder({
@@ -32,39 +33,8 @@ public class PaymentId {
   public static final String JSON_PROPERTY_PAYER_EMAIL = "payerEmail";
   private String payerEmail;
 
-  /** Gets or Sets pspType */
-  public enum PspTypeEnum {
-    ORANGE_MONEY("ORANGE_MONEY");
-
-    private String value;
-
-    PspTypeEnum(String value) {
-      this.value = value;
-    }
-
-    @JsonValue
-    public String getValue() {
-      return value;
-    }
-
-    @Override
-    public String toString() {
-      return String.valueOf(value);
-    }
-
-    @JsonCreator
-    public static PspTypeEnum fromValue(String value) {
-      for (PspTypeEnum b : PspTypeEnum.values()) {
-        if (b.value.equals(value)) {
-          return b;
-        }
-      }
-      throw new IllegalArgumentException("Unexpected value '" + value + "'");
-    }
-  }
-
   public static final String JSON_PROPERTY_PSP_TYPE = "pspType";
-  private PspTypeEnum pspType;
+  private PspType pspType;
 
   public static final String JSON_PROPERTY_PSP_PAYMENT_ID = "pspPaymentId";
   private String pspPaymentId;
@@ -95,7 +65,7 @@ public class PaymentId {
     this.payerEmail = payerEmail;
   }
 
-  public PaymentId pspType(PspTypeEnum pspType) {
+  public PaymentId pspType(PspType pspType) {
 
     this.pspType = pspType;
     return this;
@@ -109,13 +79,13 @@ public class PaymentId {
   @jakarta.annotation.Nullable
   @JsonProperty(JSON_PROPERTY_PSP_TYPE)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public PspTypeEnum getPspType() {
+  public PspType getPspType() {
     return pspType;
   }
 
   @JsonProperty(JSON_PROPERTY_PSP_TYPE)
   @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
-  public void setPspType(PspTypeEnum pspType) {
+  public void setPspType(PspType pspType) {
     this.pspType = pspType;
   }
 

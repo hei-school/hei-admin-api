@@ -51,14 +51,33 @@ public class MpbsVerificationService {
   }
 
   public List<MpbsVerification> verifyMobilePaymentAndSaveResult(List<Mpbs> pendingMpbsList) {
+    log.info(
+        "Starting mobile payment verification for {} pending MPBS records", pendingMpbsList.size());
     var pendingMpbsCopy = List.copyOf(pendingMpbsList);
 
-    var paymentRetrievedFromVola =
-        volaPsp.getPayments(pendingMpbsCopy.stream().map(volaMapper::mpbsToPaymentIds).toList());
+    List<Payment> paymentsRetrievedFromVola;
+
+    try {
+      paymentsRetrievedFromVola =
+          volaPsp.getPayments(pendingMpbsCopy.stream().map(volaMapper::mpbsToPaymentIds).toList());
+    } catch (RuntimeException e) {
+      unverifiedMobilePaymentHandler.accept(pendingMpbsCopy);
+      log.error(
+          "Fatal error fetching payments from Vola for {} MPBS - marking all as unverified",
+          pendingMpbsCopy.size(),
+          e);
+      return List.of();
+    }
+    log.debug(
+        "Retrieving payments from Vola PSP for {} payment IDs", paymentsRetrievedFromVola.size());
     var successPayments =
-        paymentRetrievedFromVola.stream()
+        paymentsRetrievedFromVola.stream()
             .filter(payment -> payment.getVerificationStatus().equals(SUCCEEDED))
             .toList();
+    log.debug(
+        "Found {} succeeded payments in {} payments",
+        successPayments.size(),
+        paymentsRetrievedFromVola.size());
 
     var successIdList =
         successPayments.stream().map(Payment::getPspPayment).map(PspPayment::getId).toList();

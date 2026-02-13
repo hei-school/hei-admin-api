@@ -15,13 +15,7 @@ public class VolaPsp implements Psp {
 
   @Override
   public Payment getPayment(PaymentId paymentId) {
-    try {
-      log.info("Retrieving Payment via Vola for PaymentId: {}", paymentId);
-      return volaClient.getPayment(paymentId);
-    } catch (Exception e) {
-      log.error("Error retrieving Payment via Vola", e);
-      throw new DataRetrievalFailureException("Failed to retrieve Payment via Vola", e);
-    }
+    return getPayments(List.of(paymentId)).getFirst();
   }
 
   @Override
