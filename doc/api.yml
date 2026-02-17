@@ -4012,6 +4012,45 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
+  /fees/export:
+    get:
+      tags:
+        - Paying
+      summary: Generate fees xlxs file
+      description: Generate an fees excel file, stores it in (S3 compatible storage), and returns a presigned URL taht can later be user to view the file.
+      parameters:
+        - name: month_from
+          in: query
+          schema:
+            type: string
+            format: date
+          required: false
+        - name: month_to
+          in: query
+          schema:
+            type: string
+            format: date
+          required: false
+        - name: type
+          in: query
+          required: true
+          schema:
+            $ref: "#/components/schemas/AdvancedFeeStatisticsType"
+      responses:
+        '200':
+          description: File successfully generated and stored
+          content:
+            text/plain:
+              schema:
+                type: string
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
   /fees/advanced-stats/export:
     get:
       tags:
@@ -4019,7 +4058,7 @@ paths:
       summary: Generate advanced fees statistics file
       description: Generates an advanced fees statistics excel file, stores it in 
         (S3 compatible storage), and returns a presigned URL that can 
-        later be used to view the file in ownCloud.
+        later be used to view the file.
       operationId: exportAdvancedFeesStats
       parameters:
         - name: month_from
