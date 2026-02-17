@@ -28,7 +28,6 @@ class VolaPspIT extends FacadeITMockedThirdParties {
 
   @Test
   void read_succeeded_payment() {
-
     var verifiedPayment =
         volaPsp.getPayment(
             PaymentId.builder()

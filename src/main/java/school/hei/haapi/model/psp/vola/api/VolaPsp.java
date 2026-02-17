@@ -23,12 +23,10 @@ public class VolaPsp implements Psp {
     try {
       log.info("Retrieving {} payments via Vola - paymentIds: {}", paymentIds.size(), paymentIds);
 
-      var paymentRetrieved = volaClient.getPayments(paymentIds);
+      var paymentsRetrieved = volaClient.getPayments(paymentIds);
 
-      log.info("Successfully retrieved {} payments via Vola", paymentRetrieved.size());
-      log.debug("Retrieved payments: {}", paymentRetrieved);
-
-      return paymentRetrieved;
+      log.info("Successfully retrieved {} payments via Vola", paymentsRetrieved.size());
+      return paymentsRetrieved;
     } catch (Exception e) {
       log.error(
           "Error retrieving {} payments via Vola - paymentIds: {}",
