@@ -69,13 +69,13 @@ public class MpbsVerificationService {
           e);
       return List.of();
     }
-    log.debug(
+    log.info(
         "Retrieving payments from Vola PSP for {} payment IDs", paymentsRetrievedFromVola.size());
     var successPayments =
         paymentsRetrievedFromVola.stream()
             .filter(payment -> SUCCEEDED.equals(payment.getVerificationStatus()))
             .toList();
-    log.debug(
+    log.info(
         "Found {} succeeded payments in {} payments",
         successPayments.size(),
         paymentsRetrievedFromVola.size());
