@@ -1,5 +1,6 @@
 package school.hei.haapi.service;
 
+import static java.time.temporal.ChronoUnit.SECONDS;
 import static java.util.UUID.randomUUID;
 import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.LATE;
 import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.PAID;
@@ -7,9 +8,11 @@ import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.PENDING;
 import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.UNPAID;
 import static school.hei.haapi.endpoint.rest.model.FeeTypeEnum.TUITION;
 import static school.hei.haapi.model.exception.ApiException.ExceptionType.SERVER_EXCEPTION;
+import static school.hei.haapi.service.utils.FileUtils.createFileFromBytes;
 import static school.hei.haapi.service.utils.InstantUtils.getFirstDayOfActualMonth;
 
 import jakarta.transaction.Transactional;
+import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -27,11 +30,13 @@ import school.hei.haapi.endpoint.event.model.LateFeeVerified;
 import school.hei.haapi.endpoint.event.model.PojaEvent;
 import school.hei.haapi.endpoint.event.model.StudentsWithOverdueFeesReminder;
 import school.hei.haapi.endpoint.event.model.UnpaidFeesReminder;
+import school.hei.haapi.endpoint.rest.model.AdvancedFeeStatisticsType;
 import school.hei.haapi.endpoint.rest.model.FeeStatusEnum;
 import school.hei.haapi.endpoint.rest.model.FeeTypeEnum;
 import school.hei.haapi.endpoint.rest.model.FeesStatistics;
 import school.hei.haapi.endpoint.rest.model.MpbsStatus;
 import school.hei.haapi.endpoint.rest.model.PaymentFrequency;
+import school.hei.haapi.file.bucket.BucketComponent;
 import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.Fee;
 import school.hei.haapi.model.FeeTemplate;
@@ -59,6 +64,7 @@ public class FeeService {
   private final FeeDao feeDao;
   private final FeeTemplateService feeTemplateService;
   private final FeeStatusHistoryService feeStatusHistoryService;
+  private final BucketComponent bucketComponent;
   private static final String MONTHLY_FEE_TEMPLATE_NAME = "Frais mensuel L1";
   private static final String YEARLY_FEE_TEMPLATE_NAME = "Frais annuel L1";
 
@@ -368,5 +374,30 @@ public class FeeService {
     fee.updateStatus(PENDING);
     feeStatusHistoryService.saveFeeStatus(fee.getStatus(), fee);
     return feeRepository.save(fee);
+  }
+
+  public String generateFeesRaws(Instant from, Instant to, AdvancedFeeStatisticsType type) {
+    XlsxCellsGenerator<Fee> xlsxCellsGenerator = new XlsxCellsGenerator<>();
+    List<Fee> allFees =
+        switch (type) {
+          case ACCOUNTING -> feeRepository.findAllByDueDatetimeBetween(from, to);
+          case RECEIPT -> feeRepository.findDistinctByStatusHistoriesDatetimeBetween(from, to);
+        };
+    var headers =
+        List.of(
+            "student.ref",
+            "student.firstName",
+            "student.lastName",
+            "student.email",
+            "totalAmount",
+            "remainingAmount",
+            "status",
+            "dueDatetime");
+    var bytes = xlsxCellsGenerator.apply(allFees, headers);
+    var now = Instant.now().truncatedTo(SECONDS);
+    var file = createFileFromBytes(bytes, "fees-list-" + now, ".xlsx");
+    var bucketKey = "fees-list-" + now + ".xlsx";
+    bucketComponent.upload(file, bucketKey);
+    return bucketComponent.presign(bucketKey, Duration.ofDays(1)).toString();
   }
 }

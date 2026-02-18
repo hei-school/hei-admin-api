@@ -154,6 +154,14 @@ public class FeeController {
   }
 
   @GetMapping("/fees/advanced-stats/export")
+  public String exportAllFees(
+      @RequestParam(name = "month_from", required = false) Instant from,
+      @RequestParam(name = "month_to", required = false) Instant to,
+      @RequestParam(name = "type") AdvancedFeeStatisticsType type) {
+    return feeService.generateFeesRaws(from, to, type);
+  }
+
+  @GetMapping("/fees/advanced-stats/export")
   public String exportAdvancedFeesStats(
       @RequestParam(name = "month_from", required = false) Instant from,
       @RequestParam(name = "month_to", required = false) Instant to,
