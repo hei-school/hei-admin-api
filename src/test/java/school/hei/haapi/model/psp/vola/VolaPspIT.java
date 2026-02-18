@@ -1,6 +1,6 @@
 package school.hei.haapi.model.psp.vola;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static school.hei.haapi.model.psp.PspType.ORANGE_MONEY;
 import static school.hei.haapi.model.psp.vola.api.gen.client.model.Payment.VerificationStatusEnum.SUCCEEDED;
 
