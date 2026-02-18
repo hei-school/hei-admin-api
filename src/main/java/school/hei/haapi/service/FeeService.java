@@ -1,5 +1,6 @@
 package school.hei.haapi.service;
 
+import static java.time.Instant.now;
 import static java.time.temporal.ChronoUnit.SECONDS;
 import static java.util.UUID.randomUUID;
 import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.LATE;
@@ -67,6 +68,16 @@ public class FeeService {
   private final BucketComponent bucketComponent;
   private static final String MONTHLY_FEE_TEMPLATE_NAME = "Frais mensuel L1";
   private static final String YEARLY_FEE_TEMPLATE_NAME = "Frais annuel L1";
+  private static final List<String> HEADERS =
+      List.of(
+          "student.ref",
+          "student.firstName",
+          "student.lastName",
+          "student.email",
+          "totalAmount",
+          "remainingAmount",
+          "status",
+          "dueDatetime");
 
   public byte[] generateFeesAsXlsx(FeeStatusEnum feeStatus, Instant from, Instant to) {
     XlsxCellsGenerator<Fee> xlsxCellsGenerator = new XlsxCellsGenerator<>();
@@ -129,7 +140,7 @@ public class FeeService {
                 .findById(id)
                 .orElseThrow(() -> new NotFoundException("Fee of id: " + id + " not found")));
     log.debug("fee: ------------########## {}", loggedFee);
-    log.debug("now: ---------------######### {}", Instant.now());
+    log.debug("now: ---------------######### {}", now());
     return loggedFee;
   }
 
@@ -261,9 +272,9 @@ public class FeeService {
               .totalAmount(feeTemplate.getAmount())
               .remainingAmount(feeTemplate.getAmount())
               .student(user)
-              .creationDatetime(Instant.now())
+              .creationDatetime(now())
               .status(UNPAID)
-              .updatedAt(Instant.now())
+              .updatedAt(now())
               .dueDatetime(getDueDatetime(i, instant))
               .isDeleted(false)
               .type(TUITION)
@@ -284,7 +295,7 @@ public class FeeService {
 
   @Transactional
   public List<Fee> updateFeesStatusToLate() {
-    Instant now = Instant.now();
+    Instant now = now();
     List<Fee> unpaidFees = feeRepository.getUnpaidFees(now);
     var lateFees = new ArrayList<Fee>();
     unpaidFees.forEach(
@@ -357,7 +368,7 @@ public class FeeService {
   public void sendUnpaidFeesEmail() {
     List<Fee> unpaidFees =
         feeRepository.getUnpaidFeesForTheMonthSpecified(
-            Instant.now().atZone(ZoneId.of("UTC+3")).getMonthValue());
+            now().atZone(ZoneId.of("UTC+3")).getMonthValue());
     log.info("Unpaid fees size: {}", unpaidFees.size());
     List<PojaEvent> unpaidFeeEvents =
         unpaidFees.stream()
@@ -376,28 +387,23 @@ public class FeeService {
     return feeRepository.save(fee);
   }
 
-  public String generateFeesRaws(Instant from, Instant to, AdvancedFeeStatisticsType type) {
+  public String generateRawFees(Instant from, Instant to, AdvancedFeeStatisticsType type) {
     XlsxCellsGenerator<Fee> xlsxCellsGenerator = new XlsxCellsGenerator<>();
     List<Fee> allFees =
         switch (type) {
           case ACCOUNTING -> feeRepository.findAllByDueDatetimeBetween(from, to);
           case RECEIPT -> feeRepository.findDistinctByStatusHistoriesDatetimeBetween(from, to);
         };
-    var headers =
-        List.of(
-            "student.ref",
-            "student.firstName",
-            "student.lastName",
-            "student.email",
-            "totalAmount",
-            "remainingAmount",
-            "status",
-            "dueDatetime");
-    var bytes = xlsxCellsGenerator.apply(allFees, headers);
-    var now = Instant.now().truncatedTo(SECONDS);
-    var file = createFileFromBytes(bytes, "fees-list-" + now, ".xlsx");
-    var bucketKey = "fees-list-" + now + ".xlsx";
+    var bytes = xlsxCellsGenerator.apply(allFees, HEADERS);
+    var fileName = generateFileName();
+    var file = createFileFromBytes(bytes, fileName, ".xlsx");
+    var bucketKey = fileName + ".xlsx";
     bucketComponent.upload(file, bucketKey);
     return bucketComponent.presign(bucketKey, Duration.ofDays(1)).toString();
+  }
+
+  private String generateFileName() {
+    var now = now().truncatedTo(SECONDS);
+    return "fees-list-" + now;
   }
 }
