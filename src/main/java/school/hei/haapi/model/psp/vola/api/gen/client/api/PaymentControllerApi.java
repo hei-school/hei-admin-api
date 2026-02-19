@@ -3,7 +3,6 @@ package school.hei.haapi.model.psp.vola.api.gen.client.api;
 import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
-import java.util.Locale;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -239,26 +238,26 @@ public class PaymentControllerApi {
    * <b>200</b> - OK
    *
    * @param apiKey (required)
-   * @param paymentIds (required)
+   * @param paymentSearch (required)
    * @return List&lt;Payment&gt;
    * @throws RestClientException if an error occurs while attempting to invoke the API
    */
-  public List<Payment> getPayments(String apiKey, List<PaymentId> paymentIds)
+  public List<Payment> getPayments(String apiKey, List<PaymentId> paymentSearch)
       throws RestClientException {
-    return getPaymentsWithHttpInfo(apiKey, paymentIds).getBody();
+    return getPaymentsWithHttpInfo(apiKey, paymentSearch).getBody();
   }
 
   /**
    * <b>200</b> - OK
    *
    * @param apiKey (required)
-   * @param paymentIds (required)
+   * @param paymentSearch (required)
    * @return ResponseEntity&lt;List&lt;Payment&gt;&gt;
    * @throws RestClientException if an error occurs while attempting to invoke the API
    */
   public ResponseEntity<List<Payment>> getPaymentsWithHttpInfo(
-      String apiKey, List<PaymentId> paymentIds) throws RestClientException {
-    Object localVarPostBody = null;
+      String apiKey, List<PaymentId> paymentSearch) throws RestClientException {
+    Object localVarPostBody = paymentSearch;
 
     // verify the required parameter 'apiKey' is set
     if (apiKey == null) {
@@ -267,11 +266,11 @@ public class PaymentControllerApi {
           "Missing the required parameter 'apiKey' when calling getPayments");
     }
 
-    // verify the required parameter 'paymentInfos' is set
-    if (paymentIds == null) {
+    // verify the required parameter 'paymentSearch' is set
+    if (paymentSearch == null) {
       throw new HttpClientErrorException(
           HttpStatus.BAD_REQUEST,
-          "Missing the required parameter 'paymentInfos' when calling getPayments");
+          "Missing the required parameter 'paymentSearch' when calling getPayments");
     }
 
     final MultiValueMap<String, String> localVarQueryParams =
@@ -283,15 +282,10 @@ public class PaymentControllerApi {
         new LinkedMultiValueMap<String, Object>();
 
     localVarQueryParams.putAll(apiClient.parameterToMultiValueMap(null, "apiKey", apiKey));
-    localVarQueryParams.putAll(
-        apiClient.parameterToMultiValueMap(
-            ApiClient.CollectionFormat.valueOf("multi".toUpperCase(Locale.ROOT)),
-            "paymentInfos",
-            paymentIds));
 
     final String[] localVarAccepts = {"*/*"};
     final List<MediaType> localVarAccept = apiClient.selectHeaderAccept(localVarAccepts);
-    final String[] localVarContentTypes = {};
+    final String[] localVarContentTypes = {"application/json"};
     final MediaType localVarContentType = apiClient.selectHeaderContentType(localVarContentTypes);
 
     String[] localVarAuthNames = new String[] {};
@@ -299,8 +293,8 @@ public class PaymentControllerApi {
     ParameterizedTypeReference<List<Payment>> localReturnType =
         new ParameterizedTypeReference<List<Payment>>() {};
     return apiClient.invokeAPI(
-        "/payments",
-        HttpMethod.GET,
+        "/payments/search",
+        HttpMethod.PUT,
         Collections.<String, Object>emptyMap(),
         localVarQueryParams,
         localVarPostBody,
