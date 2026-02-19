@@ -1,7 +1,6 @@
 package school.hei.haapi.integration;
 
 import static java.time.LocalDateTime.now;
-import static java.time.ZoneId.systemDefault;
 import static java.time.ZoneOffset.UTC;
 import static java.time.temporal.ChronoUnit.DAYS;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
@@ -9,6 +8,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.LATE;
 import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.PAID;
 import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.PENDING;
@@ -43,6 +45,7 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.Query;
 import java.io.IOException;
 import java.net.URI;
+import java.net.URL;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -53,6 +56,7 @@ import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpStatus;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import school.hei.haapi.endpoint.rest.api.PayingApi;
@@ -64,6 +68,7 @@ import school.hei.haapi.endpoint.rest.model.CreateFee;
 import school.hei.haapi.endpoint.rest.model.Fee;
 import school.hei.haapi.endpoint.rest.model.FeesStatistics;
 import school.hei.haapi.endpoint.rest.model.FeesWithStats;
+import school.hei.haapi.file.bucket.BucketComponent;
 import school.hei.haapi.integration.conf.FacadeITMockedThirdParties;
 import school.hei.haapi.integration.conf.TestUtils;
 import school.hei.haapi.repository.FeeRepository;
@@ -75,7 +80,7 @@ import school.hei.haapi.repository.dao.FeeDao;
 class FeeIT extends FacadeITMockedThirdParties {
   @Autowired EntityManager entityManager;
   @Autowired FeeRepository feeRepository;
-
+  @MockBean private BucketComponent bucketComponent;
   @Autowired FeeDao feeDao;
 
   /***
@@ -577,11 +582,18 @@ class FeeIT extends FacadeITMockedThirdParties {
 
   @Test
     void generate_raw_fees_OK() throws ApiException {
+      when(bucketComponent.presign(any(), any()))
+              .thenAnswer(invocation -> new URL("https://example.com/file.xlsx"));
+      when(bucketComponent.upload(any(), any())).thenReturn(mock());
       var client = anApiClient(MANAGER1_TOKEN);
       var payingApi = new PayingApi(client);
-      var from = Instant.parse("2025-04-01T00:00:00.00");
-      var to = Instant.parse("2025-04-30T23:59:59.99");
-      var existingFees = payingApi.exportAllFees(AdvancedFeeStatisticsType.RECEIPT, LocalDate.ofInstant(from, systemDefault()),LocalDate.ofInstant(to, systemDefault()));
+      var from = LocalDate.of(2025, 4, 1);
+      var to = LocalDate.of(2025, 4, 30);
+      var existingFees = payingApi.exportAllFees(
+              AdvancedFeeStatisticsType.RECEIPT,
+              from,
+              to
+      );
       log.info("existingFees : " + existingFees);
   }
 }
