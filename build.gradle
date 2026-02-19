@@ -159,9 +159,10 @@ jacocoTestReport {
 
 dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-web:3.2.2'
+    testImplementation 'org.testcontainers:testcontainers:2.0.2'
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa:3.2.2'
     implementation 'org.flywaydb:flyway-core:9.22.3'
-    testImplementation 'org.testcontainers:postgresql:1.20.0'
+    testImplementation 'org.testcontainers:testcontainers-postgresql:2.0.2'
     implementation 'org.postgresql:postgresql:42.6.0'
     implementation 'org.hibernate.orm:hibernate-community-dialects:6.4.3.Final'
 
@@ -198,7 +199,7 @@ dependencies {
     implementation 'io.swagger:swagger-annotations:1.6.12'
 
     testImplementation 'org.springframework.boot:spring-boot-starter-test:3.2.2'
-    testImplementation 'org.testcontainers:junit-jupiter:1.19.1'
+    testImplementation 'org.testcontainers:testcontainers-junit-jupiter:2.0.2'
     testImplementation 'org.junit-pioneer:junit-pioneer:2.2.0'
 
     implementation 'io.sentry:sentry-logback:7.6.0'
