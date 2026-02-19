@@ -1,6 +1,7 @@
 package school.hei.haapi.integration;
 
 import static java.time.LocalDateTime.now;
+import static java.time.ZoneId.systemDefault;
 import static java.time.ZoneOffset.UTC;
 import static java.time.temporal.ChronoUnit.DAYS;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
@@ -43,6 +44,7 @@ import jakarta.persistence.Query;
 import java.io.IOException;
 import java.net.URI;
 import java.time.Instant;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
@@ -57,6 +59,7 @@ import school.hei.haapi.endpoint.rest.api.PayingApi;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
 import school.hei.haapi.endpoint.rest.model.AdvancedFeeStatisticsGeneration;
+import school.hei.haapi.endpoint.rest.model.AdvancedFeeStatisticsType;
 import school.hei.haapi.endpoint.rest.model.CreateFee;
 import school.hei.haapi.endpoint.rest.model.Fee;
 import school.hei.haapi.endpoint.rest.model.FeesStatistics;
@@ -570,5 +573,15 @@ class FeeIT extends FacadeITMockedThirdParties {
 
     assertThrowsForbiddenException(
         () -> api.generateAdvancedStats(now().toInstant(UTC).minus(7, DAYS), now().toInstant(UTC)));
+  }
+
+  @Test
+    void generate_raw_fees_OK() throws ApiException {
+      var client = anApiClient(MANAGER1_TOKEN);
+      var payingApi = new PayingApi(client);
+      var from = Instant.parse("2025-04-01T00:00:00.00");
+      var to = Instant.parse("2025-04-30T23:59:59.99");
+      var existingFees = payingApi.exportAllFees(AdvancedFeeStatisticsType.RECEIPT, LocalDate.ofInstant(from, systemDefault()),LocalDate.ofInstant(to, systemDefault()));
+      log.info("existingFees : " + existingFees);
   }
 }
