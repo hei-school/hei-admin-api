@@ -392,16 +392,14 @@ public class FeeService {
 
   public String generateRawFees(LocalDate from, LocalDate to, AdvancedFeeStatisticsType type) {
     XlsxCellsGenerator<Fee> xlsxCellsGenerator = new XlsxCellsGenerator<>();
-      Instant fromInstant = from != null
-              ? from.atStartOfDay(systemDefault()).toInstant()
-              : null;
-      Instant toInstant = to != null
-              ? to.atTime(LocalTime.MAX).atZone(systemDefault()).toInstant()
-              : null;
-      List<Fee> allFees =
+    Instant fromInstant = from != null ? from.atStartOfDay(systemDefault()).toInstant() : null;
+    Instant toInstant =
+        to != null ? to.atTime(LocalTime.MAX).atZone(systemDefault()).toInstant() : null;
+    List<Fee> allFees =
         switch (type) {
           case ACCOUNTING -> feeRepository.findAllByDueDatetimeBetween(fromInstant, toInstant);
-          case RECEIPT -> feeRepository.findDistinctByStatusHistoriesDatetimeBetween(fromInstant, toInstant);
+          case RECEIPT ->
+              feeRepository.findDistinctByStatusHistoriesDatetimeBetween(fromInstant, toInstant);
         };
     var bytes = xlsxCellsGenerator.apply(allFees, HEADERS);
     var fileName = generateFileName();

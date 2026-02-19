@@ -581,19 +581,15 @@ class FeeIT extends FacadeITMockedThirdParties {
   }
 
   @Test
-    void generate_raw_fees_OK() throws ApiException {
-      when(bucketComponent.presign(any(), any()))
-              .thenAnswer(invocation -> new URL("https://example.com/file.xlsx"));
-      when(bucketComponent.upload(any(), any())).thenReturn(mock());
-      var client = anApiClient(MANAGER1_TOKEN);
-      var payingApi = new PayingApi(client);
-      var from = LocalDate.of(2025, 4, 1);
-      var to = LocalDate.of(2025, 4, 30);
-      var existingFees = payingApi.exportAllFees(
-              AdvancedFeeStatisticsType.RECEIPT,
-              from,
-              to
-      );
-      log.info("existingFees : " + existingFees);
+  void generate_raw_fees_OK() throws ApiException {
+    when(bucketComponent.presign(any(), any()))
+        .thenAnswer(invocation -> new URL("https://example.com/file.xlsx"));
+    when(bucketComponent.upload(any(), any())).thenReturn(mock());
+    var client = anApiClient(MANAGER1_TOKEN);
+    var payingApi = new PayingApi(client);
+    var from = LocalDate.of(2025, 4, 1);
+    var to = LocalDate.of(2025, 4, 30);
+    var existingFees = payingApi.exportAllFees(AdvancedFeeStatisticsType.RECEIPT, from, to);
+    log.info("existingFees : " + existingFees);
   }
 }
