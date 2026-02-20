@@ -399,7 +399,6 @@ public class FeeService {
     var fileName = generateFileName();
     var file = createFileFromBytes(bytes, fileName, ".xlsx");
     var bucketKey = fileName + ".xlsx";
-    log.info("file : " + file);
     bucketComponent.upload(file, bucketKey);
     return bucketComponent.presign(bucketKey, Duration.ofDays(1)).toString();
   }

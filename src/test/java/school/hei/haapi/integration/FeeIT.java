@@ -586,9 +586,9 @@ class FeeIT extends FacadeITMockedThirdParties {
     when(bucketComponent.upload(any(), any())).thenReturn(mock());
     var client = anApiClient(MANAGER1_TOKEN);
     var payingApi = new PayingApi(client);
-    //    var from = LocalDate.of(2021, 1, 1);
-    //    var to = LocalDate.of(2025, 4, 30);
-    var url = payingApi.exportAllFees(AdvancedFeeStatisticsType.RECEIPT, null, null);
+    var from = Instant.parse("2021-12-01T08:25:24.00Z");
+    var to = Instant.parse("2023-12-31T08:25:24.00Z");
+    var url = payingApi.exportAllFees(AdvancedFeeStatisticsType.ACCOUNTING, from, to);
     assertNotNull(url);
   }
 }
