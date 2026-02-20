@@ -4024,13 +4024,13 @@ paths:
           in: query
           schema:
             type: string
-            format: date
+            format: date-time
           required: false
         - name: month_to
           in: query
           schema:
             type: string
-            format: date
+            format: date-time
           required: false
         - name: type
           in: query
@@ -4057,8 +4057,8 @@ paths:
       tags:
         - Paying
       summary: Generate advanced fees statistics file with an optional month range.
-      description: Generates an advanced fees statistics excel file, stores it in 
-        (S3 compatible storage), and returns a presigned URL that can 
+      description: Generates an advanced fees statistics excel file, stores it in
+        (S3 compatible storage), and returns a presigned URL that can
         later be used to view the file.
       operationId: exportAdvancedFeesStats
       parameters:
