@@ -30,6 +30,7 @@ import static school.hei.haapi.endpoint.rest.model.StudentLevel.M2;
 import static school.hei.haapi.endpoint.rest.model.YearlyResultGenerationStatus.AVAILABLE;
 import static school.hei.haapi.endpoint.rest.model.YearlyResultGenerationStatus.GENERATING;
 import static school.hei.haapi.integration.conf.TestUtils.assertThrowsDomainBadRequestException;
+import static school.hei.haapi.model.CycleLevel.BACHELOR;
 
 import java.net.MalformedURLException;
 import java.net.URI;
@@ -756,7 +757,12 @@ class GradeResultServiceTest {
   }
 
   private static Promotion mockPromotion() {
-    return Promotion.builder().ref("prom1").name("Promotion de test").startDatetime(now()).build();
+    return Promotion.builder()
+        .ref("prom1")
+        .cycleLevel(BACHELOR)
+        .name("Promotion de test")
+        .startDatetime(now())
+        .build();
   }
 
   private static final String GROUP_ID = "test-grp";

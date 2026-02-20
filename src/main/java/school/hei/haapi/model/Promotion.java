@@ -1,14 +1,13 @@
 package school.hei.haapi.model;
 
+import static jakarta.persistence.EnumType.STRING;
 import static jakarta.persistence.GenerationType.IDENTITY;
 import static java.util.Optional.empty;
-import static school.hei.haapi.endpoint.rest.model.StudentLevel.L1;
-import static school.hei.haapi.endpoint.rest.model.StudentLevel.L2;
-import static school.hei.haapi.endpoint.rest.model.StudentLevel.L3;
-import static school.hei.haapi.endpoint.rest.model.StudentLevel.M1;
-import static school.hei.haapi.endpoint.rest.model.StudentLevel.M2;
+import static org.hibernate.type.SqlTypes.NAMED_ENUM;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
@@ -26,6 +25,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.JdbcTypeCode;
 import school.hei.haapi.endpoint.rest.model.StudentLevel;
 import school.hei.haapi.model.promotion.PromotionLevelOutOfRange;
 
@@ -48,39 +48,45 @@ public class Promotion {
 
   private Instant startDatetime;
 
+  @Enumerated(STRING)
+  @JdbcTypeCode(NAMED_ENUM)
+  @Column(name = "cycle_level", columnDefinition = "cycle_level_enum", nullable = false)
+  private CycleLevel cycleLevel;
+
   @OneToMany(mappedBy = "promotion")
   private List<Group> groups;
 
+  // TODO: take into account that yearly result plays the most significant role getLevelAt too.
   public StudentLevel getLevelAt(Instant levelInstant) {
-    int firstYear = startDatetime.atZone(ZoneId.systemDefault()).getYear();
+    if (cycleLevel.getLevels().isEmpty()) {
+      throw new PromotionLevelOutOfRange();
+    }
 
+    int firstYear = startDatetime.atZone(ZoneId.systemDefault()).getYear();
     LocalDate date = levelInstant.atZone(ZoneId.systemDefault()).toLocalDate();
     int year = date.getYear();
     int month = date.getMonthValue();
     int scholarYear = (month >= 11) ? year : year - 1;
     int yearOfStudying = scholarYear - firstYear;
 
-    return switch (yearOfStudying) {
-      case 0 -> L1;
-      case 1 -> L2;
-      case 2 -> L3;
-      case 3 -> M1;
-      case 4 -> M2;
-      default -> throw new PromotionLevelOutOfRange(yearOfStudying);
-    };
+    if (yearOfStudying < 0 || yearOfStudying >= cycleLevel.getLevels().size()) {
+      throw new PromotionLevelOutOfRange(yearOfStudying);
+    }
+    return cycleLevel.getLevels().get(yearOfStudying);
   }
 
+  // TODO: Going from L1 to L2 and so on is not automatic: consider repeaters please ?
   public Optional<String> getLevelStringAt(Instant from) {
     return findLevelAt(from).map(Promotion::getLevelString);
   }
 
   public static String getLevelString(StudentLevel level) {
     return switch (level) {
-      case L1 -> "Première";
-      case L2 -> "Deuxième";
-      case L3 -> "Troisième";
-      case M1 -> "Quatrième";
-      case M2 -> "Cinquième";
+      case L1 -> "Première année de Licence";
+      case L2 -> "Deuxième année de Licence";
+      case L3 -> "Troisième année de Licence";
+      case M1 -> "Première année de Master";
+      case M2 -> "Deuxième année de Master";
     };
   }
 
@@ -93,16 +99,19 @@ public class Promotion {
   }
 
   public String getPromotionYearString(StudentLevel level) {
+    var cycleLevels = this.getCycleLevel().getLevels();
+    if (!cycleLevels.contains(level)) {
+      throw new IllegalArgumentException("Level is not part of the cycle level");
+    }
+
     int promotionEntranceYear = getStartDatetime().atOffset(ZoneOffset.of("+3")).getYear();
     int endYear = promotionEntranceYear + 1;
     String yearStringFormat = "%d - %d";
 
     return switch (level) {
-      case L1 -> String.format(yearStringFormat, promotionEntranceYear, endYear);
-      case L2 -> String.format(yearStringFormat, promotionEntranceYear + 1, endYear + 1);
+      case L1, M1 -> String.format(yearStringFormat, promotionEntranceYear, endYear);
+      case L2, M2 -> String.format(yearStringFormat, promotionEntranceYear + 1, endYear + 1);
       case L3 -> String.format(yearStringFormat, promotionEntranceYear + 2, endYear + 2);
-      case M1 -> String.format(yearStringFormat, promotionEntranceYear + 3, endYear + 3);
-      case M2 -> String.format(yearStringFormat, promotionEntranceYear + 4, endYear + 4);
     };
   }
 }

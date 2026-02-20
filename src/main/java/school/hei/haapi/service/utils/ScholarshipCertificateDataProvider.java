@@ -15,10 +15,8 @@ public class ScholarshipCertificateDataProvider {
 
   public String getAcademicYearSentence(User student) {
     String academicYear =
-        findLastStudentPromotion(student).getLevelStringAt(Instant.now()).orElse("Non defini");
-    return academicYear
-        + " année d'informatique - parcours "
-        + student.getSpecializationFieldString();
+        findLastStudentPromotion(student).getLevelStringAt(Instant.now()).orElse("Non défini");
+    return academicYear + " en Informatique - parcours " + student.getSpecializationFieldString();
   }
 
   public String getAcademicYearPromotion(User student) {
@@ -26,7 +24,6 @@ public class ScholarshipCertificateDataProvider {
   }
 
   private Promotion findLastStudentPromotion(User student) {
-    // TODO: getLast orderBy creationDatetime
-    return promotionService.getAllStudentPromotions(student.getId()).getFirst();
+    return promotionService.getAllStudentPromotions(student.getId()).getLast();
   }
 }
