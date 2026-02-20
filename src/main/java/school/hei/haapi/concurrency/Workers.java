@@ -15,7 +15,6 @@ import org.springframework.stereotype.Component;
 import school.hei.haapi.PojaGenerated;
 
 @PojaGenerated
-@SuppressWarnings("all")
 @Component
 public class Workers {
   private final ExecutorService executorService;

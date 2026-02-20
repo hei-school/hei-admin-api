@@ -28,18 +28,7 @@ jobs:
 
     env:
       AWS_REGION: eu-west-3
-      VOLA_API_URL: ${{
-              (github.event_name == 'pull_request' && github.base_ref == 'prod') && secrets.PROD_VOLA_API_URL ||
-              (github.event_name == 'pull_request' && github.base_ref == 'preprod') && secrets.PREPROD_VOLA_API_URL ||
-              (github.ref == 'refs/heads/prod') && secrets.PROD_VOLA_API_URL ||
-              (github.ref == 'refs/heads/preprod') && secrets.PREPROD_VOLA_API_URL
-              }}
-      VOLA_API_KEY: ${{
-              (github.event_name == 'pull_request' && github.base_ref == 'prod') && secrets.PROD_VOLA_API_KEY ||
-              (github.event_name == 'pull_request' && github.base_ref == 'preprod') && secrets.PREPROD_VOLA_API_KEY ||
-              (github.ref == 'refs/heads/prod') && secrets.PROD_VOLA_API_KEY ||
-              (github.ref == 'refs/heads/preprod') && secrets.PREPROD_VOLA_API_KEY
-              }}
+      
 
     steps:
       - uses: actions/checkout@v4.1.6

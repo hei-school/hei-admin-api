@@ -4024,13 +4024,13 @@ paths:
           in: query
           schema:
             type: string
-            format: date
+            format: date-time
           required: false
         - name: month_to
           in: query
           schema:
             type: string
-            format: date
+            format: date-time
           required: false
         - name: type
           in: query

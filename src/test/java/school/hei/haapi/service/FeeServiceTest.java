@@ -28,6 +28,7 @@ import java.util.Optional;
 import java.util.stream.IntStream;
 import org.junit.jupiter.api.Test;
 import school.hei.haapi.endpoint.event.EventProducer;
+import school.hei.haapi.file.bucket.BucketComponent;
 import school.hei.haapi.integration.conf.TestUtils;
 import school.hei.haapi.model.*;
 import school.hei.haapi.model.exception.BadRequestException;
@@ -46,6 +47,7 @@ class FeeServiceTest {
   private static FeeTemplateService feeTemplateService = mock(FeeTemplateService.class);
   private static FeeStatusHistoryService feeStatusHistoryService =
       mock(FeeStatusHistoryService.class);
+  private static BucketComponent bucketComponent = mock(BucketComponent.class);
   private static FeeService subject =
       new FeeService(
           feeRepository,
@@ -54,7 +56,8 @@ class FeeServiceTest {
           eventProducer,
           feeDao,
           feeTemplateService,
-          feeStatusHistoryService);
+          feeStatusHistoryService,
+          bucketComponent);
 
   private static FeesStats emptyFeeStats() {
     return FeesStats.builder()

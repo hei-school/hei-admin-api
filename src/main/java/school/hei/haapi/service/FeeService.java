@@ -1,5 +1,7 @@
 package school.hei.haapi.service;
 
+import static java.time.Instant.now;
+import static java.time.temporal.ChronoUnit.SECONDS;
 import static java.util.UUID.randomUUID;
 import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.LATE;
 import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.PAID;
@@ -7,9 +9,11 @@ import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.PENDING;
 import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.UNPAID;
 import static school.hei.haapi.endpoint.rest.model.FeeTypeEnum.TUITION;
 import static school.hei.haapi.model.exception.ApiException.ExceptionType.SERVER_EXCEPTION;
+import static school.hei.haapi.service.utils.FileUtils.createFileFromBytes;
 import static school.hei.haapi.service.utils.InstantUtils.getFirstDayOfActualMonth;
 
 import jakarta.transaction.Transactional;
+import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -27,11 +31,13 @@ import school.hei.haapi.endpoint.event.model.LateFeeVerified;
 import school.hei.haapi.endpoint.event.model.PojaEvent;
 import school.hei.haapi.endpoint.event.model.StudentsWithOverdueFeesReminder;
 import school.hei.haapi.endpoint.event.model.UnpaidFeesReminder;
+import school.hei.haapi.endpoint.rest.model.AdvancedFeeStatisticsType;
 import school.hei.haapi.endpoint.rest.model.FeeStatusEnum;
 import school.hei.haapi.endpoint.rest.model.FeeTypeEnum;
 import school.hei.haapi.endpoint.rest.model.FeesStatistics;
 import school.hei.haapi.endpoint.rest.model.MpbsStatus;
 import school.hei.haapi.endpoint.rest.model.PaymentFrequency;
+import school.hei.haapi.file.bucket.BucketComponent;
 import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.Fee;
 import school.hei.haapi.model.FeeTemplate;
@@ -59,8 +65,20 @@ public class FeeService {
   private final FeeDao feeDao;
   private final FeeTemplateService feeTemplateService;
   private final FeeStatusHistoryService feeStatusHistoryService;
+  private final BucketComponent bucketComponent;
   private static final String MONTHLY_FEE_TEMPLATE_NAME = "Frais mensuel L1";
   private static final String YEARLY_FEE_TEMPLATE_NAME = "Frais annuel L1";
+  private static final List<String> HEADERS =
+      List.of(
+          "student.ref",
+          "student.firstName",
+          "student.lastName",
+          "student.email",
+          "totalAmount",
+          "remainingAmount",
+          "status",
+          "creationDatetime",
+          "dueDatetime");
 
   public byte[] generateFeesAsXlsx(FeeStatusEnum feeStatus, Instant from, Instant to) {
     XlsxCellsGenerator<Fee> xlsxCellsGenerator = new XlsxCellsGenerator<>();
@@ -123,7 +141,7 @@ public class FeeService {
                 .findById(id)
                 .orElseThrow(() -> new NotFoundException("Fee of id: " + id + " not found")));
     log.debug("fee: ------------########## {}", loggedFee);
-    log.debug("now: ---------------######### {}", Instant.now());
+    log.debug("now: ---------------######### {}", now());
     return loggedFee;
   }
 
@@ -255,9 +273,9 @@ public class FeeService {
               .totalAmount(feeTemplate.getAmount())
               .remainingAmount(feeTemplate.getAmount())
               .student(user)
-              .creationDatetime(Instant.now())
+              .creationDatetime(now())
               .status(UNPAID)
-              .updatedAt(Instant.now())
+              .updatedAt(now())
               .dueDatetime(getDueDatetime(i, instant))
               .isDeleted(false)
               .type(TUITION)
@@ -278,7 +296,7 @@ public class FeeService {
 
   @Transactional
   public List<Fee> updateFeesStatusToLate() {
-    Instant now = Instant.now();
+    Instant now = now();
     List<Fee> unpaidFees = feeRepository.getUnpaidFees(now);
     var lateFees = new ArrayList<Fee>();
     unpaidFees.forEach(
@@ -351,7 +369,7 @@ public class FeeService {
   public void sendUnpaidFeesEmail() {
     List<Fee> unpaidFees =
         feeRepository.getUnpaidFeesForTheMonthSpecified(
-            Instant.now().atZone(ZoneId.of("UTC+3")).getMonthValue());
+            now().atZone(ZoneId.of("UTC+3")).getMonthValue());
     log.info("Unpaid fees size: {}", unpaidFees.size());
     List<PojaEvent> unpaidFeeEvents =
         unpaidFees.stream()
@@ -368,5 +386,25 @@ public class FeeService {
     fee.updateStatus(PENDING);
     feeStatusHistoryService.saveFeeStatus(fee.getStatus(), fee);
     return feeRepository.save(fee);
+  }
+
+  public String generateRawFees(Instant from, Instant to, AdvancedFeeStatisticsType type) {
+    XlsxCellsGenerator<Fee> xlsxCellsGenerator = new XlsxCellsGenerator<>();
+    List<Fee> allFees =
+        switch (type) {
+          case ACCOUNTING -> feeRepository.findAllByDueDatetimeBetween(from, to);
+          case RECEIPT -> feeRepository.findDistinctByStatusHistoriesDatetimeBetween(from, to);
+        };
+    var bytes = xlsxCellsGenerator.apply(allFees, HEADERS);
+    var fileName = generateFileName();
+    var file = createFileFromBytes(bytes, fileName, ".xlsx");
+    var bucketKey = fileName + ".xlsx";
+    bucketComponent.upload(file, bucketKey);
+    return bucketComponent.presign(bucketKey, Duration.ofDays(1)).toString();
+  }
+
+  private String generateFileName() {
+    var now = now().truncatedTo(SECONDS);
+    return "fees-list-" + now;
   }
 }
