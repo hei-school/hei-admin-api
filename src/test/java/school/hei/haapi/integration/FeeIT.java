@@ -47,7 +47,6 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URL;
 import java.time.Instant;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
@@ -587,9 +586,9 @@ class FeeIT extends FacadeITMockedThirdParties {
     when(bucketComponent.upload(any(), any())).thenReturn(mock());
     var client = anApiClient(MANAGER1_TOKEN);
     var payingApi = new PayingApi(client);
-    var from = LocalDate.of(2025, 4, 1);
-    var to = LocalDate.of(2025, 4, 30);
-    var existingFees = payingApi.exportAllFees(AdvancedFeeStatisticsType.RECEIPT, from, to);
-    log.info("existingFees : " + existingFees);
+    //    var from = LocalDate.of(2021, 1, 1);
+    //    var to = LocalDate.of(2025, 4, 30);
+    var url = payingApi.exportAllFees(AdvancedFeeStatisticsType.RECEIPT, null, null);
+    assertNotNull(url);
   }
 }

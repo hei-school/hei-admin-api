@@ -1,7 +1,6 @@
 package school.hei.haapi.service;
 
 import static java.time.Instant.now;
-import static java.time.ZoneId.systemDefault;
 import static java.time.temporal.ChronoUnit.SECONDS;
 import static java.util.UUID.randomUUID;
 import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.LATE;
@@ -16,9 +15,7 @@ import static school.hei.haapi.service.utils.InstantUtils.getFirstDayOfActualMon
 import jakarta.transaction.Transactional;
 import java.time.Duration;
 import java.time.Instant;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -80,6 +77,7 @@ public class FeeService {
           "totalAmount",
           "remainingAmount",
           "status",
+          "creationDatetime",
           "dueDatetime");
 
   public byte[] generateFeesAsXlsx(FeeStatusEnum feeStatus, Instant from, Instant to) {
@@ -390,21 +388,18 @@ public class FeeService {
     return feeRepository.save(fee);
   }
 
-  public String generateRawFees(LocalDate from, LocalDate to, AdvancedFeeStatisticsType type) {
+  public String generateRawFees(Instant from, Instant to, AdvancedFeeStatisticsType type) {
     XlsxCellsGenerator<Fee> xlsxCellsGenerator = new XlsxCellsGenerator<>();
-    Instant fromInstant = from != null ? from.atStartOfDay(systemDefault()).toInstant() : null;
-    Instant toInstant =
-        to != null ? to.atTime(LocalTime.MAX).atZone(systemDefault()).toInstant() : null;
     List<Fee> allFees =
         switch (type) {
-          case ACCOUNTING -> feeRepository.findAllByDueDatetimeBetween(fromInstant, toInstant);
-          case RECEIPT ->
-              feeRepository.findDistinctByStatusHistoriesDatetimeBetween(fromInstant, toInstant);
+          case ACCOUNTING -> feeRepository.findAllByDueDatetimeBetween(from, to);
+          case RECEIPT -> feeRepository.findDistinctByStatusHistoriesDatetimeBetween(from, to);
         };
     var bytes = xlsxCellsGenerator.apply(allFees, HEADERS);
     var fileName = generateFileName();
     var file = createFileFromBytes(bytes, fileName, ".xlsx");
     var bucketKey = fileName + ".xlsx";
+    log.info("file : " + file);
     bucketComponent.upload(file, bucketKey);
     return bucketComponent.presign(bucketKey, Duration.ofDays(1)).toString();
   }
