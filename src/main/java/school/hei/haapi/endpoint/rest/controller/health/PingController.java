@@ -10,7 +10,6 @@ import school.hei.haapi.repository.DummyRepository;
 import school.hei.haapi.repository.DummyUuidRepository;
 
 @PojaGenerated
-@SuppressWarnings("all")
 @RestController
 @AllArgsConstructor
 public class PingController {
