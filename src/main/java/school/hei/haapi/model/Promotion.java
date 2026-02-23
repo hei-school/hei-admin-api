@@ -27,7 +27,7 @@ import lombok.ToString;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.JdbcTypeCode;
 import school.hei.haapi.endpoint.rest.model.StudentLevel;
-import school.hei.haapi.model.promotion.PromotionLevelOutOfRange;
+import school.hei.haapi.model.promotion.PromotionLevelOutOfRangeException;
 
 @Entity
 @Table(name = "\"promotion\"")
@@ -57,9 +57,9 @@ public class Promotion {
   private List<Group> groups;
 
   // TODO: take into account that yearly result plays the most significant role getLevelAt too.
-  public StudentLevel getLevelAt(Instant levelInstant) {
+  public StudentLevel getLevelAt(Instant levelInstant) throws PromotionLevelOutOfRangeException {
     if (cycleLevel.getLevels().isEmpty()) {
-      throw new PromotionLevelOutOfRange();
+      throw new PromotionLevelOutOfRangeException();
     }
 
     int firstYear = startDatetime.atZone(ZoneId.systemDefault()).getYear();
@@ -70,7 +70,7 @@ public class Promotion {
     int yearOfStudying = scholarYear - firstYear;
 
     if (yearOfStudying < 0 || yearOfStudying >= cycleLevel.getLevels().size()) {
-      throw new PromotionLevelOutOfRange(yearOfStudying);
+      throw new PromotionLevelOutOfRangeException(yearOfStudying);
     }
     return cycleLevel.getLevels().get(yearOfStudying);
   }
@@ -93,7 +93,7 @@ public class Promotion {
   public Optional<StudentLevel> findLevelAt(Instant levelInstant) {
     try {
       return Optional.of(getLevelAt(levelInstant));
-    } catch (PromotionLevelOutOfRange e) {
+    } catch (PromotionLevelOutOfRangeException e) {
       return empty();
     }
   }
