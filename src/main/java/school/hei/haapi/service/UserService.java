@@ -50,6 +50,7 @@ import school.hei.haapi.model.User;
 import school.hei.haapi.model.dto.StudentImportDto;
 import school.hei.haapi.model.exception.BadRequestException;
 import school.hei.haapi.model.exception.NotFoundException;
+import school.hei.haapi.model.promotion.PromotionLevelOutOfRangeException;
 import school.hei.haapi.model.validator.UserValidator;
 import school.hei.haapi.repository.EventParticipantRepository;
 import school.hei.haapi.repository.GroupRepository;
@@ -466,9 +467,14 @@ public class UserService {
   }
 
   public StudentLevel getStudentLevel(String studentId) {
-    return getById(studentId)
-        .findCurrentGroup()
-        .map(g -> g.getPromotion().getLevelAt(now()))
-        .orElse(null);
+    try {
+      return getById(studentId)
+          .findCurrentGroup()
+          .map(g -> g.getPromotion().getLevelAt(now()))
+          .orElse(null);
+    } catch (PromotionLevelOutOfRangeException e) {
+      log.error("Level for student id {} is out of bounds: {}", studentId, e.getMessage());
+      return null;
+    }
   }
 }

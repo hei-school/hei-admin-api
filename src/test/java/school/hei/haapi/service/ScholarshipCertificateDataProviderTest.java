@@ -5,6 +5,8 @@ import static org.mockito.Mockito.when;
 import static school.hei.haapi.endpoint.rest.model.SpecializationField.COMMON_CORE;
 import static school.hei.haapi.endpoint.rest.model.SpecializationField.EL;
 import static school.hei.haapi.endpoint.rest.model.SpecializationField.TN;
+import static school.hei.haapi.model.CycleLevel.BACHELOR;
+import static school.hei.haapi.model.CycleLevel.MASTER;
 
 import java.time.Instant;
 import java.time.LocalDate;
@@ -35,48 +37,48 @@ class ScholarshipCertificateDataProviderTest extends FacadeITMockedThirdParties 
   @Test
   void get_academic_year_ok() {
     int actualYear = 2025;
-    var firstYear = instantOf(actualYear, 11, 1);
-    var secondYear = instantOf(actualYear - 1, 11, 1);
-    var thirdYear = instantOf(actualYear - 2, 11, 1);
-    var fourthYear = instantOf(actualYear - 3, 11, 1);
-    var fifthYear = instantOf(actualYear - 4, 11, 1);
+    var licenseFirstYear = instantOf(actualYear, 11, 1);
+    var licenseSecondYear = instantOf(actualYear - 1, 11, 1);
+    var licenseThirdYear = instantOf(actualYear - 2, 11, 1);
+    var masterFirstYear = instantOf(actualYear, 11, 1);
+    var masterSecondYear = instantOf(actualYear - 1, 11, 1);
     var invalidYear = instantOf(actualYear - 5, 11, 1);
-    User studentFirstYear = randomUser(firstYear, COMMON_CORE);
-    User studentSecondYear = randomUser(secondYear, TN);
-    User studentThirdYear = randomUser(thirdYear, COMMON_CORE);
-    User studentFourthYear = randomUser(fourthYear, COMMON_CORE);
-    User studentFifthYear = randomUser(fifthYear, EL);
+    User studentFirstYear = randomUser(licenseFirstYear, COMMON_CORE);
+    User studentSecondYear = randomUser(licenseSecondYear, TN);
+    User studentThirdYear = randomUser(licenseThirdYear, COMMON_CORE);
+    User studentFourthYear = randomUser(masterFirstYear, COMMON_CORE);
+    User studentFifthYear = randomUser(masterSecondYear, EL);
     User invalidStudentYear = randomUser(invalidYear, COMMON_CORE);
     when(promotionService.getAllStudentPromotions(studentFirstYear.getId()))
-        .thenReturn(linkedHashSetOf(promotionWithStartDateTime(firstYear)));
+        .thenReturn(linkedHashSetOf(licensePromotionWithStartDateTime(licenseFirstYear)));
     when(promotionService.getAllStudentPromotions(studentSecondYear.getId()))
-        .thenReturn(linkedHashSetOf(promotionWithStartDateTime(secondYear)));
+        .thenReturn(linkedHashSetOf(licensePromotionWithStartDateTime(licenseSecondYear)));
     when(promotionService.getAllStudentPromotions(studentThirdYear.getId()))
-        .thenReturn(linkedHashSetOf(promotionWithStartDateTime(thirdYear)));
+        .thenReturn(linkedHashSetOf(licensePromotionWithStartDateTime(licenseThirdYear)));
     when(promotionService.getAllStudentPromotions(studentFourthYear.getId()))
-        .thenReturn(linkedHashSetOf(promotionWithStartDateTime(fourthYear)));
+        .thenReturn(linkedHashSetOf(masterPromotionWithStartDateTime(masterFirstYear)));
     when(promotionService.getAllStudentPromotions(studentFifthYear.getId()))
-        .thenReturn(linkedHashSetOf(promotionWithStartDateTime(fifthYear)));
+        .thenReturn(linkedHashSetOf(masterPromotionWithStartDateTime(masterSecondYear)));
     when(promotionService.getAllStudentPromotions(invalidStudentYear.getId()))
-        .thenReturn(linkedHashSetOf(promotionWithStartDateTime(invalidYear)));
+        .thenReturn(linkedHashSetOf(licensePromotionWithStartDateTime(invalidYear)));
 
     assertEquals(
-        "Première année d'informatique - parcours Tronc commun",
+        "Première année de Licence en Informatique - parcours Tronc commun",
         subject.getAcademicYearSentence(studentFirstYear));
     assertEquals(
-        "Deuxième année d'informatique - parcours Transformation Numérique",
+        "Deuxième année de Licence en Informatique - parcours Transformation Numérique",
         subject.getAcademicYearSentence(studentSecondYear));
     assertEquals(
-        "Troisième année d'informatique - parcours Tronc commun",
+        "Troisième année de Licence en Informatique - parcours Tronc commun",
         subject.getAcademicYearSentence(studentThirdYear));
     assertEquals(
-        "Quatrième année d'informatique - parcours Tronc commun",
+        "Première année de Master en Informatique - parcours Tronc commun",
         subject.getAcademicYearSentence(studentFourthYear));
     assertEquals(
-        "Cinquième année d'informatique - parcours Écosystème Logiciel",
+        "Deuxième année de Master en Informatique - parcours Écosystème Logiciel",
         subject.getAcademicYearSentence(studentFifthYear));
     assertEquals(
-        "Non defini année d'informatique - parcours Tronc commun",
+        "Non défini en Informatique - parcours Tronc commun",
         subject.getAcademicYearSentence(invalidStudentYear));
   }
 
@@ -92,8 +94,12 @@ class ScholarshipCertificateDataProviderTest extends FacadeITMockedThirdParties 
         .build();
   }
 
-  private static Promotion promotionWithStartDateTime(Instant firstYear) {
-    return new Promotion("", Instant.now(), "", "", firstYear, List.of());
+  private static Promotion licensePromotionWithStartDateTime(Instant firstYear) {
+    return new Promotion("", Instant.now(), "", "", firstYear, BACHELOR, List.of());
+  }
+
+  private static Promotion masterPromotionWithStartDateTime(Instant firstYear) {
+    return new Promotion("", Instant.now(), "", "", firstYear, MASTER, List.of());
   }
 
   private static Instant instantOf(int year, int month, int day) {

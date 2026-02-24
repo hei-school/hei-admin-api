@@ -1,69 +1,65 @@
 package school.hei.haapi.model;
 
-import static java.time.LocalTime.MIDNIGHT;
-import static java.time.ZoneOffset.UTC;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static school.hei.haapi.endpoint.rest.model.StudentLevel.L1;
 import static school.hei.haapi.endpoint.rest.model.StudentLevel.L2;
 import static school.hei.haapi.endpoint.rest.model.StudentLevel.L3;
 import static school.hei.haapi.endpoint.rest.model.StudentLevel.M1;
 import static school.hei.haapi.endpoint.rest.model.StudentLevel.M2;
+import static school.hei.haapi.model.CycleLevel.BACHELOR;
+import static school.hei.haapi.model.CycleLevel.MASTER;
 
 import java.time.Instant;
-import java.time.LocalDate;
-import java.time.ZoneId;
 import org.junit.jupiter.api.Test;
 
 class PromotionTest {
-  private static LocalDate fixedDate = LocalDate.of(2025, 12, 6);
 
   @Test
-  void correct_level() {
-    var instantToBeL1 = pastInstant(6, 4, 10);
-    var instantToBeL2 = pastInstant(5, 4);
-    var instantToBeL3 = pastInstant(4, 4, 5);
-    var instantToBeM1 = pastInstant(3, 9);
-    var instantToBeM2 = pastInstant(2, 4, 11);
-    var instantOutOfRange = Instant.now();
-    var promotionCreated6YearsAgo =
-        Promotion.builder()
-            .startDatetime(fixedDate.minusYears(6).atTime(MIDNIGHT).toInstant(UTC))
-            .build();
+  void correct_level_bachelor_cycle() {
+    var promotionCreationInstant = Instant.parse("2025-11-08T00:00:00Z");
+    var instantToBeL1 = Instant.parse("2026-01-01T00:00:00Z");
+    var instantToBeL2 = Instant.parse("2027-01-01T00:00:00Z");
+    var instantToBeL3 = Instant.parse("2028-01-01T00:00:00Z");
+    var instantOutOfRange = Instant.parse("2029-01-01T00:00:00Z");
+    var bachelorPromotion =
+        Promotion.builder().cycleLevel(BACHELOR).startDatetime(promotionCreationInstant).build();
 
-    assertEquals(L1, promotionCreated6YearsAgo.findLevelAt(instantToBeL1).get());
-    assertEquals(L2, promotionCreated6YearsAgo.findLevelAt(instantToBeL2).get());
-    assertEquals(L3, promotionCreated6YearsAgo.findLevelAt(instantToBeL3).get());
-    assertEquals(M1, promotionCreated6YearsAgo.findLevelAt(instantToBeM1).get());
-    assertEquals(M2, promotionCreated6YearsAgo.findLevelAt(instantToBeM2).get());
-    assertTrue(promotionCreated6YearsAgo.findLevelAt(instantOutOfRange).isEmpty());
+    assertEquals(L1, bachelorPromotion.findLevelAt(instantToBeL1).get());
+    assertEquals(L2, bachelorPromotion.findLevelAt(instantToBeL2).get());
+    assertEquals(L3, bachelorPromotion.findLevelAt(instantToBeL3).get());
+    assertTrue(bachelorPromotion.findLevelAt(instantOutOfRange).isEmpty());
   }
 
-  private static Instant pastInstant(int yearsToSubtract, int monthsOffset) {
-    return pastInstant(yearsToSubtract, monthsOffset, 0);
-  }
+  @Test
+  void correct_level_master_cycle() {
+    var promotionCreationInstant = Instant.parse("2025-11-08T00:00:00Z");
+    var instantToBeM1 = Instant.parse("2026-01-01T00:00:00Z");
+    var instantToBeM2 = Instant.parse("2027-01-01T00:00:00Z");
+    var instantOutOfRange = Instant.parse("2028-01-01T00:00:00Z");
+    var masterPromotion =
+        Promotion.builder().cycleLevel(MASTER).startDatetime(promotionCreationInstant).build();
 
-  private static Instant pastInstant(int yearsToSubtract, int monthsOffset, int daysOffset) {
-    return fixedDate
-        .minusYears(yearsToSubtract)
-        .plusMonths(monthsOffset)
-        .plusDays(daysOffset)
-        .atTime(MIDNIGHT)
-        .toInstant(UTC);
+    assertEquals(M1, masterPromotion.findLevelAt(instantToBeM1).get());
+    assertEquals(M2, masterPromotion.findLevelAt(instantToBeM2).get());
+    assertTrue(masterPromotion.findLevelAt(instantOutOfRange).isEmpty());
   }
 
   @Test
   void getPromotionYearString_shouldReturnCorrectYearRanges() {
-    Promotion promotion =
+    Promotion bachelorPromotion =
         Promotion.builder()
-            .startDatetime(
-                LocalDate.of(2023, 10, 1).atStartOfDay(ZoneId.systemDefault()).toInstant())
+            .cycleLevel(BACHELOR)
+            .startDatetime(Instant.parse("2023-11-08T00:00:00Z"))
             .build();
 
-    assertEquals("2023 - 2024", promotion.getPromotionYearString(L1));
-    assertEquals("2024 - 2025", promotion.getPromotionYearString(L2));
-    assertEquals("2025 - 2026", promotion.getPromotionYearString(L3));
-    assertEquals("2026 - 2027", promotion.getPromotionYearString(M1));
-    assertEquals("2027 - 2028", promotion.getPromotionYearString(M2));
+    assertEquals("2023 - 2024", bachelorPromotion.getPromotionYearString(L1));
+    assertEquals("2024 - 2025", bachelorPromotion.getPromotionYearString(L2));
+    assertEquals("2025 - 2026", bachelorPromotion.getPromotionYearString(L3));
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> bachelorPromotion.getPromotionYearString(M1),
+        "Level is not part of the cycle level");
   }
 }
