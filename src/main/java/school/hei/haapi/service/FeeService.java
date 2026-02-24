@@ -1,7 +1,6 @@
 package school.hei.haapi.service;
 
 import static java.time.Instant.now;
-import static java.time.temporal.ChronoUnit.SECONDS;
 import static java.util.UUID.randomUUID;
 import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.LATE;
 import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.PAID;
@@ -17,10 +16,12 @@ import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Stream;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
@@ -43,6 +44,7 @@ import school.hei.haapi.model.Fee;
 import school.hei.haapi.model.FeeTemplate;
 import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.model.User;
+import school.hei.haapi.model.dto.FeeDetailsDto;
 import school.hei.haapi.model.exception.ApiException;
 import school.hei.haapi.model.exception.NoRemainingAmountFee;
 import school.hei.haapi.model.exception.NotFoundException;
@@ -70,15 +72,20 @@ public class FeeService {
   private static final String YEARLY_FEE_TEMPLATE_NAME = "Frais annuel L1";
   private static final List<String> HEADERS =
       List.of(
-          "student.ref",
-          "student.firstName",
-          "student.lastName",
-          "student.email",
+          "ref",
+          "firstName",
+          "lastName",
+          "email",
           "totalAmount",
           "remainingAmount",
           "status",
+          "category",
+          "frequency",
+          "comment",
           "creationDatetime",
-          "dueDatetime");
+          "dueDatetime",
+          "addRefDate",
+          "successfullyVerificationDate");
 
   public byte[] generateFeesAsXlsx(FeeStatusEnum feeStatus, Instant from, Instant to) {
     XlsxCellsGenerator<Fee> xlsxCellsGenerator = new XlsxCellsGenerator<>();
@@ -389,22 +396,58 @@ public class FeeService {
   }
 
   public String generateRawFees(Instant from, Instant to, AdvancedFeeStatisticsType type) {
-    XlsxCellsGenerator<Fee> xlsxCellsGenerator = new XlsxCellsGenerator<>();
-    List<Fee> allFees =
+    XlsxCellsGenerator<FeeDetailsDto> xlsxCellsGenerator = new XlsxCellsGenerator<>();
+    var allFees =
         switch (type) {
           case ACCOUNTING -> feeRepository.findAllByDueDatetimeBetween(from, to);
           case RECEIPT -> feeRepository.findDistinctByStatusHistoriesDatetimeBetween(from, to);
         };
-    var bytes = xlsxCellsGenerator.apply(allFees, HEADERS);
-    var fileName = generateFileName();
+    var mappedFees = mapFees(allFees);
+    var bytes = xlsxCellsGenerator.apply(mappedFees, HEADERS);
+    var fileName = generateFileName(from, to);
     var file = createFileFromBytes(bytes, fileName, ".xlsx");
     var bucketKey = fileName + ".xlsx";
     bucketComponent.upload(file, bucketKey);
     return bucketComponent.presign(bucketKey, Duration.ofDays(1)).toString();
   }
 
-  private String generateFileName() {
-    var now = now().truncatedTo(SECONDS);
-    return "fees-list-" + now;
+  private List<FeeDetailsDto> mapFees(List<Fee> allFees) {
+    return allFees.stream()
+        .flatMap(
+            fee -> {
+              var allMpbs = fee.getMobilePayments();
+              if (allMpbs == null || allMpbs.isEmpty()) {
+                return Stream.of(mapToDetailsDto(fee, null));
+              }
+              return allMpbs.stream().map(mpb -> mapToDetailsDto(fee, mpb));
+            })
+        .toList();
+  }
+
+  public FeeDetailsDto mapToDetailsDto(Fee fee, Mpbs mpbs) {
+    return FeeDetailsDto.builder()
+        .ref(fee.getStudent().getRef())
+        .firstName(fee.getStudent().getFirstName())
+        .lastName(fee.getStudent().getLastName())
+        .email(fee.getStudent().getEmail())
+        .totalAmount(fee.getTotalAmount())
+        .remainingAmount(fee.getRemainingAmount())
+        .comment(fee.getComment())
+        .status(fee.getStatus())
+        .category(fee.getCategory())
+        .frequency(fee.getFrequency())
+        .creationDatetime(fee.getCreationDatetime())
+        .dueDatetime(fee.getDueDatetime())
+        .addRefDate(mpbs != null ? mpbs.getCreationDatetime() : null)
+        .successfullyVerificationDate(mpbs != null ? mpbs.getSuccessfullyVerifiedOn() : null)
+        .build();
+  }
+
+  private String generateFileName(Instant from, Instant to) {
+    return "fees_list_" + dateFormatter(from) + "_" + dateFormatter(to) + "_";
+  }
+
+  public static String dateFormatter(Instant instant) {
+    return instant.atZone(ZoneId.systemDefault()).format(DateTimeFormatter.ofPattern("dd-MM-yyyy"));
   }
 }
