@@ -40,4 +40,3 @@ public record FeeDetailsDto(
         mpbs != null ? mpbs.getSuccessfullyVerifiedOn() : null);
   }
 }
-;

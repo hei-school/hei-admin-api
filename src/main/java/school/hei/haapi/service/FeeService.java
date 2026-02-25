@@ -416,7 +416,7 @@ public class FeeService {
         .flatMap(
             fee -> {
               var allMpbs = fee.getMobilePayments();
-              if (allMpbs == null || allMpbs.isEmpty()) {
+              if (allMpbs == null) {
                 return Stream.of(FeeDetailsDto.from(fee, null));
               }
               return allMpbs.stream().map(mpb -> FeeDetailsDto.from(fee, mpb));
