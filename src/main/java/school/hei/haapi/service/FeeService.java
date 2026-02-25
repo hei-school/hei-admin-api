@@ -424,7 +424,7 @@ public class FeeService {
         .toList();
   }
 
-  public FeeDetailsDto mapToDetailsDto(Fee fee, Mpbs mpbs) {
+  private FeeDetailsDto mapToDetailsDto(Fee fee, Mpbs mpbs) {
     return FeeDetailsDto.builder()
         .ref(fee.getStudent().getRef())
         .firstName(fee.getStudent().getFirstName())
@@ -447,7 +447,7 @@ public class FeeService {
     return "fees_list_" + dateFormatter(from) + "_" + dateFormatter(to) + "_";
   }
 
-  public static String dateFormatter(Instant instant) {
+  private static String dateFormatter(Instant instant) {
     return instant.atZone(ZoneId.systemDefault()).format(DateTimeFormatter.ofPattern("dd-MM-yyyy"));
   }
 }
