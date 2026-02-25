@@ -85,7 +85,7 @@ public class FeeService {
           "creationDatetime",
           "dueDatetime",
           "addRefDate",
-          "successfullyVerificationDate");
+          "successfullyVerifiedAt");
 
   public byte[] generateFeesAsXlsx(FeeStatusEnum feeStatus, Instant from, Instant to) {
     XlsxCellsGenerator<Fee> xlsxCellsGenerator = new XlsxCellsGenerator<>();
@@ -417,37 +417,18 @@ public class FeeService {
             fee -> {
               var allMpbs = fee.getMobilePayments();
               if (allMpbs == null || allMpbs.isEmpty()) {
-                return Stream.of(mapToDetailsDto(fee, null));
+                return Stream.of(FeeDetailsDto.from(fee, null));
               }
-              return allMpbs.stream().map(mpb -> mapToDetailsDto(fee, mpb));
+              return allMpbs.stream().map(mpb -> FeeDetailsDto.from(fee, mpb));
             })
         .toList();
   }
 
-  private FeeDetailsDto mapToDetailsDto(Fee fee, Mpbs mpbs) {
-    return FeeDetailsDto.builder()
-        .ref(fee.getStudent().getRef())
-        .firstName(fee.getStudent().getFirstName())
-        .lastName(fee.getStudent().getLastName())
-        .email(fee.getStudent().getEmail())
-        .totalAmount(fee.getTotalAmount())
-        .remainingAmount(fee.getRemainingAmount())
-        .comment(fee.getComment())
-        .status(fee.getStatus())
-        .category(fee.getCategory())
-        .frequency(fee.getFrequency())
-        .creationDatetime(fee.getCreationDatetime())
-        .dueDatetime(fee.getDueDatetime())
-        .addRefDate(mpbs != null ? mpbs.getCreationDatetime() : null)
-        .successfullyVerificationDate(mpbs != null ? mpbs.getSuccessfullyVerifiedOn() : null)
-        .build();
-  }
-
   private String generateFileName(Instant from, Instant to) {
-    return "fees_list_" + dateFormatter(from) + "_" + dateFormatter(to) + "_";
+    return "raw_fees_" + formatToDayMonthYear(from) + "_" + formatToDayMonthYear(to) + "_";
   }
 
-  private static String dateFormatter(Instant instant) {
+  private static String formatToDayMonthYear(Instant instant) {
     return instant.atZone(ZoneId.systemDefault()).format(DateTimeFormatter.ofPattern("dd-MM-yyyy"));
   }
 }

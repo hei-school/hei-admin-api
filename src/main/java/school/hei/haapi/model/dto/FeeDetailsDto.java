@@ -1,35 +1,43 @@
 package school.hei.haapi.model.dto;
 
 import java.time.Instant;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
 import school.hei.haapi.endpoint.rest.model.FeeCategory;
 import school.hei.haapi.endpoint.rest.model.FeeFrequency;
 import school.hei.haapi.endpoint.rest.model.FeeStatusEnum;
+import school.hei.haapi.model.Fee;
+import school.hei.haapi.model.mpbs.Mpbs;
 
-@Builder
-@AllArgsConstructor
-@Getter
-@NoArgsConstructor
-@EqualsAndHashCode
-@ToString
-public class FeeDetailsDto {
-  private String ref;
-  private String firstName;
-  private String lastName;
-  private String email;
-  private int totalAmount;
-  private int remainingAmount;
-  private FeeStatusEnum status;
-  private FeeCategory category;
-  private FeeFrequency frequency;
-  private String comment;
-  private Instant creationDatetime;
-  private Instant dueDatetime;
-  private Instant addRefDate;
-  private Instant successfullyVerificationDate;
+public record FeeDetailsDto(
+    String ref,
+    String firstName,
+    String lastName,
+    String email,
+    int totalAmount,
+    int remainingAmount,
+    FeeStatusEnum status,
+    FeeCategory category,
+    FeeFrequency frequency,
+    String comment,
+    Instant creationDatetime,
+    Instant dueDatetime,
+    Instant addRefDate,
+    Instant successfullyVerifiedAt) {
+  public static FeeDetailsDto from(Fee fee, Mpbs mpbs) {
+    return new FeeDetailsDto(
+        fee.getStudent().getRef(),
+        fee.getStudent().getFirstName(),
+        fee.getStudent().getLastName(),
+        fee.getStudent().getEmail(),
+        fee.getTotalAmount(),
+        fee.getRemainingAmount(),
+        fee.getStatus(),
+        fee.getCategory(),
+        fee.getFrequency(),
+        fee.getComment(),
+        fee.getCreationDatetime(),
+        fee.getDueDatetime(),
+        mpbs != null ? mpbs.getCreationDatetime() : null,
+        mpbs != null ? mpbs.getSuccessfullyVerifiedOn() : null);
+  }
 }
+;
