@@ -66,7 +66,7 @@ public class PromotionService {
   }
 
   public LinkedHashSet<Promotion> getAllStudentPromotions(String userId) {
-    return promotionRepository.findAllPromotionsByStudentId(userId);
+    return promotionRepository.findAllByStudentIdOrderByStartDateTime(userId);
   }
 
   public byte[] getStudentsPromotionInXlsx(String promotionId) throws IOException {

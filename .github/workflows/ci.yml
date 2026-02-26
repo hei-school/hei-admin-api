@@ -11,7 +11,8 @@ on:
 
   workflow_call:
 
-
+env:
+  SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }} 
 
 jobs:
   test:

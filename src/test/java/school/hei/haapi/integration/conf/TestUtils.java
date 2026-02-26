@@ -134,10 +134,8 @@ public class TestUtils {
   public static final String STUDENT1_ID = "student1_id";
   public static final String STUDENT2_ID = "student2_id";
   public static final String STUDENT3_ID = "student3_id";
-  public static final String STUDENT11_ID = "student11_id";
   public static final String TEACHER1_ID = "teacher1_id";
   public static final String TEACHER2_ID = "teacher2_id";
-  public static final String TEACHER3_ID = "teacher3_id";
   public static final String TEACHER4_ID = "teacher4_id";
   public static final String MONITOR1_ID = "monitor1_id";
   public static final String MONITOR2_ID = "monitor2_id";

@@ -8558,6 +8558,21 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/GroupIdentifier'
+        cycle:
+          $ref: '#/components/schemas/CycleEnum'
+        studentLevels:
+          type: array
+          items:
+            $ref: '#/components/schemas/StudentLevel'
+          readOnly: true
+      required: 
+        - cycle
+    CycleEnum:
+      type: string
+      enum:
+        - BACHELOR
+        - MASTER
+        - DOCTORATE
     FeeStatusEnum:
       type: string
       enum:
