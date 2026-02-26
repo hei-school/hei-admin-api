@@ -45,7 +45,9 @@ public abstract class AbstractContextInitializer
         "CASDOOR_CERTIFICATE=dummy",
         "CASDOOR_APPLICATION_NAME=dummy",
         "CASDOOR_CLIENT_ID=dummy",
-        "CASDOOR_CLIENT_SECRET=dummy");
+        "CASDOOR_CLIENT_SECRET=dummy",
+        "VOLA_API_URL=https://vola.example.com",
+        "VOLA_API_KEY=dummy");
   }
 
   public abstract int getServerPort();
