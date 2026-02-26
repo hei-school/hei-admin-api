@@ -18,8 +18,8 @@ class VolaPspIT {
 
   @Test
   void read_succeeded_payment() {
-    var apiUrl = System.getenv("VOLA_API_URL");
-    var apiKey = System.getenv("VOLA_API_KEY");
+    var apiUrl = System.getProperty("VOLA_API_URL");
+    var apiKey = System.getProperty("VOLA_API_KEY");
     var volaClient = new VolaClient(apiUrl, apiKey);
     var volaPsp = new VolaPsp(volaClient);
     var verifiedPayment =
