@@ -39,6 +39,10 @@ public class XlsxCellsGenerator<T> implements BiFunction<List<T>, List<String>, 
       generateBodiesRow(rowi, objectsToPrint.get(i), fieldsToBePrinted);
     }
 
+    for (int i = 0; i < fieldsToBePrinted.size(); i++) {
+      sheet.autoSizeColumn(i);
+    }
+
     try {
       workbook.write(bos);
     } finally {

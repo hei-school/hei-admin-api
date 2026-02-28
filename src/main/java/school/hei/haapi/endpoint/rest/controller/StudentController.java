@@ -1,6 +1,5 @@
 package school.hei.haapi.endpoint.rest.controller;
 
-import static java.util.stream.Collectors.toUnmodifiableList;
 import static org.springframework.http.MediaType.MULTIPART_FORM_DATA_VALUE;
 import static school.hei.haapi.model.User.Role.STUDENT;
 
@@ -133,9 +132,7 @@ public class StudentController {
   @PostMapping("/students/{id}/group_flows")
   public List<GroupFlow> moveOrDeleteStudentInGroup(
       @PathVariable(name = "id") String id, @RequestBody List<CreateGroupFlow> createGroupFlow) {
-    return groupFlowService.saveAll(createGroupFlow).stream()
-        .map(groupFlowMapper::toRest)
-        .collect(toUnmodifiableList());
+    return groupFlowService.saveAll(createGroupFlow).stream().map(groupFlowMapper::toRest).toList();
   }
 
   @GetMapping("/students/stats")

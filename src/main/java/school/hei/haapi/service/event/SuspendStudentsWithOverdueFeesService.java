@@ -29,7 +29,7 @@ public class SuspendStudentsWithOverdueFeesService
 
   // Suspends students with overdue fees if it hasn't been done already.
   public void suspendStudentsWithUnpaidOrLateFee() {
-    List<User> students = userService.getStudentsWithUnpaidOrLateFee();
+    List<User> students = userService.getStudentsWithLateFees();
     log.info("list of student with unpaid or late fee : {} ", students);
     for (User student : students) {
       if (!SUSPENDED.equals(student.getStatus()) && !DISABLED.equals(student.getStatus())) {

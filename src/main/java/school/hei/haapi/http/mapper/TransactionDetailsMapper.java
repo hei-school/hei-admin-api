@@ -13,11 +13,14 @@ import school.hei.haapi.http.model.OrangeTransactionDetails;
 import school.hei.haapi.http.model.OrangeTransactionScrappingDetails;
 import school.hei.haapi.http.model.TransactionDetails;
 import school.hei.haapi.model.MobileTransactionDetails;
+import school.hei.haapi.model.psp.vola.api.gen.client.model.Payment;
+import school.hei.haapi.model.psp.vola.api.gen.client.model.mapper.VolaMapper;
 
 @Component
 @AllArgsConstructor
 @Slf4j
 public class TransactionDetailsMapper {
+  private final VolaMapper volaMapper;
 
   public TransactionDetails toModel(OrangeTransactionDetails orangeRest) {
     return TransactionDetails.builder()
@@ -48,6 +51,15 @@ public class TransactionDetailsMapper {
         .pspTransactionRef(transactionDetails.getPspTransactionRef())
         .pspTransactionAmount(transactionDetails.getPspTransactionAmount())
         .status(transactionDetails.getStatus())
+        .build();
+  }
+
+  public TransactionDetails fromVolaPayment(Payment volaPayment) {
+    return TransactionDetails.builder()
+        .pspDatetimeTransactionCreation(volaPayment.getCreationInstant().toInstant())
+        .pspTransactionRef(volaPayment.getPspPayment().getId())
+        .pspTransactionAmount(volaPayment.getPspPayment().getAmount())
+        .status(volaMapper.toMpbsStatus(volaPayment.getVerificationStatus()))
         .build();
   }
 

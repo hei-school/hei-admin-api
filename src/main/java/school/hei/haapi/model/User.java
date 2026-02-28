@@ -40,7 +40,7 @@ import lombok.ToString;
 import org.hibernate.Hibernate;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.annotations.SQLDelete;
-import org.hibernate.annotations.Where;
+import org.hibernate.annotations.SQLRestriction;
 import school.hei.haapi.endpoint.rest.model.Coordinates;
 import school.hei.haapi.endpoint.rest.model.SpecializationField;
 import school.hei.haapi.model.exception.ApiException;
@@ -53,7 +53,7 @@ import school.hei.haapi.model.exception.ApiException;
 @AllArgsConstructor
 @NoArgsConstructor
 @SQLDelete(sql = "update \"user\" set is_deleted = true where id = ?")
-@Where(clause = "is_deleted = false")
+@SQLRestriction("is_deleted = false")
 // TODO: separate to a child table as MANAGER, TEACHER, STUDENT, MONITOR
 public class User implements Serializable {
   @Id

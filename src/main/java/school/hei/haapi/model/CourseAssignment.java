@@ -25,7 +25,7 @@ import lombok.Setter;
 import lombok.ToString;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.SQLDelete;
-import org.hibernate.annotations.Where;
+import org.hibernate.annotations.SQLRestriction;
 
 @Entity
 @Table(name = "\"course_assignment\"")
@@ -37,7 +37,7 @@ import org.hibernate.annotations.Where;
 @NoArgsConstructor
 @EqualsAndHashCode
 @SQLDelete(sql = "update \"course_assignment\" set is_deleted = true where id = ?")
-@Where(clause = "is_deleted = false")
+@SQLRestriction("is_deleted = false")
 public class CourseAssignment implements Serializable {
   // todo: to review all class
   @Id
