@@ -27,7 +27,7 @@ import lombok.Setter;
 import lombok.ToString;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.annotations.SQLDelete;
-import org.hibernate.annotations.Where;
+import org.hibernate.annotations.SQLRestriction;
 import school.hei.haapi.endpoint.rest.model.EventType;
 
 @Entity
@@ -38,7 +38,7 @@ import school.hei.haapi.endpoint.rest.model.EventType;
 @AllArgsConstructor
 @NoArgsConstructor
 @SQLDelete(sql = "update \"event\" set is_deleted = true where id = ?")
-@Where(clause = "is_deleted = false")
+@SQLRestriction("is_deleted = false")
 @ToString
 public class Event {
 

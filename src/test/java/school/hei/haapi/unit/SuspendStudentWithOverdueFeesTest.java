@@ -38,7 +38,7 @@ class SuspendStudentWithOverdueFeesTest extends FacadeITMockedThirdParties {
     var subject =
         new SuspendStudentsWithOverdueFeesService(userManagerDao, userService, mpbsService);
 
-    when(userService.getStudentsWithUnpaidOrLateFee()).thenReturn(disabledStudents);
+    when(userService.getStudentsWithLateFees()).thenReturn(disabledStudents);
     when(mpbsService.countPendingOfStudent(any())).thenReturn(0L);
 
     subject.suspendStudentsWithUnpaidOrLateFee();

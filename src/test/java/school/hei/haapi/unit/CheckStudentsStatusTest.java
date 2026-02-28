@@ -154,8 +154,7 @@ public class CheckStudentsStatusTest extends MockedThirdParties {
     suspendStudentsWithOverdueFeesService.suspendStudentsWithUnpaidOrLateFee();
 
     // student2 have unpaid or late fee
-    assertTrue(
-        userService.getStudentsWithUnpaidOrLateFee().contains(userService.getById(STUDENT2_ID)));
+    assertTrue(userService.getStudentsWithLateFees().contains(userService.getById(STUDENT2_ID)));
 
     // student2 is still ENABLE, because of the pending Mbps
     assertEquals(1, mpbsService.countPendingOfStudent(STUDENT2_ID));
@@ -164,7 +163,7 @@ public class CheckStudentsStatusTest extends MockedThirdParties {
 
   @Test
   void get_all_students_with_unpaid_or_late_fee_ok() {
-    List<User> studentsWithUnpaidOrLateFee = userRepository.getStudentsWithUnpaidOrLateFee();
+    var studentsWithUnpaidOrLateFee = userRepository.getStudentsWithLateFees();
 
     assertEquals(2, studentsWithUnpaidOrLateFee.size());
     assertTrue(studentsWithUnpaidOrLateFee.contains(student1()));

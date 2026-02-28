@@ -405,8 +405,8 @@ public class UserService {
     return userRepository.findAllStudentsByPromotionId(promotionId);
   }
 
-  public List<User> getStudentsWithUnpaidOrLateFee() {
-    return userRepository.getStudentsWithUnpaidOrLateFee();
+  public List<User> getStudentsWithLateFees() {
+    return userRepository.getStudentsWithLateFees();
   }
 
   public byte[] generateStudentsInEventXlsx(String eventId) {
