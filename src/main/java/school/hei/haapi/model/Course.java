@@ -23,7 +23,7 @@ import lombok.Setter;
 import lombok.ToString;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.annotations.SQLDelete;
-import org.hibernate.annotations.Where;
+import org.hibernate.annotations.SQLRestriction;
 import school.hei.haapi.endpoint.rest.model.StudentLevel;
 
 @Entity
@@ -36,7 +36,7 @@ import school.hei.haapi.endpoint.rest.model.StudentLevel;
 @NoArgsConstructor
 @EqualsAndHashCode
 @SQLDelete(sql = "update \"course\" set is_deleted = true where id = ?")
-@Where(clause = "is_deleted = false")
+@SQLRestriction("is_deleted = false")
 public class Course implements Serializable {
   @Id
   @GeneratedValue(strategy = IDENTITY)

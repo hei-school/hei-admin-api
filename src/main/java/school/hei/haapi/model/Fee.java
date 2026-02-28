@@ -30,9 +30,10 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.Filter;
+import org.hibernate.annotations.FilterDef;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.annotations.SQLDelete;
-import org.hibernate.annotations.Where;
 import school.hei.haapi.endpoint.rest.model.FeeCategory;
 import school.hei.haapi.endpoint.rest.model.FeeFrequency;
 import school.hei.haapi.endpoint.rest.model.FeeStatusEnum;
@@ -49,7 +50,8 @@ import school.hei.haapi.model.mpbs.Mpbs;
 @AllArgsConstructor
 @NoArgsConstructor
 @SQLDelete(sql = "update \"fee\" set is_deleted = true where id = ?")
-@Where(clause = "is_deleted = false")
+@FilterDef(name = "undeletedFees", defaultCondition = "is_deleted = false")
+@Filter(name = "undeletedFees")
 @EqualsAndHashCode
 public class Fee implements Serializable {
   @Id
