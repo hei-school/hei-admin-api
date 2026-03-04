@@ -222,7 +222,7 @@ public class ApiClient extends JavaTimeFormatter {
   public void setDebugging(boolean debugging) {
     List<ClientHttpRequestInterceptor> currentInterceptors = this.restTemplate.getInterceptors();
     if (debugging) {
-      if (currentInterceptors == null) {
+      if (currentInterceptors.isEmpty()) {
         currentInterceptors = new ArrayList<ClientHttpRequestInterceptor>();
       }
       ClientHttpRequestInterceptor interceptor = new ApiClientHttpRequestInterceptor();
