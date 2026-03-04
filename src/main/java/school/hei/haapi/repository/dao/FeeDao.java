@@ -18,6 +18,7 @@ import java.util.Map;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
+import school.hei.haapi.endpoint.rest.model.FeeCategory;
 import school.hei.haapi.endpoint.rest.model.FeeStatusEnum;
 import school.hei.haapi.endpoint.rest.model.FeeTypeEnum;
 import school.hei.haapi.endpoint.rest.model.MpbsStatus;
@@ -38,6 +39,7 @@ public class FeeDao {
       MpbsStatus mpbsStatus,
       FeeTypeEnum feeType,
       FeeStatusEnum status,
+      FeeCategory feeCategory,
       String studentRef,
       Instant monthFrom,
       Instant monthTo,
@@ -53,6 +55,7 @@ public class FeeDao {
             mpbsStatus,
             feeType,
             status,
+            feeCategory,
             studentRef,
             monthFrom,
             monthTo,
@@ -213,6 +216,7 @@ public class FeeDao {
       MpbsStatus mpbsStatus,
       FeeTypeEnum feeType,
       FeeStatusEnum status,
+      FeeCategory category,
       String studentRef,
       Instant monthFrom,
       Instant monthTo,
@@ -276,6 +280,7 @@ public class FeeDao {
       MpbsStatus mpbsStatus,
       FeeTypeEnum feeType,
       FeeStatusEnum status,
+      FeeCategory feeCategory,
       String studentRef,
       Instant monthFrom,
       Instant monthTo,
@@ -292,6 +297,7 @@ public class FeeDao {
           mpbsStatus,
           feeType,
           status,
+          feeCategory,
           studentRef,
           monthFrom,
           monthTo,
