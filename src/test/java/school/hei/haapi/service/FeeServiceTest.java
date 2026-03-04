@@ -249,11 +249,11 @@ class FeeServiceTest {
         .thenReturn(List.of(fee1(isMocked), fee2(isMocked), fee3(isMocked)));
 
     List<Fee> actualPaidPage1 =
-        subject.getFees(page1, pageSize, null, null, PAID, null, null, false, null);
+        subject.getFees(page1, pageSize, null, null, PAID, null, null, null, false, null);
     List<Fee> actualLatePage1 =
-        subject.getFees(page1, pageSize, null, null, LATE, null, null, false, null);
+        subject.getFees(page1, pageSize, null, null, LATE, null, null, null, false, null);
     List<Fee> actualLatePage2 =
-        subject.getFees(page2, pageSize, null, null, LATE, null, null, false, null);
+        subject.getFees(page2, pageSize, null, null, LATE, null, null, null, false, null);
 
     assertEquals(0, actualPaidPage1.size());
     assertEquals(0, actualLatePage1.size());
@@ -261,6 +261,31 @@ class FeeServiceTest {
     assertFalse(actualPaidPage1.contains(fee1(!isMocked)));
     assertFalse(actualPaidPage1.contains(fee2(!isMocked)));
     assertFalse(actualLatePage1.contains(fee3(!isMocked)));
+  }
+
+  @Test
+  void fees_by_category_with_exceeded_page() {
+    PageFromOne page1 = new PageFromOne(1);
+    PageFromOne page2 = new PageFromOne(2);
+    BoundedPageSize pageSize = new BoundedPageSize(10);
+    boolean isMocked = true;
+    Fee feeL1 = fee1(isMocked).toBuilder().category(L1).build();
+    Fee feeL2 =
+        fee2(isMocked).toBuilder()
+            .category(school.hei.haapi.endpoint.rest.model.FeeCategory.L2)
+            .build();
+    when(feeDao.getByCriteria(any(), any(), any(), any(), any(), any(), any(), any(), any()))
+        .thenReturn(emptyList());
+
+    List<Fee> actualL1Page1 =
+        subject.getFees(page1, pageSize, null, null, null, L1, null, null, false, null);
+    List<Fee> actualL1Page2 =
+        subject.getFees(page2, pageSize, null, null, null, L1, null, null, false, null);
+
+    assertEquals(0, actualL1Page1.size());
+    assertEquals(0, actualL1Page2.size());
+    assertFalse(actualL1Page1.contains(feeL1));
+    assertFalse(actualL1Page1.contains(feeL2));
   }
 
   @Test

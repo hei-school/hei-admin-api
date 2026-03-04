@@ -167,7 +167,7 @@ class FeeIT extends FacadeITMockedThirdParties {
     PayingApi api = new PayingApi(manager1Client);
 
     FeesWithStats actual =
-        api.getFees(null, null, null, fee1().getCreationDatetime(), null, 1, 10, true, null);
+        api.getFees(null, null, null, null, fee1().getCreationDatetime(), null, 1, 10, true, null);
     assertEquals(2, actual.getData().size());
   }
 
@@ -177,7 +177,7 @@ class FeeIT extends FacadeITMockedThirdParties {
     PayingApi api = new PayingApi(manager1Client);
 
     FeesWithStats actual =
-        api.getFees(null, null, null, fee1().getCreationDatetime(), null, 1, 10, true, null);
+        api.getFees(null, null, null, null, fee1().getCreationDatetime(), null, 1, 10, true, null);
     assertNotNull(actual.getData().getFirst().getStudentFirstName());
   }
 
@@ -189,7 +189,7 @@ class FeeIT extends FacadeITMockedThirdParties {
     Fee actualFee = api.getStudentFeeById(STUDENT1_ID, FEE1_ID);
     List<Fee> actualFees1 = api.getStudentFees(STUDENT1_ID, 1, 20, null);
     FeesWithStats actualFees2 =
-        api.getFees(null, null, PAID, fee1().getCreationDatetime(), null, 1, 10, false, null);
+        api.getFees(null, null, PAID, null, fee1().getCreationDatetime(), null, 1, 10, false, null);
 
     assertEquals(fee1(), actualFee);
     assertEquals(2, actualFees2.getData().size());
@@ -200,7 +200,7 @@ class FeeIT extends FacadeITMockedThirdParties {
     assertTrue(actualFees2.getData().contains(fee2()));
 
     FeesWithStats student2Fees =
-        api.getFees(null, null, null, fee4().getDueDatetime(), null, 1, 5, false, "STD21002");
+        api.getFees(null, null, null, null, fee4().getDueDatetime(), null, 1, 5, false, "STD21002");
     assertEquals(student2Fees.getData().getFirst(), fee4());
     assertFalse(student2Fees.getData().contains(fee1()));
     assertFalse(student2Fees.getData().contains(fee2()));
@@ -220,7 +220,7 @@ class FeeIT extends FacadeITMockedThirdParties {
         () -> api.getStudentFees(STUDENT2_ID, null, null, null));
     assertThrowsApiException(
         "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
-        () -> api.getFees(null, null, null, null, null, 1, 10, false, null));
+        () -> api.getFees(null, null, null, null, null, null, 1, 10, false, null));
   }
 
   @Test
@@ -231,7 +231,7 @@ class FeeIT extends FacadeITMockedThirdParties {
     assertThrowsForbiddenException(() -> api.getStudentFeeById(STUDENT2_ID, FEE2_ID));
     assertThrowsForbiddenException(() -> api.getStudentFees(STUDENT2_ID, null, null, null));
     assertThrowsForbiddenException(
-        () -> api.getFees(null, null, null, null, null, 1, 10, false, null));
+        () -> api.getFees(null, null, null, null, null, null, 1, 10, false, null));
   }
 
   @Test
@@ -247,7 +247,7 @@ class FeeIT extends FacadeITMockedThirdParties {
         () -> api.getStudentFees(STUDENT2_ID, null, null, null));
     assertThrowsApiException(
         "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
-        () -> api.getFees(null, null, null, null, null, 1, 10, false, null));
+        () -> api.getFees(null, null, null, null, null, null, 1, 10, false, null));
   }
 
   @Test
@@ -386,6 +386,7 @@ class FeeIT extends FacadeITMockedThirdParties {
             null,
             null,
             null,
+            null,
             Instant.parse("2021-12-01T00:00:00.00Z"),
             Instant.parse("2021-12-31T23:59:59.00Z"),
             1,
@@ -403,6 +404,7 @@ class FeeIT extends FacadeITMockedThirdParties {
             null,
             null,
             null,
+            null,
             Instant.parse("2021-10-01T00:00:00.00Z"),
             Instant.parse("2021-10-31T23:59:59.00Z"),
             1,
@@ -416,6 +418,7 @@ class FeeIT extends FacadeITMockedThirdParties {
             null,
             null,
             LATE,
+            null,
             Instant.parse("2021-12-01T00:00:00.00Z"),
             Instant.parse("2021-12-31T23:59:59.00Z"),
             1,
@@ -430,6 +433,7 @@ class FeeIT extends FacadeITMockedThirdParties {
             null,
             null,
             PAID,
+            null,
             Instant.parse("2021-12-01T00:00:00.00Z"),
             Instant.parse("2021-12-31T23:59:59.00Z"),
             1,
@@ -445,6 +449,7 @@ class FeeIT extends FacadeITMockedThirdParties {
             null,
             null,
             LATE,
+            null,
             Instant.parse("2021-12-01T00:00:00.00Z"),
             Instant.parse("2021-12-31T23:59:59.00Z"),
             1,
@@ -456,6 +461,7 @@ class FeeIT extends FacadeITMockedThirdParties {
 
     FeesWithStats feeIsMpbsByMonth =
         api.getFees(
+            null,
             null,
             null,
             null,
@@ -590,5 +596,45 @@ class FeeIT extends FacadeITMockedThirdParties {
     var to = Instant.parse("2023-12-31T08:25:24.00Z");
     var url = payingApi.exportAllFees(AdvancedFeeStatisticsType.ACCOUNTING, from, to);
     assertNotNull(url);
+  }
+
+  @Test
+  void manager_read_by_category_ok() throws ApiException {
+    ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
+    PayingApi api = new PayingApi(manager1Client);
+    FeesWithStats actualL1 =
+        api.getFees(
+            null,
+            null,
+            null,
+            school.hei.haapi.endpoint.rest.model.FeeCategory.L1,
+            null,
+            null,
+            1,
+            10,
+            false,
+            null);
+
+    assertNotNull(actualL1.getData());
+    assertTrue(
+        actualL1.getData().stream()
+            .allMatch(
+                fee ->
+                    school.hei.haapi.endpoint.rest.model.FeeCategory.L1.equals(fee.getCategory())));
+
+    FeesWithStats actualL3 =
+        api.getFees(
+            null,
+            null,
+            null,
+            school.hei.haapi.endpoint.rest.model.FeeCategory.L3,
+            null,
+            null,
+            1,
+            10,
+            false,
+            null);
+
+    assertEquals(0, actualL3.getData().size());
   }
 }
