@@ -3864,6 +3864,7 @@ paths:
             allOf:
               - $ref: '#/components/schemas/FeeStatusEnum'
         - name: category
+          required: false
           in: query
           schema:
             $ref: '#/components/schemas/FeeCategory'

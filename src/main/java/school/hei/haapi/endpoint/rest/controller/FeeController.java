@@ -110,6 +110,7 @@ public class FeeController {
       @RequestParam(name = "transaction_status", required = false) MpbsStatus transactionStatus,
       @RequestParam(name = "type", required = false) FeeTypeEnum feeType,
       @RequestParam(required = false) FeeStatusEnum status,
+      @RequestParam(required = false) FeeCategory category,
       @RequestParam(name = "month_from", required = false) Instant monthFrom,
       @RequestParam(name = "month_to", required = false) Instant monthTo,
       @RequestParam(name = "isMpbs", required = false) boolean isMpbs,
