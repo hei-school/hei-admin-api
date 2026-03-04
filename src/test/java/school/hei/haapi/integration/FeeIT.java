@@ -597,4 +597,44 @@ class FeeIT extends FacadeITMockedThirdParties {
     var url = payingApi.exportAllFees(AdvancedFeeStatisticsType.ACCOUNTING, from, to);
     assertNotNull(url);
   }
+
+  @Test
+  void manager_read_by_category_ok() throws ApiException {
+    ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
+    PayingApi api = new PayingApi(manager1Client);
+    FeesWithStats actualL1 =
+        api.getFees(
+            null,
+            null,
+            null,
+            school.hei.haapi.endpoint.rest.model.FeeCategory.L1,
+            null,
+            null,
+            1,
+            10,
+            false,
+            null);
+
+    assertNotNull(actualL1.getData());
+    assertTrue(
+        actualL1.getData().stream()
+            .allMatch(
+                fee ->
+                    school.hei.haapi.endpoint.rest.model.FeeCategory.L1.equals(fee.getCategory())));
+
+    FeesWithStats actualL3 =
+        api.getFees(
+            null,
+            null,
+            null,
+            school.hei.haapi.endpoint.rest.model.FeeCategory.L3,
+            null,
+            null,
+            1,
+            10,
+            false,
+            null);
+
+    assertEquals(0, actualL3.getData().size());
+  }
 }

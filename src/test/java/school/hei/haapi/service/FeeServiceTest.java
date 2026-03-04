@@ -264,6 +264,31 @@ class FeeServiceTest {
   }
 
   @Test
+  void fees_by_category_with_exceeded_page() {
+    PageFromOne page1 = new PageFromOne(1);
+    PageFromOne page2 = new PageFromOne(2);
+    BoundedPageSize pageSize = new BoundedPageSize(10);
+    boolean isMocked = true;
+    Fee feeL1 = fee1(isMocked).toBuilder().category(L1).build();
+    Fee feeL2 =
+        fee2(isMocked).toBuilder()
+            .category(school.hei.haapi.endpoint.rest.model.FeeCategory.L2)
+            .build();
+    when(feeDao.getByCriteria(any(), any(), any(), any(), any(), any(), any(), any(), any()))
+        .thenReturn(emptyList());
+
+    List<Fee> actualL1Page1 =
+        subject.getFees(page1, pageSize, null, null, null, L1, null, null, false, null);
+    List<Fee> actualL1Page2 =
+        subject.getFees(page2, pageSize, null, null, null, L1, null, null, false, null);
+
+    assertEquals(0, actualL1Page1.size());
+    assertEquals(0, actualL1Page2.size());
+    assertFalse(actualL1Page1.contains(feeL1));
+    assertFalse(actualL1Page1.contains(feeL2));
+  }
+
+  @Test
   void save_fee_without_student_ko() {
     var feesWithoutStudent = List.of(fee(100));
     feesWithoutStudent.forEach(fee -> fee.setStudent(null));
