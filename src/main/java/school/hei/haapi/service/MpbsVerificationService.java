@@ -100,15 +100,17 @@ public class MpbsVerificationService {
     var result = new ArrayList<MpbsVerification>();
 
     for (Mpbs mpbs : mpbsList) {
-      var associateVolaPayment =
-          volaPayments.stream()
-              .filter(payment -> mpbs.getPspId().equals(payment.getPspPayment().getId()))
-              .findFirst()
-              .get();
-      var associateTransactionDetail =
-          transactionDetailsMapper.fromVolaPayment(associateVolaPayment);
-      result.add(
-          computeVerifiedMobilePayment.saveTheVerifiedMpbs(mpbs, associateTransactionDetail));
+      volaPayments.stream()
+          .filter(payment -> mpbs.getPspId().equals(payment.getPspPayment().getId()))
+          .findFirst()
+          .ifPresent(
+              associateVolaPayment -> {
+                var associateTransactionDetail =
+                    transactionDetailsMapper.fromVolaPayment(associateVolaPayment);
+                result.add(
+                    computeVerifiedMobilePayment.saveTheVerifiedMpbs(
+                        mpbs, associateTransactionDetail));
+              });
     }
 
     return result;
