@@ -127,6 +127,7 @@ public class FeeController {
                 transactionStatus,
                 feeType,
                 status,
+                category,
                 monthFrom,
                 monthTo,
                 isMpbs,
