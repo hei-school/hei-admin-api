@@ -3863,6 +3863,10 @@ paths:
             default: LATE
             allOf:
               - $ref: '#/components/schemas/FeeStatusEnum'
+        - name: category
+          in: query
+          schema:
+            $ref: '#/components/schemas/FeeCategory'
         - name: month_from
           in: query
           schema:
