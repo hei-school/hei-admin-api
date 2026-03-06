@@ -167,8 +167,10 @@ public interface UserRepository extends JpaRepository<User, String> {
 
   List<User> findAllByRefIn(List<String> refs);
 
-  @Query("select u from User u join Fee f on u.id = f.student.id where f.status = 'LATE' ")
-  List<User> getStudentsWithUnpaidOrLateFee();
+  @Query(
+      "select u from User u join Fee f on u.id = f.student.id where f.status = 'LATE' and"
+          + " f.isDeleted = false")
+  List<User> getStudentsWithLateFees();
 
   Optional<User> findByRef(@NotBlank(message = "Reference is mandatory") String ref);
 
