@@ -24,5 +24,7 @@ public class EnvConf {
     registry.add("CASDOOR_ENDPOINT", () -> "dummy");
     registry.add("CASDOOR_FRONTEND_URL", () -> "dummy");
     registry.add("CASDOOR_REDIRECT_URL", () -> "dummy");
+    registry.add("VOLA_API_KEY", () -> "dummy");
+    registry.add("VOLA_API_URL", () -> "dummy");
   }
 }

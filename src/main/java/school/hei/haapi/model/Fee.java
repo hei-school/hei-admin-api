@@ -49,8 +49,7 @@ import school.hei.haapi.model.mpbs.Mpbs;
 @AllArgsConstructor
 @NoArgsConstructor
 @SQLDelete(sql = "update \"fee\" set is_deleted = true where id = ?")
-@SQLRestriction("is_deleted = false")
-@EqualsAndHashCode
+@SQLRestriction("is_deleted = false)
 public class Fee implements Serializable {
   @Id
   @GeneratedValue(strategy = IDENTITY)
