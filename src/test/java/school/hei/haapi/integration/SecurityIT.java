@@ -1,8 +1,10 @@
 package school.hei.haapi.integration;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static school.hei.haapi.endpoint.rest.model.Whoami.RoleEnum.MONITOR;
 import static school.hei.haapi.integration.StudentIT.student1;
+import static school.hei.haapi.integration.conf.TestUtils.ALUMNI1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.MANAGER1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.MONITOR1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_TOKEN;
@@ -23,6 +25,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.http.HttpStatus;
 import org.testcontainers.junit.jupiter.Testcontainers;
+import school.hei.haapi.endpoint.rest.api.FilesApi;
 import school.hei.haapi.endpoint.rest.api.SecurityApi;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
@@ -69,6 +72,33 @@ class SecurityIT extends FacadeITMockedThirdParties {
     return whoami;
   }
 
+  public static Whoami whoisAlumni1() {
+    var whoami = new Whoami();
+    whoami.setId("alumni1_id");
+    whoami.setBearer(ALUMNI1_TOKEN);
+    whoami.setRole(Whoami.RoleEnum.STUDENT);
+    return whoami;
+  }
+
+  @Test
+  void alumni_read_whoami_ok() throws ApiException {
+    var alumniClient = anApiClient(ALUMNI1_TOKEN);
+    var api = new SecurityApi(alumniClient);
+    var actual = api.whoami();
+
+    assertEquals(whoisAlumni1(), actual);
+  }
+
+  @Test
+  void non_authorized_path_for_alumni_user_ko() {
+    var alumniClient = anApiClient(ALUMNI1_TOKEN);
+    var api = new FilesApi(alumniClient);
+    var exception =
+        assertThrows(ApiException.class, () -> api.getStudentScholarshipCertificate("alumni1_id"));
+
+    assertEquals(HttpStatus.FORBIDDEN.value(), exception.getCode());
+  }
+
   @BeforeEach
   public void setUp() {
     setUpCasdoor(casdoorAuthServiceMock, certificateLoaderMock);
@@ -108,9 +138,8 @@ class SecurityIT extends FacadeITMockedThirdParties {
 
   @Test
   void manager_read_whoami_ok() throws ApiException {
-    ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
-
-    SecurityApi api = new SecurityApi(manager1Client);
+    var manager1Client = anApiClient(MANAGER1_TOKEN);
+    var api = new SecurityApi(manager1Client);
     Whoami actual = api.whoami();
 
     assertEquals(whoisManager1(), actual);

@@ -300,7 +300,10 @@ public class SecurityConf {
                     antMatcher(GET, "/announcements/*"),
                     nonAccessibleBySuspendedUserPath)),
             BearerAuthFilter.class)
-
+        .addFilterAfter(
+            new AlumniStudentFilter(
+                new OrRequestMatcher(antMatcher(GET, "/students/*/scholarship_certificate/raw"))),
+            BearerAuthFilter.class)
         // authorize
         .authorizeHttpRequests(
             request ->
