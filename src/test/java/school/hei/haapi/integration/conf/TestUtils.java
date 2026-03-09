@@ -233,7 +233,7 @@ public class TestUtils {
     CasdoorRole casdoorRole = new CasdoorRole();
     casdoorRole.setOwner("dummy");
     casdoorRole.setName("student");
-    String[] roleUsers = List.of("dummy/user").toArray(new String[0]);
+    String[] roleUsers = {"dummy/user"};
     casdoorRole.setUsers(roleUsers);
     user.setRoles(List.of(casdoorRole));
 
@@ -277,7 +277,7 @@ public class TestUtils {
     CasdoorRole casdoorRole = new CasdoorRole();
     casdoorRole.setOwner("dummy");
     casdoorRole.setName("teacher");
-    String[] roleUsers = List.of("dummy/user").toArray(new String[0]);
+    String[] roleUsers = {"dummy/user"};
     casdoorRole.setUsers(roleUsers);
     user.setRoles(List.of(casdoorRole));
 
@@ -291,7 +291,7 @@ public class TestUtils {
     CasdoorRole casdoorRole = new CasdoorRole();
     casdoorRole.setOwner("dummy");
     casdoorRole.setName("manager");
-    String[] roleUsers = List.of("dummy/user").toArray(new String[0]);
+    String[] roleUsers = {"dummy/user"};
     casdoorRole.setUsers(roleUsers);
     user.setRoles(List.of(casdoorRole));
 
@@ -305,7 +305,7 @@ public class TestUtils {
     CasdoorRole casdoorRole = new CasdoorRole();
     casdoorRole.setOwner("dummy");
     casdoorRole.setName("manager");
-    String[] roleUsers = List.of("dummy/user").toArray(new String[0]);
+    String[] roleUsers = {"dummy/user"};
     casdoorRole.setUsers(roleUsers);
     user.setRoles(List.of(casdoorRole));
 
@@ -325,7 +325,7 @@ public class TestUtils {
     var casdoorRole = new CasdoorRole();
     casdoorRole.setOwner("dummy");
     casdoorRole.setName("student");
-    String[] roleUsers = List.of("dummy/user").toArray(new String[0]);
+    String[] roleUsers = {"dummy/user"};
     casdoorRole.setUsers(roleUsers);
     user.setRoles(List.of(casdoorRole));
 
@@ -345,7 +345,7 @@ public class TestUtils {
     CasdoorRole casdoorRole = new CasdoorRole();
     casdoorRole.setOwner("dummy");
     casdoorRole.setName("organizer");
-    String[] roleUsers = List.of("dummy/user").toArray(new String[0]);
+    String[] roleUsers = {"dummy/user"};
     casdoorRole.setUsers(roleUsers);
     user.setRoles(List.of(casdoorRole));
 

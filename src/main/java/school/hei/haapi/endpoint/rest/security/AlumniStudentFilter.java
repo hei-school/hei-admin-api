@@ -9,12 +9,10 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import lombok.AllArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 @AllArgsConstructor
-@Slf4j
 public class AlumniStudentFilter extends OncePerRequestFilter {
   private final RequestMatcher requiresNonAlumniStudentRequestMatchers;
 

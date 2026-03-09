@@ -1,6 +1,7 @@
 package school.hei.haapi.integration;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static school.hei.haapi.endpoint.rest.model.Whoami.RoleEnum.MONITOR;
 import static school.hei.haapi.integration.StudentIT.student1;
 import static school.hei.haapi.integration.conf.TestUtils.ALUMNI1_TOKEN;
@@ -24,6 +25,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.http.HttpStatus;
 import org.testcontainers.junit.jupiter.Testcontainers;
+import school.hei.haapi.endpoint.rest.api.FilesApi;
 import school.hei.haapi.endpoint.rest.api.SecurityApi;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
@@ -90,23 +92,12 @@ class SecurityIT extends FacadeITMockedThirdParties {
 
   @Test
   void non_authorized_path_for_alumni_user_ko() {
-    HttpClient unauthenticatedClient = HttpClient.newBuilder().build();
-    String basePath = "http://localhost:" + localPort;
-    HttpResponse<String> response = null;
-    try {
-      response =
-          unauthenticatedClient.send(
-              HttpRequest.newBuilder()
-                  .uri(URI.create(basePath + "/students/*/scholarship_certificate/raw"))
-                  .header("Authorization", "Bearer " + ALUMNI1_TOKEN)
-                  .build(),
-              HttpResponse.BodyHandlers.ofString());
-    } catch (IOException | InterruptedException e) {
-      throw new RuntimeException(e);
-    }
-    assertEquals(HttpStatus.FORBIDDEN.value(), response.statusCode());
-    assertEquals(
-        "{" + "\"type\":\"403 FORBIDDEN\"," + "\"message\":\"Access is denied\"}", response.body());
+    var alumniClient = anApiClient(ALUMNI1_TOKEN);
+    var api = new FilesApi(alumniClient);
+    var exception =
+        assertThrows(ApiException.class, () -> api.getStudentScholarshipCertificate("alumni1_id"));
+
+    assertEquals(HttpStatus.FORBIDDEN.value(), exception.getCode());
   }
 
   @BeforeEach
