@@ -3,6 +3,7 @@ package school.hei.haapi.integration;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static school.hei.haapi.endpoint.rest.model.Whoami.RoleEnum.MONITOR;
 import static school.hei.haapi.integration.StudentIT.student1;
+import static school.hei.haapi.integration.conf.TestUtils.ALUMNI1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.MANAGER1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.MONITOR1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_TOKEN;
@@ -69,6 +70,14 @@ class SecurityIT extends FacadeITMockedThirdParties {
     return whoami;
   }
 
+  public static Whoami whoisAlumni1() {
+    var whoami = new Whoami();
+    whoami.setId("alumni1_id");
+    whoami.setBearer(ALUMNI1_TOKEN);
+    whoami.setRole(Whoami.RoleEnum.STUDENT);
+    return whoami;
+  }
+
   @BeforeEach
   public void setUp() {
     setUpCasdoor(casdoorAuthServiceMock, certificateLoaderMock);
@@ -116,6 +125,37 @@ class SecurityIT extends FacadeITMockedThirdParties {
     assertEquals(whoisManager1(), actual);
   }
 
+  @Test
+  void alumni_read_whoami_ok() throws ApiException {
+    ApiClient alumniClient = anApiClient(ALUMNI1_TOKEN);
+
+    SecurityApi api = new SecurityApi(alumniClient);
+    Whoami actual = api.whoami();
+
+    assertEquals(whoisAlumni1(), actual);
+  }
+
+  @Test
+  void non_authorized_path_for_alumni_user_ko() {
+    HttpClient unauthenticatedClient = HttpClient.newBuilder().build();
+    String basePath = "http://localhost:" + localPort;
+    HttpResponse<String> response = null;
+    try {
+      response =
+              unauthenticatedClient.send(
+                      HttpRequest.newBuilder()
+                              .uri(URI.create(basePath + "/students/*/scholarship_certificate/raw"))
+                              .header("Authorization", "Bearer " + ALUMNI1_TOKEN)
+                              .build(),
+                      HttpResponse.BodyHandlers.ofString());
+    } catch (IOException | InterruptedException e) {
+      throw new RuntimeException(e);
+    }
+    assertEquals(HttpStatus.FORBIDDEN.value(), response.statusCode());
+    assertEquals(
+            "{" + "\"type\":\"403 FORBIDDEN\"," + "\"message\":\"Access is denied\"}",
+            response.body());
+  }
   @Test
   void manager_read_unknown_ko() throws IOException, InterruptedException {
     HttpClient unauthenticatedClient = HttpClient.newBuilder().build();
