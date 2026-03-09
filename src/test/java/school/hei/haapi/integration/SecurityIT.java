@@ -82,10 +82,9 @@ class SecurityIT extends FacadeITMockedThirdParties {
 
   @Test
   void alumni_read_whoami_ok() throws ApiException {
-    ApiClient alumniClient = anApiClient(ALUMNI1_TOKEN);
-
-    SecurityApi api = new SecurityApi(alumniClient);
-    Whoami actual = api.whoami();
+    var alumniClient = anApiClient(ALUMNI1_TOKEN);
+    var api = new SecurityApi(alumniClient);
+    var actual = api.whoami();
 
     assertEquals(whoisAlumni1(), actual);
   }
