@@ -183,6 +183,7 @@ public class TestUtils {
   public static final String MANAGER1_TOKEN = "manager1_token";
   public static final String STAFF_MEMBER1_TOKEN = "staff1_token";
   public static final String ADMIN1_TOKEN = "admin1_token";
+  public static final String ALUMNI1_TOKEN = "alumni1_token";
   public static final String ADMIN1_ID = "admin1_id";
   public static final String SUSPENDED_TOKEN = "suspended_token";
   public static final String FEE_TEMPLATE1_ID = "fee_template1";
@@ -311,6 +312,26 @@ public class TestUtils {
     return user;
   }
 
+  private static CasdoorUser getCasdoorAlumniStudent1() {
+    CasdoorUser user = getCasdoorUserAlumni1();
+    user.setEmail("alumni1@hei.school");
+    user.setOwner("dummy");
+    return user;
+  }
+
+  public static CasdoorUser getCasdoorUserAlumni1() {
+    var user = new CasdoorUser();
+    user.setEmail("alumni1@hei.school");
+    var casdoorRole = new CasdoorRole();
+    casdoorRole.setOwner("dummy");
+    casdoorRole.setName("student");
+    String[] roleUsers = List.of("dummy/user").toArray(new String[0]);
+    casdoorRole.setUsers(roleUsers);
+    user.setRoles(List.of(casdoorRole));
+
+    return user;
+  }
+
   public static CasdoorUser getCasdoorUserMonitor2() {
     CasdoorUser user = getCasdoorUserMonitor1();
     user.setEmail("test+monitor2@hei.school");
@@ -374,6 +395,7 @@ public class TestUtils {
         .thenReturn(getCasdoorUserStaffMember1());
     when(casdoorAuthService.parseJwtToken(ADMIN1_TOKEN)).thenReturn(getCasdoorUserAdmin1());
     when(casdoorAuthService.parseJwtToken(SUSPENDED_TOKEN)).thenReturn(getCasdoorUserSuspended());
+    when(casdoorAuthService.parseJwtToken(ALUMNI1_TOKEN)).thenReturn(getCasdoorAlumniStudent1());
   }
 
   public static ApiClient anApiClient(String token, int serverPort) {
@@ -412,6 +434,7 @@ public class TestUtils {
         .thenReturn("test+organizer+2@hei.school");
     when(cognitoComponent.getEmailByIdToken(SUSPENDED_TOKEN))
         .thenReturn("test+suspended@hei.school");
+    when(cognitoComponent.getEmailByIdToken(ALUMNI1_TOKEN)).thenReturn("alumni1@hei.school");
   }
 
   public static void setUpS3Service(FileService fileService, Student user) {
