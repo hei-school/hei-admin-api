@@ -142,20 +142,20 @@ class SecurityIT extends FacadeITMockedThirdParties {
     HttpResponse<String> response = null;
     try {
       response =
-              unauthenticatedClient.send(
-                      HttpRequest.newBuilder()
-                              .uri(URI.create(basePath + "/students/*/scholarship_certificate/raw"))
-                              .header("Authorization", "Bearer " + ALUMNI1_TOKEN)
-                              .build(),
-                      HttpResponse.BodyHandlers.ofString());
+          unauthenticatedClient.send(
+              HttpRequest.newBuilder()
+                  .uri(URI.create(basePath + "/students/*/scholarship_certificate/raw"))
+                  .header("Authorization", "Bearer " + ALUMNI1_TOKEN)
+                  .build(),
+              HttpResponse.BodyHandlers.ofString());
     } catch (IOException | InterruptedException e) {
       throw new RuntimeException(e);
     }
     assertEquals(HttpStatus.FORBIDDEN.value(), response.statusCode());
     assertEquals(
-            "{" + "\"type\":\"403 FORBIDDEN\"," + "\"message\":\"Access is denied\"}",
-            response.body());
+        "{" + "\"type\":\"403 FORBIDDEN\"," + "\"message\":\"Access is denied\"}", response.body());
   }
+
   @Test
   void manager_read_unknown_ko() throws IOException, InterruptedException {
     HttpClient unauthenticatedClient = HttpClient.newBuilder().build();

@@ -16,19 +16,19 @@ import org.springframework.web.filter.OncePerRequestFilter;
 @AllArgsConstructor
 @Slf4j
 public class AlumniStudentFilter extends OncePerRequestFilter {
-    private final RequestMatcher requiresNonAlumniStudentRequestMatchers;
+  private final RequestMatcher requiresNonAlumniStudentRequestMatchers;
 
-    @Override
-    protected void doFilterInternal(
-            HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
-            throws ServletException, IOException {
-        if (requiresNonAlumniStudentRequestMatchers.matches(request)) {
-            var principal = AuthProvider.getPrincipal();
-            if (ALUMNI.equals(principal.getStatus())) {
-                response.sendError(SC_FORBIDDEN, "access is denied");
-                return;
-            }
-        }
-        filterChain.doFilter(request, response);
+  @Override
+  protected void doFilterInternal(
+      HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
+      throws ServletException, IOException {
+    if (requiresNonAlumniStudentRequestMatchers.matches(request)) {
+      var principal = AuthProvider.getPrincipal();
+      if (ALUMNI.equals(principal.getStatus())) {
+        response.sendError(SC_FORBIDDEN, "access is denied");
+        return;
+      }
     }
+    filterChain.doFilter(request, response);
+  }
 }

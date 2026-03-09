@@ -9,7 +9,6 @@ import static org.mockito.Mockito.when;
 import static org.springframework.test.util.AssertionErrors.assertTrue;
 import static school.hei.haapi.endpoint.rest.model.AttendanceStatus.MISSING;
 import static school.hei.haapi.endpoint.rest.model.AttendanceStatus.PRESENT;
-import static school.hei.haapi.endpoint.rest.model.EnableStatus.ALUMNI;
 import static school.hei.haapi.endpoint.rest.model.EnableStatus.ENABLED;
 import static school.hei.haapi.endpoint.rest.model.EventType.COURSE;
 import static school.hei.haapi.endpoint.rest.model.EventType.INTEGRATION;
@@ -435,8 +434,7 @@ public class TestUtils {
         .thenReturn("test+organizer+2@hei.school");
     when(cognitoComponent.getEmailByIdToken(SUSPENDED_TOKEN))
         .thenReturn("test+suspended@hei.school");
-    when(cognitoComponent.getEmailByIdToken(ALUMNI1_TOKEN))
-            .thenReturn("alumni1@hei.school");
+    when(cognitoComponent.getEmailByIdToken(ALUMNI1_TOKEN)).thenReturn("alumni1@hei.school");
   }
 
   public static void setUpS3Service(FileService fileService, Student user) {
