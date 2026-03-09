@@ -139,9 +139,8 @@ class SecurityIT extends FacadeITMockedThirdParties {
 
   @Test
   void manager_read_whoami_ok() throws ApiException {
-    ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
-
-    SecurityApi api = new SecurityApi(manager1Client);
+    var manager1Client = anApiClient(MANAGER1_TOKEN);
+    var api = new SecurityApi(manager1Client);
     Whoami actual = api.whoami();
 
     assertEquals(whoisManager1(), actual);
