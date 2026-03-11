@@ -223,9 +223,9 @@ class FeeServiceTest {
 
   @Test
   void fee_stats_handle_null_data_ok() {
-    when(feeDao.getStatByCriteria(any(), any(), any(), any(), any(), any(), any()))
+    when(feeDao.getStatByCriteria(any(), any(), any(), any(), any(), any(), any(), any()))
         .thenReturn(emptyList());
-    var actual = subject.getFeesStats(null, null, null, null, null, false, null);
+    var actual = subject.getFeesStats(null, null, null, null, null, null, false, null);
     assertEquals(emptyFeeStats(), actual);
   }
 

@@ -113,12 +113,12 @@ public class FeeController {
       @RequestParam(required = false) FeeCategory category,
       @RequestParam(name = "month_from", required = false) Instant monthFrom,
       @RequestParam(name = "month_to", required = false) Instant monthTo,
-      @RequestParam(name = "isMpbs", required = false) boolean isMpbs,
+      @RequestParam(name = "isMpbsfeeI", required = false) boolean isMpbs,
       @RequestParam(name = "student_ref", required = false) String studentRef) {
 
     var feesStats =
         feeService.getFeesStats(
-            transactionStatus, feeType, status, monthFrom, monthTo, isMpbs, studentRef);
+            transactionStatus, feeType, status, monthFrom, monthTo, category, isMpbs, studentRef);
     var restFees =
         feeService
             .getFees(
@@ -134,7 +134,7 @@ public class FeeController {
                 studentRef)
             .stream()
             .map(feeMapper::toRestFee)
-            .collect(toUnmodifiableList());
+            .toList();
     return new FeesWithStats().data(restFees).statistics(FeesStats.to(feesStats));
   }
 

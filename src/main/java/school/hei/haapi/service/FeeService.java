@@ -175,6 +175,7 @@ public class FeeService {
       FeeStatusEnum status,
       Instant monthFrom,
       Instant monthTo,
+      FeeCategory feeCategory,
       boolean isMpbs,
       String studentRef) {
 
@@ -182,7 +183,7 @@ public class FeeService {
 
     var stats =
         feeDao.getStatByCriteria(
-            mpbsStatus, feeType, status, studentRef, monthFrom, monthTo, isMpbs);
+            mpbsStatus, feeType, status, studentRef, monthFrom, monthTo, feeCategory, isMpbs);
     return getHandledNullDataStats(stats);
   }
 
@@ -206,7 +207,7 @@ public class FeeService {
   }
 
   public FeesStatistics getFeesStats(Instant monthFrom, Instant monthTo) {
-    var result = feeDao.getStatByCriteria(null, null, null, null, monthFrom, monthTo, false);
+    var result = feeDao.getStatByCriteria(null, null, null, null, monthFrom, monthTo, null, false);
     return FeesStats.to(getHandledNullDataStats(result));
   }
 

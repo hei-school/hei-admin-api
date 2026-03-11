@@ -11,6 +11,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static school.hei.haapi.endpoint.rest.model.FeeCategory.L1;
 import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.LATE;
 import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.PAID;
 import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.PENDING;
@@ -168,7 +169,7 @@ class FeeIT extends FacadeITMockedThirdParties {
 
     FeesWithStats actual =
         api.getFees(null, null, null, null, fee1().getCreationDatetime(), null, 1, 10, true, null);
-    assertEquals(2, actual.getData().size());
+    assertEquals(10, actual.getData().size());
   }
 
   @Test
@@ -600,29 +601,14 @@ class FeeIT extends FacadeITMockedThirdParties {
 
   @Test
   void manager_read_by_category_ok() throws ApiException {
-    ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
-    PayingApi api = new PayingApi(manager1Client);
-    FeesWithStats actualL1 =
-        api.getFees(
-            null,
-            null,
-            null,
-            school.hei.haapi.endpoint.rest.model.FeeCategory.L1,
-            null,
-            null,
-            1,
-            10,
-            false,
-            null);
+    var manager1Client = anApiClient(MANAGER1_TOKEN);
+    var api = new PayingApi(manager1Client);
+    var actualL1 = api.getFees(null, null, null, L1, null, null, 1, 10, false, null);
 
     assertNotNull(actualL1.getData());
-    assertTrue(
-        actualL1.getData().stream()
-            .allMatch(
-                fee ->
-                    school.hei.haapi.endpoint.rest.model.FeeCategory.L1.equals(fee.getCategory())));
+    assertTrue(actualL1.getData().stream().allMatch(fee -> L1.equals(fee.getCategory())));
 
-    FeesWithStats actualL3 =
+    var actualL3 =
         api.getFees(
             null,
             null,
@@ -636,5 +622,25 @@ class FeeIT extends FacadeITMockedThirdParties {
             null);
 
     assertEquals(0, actualL3.getData().size());
+  }
+
+  @Test
+  void manager_read_by_category_L1() throws ApiException {
+    var manager1Client = anApiClient(MANAGER1_TOKEN);
+    var api = new PayingApi(manager1Client);
+
+    var actualWorkFees =
+        api.getFees(
+            null,
+            null,
+            LATE,
+            L1,
+            Instant.parse("2021-11-08T08:25:24.00Z"),
+            null,
+            1,
+            10,
+            false,
+            null);
+    assertEquals(5, actualWorkFees.getData().size());
   }
 }

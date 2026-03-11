@@ -90,6 +90,7 @@ public class FeeDao {
       String studentRef,
       Instant monthFrom,
       Instant monthTo,
+      FeeCategory feeCategory,
       Boolean isMpbs) {
     CriteriaBuilder builder = entityManager.getCriteriaBuilder();
     CriteriaQuery<FeesStats> query = builder.createQuery(FeesStats.class);
@@ -100,7 +101,7 @@ public class FeeDao {
             mpbsStatus,
             feeType,
             status,
-            null,
+            feeCategory,
             studentRef,
             monthFrom,
             monthTo,
@@ -237,7 +238,7 @@ public class FeeDao {
       MpbsStatus mpbsStatus,
       FeeTypeEnum feeType,
       FeeStatusEnum status,
-      FeeCategory category,
+      FeeCategory feeCategory,
       String studentRef,
       Instant monthFrom,
       Instant monthTo,
@@ -267,10 +268,9 @@ public class FeeDao {
       predicates.add(builder.equal(root.get("mobilePayments").get("status"), mpbsStatus));
     }
 
-    if (category != null) {
-      predicates.add(builder.equal(root.get("category"), category));
+    if (feeCategory != null) {
+      predicates.add(builder.equal(root.get("category"), feeCategory));
     }
-
     return predicates;
   }
 
