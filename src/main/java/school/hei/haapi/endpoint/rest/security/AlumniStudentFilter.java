@@ -24,7 +24,6 @@ public class AlumniStudentFilter extends OncePerRequestFilter {
       var principal = AuthProvider.getPrincipal();
       if (ALUMNI.equals(principal.getStatus())) {
         response.sendError(SC_FORBIDDEN, "access is denied");
-        return;
       }
     }
     filterChain.doFilter(request, response);
