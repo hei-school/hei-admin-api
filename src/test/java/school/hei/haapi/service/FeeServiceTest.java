@@ -273,6 +273,30 @@ class FeeServiceTest {
     assertEquals("Student is mandatory", badRequestException.getMessage());
   }
 
+  @Test
+  void fees_by_category_with_exceeded_page() {
+    PageFromOne page1 = new PageFromOne(1);
+    PageFromOne page2 = new PageFromOne(2);
+    BoundedPageSize pageSize = new BoundedPageSize(10);
+    boolean isMocked = true;
+    when(feeRepository.findAll())
+        .thenReturn(List.of(fee1(isMocked), fee2(isMocked), fee3(isMocked)));
+
+    List<Fee> actualPaidPage1 =
+        subject.getFees(page1, pageSize, null, null, null, L1, null, null, false, null);
+    List<Fee> actualLatePage1 =
+        subject.getFees(page1, pageSize, null, null, null, L1, null, null, false, null);
+    List<Fee> actualLatePage2 =
+        subject.getFees(page2, pageSize, null, null, null, L1, null, null, false, null);
+
+    assertEquals(0, actualPaidPage1.size());
+    assertEquals(0, actualLatePage1.size());
+    assertEquals(0, actualLatePage2.size());
+    assertFalse(actualPaidPage1.contains(fee1(!isMocked)));
+    assertFalse(actualPaidPage1.contains(fee2(!isMocked)));
+    assertFalse(actualLatePage1.contains(fee3(!isMocked)));
+  }
+
   private static User mockUser() {
     return User.builder().id(STUDENT1_ID).build();
   }
