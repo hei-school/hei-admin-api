@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 import school.hei.haapi.endpoint.rest.model.CrupdatePromotion;
 import school.hei.haapi.endpoint.rest.model.Promotion;
+import school.hei.haapi.model.CycleLevel;
 
 @Component
 @AllArgsConstructor
@@ -29,6 +30,7 @@ public class PromotionMapper {
         .id(rest.getId())
         .name(rest.getName())
         .ref(rest.getRef())
+        .cycleLevel(CycleLevel.valueOf(String.valueOf(rest.getCycleLevel())))
         .build();
   }
 }

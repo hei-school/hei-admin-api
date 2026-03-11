@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static school.hei.haapi.integration.StudentIT.student1;
+import static school.hei.haapi.integration.conf.TestUtils.ADMIN1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.MANAGER1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.PROMOTION1_ID;
 import static school.hei.haapi.integration.conf.TestUtils.PROMOTION3_ID;
@@ -22,6 +23,7 @@ import static school.hei.haapi.integration.conf.TestUtils.removeGroupToPromotion
 import static school.hei.haapi.integration.conf.TestUtils.setUpCasdoor;
 import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
 import static school.hei.haapi.integration.conf.TestUtils.setUpS3Service;
+import static school.hei.haapi.integration.test_data.PromotionTestData.promotion26;
 
 import java.io.IOException;
 import java.net.URI;
@@ -29,6 +31,7 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.List;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -42,6 +45,7 @@ import school.hei.haapi.endpoint.rest.model.Promotion;
 import school.hei.haapi.integration.conf.FacadeITMockedThirdParties;
 import school.hei.haapi.integration.conf.TestUtils;
 
+@Slf4j
 @Testcontainers
 @AutoConfigureMockMvc
 public class PromotionIT extends FacadeITMockedThirdParties {
@@ -206,5 +210,14 @@ public class PromotionIT extends FacadeITMockedThirdParties {
     assertThrowsForbiddenException(() -> teacherCallAPi.crupdatePromotion(createPromotion4()));
     assertThrowsForbiddenException(
         () -> teacherCallAPi.updatePromotionGroups(PROMOTION3_ID, addGroupToPromotion3()));
+  }
+
+  @Test
+  void create_promotion_with_cycle_level() throws ApiException {
+    ApiClient adminClient = anApiClient(ADMIN1_TOKEN);
+    PromotionsApi api = new PromotionsApi(adminClient);
+    var createdPromotion = api.crupdatePromotion(promotion26());
+    assertNotNull(createdPromotion);
+    assertEquals("N", createdPromotion.getRef());
   }
 }
