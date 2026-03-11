@@ -303,7 +303,7 @@ public class SecurityConf {
         .addFilterAfter(
             new AlumniStudentFilter(
                 new OrRequestMatcher(antMatcher(GET, "/students/*/scholarship_certificate/raw"))),
-            BearerAuthFilter.class)
+            SuspendedStudentFilter.class)
         // authorize
         .authorizeHttpRequests(
             request ->
