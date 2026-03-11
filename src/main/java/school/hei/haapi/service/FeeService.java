@@ -33,6 +33,7 @@ import school.hei.haapi.endpoint.event.model.PojaEvent;
 import school.hei.haapi.endpoint.event.model.StudentsWithOverdueFeesReminder;
 import school.hei.haapi.endpoint.event.model.UnpaidFeesReminder;
 import school.hei.haapi.endpoint.rest.model.AdvancedFeeStatisticsType;
+import school.hei.haapi.endpoint.rest.model.FeeCategory;
 import school.hei.haapi.endpoint.rest.model.FeeStatusEnum;
 import school.hei.haapi.endpoint.rest.model.FeeTypeEnum;
 import school.hei.haapi.endpoint.rest.model.FeesStatistics;
@@ -172,6 +173,7 @@ public class FeeService {
       MpbsStatus mpbsStatus,
       FeeTypeEnum feeType,
       FeeStatusEnum status,
+      FeeCategory feeCategory,
       Instant monthFrom,
       Instant monthTo,
       boolean isMpbs,
@@ -181,7 +183,7 @@ public class FeeService {
 
     var stats =
         feeDao.getStatByCriteria(
-            mpbsStatus, feeType, status, studentRef, monthFrom, monthTo, isMpbs);
+            mpbsStatus, feeType, status, feeCategory, studentRef, monthFrom, monthTo, isMpbs);
     return getHandledNullDataStats(stats);
   }
 
@@ -191,6 +193,7 @@ public class FeeService {
       MpbsStatus mpbsStatus,
       FeeTypeEnum feeType,
       FeeStatusEnum status,
+      FeeCategory feeCategory,
       Instant monthFrom,
       Instant monthTo,
       boolean isMpbs,
@@ -200,11 +203,11 @@ public class FeeService {
     if (Objects.isNull(monthFrom)) monthFrom = getFirstDayOfActualMonth();
 
     return feeDao.getByCriteria(
-        mpbsStatus, feeType, status, studentRef, monthFrom, monthTo, isMpbs, pageable);
+        mpbsStatus, feeType, status, feeCategory, studentRef, monthFrom, monthTo, isMpbs, pageable);
   }
 
   public FeesStatistics getFeesStats(Instant monthFrom, Instant monthTo) {
-    var result = feeDao.getStatByCriteria(null, null, null, null, monthFrom, monthTo, false);
+    var result = feeDao.getStatByCriteria(null, null, null, null, null, monthFrom, monthTo, false);
     return FeesStats.to(getHandledNullDataStats(result));
   }
 

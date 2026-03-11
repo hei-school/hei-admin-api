@@ -18,6 +18,7 @@ import java.util.Map;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
+import school.hei.haapi.endpoint.rest.model.FeeCategory;
 import school.hei.haapi.endpoint.rest.model.FeeStatusEnum;
 import school.hei.haapi.endpoint.rest.model.FeeTypeEnum;
 import school.hei.haapi.endpoint.rest.model.MpbsStatus;
@@ -38,6 +39,7 @@ public class FeeDao {
       MpbsStatus mpbsStatus,
       FeeTypeEnum feeType,
       FeeStatusEnum status,
+      FeeCategory feeCategory,
       String studentRef,
       Instant monthFrom,
       Instant monthTo,
@@ -53,6 +55,7 @@ public class FeeDao {
             mpbsStatus,
             feeType,
             status,
+            feeCategory,
             studentRef,
             monthFrom,
             monthTo,
@@ -84,6 +87,7 @@ public class FeeDao {
       MpbsStatus mpbsStatus,
       FeeTypeEnum feeType,
       FeeStatusEnum status,
+      FeeCategory feeCategory,
       String studentRef,
       Instant monthFrom,
       Instant monthTo,
@@ -93,7 +97,16 @@ public class FeeDao {
     Root<Fee> root = query.from(Fee.class);
     List<Predicate> predicates =
         getStatPredicate(
-            root, mpbsStatus, feeType, status, studentRef, monthFrom, monthTo, isMpbs, builder);
+            root,
+            mpbsStatus,
+            feeType,
+            status,
+            feeCategory,
+            studentRef,
+            monthFrom,
+            monthTo,
+            isMpbs,
+            builder);
 
     Subquery<Long> pendingSubquery = query.subquery(Long.class);
     Root<Mpbs> pendingRoot = pendingSubquery.from(Mpbs.class);
@@ -177,6 +190,7 @@ public class FeeDao {
       MpbsStatus mpbsStatus,
       FeeTypeEnum feeType,
       FeeStatusEnum status,
+      FeeCategory feeCategory,
       String studentRef,
       Instant monthFrom,
       Instant monthTo,
@@ -203,6 +217,10 @@ public class FeeDao {
     if (mpbsStatus != null) {
       predicates.add(builder.equal(root.get("mobilePayments").get("status"), mpbsStatus));
     }
+
+    if (feeCategory != null) {
+      predicates.add(builder.equal(root.get("category"), feeCategory));
+    }
     return predicates;
   }
 
@@ -213,6 +231,7 @@ public class FeeDao {
       MpbsStatus mpbsStatus,
       FeeTypeEnum feeType,
       FeeStatusEnum status,
+      FeeCategory feeCategory,
       String studentRef,
       Instant monthFrom,
       Instant monthTo,
@@ -241,6 +260,11 @@ public class FeeDao {
     if (mpbsStatus != null) {
       predicates.add(builder.equal(root.get("mobilePayments").get("status"), mpbsStatus));
     }
+
+    if (feeCategory != null) {
+      predicates.add(builder.equal(root.get("category"), feeCategory));
+    }
+
     return predicates;
   }
 
@@ -249,6 +273,7 @@ public class FeeDao {
       MpbsStatus mpbsStatus,
       FeeTypeEnum feeType,
       FeeStatusEnum status,
+      FeeCategory feeCategory,
       String studentRef,
       Instant monthFrom,
       Instant monthTo,
@@ -262,6 +287,7 @@ public class FeeDao {
         mpbsStatus,
         feeType,
         status,
+        feeCategory,
         studentRef,
         monthFrom,
         monthTo,
@@ -276,6 +302,7 @@ public class FeeDao {
       MpbsStatus mpbsStatus,
       FeeTypeEnum feeType,
       FeeStatusEnum status,
+      FeeCategory feeCategory,
       String studentRef,
       Instant monthFrom,
       Instant monthTo,
@@ -292,6 +319,7 @@ public class FeeDao {
           mpbsStatus,
           feeType,
           status,
+          feeCategory,
           studentRef,
           monthFrom,
           monthTo,
