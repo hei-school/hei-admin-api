@@ -696,7 +696,8 @@ public class SecurityConf {
                     .hasAnyRole(TEACHER.getRole(), MANAGER.getRole(), ADMIN.getRole())
                     // scholarship security conf
                     .requestMatchers(
-                        new SelfMatcher(GET, "/students/*/scholarship_certificate/raw", "students"))
+                        new NonAlumniSelfMatcher(
+                            GET, "/students/*/scholarship_certificate/raw", "students"))
                     .hasRole(STUDENT.getRole())
                     .requestMatchers(
                         new StudentMonitorMatcher(
