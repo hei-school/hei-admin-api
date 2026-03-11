@@ -8534,6 +8534,8 @@ components:
           type: string
         ref:
           type: string
+        cycle_level:
+          $ref: '#/components/schemas/CycleEnum'
     UpdatePromotionSGroup:
       type: object
       properties:
