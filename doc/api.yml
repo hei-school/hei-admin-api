@@ -9080,7 +9080,9 @@ components:
         student_id: 
           type: string 
         teacher_id: 
-          type: string 
+          type: string
+        description:
+          type: string
     StudentStatusCheckup: 
       type: object 
       properties: 
@@ -9090,6 +9092,8 @@ components:
           $ref: '#/components/schemas/UserIdentifier'
         teacher:
           $ref: '#/components/schemas/UserIdentifier'
+        description:
+          type: string
         status: 
           $ref: '#/components/schemas/StudentStatusCheckup_Status'
         creation_datetime: 
