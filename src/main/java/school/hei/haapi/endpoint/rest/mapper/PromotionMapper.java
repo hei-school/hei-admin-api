@@ -2,10 +2,13 @@ package school.hei.haapi.endpoint.rest.mapper;
 
 import java.util.List;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import school.hei.haapi.endpoint.rest.model.CrupdatePromotion;
 import school.hei.haapi.endpoint.rest.model.Promotion;
+import school.hei.haapi.model.CycleLevel;
 
+@Slf4j
 @Component
 @AllArgsConstructor
 public class PromotionMapper {
@@ -29,6 +32,8 @@ public class PromotionMapper {
         .id(rest.getId())
         .name(rest.getName())
         .ref(rest.getRef())
+        .cycleLevel(
+            rest.getCycleLevel() == null ? null : CycleLevel.valueOf(rest.getCycleLevel().name()))
         .build();
   }
 }

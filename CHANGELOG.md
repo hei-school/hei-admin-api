@@ -1,23 +1,37 @@
-# [1.152.0](https://github.com/hei-school/hei-admin-api/compare/v1.151.0...v1.152.0) (2026-02-26)
+# [1.153.0](https://github.com/hei-school/hei-admin-api/compare/v1.152.0...v1.153.0) (2026-03-11)
+
+
+### Features
+
+* add filter fees by category ([96fcf38](https://github.com/hei-school/hei-admin-api/commit/96fcf383eafbdcea6931eb968f3d3b46ff258e39))
+* add non alumni self matcher for scholarship certificate  ([47b3528](https://github.com/hei-school/hei-admin-api/commit/47b35281e4c3c8c55df0daceda6b2330fa1d602c))
+
+
+
+# [1.152.0](https://github.com/hei-school/hei-admin-api/compare/v1.151.0...v1.152.0) (2026-03-11)
 
 
 ### Bug Fixes
 
 * add interviewers in toDomainUpdate ([b2b3ec9](https://github.com/hei-school/hei-admin-api/commit/b2b3ec9ca8d68ce3076d4ad3d2c562ab092c54e2))
 * advanced fees stats ([0f6d08b](https://github.com/hei-school/hei-admin-api/commit/0f6d08b11d1be6c5124cc9c1626906d31293caa8))
+* alumni had no access and should not get scolarship certificate ([fb69004](https://github.com/hei-school/hei-admin-api/commit/fb69004b13b561c215b39feded8495d404b7bf07))
+* alumni has 403 error on whomai ([3769817](https://github.com/hei-school/hei-admin-api/commit/3769817fc79acb3bd58529718dcd273f429011e5))
 * **auth:** export grade template authorization ([8623183](https://github.com/hei-school/hei-admin-api/commit/8623183676d7fb304540e5d8c3d966b1413f9c6c))
 * cor creation dateTime on update ([d9f6805](https://github.com/hei-school/hei-admin-api/commit/d9f68058bdcce82d5c6f8ba6f3247f95b74fd611))
 * fees stats file extension ([f5ffa26](https://github.com/hei-school/hei-admin-api/commit/f5ffa26d6d791f5ab07cf762d12472653a6d335d))
 * fix corService' ([ac62663](https://github.com/hei-school/hei-admin-api/commit/ac6266359c452ffb216d47d9e7a123cbfc847c54))
 * generate grade template ([3af7a65](https://github.com/hei-school/hei-admin-api/commit/3af7a658386744ecd4e2338510593013b27ec620))
 * grade template generator ([fadd925](https://github.com/hei-school/hei-admin-api/commit/fadd9253a5b4c0c44245aa94fb6ce00ee6237353))
+* is_deleted handling in fee joined queries and update [@where](https://github.com/where) annotation ([58ae4f8](https://github.com/hei-school/hei-admin-api/commit/58ae4f87f4a9042f24b51bb4decef9e517b8770a))
 * prevent ScholarCertificate for past students by adding a cycleLevel to Promotion ([a03ec13](https://github.com/hei-school/hei-admin-api/commit/a03ec139de02c916a443d699ecf329f3b4a37809))
 * remove interviewer in CorMapper ([1f0fce3](https://github.com/hei-school/hei-admin-api/commit/1f0fce3d3b8fa5224fc338c12cffbd676f9756cc))
+* remove return from filter that stops all filters ([0b13029](https://github.com/hei-school/hei-admin-api/commit/0b13029e2cc419db6200221932938d68252726c6))
 
 
 ### Features
 
-* (doc)  client version ([4879ff0](https://github.com/hei-school/hei-admin-api/commit/4879ff0cc003dcc79fbc0cc89c2e54fbd79b7cc2))
+* (doc) add cycle level in crupdatePromotion ([f546711](https://github.com/hei-school/hei-admin-api/commit/f546711355507ec88a291ce7ad8f49f5c4d87ca4))
 * **doc:** add new endpoint to export all fees ([39dc0d9](https://github.com/hei-school/hei-admin-api/commit/39dc0d980cb1b7b0ee0c498e3aefc2237254526d))
 * export advanced fees stats ([e30aaa9](https://github.com/hei-school/hei-admin-api/commit/e30aaa984da1dc1c20f4cee18ef560f7de2762ae))
 * export raw fees ([9f803c8](https://github.com/hei-school/hei-admin-api/commit/9f803c860223eef1b0b0a3ae79285d4cc2424a97))
@@ -116,23 +130,6 @@
 
 * (doc) update grade via excel file ([36641ab](https://github.com/hei-school/hei-admin-api/commit/36641ab566f12aeba745602782682739ceb0f49d))
 * import updated grade ([a197587](https://github.com/hei-school/hei-admin-api/commit/a197587bf118bbc3eac4538f350a1c2fcef4bc3c))
-
-
-
-# [1.145.0](https://github.com/hei-school/hei-admin-api/compare/v1.144.2...v1.145.0) (2025-12-19)
-
-
-### Bug Fixes
-
-* (doc) import grade ([d216fbc](https://github.com/hei-school/hei-admin-api/commit/d216fbce22c43479db0bb52fb2733e5e61e07854))
-* import grade ([f387add](https://github.com/hei-school/hei-admin-api/commit/f387add9467b5aa089928795de9117dbb6175205))
-* import grade ([b1762c7](https://github.com/hei-school/hei-admin-api/commit/b1762c7b8ce473eb84013c435cd4439e0817c08d))
-* import grade ([607ac57](https://github.com/hei-school/hei-admin-api/commit/607ac574c20cbf21056613c6d30c7774f66af1d9))
-
-
-### Features
-
-* implement student alumni ([882d0ac](https://github.com/hei-school/hei-admin-api/commit/882d0ac446d3a0fd1e1cc3ef05a58fafed5fa68b))
 
 
 

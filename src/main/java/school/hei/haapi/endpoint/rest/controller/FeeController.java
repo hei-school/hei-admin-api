@@ -10,6 +10,7 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -35,6 +36,7 @@ import school.hei.haapi.service.UserService;
 
 @RestController
 @AllArgsConstructor
+@Slf4j
 public class FeeController {
   private final UserService userService;
   private final FeeService feeService;
@@ -110,6 +112,7 @@ public class FeeController {
       @RequestParam(name = "transaction_status", required = false) MpbsStatus transactionStatus,
       @RequestParam(name = "type", required = false) FeeTypeEnum feeType,
       @RequestParam(required = false) FeeStatusEnum status,
+      @RequestParam(required = false) FeeCategory feeCategory,
       @RequestParam(name = "month_from", required = false) Instant monthFrom,
       @RequestParam(name = "month_to", required = false) Instant monthTo,
       @RequestParam(name = "isMpbs", required = false) boolean isMpbs,
@@ -117,7 +120,15 @@ public class FeeController {
 
     var feesStats =
         feeService.getFeesStats(
-            transactionStatus, feeType, status, monthFrom, monthTo, isMpbs, studentRef);
+            transactionStatus,
+            feeType,
+            status,
+            feeCategory,
+            monthFrom,
+            monthTo,
+            isMpbs,
+            studentRef);
+
     var restFees =
         feeService
             .getFees(
@@ -126,6 +137,7 @@ public class FeeController {
                 transactionStatus,
                 feeType,
                 status,
+                feeCategory,
                 monthFrom,
                 monthTo,
                 isMpbs,

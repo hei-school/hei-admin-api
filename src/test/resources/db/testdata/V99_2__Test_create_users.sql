@@ -55,5 +55,8 @@ values ('student1_id', 'Ryan', 'Andria', 'test+ryan@hei.school', 'STD21001', 'EN
         '2022-09-08T08:25:29.00Z', '0322411113', 'Adr 12', 'ORGANIZER', '', '', 55.555, -55.555, null),
        ('student_disabled', 'Student', 'Disabled', 'test+disabled+student@hei.school', 'STD22020', 'DISABLED', 'F',
         '1890-01-01',
-        '2022-09-08T08:25:29.00Z', '0322411113', 'Adr 24', 'ORGANIZER', '', '', 55.555, -55.555, 'Lycée Andohalo');
+        '2022-09-08T08:25:29.00Z', '0322411113', 'Adr 24', 'ORGANIZER', '', '', 55.555, -55.555, 'Lycée Andohalo'),
+       ('alumni1_id', 'One real', 'Alumni dude', 'alumni1@hei.school', 'STD20001', 'ALUMNI', 'M',
+        '1999-01-01',
+        '2020-11-08T08:25:24.00Z', '0322411129', 'Adr 6', 'STUDENT', '', '', -123.123, 123.0, 'Lycée Andohalo');
 
