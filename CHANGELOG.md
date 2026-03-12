@@ -1,8 +1,23 @@
-# [1.153.0](https://github.com/hei-school/hei-admin-api/compare/v1.152.0...v1.153.0) (2026-03-11)
+## [1.154.1](https://github.com/hei-school/hei-admin-api/compare/v1.154.0...v1.154.1) (2026-03-12)
+
+
+### Bug Fixes
+
+* fees mapper ([489b7ae](https://github.com/hei-school/hei-admin-api/commit/489b7aef69f737474521d1318aed2568a7757f6a))
+
+
+
+# [1.154.0](https://github.com/hei-school/hei-admin-api/compare/v1.152.0...v1.154.0) (2026-03-12)
+
+
+### Bug Fixes
+
+* remove unecessary student alumni filter ([831c6eb](https://github.com/hei-school/hei-admin-api/commit/831c6ebaf07c0da945d46b235b06eda19250fddd))
 
 
 ### Features
 
+* (doc)  client version ([4879ff0](https://github.com/hei-school/hei-admin-api/commit/4879ff0cc003dcc79fbc0cc89c2e54fbd79b7cc2))
 * add filter fees by category ([96fcf38](https://github.com/hei-school/hei-admin-api/commit/96fcf383eafbdcea6931eb968f3d3b46ff258e39))
 * add non alumni self matcher for scholarship certificate  ([47b3528](https://github.com/hei-school/hei-admin-api/commit/47b35281e4c3c8c55df0daceda6b2330fa1d602c))
 
@@ -120,16 +135,6 @@
 ### Bug Fixes
 
 * update grade ([0178032](https://github.com/hei-school/hei-admin-api/commit/0178032ad80b1e2b06c28b7cb4c32e811208f2c1))
-
-
-
-## [1.145.1](https://github.com/hei-school/hei-admin-api/compare/v1.145.0...v1.145.1) (2025-12-19)
-
-
-### Bug Fixes
-
-* (doc) update grade via excel file ([36641ab](https://github.com/hei-school/hei-admin-api/commit/36641ab566f12aeba745602782682739ceb0f49d))
-* import updated grade ([a197587](https://github.com/hei-school/hei-admin-api/commit/a197587bf118bbc3eac4538f350a1c2fcef4bc3c))
 
 
 
