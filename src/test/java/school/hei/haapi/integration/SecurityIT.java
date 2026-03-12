@@ -1,8 +1,14 @@
 package school.hei.haapi.integration;
 
+import static jakarta.servlet.http.HttpServletResponse.SC_FORBIDDEN;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.mockStatic;
+import static org.mockito.Mockito.when;
 import static school.hei.haapi.endpoint.rest.model.Whoami.RoleEnum.MONITOR;
 import static school.hei.haapi.integration.StudentIT.student1;
+import static school.hei.haapi.integration.conf.TestUtils.ALUMNI1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.MANAGER1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.MONITOR1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_TOKEN;
@@ -11,7 +17,9 @@ import static school.hei.haapi.integration.conf.TestUtils.TEACHER1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.setUpCasdoor;
 import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
 import static school.hei.haapi.integration.conf.TestUtils.setUpS3Service;
+import static school.hei.haapi.model.User.Status.ALUMNI;
 
+import jakarta.servlet.FilterChain;
 import java.io.IOException;
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -20,19 +28,35 @@ import java.net.http.HttpResponse;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.MockedStatic;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.http.HttpStatus;
+import org.springframework.mock.web.MockHttpServletRequest;
+import org.springframework.mock.web.MockHttpServletResponse;
+import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.testcontainers.junit.jupiter.Testcontainers;
+import school.hei.haapi.endpoint.rest.api.FilesApi;
 import school.hei.haapi.endpoint.rest.api.SecurityApi;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
 import school.hei.haapi.endpoint.rest.model.Whoami;
+import school.hei.haapi.endpoint.rest.security.AlumniStudentFilter;
+import school.hei.haapi.endpoint.rest.security.AuthProvider;
+import school.hei.haapi.endpoint.rest.security.model.Principal;
 import school.hei.haapi.integration.conf.FacadeITMockedThirdParties;
 import school.hei.haapi.integration.conf.TestUtils;
 
 @Testcontainers
 @AutoConfigureMockMvc
 class SecurityIT extends FacadeITMockedThirdParties {
+  @Mock private RequestMatcher requestMatcher;
+
+  @Mock private FilterChain filterChain;
+
+  @InjectMocks private AlumniStudentFilter filter;
+
   private ApiClient anApiClient(String token) {
     return TestUtils.anApiClient(token, localPort);
   }
@@ -67,6 +91,33 @@ class SecurityIT extends FacadeITMockedThirdParties {
     whoami.setBearer(MANAGER1_TOKEN);
     whoami.setRole(Whoami.RoleEnum.MANAGER);
     return whoami;
+  }
+
+  public static Whoami whoisAlumni1() {
+    var whoami = new Whoami();
+    whoami.setId("alumni1_id");
+    whoami.setBearer(ALUMNI1_TOKEN);
+    whoami.setRole(Whoami.RoleEnum.STUDENT);
+    return whoami;
+  }
+
+  @Test
+  void alumni_read_whoami_ok() throws ApiException {
+    var alumniClient = anApiClient(ALUMNI1_TOKEN);
+    var api = new SecurityApi(alumniClient);
+    var actual = api.whoami();
+
+    assertEquals(whoisAlumni1(), actual);
+  }
+
+  @Test
+  void non_authorized_path_for_alumni_user_ko() {
+    var alumniClient = anApiClient(ALUMNI1_TOKEN);
+    var api = new FilesApi(alumniClient);
+    var exception =
+        assertThrows(ApiException.class, () -> api.getStudentScholarshipCertificate("alumni1_id"));
+
+    assertEquals(HttpStatus.FORBIDDEN.value(), exception.getCode());
   }
 
   @BeforeEach
@@ -108,9 +159,8 @@ class SecurityIT extends FacadeITMockedThirdParties {
 
   @Test
   void manager_read_whoami_ok() throws ApiException {
-    ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
-
-    SecurityApi api = new SecurityApi(manager1Client);
+    var manager1Client = anApiClient(MANAGER1_TOKEN);
+    var api = new SecurityApi(manager1Client);
     Whoami actual = api.whoami();
 
     assertEquals(whoisManager1(), actual);
@@ -190,5 +240,22 @@ class SecurityIT extends FacadeITMockedThirdParties {
     assertEquals(HttpStatus.FORBIDDEN.value(), response.statusCode());
     assertEquals(
         "{" + "\"type\":\"403 FORBIDDEN\"," + "\"message\":\"Access is denied\"}", response.body());
+  }
+
+  @Test
+  void should_return_403_when_user_is_alumni() throws Exception {
+    var request = new MockHttpServletRequest();
+    var response = new MockHttpServletResponse();
+
+    when(requestMatcher.matches(request)).thenReturn(true);
+
+    var principal = mock(Principal.class);
+    when(principal.getStatus()).thenReturn(ALUMNI);
+
+    try (MockedStatic<AuthProvider> mocked = mockStatic(AuthProvider.class)) {
+      mocked.when(AuthProvider::getPrincipal).thenReturn(principal);
+      filter.doFilterInternal(request, response, filterChain);
+    }
+    assertEquals(SC_FORBIDDEN, response.getStatus());
   }
 }

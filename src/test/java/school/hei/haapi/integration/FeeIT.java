@@ -11,6 +11,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static school.hei.haapi.endpoint.rest.model.FeeCategory.L1;
 import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.LATE;
 import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.PAID;
 import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.PENDING;
@@ -167,7 +168,7 @@ class FeeIT extends FacadeITMockedThirdParties {
     PayingApi api = new PayingApi(manager1Client);
 
     FeesWithStats actual =
-        api.getFees(null, null, null, fee1().getCreationDatetime(), null, 1, 10, true, null);
+        api.getFees(null, null, null, null, fee1().getCreationDatetime(), null, 1, 10, true, null);
     assertEquals(2, actual.getData().size());
   }
 
@@ -177,7 +178,7 @@ class FeeIT extends FacadeITMockedThirdParties {
     PayingApi api = new PayingApi(manager1Client);
 
     FeesWithStats actual =
-        api.getFees(null, null, null, fee1().getCreationDatetime(), null, 1, 10, true, null);
+        api.getFees(null, null, null, null, fee1().getCreationDatetime(), null, 1, 10, true, null);
     assertNotNull(actual.getData().getFirst().getStudentFirstName());
   }
 
@@ -189,7 +190,7 @@ class FeeIT extends FacadeITMockedThirdParties {
     Fee actualFee = api.getStudentFeeById(STUDENT1_ID, FEE1_ID);
     List<Fee> actualFees1 = api.getStudentFees(STUDENT1_ID, 1, 20, null);
     FeesWithStats actualFees2 =
-        api.getFees(null, null, PAID, fee1().getCreationDatetime(), null, 1, 10, false, null);
+        api.getFees(null, null, PAID, null, fee1().getCreationDatetime(), null, 1, 10, false, null);
 
     assertEquals(fee1(), actualFee);
     assertEquals(2, actualFees2.getData().size());
@@ -200,7 +201,7 @@ class FeeIT extends FacadeITMockedThirdParties {
     assertTrue(actualFees2.getData().contains(fee2()));
 
     FeesWithStats student2Fees =
-        api.getFees(null, null, null, fee4().getDueDatetime(), null, 1, 5, false, "STD21002");
+        api.getFees(null, null, null, null, fee4().getDueDatetime(), null, 1, 5, false, "STD21002");
     assertEquals(student2Fees.getData().getFirst(), fee4());
     assertFalse(student2Fees.getData().contains(fee1()));
     assertFalse(student2Fees.getData().contains(fee2()));
@@ -220,7 +221,7 @@ class FeeIT extends FacadeITMockedThirdParties {
         () -> api.getStudentFees(STUDENT2_ID, null, null, null));
     assertThrowsApiException(
         "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
-        () -> api.getFees(null, null, null, null, null, 1, 10, false, null));
+        () -> api.getFees(null, null, null, null, null, null, 1, 10, false, null));
   }
 
   @Test
@@ -231,7 +232,7 @@ class FeeIT extends FacadeITMockedThirdParties {
     assertThrowsForbiddenException(() -> api.getStudentFeeById(STUDENT2_ID, FEE2_ID));
     assertThrowsForbiddenException(() -> api.getStudentFees(STUDENT2_ID, null, null, null));
     assertThrowsForbiddenException(
-        () -> api.getFees(null, null, null, null, null, 1, 10, false, null));
+        () -> api.getFees(null, null, null, null, null, null, 1, 10, false, null));
   }
 
   @Test
@@ -247,7 +248,7 @@ class FeeIT extends FacadeITMockedThirdParties {
         () -> api.getStudentFees(STUDENT2_ID, null, null, null));
     assertThrowsApiException(
         "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
-        () -> api.getFees(null, null, null, null, null, 1, 10, false, null));
+        () -> api.getFees(null, null, null, null, null, null, 1, 10, false, null));
   }
 
   @Test
@@ -386,6 +387,7 @@ class FeeIT extends FacadeITMockedThirdParties {
             null,
             null,
             null,
+            null,
             Instant.parse("2021-12-01T00:00:00.00Z"),
             Instant.parse("2021-12-31T23:59:59.00Z"),
             1,
@@ -403,6 +405,7 @@ class FeeIT extends FacadeITMockedThirdParties {
             null,
             null,
             null,
+            null,
             Instant.parse("2021-10-01T00:00:00.00Z"),
             Instant.parse("2021-10-31T23:59:59.00Z"),
             1,
@@ -416,6 +419,7 @@ class FeeIT extends FacadeITMockedThirdParties {
             null,
             null,
             LATE,
+            null,
             Instant.parse("2021-12-01T00:00:00.00Z"),
             Instant.parse("2021-12-31T23:59:59.00Z"),
             1,
@@ -430,6 +434,7 @@ class FeeIT extends FacadeITMockedThirdParties {
             null,
             null,
             PAID,
+            null,
             Instant.parse("2021-12-01T00:00:00.00Z"),
             Instant.parse("2021-12-31T23:59:59.00Z"),
             1,
@@ -445,6 +450,7 @@ class FeeIT extends FacadeITMockedThirdParties {
             null,
             null,
             LATE,
+            null,
             Instant.parse("2021-12-01T00:00:00.00Z"),
             Instant.parse("2021-12-31T23:59:59.00Z"),
             1,
@@ -456,6 +462,7 @@ class FeeIT extends FacadeITMockedThirdParties {
 
     FeesWithStats feeIsMpbsByMonth =
         api.getFees(
+            null,
             null,
             null,
             null,
@@ -590,5 +597,28 @@ class FeeIT extends FacadeITMockedThirdParties {
     var to = Instant.parse("2023-12-31T08:25:24.00Z");
     var url = payingApi.exportAllFees(AdvancedFeeStatisticsType.ACCOUNTING, from, to);
     assertNotNull(url);
+  }
+
+  @Test
+  void manager_read_by_category_L1() throws ApiException {
+    var manager1Client = anApiClient(MANAGER1_TOKEN);
+    var api = new PayingApi(manager1Client);
+
+    var fees = feeRepository.findAll();
+
+    log.info("fees lists : " + fees.getFirst().getCategory());
+
+    var actualWorkFees =
+        api.getFees(
+            null, null, null, L1, Instant.parse("2021-08-01T05:03:00Z"), null, 1, 10, false, null);
+    assertEquals(10, actualWorkFees.getData().size());
+  }
+
+  @Test
+  void manager_read_by_at_time_now() throws ApiException {
+    var manager1Client = anApiClient(MANAGER1_TOKEN);
+    var api = new PayingApi(manager1Client);
+    var actualWorkFees = api.getFees(null, null, null, L1, null, null, 1, 10, false, null);
+    assertEquals(0, actualWorkFees.getData().size());
   }
 }

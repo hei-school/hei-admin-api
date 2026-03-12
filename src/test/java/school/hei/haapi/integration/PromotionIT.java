@@ -4,6 +4,7 @@ import static org.hibernate.validator.internal.util.Contracts.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static school.hei.haapi.endpoint.rest.model.CycleEnum.BACHELOR;
 import static school.hei.haapi.integration.StudentIT.student1;
 import static school.hei.haapi.integration.conf.TestUtils.MANAGER1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.PROMOTION1_ID;
@@ -29,6 +30,7 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.List;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -42,6 +44,7 @@ import school.hei.haapi.endpoint.rest.model.Promotion;
 import school.hei.haapi.integration.conf.FacadeITMockedThirdParties;
 import school.hei.haapi.integration.conf.TestUtils;
 
+@Slf4j
 @Testcontainers
 @AutoConfigureMockMvc
 public class PromotionIT extends FacadeITMockedThirdParties {
@@ -139,7 +142,8 @@ public class PromotionIT extends FacadeITMockedThirdParties {
         new CrupdatePromotion()
             .id(promotion4Created.getId())
             .ref(promotion4Created.getRef())
-            .name("Nom de la promotion modifiée");
+            .name("Nom de la promotion modifiée")
+            .cycleLevel(BACHELOR);
 
     Promotion promotion4Updated = api.crupdatePromotion(updatePromotion4);
     assertEquals(updatePromotion4.getId(), promotion4Updated.getId());
@@ -192,7 +196,7 @@ public class PromotionIT extends FacadeITMockedThirdParties {
   }
 
   @Test
-  void update_promotion_forbidden_ok() throws ApiException {
+  void update_promotion_forbidden_ok() {
     ApiClient studentApiClient = anApiClient(STUDENT1_TOKEN);
     PromotionsApi studentCallAPi = new PromotionsApi(studentApiClient);
 
