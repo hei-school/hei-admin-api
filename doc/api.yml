@@ -6495,7 +6495,6 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/CreateAnnouncement'
-
       responses:
         '200':
           description: The announcement created
@@ -6571,7 +6570,114 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
-
+  '/students/{student_id}/status-check':
+    patch:
+      tags:
+        - Student
+      summary: Update a student status check
+      description: Update status check for a given student
+      operationId: updateStatusCheck
+      parameters:
+        - name: student_id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: status check to update
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateStatusCheck'
+      responses:
+        '200':
+          description: The created or updated status-checks
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusCheck'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+  '/students/{student_id}/status-checks':
+    post:
+      tags:
+        - Student
+      summary: Create a student status check
+      description: Create status check for a given student
+      operationId: createStatusChecks
+      parameters:
+        - name: student_id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: The status checks to create on a given student
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/CreateStatusCheck'
+      responses:
+        '200':
+          description: The created status checks for the given student
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/StatusCheck'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+    get:
+      tags:
+        - Student
+      operationId: getStudentStatusChecks
+      summary: Get all status checks for a given student
+      parameters:
+        - name: student_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: All status checks asked by all teachers on a given student
+          content:
+            application/json:
+              schema:
+                type: array
+                items: 
+                  $ref: '#/components/schemas/StatusCheck'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
   '/students/announcements':
     get:
       tags:
@@ -8999,6 +9105,51 @@ components:
       enum:
         - YEARLY
         - MONTHLY
+    StatusCheckResult: 
+      type: string
+      enum: 
+        - PENDING
+        - WITHDRAWN
+        - ENROLLED
+    UpdateStatusCheck:
+      type: object
+      properties:
+        id:
+          type: string
+        description:
+          type: string
+        result:
+          $ref: '#/components/schemas/StatusCheckResult'
+    CreateStatusCheck:
+      type: object 
+      properties: 
+        id: 
+          type: string 
+        concerned_student_id:
+          type: string 
+        requesting_teacher_id:
+          type: string
+        description:
+          type: string
+    StatusCheck:
+      type: object 
+      properties: 
+        id:
+          type: string
+        concerned_student:
+          $ref: '#/components/schemas/UserIdentifier'
+        requesting_teacher:
+          $ref: '#/components/schemas/UserIdentifier'
+        description:
+          type: string
+        result:
+          $ref: '#/components/schemas/StatusCheckResult'
+        creation_datetime: 
+          type: string
+          format: date-time
+        update_datetime: 
+          type: string
+          format: date-time
     CorBase:
       type: object
       properties:
