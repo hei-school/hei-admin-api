@@ -12,6 +12,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static school.hei.haapi.endpoint.rest.model.MobileMoneyType.ORANGE_MONEY;
 import static school.hei.haapi.endpoint.rest.model.MpbsStatus.PENDING;
 import static school.hei.haapi.endpoint.rest.model.MpbsStatus.SUCCESS;
 import static school.hei.haapi.model.psp.vola.api.gen.client.model.Payment.VerificationStatusEnum.FAILED;
@@ -190,8 +191,8 @@ class MpbsVerificationTest {
 
     var student = User.builder().email("student@gmail.com").build();
     var fee = Fee.builder().id("fee1").student(student).build();
-    var succeededMpbs = someMpbs("psp-succeeded", now(), fee, student);
-    var unverifiedMpbs = someMpbs("psp-unverified", now(), fee, student);
+    var succeededMpbs = someVolaMpbs("psp-succeeded", now(), fee, student);
+    var unverifiedMpbs = someVolaMpbs("psp-unverified", now(), fee, student);
 
     when(mpbsRepositoryMock.findAllByStatus(PENDING))
         .thenReturn(List.of(succeededMpbs, unverifiedMpbs));
@@ -223,8 +224,8 @@ class MpbsVerificationTest {
 
     var student = User.builder().email("student@gmail.com").build();
     var fee = Fee.builder().id("fee1").student(student).build();
-    var mpbs1 = someMpbs("psp-1", now(), fee, student);
-    var mpbs2 = someMpbs("psp-2", now(), fee, student);
+    var mpbs1 = someVolaMpbs("psp-1", now(), fee, student);
+    var mpbs2 = someVolaMpbs("psp-2", now(), fee, student);
 
     when(mpbsRepositoryMock.findAllByStatus(PENDING)).thenReturn(List.of(mpbs1, mpbs2));
     when(volaPspMock.getPayments(anyList()))
@@ -255,7 +256,7 @@ class MpbsVerificationTest {
 
     var student = User.builder().email("student@gmail.com").build();
     var fee = Fee.builder().id("fee1").student(student).build();
-    var mpbs1 = someMpbs("psp-1", now(), fee, student);
+    var mpbs1 = someVolaMpbs("psp-1", now(), fee, student);
 
     when(mpbsRepositoryMock.findAllByStatus(PENDING)).thenReturn(List.of(mpbs1));
     when(volaPspMock.getPayments(anyList()))
@@ -277,8 +278,8 @@ class MpbsVerificationTest {
 
     var student = User.builder().email("student@gmail.com").build();
     var fee = Fee.builder().id("fee1").student(student).build();
-    var mpbs1 = someMpbs("psp-1", now(), fee, student);
-    var mpbs2 = someMpbs("psp-2", now(), fee, student);
+    var mpbs1 = someVolaMpbs("psp-1", now(), fee, student);
+    var mpbs2 = someVolaMpbs("psp-2", now(), fee, student);
 
     when(mpbsRepositoryMock.findAllByStatus(PENDING)).thenReturn(List.of(mpbs1, mpbs2));
     when(volaPspMock.getPayments(anyList()))
@@ -303,6 +304,18 @@ class MpbsVerificationTest {
     List<MpbsVerification> result = subject.verifyMobilePaymentAndSaveResultWithVola();
 
     assertTrue(result.isEmpty());
+  }
+
+  private static Mpbs someVolaMpbs(String pspId, Instant creationDateTime, Fee fee, User student) {
+    return Mpbs.builder()
+        .pspId(pspId)
+        .creationDatetime(creationDateTime)
+        .fee(fee)
+        .student(student)
+        .amount(0)
+        .mobileMoneyType(ORANGE_MONEY)
+        .statusHistory(List.of())
+        .build();
   }
 
   private static school.hei.haapi.model.psp.vola.api.gen.client.model.Payment someVolaPayment(
