@@ -6495,7 +6495,6 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/CreateAnnouncement'
-
       responses:
         '200':
           description: The announcement created
@@ -6571,7 +6570,70 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
-
+  '/students/{student_id}/StudentStatusCheckup':
+    put:
+      tags:
+        - Student
+      summary: Create or update a student status checkup
+      description: Update StudentStatusCheckup for a given student when an id is provided, create them otherwise
+      operationId: createOrUpdateStudentStatusCheckups
+      requestBody:
+        description: StudentStatusCheckup to create / update
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/CrupdateStudentStatusCheckup'
+      responses: 
+        '200':
+          description: The created or updated StudentStatusCheckups
+          content: 
+            application/json: 
+              schema: 
+                type: array
+                items:
+                  $ref: '#/components/schemas/StudentStatusCheckup'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+    get:
+      tags:
+        - Student
+      operationId: getStudentStatusCheckup
+      summary: Get all student status checkup for a given student
+      parameters:
+        - name: student_id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Set value to 1 by default if null is provided
+      responses:
+        '200':
+          description: All student status checkup asked by teachers
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StudentStatusCheckup'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
   '/students/announcements':
     get:
       tags:
@@ -8999,6 +9061,38 @@ components:
       enum:
         - YEARLY
         - MONTHLY
+    StudentStatusCheckup_Status: 
+      type: string
+      enum: 
+        - PENDING
+        - WITHDRAWN
+        - ENROLLED
+    CrupdateStudentStatusCheckup: 
+      type: object 
+      properties: 
+        id: 
+          type: string 
+        student_id: 
+          type: string 
+        teacher_id: 
+          type: string 
+    StudentStatusCheckup: 
+      type: object 
+      properties: 
+        id:
+          type: string
+        student:
+          $ref: '#/components/schemas/UserIdentifier'
+        teacher:
+          $ref: '#/components/schemas/UserIdentifier'
+        status: 
+          $ref: '#/components/schemas/StudentStatusCheckup_Status'
+        creation_datetime: 
+          type: string
+          format: date-time
+        update_datetime: 
+          type: string
+          format: date-time
     CorBase:
       type: object
       properties:
