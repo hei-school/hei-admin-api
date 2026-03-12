@@ -6571,46 +6571,6 @@ paths:
         '500':
           $ref: '#/components/responses/500'
   '/students/{student_id}/status-check':
-    post:
-      tags:
-        - Student
-      summary: Create a student status check
-      description: Create status check for a given student
-      operationId: createStatusCheck
-      parameters:
-        - name: student_id
-          in: path
-          required: true
-          schema:
-            type: string
-      requestBody:
-        description: The status checks to create on a given student
-        required: true
-        content:
-          application/json:
-            schema:
-              type: array
-              items:
-                $ref: '#/components/schemas/CreateStatusCheck'
-      responses:
-        '200':
-          description: The created status check for the given student
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/StatusCheck'
-        '400':
-          $ref: '#/components/responses/400'
-        '403':
-          $ref: '#/components/responses/403'
-        '404':
-          $ref: '#/components/responses/404'
-        '429':
-          $ref: '#/components/responses/429'
-        '500':
-          $ref: '#/components/responses/500'
     patch:
       tags:
         - Student
@@ -6629,12 +6589,49 @@ paths:
         content:
           application/json:
             schema:
+              $ref: '#/components/schemas/UpdateStatusCheck'
+      responses:
+        '200':
+          description: The created or updated status-checks
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusCheck'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+  '/students/{student_id}/status-checks':
+    post:
+      tags:
+        - Student
+      summary: Create a student status check
+      description: Create status check for a given student
+      operationId: createStatusChecks
+      parameters:
+        - name: student_id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: The status checks to create on a given student
+        required: true
+        content:
+          application/json:
+            schema:
               type: array
               items:
                 $ref: '#/components/schemas/CreateStatusCheck'
       responses:
         '200':
-          description: The created or updated StudentStatusCheckups
+          description: The created status checks for the given student
           content:
             application/json:
               schema:
@@ -6654,8 +6651,8 @@ paths:
     get:
       tags:
         - Student
-      operationId: getStudentStatusCheckup
-      summary: Get all status check for a given student
+      operationId: getStudentStatusChecks
+      summary: Get all status checks for a given student
       parameters:
         - name: student_id
           in: path
@@ -6664,7 +6661,7 @@ paths:
             type: string
       responses:
         '200':
-          description: All status check asked by all teachers on a given student
+          description: All status checks asked by all teachers on a given student
           content:
             application/json:
               schema:
