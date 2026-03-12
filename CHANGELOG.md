@@ -1,8 +1,14 @@
-# [1.153.0](https://github.com/hei-school/hei-admin-api/compare/v1.152.0...v1.153.0) (2026-03-11)
+# [1.154.0](https://github.com/hei-school/hei-admin-api/compare/v1.152.0...v1.154.0) (2026-03-12)
+
+
+### Bug Fixes
+
+* remove unecessary student alumni filter ([831c6eb](https://github.com/hei-school/hei-admin-api/commit/831c6ebaf07c0da945d46b235b06eda19250fddd))
 
 
 ### Features
 
+* (doc)  client version ([4879ff0](https://github.com/hei-school/hei-admin-api/commit/4879ff0cc003dcc79fbc0cc89c2e54fbd79b7cc2))
 * add filter fees by category ([96fcf38](https://github.com/hei-school/hei-admin-api/commit/96fcf383eafbdcea6931eb968f3d3b46ff258e39))
 * add non alumni self matcher for scholarship certificate  ([47b3528](https://github.com/hei-school/hei-admin-api/commit/47b35281e4c3c8c55df0daceda6b2330fa1d602c))
 
