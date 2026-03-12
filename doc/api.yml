@@ -6577,6 +6577,12 @@ paths:
       summary: Create or update a student status checkup
       description: Update StudentStatusCheckup for a given student when an id is provided, create them otherwise
       operationId: createOrUpdateStudentStatusCheckups
+      parameters:
+        - name: student_id
+          in: path
+          required: true
+          schema:
+            type: string
       requestBody:
         description: StudentStatusCheckup to create / update
         required: true
@@ -6616,7 +6622,6 @@ paths:
           required: true
           schema:
             type: string
-          description: Set value to 1 by default if null is provided
       responses:
         '200':
           description: All student status checkup asked by teachers
