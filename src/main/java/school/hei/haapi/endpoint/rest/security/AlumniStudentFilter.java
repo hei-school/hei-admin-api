@@ -17,7 +17,7 @@ public class AlumniStudentFilter extends OncePerRequestFilter {
   private final RequestMatcher requiresNonAlumniStudentRequestMatchers;
 
   @Override
-  protected void doFilterInternal(
+  public void doFilterInternal(
       HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
       throws ServletException, IOException {
     if (requiresNonAlumniStudentRequestMatchers.matches(request)) {

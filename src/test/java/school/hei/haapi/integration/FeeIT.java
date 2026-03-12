@@ -618,8 +618,6 @@ class FeeIT extends FacadeITMockedThirdParties {
   void manager_read_by_at_time_now() throws ApiException {
     var manager1Client = anApiClient(MANAGER1_TOKEN);
     var api = new PayingApi(manager1Client);
-    var fees = feeRepository.findAll();
-
     var actualWorkFees = api.getFees(null, null, null, L1, null, null, 1, 10, false, null);
     assertEquals(0, actualWorkFees.getData().size());
   }
