@@ -6683,7 +6683,7 @@ paths:
   '/status-checks':
     get:
       tags:
-        - StatusCheck
+        - Student
       operationId: getAllStatusChecks
       summary: Get all status checks with student info
       description: Retrieve all status checks across all students, including their associated student information. Defaults to PENDING status checks only.
