@@ -6571,6 +6571,43 @@ paths:
         '500':
           $ref: '#/components/responses/500'
   '/students/{student_id}/status-check':
+    post:
+      tags:
+        - Student
+      summary: Create a student status check
+      description: Create status check for a given student
+      operationId: createStatusChecks
+      parameters:
+        - name: student_id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: The status checks to create on a given student
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateStatusCheck'
+      responses:
+        '200':
+          description: The created status checks for the given student
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusCheck'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+  '/students/{student_id}/status-checks/{status_check_id}':
     patch:
       tags:
         - Student
@@ -6579,6 +6616,11 @@ paths:
       operationId: updateStatusCheck
       parameters:
         - name: student_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: status_check_id
           in: path
           required: true
           schema:
@@ -6608,46 +6650,6 @@ paths:
         '500':
           $ref: '#/components/responses/500'
   '/students/{student_id}/status-checks':
-    post:
-      tags:
-        - Student
-      summary: Create a student status check
-      description: Create status check for a given student
-      operationId: createStatusChecks
-      parameters:
-        - name: student_id
-          in: path
-          required: true
-          schema:
-            type: string
-      requestBody:
-        description: The status checks to create on a given student
-        required: true
-        content:
-          application/json:
-            schema:
-              type: array
-              items:
-                $ref: '#/components/schemas/CreateStatusCheck'
-      responses:
-        '200':
-          description: The created status checks for the given student
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/StatusCheck'
-        '400':
-          $ref: '#/components/responses/400'
-        '403':
-          $ref: '#/components/responses/403'
-        '404':
-          $ref: '#/components/responses/404'
-        '429':
-          $ref: '#/components/responses/429'
-        '500':
-          $ref: '#/components/responses/500'
     get:
       tags:
         - Student
@@ -6667,6 +6669,41 @@ paths:
               schema:
                 type: array
                 items: 
+                  $ref: '#/components/schemas/StatusCheck'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+  '/status-checks':
+    get:
+      tags:
+        - StatusCheck
+      operationId: getAllStatusChecks
+      summary: Get all status checks with student info
+      description: Retrieve all status checks across all students, including their associated student information. Defaults to PENDING status checks only.
+      parameters:
+        - name: result
+          in: query
+          required: false
+          schema:
+            allOf:
+              - $ref: '#/components/schemas/StatusCheckResult'
+            default: PENDING
+          description: Filter status checks by result. Defaults to PENDING if not provided.
+      responses:
+        '200':
+          description: All status checks with their associated student information
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
                   $ref: '#/components/schemas/StatusCheck'
         '400':
           $ref: '#/components/responses/400'
@@ -9114,8 +9151,6 @@ components:
     UpdateStatusCheck:
       type: object
       properties:
-        id:
-          type: string
         description:
           type: string
         result:
@@ -9127,18 +9162,21 @@ components:
           type: string 
         concerned_student_id:
           type: string 
-        requesting_teacher_id:
+        requesting_user_id:
           type: string
         description:
           type: string
     StatusCheck:
-      type: object 
-      properties: 
+      type: object
+      required:
+        - concerned_student
+        - requesting_user
+      properties:
         id:
           type: string
         concerned_student:
           $ref: '#/components/schemas/UserIdentifier'
-        requesting_teacher:
+        requesting_user:
           $ref: '#/components/schemas/UserIdentifier'
         description:
           type: string

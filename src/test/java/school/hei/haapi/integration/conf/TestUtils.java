@@ -171,6 +171,7 @@ public class TestUtils {
   public static final String GRADE6_ID = "grade6_id";
   public static final String GRADE7_ID = "grade7_id";
   public static final String BAD_TOKEN = "bad_token";
+  public static final String STUDENT_AXEL_TOKEN = "student_axel_token";
   public static final String STUDENT1_TOKEN = "student1_token";
   public static final String STUDENT2_TOKEN = "student2_token";
   public static final String STUDENT11_TOKEN = "student11_token";
@@ -225,6 +226,18 @@ public class TestUtils {
   public static final String ORGANIZER1_ID = "organizer1_id";
   public static final String ORGANIZER1_TOKEN = "organizer1_token";
   public static final String ORGANIZER2_TOKEN = "organizer2_token";
+
+  public static CasdoorUser getCasdoorUserAxel() {
+    CasdoorUser user = new CasdoorUser();
+    user.setEmail("test+axel@hei.school");
+    CasdoorRole casdoorRole = new CasdoorRole();
+    casdoorRole.setOwner("dummy");
+    casdoorRole.setName("student");
+    String[] roleUsers = {"dummy/user"};
+    casdoorRole.setUsers(roleUsers);
+    user.setRoles(List.of(casdoorRole));
+    return user;
+  }
 
   public static CasdoorUser getCasdoorUserStudent1() {
     CasdoorUser user = new CasdoorUser();
@@ -396,6 +409,7 @@ public class TestUtils {
     when(casdoorAuthService.parseJwtToken(ADMIN1_TOKEN)).thenReturn(getCasdoorUserAdmin1());
     when(casdoorAuthService.parseJwtToken(SUSPENDED_TOKEN)).thenReturn(getCasdoorUserSuspended());
     when(casdoorAuthService.parseJwtToken(ALUMNI1_TOKEN)).thenReturn(getCasdoorAlumniStudent1());
+    when(casdoorAuthService.parseJwtToken(STUDENT_AXEL_TOKEN)).thenReturn(getCasdoorUserAxel());
   }
 
   public static ApiClient anApiClient(String token, int serverPort) {

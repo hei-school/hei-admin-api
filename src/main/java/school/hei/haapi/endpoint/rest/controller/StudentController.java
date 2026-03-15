@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -18,6 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import school.hei.haapi.endpoint.rest.mapper.GroupFlowMapper;
 import school.hei.haapi.endpoint.rest.mapper.SexEnumMapper;
+import school.hei.haapi.endpoint.rest.mapper.StatusCheckMapper;
 import school.hei.haapi.endpoint.rest.mapper.StatusEnumMapper;
 import school.hei.haapi.endpoint.rest.mapper.UserMapper;
 import school.hei.haapi.endpoint.rest.model.*;
@@ -27,6 +29,7 @@ import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.model.User;
 import school.hei.haapi.service.GroupFlowService;
 import school.hei.haapi.service.MultipartFileConverter;
+import school.hei.haapi.service.StatusCheckService;
 import school.hei.haapi.service.StudentFileService;
 import school.hei.haapi.service.UserService;
 
@@ -42,6 +45,8 @@ public class StudentController {
   private final MultipartFileConverter fileConverter;
   private final CoordinatesValidator validator;
   private final StudentFileService studentFileService;
+  private final StatusCheckService statusCheckService;
+  private final StatusCheckMapper statusCheckMapper;
 
   @PostMapping(value = "/students/{id}/picture/raw", consumes = MULTIPART_FORM_DATA_VALUE)
   public Student uploadStudentProfilePicture(
@@ -163,5 +168,31 @@ public class StudentController {
   @GetMapping("/students/import/template")
   public String getStudentImportTemplateURL() {
     return studentFileService.getStudentImportTemplateURL();
+  }
+
+  @GetMapping("/students/{student_id}/status-checks")
+  public List<StatusCheck> getStudentStatusChecks(
+      @PathVariable(name = "student_id") String studentId) {
+    return statusCheckService.getByConcernedStudentId(studentId).stream()
+        .map(statusCheckMapper::toRest)
+        .toList();
+  }
+
+  @PatchMapping("/students/{student_id}/status-checks/{status_check_id}")
+  public StatusCheck updateStatusCheck(
+      @PathVariable(name = "student_id") String studentId,
+      @PathVariable(name = "status_check_id") String statusCheckId,
+      @RequestBody UpdateStatusCheck updateStatusCheck) {
+    return statusCheckMapper.toRest(
+        statusCheckService.updateStatusCheckByStudentId(
+            studentId, statusCheckId, updateStatusCheck));
+  }
+
+  @PostMapping("/students/{student_id}/status-check")
+  public StatusCheck createStatusChecks(
+      @PathVariable(name = "student_id") String studentId,
+      @RequestBody CreateStatusCheck createStatusCheck) {
+    return statusCheckMapper.toRest(
+        statusCheckService.createStatusCheckByStudentId(studentId, createStatusCheck));
   }
 }

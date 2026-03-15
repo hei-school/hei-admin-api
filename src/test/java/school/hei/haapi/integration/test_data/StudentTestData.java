@@ -55,4 +55,20 @@ public class StudentTestData {
         .groupFlows(new ArrayList<>())
         .build();
   }
+
+  public static User manitra() {
+    return User.builder()
+        .id(randomUUID().toString())
+        .firstName("Manitra")
+        .lastName("HEI")
+        .email(new Faker().internet().emailAddress())
+        .ref("STD" + randomUUID())
+        .phone("+261 32 88 715 43")
+        .address("456 Rue de la République")
+        .role(User.Role.STUDENT)
+        .status(User.Status.ENABLED)
+        .entranceDatetime(Instant.parse("2021-11-08T08:25:24.00Z"))
+        .groupFlows(new ArrayList<>())
+        .build();
+  }
 }
