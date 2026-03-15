@@ -6,7 +6,6 @@ import static school.hei.haapi.model.User.Status.DISABLED;
 
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import school.hei.haapi.endpoint.rest.mapper.StatusCheckMapper;
@@ -38,7 +37,9 @@ public class StatusCheckService {
   public StatusCheck updateStatusCheckByStudentId(
       String studentId, String statusCheckId, UpdateStatusCheck updateStatusCheck) {
     var optionalUser = userRepository.findById(studentId);
-    checkStudentExists(optionalUser);
+    if (optionalUser.isEmpty()) {
+      throw new NotFoundException("The concerned student could not be not found");
+    }
     var toUpdate = getStatusByIdIfPresent(statusCheckId);
     toUpdate.setDescription(updateStatusCheck.getDescription());
     toUpdate.setResult(updateStatusCheck.getResult());
@@ -47,17 +48,12 @@ public class StatusCheckService {
 
   public StatusCheck createStatusCheckByStudentId(String studentId, CreateStatusCheck toInsert) {
     var optionalUser = userRepository.findById(studentId);
-    checkStudentExists(optionalUser);
-    var student = userRepository.findById(studentId).get();
-    checkStudentStatus(student);
-    return statusCheckRepository.save(statusCheckMapper.toDomain(toInsert));
-  }
-
-  private void checkStudentExists(Optional<User> optionalUser) {
     if (optionalUser.isEmpty()) {
       throw new NotFoundException("The concerned student could not be not found");
     }
-    ;
+    var student = userRepository.findById(studentId).get();
+    checkStudentStatus(student);
+    return statusCheckRepository.save(statusCheckMapper.toDomain(toInsert));
   }
 
   private void checkStudentStatus(User student) {
@@ -71,7 +67,7 @@ public class StatusCheckService {
 
   private StatusCheck getStatusByIdIfPresent(String statusCheckId) {
     var optionalStatusCheck = statusCheckRepository.findById(statusCheckId);
-    if (statusCheckRepository.findById(statusCheckId).isEmpty()) {
+    if (optionalStatusCheck.isEmpty()) {
       throw new NotFoundException("Status check with id " + statusCheckId + " not found");
     }
     ;
