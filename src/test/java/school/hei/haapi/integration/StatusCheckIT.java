@@ -66,7 +66,9 @@ public class StatusCheckIT extends FacadeITMockedThirdParties {
     alumniStudentManitra = userRepository.save(alumniStudentManitra);
 
     axelStatusCheck = statusCheckRepository.save(aStatusCheck(enabledStudentAxel, teacherToky));
-    tolojanaharyStatusCheck = statusCheckRepository.save(aStatusCheck(enabledStudentTolojanahary, teacherToky, WITHDRAWN));
+    tolojanaharyStatusCheck =
+        statusCheckRepository.save(
+            aStatusCheck(enabledStudentTolojanahary, teacherToky, WITHDRAWN));
   }
 
   @BeforeEach
@@ -239,16 +241,19 @@ public class StatusCheckIT extends FacadeITMockedThirdParties {
     var withdrawnStatusChecks = studentApiAsManager().getAllStatusChecks(WITHDRAWN);
 
     assertTrue(pendingStatusChecks.stream().allMatch(sc -> PENDING.equals(sc.getResult())));
-    assertTrue(pendingStatusChecks.stream().anyMatch(sc -> sc.getId().equals(axelStatusCheck.getId())));
+    assertTrue(
+        pendingStatusChecks.stream().anyMatch(sc -> sc.getId().equals(axelStatusCheck.getId())));
     assertTrue(withdrawnStatusChecks.stream().allMatch(sc -> WITHDRAWN.equals(sc.getResult())));
-    assertTrue(withdrawnStatusChecks.stream().anyMatch(sc -> sc.getId().equals(tolojanaharyStatusCheck.getId())));
+    assertTrue(
+        withdrawnStatusChecks.stream()
+            .anyMatch(sc -> sc.getId().equals(tolojanaharyStatusCheck.getId())));
   }
 
   @Test
   void getAllStatusChecks_byStudent_ko() {
     assertThrowsApiException(
-            "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
-            () -> studentApiAsStudent1().getAllStatusChecks(null));
+        "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
+        () -> studentApiAsStudent1().getAllStatusChecks(null));
   }
 
   private static CreateStatusCheck aCreateStatusCheck(User concernedStudent, User requestingUser) {
@@ -271,16 +276,17 @@ public class StatusCheckIT extends FacadeITMockedThirdParties {
         .build();
   }
 
-  private static StatusCheck aStatusCheck(User concernedStudent, User requestingUser, StatusCheckResult result) {
+  private static StatusCheck aStatusCheck(
+      User concernedStudent, User requestingUser, StatusCheckResult result) {
     return StatusCheck.builder()
-            .id(randomUUID().toString())
-            .description("A status check for student : " + concernedStudent.getRef())
-            .concernedStudent(concernedStudent)
-            .requestingUser(requestingUser)
-            .creationDatetime(Instant.now())
-            .updateDatetime(Instant.now())
-            .result(result)
-            .build();
+        .id(randomUUID().toString())
+        .description("A status check for student : " + concernedStudent.getRef())
+        .concernedStudent(concernedStudent)
+        .requestingUser(requestingUser)
+        .creationDatetime(Instant.now())
+        .updateDatetime(Instant.now())
+        .result(result)
+        .build();
   }
 
   private static UpdateStatusCheck anUpdateStatusCheck() {
