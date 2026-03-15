@@ -51,7 +51,7 @@ public class StatusCheckService {
     if (optionalUser.isEmpty()) {
       throw new NotFoundException("The concerned student could not be not found");
     }
-    var student = userRepository.findById(studentId).get();
+    var student = optionalUser.get();
     checkStudentStatus(student);
     return statusCheckRepository.save(statusCheckMapper.toDomain(toInsert));
   }
