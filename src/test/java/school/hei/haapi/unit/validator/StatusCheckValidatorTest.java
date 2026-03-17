@@ -35,10 +35,11 @@ class StatusCheckValidatorTest {
 
   @Test
   void create_all_fields_valid_should_pass() {
-    var check = new CreateStatusCheck()
-        .description("New status")
-        .concernedStudentId("student1")
-        .requestingUserId("user1");
+    var check =
+        new CreateStatusCheck()
+            .description("New status")
+            .concernedStudentId("student1")
+            .requestingUserId("user1");
     createValidator.accept(check);
   }
 
@@ -67,9 +68,7 @@ class StatusCheckValidatorTest {
 
   @Test
   void update_valid_description_and_result_should_pass() {
-    var check = new UpdateStatusCheck()
-        .description("Everything is fine")
-        .result(WITHDRAWN);
+    var check = new UpdateStatusCheck().description("Everything is fine").result(WITHDRAWN);
     updateValidator.accept(check);
   }
 }

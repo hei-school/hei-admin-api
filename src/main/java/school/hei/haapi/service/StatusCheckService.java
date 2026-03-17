@@ -25,9 +25,9 @@ import school.hei.haapi.repository.StatusCheckRepository;
 public class StatusCheckService {
   private final StatusCheckRepository repository;
   private final StatusCheckMapper statusCheckMapper;
-  private final UserService userService; 
+  private final UserService userService;
   private final CreateStatusCheckValidator createStatusCheckValidator;
-  private final UpdateStatusCheckValidator updateStatusCheckValidator; 
+  private final UpdateStatusCheckValidator updateStatusCheckValidator;
 
   public List<StatusCheck> getAllByResult(StatusCheckResult result) {
     return repository.findAllByResult(Objects.requireNonNullElse(result, PENDING));
@@ -55,13 +55,13 @@ public class StatusCheckService {
   }
 
   private void checkStudentStatus(User student) {
-    if (DISABLED.equals(student.getStatus())){
+    if (DISABLED.equals(student.getStatus())) {
       throw new BadRequestException(
           "Cannot create a status check: Student with ref : "
               + student.getRef()
               + " is already DISABLED");
-    } 
-    if(ALUMNI.equals(student.getStatus())) {
+    }
+    if (ALUMNI.equals(student.getStatus())) {
       throw new BadRequestException(
           "Cannot create a status check: Student with ref : "
               + student.getRef()

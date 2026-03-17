@@ -4,16 +4,13 @@ import static school.hei.haapi.endpoint.rest.model.StatusCheckResult.PENDING;
 import static school.hei.haapi.model.User.Role.STUDENT;
 import static school.hei.haapi.model.User.Role.TEACHER;
 
-import java.time.Instant;
-import org.springframework.stereotype.Component;
-
 import jakarta.ws.rs.BadRequestException;
+import java.time.Instant;
 import lombok.AllArgsConstructor;
+import org.springframework.stereotype.Component;
 import school.hei.haapi.endpoint.rest.model.CreateStatusCheck;
 import school.hei.haapi.endpoint.rest.model.StatusCheck;
 import school.hei.haapi.model.User;
-import school.hei.haapi.model.exception.NotFoundException;
-import school.hei.haapi.repository.UserRepository;
 import school.hei.haapi.service.UserService;
 
 @Component

@@ -19,8 +19,6 @@ public class StatusCheckController {
   @GetMapping("/status-checks")
   public List<StatusCheck> getAllStatusChecks(
       @RequestParam(required = false) StatusCheckResult result) {
-    return service.getAllByResult(result).stream()
-        .map(mapper::toRest)
-        .toList();
+    return service.getAllByResult(result).stream().map(mapper::toRest).toList();
   }
 }
