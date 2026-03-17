@@ -1,5 +1,6 @@
 package school.hei.haapi.unit.validator;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static school.hei.haapi.endpoint.rest.model.StatusCheckResult.ENROLLED;
 import static school.hei.haapi.endpoint.rest.model.StatusCheckResult.WITHDRAWN;
@@ -40,7 +41,7 @@ class StatusCheckValidatorTest {
             .description("New status")
             .concernedStudentId("student1")
             .requestingUserId("user1");
-    createValidator.accept(check);
+    assertDoesNotThrow(() -> createValidator.accept(check));
   }
 
   @Test
@@ -57,18 +58,18 @@ class StatusCheckValidatorTest {
   @Test
   void update_valid_description_only_should_pass() {
     var check = new UpdateStatusCheck().description("Updated description");
-    updateValidator.accept(check);
+    assertDoesNotThrow(() -> updateValidator.accept(check));
   }
 
   @Test
   void update_valid_result_only_should_pass() {
     var check = new UpdateStatusCheck().result(ENROLLED);
-    updateValidator.accept(check);
+    assertDoesNotThrow(() -> updateValidator.accept(check));
   }
 
   @Test
   void update_valid_description_and_result_should_pass() {
     var check = new UpdateStatusCheck().description("Everything is fine").result(WITHDRAWN);
-    updateValidator.accept(check);
+    assertDoesNotThrow(() -> updateValidator.accept(check));
   }
 }
