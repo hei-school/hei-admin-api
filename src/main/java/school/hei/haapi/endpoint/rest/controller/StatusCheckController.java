@@ -13,14 +13,14 @@ import school.hei.haapi.service.StatusCheckService;
 @RestController
 @AllArgsConstructor
 public class StatusCheckController {
-  private final StatusCheckService statusCheckService;
-  private final StatusCheckMapper statusCheckMapper;
+  private final StatusCheckService service;
+  private final StatusCheckMapper mapper;
 
   @GetMapping("/status-checks")
   public List<StatusCheck> getAllStatusChecks(
       @RequestParam(required = false) StatusCheckResult result) {
-    return statusCheckService.getAllByResult(result).stream()
-        .map(statusCheckMapper::toRest)
+    return service.getAllByResult(result).stream()
+        .map(mapper::toRest)
         .toList();
   }
 }

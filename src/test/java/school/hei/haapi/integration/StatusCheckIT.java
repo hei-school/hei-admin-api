@@ -161,7 +161,7 @@ public class StatusCheckIT extends FacadeITMockedThirdParties {
         "{\"type\":\"400 BAD_REQUEST\",\"message\":\"Cannot create a status check: Student with ref"
             + " : "
             + disabledStudentFreddy.getRef()
-            + " is already DISABLED or an ALUMNI\"}",
+            + " is already DISABLED\"}",
         () ->
             studentApiAsTeacher()
                 .createStatusChecks(
@@ -175,7 +175,7 @@ public class StatusCheckIT extends FacadeITMockedThirdParties {
         "{\"type\":\"400 BAD_REQUEST\",\"message\":\"Cannot create a status check: Student with ref"
             + " : "
             + alumniStudentManitra.getRef()
-            + " is already DISABLED or an ALUMNI\"}",
+            + " is already an ALUMNI\"}",
         () ->
             studentApiAsTeacher()
                 .createStatusChecks(

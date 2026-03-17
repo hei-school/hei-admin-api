@@ -6,21 +6,21 @@ import static school.hei.haapi.model.User.Role.TEACHER;
 
 import java.time.Instant;
 import org.springframework.stereotype.Component;
+
+import jakarta.ws.rs.BadRequestException;
+import lombok.AllArgsConstructor;
 import school.hei.haapi.endpoint.rest.model.CreateStatusCheck;
 import school.hei.haapi.endpoint.rest.model.StatusCheck;
 import school.hei.haapi.model.User;
 import school.hei.haapi.model.exception.NotFoundException;
 import school.hei.haapi.repository.UserRepository;
+import school.hei.haapi.service.UserService;
 
 @Component
+@AllArgsConstructor
 public class StatusCheckMapper {
   private final UserMapper userMapper;
-  private final UserRepository userRepository;
-
-  public StatusCheckMapper(UserMapper userMapper, UserRepository userRepository) {
-    this.userMapper = userMapper;
-    this.userRepository = userRepository;
-  }
+  private final UserService userService;
 
   public school.hei.haapi.model.StatusCheck toDomain(StatusCheck rest) {
     return school.hei.haapi.model.StatusCheck.builder()
@@ -61,11 +61,11 @@ public class StatusCheckMapper {
   }
 
   private User getUserByIdAndRoleIfPresent(String id, User.Role expectedRole) {
-    var concernedUser = userRepository.findById(id);
-    if (concernedUser.isEmpty() || !concernedUser.get().getRole().equals(expectedRole)) {
-      throw new NotFoundException(
-          "User with id " + id + " not found or not a " + expectedRole + " as expected.");
+    var concernedUser = userService.getById(id);
+    if (!concernedUser.getRole().equals(expectedRole)) {
+      throw new BadRequestException(
+          "User with id " + id + " is not a " + expectedRole + " as expected.");
     }
-    return concernedUser.get();
+    return concernedUser;
   }
 }
