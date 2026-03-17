@@ -224,15 +224,21 @@ public class StatusCheckIT extends FacadeITMockedThirdParties {
   }
 
   @Test
-  void getAllStatusChecks_defaultsPending_byManagerOrAdminOrTeacher_ok() throws ApiException {
+  void getAllStatusChecks_getsAllByDefault_byManagerOrAdminOrTeacher_ok() throws ApiException {
     var managerResponse = studentApiAsManager().getAllStatusChecks(null);
     var adminResponse = studentApiAsAdmin().getAllStatusChecks(null);
     var teacherResponse = studentApiAsTeacher().getAllStatusChecks(null);
 
-    assertTrue(managerResponse.stream().allMatch(sc -> PENDING.equals(sc.getResult())));
-    assertTrue(adminResponse.stream().allMatch(sc -> PENDING.equals(sc.getResult())));
-    assertTrue(teacherResponse.stream().allMatch(sc -> PENDING.equals(sc.getResult())));
+    assertTrue(managerResponse.stream().anyMatch(sc -> PENDING.equals(sc.getResult())));
+    assertTrue(managerResponse.stream().anyMatch(sc -> WITHDRAWN.equals(sc.getResult())));
+    assertTrue(adminResponse.stream().anyMatch(sc -> PENDING.equals(sc.getResult())));
+    assertTrue(adminResponse.stream().anyMatch(sc -> WITHDRAWN.equals(sc.getResult())));
+    assertTrue(teacherResponse.stream().anyMatch(sc -> PENDING.equals(sc.getResult())));
+    assertTrue(teacherResponse.stream().anyMatch(sc -> WITHDRAWN.equals(sc.getResult())));
     assertTrue(managerResponse.stream().anyMatch(sc -> sc.getId().equals(axelStatusCheck.getId())));
+    assertTrue(
+        managerResponse.stream()
+            .anyMatch(sc -> sc.getId().equals(tolojanaharyStatusCheck.getId())));
   }
 
   @Test

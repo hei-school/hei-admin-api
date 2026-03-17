@@ -5,7 +5,6 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static school.hei.haapi.endpoint.rest.model.StatusCheckResult.ENROLLED;
 import static school.hei.haapi.endpoint.rest.model.StatusCheckResult.WITHDRAWN;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import school.hei.haapi.endpoint.rest.model.CreateStatusCheck;
 import school.hei.haapi.endpoint.rest.model.UpdateStatusCheck;
@@ -14,14 +13,8 @@ import school.hei.haapi.model.validator.CreateStatusCheckValidator;
 import school.hei.haapi.model.validator.UpdateStatusCheckValidator;
 
 class StatusCheckValidatorTest {
-  CreateStatusCheckValidator createValidator;
-  UpdateStatusCheckValidator updateValidator;
-
-  @BeforeEach
-  void setUp() {
-    createValidator = new CreateStatusCheckValidator();
-    updateValidator = new UpdateStatusCheckValidator();
-  }
+  CreateStatusCheckValidator createValidator = new CreateStatusCheckValidator();
+  UpdateStatusCheckValidator updateValidator = new UpdateStatusCheckValidator();
 
   @Test
   void create_null_object_should_throw() {

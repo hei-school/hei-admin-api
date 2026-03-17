@@ -6686,7 +6686,7 @@ paths:
         - Student
       operationId: getAllStatusChecks
       summary: Get all status checks with student info
-      description: Retrieve all status checks across all students, including their associated student information. Defaults to PENDING status checks only.
+      description: Retrieve all status checks across all students, including their associated student information.
       parameters:
         - name: result
           in: query
@@ -6694,8 +6694,7 @@ paths:
           schema:
             allOf:
               - $ref: '#/components/schemas/StatusCheckResult'
-            default: PENDING
-          description: Filter status checks by result. Defaults to PENDING if not provided.
+          description: Filter status checks by result.
       responses:
         '200':
           description: All status checks with their associated student information

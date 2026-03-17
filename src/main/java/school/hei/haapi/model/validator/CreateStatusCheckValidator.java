@@ -14,11 +14,10 @@ public class CreateStatusCheckValidator implements Consumer<CreateStatusCheck> {
 
   @Override
   public void accept(CreateStatusCheck createStatusCheck) {
-    Set<String> violations = new HashSet<>();
-
     if (createStatusCheck == null) {
       throw new BadRequestException("CreateStatusCheck must not be null");
     }
+    Set<String> violations = new HashSet<>();
 
     if (createStatusCheck.getConcernedStudentId() == null
         || createStatusCheck.getConcernedStudentId().isBlank()) {

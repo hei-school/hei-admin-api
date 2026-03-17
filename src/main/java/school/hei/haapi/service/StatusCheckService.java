@@ -1,11 +1,9 @@
 package school.hei.haapi.service;
 
-import static school.hei.haapi.endpoint.rest.model.StatusCheckResult.PENDING;
 import static school.hei.haapi.model.User.Status.ALUMNI;
 import static school.hei.haapi.model.User.Status.DISABLED;
 
 import java.util.List;
-import java.util.Objects;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import school.hei.haapi.endpoint.rest.mapper.StatusCheckMapper;
@@ -30,7 +28,10 @@ public class StatusCheckService {
   private final UpdateStatusCheckValidator updateStatusCheckValidator;
 
   public List<StatusCheck> getAllByResult(StatusCheckResult result) {
-    return repository.findAllByResult(Objects.requireNonNullElse(result, PENDING));
+    if (result == null) {
+      return repository.findAll();
+    }
+    return repository.findAllByResult(result);
   }
 
   public List<StatusCheck> getByConcernedStudentId(String studentId) {
@@ -54,7 +55,7 @@ public class StatusCheckService {
     return repository.save(statusCheckMapper.toDomain(toInsert));
   }
 
-  private void checkStudentStatus(User student) {
+  private static void checkStudentStatus(User student) {
     if (DISABLED.equals(student.getStatus())) {
       throw new BadRequestException(
           "Cannot create a status check: Student with ref : "
