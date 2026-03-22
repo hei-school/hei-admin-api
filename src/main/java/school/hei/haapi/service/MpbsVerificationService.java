@@ -16,6 +16,7 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import school.hei.haapi.endpoint.rest.mapper.VolaMapper;
 import school.hei.haapi.http.mapper.TransactionDetailsMapper;
 import school.hei.haapi.http.model.TransactionDetails;
 import school.hei.haapi.model.MobileTransactionDetails;
@@ -23,6 +24,7 @@ import school.hei.haapi.model.dto.MobileTransactionDetailsDto;
 import school.hei.haapi.model.exception.NoRemainingAmountFee;
 import school.hei.haapi.model.mpbs.Mpbs;
 import school.hei.haapi.model.mpbs.MpbsVerification;
+import school.hei.haapi.model.psp.vola.VolaPsp;
 import school.hei.haapi.repository.MpbsRepository;
 import school.hei.haapi.repository.MpbsVerificationRepository;
 import school.hei.haapi.service.aws.FileService;
@@ -42,9 +44,25 @@ public class MpbsVerificationService {
   private final UnverifiedMobilePaymentHandler unverifiedMobilePaymentHandler;
   private final ComputeVerifiedMobilePayment computeVerifiedMobilePayment;
   private final CollectionUtils collectionUtils;
+  private final VolaPsp volaPsp;
+  private final VolaMapper volaMapper;
+  private final MpbsService mpbsService;
 
   public List<MpbsVerification> findAllByStudentIdAndFeeId(String studentId, String feeId) {
     return repository.findAllByStudentIdAndFeeId(studentId, feeId);
+  }
+
+  public Mpbs checkIfVerifiedFromVola(Mpbs mpbs) {
+
+    var studentEmail = mpbs.getStudent().getEmail();
+
+    var volaPayment =
+        volaPsp.get(volaMapper.toPspType(mpbs.getMobileMoneyType()), mpbs.getPspId(), studentEmail);
+    var lastMpbsCheckedIfVerified = volaMapper.toMpbs(mpbs, volaPayment);
+    if (lastMpbsCheckedIfVerified.getAmount() == null) {
+      return mpbs;
+    }
+    return mpbsService.save(lastMpbsCheckedIfVerified);
   }
 
   public List<MpbsVerification> verifyMobilePaymentAndSaveResult(List<Mpbs> pendingMpbsList) {

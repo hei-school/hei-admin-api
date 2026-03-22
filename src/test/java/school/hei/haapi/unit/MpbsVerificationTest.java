@@ -19,6 +19,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import school.hei.haapi.endpoint.event.EventProducer;
 import school.hei.haapi.endpoint.event.model.PaidFeeByMpbsFailedNotificationBody;
+import school.hei.haapi.endpoint.rest.mapper.VolaMapper;
 import school.hei.haapi.http.mapper.TransactionDetailsMapper;
 import school.hei.haapi.http.model.TransactionDetails;
 import school.hei.haapi.model.Fee;
@@ -55,7 +56,10 @@ class MpbsVerificationTest {
         mock(),
         unverifiedMobilePaymentHandlerMock,
         computeVerifiedMobilePayment,
-        new CollectionUtils());
+        new CollectionUtils(),
+        mock(),
+        new VolaMapper(),
+        mock());
   }
 
   @Test
