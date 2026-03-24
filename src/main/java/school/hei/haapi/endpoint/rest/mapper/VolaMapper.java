@@ -3,6 +3,7 @@ package school.hei.haapi.endpoint.rest.mapper;
 import static school.hei.haapi.model.psp.PspType.ORANGE_MONEY;
 
 import java.time.Instant;
+import org.springframework.stereotype.Component;
 import school.hei.haapi.endpoint.rest.model.MobileMoneyType;
 import school.hei.haapi.endpoint.rest.model.MpbsStatus;
 import school.hei.haapi.model.PaymentStatus;
@@ -11,6 +12,7 @@ import school.hei.haapi.model.exception.UnsupportedPspTypeException;
 import school.hei.haapi.model.mpbs.Mpbs;
 import school.hei.haapi.model.psp.PspType;
 
+@Component
 public class VolaMapper {
   public PspType toPspType(MobileMoneyType mobileMoneyType) {
     switch (mobileMoneyType) {
