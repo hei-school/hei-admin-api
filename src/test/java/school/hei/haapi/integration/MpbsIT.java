@@ -9,7 +9,6 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 import static school.hei.haapi.endpoint.rest.model.FeeCategory.UNKNOWN;
 import static school.hei.haapi.endpoint.rest.model.FeeTypeEnum.TUITION;
-import static school.hei.haapi.endpoint.rest.model.MobileMoneyType.MVOLA;
 import static school.hei.haapi.endpoint.rest.model.MobileMoneyType.ORANGE_MONEY;
 import static school.hei.haapi.endpoint.rest.model.MpbsStatus.PENDING;
 import static school.hei.haapi.integration.StudentIT.student1;
@@ -294,7 +293,7 @@ public class MpbsIT extends FacadeITMockedThirdParties {
         .pspId("psp2_id")
         .studentId(STUDENT1_ID)
         .feeId(FEE1_ID)
-        .pspType(MVOLA)
+        .pspType(ORANGE_MONEY)
         .amount(8000)
         .successfullyVerifiedOn(Instant.parse("2021-11-08T08:25:24.00Z"))
         .creationDatetime(Instant.parse("2021-11-08T08:25:24.00Z"))
