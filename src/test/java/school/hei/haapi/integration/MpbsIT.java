@@ -4,6 +4,9 @@ import static java.time.Instant.now;
 import static java.time.Month.APRIL;
 import static java.time.temporal.ChronoUnit.MINUTES;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.when;
 import static school.hei.haapi.endpoint.rest.model.FeeCategory.UNKNOWN;
 import static school.hei.haapi.endpoint.rest.model.FeeTypeEnum.TUITION;
 import static school.hei.haapi.endpoint.rest.model.MobileMoneyType.MVOLA;
@@ -23,9 +26,6 @@ import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
 import static school.hei.haapi.integration.conf.TestUtils.setUpEventBridge;
 import static school.hei.haapi.integration.conf.TestUtils.setUpS3Service;
 import static school.hei.haapi.model.User.Role.STUDENT;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.when;
 import static school.hei.haapi.model.User.Sex.M;
 import static school.hei.haapi.model.User.Status.ENABLED;
 
@@ -46,18 +46,17 @@ import school.hei.haapi.endpoint.rest.client.ApiException;
 import school.hei.haapi.endpoint.rest.model.*;
 import school.hei.haapi.integration.conf.FacadeITMockedThirdParties;
 import school.hei.haapi.integration.conf.TestUtils;
-import school.hei.haapi.model.User;
-import school.hei.haapi.service.UserService;
 import school.hei.haapi.model.PaymentStatus;
+import school.hei.haapi.model.User;
 import school.hei.haapi.model.VolaPayment;
 import school.hei.haapi.model.psp.PspType;
 import school.hei.haapi.model.psp.vola.VolaPsp;
+import school.hei.haapi.service.UserService;
 import software.amazon.awssdk.services.eventbridge.EventBridgeClient;
 
 @Testcontainers
 @AutoConfigureMockMvc
-public class
-MpbsIT extends FacadeITMockedThirdParties {
+public class MpbsIT extends FacadeITMockedThirdParties {
   @MockBean private EventBridgeClient eventBridgeClientMock;
   @MockBean private VolaPsp volaPspMock;
   @Autowired private UserService userService;
