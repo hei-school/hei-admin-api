@@ -23,12 +23,12 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
-import school.hei.tsinjo.model.psp.vola.api.gen.client.auth.ApiKeyAuth;
-import school.hei.tsinjo.model.psp.vola.api.gen.client.auth.Authentication;
-import school.hei.tsinjo.model.psp.vola.api.gen.client.auth.HttpBasicAuth;
-import school.hei.tsinjo.model.psp.vola.api.gen.client.auth.OAuth;
+import school.hei.haapi.model.psp.vola.api.gen.client.auth.ApiKeyAuth;
+import school.hei.haapi.model.psp.vola.api.gen.client.auth.Authentication;
+import school.hei.haapi.model.psp.vola.api.gen.client.auth.HttpBasicAuth;
+import school.hei.haapi.model.psp.vola.api.gen.client.auth.OAuth;
 
-@Component("school.hei.tsinjo.model.psp.vola.api.gen.client.ApiClient")
+@Component("school.hei.haapi.model.psp.vola.api.gen.client.ApiClient")
 public class ApiClient {
   public enum CollectionFormat {
     CSV(","),

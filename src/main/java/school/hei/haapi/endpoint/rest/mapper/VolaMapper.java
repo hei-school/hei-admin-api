@@ -7,44 +7,21 @@ import school.hei.haapi.endpoint.rest.model.MobileMoneyType;
 import school.hei.haapi.endpoint.rest.model.MpbsStatus;
 import school.hei.haapi.model.PaymentStatus;
 import school.hei.haapi.model.VolaPayment;
+import school.hei.haapi.model.exception.UnsupportedPspTypeException;
 import school.hei.haapi.model.mpbs.Mpbs;
 import school.hei.haapi.model.psp.PspType;
 
 public class VolaMapper {
-
   public PspType toPspType(MobileMoneyType mobileMoneyType) {
     switch (mobileMoneyType) {
       case ORANGE_MONEY -> {
         return ORANGE_MONEY;
       }
       default -> {
-        throw new RuntimeException("PspType not supported");
+        throw new UnsupportedPspTypeException(
+            "PspType not supported for mobile money type: " + mobileMoneyType);
       }
     }
-  }
-
-  public school.hei.haapi.endpoint.rest.model.Mpbs toRestMpbs(
-      school.hei.haapi.endpoint.rest.model.Mpbs mpbs, VolaPayment volaPayment) {
-    Instant successfullyVerifiedOn =
-        volaPayment.status() == PaymentStatus.CONFIRMED
-            ? volaPayment.pspLastVerificationInstant()
-            : null;
-    school.hei.haapi.endpoint.rest.model.Mpbs restMpbs =
-        new school.hei.haapi.endpoint.rest.model.Mpbs();
-    restMpbs.setAmount(volaPayment.amount());
-    restMpbs.setCreationDatetime(volaPayment.creationInstant());
-    restMpbs.setPspOwnDatetimeVerification(successfullyVerifiedOn);
-    restMpbs.setSuccessfullyVerifiedOn(successfullyVerifiedOn);
-    restMpbs.setLastDatetimeVerification(volaPayment.pspLastVerificationInstant());
-    restMpbs.setStatus(mapPaymentStatusToMpbsStatus(volaPayment.status()));
-    // remainingRetry is not present in domain model, setting to null
-    restMpbs.setRemainingRetry(null);
-    restMpbs.setId(mpbs.getId());
-    restMpbs.setStudentId(mpbs.getStudentId());
-    restMpbs.setFeeId(mpbs.getFeeId());
-    restMpbs.setPspId(volaPayment.pspId());
-    restMpbs.setPspType(toMobilePaymentType(volaPayment.pspType()));
-    return restMpbs;
   }
 
   public Mpbs toMpbs(Mpbs mpbs, VolaPayment volaPayment) {
@@ -83,7 +60,7 @@ public class VolaMapper {
         return MobileMoneyType.ORANGE_MONEY;
       }
       default -> {
-        throw new RuntimeException("PspType not supported");
+        throw new UnsupportedPspTypeException("PspType not supported for PSP type: " + pspType);
       }
     }
   }

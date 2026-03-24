@@ -16,7 +16,9 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import school.hei.haapi.endpoint.rest.mapper.MpbsMapper;
 import school.hei.haapi.endpoint.rest.mapper.VolaMapper;
+import school.hei.haapi.endpoint.rest.model.MpbsStatus;
 import school.hei.haapi.http.mapper.TransactionDetailsMapper;
 import school.hei.haapi.http.model.TransactionDetails;
 import school.hei.haapi.model.MobileTransactionDetails;
@@ -47,22 +49,61 @@ public class MpbsVerificationService {
   private final VolaPsp volaPsp;
   private final VolaMapper volaMapper;
   private final MpbsService mpbsService;
+  private final MpbsMapper mapper;
 
   public List<MpbsVerification> findAllByStudentIdAndFeeId(String studentId, String feeId) {
     return repository.findAllByStudentIdAndFeeId(studentId, feeId);
   }
 
-  public Mpbs checkIfVerifiedFromVola(Mpbs mpbs) {
+  public Mpbs verifyMpbsFromVola(Mpbs mpbs) {
 
     var studentEmail = mpbs.getStudent().getEmail();
 
     var volaPayment =
         volaPsp.get(volaMapper.toPspType(mpbs.getMobileMoneyType()), mpbs.getPspId(), studentEmail);
-    var lastMpbsCheckedIfVerified = volaMapper.toMpbs(mpbs, volaPayment);
-    if (lastMpbsCheckedIfVerified.getAmount() == null) {
+    var verifiedMpbs = volaMapper.toMpbs(mpbs, volaPayment);
+    if (verifiedMpbs.getAmount() == null) {
       return mpbs;
     }
-    return mpbsService.save(lastMpbsCheckedIfVerified);
+    log.info(
+        "Verifying Mpbs {} from Vola, result amount: {}", mpbs.getId(), verifiedMpbs.getAmount());
+    return mpbsService.save(verifiedMpbs);
+  }
+
+  public List<Mpbs> findAllWithPaymentResolution(String studentId, String feeId) {
+    var mpbsListForTheFee =
+        mpbsService.getStudentMobilePaymentByFeeId(studentId, feeId).stream().toList();
+    var mpbsListForTheFeeChecked =
+        mpbsListForTheFee.stream()
+            .filter(mpbs -> mpbs.getStatus() == MpbsStatus.PENDING)
+            .map(this::verifyMpbsFromVola)
+            .toList();
+    var listWithoutPending =
+        new ArrayList<>(
+            mpbsListForTheFee.stream()
+                .filter(mpbs -> !(mpbs.getStatus() == MpbsStatus.PENDING))
+                .toList());
+    listWithoutPending.addAll(mpbsListForTheFeeChecked);
+    return listWithoutPending;
+  }
+
+  public school.hei.haapi.endpoint.rest.model.Mpbs sendVolaVerificationRequestAndSaveResult(
+      Mpbs mpbs) {
+    log.info("Creating Vola payment for mpbs {}", mpbs.getPspId());
+    try {
+      var volaPaymentResponse =
+          volaPsp.create(
+              volaMapper.toPspType(mpbs.getMobileMoneyType()),
+              mpbs.getPspId(),
+              mpbs.getStudent().getEmail());
+      log.info("Received Vola payment response for mpbs {}", mpbs.getPspId());
+      var mpbsMappedFromVola = volaMapper.toMpbs(mpbs, volaPaymentResponse);
+
+      return mapper.toRest(mpbsService.saveMpbs(mpbsMappedFromVola));
+    } catch (Exception e) {
+      log.error("Failed to create Vola payment for mpbs {}", mpbs.getPspId(), e);
+      throw e;
+    }
   }
 
   public List<MpbsVerification> verifyMobilePaymentAndSaveResult(List<Mpbs> pendingMpbsList) {
