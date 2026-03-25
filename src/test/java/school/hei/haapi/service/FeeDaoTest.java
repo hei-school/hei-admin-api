@@ -11,12 +11,14 @@ import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import school.hei.haapi.integration.conf.FacadeITMockedThirdParties;
 import school.hei.haapi.model.statistics.AdvancedFeeStats;
 import school.hei.haapi.repository.dao.FeeDao;
 
+@Slf4j
 class FeeDaoTest extends FacadeITMockedThirdParties {
   @Autowired FeeDao subject;
 
@@ -28,6 +30,7 @@ class FeeDaoTest extends FacadeITMockedThirdParties {
     Map<AdvancedFeeStats.AdvancedFeeStatsType, AdvancedFeeStats> stats =
         subject.getAdvancedFeeStatsOnDateBetween(
             fromDateTime.toLocalDate(), toDateTime.toLocalDate(), RECEIPT);
+    log.info("stats : " + stats.values().toString());
     Set<AdvancedFeeStats> expectedStats =
         Set.of(
             AdvancedFeeStats.builder()
@@ -36,6 +39,9 @@ class FeeDaoTest extends FacadeITMockedThirdParties {
                 .secondGradeCount(0)
                 .thirdGradeCount(0)
                 .workStudyCount(0)
+                .remedialFirstGradeCount(0)
+                .remedialSecondGradeCount(0)
+                .remedialThirdGradeCount(0)
                 .yearlyCount(0)
                 .monthlyCount(0)
                 .countType(RECEIPT)
@@ -46,7 +52,9 @@ class FeeDaoTest extends FacadeITMockedThirdParties {
                 .secondGradeCount(118)
                 .thirdGradeCount(84)
                 .workStudyCount(20)
-                .remedialFeesCount(14)
+                .remedialFirstGradeCount(0)
+                .remedialSecondGradeCount(0)
+                .remedialThirdGradeCount(14)
                 .unknownGradeCount(0)
                 .yearlyCount(2)
                 .monthlyCount(388)
@@ -61,6 +69,9 @@ class FeeDaoTest extends FacadeITMockedThirdParties {
                 .secondGradeCount(0)
                 .thirdGradeCount(0)
                 .workStudyCount(1)
+                .remedialFirstGradeCount(0)
+                .remedialSecondGradeCount(0)
+                .remedialThirdGradeCount(0)
                 .yearlyCount(0)
                 .monthlyCount(0)
                 .unknownFrequencyCount(1)
@@ -72,7 +83,9 @@ class FeeDaoTest extends FacadeITMockedThirdParties {
                 .secondGradeCount(118)
                 .thirdGradeCount(84)
                 .workStudyCount(22)
-                .remedialFeesCount(0)
+                .remedialFirstGradeCount(0)
+                .remedialSecondGradeCount(0)
+                .remedialThirdGradeCount(0)
                 .yearlyCount(2)
                 .monthlyCount(396)
                 .unknownFrequencyCount(20)

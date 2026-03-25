@@ -9026,7 +9026,13 @@ components:
     RetakeExamFeesCount:
       type: object
       properties:
-        retakeExam_fees_count:
+        retakeExam_first_grade_count:
+          type: integer
+          format: int64
+        retakeExam_second_grade_count:
+          type: integer
+          format: int64
+        retakeExam_third_grade_count:
           type: integer
           format: int64
     FeesStatistics:

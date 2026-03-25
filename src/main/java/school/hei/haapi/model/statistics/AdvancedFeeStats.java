@@ -41,7 +41,9 @@ public class AdvancedFeeStats {
   private long thirdGradeCount;
   private long unknownGradeCount;
 
-  private long remedialFeesCount;
+  private long remedialFirstGradeCount;
+  private long remedialSecondGradeCount;
+  private long remedialThirdGradeCount;
   private long workStudyCount;
 
   private long monthlyCount;
