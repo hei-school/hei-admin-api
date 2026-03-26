@@ -11,12 +11,14 @@ import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import school.hei.haapi.integration.conf.FacadeITMockedThirdParties;
 import school.hei.haapi.model.statistics.AdvancedFeeStats;
 import school.hei.haapi.repository.dao.FeeDao;
 
+@Slf4j
 class FeeDaoTest extends FacadeITMockedThirdParties {
   @Autowired FeeDao subject;
 
@@ -31,51 +33,91 @@ class FeeDaoTest extends FacadeITMockedThirdParties {
     Set<AdvancedFeeStats> expectedStats =
         Set.of(
             AdvancedFeeStats.builder()
+                .id(null)
                 .statType(LATE_COUNT)
                 .firstGradeCount(0)
                 .secondGradeCount(0)
                 .thirdGradeCount(0)
+                .unknownGradeCount(0)
+                .remedialFirstGradeCount(0)
+                .remedialSecondGradeCount(0)
+                .remedialThirdGradeCount(0)
                 .workStudyCount(0)
-                .yearlyCount(0)
                 .monthlyCount(0)
+                .yearlyCount(0)
+                .unknownFrequencyCount(0)
+                .bankTransferCount(null)
+                .mpbsCount(null)
+                .creationDatetime(null)
+                .updateDatetime(null)
+                .statStartDate(null)
+                .statEndDate(null)
                 .countType(RECEIPT)
                 .build(),
             AdvancedFeeStats.builder()
+                .id(null)
                 .statType(PAID_COUNT)
                 .firstGradeCount(186)
                 .secondGradeCount(118)
                 .thirdGradeCount(84)
-                .workStudyCount(20)
-                .remedialFeesCount(14)
                 .unknownGradeCount(0)
-                .yearlyCount(2)
+                .remedialFirstGradeCount(0)
+                .remedialSecondGradeCount(0)
+                .remedialThirdGradeCount(14)
+                .workStudyCount(20)
                 .monthlyCount(388)
+                .yearlyCount(2)
                 .unknownFrequencyCount(18)
                 .bankTransferCount(3L)
                 .mpbsCount(405L)
+                .creationDatetime(null)
+                .updateDatetime(null)
+                .statStartDate(null)
+                .statEndDate(null)
                 .countType(RECEIPT)
                 .build(),
             AdvancedFeeStats.builder()
+                .id(null)
                 .statType(PENDING_COUNT)
                 .firstGradeCount(0)
                 .secondGradeCount(0)
                 .thirdGradeCount(0)
+                .unknownGradeCount(0)
+                .remedialFirstGradeCount(0)
+                .remedialSecondGradeCount(0)
+                .remedialThirdGradeCount(0)
                 .workStudyCount(1)
-                .yearlyCount(0)
                 .monthlyCount(0)
+                .yearlyCount(0)
                 .unknownFrequencyCount(1)
+                .bankTransferCount(null)
+                .mpbsCount(null)
+                .creationDatetime(null)
+                .updateDatetime(null)
+                .statStartDate(null)
+                .statEndDate(null)
                 .countType(RECEIPT)
                 .build(),
             AdvancedFeeStats.builder()
+                .id(null)
                 .statType(TOTAL_COUNT)
                 .firstGradeCount(194)
                 .secondGradeCount(118)
                 .thirdGradeCount(84)
+                .unknownGradeCount(0)
+                .remedialFirstGradeCount(0)
+                .remedialSecondGradeCount(0)
+                .remedialThirdGradeCount(0)
                 .workStudyCount(22)
-                .remedialFeesCount(0)
-                .yearlyCount(2)
                 .monthlyCount(396)
+                .yearlyCount(2)
                 .unknownFrequencyCount(20)
+                .bankTransferCount(null)
+                .mpbsCount(null)
+                .creationDatetime(null)
+                .updateDatetime(null)
+                .statStartDate(null)
+                .statEndDate(null)
                 .countType(RECEIPT)
                 .build());
     var values = stats.values();
@@ -90,7 +132,6 @@ class FeeDaoTest extends FacadeITMockedThirdParties {
                   stat.setCreationDatetime(null);
                 })
             .toList();
-
     assertEquals(expectedStats, new HashSet<>(actual));
   }
 }
