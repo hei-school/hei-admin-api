@@ -1,3 +1,12 @@
+# [1.155.0](https://github.com/hei-school/hei-admin-api/compare/v1.154.1...v1.155.0) (2026-03-26)
+
+
+### Features
+
+* add status-checks to flag potential withdrawing students ([821726d](https://github.com/hei-school/hei-admin-api/commit/821726d68c1a36120ffc5ed10d7bd9a57b4b03a4))
+
+
+
 ## [1.154.1](https://github.com/hei-school/hei-admin-api/compare/v1.154.0...v1.154.1) (2026-03-12)
 
 
@@ -126,15 +135,6 @@
 ### Features
 
 * (doc) add new endpoint for grade template ([7706546](https://github.com/hei-school/hei-admin-api/commit/77065467e84e1a958077f60a65667c77b87f21ad))
-
-
-
-## [1.145.2](https://github.com/hei-school/hei-admin-api/compare/v1.145.1...v1.145.2) (2025-12-23)
-
-
-### Bug Fixes
-
-* update grade ([0178032](https://github.com/hei-school/hei-admin-api/commit/0178032ad80b1e2b06c28b7cb4c32e811208f2c1))
 
 
 
