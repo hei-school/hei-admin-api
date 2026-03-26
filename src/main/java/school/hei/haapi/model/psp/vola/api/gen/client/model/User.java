@@ -13,8 +13,10 @@
 package school.hei.haapi.model.psp.vola.api.gen.client.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import java.util.Objects;
+import lombok.Builder;
 
+import java.util.Objects;
+@Builder
 /** User */
 public class User {
   @JsonProperty("email")

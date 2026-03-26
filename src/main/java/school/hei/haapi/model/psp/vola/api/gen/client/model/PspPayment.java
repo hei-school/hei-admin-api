@@ -15,9 +15,12 @@ package school.hei.haapi.model.psp.vola.api.gen.client.model;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonValue;
+import lombok.Builder;
+
 import java.util.Date;
 import java.util.Objects;
 
+@Builder
 /** PspPayment */
 public class PspPayment {
   /** Gets or Sets pspType */

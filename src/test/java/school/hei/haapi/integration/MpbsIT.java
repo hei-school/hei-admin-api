@@ -45,10 +45,9 @@ import school.hei.haapi.endpoint.rest.client.ApiException;
 import school.hei.haapi.endpoint.rest.model.*;
 import school.hei.haapi.integration.conf.FacadeITMockedThirdParties;
 import school.hei.haapi.integration.conf.TestUtils;
-import school.hei.haapi.model.PaymentStatus;
+import school.hei.haapi.model.psp.vola.api.gen.client.model.Payment;
+import school.hei.haapi.model.psp.vola.api.gen.client.model.PspPayment;
 import school.hei.haapi.model.User;
-import school.hei.haapi.model.VolaPayment;
-import school.hei.haapi.model.psp.PspType;
 import school.hei.haapi.model.psp.vola.VolaPsp;
 import school.hei.haapi.service.UserService;
 import software.amazon.awssdk.services.eventbridge.EventBridgeClient;
@@ -70,30 +69,38 @@ public class MpbsIT extends FacadeITMockedThirdParties {
   }
 
   private void setUpVolaPsp() {
-    when(volaPspMock.get(any(PspType.class), anyString(), anyString()))
+    when(volaPspMock.get(any(PspPayment.PspTypeEnum.class), anyString(), anyString()))
         .thenAnswer(
             invocation -> {
               String pspId = invocation.getArgument(1);
-              return VolaPayment.builder()
-                  .amount(null)
-                  .pspType(PspType.ORANGE_MONEY)
-                  .pspId(pspId)
-                  .status(PaymentStatus.VERIFYING)
-                  .pspLastVerificationInstant(now())
+              var pspPayment =
+                  PspPayment.builder()
+                      .pspType(PspPayment.PspTypeEnum.ORANGE_MONEY)
+                      .id(pspId)
+                      .amount(null)
+                      .build();
+              return Payment.builder()
+                  .pspPayment(pspPayment)
+                  .verificationStatus(Payment.VerificationStatusEnum.VERIFYING)
+                  .lastPspVerificationInstant(java.util.Date.from(now()))
                   .creationInstant(null)
                   .build();
             });
-    when(volaPspMock.create(any(PspType.class), anyString(), anyString()))
+    when(volaPspMock.create( any(PspPayment.PspTypeEnum.class), anyString(), anyString()))
         .thenAnswer(
             invocation -> {
               String pspId = invocation.getArgument(1);
-              return VolaPayment.builder()
-                  .amount(null)
-                  .pspType(PspType.ORANGE_MONEY)
-                  .pspId(pspId)
-                  .status(PaymentStatus.VERIFYING)
-                  .pspLastVerificationInstant(now())
-                  .creationInstant(now())
+              var pspPayment =
+                  PspPayment.builder()
+                      .pspType(PspPayment.PspTypeEnum.ORANGE_MONEY)
+                      .id(pspId)
+                      .amount(null)
+                      .build();
+              return Payment.builder()
+                  .pspPayment(pspPayment)
+                  .verificationStatus(Payment.VerificationStatusEnum.VERIFYING)
+                  .lastPspVerificationInstant(java.util.Date.from(now()))
+                  .creationInstant(java.util.Date.from(now()))
                   .build();
             });
   }

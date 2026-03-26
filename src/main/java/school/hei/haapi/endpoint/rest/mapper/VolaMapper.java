@@ -1,23 +1,22 @@
 package school.hei.haapi.endpoint.rest.mapper;
 
-import static school.hei.haapi.model.psp.PspType.ORANGE_MONEY;
+import static school.hei.haapi.model.psp.vola.api.gen.client.model.Payment.VerificationStatusEnum.SUCCEEDED;
 
 import java.time.Instant;
 import org.springframework.stereotype.Component;
 import school.hei.haapi.endpoint.rest.model.MobileMoneyType;
 import school.hei.haapi.endpoint.rest.model.MpbsStatus;
-import school.hei.haapi.model.PaymentStatus;
-import school.hei.haapi.model.VolaPayment;
 import school.hei.haapi.model.exception.UnsupportedPspTypeException;
 import school.hei.haapi.model.mpbs.Mpbs;
-import school.hei.haapi.model.psp.PspType;
+import school.hei.haapi.model.psp.vola.api.gen.client.model.Payment;
+import school.hei.haapi.model.psp.vola.api.gen.client.model.PspPayment;
 
 @Component
 public class VolaMapper {
-  public PspType toPspType(MobileMoneyType mobileMoneyType) {
+  public PspPayment.PspTypeEnum toPspType(MobileMoneyType mobileMoneyType) {
     switch (mobileMoneyType) {
       case ORANGE_MONEY -> {
-        return ORANGE_MONEY;
+        return PspPayment.PspTypeEnum.ORANGE_MONEY;
       }
       default -> {
         throw new UnsupportedPspTypeException(
@@ -26,37 +25,50 @@ public class VolaMapper {
     }
   }
 
-  public Mpbs toMpbs(Mpbs mpbs, VolaPayment volaPayment) {
-    Instant successfullyVerifiedOn =
-        volaPayment.status() == PaymentStatus.CONFIRMED
-            ? volaPayment.pspLastVerificationInstant()
+  public Mpbs toMpbs(Mpbs mpbs, Payment volaPayment) {
+    var pspPayment = volaPayment.getPspPayment();
+    var lastVerificationInstant =
+        volaPayment.getLastPspVerificationInstant() != null
+            ? volaPayment.getLastPspVerificationInstant().toInstant()
             : null;
-    return Mpbs.builder()
-        .amount(volaPayment.amount())
-        .successfullyVerifiedOn(successfullyVerifiedOn)
-        .lastVerificationDatetime(volaPayment.pspLastVerificationInstant())
-        .pspOwnDatetimeVerification(successfullyVerifiedOn)
-        .student(mpbs.getStudent())
-        .fee(mpbs.getFee())
-        .status(mapPaymentStatusToMpbsStatus(volaPayment.status()))
-        .statusHistory(mpbs.getStatusHistory())
-        .id(mpbs.getId())
-        .pspId(volaPayment.pspId())
-        .mobileMoneyType(toMobilePaymentType(volaPayment.pspType()))
-        .creationDatetime(volaPayment.creationInstant())
-        .build();
+    var creationInstant =
+        volaPayment.getCreationInstant() != null
+            ? volaPayment.getCreationInstant().toInstant()
+            : null;
+    Instant successfullyVerifiedOn =
+        volaPayment.getVerificationStatus() == SUCCEEDED ? lastVerificationInstant : null;
+
+    var builder =
+        Mpbs.builder()
+            .successfullyVerifiedOn(successfullyVerifiedOn)
+            .lastVerificationDatetime(lastVerificationInstant)
+            .pspOwnDatetimeVerification(successfullyVerifiedOn)
+            .student(mpbs.getStudent())
+            .fee(mpbs.getFee())
+            .status(mapPaymentStatusToMpbsStatus(volaPayment.getVerificationStatus()))
+            .statusHistory(mpbs.getStatusHistory())
+            .id(mpbs.getId())
+            .creationDatetime(creationInstant);
+
+    if (pspPayment != null) {
+      builder
+          .amount(pspPayment.getAmount())
+          .pspId(pspPayment.getId())
+          .mobileMoneyType(toMobilePaymentType(pspPayment.getPspType()));
+    }
+
+    return builder.build();
   }
 
-  private MpbsStatus mapPaymentStatusToMpbsStatus(PaymentStatus paymentStatus) {
+  private MpbsStatus mapPaymentStatusToMpbsStatus(Payment.VerificationStatusEnum paymentStatus) {
     return switch (paymentStatus) {
       case VERIFYING -> MpbsStatus.PENDING;
-      case CONFIRMED -> MpbsStatus.SUCCESS;
-      case REFUSED -> MpbsStatus.FAILED;
-      case UNKNOWN -> MpbsStatus.PENDING; // Default to PENDING for unknown status
+      case SUCCEEDED -> MpbsStatus.SUCCESS;
+      case FAILED -> MpbsStatus.FAILED;
     };
   }
 
-  public MobileMoneyType toMobilePaymentType(PspType pspType) {
+  public MobileMoneyType toMobilePaymentType(PspPayment.PspTypeEnum pspType) {
     switch (pspType) {
       case ORANGE_MONEY -> {
         return MobileMoneyType.ORANGE_MONEY;
