@@ -56,18 +56,24 @@ public class MpbsVerificationService {
   }
 
   public Mpbs verifyMpbsFromVola(Mpbs mpbs) {
-
-    var studentEmail = mpbs.getStudent().getEmail();
-
-    var volaPayment =
-        volaPsp.get(volaMapper.toPspType(mpbs.getMobileMoneyType()), mpbs.getPspId(), studentEmail);
-    var verifiedMpbs = volaMapper.toMpbs(mpbs, volaPayment);
-    if (verifiedMpbs.getAmount() == null) {
+    try {
+      var studentEmail = mpbs.getStudent().getEmail();
+      var volaPayment =
+          volaPsp.get(
+              volaMapper.toPspType(mpbs.getMobileMoneyType()), mpbs.getPspId(), studentEmail);
+      var verifiedMpbs = volaMapper.toMpbs(mpbs, volaPayment);
+      if (verifiedMpbs.getAmount() == null) {
+        return mpbs;
+      }
+      log.info(
+          "Verifying Mpbs {} from Vola, result amount: {}",
+          mpbs.getId(),
+          verifiedMpbs.getAmount());
+      return mpbsService.save(verifiedMpbs);
+    } catch (Exception e) {
+      log.error("Failed to verify Mpbs {} from Vola", mpbs.getId(), e);
       return mpbs;
     }
-    log.info(
-        "Verifying Mpbs {} from Vola, result amount: {}", mpbs.getId(), verifiedMpbs.getAmount());
-    return mpbsService.save(verifiedMpbs);
   }
 
   public List<Mpbs> findAllWithPaymentResolution(String studentId, String feeId) {
