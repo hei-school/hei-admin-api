@@ -28,7 +28,7 @@ import school.hei.haapi.model.psp.vola.api.gen.client.auth.Authentication;
 import school.hei.haapi.model.psp.vola.api.gen.client.auth.HttpBasicAuth;
 import school.hei.haapi.model.psp.vola.api.gen.client.auth.OAuth;
 
-@Component("school.hei.haapi.model.psp.vola.api.gen.client.ApiClient")
+@Component("volaApiClient")
 public class ApiClient {
   public enum CollectionFormat {
     CSV(","),

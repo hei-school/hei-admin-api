@@ -87,7 +87,7 @@ public class MpbsVerificationService {
     var listWithoutPending =
         new ArrayList<>(
             mpbsListForTheFee.stream()
-                .filter(mpbs -> !(mpbs.getStatus() == MpbsStatus.PENDING))
+                .filter(mpbs -> (mpbs.getStatus() != MpbsStatus.PENDING))
                 .toList());
     listWithoutPending.addAll(mpbsListForTheFeeChecked);
     return listWithoutPending;

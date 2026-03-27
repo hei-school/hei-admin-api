@@ -14,7 +14,7 @@ import org.springframework.web.client.RestClientException;
 import org.springframework.web.util.UriComponentsBuilder;
 import school.hei.haapi.model.psp.vola.api.gen.client.ApiClient;
 
-@Component("school.hei.haapi.model.psp.vola.api.gen.client.api.PingControllerApi")
+@Component("pingControllerApi")
 public class PingControllerApi {
   private ApiClient apiClient;
 

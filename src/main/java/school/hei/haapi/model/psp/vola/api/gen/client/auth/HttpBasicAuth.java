@@ -1,8 +1,8 @@
 package school.hei.haapi.model.psp.vola.api.gen.client.auth;
 
 import java.nio.charset.StandardCharsets;
+import java.util.Base64;
 import org.springframework.http.HttpHeaders;
-import org.springframework.util.Base64Utils;
 import org.springframework.util.MultiValueMap;
 
 public class HttpBasicAuth implements Authentication {
@@ -33,6 +33,6 @@ public class HttpBasicAuth implements Authentication {
     String str = (username == null ? "" : username) + ":" + (password == null ? "" : password);
     headerParams.add(
         HttpHeaders.AUTHORIZATION,
-        "Basic " + Base64Utils.encodeToString(str.getBytes(StandardCharsets.UTF_8)));
+        "Basic " + Base64.getEncoder().encodeToString(str.getBytes(StandardCharsets.UTF_8)));
   }
 }

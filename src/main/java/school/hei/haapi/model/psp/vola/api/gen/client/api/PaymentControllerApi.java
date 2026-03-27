@@ -13,7 +13,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 import school.hei.haapi.model.psp.vola.api.gen.client.ApiClient;
 import school.hei.haapi.model.psp.vola.api.gen.client.model.Payment;
 
-@Component("school.hei.haapi.model.psp.vola.api.gen.client.api.PaymentControllerApi")
+@Component("paymentControllerApi")
 public class PaymentControllerApi {
   private ApiClient apiClient;
 

@@ -7,7 +7,6 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
@@ -154,7 +153,7 @@ class MpbsVerificationTest {
     List<MpbsVerification> verifiedMpbs =
         subject.verifyMobilePaymentAndSaveResult(List.of(badMpbs, mpbsVerified, mpbsFailed));
 
-    verify(computeVerifiedMobilePaymentMock, never()).saveTheVerifiedMpbs(eq(badMpbs), any());
+    verify(computeVerifiedMobilePaymentMock, never()).saveTheVerifiedMpbs(badMpbs, any());
     assertEquals(1, verifiedMpbs.size());
     assertEquals(fakeComputedVerifiedMpbs, verifiedMpbs.getFirst());
 
@@ -215,9 +214,7 @@ class MpbsVerificationTest {
             .statusHistory(List.of())
             .build();
     when(volaClientMock.get(
-            eq(PspPayment.PspTypeEnum.ORANGE_MONEY),
-            eq("MP260101.0000.B00000"),
-            eq("dummy@gmail.com")))
+            PspPayment.PspTypeEnum.ORANGE_MONEY, "MP260101.0000.B00000", "dummy@gmail.com"))
         .thenReturn(confirmedVolaPayment);
     when(mpbsServiceMock.save(any(Mpbs.class))).thenReturn(savedMpbs);
 
@@ -270,9 +267,7 @@ class MpbsVerificationTest {
             .creationInstant(null)
             .build();
     when(volaClientMock.get(
-            eq(PspPayment.PspTypeEnum.ORANGE_MONEY),
-            eq("MP260101.0000.B00000"),
-            eq("dummy@gmail.com")))
+            PspPayment.PspTypeEnum.ORANGE_MONEY, "MP260101.0000.B00000", "dummy@gmail.com"))
         .thenReturn(verifyingVolaPayment);
 
     Mpbs result = subject.verifyMpbsFromVola(mpbsToVerify);
@@ -327,9 +322,7 @@ class MpbsVerificationTest {
             .build();
     var expectedRestMpbs = new school.hei.haapi.endpoint.rest.model.Mpbs().id("mpbs1");
     when(volaClientMock.create(
-            eq(PspPayment.PspTypeEnum.ORANGE_MONEY),
-            eq("MP260101.0000.B00000"),
-            eq("dummy@gmail.com")))
+            PspPayment.PspTypeEnum.ORANGE_MONEY, "MP260101.0000.B00000", "dummy@gmail.com"))
         .thenReturn(volaPaymentResponse);
     when(mpbsServiceMock.saveMpbs(any(Mpbs.class))).thenReturn(savedMpbs);
     when(mpbsMapperMock.toRest(savedMpbs)).thenReturn(expectedRestMpbs);
@@ -387,9 +380,7 @@ class MpbsVerificationTest {
             .statusHistory(List.of())
             .build();
     when(volaClientMock.get(
-            eq(PspPayment.PspTypeEnum.ORANGE_MONEY),
-            eq("MP260101.0000.B00000"),
-            eq("dummy@gmail.com")))
+            PspPayment.PspTypeEnum.ORANGE_MONEY, "MP260101.0000.B00000", "dummy@gmail.com"))
         .thenReturn(refusedVolaPayment);
     when(mpbsServiceMock.save(any(Mpbs.class))).thenReturn(savedMpbs);
 
@@ -425,9 +416,7 @@ class MpbsVerificationTest {
             .statusHistory(List.of())
             .build();
     when(volaClientMock.create(
-            eq(PspPayment.PspTypeEnum.ORANGE_MONEY),
-            eq("MP260101.0000.B00000"),
-            eq("dummy@gmail.com")))
+            PspPayment.PspTypeEnum.ORANGE_MONEY, "MP260101.0000.B00000", "dummy@gmail.com"))
         .thenThrow(new RuntimeException("Vola API unreachable"));
 
     assertThrows(

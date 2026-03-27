@@ -18,15 +18,11 @@ import school.hei.haapi.model.psp.vola.api.gen.client.model.PspPayment;
 @Component
 public class VolaMapper {
   public PspPayment.PspTypeEnum toPspType(MobileMoneyType mobileMoneyType) {
-    switch (mobileMoneyType) {
-      case ORANGE_MONEY -> {
-        return PspPayment.PspTypeEnum.ORANGE_MONEY;
-      }
-      default -> {
-        throw new UnsupportedPspTypeException(
-            "PspType not supported for mobile money type: " + mobileMoneyType);
-      }
+    if (mobileMoneyType == MobileMoneyType.ORANGE_MONEY) {
+      return PspPayment.PspTypeEnum.ORANGE_MONEY;
     }
+    throw new UnsupportedPspTypeException(
+        "PspType not supported for mobile money type: " + mobileMoneyType);
   }
 
   public Mpbs toMpbs(
@@ -78,13 +74,9 @@ public class VolaMapper {
   }
 
   public MobileMoneyType toMobilePaymentType(PspPayment.PspTypeEnum pspType) {
-    switch (pspType) {
-      case ORANGE_MONEY -> {
-        return MobileMoneyType.ORANGE_MONEY;
-      }
-      default -> {
-        throw new UnsupportedPspTypeException("PspType not supported for PSP type: " + pspType);
-      }
+    if (pspType == PspPayment.PspTypeEnum.ORANGE_MONEY) {
+      return MobileMoneyType.ORANGE_MONEY;
     }
+    throw new UnsupportedPspTypeException("PspType not supported for PSP type: " + pspType);
   }
 }
