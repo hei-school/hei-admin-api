@@ -30,12 +30,11 @@ import school.hei.haapi.http.model.TransactionDetails;
 import school.hei.haapi.model.Fee;
 import school.hei.haapi.model.MobileTransactionDetails;
 import school.hei.haapi.model.Payment;
-import school.hei.haapi.model.psp.vola.api.gen.client.model.PspPayment;
 import school.hei.haapi.model.User;
-
 import school.hei.haapi.model.mpbs.Mpbs;
 import school.hei.haapi.model.mpbs.MpbsVerification;
 import school.hei.haapi.model.psp.vola.VolaPsp;
+import school.hei.haapi.model.psp.vola.api.gen.client.model.PspPayment;
 import school.hei.haapi.service.ComputeVerifiedMobilePayment;
 import school.hei.haapi.service.FailedMobilePaymentNotification;
 import school.hei.haapi.service.MobilePaymentService;
@@ -200,8 +199,8 @@ class MpbsVerificationTest {
                     .amount(10000)
                     .build())
             .verificationStatus(
-                school.hei.haapi.model.psp.vola.api.gen.client.model.Payment
-                    .VerificationStatusEnum.SUCCEEDED)
+                school.hei.haapi.model.psp.vola.api.gen.client.model.Payment.VerificationStatusEnum
+                    .SUCCEEDED)
             .lastPspVerificationInstant(java.util.Date.from(now()))
             .creationInstant(java.util.Date.from(now().minus(1, DAYS)))
             .build();
@@ -216,7 +215,9 @@ class MpbsVerificationTest {
             .statusHistory(List.of())
             .build();
     when(volaPspMock.get(
-            eq(PspPayment.PspTypeEnum.ORANGE_MONEY), eq("MP260101.0000.B00000"), eq("dummy@gmail.com")))
+            eq(PspPayment.PspTypeEnum.ORANGE_MONEY),
+            eq("MP260101.0000.B00000"),
+            eq("dummy@gmail.com")))
         .thenReturn(confirmedVolaPayment);
     when(mpbsServiceMock.save(any(Mpbs.class))).thenReturn(savedMpbs);
 
@@ -263,13 +264,15 @@ class MpbsVerificationTest {
                     .amount(null)
                     .build())
             .verificationStatus(
-                school.hei.haapi.model.psp.vola.api.gen.client.model.Payment
-                    .VerificationStatusEnum.VERIFYING)
+                school.hei.haapi.model.psp.vola.api.gen.client.model.Payment.VerificationStatusEnum
+                    .VERIFYING)
             .lastPspVerificationInstant(java.util.Date.from(now()))
             .creationInstant(null)
             .build();
     when(volaPspMock.get(
-            eq(PspPayment.PspTypeEnum.ORANGE_MONEY), eq("MP260101.0000.B00000"), eq("dummy@gmail.com")))
+            eq(PspPayment.PspTypeEnum.ORANGE_MONEY),
+            eq("MP260101.0000.B00000"),
+            eq("dummy@gmail.com")))
         .thenReturn(verifyingVolaPayment);
 
     Mpbs result = subject.verifyMpbsFromVola(mpbsToVerify);
@@ -307,8 +310,8 @@ class MpbsVerificationTest {
                     .amount(15000)
                     .build())
             .verificationStatus(
-                school.hei.haapi.model.psp.vola.api.gen.client.model.Payment
-                    .VerificationStatusEnum.SUCCEEDED)
+                school.hei.haapi.model.psp.vola.api.gen.client.model.Payment.VerificationStatusEnum
+                    .SUCCEEDED)
             .lastPspVerificationInstant(java.util.Date.from(now()))
             .creationInstant(java.util.Date.from(now().minus(1, DAYS)))
             .build();
@@ -324,7 +327,9 @@ class MpbsVerificationTest {
             .build();
     var expectedRestMpbs = new school.hei.haapi.endpoint.rest.model.Mpbs().id("mpbs1");
     when(volaPspMock.create(
-            eq(PspPayment.PspTypeEnum.ORANGE_MONEY), eq("MP260101.0000.B00000"), eq("dummy@gmail.com")))
+            eq(PspPayment.PspTypeEnum.ORANGE_MONEY),
+            eq("MP260101.0000.B00000"),
+            eq("dummy@gmail.com")))
         .thenReturn(volaPaymentResponse);
     when(mpbsServiceMock.saveMpbs(any(Mpbs.class))).thenReturn(savedMpbs);
     when(mpbsMapperMock.toRest(savedMpbs)).thenReturn(expectedRestMpbs);
@@ -367,8 +372,8 @@ class MpbsVerificationTest {
                     .amount(5000)
                     .build())
             .verificationStatus(
-                school.hei.haapi.model.psp.vola.api.gen.client.model.Payment
-                    .VerificationStatusEnum.FAILED)
+                school.hei.haapi.model.psp.vola.api.gen.client.model.Payment.VerificationStatusEnum
+                    .FAILED)
             .lastPspVerificationInstant(java.util.Date.from(now()))
             .creationInstant(java.util.Date.from(now().minus(1, DAYS)))
             .build();
@@ -382,7 +387,9 @@ class MpbsVerificationTest {
             .statusHistory(List.of())
             .build();
     when(volaPspMock.get(
-            eq(PspPayment.PspTypeEnum.ORANGE_MONEY), eq("MP260101.0000.B00000"), eq("dummy@gmail.com")))
+            eq(PspPayment.PspTypeEnum.ORANGE_MONEY),
+            eq("MP260101.0000.B00000"),
+            eq("dummy@gmail.com")))
         .thenReturn(refusedVolaPayment);
     when(mpbsServiceMock.save(any(Mpbs.class))).thenReturn(savedMpbs);
 
@@ -418,7 +425,9 @@ class MpbsVerificationTest {
             .statusHistory(List.of())
             .build();
     when(volaPspMock.create(
-            eq(PspPayment.PspTypeEnum.ORANGE_MONEY), eq("MP260101.0000.B00000"), eq("dummy@gmail.com")))
+            eq(PspPayment.PspTypeEnum.ORANGE_MONEY),
+            eq("MP260101.0000.B00000"),
+            eq("dummy@gmail.com")))
         .thenThrow(new RuntimeException("Vola API unreachable"));
 
     assertThrows(

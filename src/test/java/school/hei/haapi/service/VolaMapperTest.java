@@ -96,8 +96,7 @@ class VolaMapperTest {
         result.getLastVerificationDatetime());
     assertEquals(ORANGE_MONEY, result.getMobileMoneyType());
     assertEquals(school.hei.haapi.endpoint.rest.model.MpbsStatus.SUCCESS, result.getStatus());
-    assertEquals(
-        volaPayment.getCreationInstant().toInstant(), result.getCreationDatetime());
+    assertEquals(volaPayment.getCreationInstant().toInstant(), result.getCreationDatetime());
     assertEquals(mpbs.getStatusHistory(), result.getStatusHistory());
   }
 

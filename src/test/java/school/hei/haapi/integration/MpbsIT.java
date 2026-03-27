@@ -45,10 +45,10 @@ import school.hei.haapi.endpoint.rest.client.ApiException;
 import school.hei.haapi.endpoint.rest.model.*;
 import school.hei.haapi.integration.conf.FacadeITMockedThirdParties;
 import school.hei.haapi.integration.conf.TestUtils;
-import school.hei.haapi.model.psp.vola.api.gen.client.model.Payment;
-import school.hei.haapi.model.psp.vola.api.gen.client.model.PspPayment;
 import school.hei.haapi.model.User;
 import school.hei.haapi.model.psp.vola.VolaPsp;
+import school.hei.haapi.model.psp.vola.api.gen.client.model.Payment;
+import school.hei.haapi.model.psp.vola.api.gen.client.model.PspPayment;
 import school.hei.haapi.service.UserService;
 import software.amazon.awssdk.services.eventbridge.EventBridgeClient;
 
@@ -86,7 +86,7 @@ public class MpbsIT extends FacadeITMockedThirdParties {
                   .creationInstant(null)
                   .build();
             });
-    when(volaPspMock.create( any(PspPayment.PspTypeEnum.class), anyString(), anyString()))
+    when(volaPspMock.create(any(PspPayment.PspTypeEnum.class), anyString(), anyString()))
         .thenAnswer(
             invocation -> {
               String pspId = invocation.getArgument(1);
