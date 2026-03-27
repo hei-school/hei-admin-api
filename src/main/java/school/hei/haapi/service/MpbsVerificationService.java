@@ -26,7 +26,7 @@ import school.hei.haapi.model.dto.MobileTransactionDetailsDto;
 import school.hei.haapi.model.exception.NoRemainingAmountFee;
 import school.hei.haapi.model.mpbs.Mpbs;
 import school.hei.haapi.model.mpbs.MpbsVerification;
-import school.hei.haapi.model.psp.vola.VolaPsp;
+import school.hei.haapi.model.psp.vola.api.VolaClient;
 import school.hei.haapi.repository.MpbsRepository;
 import school.hei.haapi.repository.MpbsVerificationRepository;
 import school.hei.haapi.service.aws.FileService;
@@ -46,7 +46,7 @@ public class MpbsVerificationService {
   private final UnverifiedMobilePaymentHandler unverifiedMobilePaymentHandler;
   private final ComputeVerifiedMobilePayment computeVerifiedMobilePayment;
   private final CollectionUtils collectionUtils;
-  private final VolaPsp volaPsp;
+  private final VolaClient volaClient;
   private final VolaMapper volaMapper;
   private final MpbsService mpbsService;
   private final MpbsMapper mapper;
@@ -59,9 +59,11 @@ public class MpbsVerificationService {
     try {
       var studentEmail = mpbs.getStudent().getEmail();
       var volaPayment =
-          volaPsp.get(
+          volaClient.get(
               volaMapper.toPspType(mpbs.getMobileMoneyType()), mpbs.getPspId(), studentEmail);
-      var verifiedMpbs = volaMapper.toMpbs(mpbs, volaPayment);
+      var verifiedMpbs =
+          volaMapper.toMpbs(
+              volaPayment, mpbs.getId(), mpbs.getStudent(), mpbs.getFee(), mpbs.getStatusHistory());
       if (verifiedMpbs.getAmount() == null) {
         return mpbs;
       }
@@ -96,12 +98,18 @@ public class MpbsVerificationService {
     log.info("Creating Vola payment for mpbs {}", mpbs.getPspId());
     try {
       var volaPaymentResponse =
-          volaPsp.create(
+          volaClient.create(
               volaMapper.toPspType(mpbs.getMobileMoneyType()),
               mpbs.getPspId(),
               mpbs.getStudent().getEmail());
       log.info("Received Vola payment response for mpbs {}", mpbs.getPspId());
-      var mpbsMappedFromVola = volaMapper.toMpbs(mpbs, volaPaymentResponse);
+      var mpbsMappedFromVola =
+          volaMapper.toMpbs(
+              volaPaymentResponse,
+              mpbs.getId(),
+              mpbs.getStudent(),
+              mpbs.getFee(),
+              mpbs.getStatusHistory());
 
       return mapper.toRest(mpbsService.saveMpbs(mpbsMappedFromVola));
     } catch (Exception e) {

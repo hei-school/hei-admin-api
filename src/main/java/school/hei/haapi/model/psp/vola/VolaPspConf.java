@@ -8,14 +8,17 @@ import school.hei.haapi.model.psp.vola.api.VolaClient;
 @Configuration
 public class VolaPspConf {
 
-  @Bean
-  public VolaClient volaClient(
-      @Value("${VOLA_API_URL}") String baseUrl, @Value("${VOLA_API_KEY}") String apiKey) {
-    return new VolaClient(baseUrl, apiKey);
+  private final String apiUrl;
+  private final String apiKey;
+
+  public VolaPspConf(
+      @Value("${vola.api.url}") String apiUrl, @Value("${vola.api.key}") String apiKey) {
+    this.apiUrl = apiUrl;
+    this.apiKey = apiKey;
   }
 
   @Bean
-  public VolaPsp volaPsp(VolaClient volaClient) {
-    return new VolaPsp(volaClient);
+  public VolaClient volaClient() {
+    return new VolaClient(apiUrl, apiKey);
   }
 }

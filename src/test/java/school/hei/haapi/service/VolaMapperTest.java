@@ -10,15 +10,17 @@ import static school.hei.haapi.endpoint.rest.model.MobileMoneyType.ORANGE_MONEY;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Date;
+import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import school.hei.haapi.endpoint.rest.mapper.VolaMapper;
 import school.hei.haapi.endpoint.rest.model.MobileMoneyType;
+import school.hei.haapi.model.Fee;
+import school.hei.haapi.model.User;
 import school.hei.haapi.model.mpbs.Mpbs;
 import school.hei.haapi.model.psp.vola.api.gen.client.model.Payment;
 import school.hei.haapi.model.psp.vola.api.gen.client.model.PspPayment;
-import school.hei.haapi.model.psp.vola.api.gen.client.model.User;
 
 class VolaMapperTest {
 
@@ -53,14 +55,9 @@ class VolaMapperTest {
 
   @Test
   void toMpbs_shouldMapCorrectly_whenVolaPaymentIsConfirmed() {
-    var mpbs =
-        Mpbs.builder()
-            .id("mpbsId")
-            .student(Mockito.mock(school.hei.haapi.model.User.class))
-            .fee(Mockito.mock(school.hei.haapi.model.Fee.class))
-            .amount(1000)
-            .creationDatetime(Instant.now())
-            .build();
+    var student = Mockito.mock(User.class);
+    var fee = Mockito.mock(Fee.class);
+    var statusHistory = List.of(new school.hei.haapi.model.mpbs.MpbsStatusHistory());
 
     var verificationInstant = Instant.now().truncatedTo(ChronoUnit.MILLIS);
     var pspPayment =
@@ -70,7 +67,10 @@ class VolaMapperTest {
             .amount(1500)
             .creationInstant(Date.from(verificationInstant))
             .build();
-    var payer = User.builder().email("dummy@gmail.com").build();
+    var payer =
+        school.hei.haapi.model.psp.vola.api.gen.client.model.User.builder()
+            .email("dummy@gmail.com")
+            .build();
     var volaPayment =
         Payment.builder()
             .id("p1")
@@ -82,12 +82,12 @@ class VolaMapperTest {
             .verificationStatus(Payment.VerificationStatusEnum.SUCCEEDED)
             .build();
 
-    var result = volaMapper.toMpbs(mpbs, volaPayment);
+    var result = volaMapper.toMpbs(volaPayment, "mpbsId", student, fee, statusHistory);
 
     assertNotNull(result);
-    assertEquals(mpbs.getId(), result.getId());
-    assertEquals(mpbs.getStudent(), result.getStudent());
-    assertEquals(mpbs.getFee(), result.getFee());
+    assertEquals("mpbsId", result.getId());
+    assertEquals(student, result.getStudent());
+    assertEquals(fee, result.getFee());
     assertEquals(volaPayment.getPspPayment().getAmount(), result.getAmount());
     assertEquals(verificationInstant, result.getSuccessfullyVerifiedOn());
     assertEquals(verificationInstant, result.getPspOwnDatetimeVerification());
@@ -97,19 +97,13 @@ class VolaMapperTest {
     assertEquals(ORANGE_MONEY, result.getMobileMoneyType());
     assertEquals(school.hei.haapi.endpoint.rest.model.MpbsStatus.SUCCESS, result.getStatus());
     assertEquals(volaPayment.getCreationInstant().toInstant(), result.getCreationDatetime());
-    assertEquals(mpbs.getStatusHistory(), result.getStatusHistory());
+    assertEquals(statusHistory, result.getStatusHistory());
   }
 
   @Test
   void toMpbs_shouldMapCorrectly_whenVolaPaymentIsRefused() {
-    Mpbs mpbs =
-        Mpbs.builder()
-            .id("mpbsId")
-            .student(Mockito.mock(school.hei.haapi.model.User.class))
-            .fee(Mockito.mock(school.hei.haapi.model.Fee.class))
-            .amount(1000)
-            .creationDatetime(Instant.now())
-            .build();
+    var student = Mockito.mock(User.class);
+    var fee = Mockito.mock(Fee.class);
 
     var pspPayment =
         PspPayment.builder()
@@ -118,7 +112,10 @@ class VolaMapperTest {
             .amount(1500)
             .creationInstant(Date.from(Instant.now()))
             .build();
-    var payer = User.builder().email("dummy@gmail.com").build();
+    var payer =
+        school.hei.haapi.model.psp.vola.api.gen.client.model.User.builder()
+            .email("dummy@gmail.com")
+            .build();
     var volaPayment =
         Payment.builder()
             .id("p1")
@@ -130,7 +127,7 @@ class VolaMapperTest {
             .verificationStatus(Payment.VerificationStatusEnum.FAILED)
             .build();
 
-    Mpbs result = volaMapper.toMpbs(mpbs, volaPayment);
+    Mpbs result = volaMapper.toMpbs(volaPayment, "mpbsId", student, fee, List.of());
 
     assertNotNull(result);
     assertEquals(school.hei.haapi.endpoint.rest.model.MpbsStatus.FAILED, result.getStatus());
@@ -140,14 +137,8 @@ class VolaMapperTest {
 
   @Test
   void toMpbs_shouldMapCorrectly_whenVolaPaymentIsVerifying() {
-    Mpbs mpbs =
-        Mpbs.builder()
-            .id("mpbsId")
-            .student(Mockito.mock(school.hei.haapi.model.User.class))
-            .fee(Mockito.mock(school.hei.haapi.model.Fee.class))
-            .amount(1000)
-            .creationDatetime(Instant.now())
-            .build();
+    var student = Mockito.mock(User.class);
+    var fee = Mockito.mock(Fee.class);
 
     var pspPayment =
         PspPayment.builder()
@@ -156,7 +147,10 @@ class VolaMapperTest {
             .amount(1500)
             .creationInstant(Date.from(Instant.now()))
             .build();
-    var payer = User.builder().email("dummy@gmail.com").build();
+    var payer =
+        school.hei.haapi.model.psp.vola.api.gen.client.model.User.builder()
+            .email("dummy@gmail.com")
+            .build();
     var volaPayment =
         Payment.builder()
             .id("p1")
@@ -168,7 +162,7 @@ class VolaMapperTest {
             .verificationStatus(Payment.VerificationStatusEnum.VERIFYING)
             .build();
 
-    Mpbs result = volaMapper.toMpbs(mpbs, volaPayment);
+    Mpbs result = volaMapper.toMpbs(volaPayment, "mpbsId", student, fee, List.of());
 
     assertNotNull(result);
     assertEquals(school.hei.haapi.endpoint.rest.model.MpbsStatus.PENDING, result.getStatus());

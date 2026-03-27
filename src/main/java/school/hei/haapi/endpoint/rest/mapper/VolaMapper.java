@@ -3,11 +3,15 @@ package school.hei.haapi.endpoint.rest.mapper;
 import static school.hei.haapi.model.psp.vola.api.gen.client.model.Payment.VerificationStatusEnum.SUCCEEDED;
 
 import java.time.Instant;
+import java.util.List;
 import org.springframework.stereotype.Component;
 import school.hei.haapi.endpoint.rest.model.MobileMoneyType;
 import school.hei.haapi.endpoint.rest.model.MpbsStatus;
+import school.hei.haapi.model.Fee;
+import school.hei.haapi.model.User;
 import school.hei.haapi.model.exception.UnsupportedPspTypeException;
 import school.hei.haapi.model.mpbs.Mpbs;
+import school.hei.haapi.model.mpbs.MpbsStatusHistory;
 import school.hei.haapi.model.psp.vola.api.gen.client.model.Payment;
 import school.hei.haapi.model.psp.vola.api.gen.client.model.PspPayment;
 
@@ -25,7 +29,12 @@ public class VolaMapper {
     }
   }
 
-  public Mpbs toMpbs(Mpbs mpbs, Payment volaPayment) {
+  public Mpbs toMpbs(
+      Payment volaPayment,
+      String id,
+      User student,
+      Fee fee,
+      List<MpbsStatusHistory> statusHistory) {
     var pspPayment = volaPayment.getPspPayment();
     var lastVerificationInstant =
         volaPayment.getLastPspVerificationInstant() != null
@@ -43,11 +52,11 @@ public class VolaMapper {
             .successfullyVerifiedOn(successfullyVerifiedOn)
             .lastVerificationDatetime(lastVerificationInstant)
             .pspOwnDatetimeVerification(successfullyVerifiedOn)
-            .student(mpbs.getStudent())
-            .fee(mpbs.getFee())
+            .student(student)
+            .fee(fee)
             .status(mapPaymentStatusToMpbsStatus(volaPayment.getVerificationStatus()))
-            .statusHistory(mpbs.getStatusHistory())
-            .id(mpbs.getId())
+            .statusHistory(statusHistory)
+            .id(id)
             .creationDatetime(creationInstant);
 
     if (pspPayment != null) {

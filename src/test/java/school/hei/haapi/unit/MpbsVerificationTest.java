@@ -33,7 +33,7 @@ import school.hei.haapi.model.Payment;
 import school.hei.haapi.model.User;
 import school.hei.haapi.model.mpbs.Mpbs;
 import school.hei.haapi.model.mpbs.MpbsVerification;
-import school.hei.haapi.model.psp.vola.VolaPsp;
+import school.hei.haapi.model.psp.vola.api.VolaClient;
 import school.hei.haapi.model.psp.vola.api.gen.client.model.PspPayment;
 import school.hei.haapi.service.ComputeVerifiedMobilePayment;
 import school.hei.haapi.service.FailedMobilePaymentNotification;
@@ -49,7 +49,7 @@ class MpbsVerificationTest {
   ComputeVerifiedMobilePayment computeVerifiedMobilePaymentMock = mock();
   TransactionDetailsMapper transactionDetailsMapper = new TransactionDetailsMapper();
   EventProducer<PaidFeeByMpbsFailedNotificationBody> eventProducerMock = mock();
-  VolaPsp volaPspMock = mock();
+  VolaClient volaClientMock = mock();
   MpbsService mpbsServiceMock = mock();
   MpbsMapper mpbsMapperMock = mock();
 
@@ -68,7 +68,7 @@ class MpbsVerificationTest {
         unverifiedMobilePaymentHandlerMock,
         computeVerifiedMobilePayment,
         new CollectionUtils(),
-        volaPspMock,
+        volaClientMock,
         new VolaMapper(),
         mpbsServiceMock,
         mpbsMapperMock);
@@ -214,7 +214,7 @@ class MpbsVerificationTest {
             .fee(fee)
             .statusHistory(List.of())
             .build();
-    when(volaPspMock.get(
+    when(volaClientMock.get(
             eq(PspPayment.PspTypeEnum.ORANGE_MONEY),
             eq("MP260101.0000.B00000"),
             eq("dummy@gmail.com")))
@@ -223,7 +223,7 @@ class MpbsVerificationTest {
 
     Mpbs result = subject.verifyMpbsFromVola(mpbsToVerify);
 
-    verify(volaPspMock, times(1))
+    verify(volaClientMock, times(1))
         .get(PspPayment.PspTypeEnum.ORANGE_MONEY, "MP260101.0000.B00000", "dummy@gmail.com");
     var mpbsSaveCaptor = ArgumentCaptor.forClass(Mpbs.class);
     verify(mpbsServiceMock, times(1)).save(mpbsSaveCaptor.capture());
@@ -269,7 +269,7 @@ class MpbsVerificationTest {
             .lastPspVerificationInstant(java.util.Date.from(now()))
             .creationInstant(null)
             .build();
-    when(volaPspMock.get(
+    when(volaClientMock.get(
             eq(PspPayment.PspTypeEnum.ORANGE_MONEY),
             eq("MP260101.0000.B00000"),
             eq("dummy@gmail.com")))
@@ -326,7 +326,7 @@ class MpbsVerificationTest {
             .statusHistory(List.of())
             .build();
     var expectedRestMpbs = new school.hei.haapi.endpoint.rest.model.Mpbs().id("mpbs1");
-    when(volaPspMock.create(
+    when(volaClientMock.create(
             eq(PspPayment.PspTypeEnum.ORANGE_MONEY),
             eq("MP260101.0000.B00000"),
             eq("dummy@gmail.com")))
@@ -336,7 +336,7 @@ class MpbsVerificationTest {
 
     var result = subject.sendVolaVerificationRequestAndSaveResult(mpbs);
 
-    verify(volaPspMock, times(1))
+    verify(volaClientMock, times(1))
         .create(PspPayment.PspTypeEnum.ORANGE_MONEY, "MP260101.0000.B00000", "dummy@gmail.com");
     verify(mpbsServiceMock, times(1)).saveMpbs(any(Mpbs.class));
     verify(mpbsMapperMock, times(1)).toRest(savedMpbs);
@@ -386,7 +386,7 @@ class MpbsVerificationTest {
             .fee(fee)
             .statusHistory(List.of())
             .build();
-    when(volaPspMock.get(
+    when(volaClientMock.get(
             eq(PspPayment.PspTypeEnum.ORANGE_MONEY),
             eq("MP260101.0000.B00000"),
             eq("dummy@gmail.com")))
@@ -424,7 +424,7 @@ class MpbsVerificationTest {
             .status(PENDING)
             .statusHistory(List.of())
             .build();
-    when(volaPspMock.create(
+    when(volaClientMock.create(
             eq(PspPayment.PspTypeEnum.ORANGE_MONEY),
             eq("MP260101.0000.B00000"),
             eq("dummy@gmail.com")))
