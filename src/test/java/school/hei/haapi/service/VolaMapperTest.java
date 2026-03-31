@@ -9,7 +9,6 @@ import static school.hei.haapi.endpoint.rest.model.MobileMoneyType.ORANGE_MONEY;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.util.Date;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
