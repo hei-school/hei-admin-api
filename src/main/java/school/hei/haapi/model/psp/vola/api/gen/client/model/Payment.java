@@ -15,10 +15,14 @@ package school.hei.haapi.model.psp.vola.api.gen.client.model;
 import com.fasterxml.jackson.annotation.*;
 import java.time.OffsetDateTime;
 import java.util.Objects;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.NoArgsConstructor;
 
 /** Payment */
 @Builder
+@AllArgsConstructor
+@NoArgsConstructor
 @JsonPropertyOrder({
   Payment.JSON_PROPERTY_ID,
   Payment.JSON_PROPERTY_PSP_PAYMENT,
@@ -92,8 +96,6 @@ public class Payment {
 
   public static final String JSON_PROPERTY_VERIFICATION_STATUS = "verificationStatus";
   private VerificationStatusEnum verificationStatus;
-
-  public Payment() {}
 
   public Payment id(String id) {
 
