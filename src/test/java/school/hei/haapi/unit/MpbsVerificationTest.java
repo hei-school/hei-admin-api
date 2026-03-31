@@ -201,8 +201,8 @@ class MpbsVerificationTest {
             .verificationStatus(
                 school.hei.haapi.model.psp.vola.api.gen.client.model.Payment.VerificationStatusEnum
                     .SUCCEEDED)
-            .lastPspVerificationInstant(java.util.Date.from(now()))
-            .creationInstant(java.util.Date.from(now().minus(1, DAYS)))
+            .lastPspVerificationInstant(now().atOffset(java.time.ZoneOffset.UTC))
+            .creationInstant(now().minus(1, DAYS).atOffset(java.time.ZoneOffset.UTC))
             .build();
     var savedMpbs =
         Mpbs.builder()
@@ -264,7 +264,7 @@ class MpbsVerificationTest {
             .verificationStatus(
                 school.hei.haapi.model.psp.vola.api.gen.client.model.Payment.VerificationStatusEnum
                     .VERIFYING)
-            .lastPspVerificationInstant(java.util.Date.from(now()))
+            .lastPspVerificationInstant(now().atOffset(java.time.ZoneOffset.UTC))
             .creationInstant(null)
             .build();
     when(volaClientMock.get(
@@ -308,8 +308,8 @@ class MpbsVerificationTest {
             .verificationStatus(
                 school.hei.haapi.model.psp.vola.api.gen.client.model.Payment.VerificationStatusEnum
                     .SUCCEEDED)
-            .lastPspVerificationInstant(java.util.Date.from(now()))
-            .creationInstant(java.util.Date.from(now().minus(1, DAYS)))
+            .lastPspVerificationInstant(now().atOffset(java.time.ZoneOffset.UTC))
+            .creationInstant(now().minus(1, DAYS).atOffset(java.time.ZoneOffset.UTC))
             .build();
     var savedMpbs =
         Mpbs.builder()
@@ -368,8 +368,8 @@ class MpbsVerificationTest {
             .verificationStatus(
                 school.hei.haapi.model.psp.vola.api.gen.client.model.Payment.VerificationStatusEnum
                     .FAILED)
-            .lastPspVerificationInstant(java.util.Date.from(now()))
-            .creationInstant(java.util.Date.from(now().minus(1, DAYS)))
+            .lastPspVerificationInstant(now().atOffset(java.time.ZoneOffset.UTC))
+            .creationInstant(now().minus(1, DAYS).atOffset(java.time.ZoneOffset.UTC))
             .build();
     var savedMpbs =
         Mpbs.builder()

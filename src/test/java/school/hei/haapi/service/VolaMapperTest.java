@@ -65,7 +65,7 @@ class VolaMapperTest {
             .pspType(PspPayment.PspTypeEnum.ORANGE_MONEY)
             .id("psp123")
             .amount(1500)
-            .creationInstant(Date.from(verificationInstant))
+            .creationInstant(verificationInstant.atOffset(java.time.ZoneOffset.UTC))
             .build();
     var payer =
         school.hei.haapi.model.psp.vola.api.gen.client.model.User.builder()
@@ -75,8 +75,8 @@ class VolaMapperTest {
         Payment.builder()
             .id("p1")
             .pspPayment(pspPayment)
-            .creationInstant(Date.from(verificationInstant))
-            .lastPspVerificationInstant(Date.from(verificationInstant))
+            .creationInstant(verificationInstant.atOffset(java.time.ZoneOffset.UTC))
+            .lastPspVerificationInstant(verificationInstant.atOffset(java.time.ZoneOffset.UTC))
             .verificationAttemptNb(1)
             .payer(payer)
             .verificationStatus(Payment.VerificationStatusEnum.SUCCEEDED)
@@ -110,7 +110,7 @@ class VolaMapperTest {
             .pspType(PspPayment.PspTypeEnum.ORANGE_MONEY)
             .id("psp123")
             .amount(1500)
-            .creationInstant(Date.from(Instant.now()))
+            .creationInstant(Instant.now().atOffset(java.time.ZoneOffset.UTC))
             .build();
     var payer =
         school.hei.haapi.model.psp.vola.api.gen.client.model.User.builder()
@@ -120,8 +120,8 @@ class VolaMapperTest {
         Payment.builder()
             .id("p1")
             .pspPayment(pspPayment)
-            .creationInstant(Date.from(Instant.now()))
-            .lastPspVerificationInstant(Date.from(Instant.now()))
+            .creationInstant(Instant.now().atOffset(java.time.ZoneOffset.UTC))
+            .lastPspVerificationInstant(Instant.now().atOffset(java.time.ZoneOffset.UTC))
             .verificationAttemptNb(1)
             .payer(payer)
             .verificationStatus(Payment.VerificationStatusEnum.FAILED)
@@ -145,7 +145,7 @@ class VolaMapperTest {
             .pspType(PspPayment.PspTypeEnum.ORANGE_MONEY)
             .id("psp123")
             .amount(1500)
-            .creationInstant(Date.from(Instant.now()))
+            .creationInstant(Instant.now().atOffset(java.time.ZoneOffset.UTC))
             .build();
     var payer =
         school.hei.haapi.model.psp.vola.api.gen.client.model.User.builder()
@@ -155,8 +155,8 @@ class VolaMapperTest {
         Payment.builder()
             .id("p1")
             .pspPayment(pspPayment)
-            .creationInstant(Date.from(Instant.now()))
-            .lastPspVerificationInstant(Date.from(Instant.now()))
+            .creationInstant(Instant.now().atOffset(java.time.ZoneOffset.UTC))
+            .lastPspVerificationInstant(Instant.now().atOffset(java.time.ZoneOffset.UTC))
             .verificationAttemptNb(1)
             .payer(payer)
             .verificationStatus(Payment.VerificationStatusEnum.VERIFYING)
