@@ -82,7 +82,7 @@ public class MpbsIT extends FacadeITMockedThirdParties {
               return Payment.builder()
                   .pspPayment(pspPayment)
                   .verificationStatus(Payment.VerificationStatusEnum.VERIFYING)
-                  .lastPspVerificationInstant(java.util.Date.from(now()))
+                  .lastPspVerificationInstant(now().atOffset(java.time.ZoneOffset.UTC))
                   .creationInstant(null)
                   .build();
             });
@@ -99,8 +99,8 @@ public class MpbsIT extends FacadeITMockedThirdParties {
               return Payment.builder()
                   .pspPayment(pspPayment)
                   .verificationStatus(Payment.VerificationStatusEnum.VERIFYING)
-                  .lastPspVerificationInstant(java.util.Date.from(now()))
-                  .creationInstant(java.util.Date.from(now()))
+                  .lastPspVerificationInstant(now().atOffset(java.time.ZoneOffset.UTC))
+                  .creationInstant(now().atOffset(java.time.ZoneOffset.UTC))
                   .build();
             });
   }
