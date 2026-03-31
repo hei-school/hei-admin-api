@@ -3,6 +3,9 @@ package school.hei.haapi.model.psp.vola.api.gen.client.auth;
 import org.springframework.http.HttpHeaders;
 import org.springframework.util.MultiValueMap;
 
+@jakarta.annotation.Generated(
+    value = "org.openapitools.codegen.languages.JavaClientCodegen",
+    date = "2026-03-31T10:07:31.002871040+03:00[Indian/Antananarivo]")
 public class ApiKeyAuth implements Authentication {
   private final String location;
   private final String paramName;
@@ -40,7 +43,10 @@ public class ApiKeyAuth implements Authentication {
   }
 
   @Override
-  public void applyToParams(MultiValueMap<String, String> queryParams, HttpHeaders headerParams) {
+  public void applyToParams(
+      MultiValueMap<String, String> queryParams,
+      HttpHeaders headerParams,
+      MultiValueMap<String, String> cookieParams) {
     if (apiKey == null) {
       return;
     }
@@ -54,6 +60,8 @@ public class ApiKeyAuth implements Authentication {
       queryParams.add(paramName, value);
     } else if (location.equals("header")) {
       headerParams.add(paramName, value);
+    } else if (location.equals("cookie")) {
+      cookieParams.add(paramName, value);
     }
   }
 }

@@ -1,20 +1,20 @@
 package school.hei.haapi.model.psp.vola.api.gen.client.api;
 
+import java.util.Collections;
 import java.util.List;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Component;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestClientException;
-import org.springframework.web.util.UriComponentsBuilder;
 import school.hei.haapi.model.psp.vola.api.gen.client.ApiClient;
 
-@Component("pingControllerApi")
+@jakarta.annotation.Generated(
+    value = "org.openapitools.codegen.languages.JavaClientCodegen",
+    date = "2026-03-31T10:07:31.002871040+03:00[Indian/Antananarivo]")
 public class PingControllerApi {
   private ApiClient apiClient;
 
@@ -22,7 +22,6 @@ public class PingControllerApi {
     this(new ApiClient());
   }
 
-  @Autowired
   public PingControllerApi(ApiClient apiClient) {
     this.apiClient = apiClient;
   }
@@ -52,31 +51,37 @@ public class PingControllerApi {
    * @throws RestClientException if an error occurs while attempting to invoke the API
    */
   public ResponseEntity<String> pingWithHttpInfo() throws RestClientException {
-    Object postBody = null;
-    String path = UriComponentsBuilder.fromPath("/ping").build().toUriString();
+    Object localVarPostBody = null;
 
-    final MultiValueMap<String, String> queryParams = new LinkedMultiValueMap<String, String>();
-    final HttpHeaders headerParams = new HttpHeaders();
-    final MultiValueMap<String, Object> formParams = new LinkedMultiValueMap<String, Object>();
+    final MultiValueMap<String, String> localVarQueryParams =
+        new LinkedMultiValueMap<String, String>();
+    final HttpHeaders localVarHeaderParams = new HttpHeaders();
+    final MultiValueMap<String, String> localVarCookieParams =
+        new LinkedMultiValueMap<String, String>();
+    final MultiValueMap<String, Object> localVarFormParams =
+        new LinkedMultiValueMap<String, Object>();
 
-    final String[] accepts = {"*/*"};
-    final List<MediaType> accept = apiClient.selectHeaderAccept(accepts);
-    final String[] contentTypes = {};
-    final MediaType contentType = apiClient.selectHeaderContentType(contentTypes);
+    final String[] localVarAccepts = {"*/*"};
+    final List<MediaType> localVarAccept = apiClient.selectHeaderAccept(localVarAccepts);
+    final String[] localVarContentTypes = {};
+    final MediaType localVarContentType = apiClient.selectHeaderContentType(localVarContentTypes);
 
-    String[] authNames = new String[] {};
+    String[] localVarAuthNames = new String[] {};
 
-    ParameterizedTypeReference<String> returnType = new ParameterizedTypeReference<String>() {};
+    ParameterizedTypeReference<String> localReturnType =
+        new ParameterizedTypeReference<String>() {};
     return apiClient.invokeAPI(
-        path,
+        "/ping",
         HttpMethod.GET,
-        queryParams,
-        postBody,
-        headerParams,
-        formParams,
-        accept,
-        contentType,
-        authNames,
-        returnType);
+        Collections.<String, Object>emptyMap(),
+        localVarQueryParams,
+        localVarPostBody,
+        localVarHeaderParams,
+        localVarCookieParams,
+        localVarFormParams,
+        localVarAccept,
+        localVarContentType,
+        localVarAuthNames,
+        localReturnType);
   }
 }
