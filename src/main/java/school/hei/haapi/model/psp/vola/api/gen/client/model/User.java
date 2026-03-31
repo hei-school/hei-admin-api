@@ -16,10 +16,14 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import java.util.Objects;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.NoArgsConstructor;
 
 /** User */
 @Builder
+@AllArgsConstructor
+@NoArgsConstructor
 @JsonPropertyOrder({User.JSON_PROPERTY_EMAIL})
 @jakarta.annotation.Generated(
     value = "org.openapitools.codegen.languages.JavaClientCodegen",
@@ -27,8 +31,6 @@ import lombok.Builder;
 public class User {
   public static final String JSON_PROPERTY_EMAIL = "email";
   private String email;
-
-  public User() {}
 
   public User email(String email) {
 

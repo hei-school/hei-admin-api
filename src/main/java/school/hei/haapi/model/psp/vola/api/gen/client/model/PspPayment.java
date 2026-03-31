@@ -15,10 +15,14 @@ package school.hei.haapi.model.psp.vola.api.gen.client.model;
 import com.fasterxml.jackson.annotation.*;
 import java.time.OffsetDateTime;
 import java.util.Objects;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.NoArgsConstructor;
 
 /** PspPayment */
 @Builder
+@AllArgsConstructor
+@NoArgsConstructor
 @JsonPropertyOrder({
   PspPayment.JSON_PROPERTY_PSP_TYPE,
   PspPayment.JSON_PROPERTY_ID,
@@ -71,8 +75,6 @@ public class PspPayment {
 
   public static final String JSON_PROPERTY_CREATION_INSTANT = "creationInstant";
   private OffsetDateTime creationInstant;
-
-  public PspPayment() {}
 
   public PspPayment pspType(PspTypeEnum pspType) {
 
