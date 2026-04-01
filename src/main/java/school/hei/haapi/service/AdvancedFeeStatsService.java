@@ -210,9 +210,12 @@ public class AdvancedFeeStatsService {
                 creationCell.setCellStyle(dateCellStyle);
               });
 
-      row.createCell(1).setCellValue(Optional.ofNullable(stat.getFirstGradeCount()).orElse(0L));
-      row.createCell(2).setCellValue(Optional.ofNullable(stat.getSecondGradeCount()).orElse(0L));
-      row.createCell(3).setCellValue(Optional.ofNullable(stat.getThirdGradeCount()).orElse(0L));
+      row.createCell(1)
+          .setCellValue(Optional.ofNullable(stat.getFirstGradeCountMonthly()).orElse(0L));
+      row.createCell(2)
+          .setCellValue(Optional.ofNullable(stat.getSecondGradeCountMonthly()).orElse(0L));
+      row.createCell(3)
+          .setCellValue(Optional.ofNullable(stat.getThirdGradeCountMonthly()).orElse(0L));
       row.createCell(4).setCellValue(Optional.ofNullable(stat.getUnknownGradeCount()).orElse(0L));
       row.createCell(5).setCellValue(Optional.ofNullable(stat.getWorkStudyCount()).orElse(0L));
       row.createCell(6).setCellValue(Optional.ofNullable(stat.getMonthlyCount()).orElse(0L));
@@ -270,11 +273,11 @@ public class AdvancedFeeStatsService {
       stats.forEach(
           stat -> {
             switch (stat.getStatType()) {
-              case PENDING_COUNT -> handlePendingFeesCount(stat, restStats.getPendingFeesCount());
-              case LATE_COUNT -> handleLateFeesCount(stat, restStats.getLateFeesCount());
-              case PAID_COUNT -> handlePaidFeesCount(stat, restStats.getPaidFeesCount());
-              case UNPAID_COUNT -> handleUnpaidFeesCount(stat, restStats.getUnpaidFeesCount());
-              case TOTAL_COUNT -> handleTotalFeesCount(stat, restStats.getTotalExpectedFeesCount());
+              case PENDING_COUNT -> handlePendingFeesCount(stat, restStats);
+              case LATE_COUNT -> handleLateFeesCount(stat, restStats);
+              case PAID_COUNT -> handlePaidFeesCount(stat, restStats);
+              case UNPAID_COUNT -> handleUnpaidFeesCount(stat, restStats);
+              case TOTAL_COUNT -> handleTotalFeesCount(stat, restStats);
             }
           });
       return stats;
@@ -301,87 +304,149 @@ public class AdvancedFeeStatsService {
   }
 
   private void handlePendingFeesCount(
-      AdvancedFeeStats feeStats, PendingFeesStats pendingFeesStats) {
-    feeStats.setFirstGradeCount(pendingFeesStats.getFirstGrade());
-    feeStats.setSecondGradeCount(pendingFeesStats.getSecondGrade());
-    feeStats.setThirdGradeCount(pendingFeesStats.getThirdGrade());
-    feeStats.setUnknownGradeCount(pendingFeesStats.getUnknownGrade());
-    feeStats.setWorkStudyCount(pendingFeesStats.getWorkStudy());
-    feeStats.setRemedialFirstGradeCount(pendingFeesStats.getRetakeExamFirstGradeCount());
-    feeStats.setRemedialSecondGradeCount(pendingFeesStats.getRetakeExamSecondGradeCount());
-    feeStats.setRemedialThirdGradeCount(pendingFeesStats.getRetakeExamThirdGradeCount());
-    feeStats.setMonthlyCount(pendingFeesStats.getMonthly());
-    feeStats.setYearlyCount(pendingFeesStats.getYearly());
-    feeStats.setUpdateDatetime(now());
-    feeStats.setUnknownFrequencyCount(pendingFeesStats.getUnknownFrequency());
+      AdvancedFeeStats feeStats, AdvancedFeesStatistics advancedFeesStatistics) {
+    var pendingFeesStats = advancedFeesStatistics.getPendingFeesCount();
+    handleFeesCount(
+        feeStats,
+        pendingFeesStats.getFirstGradeMonthly(),
+        pendingFeesStats.getSecondGradeMonthly(),
+        pendingFeesStats.getThirdGradeMonthly(),
+        pendingFeesStats.getFirstGradeYearly(),
+        pendingFeesStats.getSecondGradeYearly(),
+        pendingFeesStats.getThirdGradeYearly(),
+        pendingFeesStats.getUnknownGrade(),
+        pendingFeesStats.getWorkStudy(),
+        pendingFeesStats.getRetakeExamFirstGradeCount(),
+        pendingFeesStats.getRetakeExamSecondGradeCount(),
+        pendingFeesStats.getRetakeExamThirdGradeCount(),
+        pendingFeesStats.getMonthly(),
+        pendingFeesStats.getYearly(),
+        pendingFeesStats.getUnknownFrequency());
   }
 
-  void handleUnpaidFeesCount(AdvancedFeeStats feeStats, UnpaidFeesStats unpaidFeesStats) {
-    feeStats.setFirstGradeCount(unpaidFeesStats.getFirstGrade());
-    feeStats.setSecondGradeCount(unpaidFeesStats.getSecondGrade());
-    feeStats.setThirdGradeCount(unpaidFeesStats.getThirdGrade());
-    feeStats.setUnknownGradeCount(unpaidFeesStats.getUnknownGrade());
-    feeStats.setWorkStudyCount(unpaidFeesStats.getWorkStudy());
-    feeStats.setRemedialFirstGradeCount(unpaidFeesStats.getRetakeExamFirstGradeCount());
-    feeStats.setRemedialSecondGradeCount(unpaidFeesStats.getRetakeExamSecondGradeCount());
-    feeStats.setRemedialThirdGradeCount(unpaidFeesStats.getRetakeExamThirdGradeCount());
-    feeStats.setMonthlyCount(unpaidFeesStats.getMonthly());
-    feeStats.setYearlyCount(unpaidFeesStats.getYearly());
-    feeStats.setUpdateDatetime(now());
-    feeStats.setUnknownFrequencyCount(unpaidFeesStats.getUnknownFrequency());
+  void handleUnpaidFeesCount(
+      AdvancedFeeStats feeStats, AdvancedFeesStatistics advancedFeesStatistics) {
+    var unpaidFeesStats = advancedFeesStatistics.getUnpaidFeesCount();
+    handleFeesCount(
+        feeStats,
+        unpaidFeesStats.getFirstGradeMonthly(),
+        unpaidFeesStats.getSecondGradeMonthly(),
+        unpaidFeesStats.getThirdGradeMonthly(),
+        unpaidFeesStats.getFirstGradeYearly(),
+        unpaidFeesStats.getSecondGradeYearly(),
+        unpaidFeesStats.getThirdGradeYearly(),
+        unpaidFeesStats.getUnknownGrade(),
+        unpaidFeesStats.getWorkStudy(),
+        unpaidFeesStats.getRetakeExamFirstGradeCount(),
+        unpaidFeesStats.getRetakeExamSecondGradeCount(),
+        unpaidFeesStats.getRetakeExamThirdGradeCount(),
+        unpaidFeesStats.getMonthly(),
+        unpaidFeesStats.getYearly(),
+        unpaidFeesStats.getUnknownFrequency());
   }
 
-  private void handleLateFeesCount(AdvancedFeeStats feeStats, LateFeesStats lateFeesStats) {
-    feeStats.setFirstGradeCount(lateFeesStats.getFirstGrade());
-    feeStats.setSecondGradeCount(lateFeesStats.getSecondGrade());
-    feeStats.setThirdGradeCount(lateFeesStats.getThirdGrade());
-    feeStats.setUnknownGradeCount(lateFeesStats.getUnknownGrade());
-    feeStats.setWorkStudyCount(lateFeesStats.getWorkStudy());
-    feeStats.setRemedialFirstGradeCount(lateFeesStats.getRetakeExamFirstGradeCount());
-    feeStats.setRemedialSecondGradeCount(lateFeesStats.getRetakeExamSecondGradeCount());
-    feeStats.setRemedialThirdGradeCount(lateFeesStats.getRetakeExamThirdGradeCount());
-    feeStats.setMonthlyCount(lateFeesStats.getMonthly());
-    feeStats.setYearlyCount(lateFeesStats.getYearly());
-    feeStats.setUpdateDatetime(now());
-    feeStats.setUnknownFrequencyCount(lateFeesStats.getUnknownFrequency());
+  private void handleLateFeesCount(
+      AdvancedFeeStats feeStats, AdvancedFeesStatistics advancedFeesStatistics) {
+    var lateFeesStats = advancedFeesStatistics.getLateFeesCount();
+    handleFeesCount(
+        feeStats,
+        lateFeesStats.getFirstGradeMonthly(),
+        lateFeesStats.getSecondGradeMonthly(),
+        lateFeesStats.getThirdGradeMonthly(),
+        lateFeesStats.getFirstGradeYearly(),
+        lateFeesStats.getSecondGradeYearly(),
+        lateFeesStats.getThirdGradeYearly(),
+        lateFeesStats.getUnknownGrade(),
+        lateFeesStats.getWorkStudy(),
+        lateFeesStats.getRetakeExamFirstGradeCount(),
+        lateFeesStats.getRetakeExamSecondGradeCount(),
+        lateFeesStats.getRetakeExamThirdGradeCount(),
+        lateFeesStats.getMonthly(),
+        lateFeesStats.getYearly(),
+        lateFeesStats.getUnknownFrequency());
   }
 
-  private void handlePaidFeesCount(AdvancedFeeStats feeStats, PaidFeesStats paidFeesStats) {
-    feeStats.setFirstGradeCount(paidFeesStats.getFirstGrade());
-    feeStats.setSecondGradeCount(paidFeesStats.getSecondGrade());
-    feeStats.setThirdGradeCount(paidFeesStats.getThirdGrade());
-    feeStats.setUnknownGradeCount(paidFeesStats.getUnknownGrade());
-    feeStats.setWorkStudyCount(paidFeesStats.getWorkStudy());
-    feeStats.setRemedialFirstGradeCount(paidFeesStats.getRetakeExamFirstGradeCount());
-    feeStats.setRemedialSecondGradeCount(paidFeesStats.getRetakeExamSecondGradeCount());
-    feeStats.setRemedialThirdGradeCount(paidFeesStats.getRetakeExamThirdGradeCount());
-    feeStats.setMonthlyCount(paidFeesStats.getMonthly());
-    feeStats.setYearlyCount(paidFeesStats.getYearly());
-    feeStats.setUnknownFrequencyCount(paidFeesStats.getUnknownFrequency());
+  private void handlePaidFeesCount(
+      AdvancedFeeStats feeStats, AdvancedFeesStatistics advancedFeesStatistics) {
+    var paidFeesStats = advancedFeesStatistics.getPaidFeesCount();
+    handleFeesCount(
+        feeStats,
+        paidFeesStats.getFirstGradeMonthly(),
+        paidFeesStats.getSecondGradeMonthly(),
+        paidFeesStats.getThirdGradeMonthly(),
+        paidFeesStats.getFirstGradeYearly(),
+        paidFeesStats.getSecondGradeYearly(),
+        paidFeesStats.getThirdGradeYearly(),
+        paidFeesStats.getUnknownGrade(),
+        paidFeesStats.getWorkStudy(),
+        paidFeesStats.getRetakeExamFirstGradeCount(),
+        paidFeesStats.getRetakeExamSecondGradeCount(),
+        paidFeesStats.getRetakeExamThirdGradeCount(),
+        paidFeesStats.getMonthly(),
+        paidFeesStats.getYearly(),
+        paidFeesStats.getUnknownFrequency());
     feeStats.setBankTransferCount(paidFeesStats.getBankFees().longValue());
     feeStats.setMpbsCount(paidFeesStats.getMobileMoney().longValue());
-    feeStats.setUpdateDatetime(now());
   }
 
   private void handleTotalFeesCount(
-      AdvancedFeeStats feeStats, TotalExpectedFeesStats totalExpectedFeesStats) {
-    feeStats.setRemedialFirstGradeCount(totalExpectedFeesStats.getRetakeExamFirstGradeCount());
-    feeStats.setRemedialSecondGradeCount(totalExpectedFeesStats.getRetakeExamSecondGradeCount());
-    feeStats.setRemedialThirdGradeCount(totalExpectedFeesStats.getRetakeExamThirdGradeCount());
-    feeStats.setFirstGradeCount(totalExpectedFeesStats.getFirstGrade());
-    feeStats.setSecondGradeCount(totalExpectedFeesStats.getSecondGrade());
-    feeStats.setThirdGradeCount(totalExpectedFeesStats.getThirdGrade());
-    feeStats.setUnknownGradeCount(totalExpectedFeesStats.getUnknownGrade());
-    feeStats.setWorkStudyCount(totalExpectedFeesStats.getWorkStudy());
-    feeStats.setMonthlyCount(totalExpectedFeesStats.getMonthly());
-    feeStats.setYearlyCount(totalExpectedFeesStats.getYearly());
+      AdvancedFeeStats feeStats, AdvancedFeesStatistics advancedFeesStatistics) {
+    var totalExpectedFeesStats = advancedFeesStatistics.getTotalExpectedFeesCount();
+    handleFeesCount(
+        feeStats,
+        totalExpectedFeesStats.getFirstGradeMonthly(),
+        totalExpectedFeesStats.getSecondGradeMonthly(),
+        totalExpectedFeesStats.getThirdGradeMonthly(),
+        totalExpectedFeesStats.getFirstGradeYearly(),
+        totalExpectedFeesStats.getSecondGradeYearly(),
+        totalExpectedFeesStats.getThirdGradeYearly(),
+        totalExpectedFeesStats.getUnknownGrade(),
+        totalExpectedFeesStats.getWorkStudy(),
+        totalExpectedFeesStats.getRetakeExamFirstGradeCount(),
+        totalExpectedFeesStats.getRetakeExamSecondGradeCount(),
+        totalExpectedFeesStats.getRetakeExamThirdGradeCount(),
+        totalExpectedFeesStats.getMonthly(),
+        totalExpectedFeesStats.getYearly(),
+        totalExpectedFeesStats.getUnknownFrequency());
+  }
+
+  private void handleFeesCount(
+      AdvancedFeeStats feeStats,
+      Long firstGradeMonthly,
+      Long secondGradeMonthly,
+      Long thirdGradeMonthly,
+      Long firstGradeYearly,
+      Long secondGradeYearly,
+      Long thirdGradeYearly,
+      Long unknownGrade,
+      Long workStudy,
+      Long retakeExamFirstGradeCount,
+      Long retakeExamSecondGradeCount,
+      Long retakeExamThirdGradeCount,
+      Long monthly,
+      Long yearly,
+      Long unknownFrequency) {
+    feeStats.setFirstGradeCountMonthly(firstGradeMonthly);
+    feeStats.setSecondGradeCountMonthly(secondGradeMonthly);
+    feeStats.setThirdGradeCountMonthly(thirdGradeMonthly);
+    feeStats.setFirstGradeCountYearly(firstGradeYearly);
+    feeStats.setSecondGradeCountYearly(secondGradeYearly);
+    feeStats.setThirdGradeCountYearly(thirdGradeYearly);
+    feeStats.setUnknownGradeCount(unknownGrade);
+    feeStats.setWorkStudyCount(workStudy);
+    feeStats.setRemedialFirstGradeCount(retakeExamFirstGradeCount);
+    feeStats.setRemedialSecondGradeCount(retakeExamSecondGradeCount);
+    feeStats.setRemedialThirdGradeCount(retakeExamThirdGradeCount);
+    feeStats.setMonthlyCount(monthly);
+    feeStats.setYearlyCount(yearly);
     feeStats.setUpdateDatetime(now());
-    feeStats.setUnknownFrequencyCount(totalExpectedFeesStats.getUnknownFrequency());
+    feeStats.setUnknownFrequencyCount(unknownFrequency);
   }
 
   private LateFeesStats getLateFeesStats(List<Fee> fees, Optional<LocalDate> statusDate) {
-    List<Fee> lateFees = filterFeesByStatus(fees, LATE, statusDate);
-    Map<FeeCategory, Long> feeCountByCategory = countFeesByGrades(lateFees);
+    var lateFees = filterFeesByStatus(fees, LATE, statusDate);
+    Map<FeeCategory, Long> monthlyFeeCountByCategory = countFeesByGrades(lateFees, MONTHLY);
+    Map<FeeCategory, Long> yearlyFeeCountByCategory = countFeesByGrades(lateFees, YEARLY);
     Map<FeeTypeEnum, List<Fee>> feesByType = groupFeesByType(lateFees);
     List<Fee> tuitionFees = feesByType.getOrDefault(TUITION, List.of());
     Map<FeeFrequency, Long> feesCountByPaymentFrequency = countFeesByPaymentFrequency(tuitionFees);
@@ -389,19 +454,23 @@ public class AdvancedFeeStatsService {
         .retakeExamFirstGradeCount(countRemedialFees(lateFees, L1))
         .retakeExamSecondGradeCount(countRemedialFees(lateFees, L2))
         .retakeExamThirdGradeCount(countRemedialFees(lateFees, L3))
-        .workStudy(feeCountByCategory.get(WORK_FEES))
+        .workStudy(monthlyFeeCountByCategory.get(WORK_FEES))
         .monthly(feesCountByPaymentFrequency.get(MONTHLY))
         .yearly(feesCountByPaymentFrequency.get(YEARLY))
         .unknownFrequency(feesCountByPaymentFrequency.get(UNKNOWN))
-        .firstGrade(feeCountByCategory.get(L1))
-        .secondGrade(feeCountByCategory.get(L2))
-        .thirdGrade(feeCountByCategory.get(L3))
-        .unknownGrade(feeCountByCategory.get(FeeCategory.UNKNOWN));
+        .firstGradeMonthly(monthlyFeeCountByCategory.get(L1))
+        .secondGradeMonthly(monthlyFeeCountByCategory.get(L2))
+        .thirdGradeMonthly(monthlyFeeCountByCategory.get(L3))
+        .firstGradeYearly(yearlyFeeCountByCategory.get(L1))
+        .secondGradeYearly(yearlyFeeCountByCategory.get(L2))
+        .thirdGradeYearly(yearlyFeeCountByCategory.get(L3))
+        .unknownGrade(monthlyFeeCountByCategory.get(FeeCategory.UNKNOWN));
   }
 
   private PaidFeesStats getPaidFeesStats(List<Fee> fees, Optional<LocalDate> statusDate) {
-    List<Fee> paidFees = filterFeesByStatus(fees, PAID, statusDate);
-    Map<FeeCategory, Long> feeCountByCategory = countFeesByGrades(paidFees);
+    var paidFees = filterFeesByStatus(fees, PAID, statusDate);
+    Map<FeeCategory, Long> monthlyFeeCountByCategory = countFeesByGrades(paidFees, MONTHLY);
+    Map<FeeCategory, Long> yearlyFeeCountByCategory = countFeesByGrades(paidFees, YEARLY);
     Map<FeeTypeEnum, List<Fee>> feesByType = groupFeesByType(paidFees);
     List<Fee> tuitionFees = feesByType.getOrDefault(TUITION, List.of());
     Map<FeeFrequency, Long> feesCountByPaymentFrequency = countFeesByPaymentFrequency(tuitionFees);
@@ -410,21 +479,22 @@ public class AdvancedFeeStatsService {
         .retakeExamFirstGradeCount(countRemedialFees(paidFees, L1))
         .retakeExamSecondGradeCount(countRemedialFees(paidFees, L2))
         .retakeExamThirdGradeCount(countRemedialFees(paidFees, L3))
-        .workStudy(feeCountByCategory.get(WORK_FEES))
-        .monthly(feesCountByPaymentFrequency.get(MONTHLY))
-        .yearly(feesCountByPaymentFrequency.get(YEARLY))
         .unknownFrequency(feesCountByPaymentFrequency.get(UNKNOWN))
-        .firstGrade(feeCountByCategory.get(L1))
-        .secondGrade(feeCountByCategory.get(L2))
-        .thirdGrade(feeCountByCategory.get(L3))
-        .unknownGrade(feeCountByCategory.get(FeeCategory.UNKNOWN))
+        .firstGradeMonthly(monthlyFeeCountByCategory.get(L1))
+        .secondGradeMonthly(monthlyFeeCountByCategory.get(L2))
+        .thirdGradeMonthly(monthlyFeeCountByCategory.get(L3))
+        .firstGradeYearly(yearlyFeeCountByCategory.get(L1))
+        .secondGradeYearly(yearlyFeeCountByCategory.get(L2))
+        .thirdGradeYearly(yearlyFeeCountByCategory.get(L3))
+        .unknownGrade(monthlyFeeCountByCategory.get(FeeCategory.UNKNOWN))
         .bankFees(BigDecimal.valueOf(feesCountByPaymentType.get(BANK)))
         .mobileMoney(BigDecimal.valueOf(feesCountByPaymentType.get(MPBS)));
   }
 
   private PendingFeesStats getPendingFeesStats(List<Fee> fees, Optional<LocalDate> statusDate) {
-    List<Fee> pendingFees = filterFeesByStatus(fees, PENDING, statusDate);
-    Map<FeeCategory, Long> feeCountByCategory = countFeesByGrades(pendingFees);
+    var pendingFees = filterFeesByStatus(fees, PENDING, statusDate);
+    Map<FeeCategory, Long> monthlyFeeCountByCategory = countFeesByGrades(pendingFees, MONTHLY);
+    Map<FeeCategory, Long> yearlyFeeCountByCategory = countFeesByGrades(pendingFees, YEARLY);
     Map<FeeTypeEnum, List<Fee>> feesByType = groupFeesByType(pendingFees);
     List<Fee> tuitionFees = feesByType.getOrDefault(TUITION, List.of());
     Map<FeeFrequency, Long> feesCountByPaymentFrequency = countFeesByPaymentFrequency(tuitionFees);
@@ -432,18 +502,22 @@ public class AdvancedFeeStatsService {
         .retakeExamFirstGradeCount(countRemedialFees(pendingFees, L1))
         .retakeExamSecondGradeCount(countRemedialFees(pendingFees, L2))
         .retakeExamThirdGradeCount(countRemedialFees(pendingFees, L3))
-        .workStudy(feeCountByCategory.get(WORK_FEES))
+        .workStudy(monthlyFeeCountByCategory.get(WORK_FEES))
         .monthly(feesCountByPaymentFrequency.get(MONTHLY))
         .yearly(feesCountByPaymentFrequency.get(YEARLY))
         .unknownFrequency(feesCountByPaymentFrequency.get(UNKNOWN))
-        .firstGrade(feeCountByCategory.get(L1))
-        .secondGrade(feeCountByCategory.get(L2))
-        .thirdGrade(feeCountByCategory.get(L3))
-        .unknownGrade(feeCountByCategory.get(FeeCategory.UNKNOWN));
+        .firstGradeMonthly(monthlyFeeCountByCategory.get(L1))
+        .secondGradeMonthly(monthlyFeeCountByCategory.get(L2))
+        .thirdGradeMonthly(monthlyFeeCountByCategory.get(L3))
+        .firstGradeYearly(yearlyFeeCountByCategory.get(L1))
+        .secondGradeYearly(yearlyFeeCountByCategory.get(L2))
+        .thirdGradeYearly(yearlyFeeCountByCategory.get(L3))
+        .unknownGrade(monthlyFeeCountByCategory.get(FeeCategory.UNKNOWN));
   }
 
   private TotalExpectedFeesStats getTotalExpectedFeesStats(List<Fee> fees) {
-    Map<FeeCategory, Long> feeCountByCategory = countFeesByGrades(fees);
+    Map<FeeCategory, Long> monthlyFeeCountByCategory = countFeesByGrades(fees, MONTHLY);
+    Map<FeeCategory, Long> yearlyFeeCountByCategory = countFeesByGrades(fees, YEARLY);
     Map<FeeTypeEnum, List<Fee>> feesByType = groupFeesByType(fees);
     List<Fee> tuitionFees = feesByType.getOrDefault(TUITION, List.of());
     Map<FeeFrequency, Long> feesCountByPaymentFrequency = countFeesByPaymentFrequency(tuitionFees);
@@ -451,19 +525,23 @@ public class AdvancedFeeStatsService {
         .retakeExamFirstGradeCount(countRemedialFees(fees, L1))
         .retakeExamSecondGradeCount(countRemedialFees(fees, L2))
         .retakeExamThirdGradeCount(countRemedialFees(fees, L3))
-        .firstGrade(feeCountByCategory.get(L1))
-        .secondGrade(feeCountByCategory.get(L2))
-        .thirdGrade(feeCountByCategory.get(L3))
-        .unknownGrade(feeCountByCategory.get(FeeCategory.UNKNOWN))
+        .unknownFrequency(feesCountByPaymentFrequency.get(UNKNOWN))
+        .firstGradeMonthly(monthlyFeeCountByCategory.get(L1))
+        .secondGradeMonthly(monthlyFeeCountByCategory.get(L2))
+        .thirdGradeMonthly(monthlyFeeCountByCategory.get(L3))
+        .firstGradeYearly(yearlyFeeCountByCategory.get(L1))
+        .secondGradeYearly(yearlyFeeCountByCategory.get(L2))
+        .thirdGradeYearly(yearlyFeeCountByCategory.get(L3))
+        .unknownGrade(monthlyFeeCountByCategory.get(FeeCategory.UNKNOWN))
         .monthly(feesCountByPaymentFrequency.get(MONTHLY))
         .yearly(feesCountByPaymentFrequency.get(YEARLY))
-        .unknownFrequency(feesCountByPaymentFrequency.get(UNKNOWN))
-        .workStudy(feeCountByCategory.get(WORK_FEES));
+        .workStudy(monthlyFeeCountByCategory.get(WORK_FEES));
   }
 
   private UnpaidFeesStats getUnpaidFeeStats(List<Fee> fees, Optional<LocalDate> statusDate) {
-    List<Fee> unpaidFees = filterFeesByStatus(fees, UNPAID, statusDate);
-    Map<FeeCategory, Long> feeCountByCategory = countFeesByGrades(unpaidFees);
+    var unpaidFees = filterFeesByStatus(fees, UNPAID, statusDate);
+    Map<FeeCategory, Long> monthlyFeeCountByCategory = countFeesByGrades(unpaidFees, MONTHLY);
+    Map<FeeCategory, Long> yearlyFeeCountByCategory = countFeesByGrades(unpaidFees, YEARLY);
     Map<FeeTypeEnum, List<Fee>> feesByType = groupFeesByType(unpaidFees);
     List<Fee> tuitionFees = feesByType.getOrDefault(TUITION, List.of());
     Map<FeeFrequency, Long> feesCountByPaymentFrequency = countFeesByPaymentFrequency(tuitionFees);
@@ -471,14 +549,18 @@ public class AdvancedFeeStatsService {
         .retakeExamFirstGradeCount(countRemedialFees(fees, L1))
         .retakeExamSecondGradeCount(countRemedialFees(fees, L2))
         .retakeExamThirdGradeCount(countRemedialFees(fees, L3))
-        .workStudy(feeCountByCategory.get(WORK_FEES))
+        .workStudy(monthlyFeeCountByCategory.get(WORK_FEES))
         .monthly(feesCountByPaymentFrequency.get(MONTHLY))
         .yearly(feesCountByPaymentFrequency.get(YEARLY))
         .unknownFrequency(feesCountByPaymentFrequency.get(UNKNOWN))
-        .firstGrade(feeCountByCategory.get(L1))
-        .secondGrade(feeCountByCategory.get(L2))
-        .thirdGrade(feeCountByCategory.get(L3))
-        .unknownGrade(feeCountByCategory.get(FeeCategory.UNKNOWN));
+        .unknownFrequency(feesCountByPaymentFrequency.get(UNKNOWN))
+        .firstGradeMonthly(monthlyFeeCountByCategory.get(L1))
+        .secondGradeMonthly(monthlyFeeCountByCategory.get(L2))
+        .thirdGradeMonthly(monthlyFeeCountByCategory.get(L3))
+        .firstGradeYearly(yearlyFeeCountByCategory.get(L1))
+        .secondGradeYearly(yearlyFeeCountByCategory.get(L2))
+        .thirdGradeYearly(yearlyFeeCountByCategory.get(L3))
+        .unknownGrade(monthlyFeeCountByCategory.get(FeeCategory.UNKNOWN));
   }
 
   @Transactional
@@ -492,11 +574,12 @@ public class AdvancedFeeStatsService {
     return repository.saveAll(generateAdvancedFeeStats(from, to, type.orElse(ACCOUNTING)));
   }
 
-  private Map<FeeCategory, Long> countFeesByGrades(List<Fee> fees) {
+  private Map<FeeCategory, Long> countFeesByGrades(List<Fee> fees, FeeFrequency frequency) {
     var feesByGradeCount = new HashMap<FeeCategory, Long>();
     Map<FeeCategory, List<Fee>> feesByGrade =
         fees.stream()
             .filter(fee -> !REMEDIAL_COSTS.equals(fee.getType()))
+            .filter(fee -> fee.getFrequency() == frequency)
             .collect(groupingByConcurrent(Fee::getCategory));
     for (FeeCategory category : FeeCategory.values()) {
       feesByGradeCount.put(category, (long) feesByGrade.getOrDefault(category, List.of()).size());

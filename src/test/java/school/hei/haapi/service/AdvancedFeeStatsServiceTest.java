@@ -124,9 +124,12 @@ class AdvancedFeeStatsServiceTest extends FacadeITMockedThirdParties {
             UNPAID_COUNT,
             AdvancedFeeStats.builder()
                 .statType(UNPAID_COUNT)
-                .firstGradeCount(0)
-                .secondGradeCount(2)
-                .thirdGradeCount(0)
+                .firstGradeCountMonthly(0)
+                .secondGradeCountMonthly(2)
+                .thirdGradeCountMonthly(0)
+                .firstGradeCountYearly(0)
+                .secondGradeCountYearly(2)
+                .thirdGradeCountYearly(0)
                 .unknownGradeCount(0)
                 .remedialFirstGradeCount(0)
                 .remedialSecondGradeCount(0)
@@ -167,7 +170,7 @@ class AdvancedFeeStatsServiceTest extends FacadeITMockedThirdParties {
         rangeDate, rangeDate, LATE, AdvancedFeeStatisticsType.RECEIPT);
     subject.generateAdvancedFeesStatsExcelFile(
         rangeDate, rangeDate, PENDING, AdvancedFeeStatisticsType.RECEIPT);
-    assertEquals(2, unpaidStat.getSecondGradeCount(), "L2 unpaid");
+    assertEquals(2, unpaidStat.getSecondGradeCountMonthly(), "L2 unpaid");
     assertEquals(2, unpaidStat.getMonthlyCount()); // both are MONTHLY\
   }
 
