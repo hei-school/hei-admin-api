@@ -486,6 +486,9 @@ public class AdvancedFeeStatsService {
         .firstGradeYearly(yearlyFeeCountByCategory.get(L1))
         .secondGradeYearly(yearlyFeeCountByCategory.get(L2))
         .thirdGradeYearly(yearlyFeeCountByCategory.get(L3))
+        .monthly(feesCountByPaymentFrequency.get(MONTHLY))
+        .yearly(feesCountByPaymentFrequency.get(YEARLY))
+        .workStudy(monthlyFeeCountByCategory.get(WORK_FEES))
         .unknownGrade(monthlyFeeCountByCategory.get(FeeCategory.UNKNOWN))
         .bankFees(BigDecimal.valueOf(feesCountByPaymentType.get(BANK)))
         .mobileMoney(BigDecimal.valueOf(feesCountByPaymentType.get(MPBS)));
