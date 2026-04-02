@@ -11,12 +11,14 @@ import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import school.hei.haapi.integration.conf.FacadeITMockedThirdParties;
 import school.hei.haapi.model.statistics.AdvancedFeeStats;
 import school.hei.haapi.repository.dao.FeeDao;
 
+@Slf4j
 class FeeDaoTest extends FacadeITMockedThirdParties {
   @Autowired FeeDao subject;
 
@@ -31,54 +33,107 @@ class FeeDaoTest extends FacadeITMockedThirdParties {
     Set<AdvancedFeeStats> expectedStats =
         Set.of(
             AdvancedFeeStats.builder()
+                .id(null) // keep null if ignored in equals
                 .statType(LATE_COUNT)
-                .firstGradeCount(0)
-                .secondGradeCount(0)
-                .thirdGradeCount(0)
+                .firstGradeCountMonthly(0)
+                .secondGradeCountMonthly(0)
+                .thirdGradeCountMonthly(0)
+                .firstGradeCountYearly(0)
+                .secondGradeCountYearly(0)
+                .thirdGradeCountYearly(0)
+                .unknownGradeCount(0)
+                .remedialFirstGradeCount(0)
+                .remedialSecondGradeCount(0)
+                .remedialThirdGradeCount(0)
                 .workStudyCount(0)
-                .yearlyCount(0)
                 .monthlyCount(0)
+                .yearlyCount(0)
+                .unknownFrequencyCount(0)
+                .bankTransferCount(null)
+                .mpbsCount(null)
+                .creationDatetime(null)
+                .updateDatetime(null)
+                .statStartDate(null)
+                .statEndDate(null)
                 .countType(RECEIPT)
                 .build(),
             AdvancedFeeStats.builder()
-                .statType(PAID_COUNT)
-                .firstGradeCount(186)
-                .secondGradeCount(118)
-                .thirdGradeCount(84)
-                .workStudyCount(20)
-                .remedialFeesCount(14)
+                .id(null)
+                .statType(PENDING_COUNT)
+                .firstGradeCountMonthly(0)
+                .secondGradeCountMonthly(0)
+                .thirdGradeCountMonthly(0)
+                .firstGradeCountYearly(0)
+                .secondGradeCountYearly(0)
+                .thirdGradeCountYearly(0)
                 .unknownGradeCount(0)
+                .remedialFirstGradeCount(0)
+                .remedialSecondGradeCount(0)
+                .remedialThirdGradeCount(0)
+                .workStudyCount(1)
+                .monthlyCount(0)
+                .yearlyCount(0)
+                .unknownFrequencyCount(1)
+                .bankTransferCount(null)
+                .mpbsCount(null)
+                .creationDatetime(null)
+                .updateDatetime(null)
+                .statStartDate(null)
+                .statEndDate(null)
+                .countType(RECEIPT)
+                .build(),
+            AdvancedFeeStats.builder()
+                .id(null)
+                .statType(TOTAL_COUNT)
+                .firstGradeCountMonthly(194)
+                .secondGradeCountMonthly(118)
+                .thirdGradeCountMonthly(84)
+                .firstGradeCountYearly(0)
+                .secondGradeCountYearly(0)
+                .thirdGradeCountYearly(0)
+                .unknownGradeCount(0)
+                .remedialFirstGradeCount(0)
+                .remedialSecondGradeCount(0)
+                .remedialThirdGradeCount(0)
+                .workStudyCount(22)
+                .monthlyCount(396)
                 .yearlyCount(2)
+                .unknownFrequencyCount(20)
+                .bankTransferCount(null)
+                .mpbsCount(null)
+                .creationDatetime(null)
+                .updateDatetime(null)
+                .statStartDate(null)
+                .statEndDate(null)
+                .countType(RECEIPT)
+                .build(),
+            AdvancedFeeStats.builder()
+                .id(null)
+                .statType(PAID_COUNT)
+                .firstGradeCountMonthly(186)
+                .secondGradeCountMonthly(118)
+                .thirdGradeCountMonthly(84)
+                .firstGradeCountYearly(0)
+                .secondGradeCountYearly(0)
+                .thirdGradeCountYearly(14)
+                .unknownGradeCount(0)
+                .remedialFirstGradeCount(0)
+                .remedialSecondGradeCount(0)
+                .remedialThirdGradeCount(0)
+                .workStudyCount(20)
                 .monthlyCount(388)
+                .yearlyCount(2)
                 .unknownFrequencyCount(18)
                 .bankTransferCount(3L)
                 .mpbsCount(405L)
-                .countType(RECEIPT)
-                .build(),
-            AdvancedFeeStats.builder()
-                .statType(PENDING_COUNT)
-                .firstGradeCount(0)
-                .secondGradeCount(0)
-                .thirdGradeCount(0)
-                .workStudyCount(1)
-                .yearlyCount(0)
-                .monthlyCount(0)
-                .unknownFrequencyCount(1)
-                .countType(RECEIPT)
-                .build(),
-            AdvancedFeeStats.builder()
-                .statType(TOTAL_COUNT)
-                .firstGradeCount(194)
-                .secondGradeCount(118)
-                .thirdGradeCount(84)
-                .workStudyCount(22)
-                .remedialFeesCount(0)
-                .yearlyCount(2)
-                .monthlyCount(396)
-                .unknownFrequencyCount(20)
+                .creationDatetime(null)
+                .updateDatetime(null)
+                .statStartDate(null)
+                .statEndDate(null)
                 .countType(RECEIPT)
                 .build());
     var values = stats.values();
+    log.info("values : " + values);
     var actual =
         values.stream()
             .peek(
@@ -90,7 +145,6 @@ class FeeDaoTest extends FacadeITMockedThirdParties {
                   stat.setCreationDatetime(null);
                 })
             .toList();
-
     assertEquals(expectedStats, new HashSet<>(actual));
   }
 }

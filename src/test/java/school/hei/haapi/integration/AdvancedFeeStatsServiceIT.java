@@ -26,6 +26,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -42,6 +43,7 @@ import school.hei.haapi.repository.FeeRepository;
 import school.hei.haapi.service.AdvancedFeeStatsService;
 import software.amazon.awssdk.services.eventbridge.EventBridgeClient;
 
+@Slf4j
 class AdvancedFeeStatsServiceIT extends FacadeITMockedThirdParties {
   private static List<Fee> feeDueJunePaidInJuly;
   private static List<Fee> feeDueJunePaidInMay;
@@ -152,6 +154,7 @@ class AdvancedFeeStatsServiceIT extends FacadeITMockedThirdParties {
     var generatedJulyStats =
         subject.getAdvancedFeeStats(LocalDate.of(2025, 7, 1), LocalDate.of(2025, 7, 31), empty());
 
+    log.info("paid fees : " + generatedJulyStats.getPaidFeesCount());
     assertEquals(1, generatedJuneStats.getPaidFeesCount().getMonthly());
     assertEquals(0, generatedJulyStats.getPaidFeesCount().getMonthly());
   }
@@ -230,6 +233,7 @@ class AdvancedFeeStatsServiceIT extends FacadeITMockedThirdParties {
     var generatedMayStats =
         subject.getAdvancedFeeStats(
             LocalDate.of(2025, 5, 1), LocalDate.of(2025, 5, 31), Optional.of(RECEIPT));
+    log.info(generatedMayStats.toString());
     assertEquals(1, generatedMayStats.getPaidFeesCount().getMonthly());
     assertEquals(0, generatedJuneStats.getPaidFeesCount().getMonthly());
   }

@@ -171,6 +171,7 @@ public class TestUtils {
   public static final String GRADE6_ID = "grade6_id";
   public static final String GRADE7_ID = "grade7_id";
   public static final String BAD_TOKEN = "bad_token";
+  public static final String STUDENT_AXEL_TOKEN = "student_axel_token";
   public static final String STUDENT1_TOKEN = "student1_token";
   public static final String STUDENT2_TOKEN = "student2_token";
   public static final String STUDENT11_TOKEN = "student11_token";
@@ -226,11 +227,23 @@ public class TestUtils {
   public static final String ORGANIZER1_TOKEN = "organizer1_token";
   public static final String ORGANIZER2_TOKEN = "organizer2_token";
 
+  public static CasdoorUser getCasdoorUserAxel() {
+    var user = new CasdoorUser();
+    user.setEmail("test+axel@hei.school");
+    var casdoorRole = new CasdoorRole();
+    casdoorRole.setOwner("dummy");
+    casdoorRole.setName("student");
+    String[] roleUsers = {"dummy/user"};
+    casdoorRole.setUsers(roleUsers);
+    user.setRoles(List.of(casdoorRole));
+    return user;
+  }
+
   public static CasdoorUser getCasdoorUserStudent1() {
-    CasdoorUser user = new CasdoorUser();
+    var user = new CasdoorUser();
     user.setEmail("test+ryan@hei.school");
 
-    CasdoorRole casdoorRole = new CasdoorRole();
+    var casdoorRole = new CasdoorRole();
     casdoorRole.setOwner("dummy");
     casdoorRole.setName("student");
     String[] roleUsers = {"dummy/user"};
@@ -241,40 +254,40 @@ public class TestUtils {
   }
 
   public static CasdoorUser getCasdoorUserStudent2() {
-    CasdoorUser user = getCasdoorUserStudent1();
+    var user = getCasdoorUserStudent1();
     user.setEmail("test+student2@hei.school");
     return user;
   }
 
   public static CasdoorUser getCasdoorUserStudent8() {
-    CasdoorUser user = getCasdoorUserStudent1();
+    var user = getCasdoorUserStudent1();
     user.setEmail("test+repeating2@hei.school");
     return user;
   }
 
   public static CasdoorUser getCasdoorUserStudent11() {
-    CasdoorUser user = getCasdoorUserStudent1();
+    var user = getCasdoorUserStudent1();
     user.setEmail("test+student11@hei.school");
     return user;
   }
 
   public static CasdoorUser getCasdoorUserStudent12() {
-    CasdoorUser user = getCasdoorUserStudent1();
+    var user = getCasdoorUserStudent1();
     user.setEmail("test+student12@hei.school");
     return user;
   }
 
   public static CasdoorUser getCasdoorUserStudent13() {
-    CasdoorUser user = getCasdoorUserStudent1();
+    var user = getCasdoorUserStudent1();
     user.setEmail("test+student13@hei.school");
     return user;
   }
 
   public static CasdoorUser getCasdoorUserTeacher1() {
-    CasdoorUser user = new CasdoorUser();
+    var user = new CasdoorUser();
     user.setEmail("test+teacher1@hei.school");
 
-    CasdoorRole casdoorRole = new CasdoorRole();
+    var casdoorRole = new CasdoorRole();
     casdoorRole.setOwner("dummy");
     casdoorRole.setName("teacher");
     String[] roleUsers = {"dummy/user"};
@@ -285,10 +298,10 @@ public class TestUtils {
   }
 
   public static CasdoorUser getCasdoorUserManager1() {
-    CasdoorUser user = new CasdoorUser();
+    var user = new CasdoorUser();
     user.setEmail("test+manager1@hei.school");
 
-    CasdoorRole casdoorRole = new CasdoorRole();
+    var casdoorRole = new CasdoorRole();
     casdoorRole.setOwner("dummy");
     casdoorRole.setName("manager");
     String[] roleUsers = {"dummy/user"};
@@ -299,10 +312,10 @@ public class TestUtils {
   }
 
   public static CasdoorUser getCasdoorUserMonitor1() {
-    CasdoorUser user = new CasdoorUser();
+    var user = new CasdoorUser();
     user.setEmail("test+monitor@hei.school");
 
-    CasdoorRole casdoorRole = new CasdoorRole();
+    var casdoorRole = new CasdoorRole();
     casdoorRole.setOwner("dummy");
     casdoorRole.setName("manager");
     String[] roleUsers = {"dummy/user"};
@@ -313,7 +326,7 @@ public class TestUtils {
   }
 
   private static CasdoorUser getCasdoorAlumniStudent1() {
-    CasdoorUser user = getCasdoorUserAlumni1();
+    var user = getCasdoorUserAlumni1();
     user.setEmail("alumni1@hei.school");
     user.setOwner("dummy");
     return user;
@@ -333,16 +346,16 @@ public class TestUtils {
   }
 
   public static CasdoorUser getCasdoorUserMonitor2() {
-    CasdoorUser user = getCasdoorUserMonitor1();
+    var user = getCasdoorUserMonitor1();
     user.setEmail("test+monitor2@hei.school");
     return user;
   }
 
   public static CasdoorUser getCasdoorUserOrganizer1() {
-    CasdoorUser user = new CasdoorUser();
+    var user = new CasdoorUser();
     user.setEmail("test+organizer@hei.school");
 
-    CasdoorRole casdoorRole = new CasdoorRole();
+    var casdoorRole = new CasdoorRole();
     casdoorRole.setOwner("dummy");
     casdoorRole.setName("organizer");
     String[] roleUsers = {"dummy/user"};
@@ -353,25 +366,25 @@ public class TestUtils {
   }
 
   public static CasdoorUser getCasdoorUserOrganizer2() {
-    CasdoorUser user = getCasdoorUserOrganizer1();
+    var user = getCasdoorUserOrganizer1();
     user.setEmail("test+organizer+2@hei.school");
     return user;
   }
 
   public static CasdoorUser getCasdoorUserStaffMember1() {
-    CasdoorUser user = getCasdoorUserMonitor1();
+    var user = getCasdoorUserMonitor1();
     user.setEmail("test+staff@hei.school");
     return user;
   }
 
   public static CasdoorUser getCasdoorUserAdmin1() {
-    CasdoorUser user = getCasdoorUserMonitor1();
+    var user = getCasdoorUserMonitor1();
     user.setEmail("test+admin@hei.school");
     return user;
   }
 
   public static CasdoorUser getCasdoorUserSuspended() {
-    CasdoorUser user = getCasdoorUserMonitor1();
+    var user = getCasdoorUserMonitor1();
     user.setEmail("test+suspended@hei.school");
     return user;
   }
@@ -396,6 +409,7 @@ public class TestUtils {
     when(casdoorAuthService.parseJwtToken(ADMIN1_TOKEN)).thenReturn(getCasdoorUserAdmin1());
     when(casdoorAuthService.parseJwtToken(SUSPENDED_TOKEN)).thenReturn(getCasdoorUserSuspended());
     when(casdoorAuthService.parseJwtToken(ALUMNI1_TOKEN)).thenReturn(getCasdoorAlumniStudent1());
+    when(casdoorAuthService.parseJwtToken(STUDENT_AXEL_TOKEN)).thenReturn(getCasdoorUserAxel());
   }
 
   public static ApiClient anApiClient(String token, int serverPort) {
