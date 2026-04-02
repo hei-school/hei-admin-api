@@ -36,10 +36,13 @@ public class AdvancedFeeStats {
   @Enumerated(STRING)
   private AdvancedFeeStatsType statType;
 
-  private long firstGradeCount;
-  private long secondGradeCount;
-  private long thirdGradeCount;
+  private long firstGradeCountMonthly;
+  private long secondGradeCountMonthly;
+  private long thirdGradeCountMonthly;
   private long unknownGradeCount;
+  private long firstGradeCountYearly;
+  private long secondGradeCountYearly;
+  private long thirdGradeCountYearly;
 
   private long remedialFirstGradeCount;
   private long remedialSecondGradeCount;

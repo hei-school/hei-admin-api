@@ -8964,13 +8964,22 @@ components:
     BaseFeesStats:
       type: object
       properties:
-        first_grade:
+        first_grade_monthly:
           type: integer
           format: int64
-        second_grade:
+        second_grade_monthly:
           type: integer
           format: int64
-        third_grade:
+        third_grade_monthly:
+          type: integer
+          format: int64
+        first_grade_yearly:
+          type: integer
+          format: int64
+        second_grade_yearly:
+          type: integer
+          format: int64
+        third_grade_yearly:
           type: integer
           format: int64
         other:
