@@ -79,7 +79,7 @@ public class MpbsVerificationService {
   public List<Mpbs> findAllWithPaymentResolution(String studentId, String feeId) {
     var mpbsListForTheFee =
         mpbsService.getStudentMobilePaymentByFeeId(studentId, feeId).stream().toList();
-    var mpbsListForTheFeeCheck =
+    var mpbsListForToCheck =
         mpbsListForTheFee.stream()
             .filter(mpbs -> mpbs.getStatus() == MpbsStatus.PENDING)
             .map(this::verifyMpbsFromVola)
@@ -89,7 +89,7 @@ public class MpbsVerificationService {
             mpbsListForTheFee.stream()
                 .filter(mpbs -> (mpbs.getStatus() != MpbsStatus.PENDING))
                 .toList());
-    listWithoutPending.addAll(mpbsListForTheFeeCheck);
+    listWithoutPending.addAll(mpbsListForToCheck);
     return listWithoutPending;
   }
 
