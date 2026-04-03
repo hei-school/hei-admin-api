@@ -179,9 +179,11 @@ class FeeIT extends FacadeITMockedThirdParties {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     PayingApi api = new PayingApi(manager1Client);
 
-    Fee deletedFee = api.deleteStudentFeeById(axelFee1.getId(), enabledStudentAxel.getId());
+    Fee createdFee = api.createStudentFees(STUDENT1_ID, List.of(createFeeForTest())).getFirst();
 
-    List<Fee> fees = api.getStudentFees(enabledStudentAxel.getId(), 1, 5, null);
+    Fee deletedFee = api.deleteStudentFeeById(createdFee.getId(), STUDENT1_ID);
+
+    List<Fee> fees = api.getStudentFees(STUDENT1_ID, 1, 5, null);
     assertFalse(fees.contains(deletedFee));
 
     school.hei.haapi.model.Fee actualFeeData = getFeeByIdWithoutJpaFiltering(deletedFee.getId());
