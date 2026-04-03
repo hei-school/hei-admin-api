@@ -30,7 +30,6 @@ import school.hei.haapi.endpoint.rest.model.FeeStatusEnum;
 @Builder(toBuilder = true)
 @AllArgsConstructor
 @NoArgsConstructor
-@ToString
 public class FeeStatusHistory {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
