@@ -702,13 +702,13 @@ class FeeIT extends FacadeITMockedThirdParties {
     setUpTestData();
     var from = Instant.parse("2026-01-01T00:00:00Z");
     var to = Instant.parse("2026-12-31T23:59:59Z");
-    var all2026Fees_julyOnward = feeRepository.findAllEnabledByStatusHistoriesBetween(from, to);
+    var all2026FeeStatusHistories = feeRepository.findAllEnabledByStatusHistoriesBetween(from, to);
 
-    assertTrue(all2026Fees_julyOnward.contains(axelFee1));
-    assertTrue(all2026Fees_julyOnward.contains(axelFee2));
-    assertFalse(all2026Fees_julyOnward.contains(axelFeeDeleted));
-    assertFalse(all2026Fees_julyOnward.contains(tolojanaharyFee1));
-    assertFalse(all2026Fees_julyOnward.contains(tolojanaharyFee2));
+    assertTrue(all2026FeeStatusHistories.contains(axelFee1));
+    assertTrue(all2026FeeStatusHistories.contains(axelFee2));
+    assertFalse(all2026FeeStatusHistories.contains(axelFeeDeleted));
+    assertFalse(all2026FeeStatusHistories.contains(tolojanaharyFee1));
+    assertFalse(all2026FeeStatusHistories.contains(tolojanaharyFee2));
     teardown();
   }
 }
