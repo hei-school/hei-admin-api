@@ -70,7 +70,7 @@ public class FeeController {
         .saveAll(feeMapper.toDomainFee(userService.getById(studentId), toCreate))
         .stream()
         .map(feeMapper::toRestFee)
-        .collect(toUnmodifiableList());
+        .toList();
   }
 
   @PutMapping("/students/{studentId}/fees")
@@ -144,7 +144,7 @@ public class FeeController {
                 studentRef)
             .stream()
             .map(feeMapper::toRestFee)
-            .collect(toUnmodifiableList());
+            .toList();
     return new FeesWithStats().data(restFees).statistics(FeesStats.to(feesStats));
   }
 

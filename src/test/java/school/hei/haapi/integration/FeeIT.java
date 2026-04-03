@@ -41,6 +41,12 @@ import static school.hei.haapi.integration.conf.TestUtils.requestFile;
 import static school.hei.haapi.integration.conf.TestUtils.setUpCasdoor;
 import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
 import static school.hei.haapi.integration.conf.TestUtils.setUpS3Service;
+import static school.hei.haapi.integration.test_data.FeeTestData.createFeeStatusHistory;
+import static school.hei.haapi.integration.test_data.FeeTestData.createTuitionFee;
+import static school.hei.haapi.integration.test_data.StudentTestData.axel;
+import static school.hei.haapi.integration.test_data.StudentTestData.tolojanahary;
+import static school.hei.haapi.model.User.Status.DISABLED;
+import static school.hei.haapi.model.User.Status.ENABLED;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.Query;
@@ -71,7 +77,10 @@ import school.hei.haapi.endpoint.rest.model.FeesWithStats;
 import school.hei.haapi.file.bucket.BucketComponent;
 import school.hei.haapi.integration.conf.FacadeITMockedThirdParties;
 import school.hei.haapi.integration.conf.TestUtils;
+import school.hei.haapi.model.User;
 import school.hei.haapi.repository.FeeRepository;
+import school.hei.haapi.repository.FeeStatusHistoryRepository;
+import school.hei.haapi.repository.UserRepository;
 import school.hei.haapi.repository.dao.FeeDao;
 
 @Testcontainers
@@ -82,6 +91,60 @@ class FeeIT extends FacadeITMockedThirdParties {
   @Autowired FeeRepository feeRepository;
   @MockBean private BucketComponent bucketComponent;
   @Autowired FeeDao feeDao;
+
+  private User enabledStudentAxel;
+  private User disabledStudentTolojanahary;
+  private school.hei.haapi.model.Fee axelFee1;
+  private school.hei.haapi.model.Fee axelFee2;
+  private school.hei.haapi.model.Fee axelFeeDeleted;
+  private school.hei.haapi.model.Fee tolojanaharyFee1;
+  private school.hei.haapi.model.Fee tolojanaharyFee2;
+
+  @Autowired private UserRepository userRepository;
+  @Autowired private FeeStatusHistoryRepository feeStatusHistoryRepository;
+
+  void setUpTestData() {
+    enabledStudentAxel = axel();
+    enabledStudentAxel.setStatus(ENABLED);
+    disabledStudentTolojanahary = tolojanahary();
+    disabledStudentTolojanahary.setStatus(DISABLED);
+
+    axelFee1 = createTuitionFee(enabledStudentAxel, 100_000, Instant.parse("2026-06-01T08:00:00Z"));
+    axelFee2 = createTuitionFee(enabledStudentAxel, 200_000, Instant.parse("2026-06-02T08:00:00Z"));
+    axelFeeDeleted =
+        createTuitionFee(enabledStudentAxel, 300_000, Instant.parse("2026-06-03T08:00:00Z"));
+    axelFeeDeleted.setDeleted(true);
+    tolojanaharyFee1 =
+        createTuitionFee(
+            disabledStudentTolojanahary, 100_000, Instant.parse("2026-06-01T08:00:00Z"));
+    tolojanaharyFee2 =
+        createTuitionFee(
+            disabledStudentTolojanahary, 200_000, Instant.parse("2026-06-02T08:00:00Z"));
+
+    var axelFee1history = createFeeStatusHistory(axelFee1, PAID);
+    var axelFee2history = createFeeStatusHistory(axelFee2, LATE);
+    var tolojanaharyFee1history = createFeeStatusHistory(tolojanaharyFee1, PAID);
+    var tolojanaharyFee2history = createFeeStatusHistory(tolojanaharyFee2, LATE);
+
+    userRepository.saveAll(List.of(enabledStudentAxel, disabledStudentTolojanahary));
+    feeRepository.saveAll(
+        List.of(axelFee1, axelFee2, axelFeeDeleted, tolojanaharyFee1, tolojanaharyFee2));
+    axelFee1.getStatusHistories().add(axelFee1history);
+    axelFee2.getStatusHistories().add(axelFee2history);
+    tolojanaharyFee1.getStatusHistories().add(tolojanaharyFee1history);
+    tolojanaharyFee2.getStatusHistories().add(tolojanaharyFee2history);
+    feeStatusHistoryRepository.saveAll(
+        List.of(
+            axelFee1history, axelFee2history, tolojanaharyFee1history, tolojanaharyFee2history));
+  }
+
+  // TODO: add @AfterEach when we are ready to fully migrate this test using FacadeIT and a real
+  // Postgres database
+  void teardown() {
+    feeRepository.deleteAll(
+        List.of(axelFee1, axelFee2, axelFeeDeleted, tolojanaharyFee1, tolojanaharyFee2));
+    userRepository.deleteAll(List.of(enabledStudentAxel, disabledStudentTolojanahary));
+  }
 
   /***
    * Get fee by id without jpa, avoiding FILTER isDeleted = true | false
@@ -116,14 +179,11 @@ class FeeIT extends FacadeITMockedThirdParties {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     PayingApi api = new PayingApi(manager1Client);
 
-    Fee createdFee = api.createStudentFees(STUDENT1_ID, List.of(createFeeForTest())).getFirst();
+    Fee deletedFee = api.deleteStudentFeeById(axelFee1.getId(), enabledStudentAxel.getId());
 
-    Fee deletedFee = api.deleteStudentFeeById(createdFee.getId(), STUDENT1_ID);
-
-    List<Fee> fees = api.getStudentFees(STUDENT1_ID, 1, 5, null);
+    List<Fee> fees = api.getStudentFees(enabledStudentAxel.getId(), 1, 5, null);
     assertFalse(fees.contains(deletedFee));
 
-    // test: check if the payment is not deleted but has been flagged as deleted.
     school.hei.haapi.model.Fee actualFeeData = getFeeByIdWithoutJpaFiltering(deletedFee.getId());
     assertTrue(actualFeeData.isDeleted());
   }
@@ -620,5 +680,35 @@ class FeeIT extends FacadeITMockedThirdParties {
     var api = new PayingApi(manager1Client);
     var actualWorkFees = api.getFees(null, null, null, L1, null, null, 1, 10, false, null);
     assertEquals(0, actualWorkFees.getData().size());
+  }
+
+  @Test
+  void findAllByEnabledByDueDatetimeBetween_ok() {
+    setUpTestData();
+    var from = Instant.parse("2026-01-01T08:00:00.00Z");
+    var to = Instant.parse("2026-12-31T23:59:00Z");
+    var all2026Fees = feeRepository.findAllEnabledByDueDatetimeBetween(from, to);
+
+    assertTrue(all2026Fees.contains(axelFee1));
+    assertTrue(all2026Fees.contains(axelFee2));
+    assertFalse(all2026Fees.contains(axelFeeDeleted));
+    assertFalse(all2026Fees.contains(tolojanaharyFee1));
+    assertFalse(all2026Fees.contains(tolojanaharyFee2));
+    teardown();
+  }
+
+  @Test
+  void findAllEnabledByStatusHistoriesBetween_ok() {
+    setUpTestData();
+    var from = Instant.parse("2026-01-01T00:00:00Z");
+    var to = Instant.parse("2026-12-31T23:59:59Z");
+    var all2026Fees_julyOnward = feeRepository.findAllEnabledByStatusHistoriesBetween(from, to);
+
+    assertTrue(all2026Fees_julyOnward.contains(axelFee1));
+    assertTrue(all2026Fees_julyOnward.contains(axelFee2));
+    assertFalse(all2026Fees_julyOnward.contains(axelFeeDeleted));
+    assertFalse(all2026Fees_julyOnward.contains(tolojanaharyFee1));
+    assertFalse(all2026Fees_julyOnward.contains(tolojanaharyFee2));
+    teardown();
   }
 }

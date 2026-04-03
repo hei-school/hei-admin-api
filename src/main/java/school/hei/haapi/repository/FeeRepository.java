@@ -24,6 +24,14 @@ public interface FeeRepository extends JpaRepository<Fee, String> {
   List<Fee> findAllByDueDatetimeBetween(Instant from, Instant to);
 
   @Query(
+      "select f from Fee f "
+          + "join User u on f.student.id = u.id "
+          + "where f.dueDatetime "
+          + "between :from and :to "
+          + "and u.status != 'DISABLED'")
+  List<Fee> findAllEnabledByDueDatetimeBetween(Instant from, Instant to);
+
+  @Query(
       "select f from Fee f where f.status = 'UNPAID' "
           + "and f.student.status <> 'DISABLED'"
           + "and f.remainingAmount > 0 "
@@ -73,4 +81,12 @@ public interface FeeRepository extends JpaRepository<Fee, String> {
       @Param("status") FeeStatusEnum status);
 
   List<Fee> findDistinctByStatusHistoriesDatetimeBetween(Instant dayStart, Instant dayEnd);
+
+  @Query(
+      "SELECT DISTINCT f FROM Fee f "
+          + "JOIN f.student u "
+          + "JOIN f.statusHistories fsh "
+          + "WHERE u.status != 'DISABLED' "
+          + "AND fsh.datetime BETWEEN :dayStart AND :dayEnd")
+  List<Fee> findAllEnabledByStatusHistoriesBetween(Instant dayStart, Instant dayEnd);
 }
