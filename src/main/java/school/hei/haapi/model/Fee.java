@@ -81,6 +81,7 @@ public class Fee implements Serializable {
 
   @CreationTimestamp
   @Getter(AccessLevel.NONE)
+  @EqualsAndHashCode.Exclude
   private Instant creationDatetime;
 
   private Instant dueDatetime;
