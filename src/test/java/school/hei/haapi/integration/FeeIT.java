@@ -689,7 +689,7 @@ class FeeIT extends FacadeITMockedThirdParties {
     setUpTestData();
     var from = Instant.parse("2026-01-01T08:00:00.00Z");
     var to = Instant.parse("2026-12-31T23:59:00Z");
-    var all2026Fees = feeRepository.findAllEnabledByDueDatetimeBetween(from, to);
+    var all2026Fees = feeRepository.findAllByDueDatetimeBetween(from, to);
 
     assertTrue(all2026Fees.contains(axelFee1));
     assertTrue(all2026Fees.contains(axelFee2));
@@ -704,7 +704,8 @@ class FeeIT extends FacadeITMockedThirdParties {
     setUpTestData();
     var from = Instant.parse("2026-01-01T00:00:00Z");
     var to = Instant.parse("2026-12-31T23:59:59Z");
-    var all2026FeeStatusHistories = feeRepository.findAllEnabledByStatusHistoriesBetween(from, to);
+    var all2026FeeStatusHistories =
+        feeRepository.findDistinctByStatusHistoriesDatetimeBetween(from, to);
 
     assertTrue(all2026FeeStatusHistories.contains(axelFee1));
     assertTrue(all2026FeeStatusHistories.contains(axelFee2));

@@ -402,8 +402,8 @@ public class FeeService {
     XlsxCellsGenerator<FeeDetailsDto> xlsxCellsGenerator = new XlsxCellsGenerator<>();
     var allFees =
         switch (type) {
-          case ACCOUNTING -> feeRepository.findAllEnabledByDueDatetimeBetween(from, to);
-          case RECEIPT -> feeRepository.findAllEnabledByStatusHistoriesBetween(from, to);
+          case ACCOUNTING -> feeRepository.findAllByDueDatetimeBetween(from, to);
+          case RECEIPT -> feeRepository.findDistinctByStatusHistoriesDatetimeBetween(from, to);
         };
     var mappedFees = mapFees(allFees);
     var bytes = xlsxCellsGenerator.apply(mappedFees, HEADERS);
