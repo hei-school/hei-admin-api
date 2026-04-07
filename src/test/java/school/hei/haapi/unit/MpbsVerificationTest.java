@@ -52,6 +52,12 @@ class MpbsVerificationTest {
   VolaClient volaClientMock = mock();
   MpbsService mpbsServiceMock = mock();
   MpbsMapper mpbsMapperMock = mock();
+  MpbsVerificationService subject =
+      initMpbsVerificationService(
+          unverifiedMobilePaymentHandlerMock,
+          mobilePaymentServiceMock,
+          transactionDetailsMapper,
+          computeVerifiedMobilePaymentMock);
 
   private MpbsVerificationService initMpbsVerificationService(
       UnverifiedMobilePaymentHandler unverifiedMobilePaymentHandlerMock,
@@ -76,13 +82,6 @@ class MpbsVerificationTest {
 
   @Test
   void verification_split_verification_for_mbps() {
-    MpbsVerificationService subject =
-        initMpbsVerificationService(
-            unverifiedMobilePaymentHandlerMock,
-            mobilePaymentServiceMock,
-            transactionDetailsMapper,
-            computeVerifiedMobilePaymentMock);
-
     var mbpsPending = someMpbs("pending", now(), null);
     var mpbsVerified = someMpbs("verified", now(), null);
     var correspondingMockTransactionsFromVerifiedMpbs =
@@ -121,7 +120,7 @@ class MpbsVerificationTest {
 
   @Test
   void verification_skip_bad_mobile_payment() {
-    MpbsVerificationService subject =
+    MpbsVerificationService subjectWithRealHandler =
         initMpbsVerificationService(
             new UnverifiedMobilePaymentHandler(
                 mock(), new FailedMobilePaymentNotification(eventProducerMock)),
@@ -152,7 +151,8 @@ class MpbsVerificationTest {
         .thenReturn(fakeComputedVerifiedMpbs);
 
     List<MpbsVerification> verifiedMpbs =
-        subject.verifyMobilePaymentAndSaveResult(List.of(badMpbs, mpbsVerified, mpbsFailed));
+        subjectWithRealHandler.verifyMobilePaymentAndSaveResult(
+            List.of(badMpbs, mpbsVerified, mpbsFailed));
 
     verify(computeVerifiedMobilePaymentMock, never()).saveTheVerifiedMpbs(eq(badMpbs), any());
     assertEquals(1, verifiedMpbs.size());
@@ -172,12 +172,6 @@ class MpbsVerificationTest {
 
   @Test
   void verify_mpbs_from_vola_with_confirmed_payment() {
-    MpbsVerificationService subject =
-        initMpbsVerificationService(
-            unverifiedMobilePaymentHandlerMock,
-            mobilePaymentServiceMock,
-            transactionDetailsMapper,
-            computeVerifiedMobilePaymentMock);
     var student = User.builder().email("dummy@gmail.com").build();
     var fee = Fee.builder().id("feeId").student(student).build();
     var mpbsToVerify =
@@ -235,12 +229,6 @@ class MpbsVerificationTest {
 
   @Test
   void verify_mpbs_from_vola_with_null_amount_returns_original() {
-    MpbsVerificationService subject =
-        initMpbsVerificationService(
-            unverifiedMobilePaymentHandlerMock,
-            mobilePaymentServiceMock,
-            transactionDetailsMapper,
-            computeVerifiedMobilePaymentMock);
     var student = User.builder().email("dummy@gmail.com").build();
     var fee = Fee.builder().id("feeId").student(student).build();
     var mpbsToVerify =
@@ -278,13 +266,7 @@ class MpbsVerificationTest {
   }
 
   @Test
-  void send_vola_verification_request_and_save_result() {
-    MpbsVerificationService subject =
-        initMpbsVerificationService(
-            unverifiedMobilePaymentHandlerMock,
-            mobilePaymentServiceMock,
-            transactionDetailsMapper,
-            computeVerifiedMobilePaymentMock);
+  void send_vola_verification_request_and_save_result_ok() {
     var student = User.builder().id("studentId").email("dummy@gmail.com").build();
     var fee = Fee.builder().id("feeId").student(student).build();
     var mpbs =
@@ -339,12 +321,6 @@ class MpbsVerificationTest {
 
   @Test
   void verify_mpbs_from_vola_with_refused_payment_is_still_saved() {
-    MpbsVerificationService subject =
-        initMpbsVerificationService(
-            unverifiedMobilePaymentHandlerMock,
-            mobilePaymentServiceMock,
-            transactionDetailsMapper,
-            computeVerifiedMobilePaymentMock);
     var student = User.builder().email("dummy@gmail.com").build();
     var fee = Fee.builder().id("feeId").student(student).build();
     var mpbsToVerify =
@@ -398,12 +374,6 @@ class MpbsVerificationTest {
 
   @Test
   void send_vola_verification_request_propagates_exception() {
-    MpbsVerificationService subject =
-        initMpbsVerificationService(
-            unverifiedMobilePaymentHandlerMock,
-            mobilePaymentServiceMock,
-            transactionDetailsMapper,
-            computeVerifiedMobilePaymentMock);
     var student = User.builder().email("dummy@gmail.com").build();
     var fee = Fee.builder().id("feeId").student(student).build();
     var mpbs =
