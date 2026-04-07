@@ -4,9 +4,11 @@ import static java.time.Instant.now;
 import static java.time.Month.APRIL;
 import static java.time.temporal.ChronoUnit.MINUTES;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.when;
 import static school.hei.haapi.endpoint.rest.model.FeeCategory.UNKNOWN;
 import static school.hei.haapi.endpoint.rest.model.FeeTypeEnum.TUITION;
-import static school.hei.haapi.endpoint.rest.model.MobileMoneyType.MVOLA;
 import static school.hei.haapi.endpoint.rest.model.MobileMoneyType.ORANGE_MONEY;
 import static school.hei.haapi.endpoint.rest.model.MpbsStatus.PENDING;
 import static school.hei.haapi.integration.StudentIT.student1;
@@ -44,6 +46,9 @@ import school.hei.haapi.endpoint.rest.model.*;
 import school.hei.haapi.integration.conf.FacadeITMockedThirdParties;
 import school.hei.haapi.integration.conf.TestUtils;
 import school.hei.haapi.model.User;
+import school.hei.haapi.model.psp.vola.api.VolaClient;
+import school.hei.haapi.model.psp.vola.api.gen.client.model.Payment;
+import school.hei.haapi.model.psp.vola.api.gen.client.model.PspPayment;
 import school.hei.haapi.service.UserService;
 import software.amazon.awssdk.services.eventbridge.EventBridgeClient;
 
@@ -51,6 +56,7 @@ import software.amazon.awssdk.services.eventbridge.EventBridgeClient;
 @AutoConfigureMockMvc
 public class MpbsIT extends FacadeITMockedThirdParties {
   @MockBean private EventBridgeClient eventBridgeClientMock;
+  @MockBean private VolaClient volaClientMock;
   @Autowired private UserService userService;
 
   @BeforeEach
@@ -59,6 +65,44 @@ public class MpbsIT extends FacadeITMockedThirdParties {
     setUpCognito(cognitoComponentMock);
     setUpEventBridge(eventBridgeClientMock);
     setUpS3Service(fileService, student1());
+    setUpVolaClient();
+  }
+
+  private void setUpVolaClient() {
+    when(volaClientMock.get(any(PspPayment.PspTypeEnum.class), anyString(), anyString()))
+        .thenAnswer(
+            invocation -> {
+              String pspId = invocation.getArgument(1);
+              var pspPayment =
+                  PspPayment.builder()
+                      .pspType(PspPayment.PspTypeEnum.ORANGE_MONEY)
+                      .id(pspId)
+                      .amount(null)
+                      .build();
+              return Payment.builder()
+                  .pspPayment(pspPayment)
+                  .verificationStatus(Payment.VerificationStatusEnum.VERIFYING)
+                  .lastPspVerificationInstant(now().atOffset(java.time.ZoneOffset.UTC))
+                  .creationInstant(null)
+                  .build();
+            });
+    when(volaClientMock.create(any(PspPayment.PspTypeEnum.class), anyString(), anyString()))
+        .thenAnswer(
+            invocation -> {
+              String pspId = invocation.getArgument(1);
+              var pspPayment =
+                  PspPayment.builder()
+                      .pspType(PspPayment.PspTypeEnum.ORANGE_MONEY)
+                      .id(pspId)
+                      .amount(null)
+                      .build();
+              return Payment.builder()
+                  .pspPayment(pspPayment)
+                  .verificationStatus(Payment.VerificationStatusEnum.VERIFYING)
+                  .lastPspVerificationInstant(now().atOffset(java.time.ZoneOffset.UTC))
+                  .creationInstant(now().atOffset(java.time.ZoneOffset.UTC))
+                  .build();
+            });
   }
 
   private ApiClient anApiClient(String token) {
@@ -256,7 +300,7 @@ public class MpbsIT extends FacadeITMockedThirdParties {
         .pspId("psp2_id")
         .studentId(STUDENT1_ID)
         .feeId(FEE1_ID)
-        .pspType(MVOLA)
+        .pspType(ORANGE_MONEY)
         .amount(8000)
         .successfullyVerifiedOn(Instant.parse("2021-11-08T08:25:24.00Z"))
         .creationDatetime(Instant.parse("2021-11-08T08:25:24.00Z"))
