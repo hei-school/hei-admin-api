@@ -564,13 +564,12 @@ public class AdvancedFeeStatsService {
     List<Fee> tuitionFees = feesByType.getOrDefault(TUITION, List.of());
     Map<FeeFrequency, Long> feesCountByPaymentFrequency = countFeesByPaymentFrequency(tuitionFees);
     return new UnpaidFeesStats()
-        .retakeExamFirstGradeCount(countRemedialFees(fees, L1))
-        .retakeExamSecondGradeCount(countRemedialFees(fees, L2))
-        .retakeExamThirdGradeCount(countRemedialFees(fees, L3))
+        .retakeExamFirstGradeCount(countRemedialFees(unpaidFees, L1))
+        .retakeExamSecondGradeCount(countRemedialFees(unpaidFees, L2))
+        .retakeExamThirdGradeCount(countRemedialFees(unpaidFees, L3))
         .workStudy(monthlyFeeCountByCategory.get(WORK_FEES))
         .monthly(feesCountByPaymentFrequency.get(MONTHLY))
         .yearly(feesCountByPaymentFrequency.get(YEARLY))
-        .unknownFrequency(feesCountByPaymentFrequency.get(UNKNOWN))
         .unknownFrequency(feesCountByPaymentFrequency.get(UNKNOWN))
         .firstGradeMonthly(monthlyFeeCountByCategory.get(L1))
         .secondGradeMonthly(monthlyFeeCountByCategory.get(L2))

@@ -113,10 +113,7 @@ class AdvancedFeeStatsServiceIT extends FacadeITMockedThirdParties {
   }
 
   private static Fee createFeeDueJuneUnpaid() {
-    List<FeeStatusHistory> statusHistories =
-        List.of(
-            createStatus(PENDING, "2025-06-27T00:00:00.00Z"),
-            createStatus(UNPAID, "2025-06-30T23:59:59Z"));
+    List<FeeStatusHistory> statusHistories = List.of(createStatus(UNPAID, "2025-06-30T23:59:59Z"));
     return createFee(statusHistories, "2025-06-30T23:59:59Z", UNPAID);
   }
 
@@ -154,7 +151,6 @@ class AdvancedFeeStatsServiceIT extends FacadeITMockedThirdParties {
     var generatedJulyStats =
         subject.getAdvancedFeeStats(LocalDate.of(2025, 7, 1), LocalDate.of(2025, 7, 31), empty());
 
-    log.info("paid fees : " + generatedJulyStats.getPaidFeesCount());
     assertEquals(1, generatedJuneStats.getPaidFeesCount().getMonthly());
     assertEquals(0, generatedJulyStats.getPaidFeesCount().getMonthly());
   }
@@ -253,6 +249,7 @@ class AdvancedFeeStatsServiceIT extends FacadeITMockedThirdParties {
         subject.getAdvancedFeeStats(LocalDate.of(2025, 6, 1), LocalDate.of(2025, 6, 30), empty());
 
     assertEquals(0, generatedJuneStats.getPaidFeesCount().getMonthly());
+    assertEquals(1, generatedJuneStats.getUnpaidFeesCount().getMonthly());
   }
 
   @Test
