@@ -44,7 +44,7 @@ public class AdvancedFeeStatsMapper {
         getModelPendingFeeStats(restStat.getPendingFeesCount(), statStartDate, statEndDate, type));
     statsModels.put(
         UNPAID_COUNT,
-        getModelUnpaidFeeStats(restStat.getUnpaidFeesCount(), statStartDate, statStartDate, type));
+        getModelUnpaidFeeStats(restStat.getUnpaidFeesCount(), statStartDate, statEndDate, type));
     statsModels.put(
         TOTAL_COUNT,
         getModelTotalFeeStats(
