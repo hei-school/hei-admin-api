@@ -71,8 +71,6 @@ public class FeeService {
   private final BucketComponent bucketComponent;
   private static final String MONTHLY_FEE_TEMPLATE_NAME = "Frais mensuel L1";
   private static final String YEARLY_FEE_TEMPLATE_NAME = "Frais annuel L1";
-  private final MpbsVerificationService mpbsVerificationService;
-  private final MpbsService mpbsService;
   private static final List<String> HEADERS =
       List.of(
           "ref",
@@ -234,16 +232,8 @@ public class FeeService {
       String studentId, PageFromOne page, BoundedPageSize pageSize, FeeStatusEnum status) {
     Pageable pageable = PageRequest.of(page.getValue() - 1, pageSize.getValue());
     if (status != null) {
-        var result = feeRepository.getFeesByStudentIdAndStatusOrderByDueDatetimeDesc(
-                studentId, status, pageable);
-        var pendingFeeList = result.stream().filter(fee -> PENDING.equals(fee.getStatus())).toList();
-        List<Mpbs> pendingMpbsList = pendingFeeList.stream().map(fee -> (Mpbs) fee.getMobilePayments().stream().filter(mpbs -> mpbs.getStatus().equals(MpbsStatus.PENDING)).toList()).toList();
-        var mpbsToCheck = pendingMpbsList.stream().map(mpbsVerificationService::verifyMpbsFromVola).toList();
-        //Update les mpbs en cause
-        mpbsService.saveAll(mpbsToCheck);
-
-        return feeRepository.getFeesByStudentIdAndStatusOrderByDueDatetimeDesc(
-                studentId, status, pageable);
+      return feeRepository.getFeesByStudentIdAndStatusOrderByDueDatetimeDesc(
+          studentId, status, pageable);
     }
     return feeRepository
         .findAllByStudentIdSortByStatusAndDueDatetimeDescAndId(studentId, pageable)

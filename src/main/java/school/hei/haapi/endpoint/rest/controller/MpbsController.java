@@ -20,17 +20,13 @@ import school.hei.haapi.endpoint.rest.mapper.MpbsMapper;
 import school.hei.haapi.endpoint.rest.model.CrupdateMpbs;
 import school.hei.haapi.endpoint.rest.model.Mpbs;
 import school.hei.haapi.endpoint.rest.validator.CreateMpbsValidator;
-import school.hei.haapi.service.MpbsService;
 import school.hei.haapi.service.MpbsVerificationService;
-import school.hei.haapi.service.MultipartFileConverter;
 
 @RestController
 @AllArgsConstructor
 public class MpbsController {
   private final CreateMpbsValidator validator;
-  private final MpbsService mpbsService;
   private final MpbsMapper mapper;
-  private final MultipartFileConverter multipartFileConverter;
   private final EventProducer eventProducer;
   private final MpbsVerificationService mpbsVerificationService;
 
@@ -41,14 +37,14 @@ public class MpbsController {
       @RequestBody CrupdateMpbs mpbsToSave) {
     validator.accept(studentId, feeId, mpbsToSave);
     school.hei.haapi.model.mpbs.Mpbs mappedMpbsToSave = mapper.toDomain(mpbsToSave);
-    return mapper.toRest(mpbsService.saveMpbs(mappedMpbsToSave));
+    return mpbsVerificationService.sendVolaVerificationRequestAndSaveResult(mappedMpbsToSave);
   }
 
   @GetMapping(value = "/students/{student_id}/fees/{fee_id}/mpbs")
   public List<Mpbs> getMpbs(
       @PathVariable(name = "student_id") String studentId,
       @PathVariable(name = "fee_id") String feeId) {
-    return mpbsService.getStudentMobilePaymentByFeeId(studentId, feeId).stream()
+    return mpbsVerificationService.findAllWithPaymentResolution(studentId, feeId).stream()
         .map(mapper::toRest)
         .toList();
   }
