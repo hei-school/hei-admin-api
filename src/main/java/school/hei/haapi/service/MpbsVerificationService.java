@@ -18,7 +18,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import school.hei.haapi.endpoint.rest.mapper.MpbsMapper;
 import school.hei.haapi.endpoint.rest.mapper.VolaMapper;
-import school.hei.haapi.endpoint.rest.model.MpbsStatus;
 import school.hei.haapi.http.mapper.TransactionDetailsMapper;
 import school.hei.haapi.http.model.TransactionDetails;
 import school.hei.haapi.model.MobileTransactionDetails;
@@ -76,21 +75,9 @@ public class MpbsVerificationService {
     }
   }
 
-  public List<Mpbs> findAllWithPaymentResolution(String studentId, String feeId) {
-    var mpbsListForTheFee =
-        mpbsService.getStudentMobilePaymentByFeeId(studentId, feeId).stream().toList();
-    var mpbsListForToCheck =
-        mpbsListForTheFee.stream()
-            .filter(mpbs -> mpbs.getStatus() == MpbsStatus.PENDING)
-            .map(this::verifyMpbsFromVola)
-            .toList();
-    var listWithoutPending =
-        new ArrayList<>(
-            mpbsListForTheFee.stream()
-                .filter(mpbs -> (mpbs.getStatus() != MpbsStatus.PENDING))
-                .toList());
-    listWithoutPending.addAll(mpbsListForToCheck);
-    return listWithoutPending;
+  public void verifyPendingMpbsForStudent(String studentId) {
+    var pendingMpbs = mpbsRepository.findAllByStatusAndStudentId(PENDING, studentId);
+    pendingMpbs.forEach(this::verifyMpbsFromVola);
   }
 
   public school.hei.haapi.endpoint.rest.model.Mpbs sendVolaVerificationRequestAndSaveResult(

@@ -20,6 +20,7 @@ import school.hei.haapi.endpoint.rest.mapper.MpbsMapper;
 import school.hei.haapi.endpoint.rest.model.CrupdateMpbs;
 import school.hei.haapi.endpoint.rest.model.Mpbs;
 import school.hei.haapi.endpoint.rest.validator.CreateMpbsValidator;
+import school.hei.haapi.service.MpbsService;
 import school.hei.haapi.service.MpbsVerificationService;
 
 @RestController
@@ -27,6 +28,7 @@ import school.hei.haapi.service.MpbsVerificationService;
 public class MpbsController {
   private final CreateMpbsValidator validator;
   private final MpbsMapper mapper;
+  private final MpbsService mpbsService;
   private final EventProducer eventProducer;
   private final MpbsVerificationService mpbsVerificationService;
 
@@ -44,7 +46,7 @@ public class MpbsController {
   public List<Mpbs> getMpbs(
       @PathVariable(name = "student_id") String studentId,
       @PathVariable(name = "fee_id") String feeId) {
-    return mpbsVerificationService.findAllWithPaymentResolution(studentId, feeId).stream()
+    return mpbsService.getStudentMobilePaymentByFeeId(studentId, feeId).stream()
         .map(mapper::toRest)
         .toList();
   }

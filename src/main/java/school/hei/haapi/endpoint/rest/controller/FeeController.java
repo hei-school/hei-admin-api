@@ -32,6 +32,7 @@ import school.hei.haapi.repository.model.FeesStats;
 import school.hei.haapi.service.AdvancedFeeStatsService;
 import school.hei.haapi.service.FeeService;
 import school.hei.haapi.service.FeeTemplateService;
+import school.hei.haapi.service.MpbsVerificationService;
 import school.hei.haapi.service.UserService;
 
 @RestController
@@ -45,6 +46,7 @@ public class FeeController {
   private final FeeTemplateService feeTemplateService;
   private final FeeTemplateMapper feeTemplateMapper;
   private final AdvancedFeeStatsService advancedFeeStatsService;
+  private final MpbsVerificationService mpbsVerificationService;
 
   @GetMapping("/fees/{fee_id}")
   public Fee getFeeById(@PathVariable(name = "fee_id") String id) {
@@ -90,6 +92,9 @@ public class FeeController {
       @RequestParam PageFromOne page,
       @RequestParam("page_size") BoundedPageSize pageSize,
       @RequestParam(required = false) FeeStatusEnum status) {
+    // Verify pending mpbs before fetching fees so results reflect current vola state.
+    // Orchestrated here to avoid circular dependency (MpbsService -> FeeService).
+    mpbsVerificationService.verifyPendingMpbsForStudent(studentId);
     return feeService.getFeesByStudentId(studentId, page, pageSize, status).stream()
         .map(feeMapper::toRestFee)
         .toList();
