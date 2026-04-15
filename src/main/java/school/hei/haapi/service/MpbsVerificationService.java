@@ -49,6 +49,7 @@ public class MpbsVerificationService {
   private final VolaMapper volaMapper;
   private final MpbsService mpbsService;
   private final MpbsMapper mapper;
+  private final PaymentService paymentService;
 
   public List<MpbsVerification> findAllByStudentIdAndFeeId(String studentId, String feeId) {
     return repository.findAllByStudentIdAndFeeId(studentId, feeId);
@@ -68,6 +69,7 @@ public class MpbsVerificationService {
       }
       log.info(
           "Verifying Mpbs {} from Vola, result amount: {}", mpbs.getId(), verifiedMpbs.getAmount());
+      paymentService.computeRemainingAmount(mpbs.getFee().getId(), verifiedMpbs.getAmount());
       return mpbsService.save(verifiedMpbs);
     } catch (Exception e) {
       log.error("Failed to verify Mpbs {} from Vola", mpbs.getId(), e);

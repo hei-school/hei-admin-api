@@ -40,6 +40,7 @@ class VerificationMpbsByXlsxTest {
           mock(),
           new VolaMapper(),
           mock(),
+          mock(),
           mock());
 
   private static List<MobileTransactionDetails> excelTransactionDetails() {
