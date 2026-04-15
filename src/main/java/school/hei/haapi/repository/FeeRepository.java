@@ -74,14 +74,21 @@ ORDER BY
           + "JOIN f.student u "
           + "JOIN f.statusHistories fsh "
           + "WHERE u.status != 'DISABLED' "
-          + "AND fsh.datetime BETWEEN :dayStart AND :dayEnd")
+          + "AND fsh.datetime BETWEEN :dayStart AND :dayEnd "
+          + "and f.isDeleted = false")
   List<Fee> findDistinctByStatusHistoriesDatetimeBetween(Instant dayStart, Instant dayEnd);
 
   @Query(
       "select f from Fee f "
-          + "join User u on f.student.id = u.id "
-          + "where f.dueDatetime "
-          + "between :from and :to "
-          + "and u.status != 'DISABLED'")
+          + "join f.statusHistories fsh "
+          + "join f.student u "
+          + "where f.dueDatetime between :from and :to "
+          + "and u.status != 'DISABLED' "
+          + "and f.isDeleted = false "
+          + "and fsh.datetime = ("
+          + "  select max(fsh2.datetime) from FeeStatusHistory fsh2 "
+          + "  where fsh2.fee.id = f.id"
+          + ") "
+          + "order by fsh.datetime desc")
   List<Fee> findAllByDueDatetimeBetween(Instant from, Instant to);
 }
