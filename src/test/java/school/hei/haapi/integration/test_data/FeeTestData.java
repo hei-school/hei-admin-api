@@ -14,7 +14,7 @@ import school.hei.haapi.model.FeeStatusHistory;
 import school.hei.haapi.model.User;
 
 public class FeeTestData {
-  public static Fee createTuitionFee(User student, Integer totalAmount, Instant dueDatetime) {
+  public static Fee createPendingFee(User student, Integer totalAmount, Instant dueDatetime) {
     return Fee.builder()
         .id(randomUUID().toString())
         .student(student)

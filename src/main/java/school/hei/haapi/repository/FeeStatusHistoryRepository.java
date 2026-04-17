@@ -11,5 +11,7 @@ import school.hei.haapi.model.FeeStatusHistory;
 public interface FeeStatusHistoryRepository extends JpaRepository<FeeStatusHistory, String> {
   List<FeeStatusHistory> findByFeeIdOrderByDatetime(String feeId, Sort sort);
 
+  List<FeeStatusHistory> findByFeeId(String feeId);
+
   Long fee(Fee fee);
 }

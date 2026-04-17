@@ -7,7 +7,7 @@ import static school.hei.haapi.endpoint.rest.model.EnableStatus.SUSPENDED;
 import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.LATE;
 import static school.hei.haapi.endpoint.rest.model.FeeTypeEnum.HARDWARE;
 import static school.hei.haapi.endpoint.rest.model.FeeTypeEnum.TUITION;
-import static school.hei.haapi.integration.MpbsIT.createableMpbsFromFeeIdWithStudent1;
+import static school.hei.haapi.endpoint.rest.model.MobileMoneyType.ORANGE_MONEY;
 import static school.hei.haapi.integration.StudentIT.someCreatableStudent;
 import static school.hei.haapi.integration.conf.TestUtils.FEE3_ID;
 import static school.hei.haapi.integration.conf.TestUtils.FEE6_ID;
@@ -19,6 +19,7 @@ import static school.hei.haapi.integration.conf.TestUtils.setUpCasdoor;
 import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
 import static school.hei.haapi.integration.conf.TestUtils.setUpEventBridge;
 import static school.hei.haapi.integration.conf.TestUtils.setUpS3Service;
+import static school.hei.haapi.integration.test_data.MpbsTestData.createCrupdateMpbs;
 import static school.hei.haapi.model.User.Sex.F;
 import static school.hei.haapi.model.User.Sex.M;
 
@@ -83,7 +84,8 @@ class PaymentServiceTest extends MockedThirdParties {
         payingApi.crupdateMpbs(
             STUDENT1_ID,
             correspondingFee.getId(),
-            createableMpbsFromFeeIdWithStudent1(correspondingFee.getId()));
+            createCrupdateMpbs(
+                STUDENT1_ID, correspondingFee.getId(), "MP240726.1541.D88426", ORANGE_MONEY));
     var correspondingStudent =
         usersApi.createOrUpdateStudents(List.of(correspondingCreateableStudent), null).getFirst();
 

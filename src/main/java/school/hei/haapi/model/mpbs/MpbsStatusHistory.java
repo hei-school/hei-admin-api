@@ -20,7 +20,6 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import lombok.ToString;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.annotations.UpdateTimestamp;
@@ -34,7 +33,6 @@ import school.hei.haapi.endpoint.rest.model.MpbsStatus;
 @Setter
 @Builder
 @EqualsAndHashCode
-@ToString
 public class MpbsStatusHistory {
   @Id
   @GeneratedValue(strategy = IDENTITY)
@@ -59,5 +57,10 @@ public class MpbsStatusHistory {
 
   public boolean sameMpbsIdAndStatus(MpbsStatusHistory other) {
     return Objects.equals(other.getMpbs().getId(), mpbs.getId()) && other.getStatus() == status;
+  }
+
+  @Override
+  public String toString() {
+    return "MpbsStatusHistory{" + "status=" + status + ", creationInstant=" + creationInstant + '}';
   }
 }
