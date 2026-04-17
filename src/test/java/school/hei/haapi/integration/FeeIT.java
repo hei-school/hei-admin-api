@@ -42,7 +42,7 @@ import static school.hei.haapi.integration.conf.TestUtils.setUpCasdoor;
 import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
 import static school.hei.haapi.integration.conf.TestUtils.setUpS3Service;
 import static school.hei.haapi.integration.test_data.FeeTestData.createFeeStatusHistory;
-import static school.hei.haapi.integration.test_data.FeeTestData.createTuitionFee;
+import static school.hei.haapi.integration.test_data.FeeTestData.createPendingFee;
 import static school.hei.haapi.integration.test_data.StudentTestData.axel;
 import static school.hei.haapi.integration.test_data.StudentTestData.tolojanahary;
 import static school.hei.haapi.model.User.Status.DISABLED;
@@ -109,16 +109,16 @@ class FeeIT extends FacadeITMockedThirdParties {
     disabledStudentTolojanahary = tolojanahary();
     disabledStudentTolojanahary.setStatus(DISABLED);
 
-    axelFee1 = createTuitionFee(enabledStudentAxel, 100_000, Instant.parse("2026-06-01T08:00:00Z"));
-    axelFee2 = createTuitionFee(enabledStudentAxel, 200_000, Instant.parse("2026-06-02T08:00:00Z"));
+    axelFee1 = createPendingFee(enabledStudentAxel, 100_000, Instant.parse("2026-06-01T08:00:00Z"));
+    axelFee2 = createPendingFee(enabledStudentAxel, 200_000, Instant.parse("2026-06-02T08:00:00Z"));
     axelFeeDeleted =
-        createTuitionFee(enabledStudentAxel, 300_000, Instant.parse("2026-06-03T08:00:00Z"));
+        createPendingFee(enabledStudentAxel, 300_000, Instant.parse("2026-06-03T08:00:00Z"));
     axelFeeDeleted.setDeleted(true);
     tolojanaharyFee1 =
-        createTuitionFee(
+        createPendingFee(
             disabledStudentTolojanahary, 100_000, Instant.parse("2026-06-01T08:00:00Z"));
     tolojanaharyFee2 =
-        createTuitionFee(
+        createPendingFee(
             disabledStudentTolojanahary, 200_000, Instant.parse("2026-06-02T08:00:00Z"));
 
     var axelFee1history = createFeeStatusHistory(axelFee1, PAID);

@@ -3,10 +3,12 @@ package school.hei.haapi.unit;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
+import static school.hei.haapi.endpoint.rest.model.MobileMoneyType.ORANGE_MONEY;
 import static school.hei.haapi.integration.MpbsIT.createableMpbsFromFeeIdForStudent;
 import static school.hei.haapi.integration.conf.TestUtils.FEE4_ID;
 import static school.hei.haapi.integration.conf.TestUtils.FEE5_ID;
 import static school.hei.haapi.integration.conf.TestUtils.MANAGER1_TOKEN;
+import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_ID;
 import static school.hei.haapi.integration.conf.TestUtils.STUDENT2_ID;
 import static school.hei.haapi.integration.conf.TestUtils.STUDENT2_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.anAvailableRandomPort;
@@ -14,6 +16,7 @@ import static school.hei.haapi.integration.conf.TestUtils.creatableFee1;
 import static school.hei.haapi.integration.conf.TestUtils.setUpCasdoor;
 import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
 import static school.hei.haapi.integration.conf.TestUtils.setUpEventBridge;
+import static school.hei.haapi.integration.test_data.MpbsTestData.createCrupdateMpbs;
 import static school.hei.haapi.model.User.Sex.F;
 import static school.hei.haapi.model.User.Sex.M;
 import static school.hei.haapi.model.User.Status.ENABLED;
@@ -36,6 +39,7 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 import school.hei.haapi.endpoint.rest.api.PayingApi;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
+import school.hei.haapi.endpoint.rest.model.CrupdateMpbs;
 import school.hei.haapi.endpoint.rest.model.Fee;
 import school.hei.haapi.endpoint.rest.model.Mpbs;
 import school.hei.haapi.integration.conf.AbstractContextInitializer;
@@ -168,6 +172,10 @@ public class CheckStudentsStatusTest extends MockedThirdParties {
     assertEquals(2, studentsWithUnpaidOrLateFee.size());
     assertTrue(studentsWithUnpaidOrLateFee.contains(student1()));
     assertTrue(studentsWithUnpaidOrLateFee.contains(student2()));
+  }
+
+  private static CrupdateMpbs createableMpbsFromFeeIdWithStudent1(String feeId) {
+    return createCrupdateMpbs(STUDENT1_ID, feeId, "MP240726.1541.D88425", ORANGE_MONEY);
   }
 
   private ApiClient anApiClient(String token) {

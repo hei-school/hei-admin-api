@@ -52,7 +52,7 @@ public class MpbsService {
   }
 
   public Mpbs saveMpbs(Mpbs mobilePaymentByStudentToSave) {
-    Fee fee = mobilePaymentByStudentToSave.getFee();
+    var fee = mobilePaymentByStudentToSave.getFee();
     mobilePaymentByStudentToSave.setFee(feeService.pendFeeForMpbs(fee));
     return save(mobilePaymentByStudentToSave);
   }

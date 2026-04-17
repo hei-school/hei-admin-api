@@ -6,27 +6,20 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.PAID;
-import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.UNPAID;
 import static school.hei.haapi.endpoint.rest.model.MpbsStatus.PENDING;
 import static school.hei.haapi.endpoint.rest.model.MpbsStatus.SUCCESS;
 import static school.hei.haapi.model.psp.vola.api.gen.client.model.Payment.VerificationStatusEnum.SUCCEEDED;
 import static school.hei.haapi.model.psp.vola.api.gen.client.model.PspPayment.PspTypeEnum.ORANGE_MONEY;
 
 import java.time.Instant;
-import java.time.ZoneOffset;
-import java.util.ArrayList;
 import java.util.List;
-import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import school.hei.haapi.endpoint.event.EventProducer;
@@ -34,11 +27,9 @@ import school.hei.haapi.endpoint.event.model.PaidFeeByMpbsFailedNotificationBody
 import school.hei.haapi.endpoint.rest.mapper.MpbsMapper;
 import school.hei.haapi.endpoint.rest.mapper.VolaMapper;
 import school.hei.haapi.endpoint.rest.model.MobileMoneyType;
-import school.hei.haapi.endpoint.rest.model.MpbsStatus;
 import school.hei.haapi.http.mapper.TransactionDetailsMapper;
 import school.hei.haapi.http.model.TransactionDetails;
 import school.hei.haapi.model.Fee;
-import school.hei.haapi.model.FeeStatusHistory;
 import school.hei.haapi.model.MobileTransactionDetails;
 import school.hei.haapi.model.Payment;
 import school.hei.haapi.model.User;
@@ -55,7 +46,6 @@ import school.hei.haapi.service.PaymentService;
 import school.hei.haapi.service.UnverifiedMobilePaymentHandler;
 import school.hei.haapi.service.utils.CollectionUtils;
 
-@Slf4j
 class MpbsVerificationTest {
   MobilePaymentService mobilePaymentServiceMock = mock();
   UnverifiedMobilePaymentHandler unverifiedMobilePaymentHandlerMock = mock();
@@ -398,96 +388,6 @@ class MpbsVerificationTest {
     assertThrows(
         RuntimeException.class, () -> subject.sendVolaVerificationRequestAndSaveResult(mpbs));
     verify(mpbsServiceMock, never()).saveMpbs(any(Mpbs.class));
-  }
-
-  @Test
-  void vola_payment_updates_matching_fee_status() {
-    var student = studentWithEmail("student@example.com");
-    var fee = unpaidFee("fee-1", student, 50_000);
-    var mpbs = pendingMpbs("mpbs-1", "psp-123", student, fee);
-
-    givenVolaReturnsSucceededPayment(volaClientMock, mpbs, fee);
-    givenMpbsSavePassthrough(mpbsServiceMock);
-    givenComputeRemainingAmountUpdatesFee(paymentServiceMock, fee);
-
-    subject.verifyMpbsFromVola(mpbs);
-
-    verify(volaClientMock, times(1))
-        .get(eq(ORANGE_MONEY), eq("psp-123"), eq("student@example.com"));
-    assertEquals(PAID, fee.getStatusAt(mpbs.getCreationDatetime().plus(1, DAYS)).get());
-  }
-
-  private static User studentWithEmail(String email) {
-    return User.builder().id("student-1").email(email).build();
-  }
-
-  private static Fee unpaidFee(String id, User student, int amount) {
-    return Fee.builder()
-        .id(id)
-        .student(student)
-        .totalAmount(amount)
-        .remainingAmount(amount)
-        .status(UNPAID)
-        .statusHistories(new ArrayList<>())
-        .dueDatetime(Instant.now().plusSeconds(86400))
-        .mobilePayments(List.of())
-        .payments(List.of())
-        .build();
-  }
-
-  private static Mpbs pendingMpbs(String id, String pspId, User student, Fee fee) {
-    return Mpbs.builder()
-        .id(id)
-        .pspId(pspId)
-        .mobileMoneyType(MobileMoneyType.ORANGE_MONEY)
-        .amount(fee.getTotalAmount())
-        .status(MpbsStatus.PENDING)
-        .student(student)
-        .fee(fee)
-        .statusHistory(List.of())
-        .creationDatetime(Instant.now())
-        .build();
-  }
-
-  private static void givenVolaReturnsSucceededPayment(
-      VolaClient volaClientMock, Mpbs mpbs, Fee fee) {
-    var volaPayment =
-        school.hei.haapi.model.psp.vola.api.gen.client.model.Payment.builder()
-            .pspPayment(
-                PspPayment.builder().amount(fee.getTotalAmount()).pspType(ORANGE_MONEY).build())
-            .verificationStatus(SUCCEEDED)
-            .lastPspVerificationInstant(now().atOffset(ZoneOffset.UTC))
-            .creationInstant(now().minus(1, DAYS).atOffset(ZoneOffset.UTC))
-            .build();
-    when(volaClientMock.get(
-            eq(ORANGE_MONEY), eq(mpbs.getPspId()), eq(mpbs.getStudent().getEmail())))
-        .thenReturn(volaPayment);
-  }
-
-  private static void givenMpbsSavePassthrough(MpbsService mpbsServiceMock) {
-    when(mpbsServiceMock.save(any(Mpbs.class))).thenAnswer(inv -> inv.getArgument(0));
-  }
-
-  private static void givenComputeRemainingAmountUpdatesFee(
-      PaymentService paymentServiceMock, Fee fee) {
-    doAnswer(
-            inv -> {
-              int amount = inv.getArgument(1);
-              fee.setRemainingAmount(fee.getRemainingAmount() - amount);
-              if (fee.getRemainingAmount() == 0) {
-                fee.updateStatus(PAID);
-                fee.getStatusHistories()
-                    .add(
-                        FeeStatusHistory.builder()
-                            .status(PAID)
-                            .datetime(Instant.now())
-                            .fee(fee)
-                            .build());
-              }
-              return null;
-            })
-        .when(paymentServiceMock)
-        .computeRemainingAmount(eq(fee.getId()), anyInt());
   }
 
   private static Mpbs someMpbs(

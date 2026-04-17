@@ -92,7 +92,7 @@ public class FeeController {
       @RequestParam PageFromOne page,
       @RequestParam("page_size") BoundedPageSize pageSize,
       @RequestParam(required = false) FeeStatusEnum status) {
-    // Verify pending mpbs before fetching fees so results reflect current vola state.
+    // Verify pending mpbs before fetching fees so results reflect the current vola state.
     // Orchestrated here to avoid circular dependency (MpbsService -> FeeService).
     mpbsVerificationService.verifyPendingMpbsForStudent(studentId);
     return feeService.getFeesByStudentId(studentId, page, pageSize, status).stream()
