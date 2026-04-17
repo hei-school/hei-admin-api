@@ -41,7 +41,6 @@ import java.time.LocalDate;
 import java.time.ZoneOffset;
 import java.util.List;
 import java.util.Random;
-
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -85,16 +84,11 @@ public class MpbsIT extends FacadeITMockedThirdParties {
   private User studentAxel;
   private school.hei.haapi.model.Fee testFee;
   private school.hei.haapi.model.mpbs.Mpbs mpbsForTestFee;
-  @Autowired
-  private FeeRepository feeRepository;
-  @Autowired
-  private UserRepository userRepository;
-  @Autowired
-  private MpbsRepository mpbsRepository;
-    @Autowired
-    private MpbsVerificationService mpbsVerificationService;
-    @Autowired
-    private FeeStatusHistoryRepository feeStatusHistoryRepository;
+  @Autowired private FeeRepository feeRepository;
+  @Autowired private UserRepository userRepository;
+  @Autowired private MpbsRepository mpbsRepository;
+  @Autowired private MpbsVerificationService mpbsVerificationService;
+  @Autowired private FeeStatusHistoryRepository feeStatusHistoryRepository;
 
   @BeforeEach
   void setUp() {
@@ -115,42 +109,43 @@ public class MpbsIT extends FacadeITMockedThirdParties {
 
   private void setUpVolaClient() {
     when(volaClientMock.get(any(), anyString(), anyString()))
-            .thenAnswer(invocation -> {
+        .thenAnswer(
+            invocation -> {
               String pspId = invocation.getArgument(1);
               return school.hei.haapi.model.psp.vola.api.gen.client.model.Payment.builder()
-                      .pspPayment(PspPayment.builder()
-                              .id(pspId)
-                              .pspType(PspPayment.PspTypeEnum.ORANGE_MONEY)
-                              .amount(mpbsForTestFee.getAmount())
-                              .build())
-                      .verificationStatus(SUCCEEDED)
-                      .lastPspVerificationInstant(now().atOffset(ZoneOffset.UTC))
-                      .creationInstant(now().minus(1, DAYS).atOffset(ZoneOffset.UTC))
-                      .build();
+                  .pspPayment(
+                      PspPayment.builder()
+                          .id(pspId)
+                          .pspType(PspPayment.PspTypeEnum.ORANGE_MONEY)
+                          .amount(mpbsForTestFee.getAmount())
+                          .build())
+                  .verificationStatus(SUCCEEDED)
+                  .lastPspVerificationInstant(now().atOffset(ZoneOffset.UTC))
+                  .creationInstant(now().minus(1, DAYS).atOffset(ZoneOffset.UTC))
+                  .build();
             });
     when(volaClientMock.create(any(PspPayment.PspTypeEnum.class), anyString(), anyString()))
-            .thenAnswer(invocation -> {
+        .thenAnswer(
+            invocation -> {
               String pspId = invocation.getArgument(1);
               return Payment.builder()
-                      .pspPayment(PspPayment.builder()
-                              .id(pspId)
-                              .pspType(PspPayment.PspTypeEnum.ORANGE_MONEY)
-                              .build())
-                      .verificationStatus(Payment.VerificationStatusEnum.VERIFYING)
-                      .lastPspVerificationInstant(now().atOffset(ZoneOffset.UTC))
-                      .creationInstant(now().atOffset(ZoneOffset.UTC))
-                      .build();
+                  .pspPayment(
+                      PspPayment.builder()
+                          .id(pspId)
+                          .pspType(PspPayment.PspTypeEnum.ORANGE_MONEY)
+                          .build())
+                  .verificationStatus(Payment.VerificationStatusEnum.VERIFYING)
+                  .lastPspVerificationInstant(now().atOffset(ZoneOffset.UTC))
+                  .creationInstant(now().atOffset(ZoneOffset.UTC))
+                  .build();
             });
   }
 
   private void setUpTestData() {
     studentAxel = userRepository.save(axel());
-    testFee = feeRepository.save(createPendingFee(
-            studentAxel,
-            50_000,
-            Instant.now().plus(30, DAYS)));
-    mpbsForTestFee = mpbsRepository.save(createPendingMpbs(
-            "psp", studentAxel, testFee, 50_000));
+    testFee =
+        feeRepository.save(createPendingFee(studentAxel, 50_000, Instant.now().plus(30, DAYS)));
+    mpbsForTestFee = mpbsRepository.save(createPendingMpbs("psp", studentAxel, testFee, 50_000));
   }
 
   private ApiClient anApiClient(String token) {
@@ -259,8 +254,10 @@ public class MpbsIT extends FacadeITMockedThirdParties {
 
     Mpbs actual =
         api.crupdateMpbs(
-            STUDENT1_ID, actualFee.getId(), createCrupdateMpbs(
-                    STUDENT1_ID, actualFee.getId(), "MP240726.1541.D88425", ORANGE_MONEY));
+            STUDENT1_ID,
+            actualFee.getId(),
+            createCrupdateMpbs(
+                STUDENT1_ID, actualFee.getId(), "MP240726.1541.D88425", ORANGE_MONEY));
 
     assertEquals(createableMpbs1().getStudentId(), actual.getStudentId());
     assertEquals(createableMpbs1().getPspId(), actual.getPspId());
@@ -294,11 +291,7 @@ public class MpbsIT extends FacadeITMockedThirdParties {
         String.format(
             "MP%06d.%04d.D%05d",
             random.nextInt(1_000_000), random.nextInt(10000), random.nextInt(100_000));
-    return new CrupdateMpbs()
-            .studentId(studentId)
-            .feeId(feeId)
-            .pspId(pspId)
-            .pspType(ORANGE_MONEY);
+    return new CrupdateMpbs().studentId(studentId).feeId(feeId).pspId(pspId).pspType(ORANGE_MONEY);
   }
 
   private Fee createFeeForMobilePayments(User student) throws ApiException {
@@ -323,7 +316,8 @@ public class MpbsIT extends FacadeITMockedThirdParties {
 
     var actualFee = feeRepository.findById(testFee.getId()).get();
     var actualFeeStatusHistories = feeStatusHistoryRepository.findByFeeId(actualFee.getId());
-    var actualFeeLastStatusHistory = actualFeeStatusHistories.stream()
+    var actualFeeLastStatusHistory =
+        actualFeeStatusHistories.stream()
             .max(comparing(FeeStatusHistory::getDatetime))
             .map(FeeStatusHistory::getStatus)
             .get();

@@ -20,7 +20,6 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import lombok.ToString;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.annotations.UpdateTimestamp;
@@ -62,9 +61,6 @@ public class MpbsStatusHistory {
 
   @Override
   public String toString() {
-    return "MpbsStatusHistory{" +
-            "status=" + status +
-            ", creationInstant=" + creationInstant +
-            '}';
+    return "MpbsStatusHistory{" + "status=" + status + ", creationInstant=" + creationInstant + '}';
   }
 }

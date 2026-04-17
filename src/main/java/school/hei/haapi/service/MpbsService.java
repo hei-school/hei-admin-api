@@ -5,7 +5,6 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import school.hei.haapi.endpoint.rest.model.MpbsStatus;
-import school.hei.haapi.model.Fee;
 import school.hei.haapi.model.exception.NotFoundException;
 import school.hei.haapi.model.mpbs.Mpbs;
 import school.hei.haapi.model.mpbs.MpbsStatusHistory;

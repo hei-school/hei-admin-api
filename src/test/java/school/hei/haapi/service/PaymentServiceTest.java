@@ -42,7 +42,6 @@ import school.hei.haapi.endpoint.rest.api.PayingApi;
 import school.hei.haapi.endpoint.rest.api.UsersApi;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
-import school.hei.haapi.endpoint.rest.model.MobileMoneyType;
 import school.hei.haapi.integration.conf.AbstractContextInitializer;
 import school.hei.haapi.integration.conf.MockedThirdParties;
 import school.hei.haapi.integration.conf.TestUtils;
@@ -85,7 +84,8 @@ class PaymentServiceTest extends MockedThirdParties {
         payingApi.crupdateMpbs(
             STUDENT1_ID,
             correspondingFee.getId(),
-            createCrupdateMpbs(STUDENT1_ID, correspondingFee.getId(), "MP240726.1541.D88426", ORANGE_MONEY));
+            createCrupdateMpbs(
+                STUDENT1_ID, correspondingFee.getId(), "MP240726.1541.D88426", ORANGE_MONEY));
     var correspondingStudent =
         usersApi.createOrUpdateStudents(List.of(correspondingCreateableStudent), null).getFirst();
 
