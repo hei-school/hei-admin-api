@@ -2,7 +2,9 @@ package school.hei.haapi.model.psp.vola.api.gen.client.api;
 
 import java.time.LocalDate;
 import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -69,72 +71,22 @@ public class PaymentControllerApi {
   public ResponseEntity<Payment> createPaymentWithHttpInfo(
       String apiKey, String payerEmail, String pspType, String pspPaymentId)
       throws RestClientException {
-    Object localVarPostBody = null;
 
-    // verify the required parameter 'apiKey' is set
-    if (apiKey == null) {
-      throw new HttpClientErrorException(
-          HttpStatus.BAD_REQUEST,
-          "Missing the required parameter 'apiKey' when calling createPayment");
-    }
+    var params = new LinkedHashMap<String, Object>();
+    params.put("apiKey", apiKey);
+    params.put("payerEmail", payerEmail);
+    params.put("pspType", pspType);
+    params.put("pspPaymentId", pspPaymentId);
 
-    // verify the required parameter 'payerEmail' is set
-    if (payerEmail == null) {
-      throw new HttpClientErrorException(
-          HttpStatus.BAD_REQUEST,
-          "Missing the required parameter 'payerEmail' when calling createPayment");
-    }
-
-    // verify the required parameter 'pspType' is set
-    if (pspType == null) {
-      throw new HttpClientErrorException(
-          HttpStatus.BAD_REQUEST,
-          "Missing the required parameter 'pspType' when calling createPayment");
-    }
-
-    // verify the required parameter 'pspPaymentId' is set
-    if (pspPaymentId == null) {
-      throw new HttpClientErrorException(
-          HttpStatus.BAD_REQUEST,
-          "Missing the required parameter 'pspPaymentId' when calling createPayment");
-    }
-
-    final MultiValueMap<String, String> localVarQueryParams =
-        new LinkedMultiValueMap<String, String>();
-    final HttpHeaders localVarHeaderParams = new HttpHeaders();
-    final MultiValueMap<String, String> localVarCookieParams =
-        new LinkedMultiValueMap<String, String>();
-    final MultiValueMap<String, Object> localVarFormParams =
-        new LinkedMultiValueMap<String, Object>();
-
-    localVarQueryParams.putAll(apiClient.parameterToMultiValueMap(null, "apiKey", apiKey));
-    localVarQueryParams.putAll(apiClient.parameterToMultiValueMap(null, "payerEmail", payerEmail));
-    localVarQueryParams.putAll(apiClient.parameterToMultiValueMap(null, "pspType", pspType));
-    localVarQueryParams.putAll(
-        apiClient.parameterToMultiValueMap(null, "pspPaymentId", pspPaymentId));
-
-    final String[] localVarAccepts = {"*/*"};
-    final List<MediaType> localVarAccept = apiClient.selectHeaderAccept(localVarAccepts);
-    final String[] localVarContentTypes = {};
-    final MediaType localVarContentType = apiClient.selectHeaderContentType(localVarContentTypes);
-
-    String[] localVarAuthNames = new String[] {};
-
-    ParameterizedTypeReference<Payment> localReturnType =
-        new ParameterizedTypeReference<Payment>() {};
-    return apiClient.invokeAPI(
+    validateRequiredParams(params, "createPayment");
+    return invoke(
         "/payment",
         HttpMethod.POST,
-        Collections.<String, Object>emptyMap(),
-        localVarQueryParams,
-        localVarPostBody,
-        localVarHeaderParams,
-        localVarCookieParams,
-        localVarFormParams,
-        localVarAccept,
-        localVarContentType,
-        localVarAuthNames,
-        localReturnType);
+        null,
+        params,
+        new String[] {"*/*"},
+        new String[] {},
+        new ParameterizedTypeReference<Payment>() {});
   }
 
   /**
@@ -165,72 +117,23 @@ public class PaymentControllerApi {
   public ResponseEntity<Payment> getPaymentWithHttpInfo(
       String apiKey, String payerEmail, String pspType, String pspPaymentId)
       throws RestClientException {
-    Object localVarPostBody = null;
 
-    // verify the required parameter 'apiKey' is set
-    if (apiKey == null) {
-      throw new HttpClientErrorException(
-          HttpStatus.BAD_REQUEST,
-          "Missing the required parameter 'apiKey' when calling getPayment");
-    }
+    var params = new LinkedHashMap<String, Object>();
+    params.put("apiKey", apiKey);
+    params.put("payerEmail", payerEmail);
+    params.put("pspType", pspType);
+    params.put("pspPaymentId", pspPaymentId);
 
-    // verify the required parameter 'payerEmail' is set
-    if (payerEmail == null) {
-      throw new HttpClientErrorException(
-          HttpStatus.BAD_REQUEST,
-          "Missing the required parameter 'payerEmail' when calling getPayment");
-    }
+    validateRequiredParams(params, "getPayment");
 
-    // verify the required parameter 'pspType' is set
-    if (pspType == null) {
-      throw new HttpClientErrorException(
-          HttpStatus.BAD_REQUEST,
-          "Missing the required parameter 'pspType' when calling getPayment");
-    }
-
-    // verify the required parameter 'pspPaymentId' is set
-    if (pspPaymentId == null) {
-      throw new HttpClientErrorException(
-          HttpStatus.BAD_REQUEST,
-          "Missing the required parameter 'pspPaymentId' when calling getPayment");
-    }
-
-    final MultiValueMap<String, String> localVarQueryParams =
-        new LinkedMultiValueMap<String, String>();
-    final HttpHeaders localVarHeaderParams = new HttpHeaders();
-    final MultiValueMap<String, String> localVarCookieParams =
-        new LinkedMultiValueMap<String, String>();
-    final MultiValueMap<String, Object> localVarFormParams =
-        new LinkedMultiValueMap<String, Object>();
-
-    localVarQueryParams.putAll(apiClient.parameterToMultiValueMap(null, "apiKey", apiKey));
-    localVarQueryParams.putAll(apiClient.parameterToMultiValueMap(null, "payerEmail", payerEmail));
-    localVarQueryParams.putAll(apiClient.parameterToMultiValueMap(null, "pspType", pspType));
-    localVarQueryParams.putAll(
-        apiClient.parameterToMultiValueMap(null, "pspPaymentId", pspPaymentId));
-
-    final String[] localVarAccepts = {"*/*"};
-    final List<MediaType> localVarAccept = apiClient.selectHeaderAccept(localVarAccepts);
-    final String[] localVarContentTypes = {};
-    final MediaType localVarContentType = apiClient.selectHeaderContentType(localVarContentTypes);
-
-    String[] localVarAuthNames = new String[] {};
-
-    ParameterizedTypeReference<Payment> localReturnType =
-        new ParameterizedTypeReference<Payment>() {};
-    return apiClient.invokeAPI(
+    return invoke(
         "/payment",
         HttpMethod.GET,
-        Collections.<String, Object>emptyMap(),
-        localVarQueryParams,
-        localVarPostBody,
-        localVarHeaderParams,
-        localVarCookieParams,
-        localVarFormParams,
-        localVarAccept,
-        localVarContentType,
-        localVarAuthNames,
-        localReturnType);
+        null,
+        params,
+        new String[] {"*/*"},
+        new String[] {},
+        new ParameterizedTypeReference<Payment>() {});
   }
 
   /**
@@ -257,53 +160,20 @@ public class PaymentControllerApi {
   public ResponseEntity<List<Payment>> getPaymentsWithHttpInfo(
       String apiKey, List<PaymentInfo> paymentInfo) throws RestClientException {
     Object localVarPostBody = paymentInfo;
+    var params = new LinkedHashMap<String, Object>();
+    params.put("apiKey", apiKey);
+    params.put("paymentInfo", paymentInfo);
 
-    // verify the required parameter 'apiKey' is set
-    if (apiKey == null) {
-      throw new HttpClientErrorException(
-          HttpStatus.BAD_REQUEST,
-          "Missing the required parameter 'apiKey' when calling getPayments");
-    }
+    validateRequiredParams(params, "getPayments");
 
-    // verify the required parameter 'paymentInfo' is set
-    if (paymentInfo == null) {
-      throw new HttpClientErrorException(
-          HttpStatus.BAD_REQUEST,
-          "Missing the required parameter 'paymentInfo' when calling getPayments");
-    }
-
-    final MultiValueMap<String, String> localVarQueryParams =
-        new LinkedMultiValueMap<String, String>();
-    final HttpHeaders localVarHeaderParams = new HttpHeaders();
-    final MultiValueMap<String, String> localVarCookieParams =
-        new LinkedMultiValueMap<String, String>();
-    final MultiValueMap<String, Object> localVarFormParams =
-        new LinkedMultiValueMap<String, Object>();
-
-    localVarQueryParams.putAll(apiClient.parameterToMultiValueMap(null, "apiKey", apiKey));
-
-    final String[] localVarAccepts = {"*/*"};
-    final List<MediaType> localVarAccept = apiClient.selectHeaderAccept(localVarAccepts);
-    final String[] localVarContentTypes = {"application/json"};
-    final MediaType localVarContentType = apiClient.selectHeaderContentType(localVarContentTypes);
-
-    String[] localVarAuthNames = new String[] {};
-
-    ParameterizedTypeReference<List<Payment>> localReturnType =
-        new ParameterizedTypeReference<List<Payment>>() {};
-    return apiClient.invokeAPI(
+    return invoke(
         "/payments/search",
         HttpMethod.PUT,
-        Collections.<String, Object>emptyMap(),
-        localVarQueryParams,
-        localVarPostBody,
-        localVarHeaderParams,
-        localVarCookieParams,
-        localVarFormParams,
-        localVarAccept,
-        localVarContentType,
-        localVarAuthNames,
-        localReturnType);
+        paymentInfo,
+        params,
+        new String[] {"*/*"},
+        new String[] {"application/json"},
+        new ParameterizedTypeReference<List<Payment>>() {});
   }
 
   /**
@@ -326,45 +196,67 @@ public class PaymentControllerApi {
    */
   public ResponseEntity<RecoveryResult> syncWithHttpInfo(LocalDate date)
       throws RestClientException {
-    Object localVarPostBody = null;
+    var params = new LinkedHashMap<String, Object>();
+    params.put("date", date);
+    validateRequiredParams(params, "sync");
 
-    // verify the required parameter 'date' is set
-    if (date == null) {
-      throw new HttpClientErrorException(
-          HttpStatus.BAD_REQUEST, "Missing the required parameter 'date' when calling sync");
-    }
-
-    final MultiValueMap<String, String> localVarQueryParams =
-        new LinkedMultiValueMap<String, String>();
-    final HttpHeaders localVarHeaderParams = new HttpHeaders();
-    final MultiValueMap<String, String> localVarCookieParams =
-        new LinkedMultiValueMap<String, String>();
-    final MultiValueMap<String, Object> localVarFormParams =
-        new LinkedMultiValueMap<String, Object>();
-
-    localVarQueryParams.putAll(apiClient.parameterToMultiValueMap(null, "date", date));
-
-    final String[] localVarAccepts = {"*/*"};
-    final List<MediaType> localVarAccept = apiClient.selectHeaderAccept(localVarAccepts);
-    final String[] localVarContentTypes = {};
-    final MediaType localVarContentType = apiClient.selectHeaderContentType(localVarContentTypes);
-
-    String[] localVarAuthNames = new String[] {};
-
-    ParameterizedTypeReference<RecoveryResult> localReturnType =
-        new ParameterizedTypeReference<RecoveryResult>() {};
-    return apiClient.invokeAPI(
+    return invoke(
         "/orange/sync",
         HttpMethod.PUT,
-        Collections.<String, Object>emptyMap(),
+        null,
+        params,
+        new String[] {"*/*"},
+        new String[] {},
+        new ParameterizedTypeReference<RecoveryResult>() {});
+  }
+
+  private <T> ResponseEntity<T> invoke(
+      String path,
+      HttpMethod method,
+      Object body,
+      Map<String, Object> queryParams,
+      String[] accepts,
+      String[] contentTypes,
+      ParameterizedTypeReference<T> returnType) {
+    final MultiValueMap<String, String> localVarQueryParams = new LinkedMultiValueMap<>();
+    final HttpHeaders localVarHeaderParams = new HttpHeaders();
+    final MultiValueMap<String, String> localVarCookieParams = new LinkedMultiValueMap<>();
+    final MultiValueMap<String, Object> localVarFormParams = new LinkedMultiValueMap<>();
+
+    if (queryParams != null) {
+      queryParams.forEach(
+          (key, value) ->
+              localVarQueryParams.putAll(apiClient.parameterToMultiValueMap(null, key, value)));
+    }
+
+    final List<MediaType> localVarAccept = apiClient.selectHeaderAccept(accepts);
+    final MediaType localVarContentType = apiClient.selectHeaderContentType(contentTypes);
+
+    var localVarAuthNames = new String[] {};
+
+    return apiClient.invokeAPI(
+        path,
+        method,
+        Collections.emptyMap(),
         localVarQueryParams,
-        localVarPostBody,
+        body,
         localVarHeaderParams,
         localVarCookieParams,
         localVarFormParams,
         localVarAccept,
         localVarContentType,
         localVarAuthNames,
-        localReturnType);
+        returnType);
+  }
+
+  private void validateRequiredParams(Map<String, ?> params, String methodName) {
+    params.forEach(
+        (name, value) -> {
+          if (value == null) {
+            throw new HttpClientErrorException(
+                HttpStatus.BAD_REQUEST,
+                "Missing the required parameter '" + name + "'" + " when calling " + methodName);
+          }
+        });
   }
 }
