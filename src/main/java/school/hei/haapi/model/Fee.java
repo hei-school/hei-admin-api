@@ -21,7 +21,6 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Stream;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -81,6 +80,7 @@ public class Fee implements Serializable {
 
   @CreationTimestamp
   @Getter(AccessLevel.NONE)
+  @EqualsAndHashCode.Exclude
   private Instant creationDatetime;
 
   private Instant dueDatetime;
@@ -186,7 +186,7 @@ Fee : {"id" : "%s", "remainingAmount" : "%s", "totalAmount" : "%s", "dueDatetime
 
   private boolean isValidNewStatus(FeeStatusEnum newStatus) {
     return switch (this.status) {
-      case PAID -> Stream.of(PENDING, PAID).anyMatch(e -> e.equals(newStatus));
+      case PAID -> List.of(PENDING, PAID).contains(newStatus);
       case UNPAID, PENDING, LATE -> true;
     };
   }

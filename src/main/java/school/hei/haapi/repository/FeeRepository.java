@@ -14,14 +14,10 @@ import school.hei.haapi.model.Fee;
 public interface FeeRepository extends JpaRepository<Fee, String> {
   Fee getByStudentIdAndId(String studentId, String feeId);
 
-  List<Fee> getFeesByStatus(FeeStatusEnum status, Pageable pageable);
-
   List<Fee> findAllByStatus(FeeStatusEnum status);
 
   List<Fee> getFeesByStudentIdAndStatusOrderByDueDatetimeDesc(
       String studentId, FeeStatusEnum status, Pageable pageable);
-
-  List<Fee> findAllByDueDatetimeBetween(Instant from, Instant to);
 
   @Query(
       "select f from Fee f where f.status = 'UNPAID' "
@@ -38,23 +34,24 @@ public interface FeeRepository extends JpaRepository<Fee, String> {
   @Query(
       value =
           """
-          SELECT
-              f
-          FROM
-              Fee f
-          JOIN
-              User u ON f.student.id = u.id
-          WHERE
-              f.student.id = :studentId
-          ORDER BY
-            CASE
-              WHEN f.status = 'LATE' THEN 1
-              WHEN f.status = 'UNPAID' THEN 2
-              WHEN f.status = 'PAID' THEN 3
-            END ASC,
-            f.dueDatetime DESC,
-            f.id
-          """)
+
+                SELECT
+    f
+FROM
+    Fee f
+JOIN
+    User u ON f.student.id = u.id
+WHERE
+    f.student.id = :studentId
+ORDER BY
+  CASE
+    WHEN f.status = 'LATE' THEN 1
+    WHEN f.status = 'UNPAID' THEN 2
+    WHEN f.status = 'PAID' THEN 3
+  END ASC,
+  f.dueDatetime DESC,
+  f.id
+""")
   List<Fee> findAllByStudentIdSortByStatusAndDueDatetimeDescAndId(
       String studentId, Pageable pageable);
 
@@ -72,5 +69,26 @@ public interface FeeRepository extends JpaRepository<Fee, String> {
       @Param("studentId") String studentId,
       @Param("status") FeeStatusEnum status);
 
+  @Query(
+      "SELECT DISTINCT f FROM Fee f "
+          + "JOIN f.student u "
+          + "JOIN f.statusHistories fsh "
+          + "WHERE u.status != 'DISABLED' "
+          + "AND fsh.datetime BETWEEN :dayStart AND :dayEnd "
+          + "and f.isDeleted = false")
   List<Fee> findDistinctByStatusHistoriesDatetimeBetween(Instant dayStart, Instant dayEnd);
+
+  @Query(
+      "select f from Fee f "
+          + "join f.statusHistories fsh "
+          + "join f.student u "
+          + "where f.dueDatetime between :from and :to "
+          + "and u.status != 'DISABLED' "
+          + "and f.isDeleted = false "
+          + "and fsh.datetime = ("
+          + "  select max(fsh2.datetime) from FeeStatusHistory fsh2 "
+          + "  where fsh2.fee.id = f.id"
+          + ") "
+          + "order by fsh.datetime desc")
+  List<Fee> findAllByDueDatetimeBetween(Instant from, Instant to);
 }

@@ -22,15 +22,13 @@ import school.hei.haapi.endpoint.rest.model.Mpbs;
 import school.hei.haapi.endpoint.rest.validator.CreateMpbsValidator;
 import school.hei.haapi.service.MpbsService;
 import school.hei.haapi.service.MpbsVerificationService;
-import school.hei.haapi.service.MultipartFileConverter;
 
 @RestController
 @AllArgsConstructor
 public class MpbsController {
   private final CreateMpbsValidator validator;
-  private final MpbsService mpbsService;
   private final MpbsMapper mapper;
-  private final MultipartFileConverter multipartFileConverter;
+  private final MpbsService mpbsService;
   private final EventProducer eventProducer;
   private final MpbsVerificationService mpbsVerificationService;
 
@@ -41,7 +39,7 @@ public class MpbsController {
       @RequestBody CrupdateMpbs mpbsToSave) {
     validator.accept(studentId, feeId, mpbsToSave);
     school.hei.haapi.model.mpbs.Mpbs mappedMpbsToSave = mapper.toDomain(mpbsToSave);
-    return mapper.toRest(mpbsService.saveMpbs(mappedMpbsToSave));
+    return mpbsVerificationService.sendVolaVerificationRequestAndSaveResult(mappedMpbsToSave);
   }
 
   @GetMapping(value = "/students/{student_id}/fees/{fee_id}/mpbs")

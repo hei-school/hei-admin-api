@@ -118,6 +118,7 @@ public class PaymentService {
       notifyStudentForEnabling(associatedFee, amount);
     }
     if (associatedFee.getRemainingAmount() == 0) {
+      log.info("Remaining amount is 0");
       associatedFee.updateStatus(PAID);
       feeStatusHistoryService.saveFeeStatus(associatedFee.getStatus(), associatedFee);
     }

@@ -447,6 +447,9 @@ public class AdvancedFeeStatsService {
     var lateFees = filterFeesByStatus(fees, LATE, statusDate);
     Map<FeeCategory, Long> monthlyFeeCountByCategory = countFeesByGrades(lateFees, MONTHLY);
     Map<FeeCategory, Long> yearlyFeeCountByCategory = countFeesByGrades(lateFees, YEARLY);
+    var unknownGradeFees =
+        monthlyFeeCountByCategory.get(FeeCategory.UNKNOWN)
+            + yearlyFeeCountByCategory.get(FeeCategory.UNKNOWN);
     Map<FeeTypeEnum, List<Fee>> feesByType = groupFeesByType(lateFees);
     List<Fee> tuitionFees = feesByType.getOrDefault(TUITION, List.of());
     Map<FeeFrequency, Long> feesCountByPaymentFrequency = countFeesByPaymentFrequency(tuitionFees);
@@ -464,13 +467,16 @@ public class AdvancedFeeStatsService {
         .firstGradeYearly(yearlyFeeCountByCategory.get(L1))
         .secondGradeYearly(yearlyFeeCountByCategory.get(L2))
         .thirdGradeYearly(yearlyFeeCountByCategory.get(L3))
-        .unknownGrade(monthlyFeeCountByCategory.get(FeeCategory.UNKNOWN));
+        .unknownGrade(unknownGradeFees);
   }
 
   private PaidFeesStats getPaidFeesStats(List<Fee> fees, Optional<LocalDate> statusDate) {
     var paidFees = filterFeesByStatus(fees, PAID, statusDate);
     Map<FeeCategory, Long> monthlyFeeCountByCategory = countFeesByGrades(paidFees, MONTHLY);
     Map<FeeCategory, Long> yearlyFeeCountByCategory = countFeesByGrades(paidFees, YEARLY);
+    var unknownGradeFees =
+        monthlyFeeCountByCategory.get(FeeCategory.UNKNOWN)
+            + yearlyFeeCountByCategory.get(FeeCategory.UNKNOWN);
     Map<FeeTypeEnum, List<Fee>> feesByType = groupFeesByType(paidFees);
     List<Fee> tuitionFees = feesByType.getOrDefault(TUITION, List.of());
     Map<FeeFrequency, Long> feesCountByPaymentFrequency = countFeesByPaymentFrequency(tuitionFees);
@@ -489,7 +495,7 @@ public class AdvancedFeeStatsService {
         .monthly(feesCountByPaymentFrequency.get(MONTHLY))
         .yearly(feesCountByPaymentFrequency.get(YEARLY))
         .workStudy(monthlyFeeCountByCategory.get(WORK_FEES))
-        .unknownGrade(monthlyFeeCountByCategory.get(FeeCategory.UNKNOWN))
+        .unknownGrade(unknownGradeFees)
         .bankFees(BigDecimal.valueOf(feesCountByPaymentType.get(BANK)))
         .mobileMoney(BigDecimal.valueOf(feesCountByPaymentType.get(MPBS)));
   }
@@ -498,6 +504,9 @@ public class AdvancedFeeStatsService {
     var pendingFees = filterFeesByStatus(fees, PENDING, statusDate);
     Map<FeeCategory, Long> monthlyFeeCountByCategory = countFeesByGrades(pendingFees, MONTHLY);
     Map<FeeCategory, Long> yearlyFeeCountByCategory = countFeesByGrades(pendingFees, YEARLY);
+    var unknownGradeFees =
+        monthlyFeeCountByCategory.get(FeeCategory.UNKNOWN)
+            + yearlyFeeCountByCategory.get(FeeCategory.UNKNOWN);
     Map<FeeTypeEnum, List<Fee>> feesByType = groupFeesByType(pendingFees);
     List<Fee> tuitionFees = feesByType.getOrDefault(TUITION, List.of());
     Map<FeeFrequency, Long> feesCountByPaymentFrequency = countFeesByPaymentFrequency(tuitionFees);
@@ -515,13 +524,16 @@ public class AdvancedFeeStatsService {
         .firstGradeYearly(yearlyFeeCountByCategory.get(L1))
         .secondGradeYearly(yearlyFeeCountByCategory.get(L2))
         .thirdGradeYearly(yearlyFeeCountByCategory.get(L3))
-        .unknownGrade(monthlyFeeCountByCategory.get(FeeCategory.UNKNOWN));
+        .unknownGrade(unknownGradeFees);
   }
 
   private TotalExpectedFeesStats getTotalExpectedFeesStats(List<Fee> fees) {
     Map<FeeCategory, Long> monthlyFeeCountByCategory = countFeesByGrades(fees, MONTHLY);
     Map<FeeCategory, Long> yearlyFeeCountByCategory = countFeesByGrades(fees, YEARLY);
     Map<FeeTypeEnum, List<Fee>> feesByType = groupFeesByType(fees);
+    var unknownGradeFees =
+        monthlyFeeCountByCategory.get(FeeCategory.UNKNOWN)
+            + yearlyFeeCountByCategory.get(FeeCategory.UNKNOWN);
     List<Fee> tuitionFees = feesByType.getOrDefault(TUITION, List.of());
     Map<FeeFrequency, Long> feesCountByPaymentFrequency = countFeesByPaymentFrequency(tuitionFees);
     return new TotalExpectedFeesStats()
@@ -535,7 +547,7 @@ public class AdvancedFeeStatsService {
         .firstGradeYearly(yearlyFeeCountByCategory.get(L1))
         .secondGradeYearly(yearlyFeeCountByCategory.get(L2))
         .thirdGradeYearly(yearlyFeeCountByCategory.get(L3))
-        .unknownGrade(monthlyFeeCountByCategory.get(FeeCategory.UNKNOWN))
+        .unknownGrade(unknownGradeFees)
         .monthly(feesCountByPaymentFrequency.get(MONTHLY))
         .yearly(feesCountByPaymentFrequency.get(YEARLY))
         .workStudy(monthlyFeeCountByCategory.get(WORK_FEES));
@@ -545,17 +557,19 @@ public class AdvancedFeeStatsService {
     var unpaidFees = filterFeesByStatus(fees, UNPAID, statusDate);
     Map<FeeCategory, Long> monthlyFeeCountByCategory = countFeesByGrades(unpaidFees, MONTHLY);
     Map<FeeCategory, Long> yearlyFeeCountByCategory = countFeesByGrades(unpaidFees, YEARLY);
+    var unknownGradeFees =
+        monthlyFeeCountByCategory.get(FeeCategory.UNKNOWN)
+            + yearlyFeeCountByCategory.get(FeeCategory.UNKNOWN);
     Map<FeeTypeEnum, List<Fee>> feesByType = groupFeesByType(unpaidFees);
     List<Fee> tuitionFees = feesByType.getOrDefault(TUITION, List.of());
     Map<FeeFrequency, Long> feesCountByPaymentFrequency = countFeesByPaymentFrequency(tuitionFees);
     return new UnpaidFeesStats()
-        .retakeExamFirstGradeCount(countRemedialFees(fees, L1))
-        .retakeExamSecondGradeCount(countRemedialFees(fees, L2))
-        .retakeExamThirdGradeCount(countRemedialFees(fees, L3))
+        .retakeExamFirstGradeCount(countRemedialFees(unpaidFees, L1))
+        .retakeExamSecondGradeCount(countRemedialFees(unpaidFees, L2))
+        .retakeExamThirdGradeCount(countRemedialFees(unpaidFees, L3))
         .workStudy(monthlyFeeCountByCategory.get(WORK_FEES))
         .monthly(feesCountByPaymentFrequency.get(MONTHLY))
         .yearly(feesCountByPaymentFrequency.get(YEARLY))
-        .unknownFrequency(feesCountByPaymentFrequency.get(UNKNOWN))
         .unknownFrequency(feesCountByPaymentFrequency.get(UNKNOWN))
         .firstGradeMonthly(monthlyFeeCountByCategory.get(L1))
         .secondGradeMonthly(monthlyFeeCountByCategory.get(L2))
@@ -563,7 +577,7 @@ public class AdvancedFeeStatsService {
         .firstGradeYearly(yearlyFeeCountByCategory.get(L1))
         .secondGradeYearly(yearlyFeeCountByCategory.get(L2))
         .thirdGradeYearly(yearlyFeeCountByCategory.get(L3))
-        .unknownGrade(monthlyFeeCountByCategory.get(FeeCategory.UNKNOWN));
+        .unknownGrade(unknownGradeFees);
   }
 
   @Transactional

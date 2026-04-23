@@ -16,6 +16,7 @@ import static school.hei.haapi.integration.conf.TestUtils.getMockedFile;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
+import school.hei.haapi.endpoint.rest.mapper.VolaMapper;
 import school.hei.haapi.model.MobileTransactionDetails;
 import school.hei.haapi.repository.MpbsRepository;
 import school.hei.haapi.service.MobilePaymentService;
@@ -35,7 +36,12 @@ class VerificationMpbsByXlsxTest {
           mock(),
           mock(),
           mock(),
-          new CollectionUtils());
+          new CollectionUtils(),
+          mock(),
+          new VolaMapper(),
+          mock(),
+          mock(),
+          mock());
 
   private static List<MobileTransactionDetails> excelTransactionDetails() {
     return List.of(
