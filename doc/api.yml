@@ -8495,6 +8495,8 @@ components:
     EventBase:
       type: object
       properties:
+        id:
+          type: string
         title:
           type: string
         description:
