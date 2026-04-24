@@ -1,3 +1,0 @@
-ALTER TABLE stats_advanced_fees RENAME COLUMN remedial_first_grade_count to retake_exam_first_grade_count;
-ALTER TABLE stats_advanced_fees RENAME COLUMN remedial_second_grade_count to retake_exam_second_grade_count;
-ALTER TABLE stats_advanced_fees RENAME COLUMN remedial_third_grade_count to retake_exam_third_grade_count;
