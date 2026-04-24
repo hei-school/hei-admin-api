@@ -8736,7 +8736,7 @@ components:
         - TUITION
         - HARDWARE
         - STUDENT_INSURANCE
-        - REMEDIAL_COSTS
+        - RETAKE_EXAM_COSTS
     UploadFile:
       type: object
       properties:
