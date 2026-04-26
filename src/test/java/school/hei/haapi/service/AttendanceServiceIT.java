@@ -1,6 +1,7 @@
 package school.hei.haapi.service;
 
 import static java.time.LocalDate.now;
+import static java.time.ZoneOffset.UTC;
 import static java.time.temporal.ChronoUnit.DAYS;
 import static java.util.UUID.randomUUID;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -15,8 +16,8 @@ import static school.hei.haapi.model.User.Status.ENABLED;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.YearMonth;
-import java.time.ZoneOffset;
 import java.util.List;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -30,6 +31,7 @@ import school.hei.haapi.repository.EventParticipantRepository;
 import school.hei.haapi.repository.EventRepository;
 import school.hei.haapi.repository.UserRepository;
 
+@Slf4j
 class AttendanceServiceIT extends FacadeITMockedThirdParties {
   @Autowired AttendanceService subject;
   @Autowired UserRepository userRepository;
@@ -41,16 +43,17 @@ class AttendanceServiceIT extends FacadeITMockedThirdParties {
   private EventParticipant eventParticipantOne;
   private EventParticipant eventParticipantTwo;
   private static final Instant startOfActualMonth =
-      startOfActualMonth().atStartOfDay().toInstant(ZoneOffset.UTC);
+      startOfActualMonth().atStartOfDay().toInstant(UTC);
   private static final Instant endOfActualMonth =
-      endOfActualMonth().plusDays(1L).atStartOfDay().toInstant(ZoneOffset.UTC);
+      endOfActualMonth().plusDays(1L).atStartOfDay().toInstant(UTC);
+  private static final String eventId = randomUUID().toString();
 
   @BeforeEach
   void setUp() {
     event =
         eventRepository.save(
             Event.builder()
-                .id(randomUUID().toString())
+                .id(eventId)
                 .beginDatetime(missingStudentAttendanceStatus().beginDatetime())
                 .endDatetime(missingStudentAttendanceStatus().endDatetime())
                 .title(missingStudentAttendanceStatus().eventTitle())
@@ -124,12 +127,12 @@ class AttendanceServiceIT extends FacadeITMockedThirdParties {
     var actual =
         subject.findStudentAttendanceByStudentId(
             studentTwo.getId(), PRESENT, startOfActualMonth, endOfActualMonth, List.of());
-
     assertEquals(List.of(presentStudentAttendanceStatus()), actual);
   }
 
   private static StudentAttendance missingStudentAttendanceStatus() {
     return new StudentAttendance(
+        eventId,
         "eventTitle",
         "eventDescription",
         COURSE,
@@ -142,6 +145,7 @@ class AttendanceServiceIT extends FacadeITMockedThirdParties {
 
   private static StudentAttendance presentStudentAttendanceStatus() {
     return new StudentAttendance(
+        eventId,
         "eventTitle",
         "eventDescription",
         COURSE,

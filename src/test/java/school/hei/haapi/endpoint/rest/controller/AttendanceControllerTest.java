@@ -91,6 +91,14 @@ class AttendanceControllerTest {
   private static StudentAttendance studentAttendanceStatus(
       AttendanceStatus attendanceStatus, Instant from, Instant to, RoomName room, PlaceName place) {
     return new StudentAttendance(
-        "eventTile", "eventDescription", COURSE, attendanceStatus, from, to, room, place);
+        "eventId",
+        "eventTile",
+        "eventDescription",
+        COURSE,
+        attendanceStatus,
+        from,
+        to,
+        room,
+        place);
   }
 }
