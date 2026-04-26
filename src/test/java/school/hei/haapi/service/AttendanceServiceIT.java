@@ -44,13 +44,14 @@ class AttendanceServiceIT extends FacadeITMockedThirdParties {
       startOfActualMonth().atStartOfDay().toInstant(ZoneOffset.UTC);
   private static final Instant endOfActualMonth =
       endOfActualMonth().plusDays(1L).atStartOfDay().toInstant(ZoneOffset.UTC);
+  private static final String eventId = randomUUID().toString();
 
   @BeforeEach
   void setUp() {
     event =
         eventRepository.save(
             Event.builder()
-                .id(randomUUID().toString())
+                .id(eventId)
                 .beginDatetime(missingStudentAttendanceStatus().beginDatetime())
                 .endDatetime(missingStudentAttendanceStatus().endDatetime())
                 .title(missingStudentAttendanceStatus().eventTitle())
@@ -130,6 +131,7 @@ class AttendanceServiceIT extends FacadeITMockedThirdParties {
 
   private static StudentAttendance missingStudentAttendanceStatus() {
     return new StudentAttendance(
+        eventId,
         "eventTitle",
         "eventDescription",
         COURSE,
@@ -142,6 +144,7 @@ class AttendanceServiceIT extends FacadeITMockedThirdParties {
 
   private static StudentAttendance presentStudentAttendanceStatus() {
     return new StudentAttendance(
+        eventId,
         "eventTitle",
         "eventDescription",
         COURSE,
