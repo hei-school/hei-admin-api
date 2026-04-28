@@ -1,24 +1,5 @@
 package school.hei.haapi.service;
 
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import school.hei.haapi.integration.conf.FacadeITMockedThirdParties;
-import school.hei.haapi.model.Event;
-import school.hei.haapi.model.EventParticipant;
-import school.hei.haapi.model.StudentAttendance;
-import school.hei.haapi.model.User;
-import school.hei.haapi.repository.EventParticipantRepository;
-import school.hei.haapi.repository.EventRepository;
-import school.hei.haapi.repository.UserRepository;
-
-import java.time.Instant;
-import java.time.LocalDate;
-import java.time.YearMonth;
-import java.time.ZoneOffset;
-import java.util.List;
-
 import static java.time.LocalDate.now;
 import static java.time.temporal.ChronoUnit.DAYS;
 import static java.util.UUID.randomUUID;
@@ -31,6 +12,24 @@ import static school.hei.haapi.model.Event.PlaceName.ANDRAHARO;
 import static school.hei.haapi.model.Event.RoomName.ALGEBRE;
 import static school.hei.haapi.model.User.Role.STUDENT;
 import static school.hei.haapi.model.User.Status.ENABLED;
+
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.YearMonth;
+import java.time.ZoneOffset;
+import java.util.List;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import school.hei.haapi.integration.conf.FacadeITMockedThirdParties;
+import school.hei.haapi.model.Event;
+import school.hei.haapi.model.EventParticipant;
+import school.hei.haapi.model.StudentAttendance;
+import school.hei.haapi.model.User;
+import school.hei.haapi.repository.EventParticipantRepository;
+import school.hei.haapi.repository.EventRepository;
+import school.hei.haapi.repository.UserRepository;
 
 class AttendanceServiceIT extends FacadeITMockedThirdParties {
   @Autowired AttendanceService subject;
