@@ -23,7 +23,7 @@ import static java.time.LocalDate.now;
 import static java.time.temporal.ChronoUnit.DAYS;
 import static java.util.UUID.randomUUID;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static school.hei.haapi.endpoint.rest.model.AttendanceStatus.MISSING;
 import static school.hei.haapi.endpoint.rest.model.AttendanceStatus.PRESENT;
 import static school.hei.haapi.endpoint.rest.model.EventType.COURSE;
@@ -127,10 +127,7 @@ class AttendanceServiceIT extends FacadeITMockedThirdParties {
     var actual =
         subject.findStudentAttendanceByStudentId(
             studentTwo.getId(), PRESENT, startOfActualMonth, endOfActualMonth, List.of());
-
-    assertEquals(actual, actual);
-    assertNotEquals(null, actual);
-    assertNotEquals("not an attendance", actual);
+    assertTrue(actual.contains((presentStudentAttendanceStatus())));
     assertEquals(List.of(presentStudentAttendanceStatus()), actual);
   }
 
