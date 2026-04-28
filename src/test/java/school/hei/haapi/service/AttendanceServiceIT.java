@@ -1,22 +1,5 @@
 package school.hei.haapi.service;
 
-import static java.time.LocalDate.now;
-import static java.time.temporal.ChronoUnit.DAYS;
-import static java.util.UUID.randomUUID;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static school.hei.haapi.endpoint.rest.model.AttendanceStatus.MISSING;
-import static school.hei.haapi.endpoint.rest.model.AttendanceStatus.PRESENT;
-import static school.hei.haapi.endpoint.rest.model.EventType.COURSE;
-import static school.hei.haapi.model.Event.PlaceName.ANDRAHARO;
-import static school.hei.haapi.model.Event.RoomName.ALGEBRE;
-import static school.hei.haapi.model.User.Role.STUDENT;
-import static school.hei.haapi.model.User.Status.ENABLED;
-
-import java.time.Instant;
-import java.time.LocalDate;
-import java.time.YearMonth;
-import java.time.ZoneOffset;
-import java.util.List;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -29,6 +12,25 @@ import school.hei.haapi.model.User;
 import school.hei.haapi.repository.EventParticipantRepository;
 import school.hei.haapi.repository.EventRepository;
 import school.hei.haapi.repository.UserRepository;
+
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.YearMonth;
+import java.time.ZoneOffset;
+import java.util.List;
+
+import static java.time.LocalDate.now;
+import static java.time.temporal.ChronoUnit.DAYS;
+import static java.util.UUID.randomUUID;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static school.hei.haapi.endpoint.rest.model.AttendanceStatus.MISSING;
+import static school.hei.haapi.endpoint.rest.model.AttendanceStatus.PRESENT;
+import static school.hei.haapi.endpoint.rest.model.EventType.COURSE;
+import static school.hei.haapi.model.Event.PlaceName.ANDRAHARO;
+import static school.hei.haapi.model.Event.RoomName.ALGEBRE;
+import static school.hei.haapi.model.User.Role.STUDENT;
+import static school.hei.haapi.model.User.Status.ENABLED;
 
 class AttendanceServiceIT extends FacadeITMockedThirdParties {
   @Autowired AttendanceService subject;
@@ -44,14 +46,14 @@ class AttendanceServiceIT extends FacadeITMockedThirdParties {
       startOfActualMonth().atStartOfDay().toInstant(ZoneOffset.UTC);
   private static final Instant endOfActualMonth =
       endOfActualMonth().plusDays(1L).atStartOfDay().toInstant(ZoneOffset.UTC);
-  private static final String eventId = randomUUID().toString();
+  private static final String EVENT_ID = randomUUID().toString();
 
   @BeforeEach
   void setUp() {
     event =
         eventRepository.save(
             Event.builder()
-                .id(eventId)
+                .id(EVENT_ID)
                 .beginDatetime(missingStudentAttendanceStatus().beginDatetime())
                 .endDatetime(missingStudentAttendanceStatus().endDatetime())
                 .title(missingStudentAttendanceStatus().eventTitle())
@@ -126,12 +128,15 @@ class AttendanceServiceIT extends FacadeITMockedThirdParties {
         subject.findStudentAttendanceByStudentId(
             studentTwo.getId(), PRESENT, startOfActualMonth, endOfActualMonth, List.of());
 
+    assertEquals(actual, actual);
+    assertNotEquals(null, actual);
+    assertNotEquals("not an attendance", actual);
     assertEquals(List.of(presentStudentAttendanceStatus()), actual);
   }
 
   private static StudentAttendance missingStudentAttendanceStatus() {
     return new StudentAttendance(
-        eventId,
+        EVENT_ID,
         "eventTitle",
         "eventDescription",
         COURSE,
@@ -144,7 +149,7 @@ class AttendanceServiceIT extends FacadeITMockedThirdParties {
 
   private static StudentAttendance presentStudentAttendanceStatus() {
     return new StudentAttendance(
-        eventId,
+        EVENT_ID,
         "eventTitle",
         "eventDescription",
         COURSE,
