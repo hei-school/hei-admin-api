@@ -126,7 +126,7 @@ class AttendanceServiceIT extends FacadeITMockedThirdParties {
     var actual =
         subject.findStudentAttendanceByStudentId(
             studentTwo.getId(), PRESENT, startOfActualMonth, endOfActualMonth, List.of());
-    assertTrue(actual.contains((presentStudentAttendanceStatus())));
+    assertTrue(actual.getFirst().equals(presentStudentAttendanceStatus()));
     assertEquals(List.of(presentStudentAttendanceStatus()), actual);
   }
 
