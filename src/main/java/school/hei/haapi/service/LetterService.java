@@ -1,8 +1,11 @@
 package school.hei.haapi.service;
 
+import static java.util.UUID.randomUUID;
 import static org.springframework.data.domain.Sort.Direction.DESC;
 import static school.hei.haapi.endpoint.rest.model.FileType.OTHER;
-import static school.hei.haapi.endpoint.rest.model.LetterStatus.*;
+import static school.hei.haapi.endpoint.rest.model.LetterStatus.PENDING;
+import static school.hei.haapi.endpoint.rest.model.LetterStatus.RECEIVED;
+import static school.hei.haapi.endpoint.rest.model.LetterStatus.REJECTED;
 import static school.hei.haapi.endpoint.rest.model.Payment.TypeEnum.BANK_TRANSFER;
 import static school.hei.haapi.endpoint.rest.security.AuthProvider.getPrincipal;
 
@@ -12,10 +15,11 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Objects;
-import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.*;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import school.hei.haapi.endpoint.event.EventProducer;
@@ -25,7 +29,12 @@ import school.hei.haapi.endpoint.rest.model.LetterStats;
 import school.hei.haapi.endpoint.rest.model.LetterStatus;
 import school.hei.haapi.endpoint.rest.model.UpdateLettersStatus;
 import school.hei.haapi.endpoint.rest.security.model.Principal;
-import school.hei.haapi.model.*;
+import school.hei.haapi.model.BoundedPageSize;
+import school.hei.haapi.model.FileInfo;
+import school.hei.haapi.model.Letter;
+import school.hei.haapi.model.PageFromOne;
+import school.hei.haapi.model.Payment;
+import school.hei.haapi.model.User;
 import school.hei.haapi.model.dto.letterStatsDto;
 import school.hei.haapi.model.exception.BadRequestException;
 import school.hei.haapi.model.exception.NotFoundException;
@@ -89,8 +98,12 @@ public class LetterService {
       Integer amount,
       String eventParticipantId) {
     User user = userService.getById(studentId);
-    String bucketKey = getBucketKey(user.getRef(), filename) + fileService.getFileExtension(file);
-    final String uuid = UUID.randomUUID().toString();
+
+    final String uuid = randomUUID().toString();
+
+    String bucketKey =
+        getBucketKey(user.getRef(), file.getOriginalFilename() + uuid)
+            + fileService.getFileExtension(file);
 
     Letter letterToSave =
         Letter.builder()
