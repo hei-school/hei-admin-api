@@ -125,7 +125,7 @@ class LetterIT extends FacadeITMockedThirdParties {
     ApiClient apiClient = anApiClient(STAFF_MEMBER1_TOKEN);
     LettersApi api = new LettersApi(apiClient);
 
-    List<Letter> letters = api.getLettersByUserId(STAFF_MEMBER1_ID, 1, 15, null);
+    List<Letter> letters = api.getLettersByUserId(STAFF_MEMBER1_ID, null, 1, 15, null);
     assertEquals(1, letters.size());
 
     assertThrowsForbiddenException(() -> api.getLetterStats(null));
@@ -179,17 +179,17 @@ class LetterIT extends FacadeITMockedThirdParties {
     ApiClient apiClient = anApiClient(MANAGER1_TOKEN);
     LettersApi api = new LettersApi(apiClient);
 
-    List<Letter> actual = api.getLettersByUserId(STUDENT1_ID, 1, 15, null);
+    List<Letter> actual = api.getLettersByUserId(STUDENT1_ID, null, 1, 15, null);
     assertTrue(actual.contains(letter1()));
     assertTrue(actual.contains(letter2()));
     assertFalse(actual.contains(letter3()));
 
-    List<Letter> actual2 = api.getLettersByUserId(STUDENT2_ID, 1, 15, null);
+    List<Letter> actual2 = api.getLettersByUserId(STUDENT2_ID, null, 1, 15, null);
     assertFalse(actual2.contains(letter1()));
     assertFalse(actual2.contains(letter2()));
     assertTrue(actual2.contains(letter3()));
 
-    List<Letter> actual3 = api.getLettersByUserId(STUDENT1_ID, 1, 15, PENDING);
+    List<Letter> actual3 = api.getLettersByUserId(STUDENT1_ID, null, 1, 15, PENDING);
     assertFalse(actual3.contains(letter1()));
     assertTrue(actual3.contains(letter2()));
     assertFalse(actual3.contains(letter3()));
@@ -314,7 +314,7 @@ class LetterIT extends FacadeITMockedThirdParties {
     ApiClient apiClient = anApiClient(STUDENT1_TOKEN);
     LettersApi api = new LettersApi(apiClient);
 
-    List<Letter> actual = api.getLettersByUserId(STUDENT1_ID, 1, 15, null);
+    List<Letter> actual = api.getLettersByUserId(STUDENT1_ID, null, 1, 15, null);
     assertTrue(actual.contains(letter1()));
     assertTrue(actual.contains(letter2()));
     assertFalse(actual.contains(letter3()));
@@ -324,7 +324,7 @@ class LetterIT extends FacadeITMockedThirdParties {
   void teacher_read_others_letter_ko() {
     LettersApi api = new LettersApi(anApiClient(TEACHER1_TOKEN));
 
-    assertThrowsForbiddenException(() -> api.getLettersByUserId(STUDENT1_ID, 1, 15, null));
+    assertThrowsForbiddenException(() -> api.getLettersByUserId(STUDENT1_ID, null, 1, 15, null));
   }
 
   @Test
@@ -388,7 +388,7 @@ class LetterIT extends FacadeITMockedThirdParties {
     ApiClient apiClient = anApiClient(TEACHER1_TOKEN);
     LettersApi api = new LettersApi(apiClient);
 
-    List<Letter> actual = api.getLettersByUserId(TEACHER1_ID, 1, 15, null);
+    List<Letter> actual = api.getLettersByUserId(TEACHER1_ID, null, 1, 15, null);
     assertEquals(1, actual.size());
   }
 
@@ -397,7 +397,7 @@ class LetterIT extends FacadeITMockedThirdParties {
     ApiClient apiClient = anApiClient(STUDENT1_TOKEN);
     LettersApi api = new LettersApi(apiClient);
 
-    assertThrowsForbiddenException(() -> api.getLettersByUserId(STUDENT2_ID, 1, 15, null));
+    assertThrowsForbiddenException(() -> api.getLettersByUserId(STUDENT2_ID, null, 1, 15, null));
     assertThrowsForbiddenException(
         () ->
             api.updateLettersStatus(
