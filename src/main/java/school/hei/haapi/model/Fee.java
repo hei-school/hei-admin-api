@@ -102,6 +102,7 @@ public class Fee implements Serializable {
 
   @JdbcTypeCode(NAMED_ENUM)
   @Enumerated(STRING)
+  @Builder.Default
   private FeeCategory category = UNKNOWN;
 
   @JdbcTypeCode(NAMED_ENUM)
