@@ -6327,6 +6327,11 @@ paths:
           required: true
           schema:
             type: string
+        - name: event_id
+          in: query
+          required: false
+          schema:
+            type: string
         - name: page
           in: query
           schema:
