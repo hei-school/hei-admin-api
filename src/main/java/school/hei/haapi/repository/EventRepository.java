@@ -22,6 +22,7 @@ public interface EventRepository extends JpaRepository<Event, String> {
       value =
           """
     SELECT new school.hei.haapi.model.StudentAttendance(
+        participant.event.id,
         participant.event.title,
         participant.event.description,
         participant.event.type,
