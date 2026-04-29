@@ -54,6 +54,7 @@ public class Event {
 
   @Enumerated(STRING)
   @JdbcTypeCode(NAMED_ENUM)
+  @Builder.Default
   private RoomName room = UNKNOWN;
 
   @Enumerated(STRING)
