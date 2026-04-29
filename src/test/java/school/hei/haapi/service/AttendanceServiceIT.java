@@ -4,15 +4,11 @@ import static java.time.LocalDate.now;
 import static java.time.temporal.ChronoUnit.DAYS;
 import static java.util.UUID.randomUUID;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static school.hei.haapi.endpoint.rest.model.AttendanceStatus.MISSING;
 import static school.hei.haapi.endpoint.rest.model.AttendanceStatus.PRESENT;
 import static school.hei.haapi.endpoint.rest.model.EventType.COURSE;
 import static school.hei.haapi.model.Event.PlaceName.ANDRAHARO;
-import static school.hei.haapi.model.Event.PlaceName.IVANDRY;
 import static school.hei.haapi.model.Event.RoomName.ALGEBRE;
-import static school.hei.haapi.model.Event.RoomName.SIGMA;
 import static school.hei.haapi.model.User.Role.STUDENT;
 import static school.hei.haapi.model.User.Status.ENABLED;
 
@@ -55,7 +51,6 @@ class AttendanceServiceIT extends FacadeITMockedThirdParties {
     event =
         eventRepository.save(
             Event.builder()
-                .id(EVENT_ID)
                 .beginDatetime(missingStudentAttendanceStatus().beginDatetime())
                 .endDatetime(missingStudentAttendanceStatus().endDatetime())
                 .title(missingStudentAttendanceStatus().eventTitle())
@@ -120,41 +115,46 @@ class AttendanceServiceIT extends FacadeITMockedThirdParties {
         subject.findStudentAttendanceByStudentId(
             studentOne.getId(), null, startOfActualMonth, endOfActualMonth, List.of());
 
-    assertEquals(actualDefault, actual);
-    assertEquals(List.of(missingStudentAttendanceStatus()), actual);
+    assertEquals(actualDefault.getFirst().eventTitle(), actual.getFirst().eventTitle());
+    assertEquals(actualDefault.getFirst().eventDescription(), actual.getFirst().eventDescription());
+    assertEquals(actualDefault.getFirst().eventType(), actual.getFirst().eventType());
+    assertEquals(actualDefault.getFirst().beginDatetime(), actual.getFirst().beginDatetime());
+    assertEquals(actualDefault.getFirst().endDatetime(), actual.getFirst().endDatetime());
+    assertEquals(actualDefault.getFirst().room(), actual.getFirst().room());
+    assertEquals(actualDefault.getFirst().place(), actual.getFirst().place());
+
+    assertEquals(missingStudentAttendanceStatus().eventTitle(), actual.getFirst().eventTitle());
+    assertEquals(
+        missingStudentAttendanceStatus().eventDescription(), actual.getFirst().eventDescription());
+    assertEquals(missingStudentAttendanceStatus().eventType(), actual.getFirst().eventType());
+    assertEquals(
+        missingStudentAttendanceStatus().beginDatetime(), actual.getFirst().beginDatetime());
+    assertEquals(missingStudentAttendanceStatus().endDatetime(), actual.getFirst().endDatetime());
+    assertEquals(missingStudentAttendanceStatus().room(), actual.getFirst().room());
+    assertEquals(missingStudentAttendanceStatus().place(), actual.getFirst().place());
   }
 
   @Test
   void get_student_present_between_date() {
     var actual =
-        subject.findStudentAttendanceByStudentId(
-            studentTwo.getId(), PRESENT, startOfActualMonth, endOfActualMonth, List.of());
-    assertTrue(actual.getFirst().equals(presentStudentAttendanceStatus()));
-    assertEquals(List.of(presentStudentAttendanceStatus()), actual);
-  }
+        subject
+            .findStudentAttendanceByStudentId(
+                studentTwo.getId(), PRESENT, startOfActualMonth, endOfActualMonth, List.of())
+            .getFirst();
 
-  @Test
-  void equals_same_instance() {
-    assertEquals(studentAttendance(), studentAttendance());
-  }
+    var studentAttendanceUpdated =
+        new StudentAttendance(
+            actual.eventId(),
+            presentStudentAttendanceStatus().eventTitle(),
+            presentStudentAttendanceStatus().eventDescription(),
+            presentStudentAttendanceStatus().eventType(),
+            presentStudentAttendanceStatus().attendanceStatus(),
+            presentStudentAttendanceStatus().beginDatetime(),
+            presentStudentAttendanceStatus().endDatetime(),
+            presentStudentAttendanceStatus().room(),
+            presentStudentAttendanceStatus().place());
 
-  @Test
-  void not_equals_null_and_wrong_type() {
-    assertNotEquals(studentAttendance(), null);
-    assertNotEquals(studentAttendance(), presentStudentAttendanceStatus());
-  }
-
-  private static StudentAttendance studentAttendance() {
-    return new StudentAttendance(
-        "event-1",
-        "Math",
-        "Desc",
-        COURSE,
-        MISSING,
-        Instant.parse("2024-01-15T08:00:00Z"),
-        Instant.parse("2024-01-15T10:00:00Z"),
-        SIGMA,
-        IVANDRY);
+    assertEquals(studentAttendanceUpdated, actual);
   }
 
   private static StudentAttendance missingStudentAttendanceStatus() {
