@@ -14,6 +14,7 @@ public class AttendanceRestMapper {
 
   public StudentGlobalAttendance toRest(StudentAttendance domain) {
     return new StudentGlobalAttendance()
+        .id(domain.eventId())
         .title(domain.eventTitle())
         .description(domain.eventDescription())
         .location(

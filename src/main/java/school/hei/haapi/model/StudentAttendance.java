@@ -7,6 +7,7 @@ import school.hei.haapi.model.Event.PlaceName;
 import school.hei.haapi.model.Event.RoomName;
 
 public record StudentAttendance(
+    String eventId,
     String eventTitle,
     String eventDescription,
     EventType eventType,
