@@ -96,4 +96,7 @@ public interface EventParticipantRepository extends JpaRepository<EventParticipa
   ) from EventParticipant e where e.participant.id = :studentId
 """)
   EventStatsDto countEventStatsByStudentId(String studentId);
+
+  EventParticipant findEventParticipantByParticipantIdAndEventId(
+      String participantId, String eventId);
 }
