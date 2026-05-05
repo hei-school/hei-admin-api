@@ -1,3 +1,17 @@
+# [1.157.0](https://github.com/hei-school/hei-admin-api/compare/v1.156.0...v1.157.0) (2026-05-05)
+
+
+### Bug Fixes
+
+* add @Builder.Default to RoomName and FeeCategory field to preserve default value ([026352d](https://github.com/hei-school/hei-admin-api/commit/026352d90173d4ec1b1093c83bea1487763c4590))
+
+
+### Features
+
+*  (doc) add new query params when getting letter ([05642bc](https://github.com/hei-school/hei-admin-api/commit/05642bc957588621a068ee9bbbc61f7e953edfb6))
+
+
+
 # [1.156.0](https://github.com/hei-school/hei-admin-api/compare/v1.155.0...v1.156.0) (2026-04-29)
 
 
@@ -138,15 +152,6 @@
 ### Features
 
 * add user details in get monitor link student requests ([c0cedb3](https://github.com/hei-school/hei-admin-api/commit/c0cedb311fb8173c46323cbc3ce431ea3dc43c1e))
-
-
-
-# [1.147.0](https://github.com/hei-school/hei-admin-api/compare/v1.146.0...v1.147.0) (2025-12-29)
-
-
-### Features
-
-* add student status to event participant ([8dfb6a4](https://github.com/hei-school/hei-admin-api/commit/8dfb6a4f1184c0c569d4f6daf882447ba60de4dd))
 
 
 
