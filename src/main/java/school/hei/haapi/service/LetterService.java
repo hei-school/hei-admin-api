@@ -160,6 +160,7 @@ public class LetterService {
                         .findEventParticipantByParticipantIdAndEventId(userId, id)
                         .getId())
             .orElse(null);
+    log.info("EventParticipantId found : " + eventParticipantId);
     return Objects.isNull(status)
         ? letterRepository.findAllByUserIdAndEventParticipantId(
             userId, eventParticipantId, pageable)
