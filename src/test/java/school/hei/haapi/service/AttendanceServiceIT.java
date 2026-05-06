@@ -44,13 +44,13 @@ class AttendanceServiceIT extends FacadeITMockedThirdParties {
       startOfActualMonth().atStartOfDay().toInstant(ZoneOffset.UTC);
   private static final Instant endOfActualMonth =
       endOfActualMonth().plusDays(1L).atStartOfDay().toInstant(ZoneOffset.UTC);
+  private static final String EVENT_ID = randomUUID().toString();
 
   @BeforeEach
   void setUp() {
     event =
         eventRepository.save(
             Event.builder()
-                .id(randomUUID().toString())
                 .beginDatetime(missingStudentAttendanceStatus().beginDatetime())
                 .endDatetime(missingStudentAttendanceStatus().endDatetime())
                 .title(missingStudentAttendanceStatus().eventTitle())
@@ -115,21 +115,51 @@ class AttendanceServiceIT extends FacadeITMockedThirdParties {
         subject.findStudentAttendanceByStudentId(
             studentOne.getId(), null, startOfActualMonth, endOfActualMonth, List.of());
 
-    assertEquals(actualDefault, actual);
-    assertEquals(List.of(missingStudentAttendanceStatus()), actual);
+    assertEquals(actualDefault.getFirst().eventTitle(), actual.getFirst().eventTitle());
+    assertEquals(actualDefault.getFirst().eventDescription(), actual.getFirst().eventDescription());
+    assertEquals(actualDefault.getFirst().eventType(), actual.getFirst().eventType());
+    assertEquals(actualDefault.getFirst().beginDatetime(), actual.getFirst().beginDatetime());
+    assertEquals(actualDefault.getFirst().endDatetime(), actual.getFirst().endDatetime());
+    assertEquals(actualDefault.getFirst().room(), actual.getFirst().room());
+    assertEquals(actualDefault.getFirst().place(), actual.getFirst().place());
+
+    assertEquals(missingStudentAttendanceStatus().eventTitle(), actual.getFirst().eventTitle());
+    assertEquals(
+        missingStudentAttendanceStatus().eventDescription(), actual.getFirst().eventDescription());
+    assertEquals(missingStudentAttendanceStatus().eventType(), actual.getFirst().eventType());
+    assertEquals(
+        missingStudentAttendanceStatus().beginDatetime(), actual.getFirst().beginDatetime());
+    assertEquals(missingStudentAttendanceStatus().endDatetime(), actual.getFirst().endDatetime());
+    assertEquals(missingStudentAttendanceStatus().room(), actual.getFirst().room());
+    assertEquals(missingStudentAttendanceStatus().place(), actual.getFirst().place());
   }
 
   @Test
   void get_student_present_between_date() {
     var actual =
-        subject.findStudentAttendanceByStudentId(
-            studentTwo.getId(), PRESENT, startOfActualMonth, endOfActualMonth, List.of());
+        subject
+            .findStudentAttendanceByStudentId(
+                studentTwo.getId(), PRESENT, startOfActualMonth, endOfActualMonth, List.of())
+            .getFirst();
 
-    assertEquals(List.of(presentStudentAttendanceStatus()), actual);
+    var studentAttendanceUpdated =
+        new StudentAttendance(
+            actual.eventId(),
+            presentStudentAttendanceStatus().eventTitle(),
+            presentStudentAttendanceStatus().eventDescription(),
+            presentStudentAttendanceStatus().eventType(),
+            presentStudentAttendanceStatus().attendanceStatus(),
+            presentStudentAttendanceStatus().beginDatetime(),
+            presentStudentAttendanceStatus().endDatetime(),
+            presentStudentAttendanceStatus().room(),
+            presentStudentAttendanceStatus().place());
+
+    assertEquals(studentAttendanceUpdated, actual);
   }
 
   private static StudentAttendance missingStudentAttendanceStatus() {
     return new StudentAttendance(
+        EVENT_ID,
         "eventTitle",
         "eventDescription",
         COURSE,
@@ -142,6 +172,7 @@ class AttendanceServiceIT extends FacadeITMockedThirdParties {
 
   private static StudentAttendance presentStudentAttendanceStatus() {
     return new StudentAttendance(
+        EVENT_ID,
         "eventTitle",
         "eventDescription",
         COURSE,

@@ -16,7 +16,7 @@ import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.LATE;
 import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.PAID;
 import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.PENDING;
 import static school.hei.haapi.endpoint.rest.model.FeeTypeEnum.HARDWARE;
-import static school.hei.haapi.endpoint.rest.model.FeeTypeEnum.REMEDIAL_COSTS;
+import static school.hei.haapi.endpoint.rest.model.FeeTypeEnum.RETAKE_EXAM_COSTS;
 import static school.hei.haapi.endpoint.rest.model.FeeTypeEnum.TUITION;
 import static school.hei.haapi.integration.StudentIT.student1;
 import static school.hei.haapi.integration.conf.TestUtils.FEE1_ID;
@@ -320,11 +320,11 @@ class FeeIT extends FacadeITMockedThirdParties {
     PayingApi api = new PayingApi(student1Client);
 
     CreateFee createFee = creatableFee1();
-    createFee.setType(REMEDIAL_COSTS);
+    createFee.setType(RETAKE_EXAM_COSTS);
 
     List<Fee> actualFee0 = api.createStudentFees(STUDENT1_ID, List.of(createFee));
 
-    assertEquals(REMEDIAL_COSTS, actualFee0.getFirst().getType());
+    assertEquals(RETAKE_EXAM_COSTS, actualFee0.getFirst().getType());
 
     List<Fee> actualFee1 = api.createStudentFees(STUDENT1_ID, List.of(creatableFee1()));
 
@@ -336,7 +336,7 @@ class FeeIT extends FacadeITMockedThirdParties {
     ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
     PayingApi api = new PayingApi(student1Client);
     CreateFee createFee = creatableFee1();
-    createFee.setType(REMEDIAL_COSTS);
+    createFee.setType(RETAKE_EXAM_COSTS);
 
     assertThrowsApiException(
         "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",

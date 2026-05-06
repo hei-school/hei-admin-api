@@ -1,4 +1,4 @@
-INSERT INTO stats_advanced_fees (stat_type, first_grade_count_monthly, second_grade_count_monthly, third_grade_count_monthly,first_grade_count_yearly, second_grade_count_yearly, third_grade_count_yearly, remedial_first_grade_count, remedial_second_grade_count, remedial_third_grade_count,work_study_count, monthly_count, yearly_count, mpbs_count,
+INSERT INTO stats_advanced_fees (stat_type, first_grade_count_monthly, second_grade_count_monthly, third_grade_count_monthly,first_grade_count_yearly, second_grade_count_yearly, third_grade_count_yearly, retake_exam_first_grade_count, retake_exam_second_grade_count, retake_exam_third_grade_count,work_study_count, monthly_count, yearly_count, mpbs_count,
                                  bank_transfer_count, unknown_frequency_count, unknown_grade_count, update_datetime,
                                  stat_start_date, stat_end_date, count_type)
 VALUES ('LATE_COUNT'::advanced_fee_stats_type, 0, 0, 0, 0,0,0,0, 0, 0, 0, 0, 0, NULL, NULL, 0, 0, '2025-05-14', '2024-04-01',

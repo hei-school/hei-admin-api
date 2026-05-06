@@ -14,9 +14,26 @@ import school.hei.haapi.model.dto.letterStatsDto;
 
 @Repository
 public interface LetterRepository extends JpaRepository<Letter, String> {
-  List<Letter> findAllByUserId(String studentId, Pageable pageable);
+  @Query(
+      "SELECT l FROM Letter l WHERE l.user.id = :studentId "
+          + "AND (:eventParticipantId IS NULL OR l.eventParticipant.id = :eventParticipantId)")
+  List<Letter> findAllByUserIdAndEventParticipantId(
+      @Param("studentId") String studentId,
+      @Param("eventParticipantId") String eventParticipantId,
+      Pageable pageable);
 
-  List<Letter> findAllByUserIdAndStatus(String studentId, LetterStatus status, Pageable pageable);
+  @Query(
+      """
+      SELECT l FROM Letter l
+      WHERE l.user.id = :studentId
+      AND l.status = :status
+      AND (:eventParticipantId IS NULL OR l.eventParticipant.id = :eventParticipantId)
+      """)
+  List<Letter> findAllByUserIdAndStatusAndEventParticipantId(
+      @Param("studentId") String studentId,
+      @Param("status") LetterStatus status,
+      @Param("eventParticipantId") String eventParticipantId,
+      Pageable pageable);
 
   @Query("SELECT l FROM Letter l WHERE l.fee.id = :feeId")
   Optional<Letter> findByFeeId(@Param("feeId") String feeId);

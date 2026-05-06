@@ -1,6 +1,6 @@
 package school.hei.haapi.endpoint.rest.validator;
 
-import static school.hei.haapi.endpoint.rest.model.FeeTypeEnum.REMEDIAL_COSTS;
+import static school.hei.haapi.endpoint.rest.model.FeeTypeEnum.RETAKE_EXAM_COSTS;
 import static school.hei.haapi.endpoint.rest.model.FeeTypeEnum.TUITION;
 import static school.hei.haapi.model.User.Role.STUDENT;
 
@@ -25,8 +25,9 @@ public class CreateFeeValidator implements Consumer<CreateFee> {
       throw new BadRequestException("Total amount is mandatory");
     }
     if (STUDENT.equals(principalRole)
-        && (!REMEDIAL_COSTS.equals(createFee.getType()) && !TUITION.equals(createFee.getType()))) {
-      throw new ForbiddenException("Student is only allowed for REMEDIAL_COSTS or TUITION");
+        && (!RETAKE_EXAM_COSTS.equals(createFee.getType())
+            && !TUITION.equals(createFee.getType()))) {
+      throw new ForbiddenException("Student is only allowed for RETAKE_EXAM_COSTS or TUITION");
     }
   }
 }

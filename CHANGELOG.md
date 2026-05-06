@@ -1,3 +1,38 @@
+# [1.157.0](https://github.com/hei-school/hei-admin-api/compare/v1.156.0...v1.157.0) (2026-05-05)
+
+
+### Bug Fixes
+
+* add @Builder.Default to RoomName and FeeCategory field to preserve default value ([026352d](https://github.com/hei-school/hei-admin-api/commit/026352d90173d4ec1b1093c83bea1487763c4590))
+
+
+### Features
+
+*  (doc) add new query params when getting letter ([05642bc](https://github.com/hei-school/hei-admin-api/commit/05642bc957588621a068ee9bbbc61f7e953edfb6))
+
+
+
+# [1.156.0](https://github.com/hei-school/hei-admin-api/compare/v1.155.0...v1.156.0) (2026-04-29)
+
+
+### Bug Fixes
+
+* accounting fees duplicate due to status histories ([5822865](https://github.com/hei-school/hei-admin-api/commit/5822865bc55fa996f606599b51b493d39c3d25cf))
+* advanced fees stat, unknown feeCategory mapper ([71dfeb1](https://github.com/hei-school/hei-admin-api/commit/71dfeb1d350866099cb81f3ad111ee73289d3f35))
+* change vola verification endpoint target  ([86f5121](https://github.com/hei-school/hei-admin-api/commit/86f51217ad5dc6b7092e595e511724478e271c8a))
+* extract method and remove duplication ([6d178e3](https://github.com/hei-school/hei-admin-api/commit/6d178e3ecf1b313d067f0988f099bdc37c125d99))
+* Fee status not updated when Vola verifies an Mpbs ([6694307](https://github.com/hei-school/hei-admin-api/commit/66943070adea95e8a5dbcfa16e85ba4028191e6f))
+* get fees of non-disabled students only in fee export ([12169fa](https://github.com/hei-school/hei-admin-api/commit/12169fa29f4989f3280ed7659cecaa4caedc52f3))
+* unpaid fees null in advanced fee stats ([283cf98](https://github.com/hei-school/hei-admin-api/commit/283cf989d2ed578ccfdd6eff619549b4711b4532))
+
+
+### Features
+
+* (doc) add new attribut for globaleAttendance ([dd6fb19](https://github.com/hei-school/hei-admin-api/commit/dd6fb197196a070f3990f5d944d2765a893c4f69))
+* vola migration ([1e61f6a](https://github.com/hei-school/hei-admin-api/commit/1e61f6a331468dd45797fdc1359a06f68d10b2e2))
+
+
+
 # [1.155.0](https://github.com/hei-school/hei-admin-api/compare/v1.154.1...v1.155.0) (2026-03-26)
 
 
@@ -117,24 +152,6 @@
 ### Features
 
 * add user details in get monitor link student requests ([c0cedb3](https://github.com/hei-school/hei-admin-api/commit/c0cedb311fb8173c46323cbc3ce431ea3dc43c1e))
-
-
-
-# [1.147.0](https://github.com/hei-school/hei-admin-api/compare/v1.146.0...v1.147.0) (2025-12-29)
-
-
-### Features
-
-* add student status to event participant ([8dfb6a4](https://github.com/hei-school/hei-admin-api/commit/8dfb6a4f1184c0c569d4f6daf882447ba60de4dd))
-
-
-
-# [1.146.0](https://github.com/hei-school/hei-admin-api/compare/v1.145.2...v1.146.0) (2025-12-24)
-
-
-### Features
-
-* (doc) add new endpoint for grade template ([7706546](https://github.com/hei-school/hei-admin-api/commit/77065467e84e1a958077f60a65667c77b87f21ad))
 
 
 
