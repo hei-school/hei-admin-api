@@ -677,6 +677,52 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
+  /students/licences:
+    get:
+      tags:
+        - Grades
+      summary: Get students licences by status
+      operationId: getStudentsLicencesByStatus
+      parameters:
+        - name: promotion_ref
+          in: query
+          required: true
+          description: Promotion's ref
+          schema:
+            type: string
+        - name: status
+          in: query
+          required: true
+          description: Licence status
+          schema:
+            $ref: '#/components/schemas/LicenceStatusEnum'
+        - name: page
+          in: query
+          schema:
+            $ref: '#/components/schemas/Page'
+        - name: page_size
+          in: query
+          schema:
+            $ref: '#/components/schemas/PageSize'
+      responses:
+        '200':
+          description: List of students licences matching the given status
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/StudentLicence'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
   /students:
     get:
       tags:
@@ -8744,6 +8790,11 @@ components:
         - HARDWARE
         - STUDENT_INSURANCE
         - RETAKE_EXAM_COSTS
+    LicenceStatusEnum:
+      type: string
+      enum:
+        - VALIDATED
+        - INVALIDATED
     UploadFile:
       type: object
       properties:
@@ -9440,3 +9491,10 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/StaffMember'
+    StudentLicence:
+      type: object
+      properties:
+        student:
+          $ref: '#/components/schemas/UserIdentifier'
+        licence_status:
+          $ref: '#/components/schemas/LicenceStatusEnum'
