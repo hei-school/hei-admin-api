@@ -9496,5 +9496,7 @@ components:
       properties:
         student:
           $ref: '#/components/schemas/UserIdentifier'
+        total_credits:
+          type: number
         licence_status:
           $ref: '#/components/schemas/LicenceStatusEnum'
