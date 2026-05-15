@@ -866,23 +866,23 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
-  /students/licences:
+  /students/result_overviews:
     get:
       tags:
         - Users
-      summary: Get students licences by status
-      operationId: getStudentsLicencesByStatus
+      summary: Get a list of each student's result overview
+      operationId: getStudentsResultOverviewsByStatus
       parameters:
-        - name: promotion_ref
+        - name: promotion_id
           in: query
           required: true
-          description: Promotion's ref
+          description: Promotion's id
           schema:
             type: string
         - name: status
           in: query
           required: true
-          description: Licence status
+          description: Result overview status we want (validated or not validated, such as invalidated, in progress or not started)
           schema:
             $ref: '#/components/schemas/ResultOverviewStatus'
         - name: page
@@ -895,13 +895,13 @@ paths:
             $ref: '#/components/schemas/PageSize'
       responses:
         '200':
-          description: List of students licences matching the given status
+          description: List of students overviews matching the given status
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/StudentLicence'
+                  $ref: '#/components/schemas/StudentResultOverview'
         '400':
           $ref: '#/components/responses/400'
         '403':
@@ -9486,14 +9486,10 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/StaffMember'
-    StudentLicence:
+    StudentResultOverview:
       type: object
       properties:
         student:
           $ref: '#/components/schemas/UserIdentifier'
-        obtained_credits:
-          type: number
-        total_credits:
-          type: number
-        licence_status:
-          $ref: '#/components/schemas/ResultOverviewStatus'
+        results_overview:
+          $ref: '#/components/schemas/ResultsOverview'
