@@ -1,5 +1,6 @@
 package school.hei.haapi.service;
 
+import static java.util.Optional.ofNullable;
 import static java.util.UUID.randomUUID;
 import static org.springframework.data.domain.Sort.Direction.DESC;
 import static school.hei.haapi.endpoint.rest.model.FileType.OTHER;
@@ -38,6 +39,7 @@ import school.hei.haapi.model.User;
 import school.hei.haapi.model.dto.letterStatsDto;
 import school.hei.haapi.model.exception.BadRequestException;
 import school.hei.haapi.model.exception.NotFoundException;
+import school.hei.haapi.repository.EventParticipantRepository;
 import school.hei.haapi.repository.FileInfoRepository;
 import school.hei.haapi.repository.LetterRepository;
 import school.hei.haapi.repository.dao.LetterDao;
@@ -58,6 +60,8 @@ public class LetterService {
   private final PaymentService paymentService;
   private final EventParticipantService eventParticipantService;
   private final FileInfoRepository fileInfoRepository;
+  private final EventParticipantRepository eventParticipantRepository;
+  private final EventService eventService;
 
   public List<Letter> getLetters(
       String ref,
@@ -141,12 +145,27 @@ public class LetterService {
   }
 
   public List<Letter> getLettersByStudentId(
-      String userId, LetterStatus status, PageFromOne page, BoundedPageSize pageSize) {
-    Pageable pageable =
+      String userId,
+      String eventId,
+      LetterStatus status,
+      PageFromOne page,
+      BoundedPageSize pageSize) {
+    var pageable =
         PageRequest.of(page.getValue() - 1, pageSize.getValue(), Sort.by(DESC, "creationDatetime"));
+    var eventParticipantId =
+        ofNullable(eventId)
+            .map(
+                id ->
+                    eventParticipantRepository
+                        .findEventParticipantByParticipantIdAndEventId(userId, id)
+                        .getId())
+            .orElse(null);
+    log.info("EventParticipantId found : " + eventParticipantId);
     return Objects.isNull(status)
-        ? letterRepository.findAllByUserId(userId, pageable)
-        : letterRepository.findAllByUserIdAndStatus(userId, status, pageable);
+        ? letterRepository.findAllByUserIdAndEventParticipantId(
+            userId, eventParticipantId, pageable)
+        : letterRepository.findAllByUserIdAndStatusAndEventParticipantId(
+            userId, status, eventParticipantId, pageable);
   }
 
   public List<Letter> updateLetter(List<UpdateLettersStatus> letters) {

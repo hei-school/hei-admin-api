@@ -6,10 +6,21 @@ import static school.hei.haapi.model.User.Role.STUDENT;
 import java.util.Collections;
 import java.util.List;
 import lombok.AllArgsConstructor;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestPart;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import school.hei.haapi.endpoint.rest.mapper.LetterMapper;
-import school.hei.haapi.endpoint.rest.model.*;
+import school.hei.haapi.endpoint.rest.model.Letter;
+import school.hei.haapi.endpoint.rest.model.LetterStats;
+import school.hei.haapi.endpoint.rest.model.LetterStatus;
+import school.hei.haapi.endpoint.rest.model.RoleEnum;
+import school.hei.haapi.endpoint.rest.model.UpdateLettersStatus;
 import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.model.validator.LetterValidator;
@@ -100,12 +111,13 @@ public class LetterController {
   }
 
   @GetMapping(value = "/users/{user_id}/letters")
-  public List<Letter> getStudentLetters(
+  public List<Letter> getLettersByUserId(
       @PathVariable(name = "user_id") String userId,
+      @RequestParam(name = "event_id", required = false) String eventId,
       @RequestParam(name = "status", required = false) LetterStatus status,
       @RequestParam(name = "page") PageFromOne page,
       @RequestParam(name = "page_size") BoundedPageSize pageSize) {
-    return letterService.getLettersByStudentId(userId, status, page, pageSize).stream()
+    return letterService.getLettersByStudentId(userId, eventId, status, page, pageSize).stream()
         .map(letterMapper::toRest)
         .toList();
   }
