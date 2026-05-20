@@ -22,11 +22,26 @@ import school.hei.haapi.endpoint.rest.mapper.SexEnumMapper;
 import school.hei.haapi.endpoint.rest.mapper.StatusCheckMapper;
 import school.hei.haapi.endpoint.rest.mapper.StatusEnumMapper;
 import school.hei.haapi.endpoint.rest.mapper.UserMapper;
-import school.hei.haapi.endpoint.rest.model.*;
+import school.hei.haapi.endpoint.rest.model.CreateGroupFlow;
+import school.hei.haapi.endpoint.rest.model.CreateStatusCheck;
+import school.hei.haapi.endpoint.rest.model.CrupdateStudent;
+import school.hei.haapi.endpoint.rest.model.EnableStatus;
+import school.hei.haapi.endpoint.rest.model.GroupFlow;
+import school.hei.haapi.endpoint.rest.model.ResultOverviewStatus;
+import school.hei.haapi.endpoint.rest.model.Sex;
+import school.hei.haapi.endpoint.rest.model.Statistics;
+import school.hei.haapi.endpoint.rest.model.StatusCheck;
+import school.hei.haapi.endpoint.rest.model.Student;
+import school.hei.haapi.endpoint.rest.model.StudentImportValidationResult;
+import school.hei.haapi.endpoint.rest.model.StudentLevel;
+import school.hei.haapi.endpoint.rest.model.StudentResultOverview;
+import school.hei.haapi.endpoint.rest.model.UpdateStatusCheck;
+import school.hei.haapi.endpoint.rest.model.WorkStudyStatus;
 import school.hei.haapi.endpoint.rest.validator.CoordinatesValidator;
 import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.model.User;
+import school.hei.haapi.service.GradeResultService;
 import school.hei.haapi.service.GroupFlowService;
 import school.hei.haapi.service.MultipartFileConverter;
 import school.hei.haapi.service.StatusCheckService;
@@ -47,6 +62,7 @@ public class StudentController {
   private final StudentFileService studentFileService;
   private final StatusCheckService statusCheckService;
   private final StatusCheckMapper statusCheckMapper;
+  private final GradeResultService gradeResultService;
 
   @PostMapping(value = "/students/{id}/picture/raw", consumes = MULTIPART_FORM_DATA_VALUE)
   public Student uploadStudentProfilePicture(
@@ -194,5 +210,18 @@ public class StudentController {
       @RequestBody CreateStatusCheck createStatusCheck) {
     return statusCheckMapper.toRest(
         statusCheckService.createStatusCheckByStudentId(studentId, createStatusCheck));
+  }
+
+  @GetMapping("/students/result_overviews")
+  public List<StudentResultOverview> getStudentResultOverviews(
+      @RequestParam(name = "promotion_id") String promotionId,
+      @RequestParam(name = "status") ResultOverviewStatus status,
+      @RequestParam(name = "page", required = false) PageFromOne page,
+      @RequestParam(name = "pageSize", required = false) BoundedPageSize pageSize) {
+    return gradeResultService.getStudentResultOverviews(
+        promotionId,
+        school.hei.haapi.model.ResultOverviewStatus.valueOf(status.toString()),
+        page,
+        pageSize);
   }
 }

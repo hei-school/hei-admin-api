@@ -29,17 +29,23 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import school.hei.haapi.endpoint.event.EventProducer;
 import school.hei.haapi.endpoint.event.model.YearlyResultTranscriptGeneration;
+import school.hei.haapi.endpoint.rest.mapper.StudentResultOverviewMapper;
 import school.hei.haapi.endpoint.rest.model.ResultOverviewStatus;
 import school.hei.haapi.endpoint.rest.model.ResultSummary;
 import school.hei.haapi.endpoint.rest.model.StudentLevel;
+import school.hei.haapi.endpoint.rest.model.StudentResultOverview;
 import school.hei.haapi.endpoint.rest.model.YearlyResult;
 import school.hei.haapi.endpoint.rest.model.YearlyResultGenerationTranscript;
 import school.hei.haapi.endpoint.rest.security.AuthProvider;
 import school.hei.haapi.file.bucket.BucketComponent;
+import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.FileInfo;
+import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.model.YearlyResultGenerationRequest;
 import school.hei.haapi.model.exception.BadRequestException;
 import school.hei.haapi.model.exception.CoursesCreditSumZero;
+import school.hei.haapi.model.pagination.PaginationFromPageAndPageSize;
+import school.hei.haapi.repository.dao.StudentResultOverviewDao;
 
 @Service
 @AllArgsConstructor
@@ -54,6 +60,9 @@ public class GradeResultService {
   private static final String TRANSCRIPT_FILENAME_FORMAT = "Bulletin - %s - %s";
   private static final Duration TRANSCRIPT_GENERATION_TIMEOUT = Duration.ofMinutes(5);
   private static final Duration TRANSCRIPT_VALIDATION_DURATION = Duration.ofHours(12);
+  private final PaginationFromPageAndPageSize paginationFromPageAndPageSize;
+  private final StudentResultOverviewDao studentResultOverviewDao;
+  private final StudentResultOverviewMapper studentResultOverviewMapper;
 
   public YearlyResult getLeveledYearlyResultByStudentId(StudentLevel level, String studentId) {
     var courseResults = courseResultService.getCourseResultsForLevelOfStudent(level, studentId);
@@ -252,5 +261,16 @@ public class GradeResultService {
     var resultSummaryTranscriptFile =
         yearlyResultGenerationService.generateResultSummaryTranscript(student, resultSummary);
     return Files.readAllBytes(resultSummaryTranscriptFile.toPath());
+  }
+
+  public List<StudentResultOverview> getStudentResultOverviews(
+      String promotionId,
+      school.hei.haapi.model.ResultOverviewStatus status,
+      PageFromOne page,
+      BoundedPageSize pageSize) {
+    var pageable = paginationFromPageAndPageSize.apply(page, pageSize);
+    var studentResultOverviews =
+        studentResultOverviewDao.filteryByCriteria(promotionId, status, pageable);
+    return studentResultOverviewMapper.toRestList(studentResultOverviews);
   }
 }
