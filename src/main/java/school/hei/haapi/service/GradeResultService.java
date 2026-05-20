@@ -33,14 +33,11 @@ import school.hei.haapi.endpoint.rest.mapper.StudentResultOverviewMapper;
 import school.hei.haapi.endpoint.rest.model.ResultOverviewStatus;
 import school.hei.haapi.endpoint.rest.model.ResultSummary;
 import school.hei.haapi.endpoint.rest.model.StudentLevel;
-import school.hei.haapi.endpoint.rest.model.StudentResultOverview;
 import school.hei.haapi.endpoint.rest.model.YearlyResult;
 import school.hei.haapi.endpoint.rest.model.YearlyResultGenerationTranscript;
 import school.hei.haapi.endpoint.rest.security.AuthProvider;
 import school.hei.haapi.file.bucket.BucketComponent;
-import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.FileInfo;
-import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.model.YearlyResultGenerationRequest;
 import school.hei.haapi.model.exception.BadRequestException;
 import school.hei.haapi.model.exception.CoursesCreditSumZero;
@@ -261,16 +258,5 @@ public class GradeResultService {
     var resultSummaryTranscriptFile =
         yearlyResultGenerationService.generateResultSummaryTranscript(student, resultSummary);
     return Files.readAllBytes(resultSummaryTranscriptFile.toPath());
-  }
-
-  public List<StudentResultOverview> getStudentResultOverviews(
-      String promotionId,
-      school.hei.haapi.model.ResultOverviewStatus status,
-      PageFromOne page,
-      BoundedPageSize pageSize) {
-    var pageable = paginationFromPageAndPageSize.apply(page, pageSize);
-    var studentResultOverviews =
-        studentResultOverviewDao.filteryByCriteria(promotionId, status, pageable);
-    return studentResultOverviewMapper.toRestList(studentResultOverviews);
   }
 }

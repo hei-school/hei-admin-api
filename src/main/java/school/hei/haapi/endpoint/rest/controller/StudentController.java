@@ -41,11 +41,11 @@ import school.hei.haapi.endpoint.rest.validator.CoordinatesValidator;
 import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.model.User;
-import school.hei.haapi.service.GradeResultService;
 import school.hei.haapi.service.GroupFlowService;
 import school.hei.haapi.service.MultipartFileConverter;
 import school.hei.haapi.service.StatusCheckService;
 import school.hei.haapi.service.StudentFileService;
+import school.hei.haapi.service.StudentResultOverviewService;
 import school.hei.haapi.service.UserService;
 
 @RestController
@@ -62,7 +62,7 @@ public class StudentController {
   private final StudentFileService studentFileService;
   private final StatusCheckService statusCheckService;
   private final StatusCheckMapper statusCheckMapper;
-  private final GradeResultService gradeResultService;
+  private final StudentResultOverviewService studentResultOverviewService;
 
   @PostMapping(value = "/students/{id}/picture/raw", consumes = MULTIPART_FORM_DATA_VALUE)
   public Student uploadStudentProfilePicture(
@@ -218,7 +218,7 @@ public class StudentController {
       @RequestParam(name = "status") ResultOverviewStatus status,
       @RequestParam(name = "page", required = false) PageFromOne page,
       @RequestParam(name = "pageSize", required = false) BoundedPageSize pageSize) {
-    return gradeResultService.getStudentResultOverviews(
+    return studentResultOverviewService.getStudentResultOverviews(
         promotionId,
         school.hei.haapi.model.ResultOverviewStatus.valueOf(status.toString()),
         page,
