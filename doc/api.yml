@@ -811,7 +811,7 @@ paths:
       tags:
         - Students
       summary: Get retake exams for a student
-      operationId: listStudentRetakeExams
+      operationId: getListStudentRetakeExams
       parameters:
         - $ref: "#/components/parameters/PathStudentId"
         - name: status
@@ -822,7 +822,7 @@ paths:
             $ref: "#/components/schemas/CourseResultStatus"
       responses:
         '200':
-          description: List of retake exams for the student.
+          description: List of retake exams for queried student.
           content:
             application/json:
               schema:
