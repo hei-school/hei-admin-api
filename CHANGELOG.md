@@ -1,3 +1,13 @@
+# [1.159.0](https://github.com/hei-school/hei-admin-api/compare/v1.158.0...v1.159.0) (2026-05-20)
+
+
+### Features
+
+* add students/result_overviews endpoint spec ([d7c6efe](https://github.com/hei-school/hei-admin-api/commit/d7c6efe9b90e4bcbaff6dc3c83609e7a46dfbba9))
+* student retake exams list ([#1232](https://github.com/hei-school/hei-admin-api/issues/1232)) ([e2c6dce](https://github.com/hei-school/hei-admin-api/commit/e2c6dce5f154439742136b541a9dd928afe72895))
+
+
+
 # [1.158.0](https://github.com/hei-school/hei-admin-api/compare/v1.155.0...v1.158.0) (2026-05-15)
 
 
@@ -142,15 +152,6 @@
 ### Features
 
 * add user details in get monitor link student requests ([c0cedb3](https://github.com/hei-school/hei-admin-api/commit/c0cedb311fb8173c46323cbc3ce431ea3dc43c1e))
-
-
-
-# [1.147.0](https://github.com/hei-school/hei-admin-api/compare/v1.146.0...v1.147.0) (2025-12-29)
-
-
-### Features
-
-* add student status to event participant ([8dfb6a4](https://github.com/hei-school/hei-admin-api/commit/8dfb6a4f1184c0c569d4f6daf882447ba60de4dd))
 
 
 
