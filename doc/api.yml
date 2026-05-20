@@ -806,6 +806,39 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
+  /students/{student_id}/retake_exams:
+    get:
+      tags:
+        - Students
+      summary: Get retake exams for a student
+      operationId: getListStudentRetakeExams
+      parameters:
+        - $ref: "#/components/parameters/PathStudentId"
+        - name: status
+          in: query
+          required: false
+          description: Filter by course result status. Returns all if omitted.
+          schema:
+            $ref: "#/components/schemas/CourseResultStatus"
+      responses:
+        '200':
+          description: List of retake exams for queried student.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/YearlyResult'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
   /students/import/template:
     get:
       tags:
@@ -4109,8 +4142,8 @@ paths:
       tags:
         - Paying
       summary: Generate advanced fees statistics file with an optional month range.
-      description: Generates an advanced fees statistics excel file, stores it in 
-        (S3 compatible storage), and returns a presigned URL that can 
+      description: Generates an advanced fees statistics excel file, stores it in
+        (S3 compatible storage), and returns a presigned URL that can
         later be used to view the file.
       operationId: exportAdvancedFeesStats
       parameters:
@@ -6719,7 +6752,7 @@ paths:
             application/json:
               schema:
                 type: array
-                items: 
+                items:
                   $ref: '#/components/schemas/StatusCheck'
         '400':
           $ref: '#/components/responses/400'
@@ -8768,7 +8801,7 @@ components:
           items:
             $ref: '#/components/schemas/StudentLevel'
           readOnly: true
-      required: 
+      required:
         - cycle
     CycleEnum:
       type: string
@@ -9209,9 +9242,9 @@ components:
       enum:
         - YEARLY
         - MONTHLY
-    StatusCheckResult: 
+    StatusCheckResult:
       type: string
-      enum: 
+      enum:
         - PENDING
         - WITHDRAWN
         - ENROLLED
@@ -9223,12 +9256,12 @@ components:
         result:
           $ref: '#/components/schemas/StatusCheckResult'
     CreateStatusCheck:
-      type: object 
-      properties: 
-        id: 
-          type: string 
+      type: object
+      properties:
+        id:
+          type: string
         concerned_student_id:
-          type: string 
+          type: string
         requesting_user_id:
           type: string
         description:
@@ -9249,10 +9282,10 @@ components:
           type: string
         result:
           $ref: '#/components/schemas/StatusCheckResult'
-        creation_datetime: 
+        creation_datetime:
           type: string
           format: date-time
-        update_datetime: 
+        update_datetime:
           type: string
           format: date-time
     CorBase:
