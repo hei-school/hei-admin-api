@@ -30,7 +30,7 @@ public class StudentRetakeExamListIT extends FacadeITMockedThirdParties {
   void should_be_see_all_exams_VALIDATED() throws ApiException {
     var api = new StudentsApi(anApiClient(MANAGER1_TOKEN));
     var status = CourseResultStatus.VALIDATED;
-    var results = api.getListStudentRetakeExams(STUDENT1_ID, status).toArray().length;
+    var results = api.getListStudentRetakeExams(STUDENT1_ID, status).size();
     var expected = 1;
 
     assertEquals(expected, results);
@@ -48,7 +48,7 @@ public class StudentRetakeExamListIT extends FacadeITMockedThirdParties {
   @Test
   void should_be_see_all_exams_with_all_status() throws ApiException {
     var api = new StudentsApi(anApiClient(MANAGER1_TOKEN));
-    var results = api.getListStudentRetakeExams(STUDENT1_ID, null).toArray().length;
+    var results = api.getListStudentRetakeExams(STUDENT1_ID, null).size();
     var expected = 3;
     assertEquals(expected, results);
   }

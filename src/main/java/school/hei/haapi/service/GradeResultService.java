@@ -195,7 +195,7 @@ public class GradeResultService {
         .filter(Objects::nonNull)
         .flatMap(List::stream)
         .filter(Objects::nonNull)
-        .filter(courseResult -> status == null || Objects.equals(courseResult.getStatus(), status))
+        .filter(e -> status == null || Objects.equals(e.getStatus(), status))
         .toList();
   }
 
