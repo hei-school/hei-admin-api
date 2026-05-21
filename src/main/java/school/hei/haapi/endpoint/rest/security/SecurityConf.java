@@ -7,7 +7,13 @@ import static org.springframework.http.HttpMethod.PATCH;
 import static org.springframework.http.HttpMethod.POST;
 import static org.springframework.http.HttpMethod.PUT;
 import static org.springframework.security.web.util.matcher.AntPathRequestMatcher.antMatcher;
-import static school.hei.haapi.endpoint.rest.security.model.Role.*;
+import static school.hei.haapi.endpoint.rest.security.model.Role.ADMIN;
+import static school.hei.haapi.endpoint.rest.security.model.Role.MANAGER;
+import static school.hei.haapi.endpoint.rest.security.model.Role.MONITOR;
+import static school.hei.haapi.endpoint.rest.security.model.Role.ORGANIZER;
+import static school.hei.haapi.endpoint.rest.security.model.Role.STAFF_MEMBER;
+import static school.hei.haapi.endpoint.rest.security.model.Role.STUDENT;
+import static school.hei.haapi.endpoint.rest.security.model.Role.TEACHER;
 
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
@@ -242,6 +248,7 @@ public class SecurityConf {
                     antMatcher(GET, "/comments"),
                     antMatcher(GET, "/students/*/comments"),
                     antMatcher(POST, "/students/*/comments"),
+                    antMatcher(GET, "/students/result_overviews"),
                     antMatcher(GET, "/events/students/*/stats"),
                     antMatcher(PUT, "/events"),
                     antMatcher(GET, "/events/stats"),
@@ -912,6 +919,8 @@ public class SecurityConf {
                     .requestMatchers(GET, "/students/*/comments")
                     .hasAnyRole(MANAGER.getRole(), TEACHER.getRole(), ADMIN.getRole())
                     .requestMatchers(POST, "/students/*/comments")
+                    .hasAnyRole(MANAGER.getRole(), TEACHER.getRole(), ADMIN.getRole())
+                    .requestMatchers(GET, "/students/result_overviews")
                     .hasAnyRole(MANAGER.getRole(), TEACHER.getRole(), ADMIN.getRole())
                     //
                     // Staff resources

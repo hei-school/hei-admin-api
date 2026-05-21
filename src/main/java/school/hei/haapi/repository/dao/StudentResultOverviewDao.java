@@ -19,11 +19,14 @@ import school.hei.haapi.model.StudentResultOverview;
 public class StudentResultOverviewDao {
   private EntityManager entityManager;
 
-  public List<StudentResultOverview> filteryByCriteria(
+  public List<StudentResultOverview> filterByCriteria(
       String promotionId, ResultOverviewStatus status, @NotNull Pageable pageable) {
     CriteriaBuilder builder = entityManager.getCriteriaBuilder();
     CriteriaQuery<StudentResultOverview> query = builder.createQuery(StudentResultOverview.class);
     Root<StudentResultOverview> root = query.from(StudentResultOverview.class);
+
+    System.out.println("dao called");
+
     List<Predicate> predicates = new ArrayList<>();
 
     if (promotionId != null) {
@@ -36,9 +39,13 @@ public class StudentResultOverviewDao {
 
     query.where(predicates.toArray(new Predicate[0]));
 
+    if (pageable.isUnpaged()) {
+      return entityManager.createQuery(query).getResultList();
+    }
+
     return entityManager
         .createQuery(query)
-        .setFirstResult((pageable.getPageNumber()) * pageable.getPageSize())
+        .setFirstResult(pageable.getPageNumber() * pageable.getPageSize())
         .setMaxResults(pageable.getPageSize())
         .getResultList();
   }

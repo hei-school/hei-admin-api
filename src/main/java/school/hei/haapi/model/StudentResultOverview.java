@@ -10,6 +10,7 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import java.math.BigDecimal;
@@ -19,6 +20,9 @@ import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 @Entity
 @Table(name = "\"student_result_overview\"")
@@ -28,12 +32,13 @@ import lombok.Setter;
 @Builder
 @Getter
 @Setter
+@ToString(exclude = {"promotion", "student"})
 public class StudentResultOverview {
   @Id
   @GeneratedValue(strategy = IDENTITY)
   private String id;
 
-  @OneToOne(fetch = FetchType.LAZY)
+  @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "promotion_id", nullable = false)
   private Promotion promotion;
 
@@ -48,7 +53,8 @@ public class StudentResultOverview {
   private BigDecimal obtainedCredits;
 
   @Enumerated(EnumType.STRING)
-  @Column(name = "status", nullable = false)
+  @Column(columnDefinition = "result_overview_status")
+  @JdbcTypeCode(SqlTypes.NAMED_ENUM)
   private ResultOverviewStatus status;
 
   @Column(name = "total_credits", nullable = false)

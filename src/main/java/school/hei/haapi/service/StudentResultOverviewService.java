@@ -1,7 +1,6 @@
 package school.hei.haapi.service;
 
 import static org.reflections.Reflections.log;
-import static school.hei.haapi.endpoint.rest.model.StudentLevel.L3;
 import static school.hei.haapi.model.ResultOverviewStatus.VALIDATED;
 
 import java.util.List;
@@ -19,7 +18,6 @@ import school.hei.haapi.model.User;
 import school.hei.haapi.model.pagination.PaginationFromPageAndPageSize;
 import school.hei.haapi.repository.StudentResultOverviewRepository;
 import school.hei.haapi.repository.UserRepository;
-import school.hei.haapi.repository.YearlyResultGenerationRequestRepository;
 import school.hei.haapi.repository.dao.StudentResultOverviewDao;
 
 @Service
@@ -30,7 +28,6 @@ public class StudentResultOverviewService {
   private final StudentResultOverviewMapper studentResultOverviewMapper;
   private final StudentResultOverviewRepository studentResultOverviewRepository;
   private final PromotionService promotionService;
-  private final YearlyResultGenerationRequestRepository yearlyResultGenerationRequestRepository;
   private final UserRepository userRepository;
   private final GradeResultService gradeResultService;
 
@@ -39,9 +36,11 @@ public class StudentResultOverviewService {
       school.hei.haapi.model.ResultOverviewStatus status,
       PageFromOne page,
       BoundedPageSize pageSize) {
+    log.info("promotionId = {}", promotionId);
     var pageable = paginationFromPageAndPageSize.apply(page, pageSize);
     var studentResultOverviews =
-        studentResultOverviewDao.filteryByCriteria(promotionId, status, pageable);
+        studentResultOverviewDao.filterByCriteria(promotionId, status, pageable);
+    log.info("students result overviews : " + studentResultOverviews);
     return studentResultOverviewMapper.toRestList(studentResultOverviews);
   }
 
@@ -52,7 +51,10 @@ public class StudentResultOverviewService {
         .map(
             student -> {
               var yearlyResult =
-                  gradeResultService.getLeveledYearlyResultByStudentId(L3, student.getId());
+                  gradeResultService
+                      .getStudentResultSummary(student.getId())
+                      .getYearlyResults()
+                      .getLast();
               log.info(
                   "student with "
                       + student.getRef()
