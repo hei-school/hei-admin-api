@@ -7,24 +7,16 @@ import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_ID;
 import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.setUpCasdoor;
 
-import java.util.ArrayList;
-import java.util.List;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 import school.hei.haapi.endpoint.rest.api.StudentsApi;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
 import school.hei.haapi.endpoint.rest.model.CourseResultStatus;
 import school.hei.haapi.integration.conf.FacadeITMockedThirdParties;
 import school.hei.haapi.integration.conf.TestUtils;
-import school.hei.haapi.repository.UserRepository;
 
 public class StudentRetakeExamListIT extends FacadeITMockedThirdParties {
-  @Autowired private UserRepository userRepository;
-  private List<String> userIds = new ArrayList<>();
-
   private ApiClient anApiClient(String token) {
     return TestUtils.anApiClient(token, localPort);
   }
@@ -32,12 +24,6 @@ public class StudentRetakeExamListIT extends FacadeITMockedThirdParties {
   @BeforeEach
   void setUp() {
     setUpCasdoor(casdoorAuthServiceMock, certificateLoaderMock);
-  }
-
-  @AfterEach
-  void tearDown() {
-    userRepository.deleteAllById(userIds);
-    userIds = new ArrayList<>();
   }
 
   @Test
