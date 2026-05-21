@@ -1,3 +1,18 @@
+# [1.160.0](https://github.com/hei-school/hei-admin-api/compare/v1.159.0...v1.160.0) (2026-05-21)
+
+
+### Bug Fixes
+
+* apply all request change ([695add5](https://github.com/hei-school/hei-admin-api/commit/695add5e5d75fa5239cdc23e4f6c81412f253c1b))
+
+
+### Features
+
+* implemente student retake exams list ([29e86ba](https://github.com/hei-school/hei-admin-api/commit/29e86ba5a9f15e0017f838f5451a0d9815404564))
+* update tags grades in doc ([8d9cac5](https://github.com/hei-school/hei-admin-api/commit/8d9cac53d72d4cf7f31c1588050d3541cacf65b4))
+
+
+
 # [1.159.0](https://github.com/hei-school/hei-admin-api/compare/v1.158.0...v1.159.0) (2026-05-20)
 
 
@@ -143,15 +158,6 @@
 * (doc) add new endpoint to download student results summary transcript ([5405043](https://github.com/hei-school/hei-admin-api/commit/5405043298883dd7c26bd1656c727049d2e5c48d))
 * add global search ([b3afb06](https://github.com/hei-school/hei-admin-api/commit/b3afb06dc20edbdc9932485b0f55f80c87f98ead))
 * add grade template generator ([16b0edf](https://github.com/hei-school/hei-admin-api/commit/16b0edf802b6aeebf3ee84ebe428c6f14d3dd672))
-
-
-
-# [1.148.0](https://github.com/hei-school/hei-admin-api/compare/v1.147.0...v1.148.0) (2025-12-29)
-
-
-### Features
-
-* add user details in get monitor link student requests ([c0cedb3](https://github.com/hei-school/hei-admin-api/commit/c0cedb311fb8173c46323cbc3ce431ea3dc43c1e))
 
 
 
