@@ -828,7 +828,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/YearlyResult'
+                  $ref: '#/components/schemas/CourseResult'
         '400':
           $ref: '#/components/responses/400'
         '403':
