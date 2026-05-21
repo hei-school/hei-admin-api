@@ -809,7 +809,7 @@ paths:
   /students/{student_id}/retake_exams:
     get:
       tags:
-        - Students
+        - Grades
       summary: Get retake exams for a student
       operationId: getListStudentRetakeExams
       parameters:
