@@ -1,4 +1,4 @@
-# [1.160.0](https://github.com/hei-school/hei-admin-api/compare/v1.159.0...v1.160.0) (2026-05-21)
+# [1.161.0](https://github.com/hei-school/hei-admin-api/compare/v1.159.0...v1.161.0) (2026-05-21)
 
 
 ### Bug Fixes
