@@ -1,10 +1,5 @@
 package school.hei.haapi.service;
 
-import static org.reflections.Reflections.log;
-import static school.hei.haapi.model.ResultOverviewStatus.VALIDATED;
-
-import java.util.List;
-import java.util.stream.IntStream;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import school.hei.haapi.endpoint.rest.mapper.StudentResultOverviewMapper;
@@ -20,6 +15,13 @@ import school.hei.haapi.repository.StudentResultOverviewRepository;
 import school.hei.haapi.repository.UserRepository;
 import school.hei.haapi.repository.dao.StudentResultOverviewDao;
 
+import java.util.List;
+import java.util.stream.IntStream;
+
+import static org.reflections.Reflections.log;
+import static school.hei.haapi.endpoint.rest.model.StudentLevel.L3;
+import static school.hei.haapi.model.ResultOverviewStatus.VALIDATED;
+
 @Service
 @AllArgsConstructor
 public class StudentResultOverviewService {
@@ -30,6 +32,7 @@ public class StudentResultOverviewService {
   private final PromotionService promotionService;
   private final UserRepository userRepository;
   private final GradeResultService gradeResultService;
+  private final UserService userService;
 
   public List<school.hei.haapi.endpoint.rest.model.StudentResultOverview> getStudentResultOverviews(
       String promotionId,
@@ -77,12 +80,13 @@ public class StudentResultOverviewService {
   public Promotion getStudentPromotion(
       YearlyResult yearlyResult, List<Promotion> promotions, User student) {
     var group = student.getGroupFlows().getLast();
-    int promotionIndex =
+    var studentActualLevel = userService.getStudentLevel(student.getId());
+    var promotionIndex =
         IntStream.range(0, promotions.size())
             .filter(i -> promotions.get(i).getGroups().contains(group))
             .findFirst()
             .orElse(-1);
-    if (yearlyResult.getStatus().equals(VALIDATED)) {
+    if (yearlyResult.getStatus().equals(VALIDATED) || studentActualLevel != L3) {
       return promotions.get(promotionIndex);
     }
     return promotions.get(promotionIndex + 1);

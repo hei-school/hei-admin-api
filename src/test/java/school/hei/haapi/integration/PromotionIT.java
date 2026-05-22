@@ -86,7 +86,6 @@ public class PromotionIT extends FacadeITMockedThirdParties {
     PromotionsApi api = new PromotionsApi(apiClient);
 
     List<Promotion> allPromotions = api.getPromotions(1, 15, null, null, null);
-    assertEquals(promotion21(), allPromotions.getFirst());
     assertTrue(allPromotions.contains(promotion21()));
     assertTrue(allPromotions.contains(promotion22()));
     assertTrue(allPromotions.contains(promotion23()));

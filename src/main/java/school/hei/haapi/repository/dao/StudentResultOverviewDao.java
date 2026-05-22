@@ -25,8 +25,6 @@ public class StudentResultOverviewDao {
     CriteriaQuery<StudentResultOverview> query = builder.createQuery(StudentResultOverview.class);
     Root<StudentResultOverview> root = query.from(StudentResultOverview.class);
 
-    System.out.println("dao called");
-
     List<Predicate> predicates = new ArrayList<>();
 
     if (promotionId != null) {

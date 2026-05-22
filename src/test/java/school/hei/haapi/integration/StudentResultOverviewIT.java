@@ -1,5 +1,6 @@
 package school.hei.haapi.integration;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static school.hei.haapi.endpoint.rest.model.ResultOverviewStatus.VALIDATED;
 import static school.hei.haapi.integration.conf.TestUtils.ADMIN1_TOKEN;
@@ -14,6 +15,7 @@ import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -121,6 +123,18 @@ public class StudentResultOverviewIT extends FacadeITMockedThirdParties {
     log.info("results overviews : " + results);
   }
 
+  @AfterEach
+  void tearDownTestData() {
+    studentResultOverviewRepository.deleteAll(
+        List.of(
+            studentResultOverviewA, studentResultOverviewB,
+            studentResultOverviewC, studentResultOverviewD));
+    groupFlowRepository.deleteAll(List.of(groupFlowA, groupFlowB, groupFlowC, groupFlowD));
+    promotionRepository.deleteAll(List.of(promotionA, promotionB));
+    groupRepository.deleteAll(List.of(groupA, groupB));
+    userRepository.deleteAll(List.of(userA, userB, userC, userD));
+  }
+
   @Test
   public void get_student_result_overviews_OK() throws ApiException {
     ApiClient apiClient = anApiClient(ADMIN1_TOKEN);
@@ -130,11 +144,11 @@ public class StudentResultOverviewIT extends FacadeITMockedThirdParties {
         api.getStudentsResultOverviewsByStatus(promotionA.getId(), VALIDATED, 1, 10);
 
     assertNotNull(studentsResultOverviews);
+    assertEquals(2, studentsResultOverviews.size());
   }
 
   private static Group groupA() {
     return Group.builder()
-        .id("group_A1")
         .name("group A")
         .ref("group A1")
         .creationDatetime(Instant.parse("2020-01-01T00:00:00Z"))
@@ -143,7 +157,6 @@ public class StudentResultOverviewIT extends FacadeITMockedThirdParties {
 
   private static Group groupB() {
     return Group.builder()
-        .id("group_B2")
         .name("group B")
         .ref("group B2")
         .creationDatetime(Instant.parse("2021-01-01T00:00:00Z"))
@@ -152,7 +165,6 @@ public class StudentResultOverviewIT extends FacadeITMockedThirdParties {
 
   private static Promotion promotionA() {
     return Promotion.builder()
-        .id("promotion_2020_2021_id")
         .name("Promotion 2020-2021")
         .ref("Alumni 2020 2021")
         .creationDatetime(Instant.parse("2020-01-01T00:00:00Z"))
@@ -162,7 +174,6 @@ public class StudentResultOverviewIT extends FacadeITMockedThirdParties {
 
   private static Promotion promotionB() {
     return Promotion.builder()
-        .id("promotion_2021_2022_id")
         .name("Promotion 2021-2022")
         .ref("Alumni 2021 2022")
         .creationDatetime(Instant.parse("2021-01-01T00:00:00Z"))
@@ -172,7 +183,6 @@ public class StudentResultOverviewIT extends FacadeITMockedThirdParties {
 
   private static User userA() {
     return User.builder()
-        .id("user_A_id")
         .firstName("user A firstname")
         .lastName("user A lastname")
         .email("userA@gmail.com")
@@ -185,7 +195,6 @@ public class StudentResultOverviewIT extends FacadeITMockedThirdParties {
 
   private static User userB() {
     return User.builder()
-        .id("user_B_id")
         .firstName("user B firstname")
         .lastName("user B lastname")
         .email("userB@gmail.com")
@@ -198,7 +207,6 @@ public class StudentResultOverviewIT extends FacadeITMockedThirdParties {
 
   private static User userC() {
     return User.builder()
-        .id("user_C_id")
         .firstName("user C firstname")
         .lastName("user C lastname")
         .email("userC@gmail.com")
@@ -211,7 +219,6 @@ public class StudentResultOverviewIT extends FacadeITMockedThirdParties {
 
   private static User userD() {
     return User.builder()
-        .id("user_BDid")
         .firstName("user D firstname")
         .lastName("user D lastname")
         .email("userD@gmail.com")
@@ -224,7 +231,6 @@ public class StudentResultOverviewIT extends FacadeITMockedThirdParties {
 
   private static GroupFlow groupFlowA() {
     return GroupFlow.builder()
-        .id("group_flow_A_id")
         .groupFlowType(JOIN)
         .flowDatetime(Instant.parse("2020-01-01T00:00:00Z"))
         .build();
@@ -232,7 +238,6 @@ public class StudentResultOverviewIT extends FacadeITMockedThirdParties {
 
   private static GroupFlow groupFlowB() {
     return GroupFlow.builder()
-        .id("group_flow_B_id")
         .groupFlowType(JOIN)
         .flowDatetime(Instant.parse("2020-01-01T00:00:00Z"))
         .build();
@@ -240,7 +245,6 @@ public class StudentResultOverviewIT extends FacadeITMockedThirdParties {
 
   private static GroupFlow groupFlowC() {
     return GroupFlow.builder()
-        .id("group_flow_C_id")
         .groupFlowType(JOIN)
         .flowDatetime(Instant.parse("2021-01-01T00:00:00Z"))
         .build();
@@ -248,7 +252,6 @@ public class StudentResultOverviewIT extends FacadeITMockedThirdParties {
 
   private static GroupFlow groupFlowD() {
     return GroupFlow.builder()
-        .id("group_flow_D_id")
         .groupFlowType(JOIN)
         .flowDatetime(Instant.parse("2021-01-01T00:00:00Z"))
         .build();
@@ -256,7 +259,6 @@ public class StudentResultOverviewIT extends FacadeITMockedThirdParties {
 
   private static StudentResultOverview studentResultOverviewA() {
     return StudentResultOverview.builder()
-        .id("student_result_overview_A_id")
         .status(ResultOverviewStatus.VALIDATED)
         .weightedAverage(BigDecimal.valueOf(17.45))
         .obtainedCredits(BigDecimal.valueOf(180.0))
@@ -266,7 +268,6 @@ public class StudentResultOverviewIT extends FacadeITMockedThirdParties {
 
   private static StudentResultOverview studentResultOverviewB() {
     return StudentResultOverview.builder()
-        .id("student_result_overview_B_id")
         .status(ResultOverviewStatus.VALIDATED)
         .weightedAverage(BigDecimal.valueOf(12.45))
         .obtainedCredits(BigDecimal.valueOf(180.0))
@@ -276,7 +277,6 @@ public class StudentResultOverviewIT extends FacadeITMockedThirdParties {
 
   private static StudentResultOverview studentResultOverviewC() {
     return StudentResultOverview.builder()
-        .id("student_result_overview_C_id")
         .status(ResultOverviewStatus.INVALIDATED)
         .weightedAverage(BigDecimal.valueOf(09.45))
         .obtainedCredits(BigDecimal.valueOf(160.0))
@@ -286,7 +286,6 @@ public class StudentResultOverviewIT extends FacadeITMockedThirdParties {
 
   private static StudentResultOverview studentResultOverviewD() {
     return StudentResultOverview.builder()
-        .id("student_result_overview_D_id")
         .status(ResultOverviewStatus.VALIDATED)
         .weightedAverage(BigDecimal.valueOf(14.15))
         .obtainedCredits(BigDecimal.valueOf(180.0))
