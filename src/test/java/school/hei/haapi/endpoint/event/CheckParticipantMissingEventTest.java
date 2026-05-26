@@ -1,6 +1,16 @@
 package school.hei.haapi.endpoint.event;
 
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 import jakarta.mail.internet.AddressException;
+import java.time.Instant;
+import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,17 +27,6 @@ import school.hei.haapi.service.EventService;
 import school.hei.haapi.service.UserService;
 import school.hei.haapi.service.event.CheckParticipantMissedEventService;
 import school.hei.haapi.service.event.MissedEventEmailService;
-
-import java.time.Instant;
-import java.util.List;
-
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 class CheckParticipantMissingEventTest extends FacadeITMockedThirdParties {
   @MockBean private EventDao eventDao;
