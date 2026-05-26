@@ -22,6 +22,7 @@ import software.amazon.awssdk.services.eventbridge.model.PutEventsResponse;
 import software.amazon.awssdk.services.eventbridge.model.PutEventsResultEntry;
 
 @PojaGenerated
+@SuppressWarnings("all")
 @Component
 @Slf4j
 public class EventProducer<T extends PojaEvent> implements Consumer<Collection<T>> {
