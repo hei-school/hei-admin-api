@@ -29,6 +29,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import school.hei.haapi.endpoint.event.EventProducer;
 import school.hei.haapi.endpoint.event.model.YearlyResultTranscriptGeneration;
+import school.hei.haapi.endpoint.rest.model.CourseResult;
+import school.hei.haapi.endpoint.rest.model.CourseResultStatus;
 import school.hei.haapi.endpoint.rest.model.ResultOverviewStatus;
 import school.hei.haapi.endpoint.rest.model.ResultSummary;
 import school.hei.haapi.endpoint.rest.model.StudentLevel;
@@ -178,6 +180,23 @@ public class GradeResultService {
     }
     generateTranscript(studentId, studentYearlyResult);
     return new YearlyResultGenerationTranscript().status(GENERATING);
+  }
+
+  public List<CourseResult> getStudentRetakeExams(String studentId, CourseResultStatus status) {
+    var yearlyResultSummary = getStudentResultSummary(studentId);
+
+    if (yearlyResultSummary == null || yearlyResultSummary.getYearlyResults() == null) {
+      return List.of();
+    }
+
+    return yearlyResultSummary.getYearlyResults().stream()
+        .filter(Objects::nonNull)
+        .map(YearlyResult::getCourseResults)
+        .filter(Objects::nonNull)
+        .flatMap(List::stream)
+        .filter(Objects::nonNull)
+        .filter(e -> status == null || Objects.equals(e.getStatus(), status))
+        .toList();
   }
 
   private YearlyResultGenerationTranscript handleAvailableGenerationRequest(
