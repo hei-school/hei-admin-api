@@ -38,6 +38,7 @@ import static school.hei.haapi.integration.conf.TestUtils.student1MissEvent1;
 import static school.hei.haapi.integration.conf.TestUtils.student2AttendEvent2;
 import static school.hei.haapi.integration.conf.TestUtils.student3AttendEvent1;
 import static school.hei.haapi.integration.conf.TestUtils.student3MissEvent2;
+import static school.hei.haapi.integration.conf.TestUtils.teacher2;
 
 import java.time.Instant;
 import java.util.Comparator;
@@ -322,6 +323,14 @@ public class EventIT extends FacadeITMockedThirdParties {
     assertEquals(2, actual.size());
     assertEquals(event5(), actual.get(0));
     assertEquals(event4(), actual.get(1));
+  }
+
+  @Test
+  void filter_events_by_teacher_id_OK() throws ApiException {
+    var api = new EventsApi(anApiClient(MANAGER1_TOKEN));
+    var groupRef = List.of("J1", "J2");
+    var actual = api.getEvents(1, 15, null, null, null, null, null, teacher2().getId(), groupRef);
+    assertEquals(1, actual.size());
   }
 
   @Test

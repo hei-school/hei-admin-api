@@ -55,6 +55,7 @@ class CheckParticipantMissingEventTest extends FacadeITMockedThirdParties {
             eq(null),
             eq(null),
             eq(null),
+            eq(null),
             eq(null)))
         .thenReturn(List.of(fakeDataProvider.someEvent(), fakeDataProvider.someEvent()));
 

@@ -966,7 +966,7 @@ public class TestUtils {
   public static CourseAssignment courseAssignment2() {
     return new CourseAssignment()
         .id(COURSE_ASSIGNMENT2_ID)
-        .course(course1())
+        .course(course2())
         .groups(List.of(group1()))
         .mainTeacher(teacher2());
   }
@@ -974,7 +974,7 @@ public class TestUtils {
   public static CourseAssignment courseAssignment3() {
     return new CourseAssignment()
         .id(COURSE_ASSIGNMENT3_ID)
-        .course(course1())
+        .course(course3())
         .groups(List.of(group2()))
         .mainTeacher(teacher2());
   }
