@@ -327,8 +327,8 @@ public class EventIT extends FacadeITMockedThirdParties {
 
   @Test
   void filter_events_by_teacher_id_OK() throws ApiException {
-    EventsApi api = new EventsApi(anApiClient(MANAGER1_TOKEN));
-    List<String> groupRef = List.of("J1", "J2");
+    var api = new EventsApi(anApiClient(MANAGER1_TOKEN));
+    var groupRef = List.of("J1", "J2");
     var actual = api.getEvents(1, 15, null, null, null, null, null, manager1().getId(), groupRef);
     assertEquals(2, actual.size());
   }
