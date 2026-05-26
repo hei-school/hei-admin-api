@@ -1,26 +1,5 @@
 package school.hei.haapi.integration;
 
-import lombok.extern.slf4j.Slf4j;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.testcontainers.junit.jupiter.Testcontainers;
-import school.hei.haapi.endpoint.rest.api.EventsApi;
-import school.hei.haapi.endpoint.rest.client.ApiClient;
-import school.hei.haapi.endpoint.rest.client.ApiException;
-import school.hei.haapi.endpoint.rest.model.CreateEvent;
-import school.hei.haapi.endpoint.rest.model.Event;
-import school.hei.haapi.endpoint.rest.model.EventAttendance;
-import school.hei.haapi.endpoint.rest.model.EventParticipant;
-import school.hei.haapi.endpoint.rest.model.EventParticipantStats;
-import school.hei.haapi.endpoint.rest.model.UpdateEventParticipant;
-import school.hei.haapi.integration.conf.FacadeITMockedThirdParties;
-import school.hei.haapi.integration.conf.TestUtils;
-
-import java.time.Instant;
-import java.util.Comparator;
-import java.util.List;
-
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -60,6 +39,26 @@ import static school.hei.haapi.integration.conf.TestUtils.student1MissEvent1;
 import static school.hei.haapi.integration.conf.TestUtils.student2AttendEvent2;
 import static school.hei.haapi.integration.conf.TestUtils.student3AttendEvent1;
 import static school.hei.haapi.integration.conf.TestUtils.student3MissEvent2;
+
+import java.time.Instant;
+import java.util.Comparator;
+import java.util.List;
+import lombok.extern.slf4j.Slf4j;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.testcontainers.junit.jupiter.Testcontainers;
+import school.hei.haapi.endpoint.rest.api.EventsApi;
+import school.hei.haapi.endpoint.rest.client.ApiClient;
+import school.hei.haapi.endpoint.rest.client.ApiException;
+import school.hei.haapi.endpoint.rest.model.CreateEvent;
+import school.hei.haapi.endpoint.rest.model.Event;
+import school.hei.haapi.endpoint.rest.model.EventAttendance;
+import school.hei.haapi.endpoint.rest.model.EventParticipant;
+import school.hei.haapi.endpoint.rest.model.EventParticipantStats;
+import school.hei.haapi.endpoint.rest.model.UpdateEventParticipant;
+import school.hei.haapi.integration.conf.FacadeITMockedThirdParties;
+import school.hei.haapi.integration.conf.TestUtils;
 
 @Slf4j
 @Testcontainers
