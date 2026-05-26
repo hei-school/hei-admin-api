@@ -27,6 +27,7 @@ public class EventDao {
       EventType eventType,
       String groupId,
       List<String> groupRef,
+      String teacherId,
       Pageable pageable) {
 
     CriteriaBuilder builder = entityManager.getCriteriaBuilder();
@@ -59,6 +60,10 @@ public class EventDao {
 
     if (groupRef != null && !groupRef.isEmpty()) {
       predicates.add(root.join("groups").get("ref").in(groupRef));
+    }
+
+    if (teacherId != null) {
+      predicates.add(root.join("user").get("id").in(teacherId));
     }
 
     if (!predicates.isEmpty()) {

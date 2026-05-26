@@ -39,6 +39,7 @@ public class CheckParticipantMissedEventService
             null,
             null,
             null,
+            null,
             null);
 
     todayEvents.forEach(
