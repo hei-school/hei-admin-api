@@ -1,5 +1,12 @@
 package school.hei.haapi.service;
 
+import static org.reflections.Reflections.log;
+import static school.hei.haapi.endpoint.rest.model.StudentLevel.L3;
+import static school.hei.haapi.endpoint.rest.model.StudentLevel.M2;
+import static school.hei.haapi.model.ResultOverviewStatus.VALIDATED;
+
+import java.util.List;
+import java.util.stream.IntStream;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import school.hei.haapi.endpoint.rest.mapper.StudentResultOverviewMapper;
@@ -14,13 +21,6 @@ import school.hei.haapi.model.pagination.PaginationFromPageAndPageSize;
 import school.hei.haapi.repository.StudentResultOverviewRepository;
 import school.hei.haapi.repository.UserRepository;
 import school.hei.haapi.repository.dao.StudentResultOverviewDao;
-
-import java.util.List;
-import java.util.stream.IntStream;
-
-import static org.reflections.Reflections.log;
-import static school.hei.haapi.endpoint.rest.model.StudentLevel.L3;
-import static school.hei.haapi.model.ResultOverviewStatus.VALIDATED;
 
 @Service
 @AllArgsConstructor
@@ -86,7 +86,9 @@ public class StudentResultOverviewService {
             .filter(i -> promotions.get(i).getGroups().contains(group))
             .findFirst()
             .orElse(-1);
-    if (yearlyResult.getStatus().equals(VALIDATED) || studentActualLevel != L3) {
+    if (studentActualLevel != L3 && studentActualLevel != M2) {
+      return promotions.get(promotionIndex);
+    } else if (yearlyResult.getStatus().equals(VALIDATED)) {
       return promotions.get(promotionIndex);
     }
     return promotions.get(promotionIndex + 1);
