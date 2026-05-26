@@ -1,18 +1,19 @@
 package school.hei.haapi.integration.test_data;
 
-import static school.hei.haapi.model.CycleLevel.BACHELOR;
-import static school.hei.haapi.model.GroupFlow.GroupFlowType.JOIN;
-import static school.hei.haapi.model.User.Role.STUDENT;
-import static school.hei.haapi.model.User.Status.ENABLED;
-
-import java.math.BigDecimal;
-import java.time.Instant;
 import school.hei.haapi.model.Group;
 import school.hei.haapi.model.GroupFlow;
 import school.hei.haapi.model.Promotion;
 import school.hei.haapi.model.ResultOverviewStatus;
 import school.hei.haapi.model.StudentResultOverview;
 import school.hei.haapi.model.User;
+
+import java.math.BigDecimal;
+import java.time.Instant;
+
+import static school.hei.haapi.model.CycleLevel.BACHELOR;
+import static school.hei.haapi.model.GroupFlow.GroupFlowType.JOIN;
+import static school.hei.haapi.model.User.Role.STUDENT;
+import static school.hei.haapi.model.User.Status.ENABLED;
 
 public class StudentResultOverviewTestData {
   public static Group groupAB() {
@@ -136,18 +137,18 @@ public class StudentResultOverviewTestData {
 
   public static StudentResultOverview studentResultOverviewB() {
     return StudentResultOverview.builder()
-        .status(ResultOverviewStatus.VALIDATED)
-        .weightedAverage(BigDecimal.valueOf(12.45))
-        .obtainedCredits(BigDecimal.valueOf(180.0))
+        .status(ResultOverviewStatus.INVALIDATED)
+        .weightedAverage(BigDecimal.valueOf(09.45))
+        .obtainedCredits(BigDecimal.valueOf(172.0))
         .totalCredits(BigDecimal.valueOf(180.0))
         .build();
   }
 
   public static StudentResultOverview studentResultOverviewC() {
     return StudentResultOverview.builder()
-        .status(ResultOverviewStatus.INVALIDATED)
-        .weightedAverage(BigDecimal.valueOf(09.45))
-        .obtainedCredits(BigDecimal.valueOf(160.0))
+        .status(ResultOverviewStatus.VALIDATED)
+        .weightedAverage(BigDecimal.valueOf(10.45))
+        .obtainedCredits(BigDecimal.valueOf(180.0))
         .totalCredits(BigDecimal.valueOf(180.0))
         .build();
   }
