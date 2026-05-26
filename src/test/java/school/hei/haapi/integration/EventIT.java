@@ -9,7 +9,6 @@ import static school.hei.haapi.endpoint.rest.model.AttendanceStatus.PRESENT;
 import static school.hei.haapi.endpoint.rest.model.EventType.COURSE;
 import static school.hei.haapi.endpoint.rest.model.EventType.INTEGRATION;
 import static school.hei.haapi.endpoint.rest.model.FrequencyScopeDay.MONDAY;
-import static school.hei.haapi.integration.ManagerIT.manager1;
 import static school.hei.haapi.integration.StudentIT.student1;
 import static school.hei.haapi.integration.StudentIT.student2;
 import static school.hei.haapi.integration.StudentIT.student3;
@@ -39,6 +38,7 @@ import static school.hei.haapi.integration.conf.TestUtils.student1MissEvent1;
 import static school.hei.haapi.integration.conf.TestUtils.student2AttendEvent2;
 import static school.hei.haapi.integration.conf.TestUtils.student3AttendEvent1;
 import static school.hei.haapi.integration.conf.TestUtils.student3MissEvent2;
+import static school.hei.haapi.integration.conf.TestUtils.teacher2;
 
 import java.time.Instant;
 import java.util.Comparator;
@@ -329,8 +329,8 @@ public class EventIT extends FacadeITMockedThirdParties {
   void filter_events_by_teacher_id_OK() throws ApiException {
     var api = new EventsApi(anApiClient(MANAGER1_TOKEN));
     var groupRef = List.of("J1", "J2");
-    var actual = api.getEvents(1, 15, null, null, null, null, null, manager1().getId(), groupRef);
-    assertEquals(2, actual.size());
+    var actual = api.getEvents(1, 15, null, null, null, null, null, teacher2().getId(), groupRef);
+    assertEquals(1, actual.size());
   }
 
   @Test

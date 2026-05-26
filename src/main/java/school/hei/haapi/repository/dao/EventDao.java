@@ -63,7 +63,10 @@ public class EventDao {
     }
 
     if (teacherId != null) {
-      predicates.add(root.join("planner").get("id").in(teacherId));
+      predicates.add(
+          builder.equal(
+              root.join("course").join("courseAssignments").join("mainTeacher").get("id"),
+              teacherId));
     }
 
     if (!predicates.isEmpty()) {
