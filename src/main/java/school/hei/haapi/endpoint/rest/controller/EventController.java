@@ -75,11 +75,12 @@ public class EventController {
       @RequestParam(name = "event_type", required = false) EventType eventType,
       @RequestParam(name = "group_id", required = false) String groupId,
       @RequestParam(name = "group_ref", required = false, defaultValue = "") List<String> groupRef,
+      @RequestParam(name = "teacher_id", required = false) String teacherId,
       @RequestParam(required = false) String title,
       @RequestParam(required = false) Instant from,
       @RequestParam(required = false) Instant to) {
     return eventService
-        .getEvents(from, to, title, eventType, groupId, groupRef, page, pageSize)
+        .getEvents(from, to, title, eventType, groupId, groupRef, teacherId, page, pageSize)
         .stream()
         .map(mapper::toRest)
         .toList();
