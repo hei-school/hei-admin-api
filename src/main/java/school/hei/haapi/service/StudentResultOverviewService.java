@@ -1,11 +1,5 @@
 package school.hei.haapi.service;
 
-import static org.reflections.Reflections.log;
-import static school.hei.haapi.endpoint.rest.model.StudentLevel.L3;
-import static school.hei.haapi.endpoint.rest.model.StudentLevel.M2;
-import static school.hei.haapi.model.ResultOverviewStatus.VALIDATED;
-
-import java.util.List;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import school.hei.haapi.endpoint.rest.mapper.StudentResultOverviewMapper;
@@ -20,6 +14,12 @@ import school.hei.haapi.model.pagination.PaginationFromPageAndPageSize;
 import school.hei.haapi.repository.StudentResultOverviewRepository;
 import school.hei.haapi.repository.UserRepository;
 import school.hei.haapi.repository.dao.StudentResultOverviewDao;
+
+import java.util.List;
+
+import static school.hei.haapi.endpoint.rest.model.StudentLevel.L3;
+import static school.hei.haapi.endpoint.rest.model.StudentLevel.M2;
+import static school.hei.haapi.model.ResultOverviewStatus.VALIDATED;
 
 @Service
 @AllArgsConstructor
@@ -38,11 +38,9 @@ public class StudentResultOverviewService {
       school.hei.haapi.model.ResultOverviewStatus status,
       PageFromOne page,
       BoundedPageSize pageSize) {
-    log.info("promotionId = {}", promotionId);
     var pageable = paginationFromPageAndPageSize.apply(page, pageSize);
     var studentResultOverviews =
         studentResultOverviewDao.filterByCriteria(promotionId, status, pageable);
-    log.info("students result overviews : " + studentResultOverviews);
     return studentResultOverviewMapper.toRestList(studentResultOverviews);
   }
 
@@ -58,7 +56,6 @@ public class StudentResultOverviewService {
                       ResultOverviewStatus.valueOf(resultSummary.getStatus().toString()),
                       promotions,
                       student);
-              log.info("graduation promotion : " + graduationPromotion.getName());
               return StudentResultOverview.builder()
                   .student(student)
                   .graduationPromotion(graduationPromotion)
@@ -85,7 +82,6 @@ public class StudentResultOverviewService {
     } else if (status == VALIDATED) {
       return privilegeFromDb(existingOverview.orElse(null), currentPromotion);
     } else if (isAlumni(currentPromotion)) {
-      log.info("current promotion" + currentPromotion);
       return getNextNonAlumniPromotion(promotions, currentPromotion);
     }
 

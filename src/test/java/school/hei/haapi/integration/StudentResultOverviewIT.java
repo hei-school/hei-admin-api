@@ -1,37 +1,5 @@
 package school.hei.haapi.integration;
 
-import lombok.extern.slf4j.Slf4j;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.mock.mockito.SpyBean;
-import org.testcontainers.junit.jupiter.Testcontainers;
-import school.hei.haapi.endpoint.event.EventProducer;
-import school.hei.haapi.endpoint.rest.api.UsersApi;
-import school.hei.haapi.endpoint.rest.client.ApiClient;
-import school.hei.haapi.endpoint.rest.client.ApiException;
-import school.hei.haapi.integration.conf.FacadeITMockedThirdParties;
-import school.hei.haapi.integration.conf.TestUtils;
-import school.hei.haapi.model.Group;
-import school.hei.haapi.model.GroupFlow;
-import school.hei.haapi.model.Promotion;
-import school.hei.haapi.model.StudentResultOverview;
-import school.hei.haapi.model.User;
-import school.hei.haapi.repository.GroupFlowRepository;
-import school.hei.haapi.repository.GroupRepository;
-import school.hei.haapi.repository.PromotionRepository;
-import school.hei.haapi.repository.StudentResultOverviewRepository;
-import school.hei.haapi.repository.UserRepository;
-import school.hei.haapi.service.GradeResultService;
-import school.hei.haapi.service.PromotionService;
-import school.hei.haapi.service.StudentResultOverviewService;
-import school.hei.haapi.service.UserService;
-
-import java.util.List;
-import java.util.Optional;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
@@ -75,6 +43,37 @@ import static school.hei.haapi.integration.test_data.StudentTestData.axel;
 import static school.hei.haapi.integration.test_data.StudentTestData.freddy;
 import static school.hei.haapi.integration.test_data.StudentTestData.manitra;
 import static school.hei.haapi.integration.test_data.StudentTestData.tolojanahary;
+
+import java.util.List;
+import java.util.Optional;
+import lombok.extern.slf4j.Slf4j;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.mock.mockito.SpyBean;
+import org.testcontainers.junit.jupiter.Testcontainers;
+import school.hei.haapi.endpoint.event.EventProducer;
+import school.hei.haapi.endpoint.rest.api.UsersApi;
+import school.hei.haapi.endpoint.rest.client.ApiClient;
+import school.hei.haapi.endpoint.rest.client.ApiException;
+import school.hei.haapi.integration.conf.FacadeITMockedThirdParties;
+import school.hei.haapi.integration.conf.TestUtils;
+import school.hei.haapi.model.Group;
+import school.hei.haapi.model.GroupFlow;
+import school.hei.haapi.model.Promotion;
+import school.hei.haapi.model.StudentResultOverview;
+import school.hei.haapi.model.User;
+import school.hei.haapi.repository.GroupFlowRepository;
+import school.hei.haapi.repository.GroupRepository;
+import school.hei.haapi.repository.PromotionRepository;
+import school.hei.haapi.repository.StudentResultOverviewRepository;
+import school.hei.haapi.repository.UserRepository;
+import school.hei.haapi.service.GradeResultService;
+import school.hei.haapi.service.PromotionService;
+import school.hei.haapi.service.StudentResultOverviewService;
+import school.hei.haapi.service.UserService;
 
 @Slf4j
 @Testcontainers
