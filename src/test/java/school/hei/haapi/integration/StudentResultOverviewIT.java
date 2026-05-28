@@ -112,7 +112,7 @@ public class StudentResultOverviewIT extends FacadeITMockedThirdParties {
   }
 
   @BeforeEach
-  public void setUp() {
+  void setUp() {
     setUpCasdoor(casdoorAuthServiceMock, certificateLoaderMock);
     setUpCognito(cognitoComponentMock);
   }
@@ -176,7 +176,7 @@ public class StudentResultOverviewIT extends FacadeITMockedThirdParties {
   }
 
   @Test
-  public void read_result_overviews_with_student_in_the_other_promotion_ok() throws ApiException {
+  void read_result_overviews_with_student_in_the_other_promotion_ok() throws ApiException {
     doReturn(Optional.ofNullable(tolojanaharyYearlyResultL1()))
         .when(gradeResultService)
         .findLeveledYearlyResultByStudentId(L1, tolojanahary.getId());
@@ -252,7 +252,7 @@ public class StudentResultOverviewIT extends FacadeITMockedThirdParties {
   }
 
   @Test
-  public void get_student_result_overviews_OK() throws ApiException {
+  void get_student_result_overviews_OK() throws ApiException {
     var apiClient = anApiClient(ADMIN1_TOKEN);
     var api = new UsersApi(apiClient);
 
