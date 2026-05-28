@@ -69,7 +69,7 @@ public class GradeResultService {
         .totalCredits(BigDecimal.valueOf(courseResultService.getSumCredits(courseResults)));
   }
 
-  private Optional<YearlyResult> findLeveledYearlyResultByStudentId(
+  public Optional<YearlyResult> findLeveledYearlyResultByStudentId(
       StudentLevel level, String studentId) {
     try {
       return Optional.of(getLeveledYearlyResultByStudentId(level, studentId));

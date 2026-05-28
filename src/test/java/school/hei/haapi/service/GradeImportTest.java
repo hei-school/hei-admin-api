@@ -36,6 +36,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import school.hei.haapi.endpoint.event.EventProducer;
 import school.hei.haapi.file.bucket.BucketComponent;
 import school.hei.haapi.integration.conf.FacadeITMockedThirdParties;
 import school.hei.haapi.model.Course;
@@ -58,6 +59,7 @@ public class GradeImportTest extends FacadeITMockedThirdParties {
   @Autowired private GradeService subject;
   @MockBean BucketComponent bucketComponent;
   @Autowired private UserService userService;
+  @MockBean private EventProducer eventProducer;
   private static User studentTolojanahary;
   private static User studentAxel;
   private static User monitorOfAxel;

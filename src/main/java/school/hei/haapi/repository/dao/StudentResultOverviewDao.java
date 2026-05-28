@@ -28,7 +28,7 @@ public class StudentResultOverviewDao {
     List<Predicate> predicates = new ArrayList<>();
 
     if (promotionId != null) {
-      predicates.add(builder.equal(root.get("promotion").get("id"), promotionId));
+      predicates.add(builder.equal(root.get("graduationPromotion").get("id"), promotionId));
     }
 
     if (status != null) {

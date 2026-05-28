@@ -1,38 +1,42 @@
 package school.hei.haapi.integration.test_data;
 
+import static school.hei.haapi.endpoint.rest.model.ResultOverviewStatus.INVALIDATED;
+import static school.hei.haapi.endpoint.rest.model.ResultOverviewStatus.IN_PROGRESS;
+import static school.hei.haapi.endpoint.rest.model.ResultOverviewStatus.VALIDATED;
+import static school.hei.haapi.endpoint.rest.model.StudentLevel.L1;
+import static school.hei.haapi.endpoint.rest.model.StudentLevel.L2;
+import static school.hei.haapi.endpoint.rest.model.StudentLevel.L3;
+import static school.hei.haapi.model.CycleLevel.BACHELOR;
+import static school.hei.haapi.model.GroupFlow.GroupFlowType.JOIN;
+
+import java.math.BigDecimal;
+import java.time.Instant;
+import java.util.List;
+import school.hei.haapi.endpoint.rest.model.YearlyResult;
 import school.hei.haapi.model.Group;
 import school.hei.haapi.model.GroupFlow;
 import school.hei.haapi.model.Promotion;
 import school.hei.haapi.model.ResultOverviewStatus;
 import school.hei.haapi.model.StudentResultOverview;
-import school.hei.haapi.model.User;
-
-import java.math.BigDecimal;
-import java.time.Instant;
-
-import static school.hei.haapi.model.CycleLevel.BACHELOR;
-import static school.hei.haapi.model.GroupFlow.GroupFlowType.JOIN;
-import static school.hei.haapi.model.User.Role.STUDENT;
-import static school.hei.haapi.model.User.Status.ENABLED;
 
 public class StudentResultOverviewTestData {
-  public static Group groupAB() {
+  public static Group groupJ() {
     return Group.builder()
-        .name("group AB")
-        .ref("group AB")
+        .name("group J")
+        .ref("group J")
         .creationDatetime(Instant.parse("2020-01-01T00:00:00Z"))
         .build();
   }
 
-  public static Group groupCD() {
+  public static Group groupH() {
     return Group.builder()
-        .name("group CD")
-        .ref("group CD")
+        .name("group H")
+        .ref("group H")
         .creationDatetime(Instant.parse("2021-01-01T00:00:00Z"))
         .build();
   }
 
-  public static Promotion promotionAB() {
+  public static Promotion promotionH() {
     return Promotion.builder()
         .name("Promotion 2020-2021")
         .ref("Alumni 2020 2021")
@@ -41,92 +45,44 @@ public class StudentResultOverviewTestData {
         .build();
   }
 
-  public static Promotion promotionCD() {
+  public static Promotion promotionJ() {
     return Promotion.builder()
         .name("Promotion 2021-2022")
-        .ref("Alumni 2021 2022")
+        .ref("Promo 2021 2022")
         .creationDatetime(Instant.parse("2021-01-01T00:00:00Z"))
         .cycleLevel(BACHELOR)
         .build();
   }
 
-  public static User studentA() {
-    return User.builder()
-        .firstName("student A firstname")
-        .lastName("student A lastname")
-        .email("studentA@gmail.com")
-        .ref("STD2002")
-        .status(ENABLED)
-        .entranceDatetime(Instant.parse("2020-01-01T00:00:00Z"))
-        .role(STUDENT)
-        .build();
-  }
-
-  public static User studentB() {
-    return User.builder()
-        .firstName("student B firstname")
-        .lastName("student B lastname")
-        .email("studentB@gmail.com")
-        .ref("STD2001")
-        .status(ENABLED)
-        .entranceDatetime(Instant.parse("2020-01-01T00:00:00Z"))
-        .role(STUDENT)
-        .build();
-  }
-
-  public static User studentC() {
-    return User.builder()
-        .firstName("student C firstname")
-        .lastName("student C lastname")
-        .email("studentC@gmail.com")
-        .ref("STD2101")
-        .status(ENABLED)
-        .entranceDatetime(Instant.parse("2021-01-01T00:00:00Z"))
-        .role(STUDENT)
-        .build();
-  }
-
-  public static User studentD() {
-    return User.builder()
-        .firstName("student D firstname")
-        .lastName("student D lastname")
-        .email("studentD@gmail.com")
-        .ref("STD2102")
-        .status(ENABLED)
-        .entranceDatetime(Instant.parse("2021-01-01T00:00:00Z"))
-        .role(STUDENT)
-        .build();
-  }
-
-  public static GroupFlow groupFlowA() {
+  public static GroupFlow groupFlowAxel() {
     return GroupFlow.builder()
         .groupFlowType(JOIN)
         .flowDatetime(Instant.parse("2020-01-01T00:00:00Z"))
         .build();
   }
 
-  public static GroupFlow groupFlowB() {
+  public static GroupFlow groupFlowTolojanahary() {
     return GroupFlow.builder()
         .groupFlowType(JOIN)
         .flowDatetime(Instant.parse("2020-01-01T00:00:00Z"))
         .build();
   }
 
-  public static GroupFlow groupFlowC() {
+  public static GroupFlow groupFlowManitra() {
     return GroupFlow.builder()
         .groupFlowType(JOIN)
         .flowDatetime(Instant.parse("2021-01-01T00:00:00Z"))
         .build();
   }
 
-  public static GroupFlow groupFlowD() {
+  public static GroupFlow groupFlowFreddy() {
     return GroupFlow.builder()
         .groupFlowType(JOIN)
         .flowDatetime(Instant.parse("2021-01-01T00:00:00Z"))
         .build();
   }
 
-  public static StudentResultOverview studentResultOverviewA() {
+  public static StudentResultOverview tolojanaharyResultOverview() {
     return StudentResultOverview.builder()
         .status(ResultOverviewStatus.VALIDATED)
         .weightedAverage(BigDecimal.valueOf(17.45))
@@ -135,7 +91,7 @@ public class StudentResultOverviewTestData {
         .build();
   }
 
-  public static StudentResultOverview studentResultOverviewB() {
+  public static StudentResultOverview axelResultOverview() {
     return StudentResultOverview.builder()
         .status(ResultOverviewStatus.INVALIDATED)
         .weightedAverage(BigDecimal.valueOf(09.45))
@@ -144,7 +100,7 @@ public class StudentResultOverviewTestData {
         .build();
   }
 
-  public static StudentResultOverview studentResultOverviewC() {
+  public static StudentResultOverview manitraResultOverview() {
     return StudentResultOverview.builder()
         .status(ResultOverviewStatus.VALIDATED)
         .weightedAverage(BigDecimal.valueOf(10.45))
@@ -153,12 +109,132 @@ public class StudentResultOverviewTestData {
         .build();
   }
 
-  public static StudentResultOverview studentResultOverviewD() {
+  public static StudentResultOverview freddyResultOverview() {
     return StudentResultOverview.builder()
         .status(ResultOverviewStatus.VALIDATED)
         .weightedAverage(BigDecimal.valueOf(14.15))
         .obtainedCredits(BigDecimal.valueOf(180.0))
         .totalCredits(BigDecimal.valueOf(180.0))
         .build();
+  }
+
+  public static YearlyResult tolojanaharyYearlyResultL1() {
+    return new YearlyResult()
+        .level(L1)
+        .weightedAverage(BigDecimal.valueOf(17.45))
+        .obtainedCredits(BigDecimal.valueOf(60.0))
+        .courseResults(List.of())
+        .status(VALIDATED)
+        .totalCredits(BigDecimal.valueOf(60.0));
+  }
+
+  public static YearlyResult tolojanaharyYearlyResultL2() {
+    return new YearlyResult()
+        .level(L2)
+        .weightedAverage(BigDecimal.valueOf(17.45))
+        .obtainedCredits(BigDecimal.valueOf(60.0))
+        .courseResults(List.of())
+        .status(VALIDATED)
+        .totalCredits(BigDecimal.valueOf(60.0));
+  }
+
+  public static YearlyResult tolojanaharyYearlyResultL3() {
+    return new YearlyResult()
+        .level(L3)
+        .weightedAverage(BigDecimal.valueOf(17.45))
+        .obtainedCredits(BigDecimal.valueOf(60.0))
+        .courseResults(List.of())
+        .status(VALIDATED)
+        .totalCredits(BigDecimal.valueOf(60.0));
+  }
+
+  public static YearlyResult axelYearlyResultL1() {
+    return new YearlyResult()
+        .level(L1)
+        .weightedAverage(BigDecimal.valueOf(12.45))
+        .obtainedCredits(BigDecimal.valueOf(60.0))
+        .courseResults(List.of())
+        .status(VALIDATED)
+        .totalCredits(BigDecimal.valueOf(60.0));
+  }
+
+  public static YearlyResult axelYearlyResultL2() {
+    return new YearlyResult()
+        .level(L2)
+        .weightedAverage(BigDecimal.valueOf(17.45))
+        .obtainedCredits(BigDecimal.valueOf(60.0))
+        .courseResults(List.of())
+        .status(VALIDATED)
+        .totalCredits(BigDecimal.valueOf(60.0));
+  }
+
+  public static YearlyResult axelYearlyResultL3() {
+    return new YearlyResult()
+        .level(L3)
+        .weightedAverage(BigDecimal.valueOf(08.45))
+        .obtainedCredits(BigDecimal.valueOf(29.0))
+        .courseResults(List.of())
+        .status(INVALIDATED)
+        .totalCredits(BigDecimal.valueOf(60.0));
+  }
+
+  public static YearlyResult manitraYearlyResultL1() {
+    return new YearlyResult()
+        .level(L1)
+        .weightedAverage(BigDecimal.valueOf(14.45))
+        .obtainedCredits(BigDecimal.valueOf(60.0))
+        .courseResults(List.of())
+        .status(VALIDATED)
+        .totalCredits(BigDecimal.valueOf(60.0));
+  }
+
+  public static YearlyResult manitraYearlyResultL2() {
+    return new YearlyResult()
+        .level(L2)
+        .weightedAverage(BigDecimal.valueOf(14.45))
+        .obtainedCredits(BigDecimal.valueOf(60.0))
+        .courseResults(List.of())
+        .status(VALIDATED)
+        .totalCredits(BigDecimal.valueOf(60.0));
+  }
+
+  public static YearlyResult manitraYearlyResultL3() {
+    return new YearlyResult()
+        .level(L3)
+        .weightedAverage(BigDecimal.valueOf(12.45))
+        .obtainedCredits(BigDecimal.valueOf(30.0))
+        .courseResults(List.of())
+        .status(IN_PROGRESS)
+        .totalCredits(BigDecimal.valueOf(60.0));
+  }
+
+  public static YearlyResult freddyYearlyResultL1() {
+    return new YearlyResult()
+        .level(L1)
+        .weightedAverage(BigDecimal.valueOf(16.45))
+        .obtainedCredits(BigDecimal.valueOf(60.0))
+        .courseResults(List.of())
+        .status(VALIDATED)
+        .totalCredits(BigDecimal.valueOf(600.0));
+  }
+
+  public static YearlyResult freddyYearlyResultL2() {
+    return new YearlyResult()
+        .level(L2)
+        .weightedAverage(BigDecimal.valueOf(12.45))
+        .obtainedCredits(BigDecimal.valueOf(52.0))
+        .courseResults(List.of())
+        .status(VALIDATED)
+        .totalCredits(BigDecimal.valueOf(60.0));
+  }
+
+  public static YearlyResult freddyYearlyResultL3() {
+    return new YearlyResult()
+        .level(L3)
+        .weightedAverage(BigDecimal.valueOf(12.45))
+        .obtainedCredits(BigDecimal.valueOf(30.0))
+        .courseResults(List.of())
+        .status(IN_PROGRESS)
+        .totalCredits(BigDecimal.valueOf(60.0));
   }
 }

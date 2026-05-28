@@ -60,8 +60,8 @@ public class PromotionDao {
 
     return entityManager
         .createQuery(query)
-        .setFirstResult(pageable.getPageNumber() * pageable.getPageSize())
-        .setMaxResults(pageable.getPageSize())
+        .setFirstResult(pageable.isPaged() ? pageable.getPageNumber() * pageable.getPageSize() : 0)
+        .setMaxResults(pageable.isPaged() ? pageable.getPageSize() : Integer.MAX_VALUE)
         .getResultList();
   }
 }

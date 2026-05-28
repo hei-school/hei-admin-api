@@ -27,6 +27,7 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import school.hei.haapi.endpoint.event.EventProducer;
+import school.hei.haapi.endpoint.event.model.StudentResultOverviewUpserted;
 import school.hei.haapi.endpoint.rest.mapper.GradeMapper;
 import school.hei.haapi.endpoint.rest.model.ExamGradeStats;
 import school.hei.haapi.endpoint.rest.model.GradeInvalidRow;
@@ -129,11 +130,13 @@ public class GradeService {
 
   @Transactional
   public List<Grade> createParticipantGrade(List<Grade> grades) {
+    eventProducer.accept(List.of(new StudentResultOverviewUpserted()));
     return gradeRepository.saveAll(grades.stream().map(this::checkGradeToCreate).toList());
   }
 
   @Transactional
   public List<Grade> updateParticipantGrade(List<UpdateGrade> grades) {
+    eventProducer.accept(List.of(new StudentResultOverviewUpserted()));
     return gradeRepository.saveAll(grades.stream().map(this::checkGradeToUpdate).toList());
   }
 

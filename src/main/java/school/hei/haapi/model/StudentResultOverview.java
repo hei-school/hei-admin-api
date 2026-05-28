@@ -17,10 +17,7 @@ import java.math.BigDecimal;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
-import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 
@@ -30,17 +27,14 @@ import org.hibernate.type.SqlTypes;
 @AllArgsConstructor
 @Data
 @Builder
-@Getter
-@Setter
-@ToString(exclude = {"promotion", "student"})
 public class StudentResultOverview {
   @Id
   @GeneratedValue(strategy = IDENTITY)
   private String id;
 
   @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "promotion_id", nullable = false)
-  private Promotion promotion;
+  @JoinColumn(name = "graduation_promotion_id", nullable = false)
+  private Promotion graduationPromotion;
 
   @OneToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "student_id", nullable = false)
