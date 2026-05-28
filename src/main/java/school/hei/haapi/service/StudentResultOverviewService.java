@@ -1,5 +1,10 @@
 package school.hei.haapi.service;
 
+import static school.hei.haapi.endpoint.rest.model.StudentLevel.L3;
+import static school.hei.haapi.endpoint.rest.model.StudentLevel.M2;
+import static school.hei.haapi.model.ResultOverviewStatus.VALIDATED;
+
+import java.util.List;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import school.hei.haapi.endpoint.rest.mapper.StudentResultOverviewMapper;
@@ -14,12 +19,6 @@ import school.hei.haapi.model.pagination.PaginationFromPageAndPageSize;
 import school.hei.haapi.repository.StudentResultOverviewRepository;
 import school.hei.haapi.repository.UserRepository;
 import school.hei.haapi.repository.dao.StudentResultOverviewDao;
-
-import java.util.List;
-
-import static school.hei.haapi.endpoint.rest.model.StudentLevel.L3;
-import static school.hei.haapi.endpoint.rest.model.StudentLevel.M2;
-import static school.hei.haapi.model.ResultOverviewStatus.VALIDATED;
 
 @Service
 @AllArgsConstructor
