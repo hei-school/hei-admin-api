@@ -1,0 +1,10 @@
+create type result_overview_status as enum('VALIDATED', 'INVALIDATED', 'IN_PROGRESS', 'NOT_STARTED');
+create table if not exists "student_result_overview"(
+    id varchar constraint result_overview_pk primary key default uuid_generate_v4(),
+    graduation_promotion_id varchar references "promotion" (id) not null,
+    student_id varchar references "user"(id) not null,
+    weighted_average double precision not null,
+    obtained_credits double precision not null,
+    status result_overview_status not null,
+    total_credits double precision not null
+);

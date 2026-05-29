@@ -38,6 +38,7 @@ import java.net.URL;
 import java.time.Duration;
 import java.util.List;
 import java.util.Optional;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import school.hei.haapi.endpoint.event.EventProducer;
@@ -69,6 +70,7 @@ import school.hei.haapi.service.utils.CollectionUtils;
 import school.hei.haapi.service.utils.HtmlParser;
 import school.hei.haapi.service.utils.PdfRenderer;
 
+@Slf4j
 class GradeResultServiceTest {
   private final GradeDao gradeDao = mock();
   private final CourseService courseService = mock();
