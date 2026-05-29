@@ -1,12 +1,11 @@
 package school.hei.haapi.service.event;
 
+import java.util.function.Consumer;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import school.hei.haapi.endpoint.event.model.StudentResultOverviewUpserted;
 import school.hei.haapi.service.StudentResultOverviewService;
-
-import java.util.function.Consumer;
 
 @Slf4j
 @Service
