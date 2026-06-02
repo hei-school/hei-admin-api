@@ -11,6 +11,7 @@ import static school.hei.haapi.model.GroupFlow.GroupFlowType.JOIN;
 
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.time.ZonedDateTime;
 import java.util.List;
 import school.hei.haapi.endpoint.rest.model.YearlyResult;
 import school.hei.haapi.model.Group;
@@ -41,6 +42,7 @@ public class StudentResultOverviewTestData {
         .name("Promotion 2020-2021")
         .ref("Alumni 2020 2021")
         .creationDatetime(Instant.parse("2020-01-01T00:00:00Z"))
+        .startDatetime(ZonedDateTime.now().minusYears(3).toInstant())
         .cycleLevel(BACHELOR)
         .build();
   }
@@ -50,6 +52,7 @@ public class StudentResultOverviewTestData {
         .name("Promotion 2021-2022")
         .ref("Promo 2021 2022")
         .creationDatetime(Instant.parse("2021-01-01T00:00:00Z"))
+        .startDatetime(ZonedDateTime.now().minusYears(2).toInstant())
         .cycleLevel(BACHELOR)
         .build();
   }

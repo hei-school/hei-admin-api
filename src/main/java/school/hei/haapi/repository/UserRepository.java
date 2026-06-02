@@ -215,19 +215,13 @@ public interface UserRepository extends JpaRepository<User, String> {
 
   @Query(
       """
-
-            SELECT u, g
-                     FROM User u
-                     JOIN GroupFlow gf ON gf.student.id = u.id
-                     JOIN gf.group g
-                     WHERE gf.groupFlowType = 'JOIN'
-                     AND gf.flowDatetime = (
-                         SELECT MAX(gf2.flowDatetime)
-                         FROM GroupFlow gf2
-                         WHERE gf2.student.id = u.id
-                     )
-                     AND u.role = 'STUDENT'
-                     AND u.status <> 'DISABLED'
+    SELECT DISTINCT u
+    FROM User u
+    JOIN FETCH u.groupFlows gf
+    JOIN FETCH gf.group g
+    JOIN FETCH g.promotion p
+    WHERE u.role = 'STUDENT'
+      AND u.status <> 'DISABLED'
 """)
   List<User> findAllStudentNotDisabledWithGroupFlow();
 }

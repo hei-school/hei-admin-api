@@ -11,6 +11,7 @@ import static school.hei.haapi.endpoint.rest.model.ResultOverviewStatus.NOT_STAR
 import static school.hei.haapi.endpoint.rest.model.ResultOverviewStatus.VALIDATED;
 import static school.hei.haapi.model.Grade.weightedAverageOfGrades;
 
+import jakarta.transaction.Transactional;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Objects;
@@ -59,6 +60,7 @@ public class CourseResultService {
         .toList();
   }
 
+  @Transactional
   public List<CourseResult> getCourseResultsForLevelOfStudent(
       StudentLevel level, String studentId) {
     var student = userService.getById(studentId);

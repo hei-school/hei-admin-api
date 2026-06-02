@@ -1,25 +1,31 @@
 package school.hei.haapi.service;
 
+import static java.time.Instant.now;
 import static school.hei.haapi.endpoint.rest.model.StudentLevel.L3;
 import static school.hei.haapi.endpoint.rest.model.StudentLevel.M2;
 import static school.hei.haapi.model.ResultOverviewStatus.VALIDATED;
 
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.IntStream;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import school.hei.haapi.endpoint.rest.mapper.StudentResultOverviewMapper;
+import school.hei.haapi.endpoint.rest.model.StudentLevel;
 import school.hei.haapi.model.BoundedPageSize;
-import school.hei.haapi.model.Group;
 import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.model.Promotion;
 import school.hei.haapi.model.ResultOverviewStatus;
 import school.hei.haapi.model.StudentResultOverview;
 import school.hei.haapi.model.User;
 import school.hei.haapi.model.pagination.PaginationFromPageAndPageSize;
+import school.hei.haapi.model.promotion.PromotionLevelOutOfRangeException;
 import school.hei.haapi.repository.StudentResultOverviewRepository;
 import school.hei.haapi.repository.UserRepository;
 import school.hei.haapi.repository.dao.StudentResultOverviewDao;
 
+@Slf4j
 @Service
 @AllArgsConstructor
 public class StudentResultOverviewService {
@@ -30,7 +36,6 @@ public class StudentResultOverviewService {
   private final PromotionService promotionService;
   private final UserRepository userRepository;
   private final GradeResultService gradeResultService;
-  private final UserService userService;
 
   public List<school.hei.haapi.endpoint.rest.model.StudentResultOverview> getStudentResultOverviews(
       String promotionId,
@@ -69,13 +74,29 @@ public class StudentResultOverviewService {
 
   public Promotion getStudentGraduationPromotion(
       ResultOverviewStatus status, List<Promotion> promotions, User student) {
-
+    StudentLevel studentActualLevel;
+    var currentGroup =
+        student
+            .findCurrentGroup()
+            .orElseThrow(
+                () ->
+                    new RuntimeException(
+                        "The student with id : " + student.getId() + " doesn't have any group"));
     var existingOverview =
         studentResultOverviewRepository.findStudentResultOverviewsByStudentId(student.getId());
-    var studentActualLevel = userService.getStudentLevel(student.getId());
-    var group = student.getGroupFlows().getLast().getGroup();
-    var currentPromotion = getPromotionByGroup(promotions, group);
-
+    var currentPromotion =
+        Optional.ofNullable(currentGroup.getPromotion())
+            .orElseThrow(
+                () ->
+                    new RuntimeException(
+                        "The group with id : "
+                            + currentGroup.getId()
+                            + "doesn't have any promotion"));
+    try {
+      studentActualLevel = currentPromotion.getLevelAt(now());
+    } catch (PromotionLevelOutOfRangeException e) {
+      studentActualLevel = L3;
+    }
     if (studentActualLevel != L3 && studentActualLevel != M2) {
       return currentPromotion;
     } else if (status == VALIDATED) {
@@ -95,21 +116,16 @@ public class StudentResultOverviewService {
     return promotion.getRef().toLowerCase().contains("alumni");
   }
 
-  private Promotion getPromotionByGroup(List<Promotion> promotions, Group group) {
-    return promotions.stream()
-        .filter(p -> p.getGroups().contains(group))
-        .findFirst()
-        .orElseThrow(
-            () ->
-                new RuntimeException(
-                    "The group with id :  " + group.getId() + "doesn't have a promotion"));
-  }
-
   private Promotion getNextNonAlumniPromotion(
       List<Promotion> promotions, Promotion currentPromotion) {
-    var currentIndex = promotions.indexOf(currentPromotion);
+    var currentIndex =
+        IntStream.range(0, promotions.size())
+            .filter(i -> promotions.get(i).getName().equals(currentPromotion.getName()))
+            .findFirst()
+            .orElse(-1);
     if (currentIndex == -1) {
-      throw new RuntimeException("Promotion with id: " + currentPromotion.getId() + " not found");
+      throw new RuntimeException(
+          "Promotion with name : " + currentPromotion.getName() + " not found");
     }
     return promotions.subList(currentIndex + 1, promotions.size()).stream()
         .filter(p -> !isAlumni(p))

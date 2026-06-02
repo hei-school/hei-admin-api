@@ -236,8 +236,6 @@ public class StudentResultOverviewIT extends FacadeITMockedThirdParties {
         .when(userRepository)
         .findAllStudentNotDisabledWithGroupFlow();
 
-    doReturn(L3).when(userService).getStudentLevel(any());
-
     subject.saveAll();
 
     var apiClient = anApiClient(ADMIN1_TOKEN);
