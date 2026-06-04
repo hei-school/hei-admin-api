@@ -55,6 +55,12 @@ public class StudentResultOverviewService {
         .map(
             student -> {
               var resultSummary = gradeResultService.getStudentResultSummary(student.getId());
+              log.info(
+                  "The student id: {"
+                      + student.getId()
+                      + "} resultSummary: {"
+                      + resultSummary
+                      + "}");
               var graduationPromotion =
                   getStudentGraduationPromotion(
                       ResultOverviewStatus.valueOf(resultSummary.getStatus().toString()),
