@@ -85,10 +85,10 @@ ORDER BY
           + "where f.dueDatetime between :from and :to "
           + "and u.status != 'DISABLED' "
           + "and f.isDeleted = false "
-          + "and fsh.datetime = ("
+          + "and (fsh is NULL or fsh.datetime = ("
           + "  select max(fsh2.datetime) from FeeStatusHistory fsh2 "
           + "  where fsh2.fee.id = f.id"
-          + ") "
+          + ") )"
           + "order by fsh.datetime desc")
   List<Fee> findAllByDueDatetimeBetween(Instant from, Instant to);
 }
