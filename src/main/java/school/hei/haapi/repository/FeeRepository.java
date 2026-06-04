@@ -80,8 +80,8 @@ ORDER BY
 
   @Query(
       "select f from Fee f "
-          + "join f.statusHistories fsh "
           + "join f.student u "
+          + "left join f.statusHistories fsh "
           + "where f.dueDatetime between :from and :to "
           + "and u.status != 'DISABLED' "
           + "and f.isDeleted = false "
