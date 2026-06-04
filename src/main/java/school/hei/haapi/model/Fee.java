@@ -193,6 +193,9 @@ Fee : {"id" : "%s", "remainingAmount" : "%s", "totalAmount" : "%s", "dueDatetime
   }
 
   public Optional<FeeStatusEnum> getStatusAt(Instant instant) {
+    if (statusHistories.isEmpty()) {
+      return Optional.of(this.status);
+    }
     return this.statusHistories.stream()
         .filter(fee -> fee.getDatetime().equals(instant) || fee.getDatetime().isBefore(instant))
         .max(comparing(FeeStatusHistory::getDatetime))
