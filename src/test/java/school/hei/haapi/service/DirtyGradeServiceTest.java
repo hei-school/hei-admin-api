@@ -22,8 +22,10 @@ import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.annotation.DirtiesContext;
 import org.testcontainers.junit.jupiter.Testcontainers;
+import school.hei.haapi.endpoint.event.EventProducer;
 import school.hei.haapi.endpoint.rest.mapper.GradeMapper;
 import school.hei.haapi.endpoint.rest.model.StudentGrade;
 import school.hei.haapi.integration.conf.FacadeITMockedThirdParties;
@@ -56,6 +58,7 @@ class DirtyGradeServiceTest extends FacadeITMockedThirdParties {
   @Autowired CourseAssignmentRepository courseAssignmentRepository;
   @Autowired ExamRepository examRepository;
   @Autowired GradeMapper gradeMapper;
+  @MockBean private EventProducer eventProducer;
   private final Faker faker = new Faker();
 
   private User studentAxel;
