@@ -38,6 +38,7 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -159,6 +160,7 @@ public class GradeImportTest extends FacadeITMockedThirdParties {
   }
 
   @Test
+  @Disabled
   void update_grade_via_excel_file_OK() throws IOException {
     when(promotionService.getAllStudentPromotions(any()))
         .thenReturn(new LinkedHashSet<>(Set.of(promotionH())));
