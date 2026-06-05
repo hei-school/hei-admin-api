@@ -4,12 +4,15 @@ import static java.util.UUID.randomUUID;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.annotation.DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD;
 import static school.hei.haapi.integration.test_data.CourseAssignmentTestData.createCourseAssignment;
 import static school.hei.haapi.integration.test_data.CourseTestData.prog1;
 import static school.hei.haapi.integration.test_data.ExamTestData.createExam;
 import static school.hei.haapi.integration.test_data.GroupTestData.createGroupFlow;
 import static school.hei.haapi.integration.test_data.GroupTestData.g1;
+import static school.hei.haapi.integration.test_data.StudentResultOverviewTestData.promotionH;
 import static school.hei.haapi.integration.test_data.StudentTestData.axel;
 import static school.hei.haapi.integration.test_data.StudentTestData.tolojanahary;
 import static school.hei.haapi.integration.test_data.TeacherTestData.toky;
@@ -18,7 +21,9 @@ import com.github.javafaker.Faker;
 import jakarta.transaction.Transactional;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -59,6 +64,7 @@ class DirtyGradeServiceTest extends FacadeITMockedThirdParties {
   @Autowired ExamRepository examRepository;
   @Autowired GradeMapper gradeMapper;
   @MockBean private EventProducer eventProducer;
+  @MockBean private PromotionService promotionService;
   private final Faker faker = new Faker();
 
   private User studentAxel;
@@ -127,6 +133,8 @@ class DirtyGradeServiceTest extends FacadeITMockedThirdParties {
   @Test
   @Transactional
   void crupdate_grade_ok() {
+    when(promotionService.getAllStudentPromotions(any()))
+        .thenReturn(new LinkedHashSet<>(Set.of(promotionH())));
     PageFromOne page = new PageFromOne(1);
     BoundedPageSize pageSize = new BoundedPageSize(100);
     List<Grade> createdGrades = subject.createParticipantGrade(gradesExam1Prog1);
@@ -172,6 +180,8 @@ class DirtyGradeServiceTest extends FacadeITMockedThirdParties {
 
   @Test
   void filter_grades_by_student_ref_ok() {
+    when(promotionService.getAllStudentPromotions(any()))
+        .thenReturn(new LinkedHashSet<>(Set.of(promotionH())));
     subject.createParticipantGrade(gradesExam1Prog1);
 
     var examGrades =

@@ -1,5 +1,6 @@
 package school.hei.haapi.repository;
 
+import java.util.List;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -13,4 +14,6 @@ public interface StudentResultOverviewRepository
           + " :studentId")
   Optional<StudentResultOverview> findStudentResultOverviewsByStudentId(
       @Param("studentId") String studentId);
+
+  List<StudentResultOverview> findAllByStudentIdIn(@Param("studentIds") List<String> studentIds);
 }

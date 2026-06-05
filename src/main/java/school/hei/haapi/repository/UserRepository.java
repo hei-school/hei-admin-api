@@ -215,13 +215,14 @@ public interface UserRepository extends JpaRepository<User, String> {
 
   @Query(
       """
-    SELECT DISTINCT u
-    FROM User u
-    JOIN FETCH u.groupFlows gf
-    JOIN FETCH gf.group g
-    JOIN FETCH g.promotion p
-    WHERE u.role = 'STUDENT'
-      AND u.status <> 'DISABLED'
-""")
-  List<User> findAllStudentNotDisabledWithGroupFlow();
+      SELECT DISTINCT u
+      FROM User u
+      JOIN FETCH u.groupFlows gf
+      JOIN FETCH gf.group g
+      JOIN FETCH g.promotion p
+      WHERE u.role = 'STUDENT'
+        AND u.status <> 'DISABLED'
+        AND (:promotionId IS NULL OR p.id = :promotionId)
+      """)
+  List<User> findAllStudentNotDisabledWithGroupFlow(String promotionId);
 }
