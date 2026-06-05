@@ -5,4 +5,4 @@ import org.springframework.stereotype.Repository;
 import school.hei.haapi.model.UserActivity;
 
 @Repository
-public interface UserActivityRepository extends JpaRepository<UserActivity, Long> {}
+public interface UserActivityRepository extends JpaRepository<UserActivity, String> {}

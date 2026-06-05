@@ -1,5 +1,5 @@
 create table if not exists "user_activity" (
-    id          BIGSERIAL PRIMARY KEY,
+    id varchar constraint user_activity_pk primary key default uuid_generate_v4(),
     user_id     VARCHAR,
     user_email  VARCHAR,
     endpoint    VARCHAR NOT NULL,

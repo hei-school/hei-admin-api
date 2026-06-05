@@ -31,6 +31,7 @@ class UserActivityInterceptorIT extends FacadeITMockedThirdParties {
   @BeforeEach
   void setUp() {
     setUpCasdoor(casdoorAuthServiceMock, certificateLoaderMock);
+    userActivityRepository.deleteAll();
   }
 
   @Test

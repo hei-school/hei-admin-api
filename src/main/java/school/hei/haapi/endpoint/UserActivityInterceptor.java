@@ -37,8 +37,10 @@ public class UserActivityInterceptor implements HandlerInterceptor {
           userId = principal.getUser().getId();
           userEmail = principal.getUser().getEmail();
         }
-      } catch (ClassCastException e) {
-        throw new Exception(e);
+      } catch (Exception e) {
+        // getPrincipal() can throw ClassCastException ("anonymousUser" string)
+        // or other exceptions when user is not authenticated
+        log.debug("Anonymous request, no principal");
       }
       String body = null;
       if (request instanceof ContentCachingRequestWrapper wrapper) {
