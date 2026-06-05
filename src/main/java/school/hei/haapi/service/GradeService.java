@@ -70,6 +70,7 @@ public class GradeService {
 
   private static final String GRADE_XLSX_IMPORT_BUCKET_KEY = "/STUDENT_EXAM_GRADE_XLSX_IMPORT/";
   private final GradeChangeHistoryRepository gradeChangeHistoryRepository;
+  private final PromotionService promotionService;
 
   public List<Grade> getGradesByStudentId(String studentId) {
     var student = userService.getById(studentId);
@@ -131,14 +132,17 @@ public class GradeService {
   @Transactional
   public List<Grade> createParticipantGrade(List<Grade> grades) {
     log.info("Create grade : " + grades);
-    eventProducer.accept(List.of(new StudentResultOverviewUpserted()));
+    var promotions =
+        promotionService.getAllStudentPromotions(grades.getFirst().getStudent().getId());
+    eventProducer.accept(List.of(new StudentResultOverviewUpserted(promotions.getLast().getId())));
     return gradeRepository.saveAll(grades.stream().map(this::checkGradeToCreate).toList());
   }
 
   @Transactional
   public List<Grade> updateParticipantGrade(List<UpdateGrade> grades) {
     log.info("Update grade : " + grades);
-    eventProducer.accept(List.of(new StudentResultOverviewUpserted()));
+    var promotions = promotionService.getAllStudentPromotions(grades.getFirst().student().getId());
+    eventProducer.accept(List.of(new StudentResultOverviewUpserted(promotions.getLast().getId())));
     return gradeRepository.saveAll(grades.stream().map(this::checkGradeToUpdate).toList());
   }
 

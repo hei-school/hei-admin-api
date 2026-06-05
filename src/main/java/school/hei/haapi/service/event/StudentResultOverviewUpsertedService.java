@@ -15,8 +15,12 @@ public class StudentResultOverviewUpsertedService
   private final StudentResultOverviewService studentResultOverviewService;
 
   @Override
-  public void accept(StudentResultOverviewUpserted studentResultOverviewUpserted) {
-    studentResultOverviewService.saveAll();
-    log.info("Crupdate studentResultOverviews");
+  public void accept(StudentResultOverviewUpserted event) {
+    log.info("Beging crupdate StudentsResultoverviews");
+    log.info("Get all studentsResultOverviews");
+    var studentsResultOverviewsToSave =
+        studentResultOverviewService.getStudentResultOverviewsToCrupdate(event.getPromotionId());
+    log.info("StudentsResultOverviews found : {%s}".formatted(studentsResultOverviewsToSave));
+    studentResultOverviewService.saveAll(studentsResultOverviewsToSave);
   }
 }
