@@ -131,18 +131,25 @@ public class GradeService {
 
   @Transactional
   public List<Grade> createParticipantGrade(List<Grade> grades) {
-    log.info("Create grade : " + grades);
+    String promotionId = null;
     var promotions =
         promotionService.getAllStudentPromotions(grades.getFirst().getStudent().getId());
-    eventProducer.accept(List.of(new StudentResultOverviewUpserted(promotions.getLast().getId())));
+    if (!promotions.isEmpty()) {
+      promotionId = promotions.getLast().getId();
+    }
+    eventProducer.accept(List.of(new StudentResultOverviewUpserted(promotionId)));
     return gradeRepository.saveAll(grades.stream().map(this::checkGradeToCreate).toList());
   }
 
   @Transactional
   public List<Grade> updateParticipantGrade(List<UpdateGrade> grades) {
-    log.info("Update grade : " + grades);
+    String promotionId = null;
     var promotions = promotionService.getAllStudentPromotions(grades.getFirst().student().getId());
-    eventProducer.accept(List.of(new StudentResultOverviewUpserted(promotions.getLast().getId())));
+    if (!promotions.isEmpty()) {
+      promotionId = promotions.getLast().getId();
+    }
+
+    eventProducer.accept(List.of(new StudentResultOverviewUpserted(promotionId)));
     return gradeRepository.saveAll(grades.stream().map(this::checkGradeToUpdate).toList());
   }
 
