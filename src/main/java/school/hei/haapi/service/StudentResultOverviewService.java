@@ -3,6 +3,7 @@ package school.hei.haapi.service;
 import static java.time.Instant.now;
 import static school.hei.haapi.endpoint.rest.model.StudentLevel.L3;
 import static school.hei.haapi.endpoint.rest.model.StudentLevel.M2;
+import static school.hei.haapi.model.CycleLevel.BACHELOR;
 import static school.hei.haapi.model.ResultOverviewStatus.VALIDATED;
 
 import java.util.List;
@@ -48,19 +49,15 @@ public class StudentResultOverviewService {
     return studentResultOverviewMapper.toRestList(studentResultOverviews);
   }
 
-  public List<StudentResultOverview> getStudentResultOverviewsToCrupdate() {
-    var students = userRepository.findAllStudentNotDisabledWithGroupFlow();
+  public List<StudentResultOverview> getStudentResultOverviewsToCrupdate(String promotionId) {
+    var students = userRepository.findAllStudentNotDisabledWithGroupFlow(promotionId);
     var promotions = promotionService.getPromotions(null, null, null, null, null);
     return students.stream()
         .map(
             student -> {
               var resultSummary = gradeResultService.getStudentResultSummary(student.getId());
               log.info(
-                  "The student id: {"
-                      + student.getId()
-                      + "} resultSummary: {"
-                      + resultSummary
-                      + "}");
+                  "The student with id: {} result summary is: {}", student.getId(), resultSummary);
               var graduationPromotion =
                   getStudentGraduationPromotion(
                       ResultOverviewStatus.valueOf(resultSummary.getStatus().toString()),
@@ -87,7 +84,9 @@ public class StudentResultOverviewService {
             .orElseThrow(
                 () ->
                     new RuntimeException(
-                        "The student with id : " + student.getId() + " doesn't have any group"));
+                        "The student with id %s doesn't have any group"
+                            .formatted(student.getId())));
+
     var existingOverview =
         studentResultOverviewRepository.findStudentResultOverviewsByStudentId(student.getId());
     var currentPromotion =
@@ -95,14 +94,14 @@ public class StudentResultOverviewService {
             .orElseThrow(
                 () ->
                     new RuntimeException(
-                        "The group with id : "
-                            + currentGroup.getId()
-                            + "doesn't have any promotion"));
+                        "The group with id : {%s} doesn't have any promotion"
+                            .formatted(currentGroup.getId())));
     try {
       studentActualLevel = currentPromotion.getLevelAt(now());
     } catch (PromotionLevelOutOfRangeException e) {
-      studentActualLevel = L3;
+      studentActualLevel = currentPromotion.getCycleLevel() == BACHELOR ? L3 : M2;
     }
+
     if (studentActualLevel != L3 && studentActualLevel != M2) {
       return currentPromotion;
     } else if (status == VALIDATED) {
@@ -131,7 +130,7 @@ public class StudentResultOverviewService {
             .orElse(-1);
     if (currentIndex == -1) {
       throw new RuntimeException(
-          "Promotion with name : " + currentPromotion.getName() + " not found");
+          "Promotion with name : {%s} not found".formatted(currentPromotion.getName()));
     }
     return promotions.subList(currentIndex + 1, promotions.size()).stream()
         .filter(p -> !isAlumni(p))
@@ -139,7 +138,7 @@ public class StudentResultOverviewService {
         .orElse(currentPromotion);
   }
 
-  public List<StudentResultOverview> saveAll() {
-    return studentResultOverviewRepository.saveAll(getStudentResultOverviewsToCrupdate());
+  public List<StudentResultOverview> saveAll(List<StudentResultOverview> studentResultOverviews) {
+    return studentResultOverviewRepository.saveAll(studentResultOverviews);
   }
 }

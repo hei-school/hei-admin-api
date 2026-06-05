@@ -3,6 +3,7 @@ package school.hei.haapi.integration;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.when;
 import static school.hei.haapi.endpoint.rest.model.StudentLevel.L1;
@@ -34,6 +35,7 @@ import static school.hei.haapi.integration.test_data.GroupTestData.g1;
 import static school.hei.haapi.integration.test_data.GroupTestData.g2;
 import static school.hei.haapi.integration.test_data.MonitorTestData.monitorOfAxel;
 import static school.hei.haapi.integration.test_data.MonitorTestData.monitorOfTolojanahary;
+import static school.hei.haapi.integration.test_data.StudentResultOverviewTestData.promotionH;
 import static school.hei.haapi.integration.test_data.StudentTestData.axel;
 import static school.hei.haapi.integration.test_data.StudentTestData.tolojanahary;
 import static school.hei.haapi.integration.test_data.TeacherTestData.toky;
@@ -42,6 +44,7 @@ import static school.hei.haapi.model.dto.MonitorStudentLinkDto.Status.LINKED;
 import com.github.javafaker.Faker;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
 import org.casbin.casdoor.entity.CasdoorRole;
 import org.casbin.casdoor.entity.CasdoorUser;
@@ -79,6 +82,7 @@ import school.hei.haapi.repository.GroupFlowRepository;
 import school.hei.haapi.repository.GroupRepository;
 import school.hei.haapi.repository.MonitoringStudentRepository;
 import school.hei.haapi.repository.UserRepository;
+import school.hei.haapi.service.PromotionService;
 
 @Testcontainers
 @AutoConfigureMockMvc
@@ -93,6 +97,7 @@ class GradeIT extends FacadeITMockedThirdParties {
   @Autowired ExamRepository examRepository;
   @Autowired GradeMapper gradeMapper;
   @MockBean private EventProducer eventProducer;
+  @MockBean private PromotionService promotionService;
   private final Faker faker = new Faker();
   private User studentAxel;
   private User studentTolojanahary;
@@ -215,6 +220,8 @@ class GradeIT extends FacadeITMockedThirdParties {
 
   @Test
   void manager_crupdate_grade_invalid_student_ko() {
+    when(promotionService.getAllStudentPromotions(any()))
+        .thenReturn(new LinkedHashSet<>(List.of(promotionH())));
     GradesApi api = new GradesApi(anApiClient(MANAGER1_TOKEN));
     CreateGrade newGrade = new CreateGrade();
     newGrade.setScore(18.2);
@@ -408,6 +415,8 @@ class GradeIT extends FacadeITMockedThirdParties {
     GradesApi gradesApi = new GradesApi(anApiClient(MANAGER1_TOKEN));
     String axelId = studentAxel.getId();
     String examId = exam1Prog1.getId();
+    when(promotionService.getAllStudentPromotions(axelId))
+        .thenReturn(new LinkedHashSet<>(List.of(promotionH())));
     List<CreateGrade> createGrades = List.of(new CreateGrade().score(10.).studentId(axelId));
 
     assertBadRequestException(
@@ -421,6 +430,8 @@ class GradeIT extends FacadeITMockedThirdParties {
     var studentRandomAxel = axel();
     var courseRandomProg3 = prog1();
     var teacherRandomToky = toky();
+    when(promotionService.getAllStudentPromotions(any()))
+        .thenReturn(new LinkedHashSet<>(List.of(promotionH())));
     var assign_prog3_toTeacherRandom_forGroup3 =
         createCourseAssignment(courseRandomProg3, teacherRandomToky, List.of(groupRandomG3));
 

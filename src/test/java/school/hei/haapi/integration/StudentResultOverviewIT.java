@@ -44,8 +44,10 @@ import static school.hei.haapi.integration.test_data.StudentTestData.freddy;
 import static school.hei.haapi.integration.test_data.StudentTestData.manitra;
 import static school.hei.haapi.integration.test_data.StudentTestData.tolojanahary;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Stream;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -232,11 +234,21 @@ public class StudentResultOverviewIT extends FacadeITMockedThirdParties {
     axel.setGroupFlows(List.of(groupFlowAxel));
     manitra.setGroupFlows(List.of(groupFlowManitra));
     freddy.setGroupFlows(List.of(groupFlowFreddy));
-    doReturn(List.of(tolojanahary, axel, manitra, freddy))
+    doReturn(List.of(tolojanahary, axel))
         .when(userRepository)
-        .findAllStudentNotDisabledWithGroupFlow();
+        .findAllStudentNotDisabledWithGroupFlow(promotionH.getId());
 
-    subject.saveAll();
+    doReturn(List.of(manitra, freddy))
+        .when(userRepository)
+        .findAllStudentNotDisabledWithGroupFlow(promotionJ.getId());
+
+    var studentsResultOverviewsH = subject.getStudentResultOverviewsToCrupdate(promotionH.getId());
+    var studentsResultOverviewsJ = subject.getStudentResultOverviewsToCrupdate(promotionJ.getId());
+
+    subject.saveAll(
+        Stream.of(studentsResultOverviewsH, studentsResultOverviewsJ)
+            .flatMap(Collection::stream)
+            .toList());
 
     var apiClient = anApiClient(ADMIN1_TOKEN);
     var api = new UsersApi(apiClient);
