@@ -1,22 +1,8 @@
 package school.hei.haapi.service;
 
-import static java.math.BigDecimal.TEN;
-import static java.math.BigDecimal.ZERO;
-import static java.math.MathContext.DECIMAL128;
-import static java.util.Comparator.comparing;
-import static java.util.Objects.nonNull;
-import static school.hei.haapi.endpoint.rest.model.ResultOverviewStatus.INVALIDATED;
-import static school.hei.haapi.endpoint.rest.model.ResultOverviewStatus.IN_PROGRESS;
-import static school.hei.haapi.endpoint.rest.model.ResultOverviewStatus.NOT_STARTED;
-import static school.hei.haapi.endpoint.rest.model.ResultOverviewStatus.VALIDATED;
-import static school.hei.haapi.model.Grade.weightedAverageOfGrades;
-
 import jakarta.transaction.Transactional;
-import java.math.BigDecimal;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
 import school.hei.haapi.endpoint.rest.mapper.CourseMapper;
@@ -34,8 +20,25 @@ import school.hei.haapi.model.exception.ExamsCoefficientSumZero;
 import school.hei.haapi.repository.dao.GradeDao;
 import school.hei.haapi.service.utils.CollectionUtils;
 
+import java.math.BigDecimal;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+
+import static java.math.BigDecimal.TEN;
+import static java.math.BigDecimal.ZERO;
+import static java.math.MathContext.DECIMAL128;
+import static java.util.Comparator.comparing;
+import static java.util.Objects.nonNull;
+import static school.hei.haapi.endpoint.rest.model.ResultOverviewStatus.INVALIDATED;
+import static school.hei.haapi.endpoint.rest.model.ResultOverviewStatus.IN_PROGRESS;
+import static school.hei.haapi.endpoint.rest.model.ResultOverviewStatus.NOT_STARTED;
+import static school.hei.haapi.endpoint.rest.model.ResultOverviewStatus.VALIDATED;
+import static school.hei.haapi.model.Grade.weightedAverageOfGrades;
+
 @Service
 @AllArgsConstructor
+@Slf4j
 public class CourseResultService {
   private final CourseService courseService;
   private final GradeDao gradeDao;
@@ -64,6 +67,7 @@ public class CourseResultService {
   public List<CourseResult> getCourseResultsForLevelOfStudent(
       StudentLevel level, String studentId) {
     var student = userService.getById(studentId);
+    log.info("group flows :" + student.getGroupFlows());
     var courseForSpecificLevel = courseService.getByStudentLevel(level);
     var courseForSpecificStudent =
         collectionUtils.filterDistinctByField(
@@ -86,9 +90,13 @@ public class CourseResultService {
                       .flatMap(e -> e.stream().map(Group::getId))
                       .toList();
               var caIds = ca.stream().map(CourseAssignment::getId).toList();
+              var studentGroupIds =
+                  student.getGroupFlows().stream()
+                      .map(groupFlow -> groupFlow.getGroup().getId())
+                      .toList();
               var exams = examService.getExamsByCourseAssignmentIds(caIds);
               if (exams.isEmpty()) {
-                return true;
+                return courseAssignmentGroupIds.stream().anyMatch(studentGroupIds::contains);
               }
 
               var studentExamGroupIds =
