@@ -40,7 +40,6 @@ class UserActivityInterceptorIT extends FacadeITMockedThirdParties {
     var before = userActivityRepository.count();
     api.getEvents(1, 15, null, null, null, null, null, null, null);
     var after = userActivityRepository.count();
-
     assertEquals(before + 1, after);
   }
 
@@ -50,10 +49,9 @@ class UserActivityInterceptorIT extends FacadeITMockedThirdParties {
     var before = userActivityRepository.count();
     api.getEventById(EVENT1_ID);
     var after = userActivityRepository.count();
-
     assertEquals(before + 1, after);
-
     var last = getLastActivity();
+
     assertEquals("GET", last.getHttpMethod());
     assertNotNull(last.getUserId());
     assertNotNull(last.getUserEmail());
@@ -65,10 +63,9 @@ class UserActivityInterceptorIT extends FacadeITMockedThirdParties {
     var before = userActivityRepository.count();
     api.crupdateEvents(List.of(createEventCourse1()), null, null, null, null);
     var after = userActivityRepository.count();
-
     assertEquals(before + 1, after);
-
     var last = getLastActivity();
+
     assertEquals("PUT", last.getHttpMethod());
     assertNotNull(last.getRequestBody());
     assertFalse(last.getRequestBody().isBlank());
@@ -77,10 +74,9 @@ class UserActivityInterceptorIT extends FacadeITMockedThirdParties {
   @Test
   void request_without_auth_saves_activity_with_null_user_fields() throws Exception {
     var api = new EventsApi(anApiClient(null));
-
     api.getEvents(1, 15, null, null, null, null, null, null, null);
-
     var last = getLastActivity();
+
     assertNull(last.getUserId(), "userId must be null without authentification");
     assertNull(last.getUserEmail(), "userEmail must be null without authentification");
   }
@@ -89,8 +85,8 @@ class UserActivityInterceptorIT extends FacadeITMockedThirdParties {
   void activity_saves_correct_endpoint_and_http_method() throws Exception {
     var api = new EventsApi(anApiClient(MANAGER1_TOKEN));
     api.getEventById(EVENT1_ID);
-
     var last = getLastActivity();
+
     assertTrue(
         last.getEndpoint().contains("/events/" + EVENT1_ID), "be content /events/" + EVENT1_ID);
     assertEquals("GET", last.getHttpMethod());
@@ -99,16 +95,13 @@ class UserActivityInterceptorIT extends FacadeITMockedThirdParties {
   @Test
   void delete_request_saves_activity() throws Exception {
     var api = new EventsApi(anApiClient(MANAGER1_TOKEN));
-
     var created =
         api.crupdateEvents(List.of(createEventCourse1()), null, null, null, null).getFirst();
-
     var before = userActivityRepository.count();
     api.deleteEventById(created.getId());
     var after = userActivityRepository.count();
     assertEquals(before + 1, after);
     var last = getLastActivity();
-
     assertEquals("DELETE", last.getHttpMethod());
   }
 

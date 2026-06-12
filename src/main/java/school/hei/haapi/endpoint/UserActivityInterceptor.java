@@ -43,7 +43,8 @@ public class UserActivityInterceptor implements HandlerInterceptor {
         log.debug("Anonymous request, no principal");
       }
       String body = null;
-      if (request instanceof ContentCachingRequestWrapper wrapper) {
+      var attr = request.getAttribute("cachedRequestWrapper");
+      if (attr instanceof ContentCachingRequestWrapper wrapper) {
         byte[] buf = wrapper.getContentAsByteArray();
         if (buf.length > 0) {
           body = new String(buf, StandardCharsets.UTF_8);
