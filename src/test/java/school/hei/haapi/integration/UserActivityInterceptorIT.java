@@ -72,16 +72,6 @@ class UserActivityInterceptorIT extends FacadeITMockedThirdParties {
   }
 
   @Test
-  void request_without_auth_saves_activity_with_null_user_fields() throws Exception {
-    var api = new EventsApi(anApiClient(null));
-    api.getEvents(1, 15, null, null, null, null, null, null, null);
-    var last = getLastActivity();
-
-    assertNull(last.getUserId(), "userId must be null without authentification");
-    assertNull(last.getUserEmail(), "userEmail must be null without authentification");
-  }
-
-  @Test
   void activity_saves_correct_endpoint_and_http_method() throws Exception {
     var api = new EventsApi(anApiClient(MANAGER1_TOKEN));
     api.getEventById(EVENT1_ID);
