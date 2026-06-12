@@ -41,7 +41,6 @@ import java.util.List;
 import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import school.hei.haapi.endpoint.event.EventProducer;
 import school.hei.haapi.endpoint.event.model.YearlyResultTranscriptGeneration;
@@ -346,6 +345,10 @@ class GradeResultServiceTest {
     return GroupFlow.builder().group(group()).build();
   }
 
+  private static User student1WithGroupFlow() {
+    return User.builder().id(STUDENT1_ID).groupFlows(List.of(groupFlow())).build();
+  }
+
   private static Course mgt1Course() {
     return mockCourse(
         MGT1_COURSE_ID, MGT1_COURSE_CODE, MGT1_COURSE_NAME, 8, mgt1CourseAssignment(), L1);
@@ -403,7 +406,9 @@ class GradeResultServiceTest {
     when(student1.getRef()).thenReturn(STUDENT1_REF);
     when(student1.getSpecializationFieldString()).thenReturn(STUDENT1_SPECIALIZATION_FIELD_STRING);
     when(student1.findCurrentGroup()).thenReturn(Optional.of(group()));
+    doReturn(List.of(groupFlow())).when(student1).getGroupFlows();
     doReturn(List.of(groupFlow())).when(student2).getGroupFlows();
+    doReturn(List.of(groupFlow())).when(student1).getGroupFlows();
 
     // Mock student Ids
     when(student2.getId()).thenReturn(STUDENT2_ID);
@@ -639,7 +644,6 @@ class GradeResultServiceTest {
   }
 
   @Test
-  @Disabled
   void yearly_result_with_course_credits_sum_zero_ko() {
     when(gradeDao.getStudentGradesByCourseId(MGT1_COURSE_ID, STUDENT1_ID))
         .thenReturn(List.of(student1Mgt1Grade()));
