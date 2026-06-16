@@ -97,7 +97,7 @@ class UserActivityInterceptorIT extends FacadeITMockedThirdParties {
 
   private UserActivity getLastActivity() {
     var all = userActivityRepository.findAll();
-    assertFalse(all.isEmpty(), "Aucune activité trouvée en base");
+    assertFalse(all.isEmpty(), "No activity detected");
     UserActivity last = all.get(all.size() - 1);
     return last;
   }
