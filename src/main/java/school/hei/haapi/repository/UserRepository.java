@@ -201,16 +201,15 @@ public interface UserRepository extends JpaRepository<User, String> {
 
   @Query(
       """
-    SELECT u FROM User u
-    WHERE u.status <> 'DISABLED'
-      AND (
-           :search IS NULL
-        OR :search = ''
-        OR LOWER(u.ref) LIKE LOWER(CONCAT('%', :search, '%'))
-        OR LOWER(u.firstName) LIKE LOWER(CONCAT('%', :search, '%'))
-        OR LOWER(u.lastName) LIKE LOWER(CONCAT('%', :search, '%'))
-      )
-""")
+      SELECT u FROM User u
+      WHERE(
+             :search IS NULL
+          OR :search = ''
+          OR LOWER(u.ref) LIKE LOWER(CONCAT('%', :search, '%'))
+          OR LOWER(u.firstName) LIKE LOWER(CONCAT('%', :search, '%'))
+          OR LOWER(u.lastName) LIKE LOWER(CONCAT('%', :search, '%'))
+        )
+      """)
   List<User> searchUsers(@Param("search") String search);
 
   @Query(
