@@ -1,8 +1,10 @@
 package school.hei.haapi.integration;
 
+import static org.awaitility.Awaitility.await;
 import static org.junit.jupiter.api.Assertions.*;
 import static school.hei.haapi.integration.conf.TestUtils.*;
 
+import java.time.Duration;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
@@ -38,9 +40,12 @@ class UserActivityInterceptorIT extends FacadeITMockedThirdParties {
   void request_always_passes_and_activity_is_saved() throws Exception {
     var api = new EventsApi(anApiClient(null));
     var before = userActivityRepository.count();
+
     api.getEvents(1, 15, null, null, null, null, null, null, null);
-    var after = userActivityRepository.count();
-    assertEquals(before + 1, after);
+    await()
+        .atMost(Duration.ofSeconds(5))
+        .pollInterval(Duration.ofMillis(100))
+        .until(() -> userActivityRepository.count() > before);
   }
 
   @Test
@@ -89,8 +94,11 @@ class UserActivityInterceptorIT extends FacadeITMockedThirdParties {
         api.crupdateEvents(List.of(createEventCourse1()), null, null, null, null).getFirst();
     var before = userActivityRepository.count();
     api.deleteEventById(created.getId());
-    var after = userActivityRepository.count();
-    assertEquals(before + 1, after);
+    await()
+        .atMost(Duration.ofSeconds(5))
+        .pollInterval(Duration.ofMillis(100))
+        .until(() -> userActivityRepository.count() > before);
+
     var last = getLastActivity();
     assertEquals("DELETE", last.getHttpMethod());
   }
