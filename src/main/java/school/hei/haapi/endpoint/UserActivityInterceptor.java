@@ -45,7 +45,7 @@ public class UserActivityInterceptor implements HandlerInterceptor {
       String body = null;
       var attr = request.getAttribute("cachedRequestWrapper");
       if (attr instanceof ContentCachingRequestWrapper wrapper) {
-        byte[] buf = wrapper.getContentAsByteArray();
+        var buf = wrapper.getContentAsByteArray();
         if (buf.length > 0) {
           body = new String(buf, StandardCharsets.UTF_8);
         }
