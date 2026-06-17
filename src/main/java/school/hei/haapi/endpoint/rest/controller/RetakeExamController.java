@@ -18,6 +18,8 @@ import school.hei.haapi.endpoint.rest.mapper.RetakeExamMapper;
 import school.hei.haapi.endpoint.rest.mapper.UserMapper;
 import school.hei.haapi.endpoint.rest.model.CancelRetakeExamRequest;
 import school.hei.haapi.endpoint.rest.model.Course;
+import school.hei.haapi.endpoint.rest.model.CourseResult;
+import school.hei.haapi.endpoint.rest.model.CourseResultStatus;
 import school.hei.haapi.endpoint.rest.model.CrupdateRetakeExam;
 import school.hei.haapi.endpoint.rest.model.RetakeExam;
 import school.hei.haapi.endpoint.rest.model.RetakeExamToCancel;
@@ -26,6 +28,7 @@ import school.hei.haapi.endpoint.rest.model.StudentRetakeExam;
 import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.model.RetakeExamStatus;
+import school.hei.haapi.service.GradeResultService;
 import school.hei.haapi.service.RetakeExamService;
 
 @RestController
@@ -35,6 +38,7 @@ public class RetakeExamController {
   private final RetakeExamMapper retakeExamMapper;
   private final CourseMapper courseMapper;
   private final UserMapper userMapper;
+  private final GradeResultService gradeResultService;
 
   @PutMapping("/retake_exam_sessions/{session_id}/retake_exams")
   public List<StudentRetakeExam> createOrUpdateRetakeExam(
@@ -45,6 +49,13 @@ public class RetakeExamController {
         .stream()
         .map(retakeExamMapper::toStudentRetakeRest)
         .toList();
+  }
+
+  @GetMapping("/students/{student_id}/retake_exams")
+  public List<CourseResult> getStudentRetakeExams(
+      @PathVariable("student_id") String student_id,
+      @RequestParam(defaultValue = "", required = false) CourseResultStatus status) {
+    return gradeResultService.getStudentRetakeExams(student_id, status);
   }
 
   @GetMapping("students/{student_id}/sessions/{session_id}/retake_exams")
