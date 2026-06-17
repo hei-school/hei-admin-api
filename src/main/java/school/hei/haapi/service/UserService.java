@@ -130,6 +130,7 @@ public class UserService {
     return userToRefresh;
   }
 
+  @Transactional
   public User getById(String userId) {
     return userRepository
         .findById(userId)

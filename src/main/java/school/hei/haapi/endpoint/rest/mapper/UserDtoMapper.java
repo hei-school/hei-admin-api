@@ -8,8 +8,8 @@ import school.hei.haapi.model.dto.UserDto;
 @Component
 @AllArgsConstructor
 public class UserDtoMapper {
-
   private final UserMapper userMapper;
+  private final StatusEnumMapper statusEnumMapper;
 
   public UserDto toDto(User user) {
     return UserDto.builder()
@@ -19,6 +19,7 @@ public class UserDtoMapper {
         .email(user.getEmail())
         .ref(user.getRef())
         .profilePicture(userMapper.getPresignedProfilePictureUrl(user))
+        .status(statusEnumMapper.toRestStatus(user.getStatus()))
         .build();
   }
 }
