@@ -3,6 +3,7 @@ package school.hei.haapi.model.dto;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+import school.hei.haapi.endpoint.rest.model.EnableStatus;
 import school.hei.haapi.model.User;
 
 @Builder
@@ -15,6 +16,7 @@ public class UserDto {
   private String email;
   private String profilePicture;
   private String ref;
+  private EnableStatus status;
 
   public static UserDto from(User user) {
     return UserDto.builder()
