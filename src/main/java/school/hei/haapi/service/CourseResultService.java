@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
 import school.hei.haapi.endpoint.rest.mapper.CourseMapper;
@@ -36,6 +37,7 @@ import school.hei.haapi.service.utils.CollectionUtils;
 
 @Service
 @AllArgsConstructor
+@Slf4j
 public class CourseResultService {
   private final CourseService courseService;
   private final GradeDao gradeDao;
@@ -51,7 +53,7 @@ public class CourseResultService {
     return collectionUtils
         .filterDistinctByField(
             exams.stream()
-                .map(e -> student.findGroupAt(e.getExaminationDate()))
+                .map(exam -> student.findGroupAt(exam.getExaminationDate()))
                 .filter(Optional::isPresent)
                 .map(Optional::get)
                 .toList(),
@@ -64,39 +66,45 @@ public class CourseResultService {
   public List<CourseResult> getCourseResultsForLevelOfStudent(
       StudentLevel level, String studentId) {
     var student = userService.getById(studentId);
-    var courseForSpecificLevel = courseService.getByStudentLevel(level);
-    var courseForSpecificStudent =
+    var coursesForSpecificLevel = courseService.getByStudentLevel(level);
+    log.info("Course for specific level : {}", coursesForSpecificLevel);
+    var coursesForSpecificStudent =
         collectionUtils.filterDistinctByField(
-            getCourseInStudentGroup(courseForSpecificLevel, student), Course::getId);
-    return courseForSpecificStudent.stream()
+            getCourseInStudentGroup(coursesForSpecificLevel, student), Course::getId);
+    return coursesForSpecificStudent.stream()
         .map(course -> computeCourseResult(course, student))
         .sorted(comparing(courseResult -> courseResult.getStatus().ordinal()))
         .toList();
   }
 
   @NotNull
-  private List<Course> getCourseInStudentGroup(List<Course> courseForSpecificLevel, User student) {
-    return courseForSpecificLevel.stream()
+  private List<Course> getCourseInStudentGroup(List<Course> coursesForSpecificLevel, User student) {
+    return coursesForSpecificLevel.stream()
         .map(Course::getCourseAssignments)
-        .filter(
-            ca -> {
-              var courseAssignmentGroupIds =
-                  ca.stream()
-                      .map(CourseAssignment::getGroups)
-                      .flatMap(e -> e.stream().map(Group::getId))
-                      .toList();
-              var caIds = ca.stream().map(CourseAssignment::getId).toList();
-              var exams = examService.getExamsByCourseAssignmentIds(caIds);
-              if (exams.isEmpty()) {
-                return true;
-              }
-
-              var studentExamGroupIds =
-                  findStudentGroupByExams(student, exams).stream().map(Group::getId).toList();
-              return courseAssignmentGroupIds.stream().anyMatch(studentExamGroupIds::contains);
-            })
-        .flatMap(e -> e.stream().map(CourseAssignment::getCourse))
+        .filter(courseAssignments -> studentGroupIsAssignedToCourse(courseAssignments, student))
+        .flatMap(courseAssignments -> courseAssignments.stream().map(CourseAssignment::getCourse))
         .toList();
+  }
+
+  private boolean studentGroupIsAssignedToCourse(
+      List<CourseAssignment> courseAssignments, User student) {
+    var courseAssignmentGroupIds =
+        courseAssignments.stream()
+            .map(CourseAssignment::getGroups)
+            .flatMap(groups -> groups.stream().map(Group::getId))
+            .toList();
+    var courseAssignmentIds = courseAssignments.stream().map(CourseAssignment::getId).toList();
+    log.info("All student group flows : {}", student.getGroupFlows());
+    var studentGroupIds =
+        student.getGroupFlows().stream().map(groupFlow -> groupFlow.getGroup().getId()).toList();
+    var exams = examService.getExamsByCourseAssignmentIds(courseAssignmentIds);
+    if (exams.isEmpty()) {
+      return courseAssignmentGroupIds.stream().anyMatch(studentGroupIds::contains);
+    }
+
+    var studentExamGroupIds =
+        findStudentGroupByExams(student, exams).stream().map(Group::getId).toList();
+    return courseAssignmentGroupIds.stream().anyMatch(studentExamGroupIds::contains);
   }
 
   private CourseResult computeCourseResult(Course course, User student) {
@@ -138,24 +146,31 @@ public class CourseResultService {
   public BigDecimal obtainedCreditsOfCourseResults(List<CourseResult> courseResults) {
     return BigDecimal.valueOf(
         courseResults.stream()
-            .filter(c -> nonNull(c.getWeightedAverage()))
+            .filter(courseResult -> nonNull(courseResult.getWeightedAverage()))
             .mapToDouble(
-                c -> c.getWeightedAverage().doubleValue() >= 10 ? c.getCourse().getCredits() : 0.)
+                courseResult ->
+                    courseResult.getWeightedAverage().doubleValue() >= 10
+                        ? courseResult.getCourse().getCredits()
+                        : 0.)
             .sum());
   }
 
   public Optional<BigDecimal> weightedSumOfCourseResults(List<CourseResult> courseResults) {
     int sumCredits = getSumCredits(courseResults);
     var presentCourseResults =
-        courseResults.stream().filter(c -> nonNull(c.getWeightedAverage())).toList();
+        courseResults.stream()
+            .filter(courseResult -> nonNull(courseResult.getWeightedAverage()))
+            .toList();
 
     if (presentCourseResults.isEmpty()) return Optional.empty();
 
     return Optional.of(
         presentCourseResults.stream()
             .map(
-                c ->
-                    c.getWeightedAverage().multiply(BigDecimal.valueOf(c.getCourse().getCredits())))
+                courseResult ->
+                    courseResult
+                        .getWeightedAverage()
+                        .multiply(BigDecimal.valueOf(courseResult.getCourse().getCredits())))
             .reduce(ZERO, BigDecimal::add)
             .divide(BigDecimal.valueOf(sumCredits), DECIMAL128));
   }
@@ -185,7 +200,7 @@ public class CourseResultService {
 
     return obtainedCredits.compareTo(VALIDATED_YEAR_CREDIT) >= 0
         && courseResultsWeightedAverage
-            .map(avg -> avg.compareTo(VALIDATED_YEAR_AVERAGE) >= 0)
+            .map(average -> average.compareTo(VALIDATED_YEAR_AVERAGE) >= 0)
             .orElse(false);
   }
 

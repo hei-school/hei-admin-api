@@ -13,6 +13,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.only;
@@ -57,6 +58,7 @@ import school.hei.haapi.model.Exam;
 import school.hei.haapi.model.FileInfo;
 import school.hei.haapi.model.Grade;
 import school.hei.haapi.model.Group;
+import school.hei.haapi.model.GroupFlow;
 import school.hei.haapi.model.Promotion;
 import school.hei.haapi.model.User;
 import school.hei.haapi.model.YearlyResultGenerationRequest;
@@ -339,6 +341,14 @@ class GradeResultServiceTest {
   private static final String BAD1_COURSE_CODE = "bad course";
   private static final String BAD1_COURSE_NAME = "Bad course";
 
+  private static GroupFlow groupFlow() {
+    return GroupFlow.builder().group(group()).build();
+  }
+
+  private static User student1WithGroupFlow() {
+    return User.builder().id(STUDENT1_ID).groupFlows(List.of(groupFlow())).build();
+  }
+
   private static Course mgt1Course() {
     return mockCourse(
         MGT1_COURSE_ID, MGT1_COURSE_CODE, MGT1_COURSE_NAME, 8, mgt1CourseAssignment(), L1);
@@ -371,7 +381,7 @@ class GradeResultServiceTest {
 
   private static Course secu3Course() {
     return mockCourse(
-        SECU3_COURSE_ID, SECU3_COURSE_CODE, SECU3_COURSE_NAME, 8, secu3CourseAssignment(), L1);
+        SECU3_COURSE_ID, SECU3_COURSE_CODE, SECU3_COURSE_NAME, 8, secu3CourseAssignment(), M1);
   }
 
   private static Course l2Course() {
@@ -396,6 +406,9 @@ class GradeResultServiceTest {
     when(student1.getRef()).thenReturn(STUDENT1_REF);
     when(student1.getSpecializationFieldString()).thenReturn(STUDENT1_SPECIALIZATION_FIELD_STRING);
     when(student1.findCurrentGroup()).thenReturn(Optional.of(group()));
+    doReturn(List.of(groupFlow())).when(student1).getGroupFlows();
+    doReturn(List.of(groupFlow())).when(student2).getGroupFlows();
+    doReturn(List.of(groupFlow())).when(student1).getGroupFlows();
 
     // Mock student Ids
     when(student2.getId()).thenReturn(STUDENT2_ID);
