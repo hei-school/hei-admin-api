@@ -81,12 +81,13 @@ public class CourseResultService {
   private List<Course> getCourseInStudentGroup(List<Course> coursesForSpecificLevel, User student) {
     return coursesForSpecificLevel.stream()
         .map(Course::getCourseAssignments)
-        .filter(courseAssignments -> isAssignedToTheGroup(courseAssignments, student))
+        .filter(courseAssignments -> studentGroupIsAssignedToCourse(courseAssignments, student))
         .flatMap(courseAssignments -> courseAssignments.stream().map(CourseAssignment::getCourse))
         .toList();
   }
 
-  private boolean isAssignedToTheGroup(List<CourseAssignment> courseAssignments, User student) {
+  private boolean studentGroupIsAssignedToCourse(
+      List<CourseAssignment> courseAssignments, User student) {
     var courseAssignmentGroupIds =
         courseAssignments.stream()
             .map(CourseAssignment::getGroups)
