@@ -3744,7 +3744,7 @@ paths:
           in: query
           schema:
             $ref: '#/components/schemas/FeeStatusEnum'
-      operationId: getStudentFees
+      operationId: getFeesByStudentId
       responses:
         '200':
           description: List of all student fees
