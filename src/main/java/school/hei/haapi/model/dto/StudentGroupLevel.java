@@ -12,7 +12,7 @@ import school.hei.haapi.model.Group;
 @NoArgsConstructor
 @Data
 @Builder
-public class GroupLevel {
+public class StudentGroupLevel {
   private Group group;
   private List<StudentLevel> studentLevels;
 }

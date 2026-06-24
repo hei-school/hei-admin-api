@@ -37,7 +37,7 @@ import school.hei.haapi.model.Exam;
 import school.hei.haapi.model.Group;
 import school.hei.haapi.model.GroupFlow;
 import school.hei.haapi.model.User;
-import school.hei.haapi.model.dto.GroupLevel;
+import school.hei.haapi.model.dto.StudentGroupLevel;
 import school.hei.haapi.model.exception.CoursesCreditSumZero;
 import school.hei.haapi.model.exception.ExamsCoefficientSumZero;
 import school.hei.haapi.repository.ExamRepository;
@@ -99,23 +99,23 @@ public class CourseResultService {
         .toList();
   }
 
-  private Group getGroupAtLevel(List<GroupLevel> groupLevels, StudentLevel level) {
+  private Group getGroupAtLevel(List<StudentGroupLevel> groupLevels, StudentLevel level) {
 
     return groupLevels.stream()
         .filter(group -> group.getStudentLevels().contains(level))
         .findFirst()
-        .map(GroupLevel::getGroup)
+        .map(StudentGroupLevel::getGroup)
         .orElse(null);
   }
 
-  public List<GroupLevel> getGroupStudentLevels(List<GroupFlow> groupFlows) {
+  public List<StudentGroupLevel> getGroupStudentLevels(List<GroupFlow> groupFlows) {
     var assignedLevels = EnumSet.noneOf(StudentLevel.class);
-    var results = new ArrayList<GroupLevel>();
+    var results = new ArrayList<StudentGroupLevel>();
     groupFlows.stream()
         .sorted(Comparator.comparing(GroupFlow::getFlowDatetime).reversed())
         .forEach(
             groupFlow -> {
-              var groupLevel = getGroupLevel(assignedLevels, groupFlow);
+              var groupLevel = getUnassignedGroupLevels(assignedLevels, groupFlow);
               if (!groupLevel.getStudentLevels().isEmpty()) {
                 assignedLevels.addAll(groupLevel.getStudentLevels());
                 results.add(groupLevel);
@@ -124,7 +124,8 @@ public class CourseResultService {
     return results;
   }
 
-  private GroupLevel getGroupLevel(Set<StudentLevel> assignedLevels, GroupFlow groupFlow) {
+  private StudentGroupLevel getUnassignedGroupLevels(
+      Set<StudentLevel> assignedLevels, GroupFlow groupFlow) {
     var endDate =
         groupFlow.getGroupFlowType() == GroupFlow.GroupFlowType.JOIN
             ? groupFlow.getFlowDatetime().plus(1, ChronoUnit.YEARS)
@@ -133,7 +134,7 @@ public class CourseResultService {
         examRepository.findStudentLevelsByGroupBeforeExaminationDate(
             groupFlow.getGroup().getId(), endDate);
     var remainingLevels = levels.stream().filter(level -> !assignedLevels.contains(level)).toList();
-    return new GroupLevel(groupFlow.getGroup(), remainingLevels);
+    return new StudentGroupLevel(groupFlow.getGroup(), remainingLevels);
   }
 
   @NotNull
@@ -142,12 +143,13 @@ public class CourseResultService {
     return coursesForSpecificLevel.stream()
         .map(Course::getCourseAssignments)
         .filter(
-            courseAssignments -> studentGroupIsAssignedToCourse(courseAssignments, studentGroupIds))
+            courseAssignments ->
+                studentGroupIdsAssignedToCourse(courseAssignments, studentGroupIds))
         .flatMap(courseAssignments -> courseAssignments.stream().map(CourseAssignment::getCourse))
         .toList();
   }
 
-  private boolean studentGroupIsAssignedToCourse(
+  private boolean studentGroupIdsAssignedToCourse(
       List<CourseAssignment> courseAssignments, Set<String> studentGroupIds) {
     var courseAssignmentGroupIds =
         courseAssignments.stream()
