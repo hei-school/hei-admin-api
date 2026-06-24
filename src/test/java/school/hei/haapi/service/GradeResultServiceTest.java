@@ -37,11 +37,13 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
 import java.time.Duration;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import school.hei.haapi.endpoint.event.EventProducer;
 import school.hei.haapi.endpoint.event.model.YearlyResultTranscriptGeneration;
 import school.hei.haapi.endpoint.rest.mapper.CourseMapper;
@@ -51,6 +53,7 @@ import school.hei.haapi.endpoint.rest.model.YearlyResult;
 import school.hei.haapi.endpoint.rest.security.AuthProvider;
 import school.hei.haapi.endpoint.rest.security.model.Principal;
 import school.hei.haapi.file.bucket.BucketComponent;
+import school.hei.haapi.integration.conf.FacadeITMockedThirdParties;
 import school.hei.haapi.mail.Mailer;
 import school.hei.haapi.model.Course;
 import school.hei.haapi.model.CourseAssignment;
@@ -63,6 +66,8 @@ import school.hei.haapi.model.Promotion;
 import school.hei.haapi.model.User;
 import school.hei.haapi.model.YearlyResultGenerationRequest;
 import school.hei.haapi.model.exception.CoursesCreditSumZero;
+import school.hei.haapi.repository.ExamRepository;
+import school.hei.haapi.repository.UserRepository;
 import school.hei.haapi.repository.YearlyResultGenerationRequestRepository;
 import school.hei.haapi.repository.dao.GradeDao;
 import school.hei.haapi.service.event.YearlyResultTranscriptGenerationService;
@@ -73,7 +78,10 @@ import school.hei.haapi.service.utils.HtmlParser;
 import school.hei.haapi.service.utils.PdfRenderer;
 
 @Slf4j
-class GradeResultServiceTest {
+class GradeResultServiceTest extends FacadeITMockedThirdParties {
+  @Autowired ExamRepository examRepository;
+  private final PromotionService promotionService = mock();
+  @Autowired UserRepository userRepository;
   private final GradeDao gradeDao = mock();
   private final CourseService courseService = mock();
   private final ExamService examService = mock();
@@ -99,7 +107,10 @@ class GradeResultServiceTest {
               new CourseMapper(),
               examService,
               userService,
-              new CollectionUtils()),
+              new CollectionUtils(),
+              promotionService,
+              userRepository,
+              examRepository),
           yearlyResultGenerationService,
           bucketComponent,
           userService,
@@ -515,6 +526,7 @@ class GradeResultServiceTest {
     when(examService.getExamsByCourseId(eq(SECU3_COURSE_ID))).thenReturn(List.of());
     when(examService.getExamsByCourseId(L2_COURSE_ID)).thenReturn(List.of(l2Exam()));
     when(examService.getExamsByCourseId(L3_COURSE_ID)).thenReturn(List.of(l3Exam()));
+    when(promotionService.getAllStudentPromotions(anyString())).thenReturn(new LinkedHashSet<>());
   }
 
   @Test

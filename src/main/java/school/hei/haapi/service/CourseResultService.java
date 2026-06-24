@@ -13,9 +13,15 @@ import static school.hei.haapi.model.Grade.weightedAverageOfGrades;
 
 import jakarta.transaction.Transactional;
 import java.math.BigDecimal;
+import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
@@ -29,9 +35,13 @@ import school.hei.haapi.model.Course;
 import school.hei.haapi.model.CourseAssignment;
 import school.hei.haapi.model.Exam;
 import school.hei.haapi.model.Group;
+import school.hei.haapi.model.GroupFlow;
 import school.hei.haapi.model.User;
+import school.hei.haapi.model.dto.GroupLevel;
 import school.hei.haapi.model.exception.CoursesCreditSumZero;
 import school.hei.haapi.model.exception.ExamsCoefficientSumZero;
+import school.hei.haapi.repository.ExamRepository;
+import school.hei.haapi.repository.UserRepository;
 import school.hei.haapi.repository.dao.GradeDao;
 import school.hei.haapi.service.utils.CollectionUtils;
 
@@ -45,6 +55,9 @@ public class CourseResultService {
   private final ExamService examService;
   private final UserService userService;
   private final CollectionUtils collectionUtils;
+  private final PromotionService promotionService;
+  private final UserRepository userRepository;
+  private final ExamRepository examRepository;
 
   private static final BigDecimal VALIDATED_YEAR_CREDIT = BigDecimal.valueOf(30);
   private static final BigDecimal VALIDATED_YEAR_AVERAGE = TEN;
@@ -67,44 +80,81 @@ public class CourseResultService {
       StudentLevel level, String studentId) {
     var student = userService.getById(studentId);
     var coursesForSpecificLevel = courseService.getByStudentLevel(level);
-    log.info("Course for specific level : {}", coursesForSpecificLevel);
+    var studentGroupIds =
+        student.getGroupFlows().stream()
+            .map(groupFlow -> groupFlow.getGroup().getId())
+            .collect(Collectors.toSet());
+    var studentPromotions = promotionService.getAllStudentPromotions(studentId);
+    if (studentPromotions.size() > 1) {
+      var groupFlows = userRepository.findGroupFlowsByStudentId(studentId);
+      var studentGroupsPerLevel = getGroupStudentLevels(groupFlows);
+      studentGroupIds = Set.of(getGroupAtLevel(studentGroupsPerLevel, level).getId());
+    }
     var coursesForSpecificStudent =
         collectionUtils.filterDistinctByField(
-            getCourseInStudentGroup(coursesForSpecificLevel, student), Course::getId);
+            getCourseInStudentGroup(coursesForSpecificLevel, studentGroupIds), Course::getId);
     return coursesForSpecificStudent.stream()
         .map(course -> computeCourseResult(course, student))
         .sorted(comparing(courseResult -> courseResult.getStatus().ordinal()))
         .toList();
   }
 
+  private Group getGroupAtLevel(List<GroupLevel> groupLevels, StudentLevel level) {
+
+    return groupLevels.stream()
+        .filter(group -> group.getStudentLevels().contains(level))
+        .findFirst()
+        .map(GroupLevel::getGroup)
+        .orElse(null);
+  }
+
+  public List<GroupLevel> getGroupStudentLevels(List<GroupFlow> groupFlows) {
+    var assignedLevels = EnumSet.noneOf(StudentLevel.class);
+    var results = new ArrayList<GroupLevel>();
+    groupFlows.stream()
+        .sorted(Comparator.comparing(GroupFlow::getFlowDatetime).reversed())
+        .forEach(
+            groupFlow -> {
+              var groupLevel = getGroupLevel(assignedLevels, groupFlow);
+              if (!groupLevel.getStudentLevels().isEmpty()) {
+                assignedLevels.addAll(groupLevel.getStudentLevels());
+                results.add(groupLevel);
+              }
+            });
+    return results;
+  }
+
+  private GroupLevel getGroupLevel(Set<StudentLevel> assignedLevels, GroupFlow groupFlow) {
+    var endDate =
+        groupFlow.getGroupFlowType() == GroupFlow.GroupFlowType.JOIN
+            ? groupFlow.getFlowDatetime().plus(1, ChronoUnit.YEARS)
+            : groupFlow.getFlowDatetime();
+    var levels =
+        examRepository.findStudentLevelsByGroupBeforeExaminationDate(
+            groupFlow.getGroup().getId(), endDate);
+    var remainingLevels = levels.stream().filter(level -> !assignedLevels.contains(level)).toList();
+    return new GroupLevel(groupFlow.getGroup(), remainingLevels);
+  }
+
   @NotNull
-  private List<Course> getCourseInStudentGroup(List<Course> coursesForSpecificLevel, User student) {
+  private List<Course> getCourseInStudentGroup(
+      List<Course> coursesForSpecificLevel, Set<String> studentGroupIds) {
     return coursesForSpecificLevel.stream()
         .map(Course::getCourseAssignments)
-        .filter(courseAssignments -> studentGroupIsAssignedToCourse(courseAssignments, student))
+        .filter(
+            courseAssignments -> studentGroupIsAssignedToCourse(courseAssignments, studentGroupIds))
         .flatMap(courseAssignments -> courseAssignments.stream().map(CourseAssignment::getCourse))
         .toList();
   }
 
   private boolean studentGroupIsAssignedToCourse(
-      List<CourseAssignment> courseAssignments, User student) {
+      List<CourseAssignment> courseAssignments, Set<String> studentGroupIds) {
     var courseAssignmentGroupIds =
         courseAssignments.stream()
             .map(CourseAssignment::getGroups)
             .flatMap(groups -> groups.stream().map(Group::getId))
             .toList();
-    var courseAssignmentIds = courseAssignments.stream().map(CourseAssignment::getId).toList();
-    log.info("All student group flows : {}", student.getGroupFlows());
-    var studentGroupIds =
-        student.getGroupFlows().stream().map(groupFlow -> groupFlow.getGroup().getId()).toList();
-    var exams = examService.getExamsByCourseAssignmentIds(courseAssignmentIds);
-    if (exams.isEmpty()) {
-      return courseAssignmentGroupIds.stream().anyMatch(studentGroupIds::contains);
-    }
-
-    var studentExamGroupIds =
-        findStudentGroupByExams(student, exams).stream().map(Group::getId).toList();
-    return courseAssignmentGroupIds.stream().anyMatch(studentExamGroupIds::contains);
+    return courseAssignmentGroupIds.stream().anyMatch(studentGroupIds::contains);
   }
 
   private CourseResult computeCourseResult(Course course, User student) {
