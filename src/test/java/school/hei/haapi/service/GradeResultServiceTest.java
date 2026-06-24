@@ -1,45 +1,5 @@
 package school.hei.haapi.service;
 
-import static java.time.Instant.now;
-import static java.util.Optional.empty;
-import static java.util.UUID.randomUUID;
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyList;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.mockStatic;
-import static org.mockito.Mockito.only;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-import static school.hei.haapi.endpoint.rest.model.ResultOverviewStatus.INVALIDATED;
-import static school.hei.haapi.endpoint.rest.model.ResultOverviewStatus.IN_PROGRESS;
-import static school.hei.haapi.endpoint.rest.model.ResultOverviewStatus.NOT_STARTED;
-import static school.hei.haapi.endpoint.rest.model.ResultOverviewStatus.VALIDATED;
-import static school.hei.haapi.endpoint.rest.model.StudentLevel.L1;
-import static school.hei.haapi.endpoint.rest.model.StudentLevel.L2;
-import static school.hei.haapi.endpoint.rest.model.StudentLevel.L3;
-import static school.hei.haapi.endpoint.rest.model.StudentLevel.M1;
-import static school.hei.haapi.endpoint.rest.model.StudentLevel.M2;
-import static school.hei.haapi.endpoint.rest.model.YearlyResultGenerationStatus.AVAILABLE;
-import static school.hei.haapi.endpoint.rest.model.YearlyResultGenerationStatus.GENERATING;
-import static school.hei.haapi.integration.conf.TestUtils.assertThrowsDomainBadRequestException;
-import static school.hei.haapi.model.CycleLevel.BACHELOR;
-
-import java.net.MalformedURLException;
-import java.net.URI;
-import java.net.URL;
-import java.time.Duration;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -76,6 +36,47 @@ import school.hei.haapi.service.utils.ClassPathResourceResolver;
 import school.hei.haapi.service.utils.CollectionUtils;
 import school.hei.haapi.service.utils.HtmlParser;
 import school.hei.haapi.service.utils.PdfRenderer;
+
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URL;
+import java.time.Duration;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Optional;
+
+import static java.time.Instant.now;
+import static java.util.Optional.empty;
+import static java.util.UUID.randomUUID;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.mockStatic;
+import static org.mockito.Mockito.only;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import static school.hei.haapi.endpoint.rest.model.ResultOverviewStatus.INVALIDATED;
+import static school.hei.haapi.endpoint.rest.model.ResultOverviewStatus.IN_PROGRESS;
+import static school.hei.haapi.endpoint.rest.model.ResultOverviewStatus.NOT_STARTED;
+import static school.hei.haapi.endpoint.rest.model.ResultOverviewStatus.VALIDATED;
+import static school.hei.haapi.endpoint.rest.model.StudentLevel.L1;
+import static school.hei.haapi.endpoint.rest.model.StudentLevel.L2;
+import static school.hei.haapi.endpoint.rest.model.StudentLevel.L3;
+import static school.hei.haapi.endpoint.rest.model.StudentLevel.M1;
+import static school.hei.haapi.endpoint.rest.model.StudentLevel.M2;
+import static school.hei.haapi.endpoint.rest.model.YearlyResultGenerationStatus.AVAILABLE;
+import static school.hei.haapi.endpoint.rest.model.YearlyResultGenerationStatus.GENERATING;
+import static school.hei.haapi.integration.conf.TestUtils.assertThrowsDomainBadRequestException;
+import static school.hei.haapi.model.CycleLevel.BACHELOR;
 
 @Slf4j
 class GradeResultServiceTest extends FacadeITMockedThirdParties {
@@ -419,7 +420,7 @@ class GradeResultServiceTest extends FacadeITMockedThirdParties {
     when(student1.findCurrentGroup()).thenReturn(Optional.of(group()));
     doReturn(List.of(groupFlow())).when(student1).getGroupFlows();
     doReturn(List.of(groupFlow())).when(student2).getGroupFlows();
-    doReturn(List.of(groupFlow())).when(student1).getGroupFlows();
+    doReturn(List.of(groupFlow())).when(student3).getGroupFlows();
 
     // Mock student Ids
     when(student2.getId()).thenReturn(STUDENT2_ID);
@@ -533,7 +534,7 @@ class GradeResultServiceTest extends FacadeITMockedThirdParties {
   void correct_result_yearly_result_student1_L1_validate() throws CoursesCreditSumZero {
     var targetLevel = L1;
 
-    var result = subject.getLeveledYearlyResultByStudentId(targetLevel, student1.getId());
+    var result = subject.getLeveledYearlyResultByStudentId(targetLevel, STUDENT1_ID);
 
     assertEquals(targetLevel, result.getLevel());
     assertEquals(60., result.getObtainedCredits().doubleValue());
@@ -608,7 +609,7 @@ class GradeResultServiceTest extends FacadeITMockedThirdParties {
   @Test
   void generate_result_pdf_year_in_progress_okay() throws CoursesCreditSumZero {
     var result = subject.getLeveledYearlyResultByStudentId(L1, STUDENT3_ID);
-    var resultFile = yearlyResultGenerationService.generateYearlyResultTranscript(student1, result);
+    var resultFile = yearlyResultGenerationService.generateYearlyResultTranscript(student3, result);
     assertTrue(resultFile.isFile());
   }
 
