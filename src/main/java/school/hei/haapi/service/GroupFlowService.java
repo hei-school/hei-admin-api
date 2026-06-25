@@ -1,5 +1,8 @@
 package school.hei.haapi.service;
 
+import static java.util.Comparator.comparing;
+import static school.hei.haapi.model.GroupFlow.GroupFlowType.JOIN;
+
 import java.time.Instant;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -8,6 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import school.hei.haapi.endpoint.rest.model.CreateGroupFlow;
+import school.hei.haapi.endpoint.rest.model.StudentLevel;
 import school.hei.haapi.model.Group;
 import school.hei.haapi.model.GroupFlow;
 import school.hei.haapi.model.User;
@@ -21,7 +25,6 @@ import school.hei.haapi.repository.UserRepository;
 @Service
 @AllArgsConstructor
 public class GroupFlowService {
-
   private final GroupFlowRepository repository;
   private final GroupRepository groupRepository;
   private final UserRepository userRepository;
@@ -76,5 +79,12 @@ public class GroupFlowService {
         .flowDatetime(Instant.now())
         .groupFlowType(GroupFlow.GroupFlowType.fromValue(toMap.getMoveType().getValue()))
         .build();
+  }
+
+  public Group getStudentGroupAtLevel(User student, StudentLevel level) {
+    return repository.findByFlowTypeAndStudentAndLevel(JOIN, student, level).stream()
+        .max(comparing(GroupFlow::getFlowDatetime))
+        .map(GroupFlow::getGroup)
+        .orElseThrow(() -> new NotFoundException("No group found for student at level " + level));
   }
 }

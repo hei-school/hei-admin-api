@@ -95,10 +95,6 @@ public class GroupService {
     return groups;
   }
 
-  public List<Group> getByUserId(String studentId) {
-    return groupRepository.findByStudentId(studentId);
-  }
-
   public List<Group> saveDomainGroup(List<Group> domainsGroup) {
     return repository.saveAll(domainsGroup);
   }

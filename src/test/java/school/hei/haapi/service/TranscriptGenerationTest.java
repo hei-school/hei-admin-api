@@ -47,7 +47,7 @@ public class TranscriptGenerationTest extends FacadeITMockedThirdParties {
     yearlyResultGenerationRequestRepository.saveAll(
         List.of(generatingRequest(), availableRequest(savedAvailableFileInfo)));
 
-    when(courseResultServiceMock.getCourseResultsForLevelOfStudent(any(), any()))
+    when(courseResultServiceMock.getCourseResultsByStudentIdAndLevel(any(), any()))
         .thenReturn(List.of(mgt1CourseResult(), prog1CourseResult(), sys1CourseResult()));
     when(userServiceMock.getById(any()))
         .thenReturn(User.builder().id(STUDENT_ID).ref(STUDENT_REF).build());

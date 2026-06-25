@@ -144,7 +144,7 @@ public class GradeController {
   public YearlyResult getYearlyResult(
       @PathVariable("student_id") String studentId,
       @PathVariable("student_level") StudentLevel studentLevel) {
-    return gradeResultService.getLeveledYearlyResultByStudentId(studentLevel, studentId);
+    return gradeResultService.getYearlyResultByStudentIdAndByLevel(studentLevel, studentId);
   }
 
   @GetMapping("/students/{student_id}/results_summary")

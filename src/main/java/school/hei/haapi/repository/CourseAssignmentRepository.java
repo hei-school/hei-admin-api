@@ -16,6 +16,9 @@ public interface CourseAssignmentRepository extends JpaRepository<CourseAssignme
   @Query("SELECT ca FROM CourseAssignment ca JOIN ca.groups g WHERE g.id = :groupId")
   List<CourseAssignment> findAllByGroupId(@Param("groupId") String groupId, Pageable pageable);
 
+  @Query("SELECT ca FROM CourseAssignment ca JOIN ca.groups g WHERE g.id = :groupId")
+  List<CourseAssignment> findAllByGroupId(@Param("groupId") String groupId);
+
   List<CourseAssignment> findAllByMainTeacher(User teacher, Pageable pageable);
 
   List<CourseAssignment> findAllByCourseId(String courseId, Pageable pageable);

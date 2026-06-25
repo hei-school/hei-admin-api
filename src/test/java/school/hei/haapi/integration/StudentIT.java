@@ -1190,9 +1190,9 @@ public class StudentIT extends FacadeITMockedThirdParties {
 
     assertTrue(studentsCreated.containsAll(List.of(student1, student2, student3)));
 
-    List<Fee> student1Fees = payingApi.getStudentFees(student1.getId(), 1, 15, null);
-    List<Fee> student2Fees = payingApi.getStudentFees(student2.getId(), 1, 15, null);
-    List<Fee> student3Fees = payingApi.getStudentFees(student3.getId(), 1, 15, null);
+    List<Fee> student1Fees = payingApi.getFeesByStudentId(student1.getId(), 1, 15, null);
+    List<Fee> student2Fees = payingApi.getFeesByStudentId(student2.getId(), 1, 15, null);
+    List<Fee> student3Fees = payingApi.getFeesByStudentId(student3.getId(), 1, 15, null);
 
     // Verify size
     assertEquals(9, student1Fees.size());

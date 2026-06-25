@@ -183,7 +183,7 @@ class FeeIT extends FacadeITMockedThirdParties {
 
     Fee deletedFee = api.deleteStudentFeeById(createdFee.getId(), STUDENT1_ID);
 
-    List<Fee> fees = api.getStudentFees(STUDENT1_ID, 1, 5, null);
+    List<Fee> fees = api.getFeesByStudentId(STUDENT1_ID, 1, 5, null);
     assertFalse(fees.contains(deletedFee));
 
     school.hei.haapi.model.Fee actualFeeData = getFeeByIdWithoutJpaFiltering(deletedFee.getId());
@@ -200,8 +200,8 @@ class FeeIT extends FacadeITMockedThirdParties {
 
     assertEquals(test, fee3());
 
-    List<Fee> actual = api.getStudentFees(STUDENT1_ID, 1, 20, null);
-    List<Fee> lateFees = api.getStudentFees(STUDENT1_ID, 1, 20, LATE);
+    List<Fee> actual = api.getFeesByStudentId(STUDENT1_ID, 1, 20, null);
+    List<Fee> lateFees = api.getFeesByStudentId(STUDENT1_ID, 1, 20, LATE);
 
     assertEquals(fee1(), actualFee);
     assertTrue(actual.contains(fee1()));
@@ -216,7 +216,7 @@ class FeeIT extends FacadeITMockedThirdParties {
     PayingApi api = new PayingApi(monitor1Client);
 
     Fee actualFee = api.getStudentFeeById(STUDENT1_ID, FEE1_ID);
-    List<Fee> actual = api.getStudentFees(STUDENT1_ID, 1, 10, null);
+    List<Fee> actual = api.getFeesByStudentId(STUDENT1_ID, 1, 10, null);
 
     assertEquals(fee1(), actualFee);
     assertTrue(actual.contains(fee1()));
@@ -250,7 +250,7 @@ class FeeIT extends FacadeITMockedThirdParties {
     PayingApi api = new PayingApi(manager1Client);
 
     Fee actualFee = api.getStudentFeeById(STUDENT1_ID, FEE1_ID);
-    List<Fee> actualFees1 = api.getStudentFees(STUDENT1_ID, 1, 20, null);
+    List<Fee> actualFees1 = api.getFeesByStudentId(STUDENT1_ID, 1, 20, null);
     FeesWithStats actualFees2 =
         api.getFees(null, null, PAID, null, fee1().getCreationDatetime(), null, 1, 10, false, null);
 
@@ -280,7 +280,7 @@ class FeeIT extends FacadeITMockedThirdParties {
         () -> api.getStudentFeeById(STUDENT2_ID, FEE2_ID));
     assertThrowsApiException(
         "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
-        () -> api.getStudentFees(STUDENT2_ID, null, null, null));
+        () -> api.getFeesByStudentId(STUDENT2_ID, null, null, null));
     assertThrowsApiException(
         "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
         () -> api.getFees(null, null, null, null, null, null, 1, 10, false, null));
@@ -292,7 +292,7 @@ class FeeIT extends FacadeITMockedThirdParties {
     PayingApi api = new PayingApi(monitor1Client);
 
     assertThrowsForbiddenException(() -> api.getStudentFeeById(STUDENT2_ID, FEE2_ID));
-    assertThrowsForbiddenException(() -> api.getStudentFees(STUDENT2_ID, null, null, null));
+    assertThrowsForbiddenException(() -> api.getFeesByStudentId(STUDENT2_ID, null, null, null));
     assertThrowsForbiddenException(
         () -> api.getFees(null, null, null, null, null, null, 1, 10, false, null));
   }
@@ -307,7 +307,7 @@ class FeeIT extends FacadeITMockedThirdParties {
         () -> api.getStudentFeeById(STUDENT2_ID, FEE2_ID));
     assertThrowsApiException(
         "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
-        () -> api.getStudentFees(STUDENT2_ID, null, null, null));
+        () -> api.getFeesByStudentId(STUDENT2_ID, null, null, null));
     assertThrowsApiException(
         "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
         () -> api.getFees(null, null, null, null, null, null, 1, 10, false, null));
@@ -362,7 +362,7 @@ class FeeIT extends FacadeITMockedThirdParties {
 
     List<Fee> crupdatedStudentFees = api.crupdateStudentFees(List.of(creatableStudentFee()));
 
-    List<Fee> student1Fees = api.getStudentFees(STUDENT1_ID, 1, 10, null);
+    List<Fee> student1Fees = api.getFeesByStudentId(STUDENT1_ID, 1, 10, null);
 
     assertEquals(1, crupdatedStudentFees.size());
     assertTrue(student1Fees.contains(crupdatedStudentFees.getFirst()));
@@ -401,7 +401,7 @@ class FeeIT extends FacadeITMockedThirdParties {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     PayingApi api = new PayingApi(manager1Client);
     String wrongId = "some-wrong-id";
-    List<Fee> expected = api.getStudentFees(STUDENT1_ID, 1, 5, null);
+    List<Fee> expected = api.getFeesByStudentId(STUDENT1_ID, 1, 5, null);
 
     assertThrowsApiException(
         "{\"type\":\"400 BAD_REQUEST\",\"message\":\"Total amount is mandatory\"}",
@@ -435,7 +435,7 @@ class FeeIT extends FacadeITMockedThirdParties {
         "{\"type\":\"400 BAD_REQUEST\",\"message\":\"Fee with id " + wrongId + " does not exist\"}",
         () -> api.updateStudentFees(STUDENT1_ID, List.of(fee1().id(wrongId))));
 
-    List<Fee> actual = api.getStudentFees(STUDENT1_ID, 1, 5, null);
+    List<Fee> actual = api.getFeesByStudentId(STUDENT1_ID, 1, 5, null);
     assertEquals(expected.size(), actual.size());
   }
 

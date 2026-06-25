@@ -83,6 +83,7 @@ public class UserService {
   private final BucketComponent bucketComponent;
 
   private static final String STUDENT_XLSX_IMPORT_BUCKET_KEY = "/STUDENT_XLSX_IMPORT/";
+  private final PromotionService promotionService;
 
   public void uploadUserProfilePicture(MultipartFile profilePictureAsMultipartFile, String userId) {
     User user = getById(userId);
@@ -477,5 +478,10 @@ public class UserService {
       log.error("Level for student id {} is out of bounds: {}", studentId, e.getMessage());
       return null;
     }
+  }
+
+  public boolean isRepeatingStudent(String studentId) {
+    var student = getById(studentId);
+    return promotionService.getAllStudentPromotions(student.getId()).size() > 1;
   }
 }
