@@ -241,5 +241,5 @@ public interface UserRepository extends JpaRepository<User, String> {
         )
       order by gf.group.ref
       """)
-  List<GroupFlow> findGroupFlowsByStudentId(@Param("studentId") String studentId);
+  List<GroupFlow> findLastGroupFlowPerGroupByStudentId(@Param("studentId") String studentId);
 }
