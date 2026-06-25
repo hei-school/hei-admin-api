@@ -31,14 +31,20 @@ public interface ExamRepository extends JpaRepository<Exam, String> {
   @Query(
       """
       select distinct c.studentLevel
-                from Exam e
-                join e.courseAssignment ca
-                join ca.course c
-                join ca.groups g
-                where g.id = :group_id
-                  and e.examinationDate <= :examination_date
-                order by c.studentLevel
+      from Exam e
+      join e.courseAssignment ca
+      join ca.course c
+      join ca.groups g
+      where g.id = :groupId
+        and (
+              :beginDatetime is null
+              or e.examinationDate >= :beginDatetime
+            )
+        and e.examinationDate <= :endDatetime
+      order by c.studentLevel
       """)
-  List<StudentLevel> findStudentLevelsByGroupBeforeExaminationDate(
-      @Param("group_id") String groupId, @Param("examination_date") Instant examinationDate);
+  List<StudentLevel> findStudentLevelsByGroupBetweenDates(
+      @Param("groupId") String groupId,
+      @Param("beginDatetime") Instant beginDatetime,
+      @Param("endDatetime") Instant endDatetime);
 }

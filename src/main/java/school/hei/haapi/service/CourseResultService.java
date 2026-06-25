@@ -133,13 +133,19 @@ public class CourseResultService {
 
   private Optional<StudentGroupLevel> getUnassignedGroupLevels(
       Set<StudentLevel> assignedLevels, GroupFlow groupFlow) {
-    var examinationDate =
+    var beginDatetime =
+        groupFlow.getGroupFlowType() == GroupFlow.GroupFlowType.JOIN
+            ? groupFlow.getFlowDatetime()
+            : null;
+
+    var endDatetime =
         groupFlow.getGroupFlowType() == GroupFlow.GroupFlowType.JOIN
             ? now()
             : groupFlow.getFlowDatetime();
+
     var levels =
-        examRepository.findStudentLevelsByGroupBeforeExaminationDate(
-            groupFlow.getGroup().getId(), examinationDate);
+        examRepository.findStudentLevelsByGroupBetweenDates(
+            groupFlow.getGroup().getId(), beginDatetime, endDatetime);
     var remainingLevels = levels.stream().filter(level -> !assignedLevels.contains(level)).toList();
     if (remainingLevels.isEmpty()) {
       return Optional.empty();
