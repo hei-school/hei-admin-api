@@ -983,9 +983,9 @@ public class SecurityConf {
                         STAFF_MEMBER.getRole(),
                         MONITOR.getRole())
                     .requestMatchers(GET, "/users/*/letters")
-                    .hasAnyRole(MANAGER.getRole(), ADMIN.getRole())
+                    .hasAnyRole(MANAGER.getRole(), ADMIN.getRole(), MONITOR.getRole())
                     .requestMatchers(POST, "/users/*/letters")
-                    .hasAnyRole(MANAGER.getRole(), ADMIN.getRole())
+                    .hasAnyRole(MANAGER.getRole(), ADMIN.getRole(), MONITOR.getRole())
                     //
                     // Event resources
                     //
