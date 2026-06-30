@@ -223,7 +223,7 @@ public class MpbsIT extends FacadeITMockedThirdParties {
     assertEquals(actual1, inUpdate);
 
     // Assert that when we get fees it not throws error 500
-    var actualFee = api.getStudentFees(STUDENT1_ID, 1, 10, null);
+    var actualFee = api.getFeesByStudentId(STUDENT1_ID, 1, 10, null);
     assertEquals(7, actualFee.size());
   }
 

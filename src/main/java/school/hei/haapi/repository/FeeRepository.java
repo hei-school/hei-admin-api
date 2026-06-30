@@ -34,24 +34,24 @@ public interface FeeRepository extends JpaRepository<Fee, String> {
   @Query(
       value =
           """
-
-                SELECT
-    f
-FROM
-    Fee f
-JOIN
-    User u ON f.student.id = u.id
-WHERE
-    f.student.id = :studentId
-ORDER BY
-  CASE
-    WHEN f.status = 'LATE' THEN 1
-    WHEN f.status = 'UNPAID' THEN 2
-    WHEN f.status = 'PAID' THEN 3
-  END ASC,
-  f.dueDatetime DESC,
-  f.id
-""")
+            SELECT
+                f
+            FROM
+                Fee f
+            JOIN
+                User u ON f.student.id = u.id
+            WHERE
+                f.student.id = :studentId
+            ORDER BY
+              CASE
+                WHEN f.status = 'PENDING' THEN 1
+                WHEN f.status = 'LATE' THEN 2
+                WHEN f.status = 'UNPAID' THEN 3
+                WHEN f.status = 'PAID' THEN 4
+              END ASC,
+              f.dueDatetime DESC,
+              f.id
+          """)
   List<Fee> findAllByStudentIdSortByStatusAndDueDatetimeDescAndId(
       String studentId, Pageable pageable);
 

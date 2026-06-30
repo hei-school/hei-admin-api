@@ -9,7 +9,7 @@ import static school.hei.haapi.integration.conf.TestUtils.setUpCasdoor;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import school.hei.haapi.endpoint.rest.api.GradesApi;
+import school.hei.haapi.endpoint.rest.api.RetakeExamApi;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
 import school.hei.haapi.endpoint.rest.model.CourseResultStatus;
@@ -28,7 +28,7 @@ public class StudentRetakeExamListIT extends FacadeITMockedThirdParties {
 
   @Test
   void should_be_see_all_exams_VALIDATED() throws ApiException {
-    var api = new GradesApi(anApiClient(MANAGER1_TOKEN));
+    var api = new RetakeExamApi(anApiClient(MANAGER1_TOKEN));
     var status = CourseResultStatus.VALIDATED;
     var results = api.getListStudentRetakeExams(STUDENT1_ID, status).size();
     var expected = 1;
@@ -38,7 +38,7 @@ public class StudentRetakeExamListIT extends FacadeITMockedThirdParties {
 
   @Test
   void should_be_see_my_all_exams_INCOMPLETED() throws ApiException {
-    var api = new GradesApi(anApiClient(STUDENT1_TOKEN));
+    var api = new RetakeExamApi(anApiClient(STUDENT1_TOKEN));
     var status = CourseResultStatus.INCOMPLETE;
     var results = api.getListStudentRetakeExams(STUDENT1_ID, status);
 
@@ -47,7 +47,7 @@ public class StudentRetakeExamListIT extends FacadeITMockedThirdParties {
 
   @Test
   void should_be_see_all_exams_with_all_status() throws ApiException {
-    var api = new GradesApi(anApiClient(MANAGER1_TOKEN));
+    var api = new RetakeExamApi(anApiClient(MANAGER1_TOKEN));
     var results = api.getListStudentRetakeExams(STUDENT1_ID, null).size();
     var expected = 2;
     assertEquals(expected, results);

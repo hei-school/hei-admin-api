@@ -30,6 +30,23 @@ public class FeeTestData {
         .build();
   }
 
+  public static Fee createFeeWithStatus(
+      User student, Integer totalAmount, Instant dueDatetime, FeeStatusEnum status) {
+    return Fee.builder()
+        .id(randomUUID().toString())
+        .student(student)
+        .type(TUITION)
+        .frequency(MONTHLY)
+        .totalAmount(totalAmount)
+        .remainingAmount(totalAmount)
+        .dueDatetime(dueDatetime)
+        .creationDatetime(Instant.now())
+        .status(status)
+        .statusHistories(new ArrayList<>())
+        .category(UNKNOWN)
+        .build();
+  }
+
   public static FeeStatusHistory createFeeStatusHistory(Fee fee, FeeStatusEnum status) {
     return FeeStatusHistory.builder().id(randomUUID().toString()).fee(fee).status(status).build();
   }

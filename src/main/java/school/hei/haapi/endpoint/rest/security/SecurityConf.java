@@ -980,7 +980,8 @@ public class SecurityConf {
                         STUDENT.getRole(),
                         TEACHER.getRole(),
                         ADMIN.getRole(),
-                        STAFF_MEMBER.getRole())
+                        STAFF_MEMBER.getRole(),
+                        MONITOR.getRole())
                     .requestMatchers(GET, "/users/*/letters")
                     .hasAnyRole(MANAGER.getRole(), ADMIN.getRole())
                     .requestMatchers(POST, "/users/*/letters")

@@ -809,7 +809,7 @@ paths:
   /students/{student_id}/retake_exams:
     get:
       tags:
-        - Grades
+        - RetakeExam
       summary: Get retake exams for a student
       operationId: getListStudentRetakeExams
       parameters:
@@ -3744,7 +3744,7 @@ paths:
           in: query
           schema:
             $ref: '#/components/schemas/FeeStatusEnum'
-      operationId: getStudentFees
+      operationId: getFeesByStudentId
       responses:
         '200':
           description: List of all student fees

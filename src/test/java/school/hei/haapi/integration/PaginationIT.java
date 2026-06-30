@@ -97,9 +97,9 @@ class PaginationIT extends FacadeITMockedThirdParties {
     PayingApi api = new PayingApi(student1Client);
     int pageSize = 2;
 
-    List<Fee> page1 = api.getStudentFees(STUDENT1_ID, 1, pageSize, null);
-    List<Fee> page2 = api.getStudentFees(STUDENT1_ID, 2, pageSize, null);
-    List<Fee> page3 = api.getStudentFees(STUDENT1_ID, 3, pageSize, null);
+    List<Fee> page1 = api.getFeesByStudentId(STUDENT1_ID, 1, pageSize, null);
+    List<Fee> page2 = api.getFeesByStudentId(STUDENT1_ID, 2, pageSize, null);
+    List<Fee> page3 = api.getFeesByStudentId(STUDENT1_ID, 3, pageSize, null);
 
     assertEquals(pageSize, page1.size());
     assertEquals(2, page2.size());

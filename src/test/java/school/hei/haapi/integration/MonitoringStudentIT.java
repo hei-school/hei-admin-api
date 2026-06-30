@@ -166,12 +166,12 @@ class MonitoringStudentIT extends FacadeITMockedThirdParties {
     // 2. ... Except that the monitor access to his resources ...
     ApiClient monitor2Client = anApiClient(MONITOR2_TOKEN);
     PayingApi payingApi = new PayingApi(monitor2Client);
-    List<Fee> followedStudentFee = payingApi.getStudentFees(STUDENT2_ID, 1, 10, null);
+    List<Fee> followedStudentFee = payingApi.getFeesByStudentId(STUDENT2_ID, 1, 10, null);
 
     assertFalse(followedStudentFee.isEmpty());
 
     // 3. ... And except that for other student monitor doesn't have access
-    assertThrowsForbiddenException(() -> payingApi.getStudentFees(STUDENT3_ID, 1, 10, null));
+    assertThrowsForbiddenException(() -> payingApi.getFeesByStudentId(STUDENT3_ID, 1, 10, null));
   }
 
   @Test
