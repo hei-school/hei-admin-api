@@ -10,7 +10,6 @@ import software.amazon.awssdk.services.ses.model.VerifyEmailIdentityRequest;
 @Component
 @AllArgsConstructor
 @PojaGenerated
-@SuppressWarnings("all")
 public class EmailAddressVerifier implements Consumer<InternetAddress> {
 
   private final EmailConf emailConf;
