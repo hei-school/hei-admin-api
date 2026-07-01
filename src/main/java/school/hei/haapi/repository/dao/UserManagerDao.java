@@ -1,12 +1,5 @@
 package school.hei.haapi.repository.dao;
 
-import static jakarta.persistence.criteria.JoinType.LEFT;
-import static school.hei.haapi.endpoint.rest.model.WorkStudyStatus.HAVE_BEEN_WORKING;
-import static school.hei.haapi.endpoint.rest.model.WorkStudyStatus.WILL_BE_WORKING;
-import static school.hei.haapi.endpoint.rest.model.WorkStudyStatus.WORKING;
-import static school.hei.haapi.model.GroupFlow.GroupFlowType.JOIN;
-import static school.hei.haapi.model.GroupFlow.GroupFlowType.LEAVE;
-
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
@@ -15,9 +8,6 @@ import jakarta.persistence.criteria.Join;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 import jakarta.persistence.criteria.Subquery;
-import java.time.Instant;
-import java.util.Collection;
-import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
@@ -32,6 +22,17 @@ import school.hei.haapi.model.GroupFlow;
 import school.hei.haapi.model.User;
 import school.hei.haapi.model.WorkDocument;
 import school.hei.haapi.service.utils.CollectionUtils;
+
+import java.time.Instant;
+import java.util.Collection;
+import java.util.List;
+
+import static jakarta.persistence.criteria.JoinType.LEFT;
+import static school.hei.haapi.endpoint.rest.model.WorkStudyStatus.HAVE_BEEN_WORKING;
+import static school.hei.haapi.endpoint.rest.model.WorkStudyStatus.WILL_BE_WORKING;
+import static school.hei.haapi.endpoint.rest.model.WorkStudyStatus.WORKING;
+import static school.hei.haapi.model.GroupFlow.GroupFlowType.JOIN;
+import static school.hei.haapi.model.GroupFlow.GroupFlowType.LEAVE;
 
 @Repository
 @AllArgsConstructor
@@ -100,7 +101,9 @@ public class UserManagerDao {
           builder.and(
               predicate,
               builder.lessThanOrEqualTo(
-                  workDocumentJoin.get("commitmentBegin"), commitmentComparison));
+                  workDocumentJoin.get("commitmentBegin"), commitmentComparison),
+              builder.isNull(workDocumentJoin.get("commitmentBegin")),
+              builder.greaterThan(workDocumentJoin.get("commitmentEnd"), commitmentComparison));
     }
     if (HAVE_BEEN_WORKING.equals(workStatus)) {
       workDocumentJoin = root.join("workDocuments", LEFT);
