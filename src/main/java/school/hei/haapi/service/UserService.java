@@ -130,7 +130,7 @@ public class UserService {
     return userToRefresh;
   }
 
-  @Transactional
+  @Transactional(readOnly = true)
   public User getById(String userId) {
     return userRepository
         .findById(userId)
