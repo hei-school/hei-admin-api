@@ -20,7 +20,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
@@ -45,7 +44,6 @@ import school.hei.haapi.file.bucket.BucketComponent;
 import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.EventParticipant;
 import school.hei.haapi.model.PageFromOne;
-import school.hei.haapi.model.Promotion;
 import school.hei.haapi.model.User;
 import school.hei.haapi.model.dto.StudentImportDto;
 import school.hei.haapi.model.exception.BadRequestException;
@@ -84,10 +82,11 @@ public class UserService {
 
   private static final String STUDENT_XLSX_IMPORT_BUCKET_KEY = "/STUDENT_XLSX_IMPORT/";
 
+  @Transactional
   public void uploadUserProfilePicture(MultipartFile profilePictureAsMultipartFile, String userId) {
-    User user = getById(userId);
-    File savedProfilePicture = fileConverter.apply(profilePictureAsMultipartFile);
-    String bucketKey =
+    var user = getById(userId);
+    var savedProfilePicture = fileConverter.apply(profilePictureAsMultipartFile);
+    var bucketKey =
         getFormattedProfilePictureKey(user)
             + fileService.getFileExtension(profilePictureAsMultipartFile);
     user.setProfilePictureKey(bucketKey);
@@ -101,12 +100,12 @@ public class UserService {
   }
 
   public User updateUser(User user, String userId) {
-    User toUpdate = refreshUserById(userId, user);
+    var toUpdate = refreshUserById(userId, user);
     return userRepository.save(toUpdate);
   }
 
   private User refreshUserById(String userId, User refreshedUser) {
-    User userToRefresh = getById(userId);
+    var userToRefresh = getById(userId);
 
     userToRefresh.setAddress(refreshedUser.getAddress());
     userToRefresh.setBirthDate(refreshedUser.getBirthDate());
@@ -154,7 +153,7 @@ public class UserService {
   public List<User> saveAll(List<User> users) {
     userValidator.accept(users);
     // TODO: do not nullify profile picture here
-    List<User> savedUsers = userRepository.saveAll(users);
+    var savedUsers = userRepository.saveAll(users);
     eventProducer.accept(users.stream().map(this::toUserUpsertedEvent).toList());
     return savedUsers;
   }
@@ -162,9 +161,9 @@ public class UserService {
   @Transactional
   public List<User> saveAll(
       HashMap<User, PaymentFrequency> userPaymentFrequencyMap, Instant firstDueDatetime) {
-    List<User> users = new ArrayList<>(userPaymentFrequencyMap.keySet());
+    var users = new ArrayList<>(userPaymentFrequencyMap.keySet());
     userValidator.accept(users);
-    List<User> savedUsers = userRepository.saveAll(users);
+    var savedUsers = userRepository.saveAll(users);
     eventProducer.accept(users.stream().map(this::toUserUpsertedEvent).toList());
 
     // TODO: handle existing users exception when creating fees automatically
@@ -253,8 +252,8 @@ public class UserService {
   }
 
   private void validateDuplicateStudentImport(List<StudentImportDto> importResults) {
-    Set<String> seenRefs = new HashSet<>();
-    Set<String> seenEmails = new HashSet<>();
+    var seenRefs = new HashSet<>();
+    var seenEmails = new HashSet<>();
     for (StudentImportDto dto : importResults) {
       if (!seenRefs.add(dto.getRef())) {
         throw new BadRequestException("Référence dupliqués détecté: " + dto.getRef());
@@ -280,8 +279,7 @@ public class UserService {
       String ref,
       PageFromOne page,
       BoundedPageSize pageSize) {
-    Pageable pageable =
-        PageRequest.of(page.getValue() - 1, pageSize.getValue(), Sort.by(ASC, "ref"));
+    var pageable = PageRequest.of(page.getValue() - 1, pageSize.getValue(), Sort.by(ASC, "ref"));
     return userManagerDao.findByCriteria(
         role, ref, firstName, lastName, pageable, null, null, null, null, null, null, null, null);
   }
@@ -295,8 +293,7 @@ public class UserService {
       BoundedPageSize pageSize,
       User.Status status,
       User.Sex sex) {
-    Pageable pageable =
-        PageRequest.of(page.getValue() - 1, pageSize.getValue(), Sort.by(ASC, "ref"));
+    var pageable = PageRequest.of(page.getValue() - 1, pageSize.getValue(), Sort.by(ASC, "ref"));
 
     return userManagerDao.findByCriteria(
         role, ref, firstName, lastName, pageable, status, sex, null, null, null, null, null, null);
@@ -317,8 +314,7 @@ public class UserService {
       List<String> excludeGroupIds) {
     log.info("Page = {}", page.getValue());
     log.info("PageSize = {}", pageSize.getValue());
-    Pageable pageable =
-        PageRequest.of(page.getValue() - 1, pageSize.getValue(), Sort.by(ASC, "ref"));
+    var pageable = PageRequest.of(page.getValue() - 1, pageSize.getValue(), Sort.by(ASC, "ref"));
     return userManagerDao.findByCriteria(
         role,
         ref,
@@ -363,19 +359,18 @@ public class UserService {
   }
 
   public byte[] generateStudentsGroup(String groupId) {
-    List<User> studentsGroup = getByGroupId(groupId, unpaged());
+    var studentsGroup = getByGroupId(groupId, unpaged());
     return userXlsxCellsGenerator.apply(studentsGroup, List.of("ref", "firstName", "lastName"));
   }
 
   public byte[] generateTeachersXlsx() {
-    List<User> teachers = userRepository.findAllByRoleAndStatus(TEACHER, ENABLED);
+    var teachers = userRepository.findAllByRoleAndStatus(TEACHER, ENABLED);
     return userXlsxCellsGenerator.apply(teachers, List.of("firstName", "lastName", "email", "sex"));
   }
 
   public List<User> getByGroupIdWithFilter(
       String groupId, PageFromOne page, BoundedPageSize pageSize, String studentFirstname) {
-    Pageable pageable =
-        PageRequest.of(page.getValue() - 1, pageSize.getValue(), Sort.by(ASC, "ref"));
+    var pageable = PageRequest.of(page.getValue() - 1, pageSize.getValue(), Sort.by(ASC, "ref"));
     return userRepository
         .findStudentGroupsWithFilter(groupId, studentFirstname, pageable)
         .getContent();
@@ -411,7 +406,7 @@ public class UserService {
   }
 
   public byte[] generateStudentsInEventXlsx(String eventId) {
-    List<EventParticipant> students =
+    var students =
         eventParticipantRepository
             .findAllByEventId(eventId, null)
             .orElseThrow(
@@ -428,7 +423,7 @@ public class UserService {
   }
 
   public byte[] generateStudentsInPromotionXlsx(String promotionId) {
-    Promotion promotion =
+    var promotion =
         promotionRepository
             .findById(promotionId)
             .orElseThrow(
@@ -467,6 +462,7 @@ public class UserService {
     return userRepository.findAllByRoleInAndIdIn(roles, ids);
   }
 
+  @Transactional
   public StudentLevel getStudentLevel(String studentId) {
     try {
       return getById(studentId)
