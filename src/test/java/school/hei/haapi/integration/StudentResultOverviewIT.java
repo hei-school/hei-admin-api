@@ -114,13 +114,6 @@ public class StudentResultOverviewIT extends FacadeITMockedThirdParties {
     return TestUtils.anApiClient(token, localPort);
   }
 
-  @BeforeEach
-  void setUp() {
-    setUpCasdoor(casdoorAuthServiceMock, certificateLoaderMock);
-    setUpCognito(cognitoComponentMock);
-  }
-
-  @BeforeEach
   void setUpTestData() {
     axel = userRepository.save(axel());
     tolojanahary = userRepository.save(tolojanahary());
@@ -166,6 +159,13 @@ public class StudentResultOverviewIT extends FacadeITMockedThirdParties {
             axelResultOverview,
             manitraResultOverview,
             freddyResultOverview));
+  }
+
+  @BeforeEach
+  void setUp() {
+    setUpTestData();
+    setUpCasdoor(casdoorAuthServiceMock, certificateLoaderMock);
+    setUpCognito(cognitoComponentMock);
   }
 
   @AfterEach

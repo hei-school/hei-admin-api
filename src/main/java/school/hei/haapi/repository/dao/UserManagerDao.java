@@ -100,7 +100,9 @@ public class UserManagerDao {
           builder.and(
               predicate,
               builder.lessThanOrEqualTo(
-                  workDocumentJoin.get("commitmentBegin"), commitmentComparison));
+                  workDocumentJoin.get("commitmentBegin"), commitmentComparison),
+              builder.isNull(workDocumentJoin.get("commitmentEnd")),
+              builder.greaterThan(workDocumentJoin.get("commitmentEnd"), commitmentComparison));
     }
     if (HAVE_BEEN_WORKING.equals(workStatus)) {
       workDocumentJoin = root.join("workDocuments", LEFT);
@@ -108,9 +110,7 @@ public class UserManagerDao {
           builder.and(
               predicate,
               builder.lessThanOrEqualTo(
-                  workDocumentJoin.get("commitmentEnd"), commitmentComparison),
-              builder.isNull(workDocumentJoin.get("commitmentEnd")),
-              builder.greaterThan(workDocumentJoin.get("commitmentEnd"), commitmentComparison));
+                  workDocumentJoin.get("commitmentEnd"), commitmentComparison));
     }
     if (WILL_BE_WORKING.equals(workStatus)) {
       workDocumentJoin = root.join("workDocuments", LEFT);
