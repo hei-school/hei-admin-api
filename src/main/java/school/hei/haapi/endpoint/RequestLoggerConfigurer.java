@@ -22,12 +22,10 @@ import school.hei.haapi.PojaGenerated;
 @Configuration
 @AllArgsConstructor
 public class RequestLoggerConfigurer implements WebMvcConfigurer {
-  private final UserActivityInterceptor userActivityInterceptor;
 
   @Override
   public void addInterceptors(InterceptorRegistry registry) {
     registry.addInterceptor(new RequestLogger());
-    registry.addInterceptor(userActivityInterceptor);
   }
 
   @PojaGenerated
