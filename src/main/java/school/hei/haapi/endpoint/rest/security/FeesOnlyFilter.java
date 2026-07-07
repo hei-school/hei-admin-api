@@ -7,30 +7,29 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-/**
- * Restricts the API surface to a minimal set of prefixes when the application is started in
- * "fees only" mode. Intended as a kill-switch for incidents: keep payments and the student
- * read paths reachable while every other feature is short-circuited with HTTP 403.
- *
- * <p>Activation is controlled by the {@code FEES_ONLY} environment variable / property
- * (default {@code false}). When the flag is off this filter is a no-op.
- */
+
 @Component
 @Slf4j
 public class FeesOnlyFilter extends OncePerRequestFilter {
 
-  @Value("${FEES_ONLY:false}")
-  private boolean feesOnly;
+  private final boolean feesOnly;
+
+  public FeesOnlyFilter() {
+    this("true".equalsIgnoreCase(System.getenv("FEES_ONLY")));
+  }
+
+  public FeesOnlyFilter(boolean feesOnly) {
+    this.feesOnly = feesOnly;
+  }
 
   private static final List<String> ALLOWED_PREFIXES =
       List.of("/fees", "/students", "/whoami", "/ping", "/authentication", "/health", "/mpbs");
 
   @Override
-  protected void doFilterInternal(
+  public void doFilterInternal(
       HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
       throws ServletException, IOException {
 
