@@ -47,6 +47,7 @@ public class SecurityConf {
   private final AbstractUserDetailsAuthenticationProvider authProvider;
   private final HandlerExceptionResolver exceptionResolver;
   private final CorRepository corRepository;
+  private final FeesOnlyFilter feesOnlyFilter;
 
   public SecurityConf(
       CasdoorAuthProvider authProvider,
@@ -54,12 +55,14 @@ public class SecurityConf {
       @Qualifier("handlerExceptionResolver") HandlerExceptionResolver exceptionResolver,
       CourseAssignmentService courseAssignmentService,
       MonitoringStudentService monitoringStudentService,
-      CorRepository corRepository) {
+      CorRepository corRepository,
+      FeesOnlyFilter feesOnlyFilter) {
     this.authProvider = authProvider;
     this.exceptionResolver = exceptionResolver;
     this.courseAssignmentService = courseAssignmentService;
     this.monitoringStudentService = monitoringStudentService;
     this.corRepository = corRepository;
+    this.feesOnlyFilter = feesOnlyFilter;
   }
 
   @Bean
@@ -92,7 +95,9 @@ public class SecurityConf {
 
         // authenticate
         .authenticationProvider(authProvider)
-        .addFilterBefore(
+            .addFilterBefore(feesOnlyFilter, AnonymousAuthenticationFilter.class)
+
+            .addFilterBefore(
             bearerFilter(
                 new OrRequestMatcher(
                     antMatcher(GET, "/whoami"),
