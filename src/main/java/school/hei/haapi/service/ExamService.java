@@ -24,10 +24,6 @@ public class ExamService {
   private final ExamDao examDao;
   private final ExamValidator validator;
 
-  public List<Exam> getExamsByCourseIdAndGroupId(String groupId, String courseId) {
-    return examRepository.findExamsByCourseIdAndGroupIds(groupId, courseId);
-  }
-
   public List<Exam> updateOrSaveAll(List<Exam> exams) {
     validator.accept(exams);
     return examRepository.saveAll(exams);

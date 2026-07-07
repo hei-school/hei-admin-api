@@ -1,14 +1,14 @@
 package school.hei.haapi.repository;
 
-import java.util.List;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
-import school.hei.haapi.endpoint.rest.model.StudentLevel;
 import school.hei.haapi.model.CourseAssignment;
 import school.hei.haapi.model.User;
+
+import java.util.List;
 
 @Repository
 public interface CourseAssignmentRepository extends JpaRepository<CourseAssignment, String> {
@@ -22,7 +22,4 @@ public interface CourseAssignmentRepository extends JpaRepository<CourseAssignme
   List<CourseAssignment> findAllByMainTeacher(User teacher, Pageable pageable);
 
   List<CourseAssignment> findAllByCourseId(String courseId, Pageable pageable);
-
-  List<CourseAssignment> findAllByCourse_StudentLevelAndGroupsIn(
-      StudentLevel courseStudentLevel, List<String> groupIds);
 }
