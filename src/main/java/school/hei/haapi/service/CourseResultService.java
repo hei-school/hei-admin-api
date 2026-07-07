@@ -69,12 +69,12 @@ public class CourseResultService {
     if (groupFlowPeriods.isEmpty()) {
       return List.of();
     }
-    var promotionNames =
+    var groupPromotions =
         groupFlowPeriods.stream()
-            .map(groupFlowPeriod -> extractPromotion(groupFlowPeriod.group().getName()))
+            .map(groupFlowPeriod -> extractGroupPromotion(groupFlowPeriod.group().getName()))
             .collect(Collectors.toSet());
 
-    if (samePromotionName(promotionNames)) {
+    if (sameGroupPromotion(groupPromotions)) {
       return groupFlowPeriods;
     }
 
@@ -82,11 +82,11 @@ public class CourseResultService {
         groupFlowPeriods.stream().max(comparing(GroupFlowPeriod::start)).orElseThrow());
   }
 
-  private boolean samePromotionName(Set<String> promotionNames) {
+  private boolean sameGroupPromotion(Set<String> promotionNames) {
     return promotionNames.size() == 1;
   }
 
-  private String extractPromotion(String groupName) {
+  private String extractGroupPromotion(String groupName) {
     return groupName.replaceAll("[0-9]+$", "");
   }
 
@@ -104,21 +104,19 @@ public class CourseResultService {
         courseAssignmentService.getByGroupId(groupFlowPeriod.group().getId()).stream()
             .filter(
                 courseAssignment -> level.equals(courseAssignment.getCourse().getStudentLevel()))
-            .filter(courseAssignment -> haveExamBetweenTwoDate(courseAssignment, groupFlowPeriod))
+            .filter(
+                courseAssignment ->
+                    haveExamBetweenGroupFlowPeriod(courseAssignment, groupFlowPeriod))
             .toList();
     return Map.of(groupFlowPeriod, courseAssignments);
   }
 
-  private boolean haveExamBetweenTwoDate(
+  private boolean haveExamBetweenGroupFlowPeriod(
       CourseAssignment courseAssignment, GroupFlowPeriod groupFlowPeriod) {
-    var courseExams =
-        examService.getExamsByCourseAssignmentIds(
-            Collections.singletonList(courseAssignment.getId()));
-
+    var courseExams = courseAssignment.getExams();
     if (courseExams.isEmpty() && groupFlowPeriod.end() == null) {
       return true;
     }
-
     return courseExams.stream()
         .anyMatch(courseExam -> groupFlowPeriod.contains(courseExam.getExaminationDate()));
   }
@@ -128,12 +126,9 @@ public class CourseResultService {
     var entry = courseWithGroup.entrySet().stream().findFirst().orElseThrow();
     var groupFlowPeriod = entry.getKey();
     var courseAssignment = entry.getValue().getFirst();
-    var courseExams =
-        examService.getExamsByCourseAssignmentIds(
-            Collections.singletonList(courseAssignment.getId()));
+    var courseExams = courseAssignment.getExams();
     var studentGrades =
         gradeDao.getStudentGradesByCourseId(courseAssignment.getId(), student.getId());
-
     var courseResult = new CourseResult().course(courseMapper.toRest(courseAssignment.getCourse()));
 
     if (groupFlowPeriod.end() != null) {

@@ -86,7 +86,7 @@ public class GroupFlowService {
     var groupFlows = repository.findByFlowTypeAndStudentAndLevel(student, level);
     var groupFlowsByGroup = groupFlows.stream().collect(Collectors.groupingBy(GroupFlow::getGroup));
     return groupFlowsByGroup.entrySet().stream()
-        .map(e -> toGroupFlowPeriod(e.getKey(), e.getValue()))
+        .map(entry -> toGroupFlowPeriod(entry.getKey(), entry.getValue()))
         .toList();
   }
 
