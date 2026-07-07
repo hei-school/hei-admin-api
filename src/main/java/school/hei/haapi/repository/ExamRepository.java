@@ -1,14 +1,10 @@
 package school.hei.haapi.repository;
 
-import java.time.Instant;
 import java.util.List;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
-import school.hei.haapi.endpoint.rest.model.StudentLevel;
 import school.hei.haapi.model.Exam;
 
 @Repository
@@ -21,30 +17,8 @@ public interface ExamRepository extends JpaRepository<Exam, String> {
       @Param("course_assignment_ids") List<String> courseAssignmentIds);
 
   @Query(
-      "select e from Exam e join e.courseAssignment.groups g where g.id = :group_id and "
-          + "e.courseAssignment.id = :course_assignment_id")
-  Page<Exam> findExamsByGroupIdAndCourseAssignmentId(
-      @Param("group_id") String courseId,
-      @Param("course_assignment_id") String courseAssignmentId,
-      Pageable pageable);
-
-  @Query(
-      """
-      select distinct c.studentLevel
-      from Exam e
-      join e.courseAssignment ca
-      join ca.course c
-      join ca.groups g
-      where g.id = :groupId
-        and (
-              :beginDatetime is null
-              or e.examinationDate >= :beginDatetime
-            )
-        and e.examinationDate <= :endDatetime
-      order by c.studentLevel
-      """)
-  List<StudentLevel> findStudentLevelsByGroupBetweenDates(
-      @Param("groupId") String groupId,
-      @Param("beginDatetime") Instant beginDatetime,
-      @Param("endDatetime") Instant endDatetime);
+      "select e from Exam e join e.courseAssignment.groups g where g.id = :group_ids and "
+          + "e.courseAssignment.course.id = : course_id")
+  List<Exam> findExamsByCourseIdAndGroupIds(
+      @Param("group_ids") String groupId, @Param("course_id") String courseId);
 }

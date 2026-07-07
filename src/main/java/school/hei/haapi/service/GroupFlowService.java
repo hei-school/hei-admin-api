@@ -1,7 +1,7 @@
 package school.hei.haapi.service;
 
-import static java.util.Comparator.comparing;
 import static school.hei.haapi.model.GroupFlow.GroupFlowType.JOIN;
+import static school.hei.haapi.model.GroupFlow.GroupFlowType.LEAVE;
 
 import java.time.Instant;
 import java.util.List;
@@ -15,6 +15,7 @@ import school.hei.haapi.endpoint.rest.model.StudentLevel;
 import school.hei.haapi.model.Group;
 import school.hei.haapi.model.GroupFlow;
 import school.hei.haapi.model.User;
+import school.hei.haapi.model.dto.GroupFlowPeriod;
 import school.hei.haapi.model.exception.NotFoundException;
 import school.hei.haapi.model.validator.GroupFlowValidator;
 import school.hei.haapi.repository.GroupFlowRepository;
@@ -81,10 +82,27 @@ public class GroupFlowService {
         .build();
   }
 
-  public Group getStudentGroupAtLevel(User student, StudentLevel level) {
-    return repository.findByFlowTypeAndStudentAndLevel(JOIN, student, level).stream()
-        .max(comparing(GroupFlow::getFlowDatetime))
-        .map(GroupFlow::getGroup)
-        .orElseThrow(() -> new NotFoundException("No group found for student at level " + level));
+  public List<GroupFlowPeriod> getStudentGroupFlowAtLevel(User student, StudentLevel level) {
+    var groupFlows = repository.findByFlowTypeAndStudentAndLevel(student, level);
+    var groupFlowsByGroup = groupFlows.stream().collect(Collectors.groupingBy(GroupFlow::getGroup));
+    return groupFlowsByGroup.entrySet().stream()
+        .map(e -> toGroupFlowPeriod(e.getKey(), e.getValue()))
+        .toList();
+  }
+
+  private GroupFlowPeriod toGroupFlowPeriod(Group group, List<GroupFlow> groupFlows) {
+    var start =
+        groupFlows.stream()
+            .filter(groupFlow -> JOIN.equals(groupFlow.getGroupFlowType()))
+            .map(GroupFlow::getFlowDatetime)
+            .min(Instant::compareTo)
+            .orElse(null);
+    var end =
+        groupFlows.stream()
+            .filter(groupFlow -> LEAVE.equals(groupFlow.getGroupFlowType()))
+            .map(GroupFlow::getFlowDatetime)
+            .max(Instant::compareTo)
+            .orElse(null);
+    return new GroupFlowPeriod(group, start, end);
   }
 }

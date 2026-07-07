@@ -18,11 +18,8 @@ public interface GroupFlowRepository extends JpaRepository<GroupFlow, String> {
       JOIN CourseAssignment ca ON g MEMBER OF ca.groups
       JOIN ca.course c
       WHERE gf.student = :student
-      AND gf.groupFlowType = :type
       AND c.studentLevel = :level
       """)
   List<GroupFlow> findByFlowTypeAndStudentAndLevel(
-      @Param("type") GroupFlow.GroupFlowType type,
-      @Param("student") User student,
-      @Param("level") StudentLevel level);
+      @Param("student") User student, @Param("level") StudentLevel level);
 }
