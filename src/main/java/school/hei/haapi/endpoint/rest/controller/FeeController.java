@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import school.hei.haapi.endpoint.rest.annotation.TrackActivity;
 import school.hei.haapi.endpoint.rest.mapper.FeeMapper;
 import school.hei.haapi.endpoint.rest.mapper.FeeTemplateMapper;
 import school.hei.haapi.endpoint.rest.model.*;
@@ -38,6 +39,7 @@ import school.hei.haapi.service.UserService;
 @RestController
 @AllArgsConstructor
 @Slf4j
+@TrackActivity
 public class FeeController {
   private final UserService userService;
   private final FeeService feeService;

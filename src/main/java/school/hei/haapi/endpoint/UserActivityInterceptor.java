@@ -6,8 +6,10 @@ import java.nio.charset.StandardCharsets;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
+import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.util.ContentCachingRequestWrapper;
+import school.hei.haapi.endpoint.rest.annotation.TrackActivity;
 import school.hei.haapi.endpoint.rest.security.AuthProvider;
 import school.hei.haapi.endpoint.rest.security.model.Principal;
 import school.hei.haapi.service.UserActivityService;
@@ -27,10 +29,12 @@ public class UserActivityInterceptor implements HandlerInterceptor {
   @Override
   public void afterCompletion(
       HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex) {
+    if (!shouldTrack(handler)) {
+      return;
+    }
     try {
       String userId = null;
       String userEmail = null;
-
       try {
         Principal principal = AuthProvider.getPrincipal();
         if (principal != null && principal.getUser() != null) {
@@ -38,8 +42,6 @@ public class UserActivityInterceptor implements HandlerInterceptor {
           userEmail = principal.getUser().getEmail();
         }
       } catch (Exception e) {
-        // getPrincipal() can throw ClassCastException ("anonymousUser" string)
-        // or other exceptions when user is not authenticated
         log.debug("Anonymous request, no principal");
       }
       String body = null;
@@ -55,5 +57,13 @@ public class UserActivityInterceptor implements HandlerInterceptor {
     } catch (Exception e) {
       log.error("Failed to persist user activity", e);
     }
+  }
+
+  private boolean shouldTrack(Object handler) {
+    if (!(handler instanceof HandlerMethod handlerMethod)) {
+      return false;
+    }
+    return handlerMethod.hasMethodAnnotation(TrackActivity.class)
+        || handlerMethod.getBeanType().isAnnotationPresent(TrackActivity.class);
   }
 }
