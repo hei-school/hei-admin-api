@@ -13,7 +13,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import school.hei.haapi.endpoint.rest.api.EventsApi;
+import school.hei.haapi.endpoint.rest.api.PayingApi;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
+import school.hei.haapi.endpoint.rest.client.ApiException;
 import school.hei.haapi.integration.conf.FacadeITMockedThirdParties;
 import school.hei.haapi.integration.conf.TestUtils;
 import school.hei.haapi.model.UserActivity;
@@ -44,25 +46,22 @@ class UserActivityInterceptorIT extends FacadeITMockedThirdParties {
   }
 
   @Test
-  void request_always_passes_and_activity_is_saved() throws Exception {
-    var api = new EventsApi(anApiClient(null));
+  void request_on_untracked_controller_saves_no_activity() throws ApiException {
+    var api = new EventsApi(anApiClient(MANAGER1_TOKEN));
     var before = userActivityRepository.count();
-
     api.getEvents(1, 15, null, null, null, null, null, null, null);
-
     await()
-        .atMost(Duration.ofSeconds(5))
-        .pollInterval(Duration.ofMillis(100))
-        .until(() -> userActivityRepository.count() > before);
+        .during(Duration.ofMillis(500))
+        .atMost(Duration.ofSeconds(2))
+        .pollInterval(Duration.ofMillis(50))
+        .untilAsserted(() -> assertEquals(before, userActivityRepository.count()));
   }
 
   @Test
-  void get_request_with_auth_saves_activity() throws Exception {
-    var api = new EventsApi(anApiClient(MANAGER1_TOKEN));
+  void get_request_with_auth_saves_activity() throws ApiException {
+    var api = new PayingApi(anApiClient(STUDENT1_TOKEN));
     var before = userActivityRepository.count();
-
-    api.getEventById(EVENT1_ID);
-
+    api.getStudentFeeById(STUDENT1_ID, FEE1_ID);
     await()
         .atMost(Duration.ofSeconds(5))
         .pollInterval(Duration.ofMillis(100))
@@ -75,27 +74,26 @@ class UserActivityInterceptorIT extends FacadeITMockedThirdParties {
   }
 
   @Test
-  void post_request_saves_activity_with_request_body() throws Exception {
-    var api = new EventsApi(anApiClient(MANAGER1_TOKEN));
+  void post_request_saves_activity_with_request_body() throws ApiException {
+    var api = new PayingApi(anApiClient(MANAGER1_TOKEN));
     var before = userActivityRepository.count();
-    api.crupdateEvents(List.of(createEventCourse1()), null, null, null, null);
-
+    api.createStudentFees(STUDENT1_ID, List.of(createFeeForTest()));
     await()
         .atMost(Duration.ofSeconds(5))
         .pollInterval(Duration.ofMillis(100))
         .until(() -> userActivityRepository.count() > before);
 
     var last = getLastActivity();
-    assertEquals("PUT", last.getHttpMethod());
+    assertEquals("POST", last.getHttpMethod());
     assertNotNull(last.getRequestBody());
     assertFalse(last.getRequestBody().isBlank());
   }
 
   @Test
-  void activity_saves_correct_endpoint_and_http_method() throws Exception {
-    var api = new EventsApi(anApiClient(MANAGER1_TOKEN));
+  void activity_saves_correct_endpoint_and_http_method() throws ApiException {
+    var api = new PayingApi(anApiClient(MANAGER1_TOKEN));
     var before = userActivityRepository.count();
-    api.getEventById(EVENT1_ID);
+    api.getStudentFeeById(STUDENT1_ID, FEE1_ID);
     await()
         .atMost(Duration.ofSeconds(5))
         .pollInterval(Duration.ofMillis(100))
@@ -103,22 +101,21 @@ class UserActivityInterceptorIT extends FacadeITMockedThirdParties {
 
     var last = getLastActivity();
     assertTrue(
-        last.getEndpoint().contains("/events/" + EVENT1_ID),
-        "Endpoint should contain /events/" + EVENT1_ID);
+        last.getEndpoint().contains("/students/" + STUDENT1_ID + "/fees/" + FEE1_ID),
+        "Endpoint should contain /students/" + STUDENT1_ID + "/fees/" + FEE1_ID);
     assertEquals("GET", last.getHttpMethod());
   }
 
   @Test
-  void delete_request_saves_activity() throws Exception {
-    var api = new EventsApi(anApiClient(MANAGER1_TOKEN));
-    var created =
-        api.crupdateEvents(List.of(createEventCourse1()), null, null, null, null).getFirst();
+  void delete_request_saves_activity() throws ApiException {
+    var api = new PayingApi(anApiClient(MANAGER1_TOKEN));
+    var created = api.createStudentFees(STUDENT1_ID, List.of(createFeeForTest())).getFirst();
     await()
         .atMost(Duration.ofSeconds(5))
         .pollInterval(Duration.ofMillis(100))
         .until(() -> userActivityRepository.count() > 0);
     var before = userActivityRepository.count();
-    api.deleteEventById(created.getId());
+    api.deleteStudentFeeById(created.getId(), STUDENT1_ID);
     await()
         .atMost(Duration.ofSeconds(5))
         .pollInterval(Duration.ofMillis(100))
