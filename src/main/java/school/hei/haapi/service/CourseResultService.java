@@ -5,6 +5,7 @@ import static java.math.BigDecimal.ZERO;
 import static java.math.MathContext.DECIMAL128;
 import static java.util.Comparator.comparing;
 import static java.util.Objects.nonNull;
+import static java.util.regex.Pattern.compile;
 import static school.hei.haapi.endpoint.rest.model.ResultOverviewStatus.INVALIDATED;
 import static school.hei.haapi.endpoint.rest.model.ResultOverviewStatus.IN_PROGRESS;
 import static school.hei.haapi.endpoint.rest.model.ResultOverviewStatus.NOT_STARTED;
@@ -17,7 +18,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.stream.Collectors;
+import java.util.regex.Pattern;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -45,6 +46,7 @@ public class CourseResultService {
 
   private static final BigDecimal VALIDATED_YEAR_CREDIT = BigDecimal.valueOf(30);
   private static final BigDecimal VALIDATED_YEAR_AVERAGE = TEN;
+  private static final Pattern TRAILING_DIGITS = compile("\\d+$");
 
   @Transactional
   public List<CourseResult> getCourseResultsByStudentIdAndLevel(
@@ -86,7 +88,7 @@ public class CourseResultService {
   }
 
   private String extractGroupPromotion(String groupName) {
-    return groupName.replaceAll("\\d++$", "");
+    return TRAILING_DIGITS.matcher(groupName).replaceAll("");
   }
 
   private List<Map<GroupFlowPeriod, List<CourseAssignment>>>
@@ -96,7 +98,7 @@ public class CourseResultService {
         .map(
             groupFlowPeriod ->
                 getGroupCourseAssignmentsBetweenPeriodAndStudentLevel(groupFlowPeriod, level))
-        .collect(Collectors.toList());
+        .toList();
   }
 
   private Map<GroupFlowPeriod, List<CourseAssignment>>

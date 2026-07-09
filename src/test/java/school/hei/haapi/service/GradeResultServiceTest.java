@@ -135,7 +135,6 @@ class GradeResultServiceTest {
   private static final String SECU3_COURSE_ASSIGNMENT_ID = "secu3-ca";
   private static final String L2_COURSE_ASSIGNMENT_ID = "l2-ca";
   private static final String L3_COURSE_ASSIGNMENT_ID = "l3-ca";
-  private static final String BAD_COURSE_ASSIGNMENT_ID = "bad-ca";
 
   private static User teacher() {
     return mockUser(TEACHER_ID);
@@ -832,9 +831,13 @@ class GradeResultServiceTest {
 
   private static Course mockCourse(
       String id, String code, String name, int credits, StudentLevel level) {
-    var course =
-        Course.builder().id(id).code(code).name(name).credits(credits).studentLevel(level).build();
-    return course;
+    return Course.builder()
+        .id(id)
+        .code(code)
+        .name(name)
+        .credits(credits)
+        .studentLevel(level)
+        .build();
   }
 
   private static CourseAssignment mockCourseAssignment(
