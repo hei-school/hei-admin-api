@@ -46,21 +46,22 @@ class UserActivityInterceptorIT extends FacadeITMockedThirdParties {
   }
 
   @Test
-  void request_on_untracked_controller_saves_no_activity() throws Exception {
+  void request_on_untracked_controller_saves_no_activity() throws ApiException {
     var api = new EventsApi(anApiClient(MANAGER1_TOKEN));
     var before = userActivityRepository.count();
     api.getEvents(1, 15, null, null, null, null, null, null, null);
-    Thread.sleep(500);
-    assertEquals(before, userActivityRepository.count());
+    await()
+        .during(Duration.ofMillis(500))
+        .atMost(Duration.ofSeconds(2))
+        .pollInterval(Duration.ofMillis(50))
+        .untilAsserted(() -> assertEquals(before, userActivityRepository.count()));
   }
 
   @Test
   void get_request_with_auth_saves_activity() throws ApiException {
     var api = new PayingApi(anApiClient(STUDENT1_TOKEN));
     var before = userActivityRepository.count();
-
     api.getStudentFeeById(STUDENT1_ID, FEE1_ID);
-
     await()
         .atMost(Duration.ofSeconds(5))
         .pollInterval(Duration.ofMillis(100))

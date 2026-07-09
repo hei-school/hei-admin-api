@@ -1,4 +1,4 @@
-package school.hei.haapi.endpoint.rest.annotation;
+package school.hei.haapi.model;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
