@@ -13,12 +13,10 @@ import static school.hei.haapi.model.Grade.weightedAverageOfGrades;
 
 import jakarta.transaction.Transactional;
 import java.math.BigDecimal;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -34,7 +32,6 @@ import school.hei.haapi.model.dto.GroupFlowPeriod;
 import school.hei.haapi.model.exception.CoursesCreditSumZero;
 import school.hei.haapi.model.exception.ExamsCoefficientSumZero;
 import school.hei.haapi.repository.dao.GradeDao;
-import school.hei.haapi.service.utils.CollectionUtils;
 
 @Service
 @AllArgsConstructor
@@ -42,9 +39,7 @@ import school.hei.haapi.service.utils.CollectionUtils;
 public class CourseResultService {
   private final GradeDao gradeDao;
   private final CourseMapper courseMapper;
-  private final ExamService examService;
   private final UserService userService;
-  private final CollectionUtils collectionUtils;
   private final CourseAssignmentService courseAssignmentService;
   private final GroupFlowService groupFlowService;
 
@@ -55,12 +50,14 @@ public class CourseResultService {
   public List<CourseResult> getCourseResultsByStudentIdAndLevel(
       String studentId, StudentLevel level) {
     var student = userService.getById(studentId);
-    var studentGroupsAtLevel = groupFlowService.getStudentGroupFlowAtLevel(student, level);
-    var studentLatestGroupFlows = findLatestGroups(studentGroupsAtLevel);
-    var studentCoursesAtLevel =
-        getCourseAssignmentsWithGroupByGroupsAtLevel(studentLatestGroupFlows, level);
-    return studentCoursesAtLevel.stream()
-        .map(courseWithGroup -> computeCourseResult(courseWithGroup, student))
+    var studentGroupFlowsAtLevel = groupFlowService.getStudentGroupFlowAtLevel(student, level);
+    var studentLatestGroupFlowsAtLevel = findLatestGroups(studentGroupFlowsAtLevel);
+    var studentGroupCourseAssignmentsAtLevel =
+        getGroupsCourseAssignmentsByGroupsAtLevel(studentLatestGroupFlowsAtLevel, level);
+    return studentGroupCourseAssignmentsAtLevel.stream()
+        .flatMap(
+            groupCourseAssignments ->
+                computeCourseResults(groupCourseAssignments, student).stream())
         .sorted(comparing(courseResult -> courseResult.getStatus().ordinal()))
         .toList();
   }
@@ -69,21 +66,23 @@ public class CourseResultService {
     if (groupFlowPeriods.isEmpty()) {
       return List.of();
     }
-    var groupPromotions =
-        groupFlowPeriods.stream()
-            .map(groupFlowPeriod -> extractGroupPromotion(groupFlowPeriod.group().getName()))
-            .collect(Collectors.toSet());
 
-    if (sameGroupPromotion(groupPromotions)) {
-      return groupFlowPeriods;
-    }
+    var latestPromotion = latestPromotion(groupFlowPeriods);
 
-    return Collections.singletonList(
-        groupFlowPeriods.stream().max(comparing(GroupFlowPeriod::start)).orElseThrow());
+    return groupFlowPeriods.stream()
+        .filter(
+            groupFlowPeriod ->
+                extractGroupPromotion(groupFlowPeriod.group().getName()).equals(latestPromotion))
+        .toList();
   }
 
-  private boolean sameGroupPromotion(Set<String> promotionNames) {
-    return promotionNames.size() == 1;
+  private String latestPromotion(List<GroupFlowPeriod> groupFlowPeriods) {
+    return extractGroupPromotion(
+        groupFlowPeriods.stream()
+            .max(comparing(GroupFlowPeriod::start))
+            .orElseThrow()
+            .group()
+            .getName());
   }
 
   private String extractGroupPromotion(String groupName) {
@@ -91,27 +90,29 @@ public class CourseResultService {
   }
 
   private List<Map<GroupFlowPeriod, List<CourseAssignment>>>
-      getCourseAssignmentsWithGroupByGroupsAtLevel(
+      getGroupsCourseAssignmentsByGroupsAtLevel(
           List<GroupFlowPeriod> studentLatestGroupFlows, StudentLevel level) {
     return studentLatestGroupFlows.stream()
-        .map(groupFlowPeriod -> getCourseAssignmentByGroupIdAndStudentLevel(groupFlowPeriod, level))
+        .map(
+            groupFlowPeriod ->
+                getGroupCourseAssignmentsBetweenPeriodAndStudentLevel(groupFlowPeriod, level))
         .collect(Collectors.toList());
   }
 
-  private Map<GroupFlowPeriod, List<CourseAssignment>> getCourseAssignmentByGroupIdAndStudentLevel(
-      GroupFlowPeriod groupFlowPeriod, StudentLevel level) {
+  private Map<GroupFlowPeriod, List<CourseAssignment>>
+      getGroupCourseAssignmentsBetweenPeriodAndStudentLevel(
+          GroupFlowPeriod groupFlowPeriod, StudentLevel level) {
     var courseAssignments =
         courseAssignmentService.getByGroupId(groupFlowPeriod.group().getId()).stream()
             .filter(
                 courseAssignment -> level.equals(courseAssignment.getCourse().getStudentLevel()))
             .filter(
-                courseAssignment ->
-                    haveExamBetweenGroupFlowPeriod(courseAssignment, groupFlowPeriod))
+                courseAssignment -> hasExamOrAssignedBeforeLeave(courseAssignment, groupFlowPeriod))
             .toList();
     return Map.of(groupFlowPeriod, courseAssignments);
   }
 
-  private boolean haveExamBetweenGroupFlowPeriod(
+  private boolean hasExamOrAssignedBeforeLeave(
       CourseAssignment courseAssignment, GroupFlowPeriod groupFlowPeriod) {
     var courseExams = courseAssignment.getExams();
     if (courseExams.isEmpty() && groupFlowPeriod.end() == null) {
@@ -121,17 +122,30 @@ public class CourseResultService {
         .anyMatch(courseExam -> groupFlowPeriod.contains(courseExam.getExaminationDate()));
   }
 
-  private CourseResult computeCourseResult(
-      Map<GroupFlowPeriod, List<CourseAssignment>> courseWithGroup, User student) {
-    var entry = courseWithGroup.entrySet().stream().findFirst().orElseThrow();
-    var groupFlowPeriod = entry.getKey();
-    var courseAssignment = entry.getValue().getFirst();
+  private List<CourseResult> computeCourseResults(
+      Map<GroupFlowPeriod, List<CourseAssignment>> groupCourseAssignments, User student) {
+    return groupCourseAssignments.entrySet().stream()
+        .flatMap(
+            groupCourseAssignment -> {
+              var groupFlowPeriod = groupCourseAssignment.getKey();
+              var courseAssignments = groupCourseAssignment.getValue();
+              return courseAssignments.stream()
+                  .map(
+                      courseAssignment ->
+                          getCourseResultByCourseAssignmentWithGroupFlowPeriod(
+                              groupFlowPeriod, courseAssignment, student));
+            })
+        .toList();
+  }
+
+  private CourseResult getCourseResultByCourseAssignmentWithGroupFlowPeriod(
+      GroupFlowPeriod groupFlowPeriod, CourseAssignment courseAssignment, User student) {
     var courseExams = courseAssignment.getExams();
     var studentGrades =
-        gradeDao.getStudentGradesByCourseId(courseAssignment.getId(), student.getId());
+        gradeDao.getStudentGradesByCourseId(courseAssignment.getCourse().getId(), student.getId());
     var courseResult = new CourseResult().course(courseMapper.toRest(courseAssignment.getCourse()));
 
-    if (groupFlowPeriod.end() != null) {
+    if (groupFlowPeriod.end() != null && courseExams.isEmpty()) {
       return courseResult.status(CourseResultStatus.NOT_STARTED);
     }
 

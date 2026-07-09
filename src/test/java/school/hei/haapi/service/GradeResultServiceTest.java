@@ -1,6 +1,7 @@
 package school.hei.haapi.service;
 
 import static java.time.Instant.now;
+import static java.time.Instant.parse;
 import static java.util.Optional.empty;
 import static java.util.UUID.randomUUID;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
@@ -37,6 +38,7 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
 import java.time.Duration;
+import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Optional;
@@ -63,25 +65,21 @@ import school.hei.haapi.model.GroupFlow;
 import school.hei.haapi.model.Promotion;
 import school.hei.haapi.model.User;
 import school.hei.haapi.model.YearlyResultGenerationRequest;
+import school.hei.haapi.model.dto.GroupFlowPeriod;
 import school.hei.haapi.model.exception.CoursesCreditSumZero;
-import school.hei.haapi.repository.ExamRepository;
-import school.hei.haapi.repository.UserRepository;
 import school.hei.haapi.repository.YearlyResultGenerationRequestRepository;
 import school.hei.haapi.repository.dao.GradeDao;
 import school.hei.haapi.service.event.YearlyResultTranscriptGenerationService;
 import school.hei.haapi.service.utils.Base64Converter;
 import school.hei.haapi.service.utils.ClassPathResourceResolver;
-import school.hei.haapi.service.utils.CollectionUtils;
 import school.hei.haapi.service.utils.HtmlParser;
 import school.hei.haapi.service.utils.PdfRenderer;
 
 @Slf4j
 class GradeResultServiceTest {
-  private final ExamRepository examRepository = mock();
   private final PromotionService promotionService = mock();
   private final CourseAssignmentService courseAssignmentService = mock();
   private final GroupFlowService groupFlowService = mock();
-  private final UserRepository userRepository = mock();
   private final GradeDao gradeDao = mock();
   private final CourseService courseService = mock();
   private final ExamService examService = mock();
@@ -102,13 +100,7 @@ class GradeResultServiceTest {
   private final GradeResultService subject =
       new GradeResultService(
           new CourseResultService(
-              gradeDao,
-              new CourseMapper(),
-              examService,
-              userService,
-              new CollectionUtils(),
-              courseAssignmentService,
-              groupFlowService),
+              gradeDao, new CourseMapper(), userService, courseAssignmentService, groupFlowService),
           yearlyResultGenerationService,
           bucketComponent,
           userService,
@@ -150,43 +142,47 @@ class GradeResultServiceTest {
   }
 
   private static CourseAssignment mgt1CourseAssignment() {
-    return mockCourseAssignment(MGT1_COURSE_ASSIGNMENT_ID, teacher());
+    return mockCourseAssignment(mgt1Course(), teacher(), List.of(mgt1Exam()));
   }
 
   private static CourseAssignment prog1CourseAssignment() {
-    return mockCourseAssignment(PROG1_COURSE_ASSIGNMENT_ID, teacher());
+    return mockCourseAssignment(prog1Course(), teacher(), List.of(prog1Exam()));
   }
 
   private static CourseAssignment donne1CourseAssignment() {
-    return mockCourseAssignment(DONNE1_COURSE_ASSIGNMENT_ID, teacher());
+    return mockCourseAssignment(donne1Course(), teacher(), List.of(donnees1Exam()));
   }
 
   private static CourseAssignment web1CourseAssignment() {
-    return mockCourseAssignment(WEB1_COURSE_ASSIGNMENT_ID, teacher());
+    return mockCourseAssignment(web1Course(), teacher(), List.of(web1Exam()));
   }
 
   private static CourseAssignment sys1CourseAssignment() {
-    return mockCourseAssignment(SYS1_COURSE_ASSIGNMENT_ID, teacher());
+    return mockCourseAssignment(sys1Course(), teacher(), List.of(sys1Exam()));
   }
 
   private static CourseAssignment lv1CourseAssignment() {
-    return mockCourseAssignment(LV1_COURSE_ASSIGNMENT_ID, teacher());
+    return mockCourseAssignment(lv1Course(), teacher(), List.of(lv1Exam()));
   }
 
   private static CourseAssignment secu3CourseAssignment() {
-    return mockCourseAssignment(SECU3_COURSE_ASSIGNMENT_ID, teacher());
+    return mockCourseAssignment(secu3Course(), teacher(), List.of());
   }
 
   private static CourseAssignment l2CourseAssignment() {
-    return mockCourseAssignment(L2_COURSE_ASSIGNMENT_ID, teacher());
+    return mockCourseAssignment(l2Course(), teacher(), List.of(l2Exam()));
   }
 
   private static CourseAssignment l3CourseAssignment() {
-    return mockCourseAssignment(L3_COURSE_ASSIGNMENT_ID, teacher());
+    return mockCourseAssignment(l3Course(), teacher(), List.of(l3Exam()));
+  }
+
+  private static CourseAssignment m1CourseAssignment() {
+    return mockCourseAssignment(m1Course(), teacher(), List.of(m1Exam()));
   }
 
   private static CourseAssignment badCourseAssignment() {
-    return mockCourseAssignment(BAD_COURSE_ASSIGNMENT_ID, teacher());
+    return mockCourseAssignment(badCourse(), teacher(), List.of(badExam()));
   }
 
   private static final String MGT1_EXAM_ID = "mgt1 exam";
@@ -197,42 +193,47 @@ class GradeResultServiceTest {
   private static final String LV1_EXAM_ID = "lv1 exam";
   private static final String L2_EXAM_ID = "l2 exam";
   private static final String L3_EXAM_ID = "l3 exam";
+  private static final String M1_EXAM_ID = "m1 exam";
   private static final String BAD_EXAM_ID = "bad exam";
 
   private static Exam mgt1Exam() {
-    return mockExam(MGT1_EXAM_ID, 1, 1, mgt1CourseAssignment());
+    return mockExam(MGT1_EXAM_ID, 1, 1);
   }
 
   private static Exam prog1Exam() {
-    return mockExam(PROG1_EXAM_ID, 1, 1, prog1CourseAssignment());
+    return mockExam(PROG1_EXAM_ID, 1, 1);
   }
 
   private static Exam donnees1Exam() {
-    return mockExam(DONNEES1_EXAM_ID, 1, 1, donne1CourseAssignment());
+    return mockExam(DONNEES1_EXAM_ID, 1, 1);
   }
 
   private static Exam web1Exam() {
-    return mockExam(WEB1_EXAM_ID, 1, 1, web1CourseAssignment());
+    return mockExam(WEB1_EXAM_ID, 1, 1);
   }
 
   private static Exam sys1Exam() {
-    return mockExam(SYS1_EXAM_ID, 1, 1, sys1CourseAssignment());
+    return mockExam(SYS1_EXAM_ID, 1, 1);
   }
 
   private static Exam lv1Exam() {
-    return mockExam(LV1_EXAM_ID, 1, 1, lv1CourseAssignment());
+    return mockExam(LV1_EXAM_ID, 1, 1);
   }
 
   private static Exam l2Exam() {
-    return mockExam(L2_EXAM_ID, 1, 1, l2CourseAssignment());
+    return mockExam(L2_EXAM_ID, 1, 1);
   }
 
   private static Exam l3Exam() {
-    return mockExam(L3_EXAM_ID, 1, 1, l3CourseAssignment());
+    return mockExam(L3_EXAM_ID, 1, 1);
+  }
+
+  private static Exam m1Exam() {
+    return mockExam(M1_EXAM_ID, 1, 1);
   }
 
   private static Exam badExam() {
-    return mockExam(BAD_EXAM_ID, 0, 1, badCourseAssignment());
+    return mockExam(BAD_EXAM_ID, 0, 1);
   }
 
   private static Group group() {
@@ -346,6 +347,9 @@ class GradeResultServiceTest {
   private static final String L3_COURSE_ID = "l3";
   private static final String L3_COURSE_CODE = "L3";
   private static final String L3_COURSE_NAME = "Cours L3";
+  private static final String M1_COURSE_ID = "m1";
+  private static final String M1_COURSE_CODE = "m1";
+  private static final String M1_COURSE_NAME = "Cours m1";
   private static final String BAD1_COURSE_ID = "bad course";
   private static final String BAD1_COURSE_CODE = "bad course";
   private static final String BAD1_COURSE_NAME = "Bad course";
@@ -354,56 +358,57 @@ class GradeResultServiceTest {
     return GroupFlow.builder().group(group()).build();
   }
 
-  private static User student1WithGroupFlow() {
-    return User.builder().id(STUDENT1_ID).groupFlows(List.of(groupFlow())).build();
+  private static GroupFlowPeriod groupFLowPeriod() {
+    return new GroupFlowPeriod(
+        group(), parse("2021-02-01T00:00:00Z"), parse("2029-01-01T00:00:00Z"));
+  }
+
+  private static GroupFlowPeriod groupFLowPeriodWithNullEnd() {
+    return new GroupFlowPeriod(group(), parse("2021-02-01T00:00:00Z"), null);
   }
 
   private static Course mgt1Course() {
-    return mockCourse(
-        MGT1_COURSE_ID, MGT1_COURSE_CODE, MGT1_COURSE_NAME, 8, mgt1CourseAssignment(), L1);
+    return mockCourse(MGT1_COURSE_ID, MGT1_COURSE_CODE, MGT1_COURSE_NAME, 8, L1);
   }
 
   private static Course prog1Course() {
-    return mockCourse(
-        PROG1_COURSE_ID, PROG1_COURSE_CODE, PROG1_COURSE_NAME, 12, prog1CourseAssignment(), L1);
+    return mockCourse(PROG1_COURSE_ID, PROG1_COURSE_CODE, PROG1_COURSE_NAME, 12, L1);
   }
 
   private static Course donne1Course() {
-    return mockCourse(
-        DONNE1_COURSE_ID, DONNE1_COURSE_CODE, DONNE1_COURSE_NAME, 8, donne1CourseAssignment(), L1);
+    return mockCourse(DONNE1_COURSE_ID, DONNE1_COURSE_CODE, DONNE1_COURSE_NAME, 8, L1);
   }
 
   private static Course web1Course() {
-    return mockCourse(
-        WEB1_COURSE_ID, WEB1_COURSE_CODE, WEB1_COURSE_NAME, 12, web1CourseAssignment(), L1);
+    return mockCourse(WEB1_COURSE_ID, WEB1_COURSE_CODE, WEB1_COURSE_NAME, 12, L1);
   }
 
   private static Course sys1Course() {
-    return mockCourse(
-        SYS1_COURSE_ID, SYS1_COURSE_CODE, SYS1_COURSE_NAME, 12, sys1CourseAssignment(), L1);
+    return mockCourse(SYS1_COURSE_ID, SYS1_COURSE_CODE, SYS1_COURSE_NAME, 12, L1);
   }
 
   private static Course lv1Course() {
-    return mockCourse(
-        LV1_COURSE_ID, LV1_COURSE_CODE, LV1_COURSE_NAME, 8, lv1CourseAssignment(), L1);
+    return mockCourse(LV1_COURSE_ID, LV1_COURSE_CODE, LV1_COURSE_NAME, 8, L1);
   }
 
   private static Course secu3Course() {
-    return mockCourse(
-        SECU3_COURSE_ID, SECU3_COURSE_CODE, SECU3_COURSE_NAME, 8, secu3CourseAssignment(), M1);
+    return mockCourse(SECU3_COURSE_ID, SECU3_COURSE_CODE, SECU3_COURSE_NAME, 8, M1);
   }
 
   private static Course l2Course() {
-    return mockCourse(L2_COURSE_ID, L2_COURSE_CODE, L2_COURSE_NAME, 60, l2CourseAssignment(), L2);
+    return mockCourse(L2_COURSE_ID, L2_COURSE_CODE, L2_COURSE_NAME, 60, L2);
   }
 
   private static Course l3Course() {
-    return mockCourse(L3_COURSE_ID, L3_COURSE_CODE, L3_COURSE_NAME, 60, l3CourseAssignment(), L3);
+    return mockCourse(L3_COURSE_ID, L3_COURSE_CODE, L3_COURSE_NAME, 60, L3);
   }
 
   private static Course badCourse() {
-    return mockCourse(
-        BAD1_COURSE_ID, BAD1_COURSE_CODE, BAD1_COURSE_NAME, 0, badCourseAssignment(), L1);
+    return mockCourse(BAD1_COURSE_ID, BAD1_COURSE_CODE, BAD1_COURSE_NAME, 0, L1);
+  }
+
+  private static Course m1Course() {
+    return mockCourse(M1_COURSE_ID, M1_COURSE_CODE, M1_COURSE_NAME, 8, M1);
   }
 
   @BeforeEach
@@ -525,6 +530,20 @@ class GradeResultServiceTest {
     when(examService.getExamsByCourseId(L2_COURSE_ID)).thenReturn(List.of(l2Exam()));
     when(examService.getExamsByCourseId(L3_COURSE_ID)).thenReturn(List.of(l3Exam()));
     when(promotionService.getAllStudentPromotions(anyString())).thenReturn(new LinkedHashSet<>());
+    when(groupFlowService.getStudentGroupFlowAtLevel(any(), any()))
+        .thenReturn(Collections.singletonList(groupFLowPeriod()));
+    when(courseAssignmentService.getByGroupId(group().getId()))
+        .thenReturn(
+            List.of(
+                mgt1CourseAssignment(),
+                prog1CourseAssignment(),
+                donne1CourseAssignment(),
+                web1CourseAssignment(),
+                sys1CourseAssignment(),
+                lv1CourseAssignment(),
+                secu3CourseAssignment(),
+                l2CourseAssignment(),
+                l3CourseAssignment()));
   }
 
   @Test
@@ -558,7 +577,9 @@ class GradeResultServiceTest {
   @Test
   void correct_result_yearly_result_student2_M1_notStated() throws CoursesCreditSumZero {
     var targetLevel = M1;
-
+    when(groupFlowService.getStudentGroupFlowAtLevel(any(), any()))
+        .thenReturn(Collections.singletonList(groupFLowPeriodWithNullEnd()));
+    when(courseAssignmentService.getByGroupId(any())).thenReturn(List.of(m1CourseAssignment()));
     var result = subject.getYearlyResultByStudentIdAndByLevel(targetLevel, STUDENT2_ID);
 
     assertEquals(targetLevel, result.getLevel());
@@ -655,10 +676,11 @@ class GradeResultServiceTest {
 
   @Test
   void yearly_result_with_course_credits_sum_zero_ko() {
-    when(gradeDao.getStudentGradesByCourseId(MGT1_COURSE_ID, STUDENT1_ID))
-        .thenReturn(List.of(student1Mgt1Grade()));
-    when(examService.getExamsByCourseId(BAD1_COURSE_ID)).thenReturn(List.of(mgt1Exam()));
-    when(courseService.getByStudentLevel(eq(L1))).thenReturn(List.of(badCourse()));
+    when(gradeDao.getStudentGradesByCourseId(BAD1_COURSE_ID, STUDENT1_ID))
+        .thenReturn(List.of((student3GradeForBadExam())));
+    when(groupFlowService.getStudentGroupFlowAtLevel(any(), any()))
+        .thenReturn(Collections.singletonList(groupFLowPeriod()));
+    when(courseAssignmentService.getByGroupId(any())).thenReturn(List.of(badCourseAssignment()));
 
     assertThrows(
         CoursesCreditSumZero.class,
@@ -669,8 +691,9 @@ class GradeResultServiceTest {
   void course_result_with_exams_coefficient_sum_zero_is_inProgress() {
     when(gradeDao.getStudentGradesByCourseId(MGT1_COURSE_ID, STUDENT1_ID))
         .thenReturn(List.of(student3GradeForBadExam()));
-    when(examService.getExamsByCourseId(MGT1_COURSE_ID)).thenReturn(List.of(badExam()));
-    when(courseService.getByStudentLevel(eq(L1))).thenReturn(List.of(mgt1Course()));
+    when(groupFlowService.getStudentGroupFlowAtLevel(any(), any()))
+        .thenReturn(Collections.singletonList(groupFLowPeriod()));
+    when(courseAssignmentService.getByGroupId(any())).thenReturn(List.of(mgt1CourseAssignment()));
 
     var result = subject.getYearlyResultByStudentIdAndByLevel(L1, STUDENT1_ID);
 
@@ -768,13 +791,12 @@ class GradeResultServiceTest {
         });
   }
 
-  private static Exam mockExam(
-      String id, int coefficientNumerator, int coefficientDenominator, CourseAssignment ca) {
+  private static Exam mockExam(String id, int coefficientNumerator, int coefficientDenominator) {
     return Exam.builder()
         .id(id)
         .coefficientNumerator(coefficientNumerator)
         .coefficientDenominator(coefficientDenominator)
-        .courseAssignment(ca)
+        .examinationDate(parse("2025-01-01T10:00:00Z"))
         .build();
   }
 
@@ -809,21 +831,19 @@ class GradeResultServiceTest {
   }
 
   private static Course mockCourse(
-      String id, String code, String name, int credits, CourseAssignment ca, StudentLevel level) {
+      String id, String code, String name, int credits, StudentLevel level) {
     var course =
-        Course.builder()
-            .id(id)
-            .courseAssignments(List.of(ca))
-            .code(code)
-            .name(name)
-            .credits(credits)
-            .studentLevel(level)
-            .build();
-    ca.setCourse(course);
+        Course.builder().id(id).code(code).name(name).credits(credits).studentLevel(level).build();
     return course;
   }
 
-  private static CourseAssignment mockCourseAssignment(String id, User teacher) {
-    return CourseAssignment.builder().id(id).mainTeacher(teacher).groups(List.of(group())).build();
+  private static CourseAssignment mockCourseAssignment(
+      Course course, User teacher, List<Exam> exams) {
+    return CourseAssignment.builder()
+        .course(course)
+        .mainTeacher(teacher)
+        .groups(List.of(group()))
+        .exams(exams)
+        .build();
   }
 }
