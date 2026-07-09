@@ -12,8 +12,8 @@ import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.springframework.web.util.ContentCachingRequestWrapper;
-import school.hei.haapi.model.TrackActivity;
 import school.hei.haapi.endpoint.rest.security.AuthProvider;
+import school.hei.haapi.model.TrackActivity;
 import school.hei.haapi.service.UserActivityService;
 
 @Configuration
