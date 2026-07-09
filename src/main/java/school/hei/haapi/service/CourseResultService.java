@@ -1,23 +1,6 @@
 package school.hei.haapi.service;
 
-import static java.math.BigDecimal.TEN;
-import static java.math.BigDecimal.ZERO;
-import static java.math.MathContext.DECIMAL128;
-import static java.util.Comparator.comparing;
-import static java.util.Objects.nonNull;
-import static school.hei.haapi.endpoint.rest.model.ResultOverviewStatus.INVALIDATED;
-import static school.hei.haapi.endpoint.rest.model.ResultOverviewStatus.IN_PROGRESS;
-import static school.hei.haapi.endpoint.rest.model.ResultOverviewStatus.NOT_STARTED;
-import static school.hei.haapi.endpoint.rest.model.ResultOverviewStatus.VALIDATED;
-import static school.hei.haapi.model.Grade.weightedAverageOfGrades;
-
 import jakarta.transaction.Transactional;
-import java.math.BigDecimal;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -32,6 +15,24 @@ import school.hei.haapi.model.dto.GroupFlowPeriod;
 import school.hei.haapi.model.exception.CoursesCreditSumZero;
 import school.hei.haapi.model.exception.ExamsCoefficientSumZero;
 import school.hei.haapi.repository.dao.GradeDao;
+
+import java.math.BigDecimal;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
+import static java.math.BigDecimal.TEN;
+import static java.math.BigDecimal.ZERO;
+import static java.math.MathContext.DECIMAL128;
+import static java.util.Comparator.comparing;
+import static java.util.Objects.nonNull;
+import static school.hei.haapi.endpoint.rest.model.ResultOverviewStatus.INVALIDATED;
+import static school.hei.haapi.endpoint.rest.model.ResultOverviewStatus.IN_PROGRESS;
+import static school.hei.haapi.endpoint.rest.model.ResultOverviewStatus.NOT_STARTED;
+import static school.hei.haapi.endpoint.rest.model.ResultOverviewStatus.VALIDATED;
+import static school.hei.haapi.model.Grade.weightedAverageOfGrades;
 
 @Service
 @AllArgsConstructor
@@ -86,7 +87,7 @@ public class CourseResultService {
   }
 
   private String extractGroupPromotion(String groupName) {
-    return groupName.replaceAll("[0-9]+$", "");
+    return groupName.replaceAll("\\d++$", "");
   }
 
   private List<Map<GroupFlowPeriod, List<CourseAssignment>>>

@@ -1,5 +1,28 @@
 package school.hei.haapi.service;
 
+import static java.time.Instant.now;
+import static org.apache.poi.ss.usermodel.Row.MissingCellPolicy.CREATE_NULL_AS_BLANK;
+import static org.springframework.data.domain.Pageable.unpaged;
+import static org.springframework.data.domain.Sort.Direction.ASC;
+import static school.hei.haapi.model.User.Role.STUDENT;
+import static school.hei.haapi.model.User.Role.TEACHER;
+import static school.hei.haapi.model.User.Status.ENABLED;
+import static school.hei.haapi.model.User.Status.SUSPENDED;
+import static school.hei.haapi.service.aws.FileService.getFormattedProfilePictureKey;
+
+import java.io.File;
+import java.io.IOException;
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
@@ -39,30 +62,6 @@ import school.hei.haapi.service.aws.FileService;
 import school.hei.haapi.service.utils.XlsxCellsGenerator;
 import school.hei.haapi.service.utils.excel.ExcelParser;
 
-import java.io.File;
-import java.io.IOException;
-import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-
-import static java.time.Instant.now;
-import static org.apache.poi.ss.usermodel.Row.MissingCellPolicy.CREATE_NULL_AS_BLANK;
-import static org.springframework.data.domain.Pageable.unpaged;
-import static org.springframework.data.domain.Sort.Direction.ASC;
-import static school.hei.haapi.model.User.Role.STUDENT;
-import static school.hei.haapi.model.User.Role.TEACHER;
-import static school.hei.haapi.model.User.Status.ENABLED;
-import static school.hei.haapi.model.User.Status.SUSPENDED;
-import static school.hei.haapi.service.aws.FileService.getFormattedProfilePictureKey;
-
 @Service
 @AllArgsConstructor
 @Slf4j
@@ -90,8 +89,8 @@ public class UserService {
   @Transactional
   public void uploadUserProfilePicture(MultipartFile profilePictureAsMultipartFile, String userId) {
     User user = self.getById(userId);
-    File savedProfilePicture = fileConverter.apply(profilePictureAsMultipartFile);
-    String bucketKey =
+    var savedProfilePicture = fileConverter.apply(profilePictureAsMultipartFile);
+    var bucketKey =
         getFormattedProfilePictureKey(user)
             + fileService.getFileExtension(profilePictureAsMultipartFile);
     user.setProfilePictureKey(bucketKey);
@@ -105,12 +104,12 @@ public class UserService {
   }
 
   public User updateUser(User user, String userId) {
-    User toUpdate = refreshUserById(userId, user);
+    var toUpdate = refreshUserById(userId, user);
     return userRepository.save(toUpdate);
   }
 
   private User refreshUserById(String userId, User refreshedUser) {
-    User userToRefresh = self.getById(userId);
+    var userToRefresh = self.getById(userId);
 
     userToRefresh.setAddress(refreshedUser.getAddress());
     userToRefresh.setBirthDate(refreshedUser.getBirthDate());
@@ -158,7 +157,7 @@ public class UserService {
   public List<User> saveAll(List<User> users) {
     userValidator.accept(users);
     // TODO: do not nullify profile picture here
-    List<User> savedUsers = userRepository.saveAll(users);
+    var savedUsers = userRepository.saveAll(users);
     eventProducer.accept(users.stream().map(this::toUserUpsertedEvent).toList());
     return savedUsers;
   }
@@ -166,9 +165,9 @@ public class UserService {
   @Transactional
   public List<User> saveAll(
       HashMap<User, PaymentFrequency> userPaymentFrequencyMap, Instant firstDueDatetime) {
-    List<User> users = new ArrayList<>(userPaymentFrequencyMap.keySet());
+    var users = new ArrayList<>(userPaymentFrequencyMap.keySet());
     userValidator.accept(users);
-    List<User> savedUsers = userRepository.saveAll(users);
+    var savedUsers = userRepository.saveAll(users);
     eventProducer.accept(users.stream().map(this::toUserUpsertedEvent).toList());
 
     // TODO: handle existing users exception when creating fees automatically
@@ -203,7 +202,7 @@ public class UserService {
 
   public <T> byte[] getByRoleAndStatusAsXlsx(
       User.Role role, User.Status status, Function<User, T> mapper) {
-    List<User> users = getByRoleAndStatus(role, status);
+    var users = getByRoleAndStatus(role, status);
     XlsxCellsGenerator<T> generator = new XlsxCellsGenerator<>();
     List<T> mappedUsers = users.stream().map(mapper).toList();
 
