@@ -1,28 +1,5 @@
 package school.hei.haapi.service;
 
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import school.hei.haapi.integration.conf.FacadeITMockedThirdParties;
-import school.hei.haapi.model.Course;
-import school.hei.haapi.model.CourseAssignment;
-import school.hei.haapi.model.Exam;
-import school.hei.haapi.model.Grade;
-import school.hei.haapi.model.Group;
-import school.hei.haapi.model.GroupFlow;
-import school.hei.haapi.model.User;
-import school.hei.haapi.repository.CourseAssignmentRepository;
-import school.hei.haapi.repository.CourseRepository;
-import school.hei.haapi.repository.ExamRepository;
-import school.hei.haapi.repository.GradeRepository;
-import school.hei.haapi.repository.GroupFlowRepository;
-import school.hei.haapi.repository.GroupRepository;
-import school.hei.haapi.repository.UserRepository;
-
-import java.time.Instant;
-import java.util.List;
-
 import static java.time.temporal.ChronoUnit.DAYS;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -42,6 +19,28 @@ import static school.hei.haapi.integration.test_data.StudentTestData.tolojanahar
 import static school.hei.haapi.integration.test_data.TeacherTestData.ryan;
 import static school.hei.haapi.model.GroupFlow.GroupFlowType.JOIN;
 import static school.hei.haapi.model.GroupFlow.GroupFlowType.LEAVE;
+
+import java.time.Instant;
+import java.util.List;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import school.hei.haapi.integration.conf.FacadeITMockedThirdParties;
+import school.hei.haapi.model.Course;
+import school.hei.haapi.model.CourseAssignment;
+import school.hei.haapi.model.Exam;
+import school.hei.haapi.model.Grade;
+import school.hei.haapi.model.Group;
+import school.hei.haapi.model.GroupFlow;
+import school.hei.haapi.model.User;
+import school.hei.haapi.repository.CourseAssignmentRepository;
+import school.hei.haapi.repository.CourseRepository;
+import school.hei.haapi.repository.ExamRepository;
+import school.hei.haapi.repository.GradeRepository;
+import school.hei.haapi.repository.GroupFlowRepository;
+import school.hei.haapi.repository.GroupRepository;
+import school.hei.haapi.repository.UserRepository;
 
 class CourseResultServiceTest extends FacadeITMockedThirdParties {
   @Autowired private CourseRepository courseRepository;
