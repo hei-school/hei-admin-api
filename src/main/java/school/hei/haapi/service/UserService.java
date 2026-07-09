@@ -1,27 +1,5 @@
 package school.hei.haapi.service;
 
-import static java.time.Instant.now;
-import static org.apache.poi.ss.usermodel.Row.MissingCellPolicy.CREATE_NULL_AS_BLANK;
-import static org.springframework.data.domain.Pageable.unpaged;
-import static org.springframework.data.domain.Sort.Direction.ASC;
-import static school.hei.haapi.model.User.Role.STUDENT;
-import static school.hei.haapi.model.User.Role.TEACHER;
-import static school.hei.haapi.model.User.Status.ENABLED;
-import static school.hei.haapi.model.User.Status.SUSPENDED;
-import static school.hei.haapi.service.aws.FileService.getFormattedProfilePictureKey;
-
-import java.io.File;
-import java.io.IOException;
-import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,7 +15,6 @@ import school.hei.haapi.endpoint.event.model.StudentImportEvent;
 import school.hei.haapi.endpoint.event.model.UserUpserted;
 import school.hei.haapi.endpoint.rest.model.PaymentFrequency;
 import school.hei.haapi.endpoint.rest.model.Statistics;
-import school.hei.haapi.endpoint.rest.model.Student;
 import school.hei.haapi.endpoint.rest.model.StudentImportValidationResult;
 import school.hei.haapi.endpoint.rest.model.StudentLevel;
 import school.hei.haapi.endpoint.rest.model.WorkStudyStatus;
@@ -62,6 +39,28 @@ import school.hei.haapi.service.aws.FileService;
 import school.hei.haapi.service.utils.XlsxCellsGenerator;
 import school.hei.haapi.service.utils.excel.ExcelParser;
 
+import java.io.File;
+import java.io.IOException;
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+
+import static java.time.Instant.now;
+import static org.apache.poi.ss.usermodel.Row.MissingCellPolicy.CREATE_NULL_AS_BLANK;
+import static org.springframework.data.domain.Pageable.unpaged;
+import static org.springframework.data.domain.Sort.Direction.ASC;
+import static school.hei.haapi.model.User.Role.STUDENT;
+import static school.hei.haapi.model.User.Role.TEACHER;
+import static school.hei.haapi.model.User.Status.ENABLED;
+import static school.hei.haapi.model.User.Status.SUSPENDED;
+import static school.hei.haapi.service.aws.FileService.getFormattedProfilePictureKey;
+
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -83,7 +82,6 @@ public class UserService {
   private final BucketComponent bucketComponent;
 
   private static final String STUDENT_XLSX_IMPORT_BUCKET_KEY = "/STUDENT_XLSX_IMPORT/";
-  private final PromotionService promotionService;
   @Autowired @Lazy private UserService self;
 
   @Transactional
@@ -380,29 +378,15 @@ public class UserService {
         .getContent();
   }
 
-  public List<User> getAllStudentNotDisabled() {
-    return userRepository.findAllStudentNotDisabled();
-  }
-
   public Statistics getStudentsStat() {
     var studentStatisticsDao = userRepository.getStudentsStatistics();
     var alternatingStatisticsDao = workDocumentRepository.getStudentAlternatingStatistics();
     return studentStatisticsDao.toRestStatistics(alternatingStatisticsDao);
   }
 
-  public long getStudentsAlternatingSize(List<Student> students, WorkStudyStatus workStudyStatus) {
-    return students.stream()
-        .filter(student -> Objects.equals(student.getWorkStudyStatus(), workStudyStatus))
-        .count();
-  }
-
   // Todo: try to move in MonitoringStudentService
   public List<User> findMonitorsByStudentId(String studentId) {
     return monitoringStudentService.getMonitorsByStudentId(studentId);
-  }
-
-  public List<User> getStudentsByPromotionId(String promotionId) {
-    return userRepository.findAllStudentsByPromotionId(promotionId);
   }
 
   public List<User> getStudentsWithLateFee() {
@@ -469,7 +453,7 @@ public class UserService {
   @Transactional
   public StudentLevel getStudentLevel(String studentId) {
     try {
-      return getById(studentId)
+      return self.getById(studentId)
           .findCurrentGroup()
           .map(g -> g.getPromotion().getLevelAt(now()))
           .orElse(null);
@@ -477,10 +461,5 @@ public class UserService {
       log.error("Level for student id {} is out of bounds: {}", studentId, e.getMessage());
       return null;
     }
-  }
-
-  public boolean isRepeatingStudent(String studentId) {
-    var student = getById(studentId);
-    return promotionService.getAllStudentPromotions(student.getId()).size() > 1;
   }
 }
