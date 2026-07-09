@@ -1,43 +1,47 @@
 package school.hei.haapi.service;
 
-import static java.time.temporal.ChronoUnit.DAYS;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-import static school.hei.haapi.endpoint.rest.model.StudentLevel.L1;
-import static school.hei.haapi.integration.conf.TestUtils.setUpCasdoor;
-import static school.hei.haapi.integration.test_data.CourseTestData.prog1;
-import static school.hei.haapi.integration.test_data.CourseTestData.prog3;
-import static school.hei.haapi.integration.test_data.CourseTestData.secu1;
-import static school.hei.haapi.integration.test_data.GroupTestData.g1;
-import static school.hei.haapi.integration.test_data.GroupTestData.g2;
-import static school.hei.haapi.integration.test_data.StudentTestData.axel;
-import static school.hei.haapi.integration.test_data.StudentTestData.tolojanahary;
-import static school.hei.haapi.integration.test_data.TeacherTestData.ryan;
-import static school.hei.haapi.model.GroupFlow.GroupFlowType.JOIN;
-
-import java.time.Instant;
-import java.util.List;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import school.hei.haapi.integration.conf.FacadeITMockedThirdParties;
 import school.hei.haapi.model.Course;
 import school.hei.haapi.model.CourseAssignment;
 import school.hei.haapi.model.Exam;
+import school.hei.haapi.model.Grade;
 import school.hei.haapi.model.Group;
 import school.hei.haapi.model.GroupFlow;
 import school.hei.haapi.model.User;
 import school.hei.haapi.repository.CourseAssignmentRepository;
 import school.hei.haapi.repository.CourseRepository;
+import school.hei.haapi.repository.ExamRepository;
+import school.hei.haapi.repository.GradeRepository;
 import school.hei.haapi.repository.GroupFlowRepository;
 import school.hei.haapi.repository.GroupRepository;
 import school.hei.haapi.repository.UserRepository;
-import school.hei.haapi.repository.dao.GradeDao;
+
+import java.time.Instant;
+import java.util.List;
+
+import static java.time.temporal.ChronoUnit.DAYS;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static school.hei.haapi.endpoint.rest.model.CourseResultStatus.VALIDATED;
+import static school.hei.haapi.endpoint.rest.model.StudentLevel.L1;
+import static school.hei.haapi.integration.conf.TestUtils.setUpCasdoor;
+import static school.hei.haapi.integration.test_data.CourseTestData.prog1;
+import static school.hei.haapi.integration.test_data.CourseTestData.prog3;
+import static school.hei.haapi.integration.test_data.CourseTestData.secu1;
+import static school.hei.haapi.integration.test_data.ExamTestData.createExam;
+import static school.hei.haapi.integration.test_data.GroupTestData.g1;
+import static school.hei.haapi.integration.test_data.GroupTestData.g2;
+import static school.hei.haapi.integration.test_data.GroupTestData.h1;
+import static school.hei.haapi.integration.test_data.StudentTestData.axel;
+import static school.hei.haapi.integration.test_data.StudentTestData.tolojanahary;
+import static school.hei.haapi.integration.test_data.TeacherTestData.ryan;
+import static school.hei.haapi.model.GroupFlow.GroupFlowType.JOIN;
+import static school.hei.haapi.model.GroupFlow.GroupFlowType.LEAVE;
 
 class CourseResultServiceTest extends FacadeITMockedThirdParties {
   @Autowired private CourseRepository courseRepository;
@@ -58,12 +62,21 @@ class CourseResultServiceTest extends FacadeITMockedThirdParties {
   private CourseAssignment anL1Assignment;
   private CourseAssignment anL2Assignment;
   private CourseAssignment anL3Assignment;
+  private CourseAssignment newL1Assignment;
   private Group group1;
   private Group group2;
+  private Group group3;
   private GroupFlow tolojanaharyNewGroupFlow;
-  private GroupFlow tolojanaharyOldGroupFlow;
-  @MockBean private ExamService examService;
-  @MockBean private GradeDao gradeDao;
+  private GroupFlow tolojanaharyJoinOldGroupFlow;
+  private GroupFlow tolojanaharyLeaveOldGroupFlow;
+  private Exam prog1Exam;
+  private Exam groupHProg1Exam;
+  private Exam prog3Exam;
+  private Exam secu1Exam;
+  private Grade repeatingYearGrade;
+  @Autowired private ExamService examService;
+  @Autowired private ExamRepository examRepository;
+  @Autowired private GradeRepository gradeRepository;
 
   @BeforeEach
   void setUp() {
@@ -78,6 +91,7 @@ class CourseResultServiceTest extends FacadeITMockedThirdParties {
     teacherRyan = ryan();
     group1 = g1();
     group2 = g2();
+    group3 = h1();
     anL1Course = prog1();
     anL2Course = prog3();
     anL3Course = secu1();
@@ -86,26 +100,39 @@ class CourseResultServiceTest extends FacadeITMockedThirdParties {
             .student(studentAxel)
             .group(group1)
             .groupFlowType(JOIN)
-            .flowDatetime(now.minus(7, DAYS))
+            .flowDatetime(now.minus(365, DAYS))
             .build();
-    tolojanaharyOldGroupFlow =
+    tolojanaharyJoinOldGroupFlow =
         GroupFlow.builder()
             .student(repeatingStudentTolojanahary)
             .group(group1)
             .groupFlowType(JOIN)
             .flowDatetime(now.minus(365, DAYS))
             .build();
+    tolojanaharyLeaveOldGroupFlow =
+        GroupFlow.builder()
+            .student(repeatingStudentTolojanahary)
+            .group(group1)
+            .groupFlowType(LEAVE)
+            .flowDatetime(now.minus(50, DAYS))
+            .build();
     tolojanaharyNewGroupFlow =
         GroupFlow.builder()
             .student(repeatingStudentTolojanahary)
-            .group(group2)
+            .group(group3)
             .groupFlowType(JOIN)
-            .flowDatetime(now)
+            .flowDatetime(now.minus(40, DAYS))
             .build();
     anL1Assignment =
         CourseAssignment.builder()
             .course(anL1Course)
             .groups(List.of(group1, group2))
+            .mainTeacher(teacherRyan)
+            .build();
+    newL1Assignment =
+        CourseAssignment.builder()
+            .course(anL1Course)
+            .groups(List.of(group3))
             .mainTeacher(teacherRyan)
             .build();
     anL2Assignment =
@@ -121,28 +148,44 @@ class CourseResultServiceTest extends FacadeITMockedThirdParties {
             .mainTeacher(teacherRyan)
             .build();
 
-    userRepository.saveAll(List.of(studentAxel, repeatingStudentTolojanahary, teacherRyan));
-    groupRepository.saveAll(List.of(group1, group2));
-    courseRepository.saveAll(List.of(anL1Course, anL2Course, anL3Course));
-    courseAssignmentRepository.saveAll(List.of(anL1Assignment, anL2Assignment, anL3Assignment));
-    groupFlowRepository.saveAll(
-        List.of(axelGroupFlow, tolojanaharyOldGroupFlow, tolojanaharyNewGroupFlow));
+    prog1Exam = createExam(now.minus(200, DAYS), anL1Assignment);
+    groupHProg1Exam = createExam(now.minus(10, DAYS), newL1Assignment);
+    prog3Exam = createExam(now.minus(200, DAYS), anL2Assignment);
+    secu1Exam = createExam(now.minus(200, DAYS), anL3Assignment);
+    repeatingYearGrade =
+        Grade.builder()
+            .student(repeatingStudentTolojanahary)
+            .exam(groupHProg1Exam)
+            .score(12.)
+            .build();
 
-    Exam examMock = mock(Exam.class);
-    when(examMock.getExaminationDate()).thenReturn(now);
-    when(examService.getExamsByCourseId(anL1Course.getId())).thenReturn(List.of(examMock));
-    when(examService.getExamsByCourseId(anL2Course.getId())).thenReturn(List.of(examMock));
-    when(examService.getExamsByCourseId(anL3Course.getId())).thenReturn(List.of(examMock));
-    when(gradeDao.getStudentGradesByCourseId(any(), any())).thenReturn(List.of());
+    userRepository.saveAll(List.of(studentAxel, repeatingStudentTolojanahary, teacherRyan));
+    groupRepository.saveAll(List.of(group1, group2, group3));
+    courseRepository.saveAll(List.of(anL1Course, anL2Course, anL3Course));
+    courseAssignmentRepository.saveAll(
+        List.of(anL1Assignment, newL1Assignment, anL2Assignment, anL3Assignment));
+    examRepository.saveAll(List.of(prog1Exam, prog3Exam, secu1Exam, groupHProg1Exam));
+    gradeRepository.save(repeatingYearGrade);
+    groupFlowRepository.saveAll(
+        List.of(
+            axelGroupFlow,
+            tolojanaharyJoinOldGroupFlow,
+            tolojanaharyLeaveOldGroupFlow,
+            tolojanaharyNewGroupFlow));
   }
 
   @AfterEach
   void tearDown() {
-    courseAssignmentRepository.deleteAll(List.of(anL1Assignment, anL2Assignment, anL3Assignment));
+    courseAssignmentRepository.deleteAll(
+        List.of(anL1Assignment, newL1Assignment, anL2Assignment, anL3Assignment));
     courseRepository.deleteAll(List.of(anL1Course, anL2Course, anL3Course));
     groupFlowRepository.deleteAll(
-        List.of(axelGroupFlow, tolojanaharyOldGroupFlow, tolojanaharyNewGroupFlow));
-    groupRepository.deleteAll(List.of(group1, group2));
+        List.of(
+            axelGroupFlow,
+            tolojanaharyJoinOldGroupFlow,
+            tolojanaharyLeaveOldGroupFlow,
+            tolojanaharyNewGroupFlow));
+    groupRepository.deleteAll(List.of(group1, group2, group3));
     userRepository.deleteAll(List.of(studentAxel, repeatingStudentTolojanahary, teacherRyan));
   }
 
@@ -169,9 +212,11 @@ class CourseResultServiceTest extends FacadeITMockedThirdParties {
         actualCourseResults.stream()
             .allMatch(
                 courseResult ->
-                    courseAssignmentRepository.findAllByGroupId(group2.getId()).stream()
+                    courseAssignmentRepository.findAllByGroupId(group3.getId()).stream()
                         .map(courseAssignment -> courseAssignment.getCourse().getId())
                         .toList()
                         .contains(courseResult.getCourse().getId())));
+    assertEquals(12., actualCourseResults.getFirst().getWeightedAverage().doubleValue());
+    assertEquals(VALIDATED, actualCourseResults.getFirst().getStatus());
   }
 }
