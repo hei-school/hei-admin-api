@@ -91,9 +91,8 @@ public class SecurityConf {
 
         // authenticate
         .authenticationProvider(authProvider)
-            .addFilterBefore(feesOnlyFilter, AnonymousAuthenticationFilter.class)
-
-            .addFilterBefore(
+        .addFilterBefore(feesOnlyFilter, AnonymousAuthenticationFilter.class)
+        .addFilterBefore(
             bearerFilter(
                 new OrRequestMatcher(
                     antMatcher(GET, "/whoami"),
@@ -1125,7 +1124,6 @@ public class SecurityConf {
                     .authenticated()
                     .requestMatchers("/**")
                     .denyAll())
-
         .cors(AbstractHttpConfigurer::disable)
         .csrf(AbstractHttpConfigurer::disable)
         .formLogin(AbstractHttpConfigurer::disable)

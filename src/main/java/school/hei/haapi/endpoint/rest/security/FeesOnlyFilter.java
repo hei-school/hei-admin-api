@@ -10,7 +10,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-
 @Component
 @Slf4j
 public class FeesOnlyFilter extends OncePerRequestFilter {

@@ -40,14 +40,7 @@ class FeesOnlyFilterTest {
     FeesOnlyFilter filter = new FeesOnlyFilter(true);
 
     List<String> allowedPrefixes =
-        List.of(
-            "/fees",
-            "/students",
-            "/whoami",
-            "/ping",
-            "/authentication",
-            "/health",
-            "/mpbs");
+        List.of("/fees", "/students", "/whoami", "/ping", "/authentication", "/health", "/mpbs");
 
     for (String prefix : allowedPrefixes) {
       MockHttpServletRequest request = new MockHttpServletRequest();
@@ -83,8 +76,7 @@ class FeesOnlyFilterTest {
   }
 
   @Test
-  void fees_only_active_allows_subpaths_of_allowed_prefixes()
-      throws ServletException, IOException {
+  void fees_only_active_allows_subpaths_of_allowed_prefixes() throws ServletException, IOException {
     FeesOnlyFilter filter = new FeesOnlyFilter(true);
 
     MockHttpServletRequest request = new MockHttpServletRequest();
