@@ -1,31 +1,7 @@
 package school.hei.haapi.service;
 
-import static java.time.Instant.now;
-import static org.apache.poi.ss.usermodel.Row.MissingCellPolicy.CREATE_NULL_AS_BLANK;
-import static org.springframework.data.domain.Pageable.unpaged;
-import static org.springframework.data.domain.Sort.Direction.ASC;
-import static school.hei.haapi.model.User.Role.STUDENT;
-import static school.hei.haapi.model.User.Role.TEACHER;
-import static school.hei.haapi.model.User.Status.ENABLED;
-import static school.hei.haapi.model.User.Status.SUSPENDED;
-import static school.hei.haapi.service.aws.FileService.getFormattedProfilePictureKey;
-
-import java.io.File;
-import java.io.IOException;
-import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -63,6 +39,30 @@ import school.hei.haapi.service.aws.FileService;
 import school.hei.haapi.service.utils.XlsxCellsGenerator;
 import school.hei.haapi.service.utils.excel.ExcelParser;
 
+import java.io.File;
+import java.io.IOException;
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+
+import static java.time.Instant.now;
+import static org.apache.poi.ss.usermodel.Row.MissingCellPolicy.CREATE_NULL_AS_BLANK;
+import static org.springframework.data.domain.Pageable.unpaged;
+import static org.springframework.data.domain.Sort.Direction.ASC;
+import static school.hei.haapi.model.User.Role.STUDENT;
+import static school.hei.haapi.model.User.Role.TEACHER;
+import static school.hei.haapi.model.User.Status.ENABLED;
+import static school.hei.haapi.model.User.Status.SUSPENDED;
+import static school.hei.haapi.service.aws.FileService.getFormattedProfilePictureKey;
+
 @Service
 @AllArgsConstructor
 @Slf4j
@@ -85,7 +85,7 @@ public class UserService {
 
   private static final String STUDENT_XLSX_IMPORT_BUCKET_KEY = "/STUDENT_XLSX_IMPORT/";
   private final PromotionService promotionService;
-  @Autowired private UserService self;
+  private UserService self;
 
   @Transactional
   public void uploadUserProfilePicture(MultipartFile profilePictureAsMultipartFile, String userId) {
