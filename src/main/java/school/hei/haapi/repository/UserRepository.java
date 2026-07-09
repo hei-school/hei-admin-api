@@ -211,6 +211,8 @@ public interface UserRepository extends JpaRepository<User, String> {
           OR LOWER(u.firstName) LIKE LOWER(CONCAT('%', :search, '%'))
           OR LOWER(u.lastName) LIKE LOWER(CONCAT('%', :search, '%'))
         )
+      ORDER BY u.lastName
+      LIMIT 25
       """)
   List<User> searchUsers(@Param("search") String search);
 

@@ -20,7 +20,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
@@ -47,7 +46,6 @@ import school.hei.haapi.file.bucket.BucketComponent;
 import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.EventParticipant;
 import school.hei.haapi.model.PageFromOne;
-import school.hei.haapi.model.Promotion;
 import school.hei.haapi.model.User;
 import school.hei.haapi.model.dto.StudentImportDto;
 import school.hei.haapi.model.exception.BadRequestException;
@@ -135,7 +133,7 @@ public class UserService {
     return userToRefresh;
   }
 
-  @Transactional
+  @Transactional(readOnly = true)
   public User getById(String userId) {
     return userRepository
         .findById(userId)
@@ -258,8 +256,8 @@ public class UserService {
   }
 
   private void validateDuplicateStudentImport(List<StudentImportDto> importResults) {
-    Set<String> seenRefs = new HashSet<>();
-    Set<String> seenEmails = new HashSet<>();
+    var seenRefs = new HashSet<>();
+    var seenEmails = new HashSet<>();
     for (StudentImportDto dto : importResults) {
       if (!seenRefs.add(dto.getRef())) {
         throw new BadRequestException("Référence dupliqués détecté: " + dto.getRef());
@@ -285,8 +283,7 @@ public class UserService {
       String ref,
       PageFromOne page,
       BoundedPageSize pageSize) {
-    Pageable pageable =
-        PageRequest.of(page.getValue() - 1, pageSize.getValue(), Sort.by(ASC, "ref"));
+    var pageable = PageRequest.of(page.getValue() - 1, pageSize.getValue(), Sort.by(ASC, "ref"));
     return userManagerDao.findByCriteria(
         role, ref, firstName, lastName, pageable, null, null, null, null, null, null, null, null);
   }
@@ -300,8 +297,7 @@ public class UserService {
       BoundedPageSize pageSize,
       User.Status status,
       User.Sex sex) {
-    Pageable pageable =
-        PageRequest.of(page.getValue() - 1, pageSize.getValue(), Sort.by(ASC, "ref"));
+    var pageable = PageRequest.of(page.getValue() - 1, pageSize.getValue(), Sort.by(ASC, "ref"));
 
     return userManagerDao.findByCriteria(
         role, ref, firstName, lastName, pageable, status, sex, null, null, null, null, null, null);
@@ -322,8 +318,7 @@ public class UserService {
       List<String> excludeGroupIds) {
     log.info("Page = {}", page.getValue());
     log.info("PageSize = {}", pageSize.getValue());
-    Pageable pageable =
-        PageRequest.of(page.getValue() - 1, pageSize.getValue(), Sort.by(ASC, "ref"));
+    var pageable = PageRequest.of(page.getValue() - 1, pageSize.getValue(), Sort.by(ASC, "ref"));
     return userManagerDao.findByCriteria(
         role,
         ref,
@@ -368,19 +363,18 @@ public class UserService {
   }
 
   public byte[] generateStudentsGroup(String groupId) {
-    List<User> studentsGroup = getByGroupId(groupId, unpaged());
+    var studentsGroup = getByGroupId(groupId, unpaged());
     return userXlsxCellsGenerator.apply(studentsGroup, List.of("ref", "firstName", "lastName"));
   }
 
   public byte[] generateTeachersXlsx() {
-    List<User> teachers = userRepository.findAllByRoleAndStatus(TEACHER, ENABLED);
+    var teachers = userRepository.findAllByRoleAndStatus(TEACHER, ENABLED);
     return userXlsxCellsGenerator.apply(teachers, List.of("firstName", "lastName", "email", "sex"));
   }
 
   public List<User> getByGroupIdWithFilter(
       String groupId, PageFromOne page, BoundedPageSize pageSize, String studentFirstname) {
-    Pageable pageable =
-        PageRequest.of(page.getValue() - 1, pageSize.getValue(), Sort.by(ASC, "ref"));
+    var pageable = PageRequest.of(page.getValue() - 1, pageSize.getValue(), Sort.by(ASC, "ref"));
     return userRepository
         .findStudentGroupsWithFilter(groupId, studentFirstname, pageable)
         .getContent();
@@ -416,7 +410,7 @@ public class UserService {
   }
 
   public byte[] generateStudentsInEventXlsx(String eventId) {
-    List<EventParticipant> students =
+    var students =
         eventParticipantRepository
             .findAllByEventId(eventId, null)
             .orElseThrow(
@@ -433,7 +427,7 @@ public class UserService {
   }
 
   public byte[] generateStudentsInPromotionXlsx(String promotionId) {
-    Promotion promotion =
+    var promotion =
         promotionRepository
             .findById(promotionId)
             .orElseThrow(
@@ -472,6 +466,7 @@ public class UserService {
     return userRepository.findAllByRoleInAndIdIn(roles, ids);
   }
 
+  @Transactional
   public StudentLevel getStudentLevel(String studentId) {
     try {
       return getById(studentId)
