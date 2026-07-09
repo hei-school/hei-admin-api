@@ -25,6 +25,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -84,9 +85,11 @@ public class UserService {
 
   private static final String STUDENT_XLSX_IMPORT_BUCKET_KEY = "/STUDENT_XLSX_IMPORT/";
   private final PromotionService promotionService;
+  @Autowired private UserService self;
 
+  @Transactional
   public void uploadUserProfilePicture(MultipartFile profilePictureAsMultipartFile, String userId) {
-    User user = getById(userId);
+    User user = self.getById(userId);
     File savedProfilePicture = fileConverter.apply(profilePictureAsMultipartFile);
     String bucketKey =
         getFormattedProfilePictureKey(user)
@@ -107,7 +110,7 @@ public class UserService {
   }
 
   private User refreshUserById(String userId, User refreshedUser) {
-    User userToRefresh = getById(userId);
+    User userToRefresh = self.getById(userId);
 
     userToRefresh.setAddress(refreshedUser.getAddress());
     userToRefresh.setBirthDate(refreshedUser.getBirthDate());
