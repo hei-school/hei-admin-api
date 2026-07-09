@@ -5,6 +5,7 @@ import static org.springframework.http.MediaType.MULTIPART_FORM_DATA_VALUE;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import school.hei.haapi.endpoint.FeesOnly;
 import school.hei.haapi.endpoint.rest.mapper.UserMapper;
 import school.hei.haapi.endpoint.rest.model.Admin;
 import school.hei.haapi.endpoint.rest.model.CrupdateManager;
@@ -13,6 +14,7 @@ import school.hei.haapi.service.UserService;
 
 @RestController
 @AllArgsConstructor
+@FeesOnly
 public class AdminController {
 
   private final UserService userService;

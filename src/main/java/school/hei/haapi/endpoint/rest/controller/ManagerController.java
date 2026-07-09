@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
+import school.hei.haapi.endpoint.FeesOnly;
 import school.hei.haapi.endpoint.rest.mapper.SexEnumMapper;
 import school.hei.haapi.endpoint.rest.mapper.StatusEnumMapper;
 import school.hei.haapi.endpoint.rest.mapper.UserMapper;
@@ -30,6 +31,7 @@ import school.hei.haapi.service.aws.FileService;
 
 @RestController
 @AllArgsConstructor
+@FeesOnly
 public class ManagerController {
   private final SexEnumMapper sexEnumMapper;
   private final StatusEnumMapper statusEnumMapper;
