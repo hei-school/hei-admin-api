@@ -10,8 +10,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Transactional;
-import school.hei.haapi.model.GroupFlow;
 import school.hei.haapi.model.User;
 import school.hei.haapi.model.User.Role;
 import school.hei.haapi.model.dto.StatisticsDto;
@@ -228,20 +226,4 @@ public interface UserRepository extends JpaRepository<User, String> {
         AND (:promotionId IS NULL OR p.id = :promotionId)
       """)
   List<User> findAllStudentNotDisabledWithGroupFlow(String promotionId);
-
-  @Transactional
-  @Query(
-      """
-      select gf
-      from GroupFlow gf
-      where gf.student.id = :studentId
-        and gf.flowDatetime = (
-            select max(gf2.flowDatetime)
-            from GroupFlow gf2
-            where gf2.student.id = gf.student.id
-              and gf2.group.id = gf.group.id
-        )
-      order by gf.group.ref
-      """)
-  List<GroupFlow> findLastGroupFlowPerGroupByStudentId(@Param("studentId") String studentId);
 }
