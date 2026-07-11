@@ -103,7 +103,7 @@ public class UserService {
   }
 
   @Transactional
-  private User refreshUserById(String userId, User refreshedUser) {
+  public User refreshUserById(String userId, User refreshedUser) {
     var userToRefresh = getById(userId);
 
     userToRefresh.setAddress(refreshedUser.getAddress());
