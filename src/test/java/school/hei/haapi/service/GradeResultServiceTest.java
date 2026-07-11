@@ -549,7 +549,7 @@ class GradeResultServiceTest {
   void correct_result_yearly_result_student1_L1_validate() throws CoursesCreditSumZero {
     var targetLevel = L1;
 
-    var result = subject.getYearlyResultByStudentIdAndByLevel(targetLevel, STUDENT1_ID);
+    var result = subject.getYearlyResultByStudentIdAndByLevel(STUDENT1_ID, targetLevel);
 
     assertEquals(targetLevel, result.getLevel());
     assertEquals(60., result.getObtainedCredits().doubleValue());
@@ -563,7 +563,7 @@ class GradeResultServiceTest {
   void correct_result_yearly_result_student2_L1_invalidate() throws CoursesCreditSumZero {
     var targetLevel = L1;
 
-    var result = subject.getYearlyResultByStudentIdAndByLevel(targetLevel, STUDENT2_ID);
+    var result = subject.getYearlyResultByStudentIdAndByLevel(STUDENT2_ID, targetLevel);
 
     assertEquals(targetLevel, result.getLevel());
     assertEquals(20., result.getObtainedCredits().doubleValue());
@@ -579,7 +579,7 @@ class GradeResultServiceTest {
     when(groupFlowService.getStudentGroupFlowAtLevel(any(), any()))
         .thenReturn(Collections.singletonList(groupFLowPeriodWithNullEnd()));
     when(courseAssignmentService.getByGroupId(any())).thenReturn(List.of(m1CourseAssignment()));
-    var result = subject.getYearlyResultByStudentIdAndByLevel(targetLevel, STUDENT2_ID);
+    var result = subject.getYearlyResultByStudentIdAndByLevel(STUDENT2_ID, targetLevel);
 
     assertEquals(targetLevel, result.getLevel());
     assertEquals(0, result.getObtainedCredits().doubleValue());
@@ -594,7 +594,7 @@ class GradeResultServiceTest {
   void correct_result_yearly_result_student3_L1_inProgress() throws CoursesCreditSumZero {
     var targetLevel = L1;
 
-    var result = subject.getYearlyResultByStudentIdAndByLevel(targetLevel, STUDENT3_ID);
+    var result = subject.getYearlyResultByStudentIdAndByLevel(STUDENT3_ID, targetLevel);
 
     assertEquals(targetLevel, result.getLevel());
     assertEquals(52., result.getObtainedCredits().doubleValue());
@@ -610,7 +610,7 @@ class GradeResultServiceTest {
 
   @Test
   void generate_result_pdf_okay() throws CoursesCreditSumZero {
-    var result = subject.getYearlyResultByStudentIdAndByLevel(L1, STUDENT1_ID);
+    var result = subject.getYearlyResultByStudentIdAndByLevel(STUDENT1_ID, L1);
     var resultFile = yearlyResultGenerationService.generateYearlyResultTranscript(student1, result);
     assertTrue(resultFile.isFile());
   }
@@ -625,7 +625,7 @@ class GradeResultServiceTest {
 
   @Test
   void generate_result_pdf_year_in_progress_okay() throws CoursesCreditSumZero {
-    var result = subject.getYearlyResultByStudentIdAndByLevel(L1, STUDENT3_ID);
+    var result = subject.getYearlyResultByStudentIdAndByLevel(STUDENT3_ID, L1);
     var resultFile = yearlyResultGenerationService.generateYearlyResultTranscript(student3, result);
     assertTrue(resultFile.isFile());
   }
@@ -633,7 +633,7 @@ class GradeResultServiceTest {
   @Test
   void correct_result_yearly_result_M2_empty_notStarted() {
     var expectedLevel = M2;
-    var yearlyResult = subject.getYearlyResultByStudentIdAndByLevel(expectedLevel, STUDENT1_ID);
+    var yearlyResult = subject.getYearlyResultByStudentIdAndByLevel(STUDENT1_ID, expectedLevel);
 
     assertEquals(expectedLevel, yearlyResult.getLevel());
     assertEquals(NOT_STARTED, yearlyResult.getStatus());
@@ -683,7 +683,7 @@ class GradeResultServiceTest {
 
     assertThrows(
         CoursesCreditSumZero.class,
-        () -> subject.getYearlyResultByStudentIdAndByLevel(L1, STUDENT1_ID));
+        () -> subject.getYearlyResultByStudentIdAndByLevel(STUDENT1_ID, L1));
   }
 
   @Test
@@ -694,7 +694,7 @@ class GradeResultServiceTest {
         .thenReturn(Collections.singletonList(groupFLowPeriod()));
     when(courseAssignmentService.getByGroupId(any())).thenReturn(List.of(mgt1CourseAssignment()));
 
-    var result = subject.getYearlyResultByStudentIdAndByLevel(L1, STUDENT1_ID);
+    var result = subject.getYearlyResultByStudentIdAndByLevel(STUDENT1_ID, L1);
 
     assertEquals(NOT_STARTED, result.getStatus());
     assertNull(result.getWeightedAverage());
@@ -775,7 +775,7 @@ class GradeResultServiceTest {
   @Test
   void yearly_result_event_handler_ok() {
     YearlyResult student1YearlyResult =
-        subject.getYearlyResultByStudentIdAndByLevel(L1, STUDENT1_ID);
+        subject.getYearlyResultByStudentIdAndByLevel(STUDENT1_ID, L1);
 
     when(userService.getById(anyString())).thenReturn(student1);
     when(yearlyResultGenerationRequestRepository.save(any())).thenAnswer(e -> e.getArgument(0));

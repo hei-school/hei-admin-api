@@ -57,7 +57,7 @@ public class GradeResultService {
   private static final Duration TRANSCRIPT_GENERATION_TIMEOUT = Duration.ofMinutes(5);
   private static final Duration TRANSCRIPT_VALIDATION_DURATION = Duration.ofHours(12);
 
-  public YearlyResult getYearlyResultByStudentIdAndByLevel(StudentLevel level, String studentId) {
+  public YearlyResult getYearlyResultByStudentIdAndByLevel(String studentId, StudentLevel level) {
     var courseResults = courseResultService.getCourseResultsByStudentIdAndLevel(studentId, level);
     var yearlyResult = new YearlyResult().level(level);
 
@@ -76,7 +76,7 @@ public class GradeResultService {
   public Optional<YearlyResult> findLeveledYearlyResultByStudentId(
       StudentLevel level, String studentId) {
     try {
-      return Optional.of(getYearlyResultByStudentIdAndByLevel(level, studentId));
+      return Optional.of(getYearlyResultByStudentIdAndByLevel(studentId, level));
     } catch (CoursesCreditSumZero e) {
       log.error(
           "Course results for the level {} of the student id {} coefficient sum is 0",
@@ -159,7 +159,7 @@ public class GradeResultService {
 
   public YearlyResultGenerationTranscript getYearlyResultTranscript(
       String studentId, StudentLevel level) {
-    var studentYearlyResult = getYearlyResultByStudentIdAndByLevel(level, studentId);
+    var studentYearlyResult = getYearlyResultByStudentIdAndByLevel(studentId, level);
 
     if (NOT_STARTED.equals(studentYearlyResult.getStatus()))
       throw new BadRequestException(

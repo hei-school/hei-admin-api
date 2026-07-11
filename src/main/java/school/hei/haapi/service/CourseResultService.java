@@ -1,23 +1,6 @@
 package school.hei.haapi.service;
 
-import static java.math.BigDecimal.TEN;
-import static java.math.BigDecimal.ZERO;
-import static java.math.MathContext.DECIMAL128;
-import static java.util.Comparator.comparing;
-import static java.util.Objects.nonNull;
-import static java.util.regex.Pattern.compile;
-import static school.hei.haapi.endpoint.rest.model.ResultOverviewStatus.INVALIDATED;
-import static school.hei.haapi.endpoint.rest.model.ResultOverviewStatus.IN_PROGRESS;
-import static school.hei.haapi.endpoint.rest.model.ResultOverviewStatus.NOT_STARTED;
-import static school.hei.haapi.endpoint.rest.model.ResultOverviewStatus.VALIDATED;
-import static school.hei.haapi.model.Grade.weightedAverageOfGrades;
-
 import jakarta.transaction.Transactional;
-import java.math.BigDecimal;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.regex.Pattern;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -34,6 +17,24 @@ import school.hei.haapi.model.exception.CoursesCreditSumZero;
 import school.hei.haapi.model.exception.ExamsCoefficientSumZero;
 import school.hei.haapi.repository.dao.GradeDao;
 
+import java.math.BigDecimal;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.regex.Pattern;
+
+import static java.math.BigDecimal.TEN;
+import static java.math.BigDecimal.ZERO;
+import static java.math.MathContext.DECIMAL128;
+import static java.util.Comparator.comparing;
+import static java.util.Objects.nonNull;
+import static java.util.regex.Pattern.compile;
+import static school.hei.haapi.endpoint.rest.model.ResultOverviewStatus.INVALIDATED;
+import static school.hei.haapi.endpoint.rest.model.ResultOverviewStatus.IN_PROGRESS;
+import static school.hei.haapi.endpoint.rest.model.ResultOverviewStatus.NOT_STARTED;
+import static school.hei.haapi.endpoint.rest.model.ResultOverviewStatus.VALIDATED;
+import static school.hei.haapi.model.Grade.weightedAverageOfGrades;
+
 @Service
 @AllArgsConstructor
 @Slf4j
@@ -46,7 +47,7 @@ public class CourseResultService {
 
   private static final BigDecimal VALIDATED_YEAR_CREDIT = BigDecimal.valueOf(30);
   private static final BigDecimal VALIDATED_YEAR_AVERAGE = TEN;
-  private static final Pattern TRAILING_DIGITS = compile("\\d+$");
+  private static final Pattern GROUP_TRAILING_DIGITS = compile("\\d+$");
 
   @Transactional
   public List<CourseResult> getCourseResultsByStudentIdAndLevel(
@@ -64,7 +65,7 @@ public class CourseResultService {
         .toList();
   }
 
-  public List<GroupFlowPeriod> findLatestGroupFlowPeriods(List<GroupFlowPeriod> groupFlowPeriods) {
+  private List<GroupFlowPeriod> findLatestGroupFlowPeriods(List<GroupFlowPeriod> groupFlowPeriods) {
     if (groupFlowPeriods.isEmpty()) {
       return List.of();
     }
@@ -88,7 +89,7 @@ public class CourseResultService {
   }
 
   private String extractGroupPromotion(String groupName) {
-    return TRAILING_DIGITS.matcher(groupName).replaceAll("");
+    return GROUP_TRAILING_DIGITS.matcher(groupName).replaceAll("");
   }
 
   private List<GroupFlowPeriodCourseAssignment> getGroupsCourseAssignmentsByGroupFlowsAtLevel(
@@ -96,11 +97,11 @@ public class CourseResultService {
     return studentLatestGroupFlows.stream()
         .map(
             groupFlowPeriod ->
-                getGroupCourseAssignmentsBetweenPeriodAndStudentLevel(groupFlowPeriod, level))
+                getGroupCourseAssignmentsByLevelBetweenPeriod(groupFlowPeriod, level))
         .toList();
   }
 
-  private GroupFlowPeriodCourseAssignment getGroupCourseAssignmentsBetweenPeriodAndStudentLevel(
+  private GroupFlowPeriodCourseAssignment getGroupCourseAssignmentsByLevelBetweenPeriod(
       GroupFlowPeriod groupFlowPeriod, StudentLevel level) {
     var courseAssignments =
         courseAssignmentService.getByGroupId(groupFlowPeriod.group().getId()).stream()

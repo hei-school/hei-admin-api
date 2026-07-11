@@ -23,8 +23,6 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -79,17 +77,11 @@ public class UserService {
   private final XlsxCellsGenerator<User> userXlsxCellsGenerator;
   private final XlsxCellsGenerator<EventParticipant> eventParticipantXlsxCellsGenerator;
   private final BucketComponent bucketComponent;
-  private UserService self;
   private static final String STUDENT_XLSX_IMPORT_BUCKET_KEY = "/STUDENT_XLSX_IMPORT/";
-
-  @Autowired
-  public void setSelf(@Lazy UserService self) {
-    this.self = self;
-  }
 
   @Transactional
   public void uploadUserProfilePicture(MultipartFile profilePictureAsMultipartFile, String userId) {
-    User user = self.getById(userId);
+    var user = getById(userId);
     var savedProfilePicture = fileConverter.apply(profilePictureAsMultipartFile);
     var bucketKey =
         getFormattedProfilePictureKey(user)
@@ -109,8 +101,9 @@ public class UserService {
     return userRepository.save(toUpdate);
   }
 
+  @Transactional
   private User refreshUserById(String userId, User refreshedUser) {
-    var userToRefresh = self.getById(userId);
+    var userToRefresh = getById(userId);
 
     userToRefresh.setAddress(refreshedUser.getAddress());
     userToRefresh.setBirthDate(refreshedUser.getBirthDate());
@@ -456,7 +449,7 @@ public class UserService {
   @Transactional
   public StudentLevel getStudentLevel(String studentId) {
     try {
-      return self.getById(studentId)
+      return getById(studentId)
           .findCurrentGroup()
           .map(g -> g.getPromotion().getLevelAt(now()))
           .orElse(null);
