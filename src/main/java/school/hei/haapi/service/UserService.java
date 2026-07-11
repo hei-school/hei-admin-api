@@ -96,6 +96,7 @@ public class UserService {
     userManagerDao.updateUserStatusById(SUSPENDED, suspendedStudentId);
   }
 
+  @Transactional
   public User updateUser(User user, String userId) {
     var toUpdate = refreshUserById(userId, user);
     return userRepository.save(toUpdate);
