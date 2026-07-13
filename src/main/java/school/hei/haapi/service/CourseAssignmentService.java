@@ -57,6 +57,11 @@ public class CourseAssignmentService {
     return courseAssignmentRepository.findAllByGroupId(groupId, pageable);
   }
 
+  @Transactional
+  public List<CourseAssignment> getByGroupId(String groupId) {
+    return courseAssignmentRepository.findAllByGroupId(groupId);
+  }
+
   public CourseAssignment getById(String id) {
     return courseAssignmentRepository.getById(id);
   }

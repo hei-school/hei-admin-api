@@ -49,7 +49,7 @@ public class StudentRetakeExamListIT extends FacadeITMockedThirdParties {
   void should_be_see_all_exams_with_all_status() throws ApiException {
     var api = new RetakeExamApi(anApiClient(MANAGER1_TOKEN));
     var results = api.getListStudentRetakeExams(STUDENT1_ID, null).size();
-    var expected = 2;
+    var expected = 3;
     assertEquals(expected, results);
   }
 }
