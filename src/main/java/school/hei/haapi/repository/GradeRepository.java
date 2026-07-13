@@ -35,4 +35,15 @@ public interface GradeRepository extends JpaRepository<Grade, String> {
           + " where g.exam.id = :exam_id and g.student.status in :statuses")
   List<GradeDto> getGradesByExamId(
       @Param("exam_id") String examId, @Param("statuses") List<User.Status> statuses);
+
+  @Query(
+      """
+      select g
+      from Grade g
+      left join fetch g.gradeChangeHistories
+      where g.exam.courseAssignment.id = :courseAssignmentId
+        and g.student.id = :studentId
+      """)
+  List<Grade> findGradesByCourseAssignmentIdAndStudentId(
+      @Param("courseAssignmentId") String courseAssignmentId, @Param("studentId") String studentId);
 }

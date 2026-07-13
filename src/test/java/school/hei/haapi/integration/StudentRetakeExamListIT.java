@@ -31,7 +31,7 @@ public class StudentRetakeExamListIT extends FacadeITMockedThirdParties {
     var api = new RetakeExamApi(anApiClient(MANAGER1_TOKEN));
     var status = CourseResultStatus.VALIDATED;
     var results = api.getListStudentRetakeExams(STUDENT1_ID, status).size();
-    var expected = 1;
+    var expected = 2;
 
     assertEquals(expected, results);
   }
