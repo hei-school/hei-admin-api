@@ -1,4 +1,4 @@
-package school.hei.haapi.endpoint;
+package school.hei.haapi.http.filter;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;

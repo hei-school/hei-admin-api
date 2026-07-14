@@ -49,7 +49,12 @@ import school.hei.haapi.endpoint.rest.api.UsersApi;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
 import school.hei.haapi.endpoint.rest.mapper.UserMapper;
-import school.hei.haapi.endpoint.rest.model.*;
+import school.hei.haapi.endpoint.rest.model.Fee;
+import school.hei.haapi.endpoint.rest.model.LinkStudentsByMonitorIdRequest;
+import school.hei.haapi.endpoint.rest.model.MonitorStudentLinkStatus;
+import school.hei.haapi.endpoint.rest.model.Student;
+import school.hei.haapi.endpoint.rest.model.UpdateMonitorStudentLink;
+import school.hei.haapi.endpoint.rest.model.UpdateMonitorStudentLinkStatusRequest;
 import school.hei.haapi.endpoint.rest.security.casdoorAuthentication.config.CertificateLoader;
 import school.hei.haapi.integration.conf.FacadeITMockedThirdParties;
 import school.hei.haapi.integration.conf.TestUtils;
@@ -78,7 +83,7 @@ class MonitoringStudentIT extends FacadeITMockedThirdParties {
   }
 
   @BeforeEach
-  public void setUp() {
+  void setUp() {
     setUpCasdoor(casdoorAuthServiceMock, certificateLoaderMock);
     setUpFreddyMonitorCasdoorUser(casdoorAuthServiceMock);
     setUpCognito(cognitoComponentMock);
@@ -203,7 +208,7 @@ class MonitoringStudentIT extends FacadeITMockedThirdParties {
                 List.of(monitor1Link(someStudentsRefsToLinkToAMonitor()))));
   }
 
-  public static List<String> someStudentsRefsToLinkToAMonitor() {
+  static List<String> someStudentsRefsToLinkToAMonitor() {
     return List.of(student1().getRef(), student2().getRef());
   }
 

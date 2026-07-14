@@ -6,7 +6,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
-import school.hei.haapi.endpoint.rest.model.StudentLevel;
 import school.hei.haapi.model.CourseAssignment;
 import school.hei.haapi.model.User;
 
@@ -16,10 +15,10 @@ public interface CourseAssignmentRepository extends JpaRepository<CourseAssignme
   @Query("SELECT ca FROM CourseAssignment ca JOIN ca.groups g WHERE g.id = :groupId")
   List<CourseAssignment> findAllByGroupId(@Param("groupId") String groupId, Pageable pageable);
 
+  @Query("SELECT ca FROM CourseAssignment ca JOIN ca.groups g WHERE g.id = :groupId")
+  List<CourseAssignment> findAllByGroupId(@Param("groupId") String groupId);
+
   List<CourseAssignment> findAllByMainTeacher(User teacher, Pageable pageable);
 
   List<CourseAssignment> findAllByCourseId(String courseId, Pageable pageable);
-
-  List<CourseAssignment> findAllByCourse_StudentLevelAndGroupsIn(
-      StudentLevel courseStudentLevel, List<String> groupIds);
 }

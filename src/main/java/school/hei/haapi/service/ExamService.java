@@ -24,15 +24,6 @@ public class ExamService {
   private final ExamDao examDao;
   private final ExamValidator validator;
 
-  public List<Exam> getExamsFromAwardedCourseIdAndGroupId(
-      String groupId, String awardedCourseId, PageFromOne page, BoundedPageSize pageSize) {
-    Pageable pageable =
-        PageRequest.of(page.getValue() - 1, pageSize.getValue(), Sort.by(DESC, "examinationDate"));
-    return examRepository
-        .findExamsByGroupIdAndCourseAssignmentId(groupId, awardedCourseId, pageable)
-        .toList();
-  }
-
   public List<Exam> updateOrSaveAll(List<Exam> exams) {
     validator.accept(exams);
     return examRepository.saveAll(exams);

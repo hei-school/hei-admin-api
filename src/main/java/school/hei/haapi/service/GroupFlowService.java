@@ -1,5 +1,8 @@
 package school.hei.haapi.service;
 
+import static school.hei.haapi.model.GroupFlow.GroupFlowType.JOIN;
+import static school.hei.haapi.model.GroupFlow.GroupFlowType.LEAVE;
+
 import java.time.Instant;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -8,9 +11,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import school.hei.haapi.endpoint.rest.model.CreateGroupFlow;
+import school.hei.haapi.endpoint.rest.model.StudentLevel;
 import school.hei.haapi.model.Group;
 import school.hei.haapi.model.GroupFlow;
 import school.hei.haapi.model.User;
+import school.hei.haapi.model.dto.GroupFlowPeriod;
 import school.hei.haapi.model.exception.NotFoundException;
 import school.hei.haapi.model.validator.GroupFlowValidator;
 import school.hei.haapi.repository.GroupFlowRepository;
@@ -21,7 +26,6 @@ import school.hei.haapi.repository.UserRepository;
 @Service
 @AllArgsConstructor
 public class GroupFlowService {
-
   private final GroupFlowRepository repository;
   private final GroupRepository groupRepository;
   private final UserRepository userRepository;
@@ -76,5 +80,29 @@ public class GroupFlowService {
         .flowDatetime(Instant.now())
         .groupFlowType(GroupFlow.GroupFlowType.fromValue(toMap.getMoveType().getValue()))
         .build();
+  }
+
+  public List<GroupFlowPeriod> getStudentGroupFlowAtLevel(User student, StudentLevel level) {
+    var groupFlows = repository.findByFlowTypeAndStudentAndLevel(student, level);
+    var groupFlowsByGroup = groupFlows.stream().collect(Collectors.groupingBy(GroupFlow::getGroup));
+    return groupFlowsByGroup.entrySet().stream()
+        .map(entry -> toGroupFlowPeriod(entry.getKey(), entry.getValue()))
+        .toList();
+  }
+
+  private GroupFlowPeriod toGroupFlowPeriod(Group group, List<GroupFlow> groupFlows) {
+    var start =
+        groupFlows.stream()
+            .filter(groupFlow -> JOIN.equals(groupFlow.getGroupFlowType()))
+            .map(GroupFlow::getFlowDatetime)
+            .min(Instant::compareTo)
+            .orElse(null);
+    var end =
+        groupFlows.stream()
+            .filter(groupFlow -> LEAVE.equals(groupFlow.getGroupFlowType()))
+            .map(GroupFlow::getFlowDatetime)
+            .max(Instant::compareTo)
+            .orElse(null);
+    return new GroupFlowPeriod(group, start, end);
   }
 }

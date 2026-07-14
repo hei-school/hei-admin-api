@@ -19,10 +19,9 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -35,7 +34,6 @@ import school.hei.haapi.endpoint.event.model.StudentImportEvent;
 import school.hei.haapi.endpoint.event.model.UserUpserted;
 import school.hei.haapi.endpoint.rest.model.PaymentFrequency;
 import school.hei.haapi.endpoint.rest.model.Statistics;
-import school.hei.haapi.endpoint.rest.model.Student;
 import school.hei.haapi.endpoint.rest.model.StudentImportValidationResult;
 import school.hei.haapi.endpoint.rest.model.StudentLevel;
 import school.hei.haapi.endpoint.rest.model.WorkStudyStatus;
@@ -61,7 +59,7 @@ import school.hei.haapi.service.utils.XlsxCellsGenerator;
 import school.hei.haapi.service.utils.excel.ExcelParser;
 
 @Service
-@AllArgsConstructor
+@RequiredArgsConstructor
 @Slf4j
 public class UserService {
   private final UserRepository userRepository;
@@ -79,7 +77,6 @@ public class UserService {
   private final XlsxCellsGenerator<User> userXlsxCellsGenerator;
   private final XlsxCellsGenerator<EventParticipant> eventParticipantXlsxCellsGenerator;
   private final BucketComponent bucketComponent;
-
   private static final String STUDENT_XLSX_IMPORT_BUCKET_KEY = "/STUDENT_XLSX_IMPORT/";
 
   @Transactional
@@ -99,12 +96,14 @@ public class UserService {
     userManagerDao.updateUserStatusById(SUSPENDED, suspendedStudentId);
   }
 
+  @Transactional
   public User updateUser(User user, String userId) {
     var toUpdate = refreshUserById(userId, user);
     return userRepository.save(toUpdate);
   }
 
-  private User refreshUserById(String userId, User refreshedUser) {
+  @Transactional
+  public User refreshUserById(String userId, User refreshedUser) {
     var userToRefresh = getById(userId);
 
     userToRefresh.setAddress(refreshedUser.getAddress());
@@ -198,7 +197,7 @@ public class UserService {
 
   public <T> byte[] getByRoleAndStatusAsXlsx(
       User.Role role, User.Status status, Function<User, T> mapper) {
-    List<User> users = getByRoleAndStatus(role, status);
+    var users = getByRoleAndStatus(role, status);
     XlsxCellsGenerator<T> generator = new XlsxCellsGenerator<>();
     List<T> mappedUsers = users.stream().map(mapper).toList();
 
@@ -376,29 +375,15 @@ public class UserService {
         .getContent();
   }
 
-  public List<User> getAllStudentNotDisabled() {
-    return userRepository.findAllStudentNotDisabled();
-  }
-
   public Statistics getStudentsStat() {
     var studentStatisticsDao = userRepository.getStudentsStatistics();
     var alternatingStatisticsDao = workDocumentRepository.getStudentAlternatingStatistics();
     return studentStatisticsDao.toRestStatistics(alternatingStatisticsDao);
   }
 
-  public long getStudentsAlternatingSize(List<Student> students, WorkStudyStatus workStudyStatus) {
-    return students.stream()
-        .filter(student -> Objects.equals(student.getWorkStudyStatus(), workStudyStatus))
-        .count();
-  }
-
   // Todo: try to move in MonitoringStudentService
   public List<User> findMonitorsByStudentId(String studentId) {
     return monitoringStudentService.getMonitorsByStudentId(studentId);
-  }
-
-  public List<User> getStudentsByPromotionId(String promotionId) {
-    return userRepository.findAllStudentsByPromotionId(promotionId);
   }
 
   public List<User> getStudentsWithLateFee() {
