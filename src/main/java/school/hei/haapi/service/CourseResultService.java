@@ -1,5 +1,32 @@
 package school.hei.haapi.service;
 
+import jakarta.transaction.Transactional;
+import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
+import school.hei.haapi.endpoint.rest.mapper.CourseMapper;
+import school.hei.haapi.endpoint.rest.model.CourseResult;
+import school.hei.haapi.endpoint.rest.model.CourseResultStatus;
+import school.hei.haapi.endpoint.rest.model.ResultOverviewStatus;
+import school.hei.haapi.endpoint.rest.model.StudentLevel;
+import school.hei.haapi.model.Course;
+import school.hei.haapi.model.CourseAssignment;
+import school.hei.haapi.model.Exam;
+import school.hei.haapi.model.User;
+import school.hei.haapi.model.dto.CourseDto;
+import school.hei.haapi.model.dto.GroupFlowPeriod;
+import school.hei.haapi.model.exception.CoursesCreditSumZero;
+import school.hei.haapi.model.exception.ExamsCoefficientSumZero;
+import school.hei.haapi.repository.GradeRepository;
+
+import java.math.BigDecimal;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+
 import static java.math.BigDecimal.TEN;
 import static java.math.BigDecimal.ZERO;
 import static java.math.MathContext.DECIMAL128;
@@ -11,27 +38,6 @@ import static school.hei.haapi.endpoint.rest.model.ResultOverviewStatus.IN_PROGR
 import static school.hei.haapi.endpoint.rest.model.ResultOverviewStatus.NOT_STARTED;
 import static school.hei.haapi.endpoint.rest.model.ResultOverviewStatus.VALIDATED;
 import static school.hei.haapi.model.Grade.weightedAverageOfGrades;
-
-import jakarta.transaction.Transactional;
-import java.math.BigDecimal;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.regex.Pattern;
-import lombok.AllArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Service;
-import school.hei.haapi.endpoint.rest.mapper.CourseMapper;
-import school.hei.haapi.endpoint.rest.model.CourseResult;
-import school.hei.haapi.endpoint.rest.model.CourseResultStatus;
-import school.hei.haapi.endpoint.rest.model.ResultOverviewStatus;
-import school.hei.haapi.endpoint.rest.model.StudentLevel;
-import school.hei.haapi.model.CourseAssignment;
-import school.hei.haapi.model.User;
-import school.hei.haapi.model.dto.GroupFlowPeriod;
-import school.hei.haapi.model.exception.CoursesCreditSumZero;
-import school.hei.haapi.model.exception.ExamsCoefficientSumZero;
-import school.hei.haapi.repository.GradeRepository;
 
 @Service
 @AllArgsConstructor
@@ -56,7 +62,7 @@ public class CourseResultService {
     var studentGroupCourseAssignmentsAtLevel =
         getGroupsCourseAssignmentsByGroupFlowsAtLevel(studentLatestGroupFlowsAtLevel, level);
     return studentGroupCourseAssignmentsAtLevel.stream()
-        .map(courseAssignment -> computeStudentCourseResult(courseAssignment, student))
+        .map(courseDto -> computeStudentCourseResult(courseDto, student))
         .sorted(comparing(courseResult -> courseResult.getStatus().ordinal()))
         .toList();
   }
@@ -88,15 +94,20 @@ public class CourseResultService {
     return GROUP_TRAILING_DIGITS.matcher(groupName).replaceAll("");
   }
 
-  private List<CourseAssignment> getGroupsCourseAssignmentsByGroupFlowsAtLevel(
-      List<GroupFlowPeriod> studentLatestGroupFlows, StudentLevel level) {
-    return studentLatestGroupFlows.stream()
-        .flatMap(
-            groupFlowPeriod ->
-                getGroupCourseAssignmentsByLevelBetweenPeriod(groupFlowPeriod, level).stream())
-        .toList();
-  }
+    private List<CourseDto> getGroupsCourseAssignmentsByGroupFlowsAtLevel(
+            List<GroupFlowPeriod> studentLatestGroupFlows, StudentLevel level) {
 
+        Map<Course, List<CourseAssignment>> assignmentsByCourse =
+                studentLatestGroupFlows.stream()
+                        .flatMap(
+                                groupFlowPeriod ->
+                                        getGroupCourseAssignmentsByLevelBetweenPeriod(groupFlowPeriod, level).stream())
+                        .collect(Collectors.groupingBy(CourseAssignment::getCourse));
+
+        return assignmentsByCourse.entrySet().stream()
+                .map(entry -> new CourseDto(entry.getKey(), entry.getValue()))
+                .toList();
+    }
   private List<CourseAssignment> getGroupCourseAssignmentsByLevelBetweenPeriod(
       GroupFlowPeriod groupFlowPeriod, StudentLevel level) {
     return courseAssignmentService.getByGroupId(groupFlowPeriod.group().getId()).stream()
@@ -115,12 +126,13 @@ public class CourseResultService {
         .anyMatch(courseExam -> groupFlowPeriod.contains(courseExam.getExaminationDate()));
   }
 
-  private CourseResult computeStudentCourseResult(CourseAssignment courseAssignment, User student) {
-    var courseExams = courseAssignment.getExams();
+  private CourseResult computeStudentCourseResult(CourseDto courseDto, User student) {
+    var courseExams = getExamsByCourseDto(courseDto);
+    var courseAssignmentIds = courseDto.courseAssigments().stream().map(CourseAssignment::getId).toList();
     var studentGrades =
-        gradeRepository.findGradesByCourseAssignmentIdAndStudentId(
-            courseAssignment.getId(), student.getId());
-    var courseResult = new CourseResult().course(courseMapper.toRest(courseAssignment.getCourse()));
+        gradeRepository.findGradesByCourseAssignmentIdsAndStudentId(courseAssignmentIds
+            , student.getId());
+    var courseResult = new CourseResult().course(courseMapper.toRest(courseDto.course()));
 
     if (courseExams.isEmpty()) {
       return courseResult.status(CourseResultStatus.NOT_STARTED);
@@ -142,6 +154,10 @@ public class CourseResultService {
     } else {
       return courseResult.status(CourseResultStatus.VALIDATED);
     }
+  }
+
+  private List<Exam> getExamsByCourseDto(CourseDto courseDto){
+      return courseDto.courseAssigments().stream().flatMap(courseAssignment -> courseAssignment.getExams().stream()).toList();
   }
 
   public BigDecimal obtainedCreditsOfCourseResults(List<CourseResult> courseResults) {

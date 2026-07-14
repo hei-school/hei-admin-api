@@ -437,65 +437,65 @@ class GradeResultServiceTest {
     when(student3.getId()).thenReturn(STUDENT3_ID);
 
     // Mock student1 grades
-    when(gradeRepository.findGradesByCourseAssignmentIdAndStudentId(
-            mgt1CourseAssignment().getId(), STUDENT1_ID))
+    when(gradeRepository.findGradesByCourseAssignmentIdsAndStudentId(
+            List.of(mgt1CourseAssignment().getId()), STUDENT1_ID))
         .thenReturn(List.of(student1Mgt1Grade()));
-    when(gradeRepository.findGradesByCourseAssignmentIdAndStudentId(
-            prog1CourseAssignment().getId(), STUDENT1_ID))
+    when(gradeRepository.findGradesByCourseAssignmentIdsAndStudentId(
+            List.of(prog1CourseAssignment().getId()), STUDENT1_ID))
         .thenReturn(List.of(student1Prog1Grade()));
-    when(gradeRepository.findGradesByCourseAssignmentIdAndStudentId(
-            donne1CourseAssignment().getId(), STUDENT1_ID))
+    when(gradeRepository.findGradesByCourseAssignmentIdsAndStudentId(
+            List.of(donne1CourseAssignment().getId()), STUDENT1_ID))
         .thenReturn(List.of(student1Donnees1Grade()));
-    when(gradeRepository.findGradesByCourseAssignmentIdAndStudentId(
+    when(gradeRepository.findGradesByCourseAssignmentIdsAndStudentId(
             web1CourseAssignment().getId(), STUDENT1_ID))
         .thenReturn(List.of(student1Web1Grade()));
-    when(gradeRepository.findGradesByCourseAssignmentIdAndStudentId(
+    when(gradeRepository.findGradesByCourseAssignmentIdsAndStudentId(
             sys1CourseAssignment().getId(), STUDENT1_ID))
         .thenReturn(List.of(student1Sys1Grade()));
-    when(gradeRepository.findGradesByCourseAssignmentIdAndStudentId(
+    when(gradeRepository.findGradesByCourseAssignmentIdsAndStudentId(
             lv1CourseAssignment().getId(), STUDENT1_ID))
         .thenReturn(List.of(student1Lv1Grade()));
-    when(gradeRepository.findGradesByCourseAssignmentIdAndStudentId(
+    when(gradeRepository.findGradesByCourseAssignmentIdsAndStudentId(
             l2CourseAssignment().getId(), STUDENT1_ID))
         .thenReturn(List.of(student1L2Grade()));
-    when(gradeRepository.findGradesByCourseAssignmentIdAndStudentId(
+    when(gradeRepository.findGradesByCourseAssignmentIdsAndStudentId(
             l3CourseAssignment().getId(), STUDENT1_ID))
         .thenReturn(List.of(student1L3Grade()));
 
     // Mock student2 grades
-    when(gradeRepository.findGradesByCourseAssignmentIdAndStudentId(
+    when(gradeRepository.findGradesByCourseAssignmentIdsAndStudentId(
             mgt1CourseAssignment().getId(), STUDENT2_ID))
         .thenReturn(List.of(student2Mgt1Grade()));
-    when(gradeRepository.findGradesByCourseAssignmentIdAndStudentId(
+    when(gradeRepository.findGradesByCourseAssignmentIdsAndStudentId(
             prog1CourseAssignment().getId(), STUDENT2_ID))
         .thenReturn(List.of(student2Prog1Grade()));
-    when(gradeRepository.findGradesByCourseAssignmentIdAndStudentId(
+    when(gradeRepository.findGradesByCourseAssignmentIdsAndStudentId(
             donne1CourseAssignment().getId(), STUDENT2_ID))
         .thenReturn(List.of(student2Donnees1Grade()));
-    when(gradeRepository.findGradesByCourseAssignmentIdAndStudentId(
+    when(gradeRepository.findGradesByCourseAssignmentIdsAndStudentId(
             web1CourseAssignment().getId(), STUDENT2_ID))
         .thenReturn(List.of(student2Web1Grade()));
-    when(gradeRepository.findGradesByCourseAssignmentIdAndStudentId(
+    when(gradeRepository.findGradesByCourseAssignmentIdsAndStudentId(
             sys1CourseAssignment().getId(), STUDENT2_ID))
         .thenReturn(List.of(student2Sys1Grade()));
-    when(gradeRepository.findGradesByCourseAssignmentIdAndStudentId(
+    when(gradeRepository.findGradesByCourseAssignmentIdsAndStudentId(
             lv1CourseAssignment().getId(), STUDENT2_ID))
         .thenReturn(List.of(student2Lv1Grade()));
 
     // Mock student3 grades: LV1 is missing
-    when(gradeRepository.findGradesByCourseAssignmentIdAndStudentId(
+    when(gradeRepository.findGradesByCourseAssignmentIdsAndStudentId(
             mgt1CourseAssignment().getId(), STUDENT3_ID))
         .thenReturn(List.of(student3Mgt1Grade()));
-    when(gradeRepository.findGradesByCourseAssignmentIdAndStudentId(
+    when(gradeRepository.findGradesByCourseAssignmentIdsAndStudentId(
             prog1CourseAssignment().getId(), STUDENT3_ID))
         .thenReturn(List.of(student3Prog1Grade()));
-    when(gradeRepository.findGradesByCourseAssignmentIdAndStudentId(
+    when(gradeRepository.findGradesByCourseAssignmentIdsAndStudentId(
             donne1CourseAssignment().getId(), STUDENT3_ID))
         .thenReturn(List.of(student3Donnees1Grade()));
-    when(gradeRepository.findGradesByCourseAssignmentIdAndStudentId(
+    when(gradeRepository.findGradesByCourseAssignmentIdsAndStudentId(
             web1CourseAssignment().getId(), STUDENT3_ID))
         .thenReturn(List.of(student3Web1Grade()));
-    when(gradeRepository.findGradesByCourseAssignmentIdAndStudentId(
+    when(gradeRepository.findGradesByCourseAssignmentIdsAndStudentId(
             sys1CourseAssignment().getId(), STUDENT3_ID))
         .thenReturn(List.of(student3Sys1Grade()));
 
