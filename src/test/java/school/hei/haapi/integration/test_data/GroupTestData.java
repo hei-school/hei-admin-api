@@ -28,6 +28,16 @@ public class GroupTestData {
         .build();
   }
 
+  public static Group h1() {
+    return Group.builder()
+        .id(randomUUID().toString())
+        .name("H1")
+        .ref(randomUUID().toString())
+        .attributedColor("blue")
+        .creationDatetime(Instant.parse("2026-07-28T10:00:00Z"))
+        .build();
+  }
+
   public static GroupFlow createGroupFlow(User student, Group toJoin) {
     return GroupFlow.builder()
         .id(randomUUID().toString())

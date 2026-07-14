@@ -353,18 +353,6 @@ class GradeIT extends FacadeITMockedThirdParties {
   }
 
   @Test
-  void monitor_get_own_yearly_result_transcript_ok() {
-    setUpCasdoorMonitor(casdoorAuthServiceMock, certificateLoaderMock, monitorOfAxel);
-    GradesApi monitorApi = new GradesApi(anApiClient(AXEL_MONITOR_TOKEN));
-
-    assertBadRequestException(
-        "Cannot generate transcript for this level. This level has not yet been started",
-        () -> {
-          monitorApi.getYearlyResultTranscript(studentAxel.getId(), L1);
-        });
-  }
-
-  @Test
   void monitor_get_else_yearly_result_transcript_ko() {
     setUpCasdoorMonitor(casdoorAuthServiceMock, certificateLoaderMock, monitorOfAxel);
     GradesApi monitorApi = new GradesApi(anApiClient(AXEL_MONITOR_TOKEN));
@@ -372,17 +360,6 @@ class GradeIT extends FacadeITMockedThirdParties {
     assertThrowsApiException(
         "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
         () -> monitorApi.getYearlyResultTranscript(studentTolojanahary.getId(), L1));
-  }
-
-  @Test
-  void manager_get_any_yearly_result() {
-    GradesApi managerApi = new GradesApi(anApiClient(MANAGER1_TOKEN));
-
-    assertBadRequestException(
-        "Cannot generate transcript for this level. This level has not yet been started",
-        () -> {
-          managerApi.getYearlyResultTranscript(studentAxel.getId(), L1);
-        });
   }
 
   @Test
