@@ -15,7 +15,6 @@ import static school.hei.haapi.model.Grade.weightedAverageOfGrades;
 import jakarta.transaction.Transactional;
 import java.math.BigDecimal;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.regex.Pattern;
@@ -28,7 +27,6 @@ import school.hei.haapi.endpoint.rest.model.CourseResult;
 import school.hei.haapi.endpoint.rest.model.CourseResultStatus;
 import school.hei.haapi.endpoint.rest.model.ResultOverviewStatus;
 import school.hei.haapi.endpoint.rest.model.StudentLevel;
-import school.hei.haapi.model.Course;
 import school.hei.haapi.model.CourseAssignment;
 import school.hei.haapi.model.Exam;
 import school.hei.haapi.model.User;
@@ -96,14 +94,14 @@ public class CourseResultService {
   private List<CourseDto> getGroupsCourseAssignmentsByGroupFlowsAtLevel(
       List<GroupFlowPeriod> studentLatestGroupFlows, StudentLevel level) {
 
-    Map<Course, List<CourseAssignment>> assignmentsByCourse =
+    var courseAssignments =
         studentLatestGroupFlows.stream()
             .flatMap(
                 groupFlowPeriod ->
                     getGroupCourseAssignmentsByLevelBetweenPeriod(groupFlowPeriod, level).stream())
             .collect(Collectors.groupingBy(CourseAssignment::getCourse));
 
-    return assignmentsByCourse.entrySet().stream()
+    return courseAssignments.entrySet().stream()
         .map(entry -> new CourseDto(entry.getKey(), entry.getValue()))
         .toList();
   }
