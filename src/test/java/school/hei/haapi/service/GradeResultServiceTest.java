@@ -1,46 +1,5 @@
 package school.hei.haapi.service;
 
-import lombok.extern.slf4j.Slf4j;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import school.hei.haapi.endpoint.event.EventProducer;
-import school.hei.haapi.endpoint.event.model.YearlyResultTranscriptGeneration;
-import school.hei.haapi.endpoint.rest.mapper.CourseMapper;
-import school.hei.haapi.endpoint.rest.model.CourseResultStatus;
-import school.hei.haapi.endpoint.rest.model.StudentLevel;
-import school.hei.haapi.endpoint.rest.model.YearlyResult;
-import school.hei.haapi.endpoint.rest.security.AuthProvider;
-import school.hei.haapi.endpoint.rest.security.model.Principal;
-import school.hei.haapi.file.bucket.BucketComponent;
-import school.hei.haapi.mail.Mailer;
-import school.hei.haapi.model.Course;
-import school.hei.haapi.model.CourseAssignment;
-import school.hei.haapi.model.Exam;
-import school.hei.haapi.model.FileInfo;
-import school.hei.haapi.model.Grade;
-import school.hei.haapi.model.Group;
-import school.hei.haapi.model.GroupFlow;
-import school.hei.haapi.model.Promotion;
-import school.hei.haapi.model.User;
-import school.hei.haapi.model.YearlyResultGenerationRequest;
-import school.hei.haapi.model.dto.GroupFlowPeriod;
-import school.hei.haapi.model.exception.CoursesCreditSumZero;
-import school.hei.haapi.repository.GradeRepository;
-import school.hei.haapi.repository.YearlyResultGenerationRequestRepository;
-import school.hei.haapi.service.event.YearlyResultTranscriptGenerationService;
-import school.hei.haapi.service.utils.Base64Converter;
-import school.hei.haapi.service.utils.ClassPathResourceResolver;
-import school.hei.haapi.service.utils.HtmlParser;
-import school.hei.haapi.service.utils.PdfRenderer;
-
-import java.net.MalformedURLException;
-import java.net.URI;
-import java.net.URL;
-import java.time.Duration;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-
 import static java.time.Instant.now;
 import static java.time.Instant.parse;
 import static java.util.Optional.empty;
@@ -73,6 +32,46 @@ import static school.hei.haapi.endpoint.rest.model.YearlyResultGenerationStatus.
 import static school.hei.haapi.endpoint.rest.model.YearlyResultGenerationStatus.GENERATING;
 import static school.hei.haapi.integration.conf.TestUtils.assertThrowsDomainBadRequestException;
 import static school.hei.haapi.model.CycleLevel.BACHELOR;
+
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URL;
+import java.time.Duration;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+import lombok.extern.slf4j.Slf4j;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import school.hei.haapi.endpoint.event.EventProducer;
+import school.hei.haapi.endpoint.event.model.YearlyResultTranscriptGeneration;
+import school.hei.haapi.endpoint.rest.mapper.CourseMapper;
+import school.hei.haapi.endpoint.rest.model.CourseResultStatus;
+import school.hei.haapi.endpoint.rest.model.StudentLevel;
+import school.hei.haapi.endpoint.rest.model.YearlyResult;
+import school.hei.haapi.endpoint.rest.security.AuthProvider;
+import school.hei.haapi.endpoint.rest.security.model.Principal;
+import school.hei.haapi.file.bucket.BucketComponent;
+import school.hei.haapi.mail.Mailer;
+import school.hei.haapi.model.Course;
+import school.hei.haapi.model.CourseAssignment;
+import school.hei.haapi.model.Exam;
+import school.hei.haapi.model.FileInfo;
+import school.hei.haapi.model.Grade;
+import school.hei.haapi.model.Group;
+import school.hei.haapi.model.GroupFlow;
+import school.hei.haapi.model.Promotion;
+import school.hei.haapi.model.User;
+import school.hei.haapi.model.YearlyResultGenerationRequest;
+import school.hei.haapi.model.dto.GroupFlowPeriod;
+import school.hei.haapi.model.exception.CoursesCreditSumZero;
+import school.hei.haapi.repository.GradeRepository;
+import school.hei.haapi.repository.YearlyResultGenerationRequestRepository;
+import school.hei.haapi.service.event.YearlyResultTranscriptGenerationService;
+import school.hei.haapi.service.utils.Base64Converter;
+import school.hei.haapi.service.utils.ClassPathResourceResolver;
+import school.hei.haapi.service.utils.HtmlParser;
+import school.hei.haapi.service.utils.PdfRenderer;
 
 @Slf4j
 class GradeResultServiceTest {
