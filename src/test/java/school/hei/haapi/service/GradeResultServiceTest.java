@@ -324,10 +324,6 @@ class GradeResultServiceTest {
     return mockGrade(web1Exam(), 18.75);
   }
 
-  private static Grade student3GradeForBadExam() {
-    return mockGrade(badExam(), 13.59);
-  }
-
   private static final String MGT1_COURSE_ID = "mgt1";
   private static final String MGT1_COURSE_CODE = "MGT1";
   private static final String MGT1_COURSE_NAME = "Mgt 1";
