@@ -1,26 +1,9 @@
 package school.hei.haapi.service;
 
-import static org.apache.poi.ss.usermodel.CellType.NUMERIC;
-import static org.apache.poi.ss.usermodel.Row.MissingCellPolicy.CREATE_NULL_AS_BLANK;
-import static school.hei.haapi.model.User.Status.ALUMNI;
-import static school.hei.haapi.model.User.Status.ENABLED;
-
 import jakarta.transaction.Transactional;
-import java.io.File;
-import java.io.IOException;
-import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.ss.usermodel.Cell;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import school.hei.haapi.endpoint.event.EventProducer;
@@ -48,6 +31,22 @@ import school.hei.haapi.repository.dao.GradeDao;
 import school.hei.haapi.service.utils.XlsxCellsGenerator;
 import school.hei.haapi.service.utils.excel.ExcelParser;
 import school.hei.haapi.service.utils.excel.ParseResult;
+
+import java.io.File;
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import static org.apache.poi.ss.usermodel.CellType.NUMERIC;
+import static org.apache.poi.ss.usermodel.Row.MissingCellPolicy.CREATE_NULL_AS_BLANK;
+import static school.hei.haapi.model.User.Status.ALUMNI;
+import static school.hei.haapi.model.User.Status.ENABLED;
 
 @Slf4j
 @Service
@@ -436,13 +435,5 @@ public class GradeService {
     var xlsxCellGenerator = new XlsxCellsGenerator<GradeDto>();
     var existingGrades = gradeRepository.getLatestGradesByExamId(examId, List.of(ENABLED, ALUMNI));
     return xlsxCellGenerator.apply(existingGrades, HEADERS);
-  }
-
-  @NotNull
-  private static Optional<GradeDto> getGradeLastChangeHistory(
-      GradeDto existing, List<GradeDto> gradeChangeHistories) {
-    return gradeChangeHistories.stream()
-        .filter(gradeDto -> Objects.equals(gradeDto.getRef(), existing.getRef()))
-        .findFirst();
   }
 }
