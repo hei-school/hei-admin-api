@@ -1,6 +1,25 @@
 package school.hei.haapi.service;
 
+import static java.math.BigDecimal.TEN;
+import static java.math.BigDecimal.ZERO;
+import static java.math.MathContext.DECIMAL128;
+import static java.util.Comparator.comparing;
+import static java.util.Objects.nonNull;
+import static java.util.regex.Pattern.compile;
+import static school.hei.haapi.endpoint.rest.model.ResultOverviewStatus.INVALIDATED;
+import static school.hei.haapi.endpoint.rest.model.ResultOverviewStatus.IN_PROGRESS;
+import static school.hei.haapi.endpoint.rest.model.ResultOverviewStatus.NOT_STARTED;
+import static school.hei.haapi.endpoint.rest.model.ResultOverviewStatus.VALIDATED;
+import static school.hei.haapi.model.Grade.weightedAverageOfGrades;
+
 import jakarta.transaction.Transactional;
+import java.math.BigDecimal;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -18,26 +37,6 @@ import school.hei.haapi.model.dto.GroupFlowPeriod;
 import school.hei.haapi.model.exception.CoursesCreditSumZero;
 import school.hei.haapi.model.exception.ExamsCoefficientSumZero;
 import school.hei.haapi.repository.GradeRepository;
-
-import java.math.BigDecimal;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.regex.Pattern;
-import java.util.stream.Collectors;
-
-import static java.math.BigDecimal.TEN;
-import static java.math.BigDecimal.ZERO;
-import static java.math.MathContext.DECIMAL128;
-import static java.util.Comparator.comparing;
-import static java.util.Objects.nonNull;
-import static java.util.regex.Pattern.compile;
-import static school.hei.haapi.endpoint.rest.model.ResultOverviewStatus.INVALIDATED;
-import static school.hei.haapi.endpoint.rest.model.ResultOverviewStatus.IN_PROGRESS;
-import static school.hei.haapi.endpoint.rest.model.ResultOverviewStatus.NOT_STARTED;
-import static school.hei.haapi.endpoint.rest.model.ResultOverviewStatus.VALIDATED;
-import static school.hei.haapi.model.Grade.weightedAverageOfGrades;
 
 @Service
 @AllArgsConstructor
@@ -94,20 +93,21 @@ public class CourseResultService {
     return GROUP_TRAILING_DIGITS.matcher(groupName).replaceAll("");
   }
 
-    private List<CourseDto> getGroupsCourseAssignmentsByGroupFlowsAtLevel(
-            List<GroupFlowPeriod> studentLatestGroupFlows, StudentLevel level) {
+  private List<CourseDto> getGroupsCourseAssignmentsByGroupFlowsAtLevel(
+      List<GroupFlowPeriod> studentLatestGroupFlows, StudentLevel level) {
 
-        Map<Course, List<CourseAssignment>> assignmentsByCourse =
-                studentLatestGroupFlows.stream()
-                        .flatMap(
-                                groupFlowPeriod ->
-                                        getGroupCourseAssignmentsByLevelBetweenPeriod(groupFlowPeriod, level).stream())
-                        .collect(Collectors.groupingBy(CourseAssignment::getCourse));
+    Map<Course, List<CourseAssignment>> assignmentsByCourse =
+        studentLatestGroupFlows.stream()
+            .flatMap(
+                groupFlowPeriod ->
+                    getGroupCourseAssignmentsByLevelBetweenPeriod(groupFlowPeriod, level).stream())
+            .collect(Collectors.groupingBy(CourseAssignment::getCourse));
 
-        return assignmentsByCourse.entrySet().stream()
-                .map(entry -> new CourseDto(entry.getKey(), entry.getValue()))
-                .toList();
-    }
+    return assignmentsByCourse.entrySet().stream()
+        .map(entry -> new CourseDto(entry.getKey(), entry.getValue()))
+        .toList();
+  }
+
   private List<CourseAssignment> getGroupCourseAssignmentsByLevelBetweenPeriod(
       GroupFlowPeriod groupFlowPeriod, StudentLevel level) {
     return courseAssignmentService.getByGroupId(groupFlowPeriod.group().getId()).stream()
@@ -128,10 +128,11 @@ public class CourseResultService {
 
   private CourseResult computeStudentCourseResult(CourseDto courseDto, User student) {
     var courseExams = getExamsByCourseDto(courseDto);
-    var courseAssignmentIds = courseDto.courseAssigments().stream().map(CourseAssignment::getId).toList();
+    var courseAssignmentIds =
+        courseDto.courseAssigments().stream().map(CourseAssignment::getId).toList();
     var studentGrades =
-        gradeRepository.findGradesByCourseAssignmentIdsAndStudentId(courseAssignmentIds
-            , student.getId());
+        gradeRepository.findGradesByCourseAssignmentIdsAndStudentId(
+            courseAssignmentIds, student.getId());
     var courseResult = new CourseResult().course(courseMapper.toRest(courseDto.course()));
 
     if (courseExams.isEmpty()) {
@@ -156,8 +157,10 @@ public class CourseResultService {
     }
   }
 
-  private List<Exam> getExamsByCourseDto(CourseDto courseDto){
-      return courseDto.courseAssigments().stream().flatMap(courseAssignment -> courseAssignment.getExams().stream()).toList();
+  private List<Exam> getExamsByCourseDto(CourseDto courseDto) {
+    return courseDto.courseAssigments().stream()
+        .flatMap(courseAssignment -> courseAssignment.getExams().stream())
+        .toList();
   }
 
   public BigDecimal obtainedCreditsOfCourseResults(List<CourseResult> courseResults) {

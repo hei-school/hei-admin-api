@@ -1,5 +1,7 @@
 package school.hei.haapi.repository;
 
+import java.util.List;
+import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -7,9 +9,6 @@ import org.springframework.stereotype.Repository;
 import school.hei.haapi.model.Grade;
 import school.hei.haapi.model.User;
 import school.hei.haapi.model.dto.GradeDto;
-
-import java.util.List;
-import java.util.Optional;
 
 @Repository
 public interface GradeRepository extends JpaRepository<Grade, String> {
@@ -46,5 +45,6 @@ public interface GradeRepository extends JpaRepository<Grade, String> {
         and g.student.id = :studentId
       """)
   List<Grade> findGradesByCourseAssignmentIdsAndStudentId(
-      @Param("courseAssignmentIds") List<String> courseAssignmentIds, @Param("studentId") String studentId);
+      @Param("courseAssignmentIds") List<String> courseAssignmentIds,
+      @Param("studentId") String studentId);
 }
