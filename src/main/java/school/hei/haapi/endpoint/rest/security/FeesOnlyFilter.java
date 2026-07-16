@@ -15,36 +15,38 @@ import org.springframework.web.filter.OncePerRequestFilter;
 @Slf4j
 public class FeesOnlyFilter extends OncePerRequestFilter {
 
-  private final boolean feesOnly;
+    private final boolean feesOnly;
 
-  public FeesOnlyFilter(@Value("${FEES_ONLY:false}") boolean feesOnly) {
-    this.feesOnly = feesOnly;
-  }
-
-  private static final List<String> ALLOWED_PREFIXES =
-      List.of("/fees", "/students", "/whoami", "/ping", "/authentication", "/health", "/mpbs");
-
-  @Override
-  public void doFilterInternal(
-      HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
-      throws ServletException, IOException {
-
-    if (!feesOnly) {
-      filterChain.doFilter(request, response);
-      return;
+    public FeesOnlyFilter(@Value("${FEES_ONLY:false}") boolean feesOnly) {
+        this.feesOnly = feesOnly;
     }
 
-    var uri = request.getRequestURI();
-    var allowed = ALLOWED_PREFIXES.stream().anyMatch(uri::startsWith);
+    private static final List<String> ALLOWED_PREFIXES =
+            List.of("/fees", "/students", "/whoami", "/ping", "/authentication", "/health", "/mpbs");
 
-    if (!allowed) {
-      log.info("FEES_ONLY mode: blocked request to {}", uri);
-      response.setStatus(HttpServletResponse.SC_FORBIDDEN);
-      response.setContentType("application/json");
-      response.getWriter().write("{\"message\": \"This endpoint is disabled in FEES_ONLY mode\"}");
-      return;
+    @Override
+    public void doFilterInternal(
+            HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
+            throws ServletException, IOException {
+
+        if (!feesOnly) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
+        var uri = request.getRequestURI();
+        var allowed =
+                ALLOWED_PREFIXES.stream()
+                        .anyMatch(prefix -> uri.equals(prefix) || uri.startsWith(prefix + "/"));
+
+        if (!allowed) {
+            log.info("FEES_ONLY mode: blocked request to {}", uri);
+            response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+            response.setContentType("application/json");
+            response.getWriter().write("{\"message\": \"This endpoint is disabled in FEES_ONLY mode\"}");
+            return;
+        }
+
+        filterChain.doFilter(request, response);
     }
-
-    filterChain.doFilter(request, response);
-  }
 }
