@@ -41,9 +41,10 @@ public interface GradeRepository extends JpaRepository<Grade, String> {
       select g
       from Grade g
       left join fetch g.gradeChangeHistories
-      where g.exam.courseAssignment.id = :courseAssignmentId
+      where g.exam.courseAssignment.id in :courseAssignmentIds
         and g.student.id = :studentId
       """)
-  List<Grade> findGradesByCourseAssignmentIdAndStudentId(
-      @Param("courseAssignmentId") String courseAssignmentId, @Param("studentId") String studentId);
+  List<Grade> findGradesByCourseAssignmentIdsAndStudentId(
+      @Param("courseAssignmentIds") List<String> courseAssignmentIds,
+      @Param("studentId") String studentId);
 }
