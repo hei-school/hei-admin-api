@@ -7,6 +7,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -16,11 +17,7 @@ public class FeesOnlyFilter extends OncePerRequestFilter {
 
   private final boolean feesOnly;
 
-  public FeesOnlyFilter() {
-    this("true".equalsIgnoreCase(System.getenv("FEES_ONLY")));
-  }
-
-  public FeesOnlyFilter(boolean feesOnly) {
+  public FeesOnlyFilter(@Value("${FEES_ONLY:false}") boolean feesOnly) {
     this.feesOnly = feesOnly;
   }
 
