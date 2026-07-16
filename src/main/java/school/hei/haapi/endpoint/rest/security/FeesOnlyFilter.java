@@ -37,8 +37,8 @@ public class FeesOnlyFilter extends OncePerRequestFilter {
       return;
     }
 
-    String uri = request.getRequestURI();
-    boolean allowed = ALLOWED_PREFIXES.stream().anyMatch(uri::startsWith);
+    var uri = request.getRequestURI();
+    var allowed = ALLOWED_PREFIXES.stream().anyMatch(uri::startsWith);
 
     if (!allowed) {
       log.info("FEES_ONLY mode: blocked request to {}", uri);
