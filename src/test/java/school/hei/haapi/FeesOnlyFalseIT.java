@@ -16,11 +16,6 @@ import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.integration.conf.FacadeITMockedThirdParties;
 import school.hei.haapi.integration.conf.TestUtils;
 
-/**
- * Vérifie que lorsque la variable d'environnement FEES_ONLY vaut "false" (comportement par
- * défaut), un utilisateur autorisé a accès à tous les endpoints, qu'ils soient annotés
- * {@code @FeesOnly} (ex: /fees) ou non (ex: /monitors).
- */
 @Testcontainers
 @AutoConfigureMockMvc
 @TestPropertySource(properties = "FEES_ONLY=false")

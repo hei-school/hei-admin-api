@@ -21,11 +21,11 @@ public class FeesOnlyInterceptor implements HandlerInterceptor {
             HttpServletResponse response,
             Object handler) throws Exception {
 
-        String uri = request.getRequestURI();
+        var uri = request.getRequestURI();
 
         if (!feesOnly || isAlwaysAllowed(uri)) {return true;}
         if (!(handler instanceof HandlerMethod handlerMethod)) {return true;}
-        boolean allowed =
+        var allowed =
                 handlerMethod.getBeanType().isAnnotationPresent(FeesOnly.class)
                         || handlerMethod.getMethod().isAnnotationPresent(FeesOnly.class);
         if (!allowed) {

@@ -19,12 +19,6 @@ import school.hei.haapi.endpoint.rest.client.ApiException;
 import school.hei.haapi.integration.conf.FacadeITMockedThirdParties;
 import school.hei.haapi.integration.conf.TestUtils;
 
-/**
- * Vérifie que lorsque la variable d'environnement FEES_ONLY vaut "true", seuls les endpoints
- * annotés {@code @FeesOnly} (ex: /fees, porté par FeeController) restent accessibles, tandis que
- * les endpoints non annotés (ex: /monitors, porté par MonitorController) sont bloqués avec un
- * statut 403.
- */
 @Testcontainers
 @AutoConfigureMockMvc
 @TestPropertySource(properties = "FEES_ONLY=true")
@@ -52,7 +46,7 @@ class FeesOnlyEnabledIT extends FacadeITMockedThirdParties {
     void non_fees_only_endpoint_is_blocked_when_fees_only_enabled() {
         var api = new UsersApi(anApiClient(MANAGER1_TOKEN));
 
-        ApiException exception =
+        var exception =
                 assertThrows(ApiException.class, () -> api.getMonitors(1, 10, null, null, null));
 
         assertEquals(403, exception.getCode());
