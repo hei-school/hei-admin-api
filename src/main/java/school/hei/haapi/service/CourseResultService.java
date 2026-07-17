@@ -53,9 +53,8 @@ public class CourseResultService {
   @Transactional
   public List<CourseResult> getCourseResultsByStudentIdAndLevel(
       String studentId, StudentLevel level) {
-    var studentGroupFlowsAtLevel = groupFlowService.getStudentGroupFlowAtLevel(studentId, level);
     var studentLatestGroupFlowsAtLevel =
-        groupFlowService.findLatestGroupFlowPeriods(studentGroupFlowsAtLevel);
+        groupFlowService.findStudentLatestGroupFlowPeriodsAtLevel(studentId, level);
     var studentGroupCourseAssignmentsAtLevel =
         getGroupsCourseAssignmentsByGroupFlowsAtLevel(studentLatestGroupFlowsAtLevel, level);
     return studentGroupCourseAssignmentsAtLevel.stream()

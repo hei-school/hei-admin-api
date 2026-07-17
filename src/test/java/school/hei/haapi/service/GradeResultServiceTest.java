@@ -508,7 +508,7 @@ class GradeResultServiceTest {
     when(student2.findGroupAt(any())).thenReturn(Optional.of(group()));
     when(student3.findGroupAt(any())).thenReturn(Optional.of(group()));
 
-    when(groupFlowService.getStudentGroupFlowAtLevel(any(), any()))
+    when(groupFlowService.findStudentLatestGroupFlowPeriodsAtLevel(any(), any()))
         .thenReturn(Collections.singletonList(groupFLowPeriod()));
     when(courseAssignmentService.getByGroupId(group().getId()))
         .thenReturn(
@@ -560,7 +560,7 @@ class GradeResultServiceTest {
     when(gradeRepository.findGradesByCourseAssignmentIdsAndStudentId(
             List.of(m1CourseAssignment().getId()), STUDENT2_ID))
         .thenReturn(List.of());
-    when(groupFlowService.getStudentGroupFlowAtLevel(any(), any()))
+    when(groupFlowService.findStudentLatestGroupFlowPeriodsAtLevel(any(), any()))
         .thenReturn(Collections.singletonList(groupFLowPeriodWithNullEnd()));
     when(courseAssignmentService.getByGroupId(any())).thenReturn(List.of(m1CourseAssignment));
     var result = subject.getYearlyResultByStudentIdAndByLevel(STUDENT2_ID, targetLevel);

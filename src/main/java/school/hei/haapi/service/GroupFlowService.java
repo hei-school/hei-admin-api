@@ -86,12 +86,15 @@ public class GroupFlowService {
         .build();
   }
 
-  public List<GroupFlowPeriod> getStudentGroupFlowAtLevel(String studentId, StudentLevel level) {
+  public List<GroupFlowPeriod> findStudentLatestGroupFlowPeriodsAtLevel(
+      String studentId, StudentLevel level) {
     var groupFlows = repository.findByFlowTypeAndStudentAndLevel(studentId, level);
     var groupFlowsByGroup = groupFlows.stream().collect(Collectors.groupingBy(GroupFlow::getGroup));
-    return groupFlowsByGroup.entrySet().stream()
-        .map(entry -> toGroupFlowPeriod(entry.getKey(), entry.getValue()))
-        .toList();
+    var groupFlowPeriods =
+        groupFlowsByGroup.entrySet().stream()
+            .map(entry -> toGroupFlowPeriod(entry.getKey(), entry.getValue()))
+            .toList();
+    return findLatestGroupFlowPeriods(groupFlowPeriods);
   }
 
   private GroupFlowPeriod toGroupFlowPeriod(Group group, List<GroupFlow> groupFlows) {
@@ -110,7 +113,7 @@ public class GroupFlowService {
     return new GroupFlowPeriod(group, start, end);
   }
 
-  public List<GroupFlowPeriod> findLatestGroupFlowPeriods(List<GroupFlowPeriod> groupFlowPeriods) {
+  private List<GroupFlowPeriod> findLatestGroupFlowPeriods(List<GroupFlowPeriod> groupFlowPeriods) {
     if (groupFlowPeriods.isEmpty()) {
       return List.of();
     }
