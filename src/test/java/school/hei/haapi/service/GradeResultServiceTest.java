@@ -96,11 +96,7 @@ class GradeResultServiceTest {
   private final GradeResultService subject =
       new GradeResultService(
           new CourseResultService(
-              new CourseMapper(),
-              userService,
-              courseAssignmentService,
-              groupFlowService,
-              gradeRepository),
+              new CourseMapper(), courseAssignmentService, groupFlowService, gradeRepository),
           yearlyResultGenerationService,
           bucketComponent,
           userService,

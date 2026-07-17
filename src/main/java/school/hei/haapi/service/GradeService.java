@@ -38,6 +38,7 @@ import school.hei.haapi.file.bucket.BucketComponent;
 import school.hei.haapi.model.Grade;
 import school.hei.haapi.model.Group;
 import school.hei.haapi.model.GroupFlow;
+import school.hei.haapi.model.RetakeExam;
 import school.hei.haapi.model.dto.GradeDto;
 import school.hei.haapi.model.dto.GradeImportDto;
 import school.hei.haapi.model.exception.ApiException;
@@ -46,7 +47,6 @@ import school.hei.haapi.model.exception.NotFoundException;
 import school.hei.haapi.model.notEntity.UpdateGrade;
 import school.hei.haapi.model.validator.IsNewGradeChecker;
 import school.hei.haapi.repository.CourseAssignmentRepository;
-import school.hei.haapi.repository.ExamRepository;
 import school.hei.haapi.repository.GradeChangeHistoryRepository;
 import school.hei.haapi.repository.GradeRepository;
 import school.hei.haapi.repository.dao.GradeDao;
@@ -65,7 +65,7 @@ public class GradeService {
   private final BucketComponent bucketComponent;
   private final EventProducer eventProducer;
   private final GradeMapper gradeMapper;
-  private final ExamRepository examRepository;
+  private final ExamService examService;
   private final ExamParticipantService examParticipantService;
 
   private static final String GRADE_XLSX_IMPORT_BUCKET_KEY = "/STUDENT_EXAM_GRADE_XLSX_IMPORT/";
@@ -151,6 +151,15 @@ public class GradeService {
 
     eventProducer.accept(List.of(new StudentResultOverviewUpserted(promotionId)));
     return gradeRepository.saveAll(grades.stream().map(this::checkGradeToUpdate).toList());
+  }
+
+  public List<Grade> getGradesByRetakeExam(RetakeExam retakeExam) {
+    var exams =
+        examService.getExamsByStudentIdAndCourse(
+            retakeExam.getStudent().getId(), retakeExam.getCourse());
+    return exams.stream()
+        .map(exam -> Grade.builder().exam(exam).student(retakeExam.getStudent()).score(10.).build())
+        .toList();
   }
 
   private double getExamAverageGrade(String examId) {

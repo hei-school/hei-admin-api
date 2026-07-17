@@ -10,6 +10,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import school.hei.haapi.model.BoundedPageSize;
+import school.hei.haapi.model.Course;
 import school.hei.haapi.model.Exam;
 import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.model.exception.NotFoundException;
@@ -23,6 +24,8 @@ public class ExamService {
   private final ExamRepository examRepository;
   private final ExamDao examDao;
   private final ExamValidator validator;
+  private final GroupFlowService groupFlowService;
+  private final CourseResultService courseResultService;
 
   public List<Exam> updateOrSaveAll(List<Exam> exams) {
     validator.accept(exams);
@@ -50,11 +53,11 @@ public class ExamService {
         pageable, title, courseCode, teacherId, groupRef, examinationDateStart, examinationDateEnd);
   }
 
-  public List<Exam> getExamsByCourseId(String courseId) {
-    return examRepository.findExamsByCourseId(courseId);
-  }
-
-  public List<Exam> getExamsByCourseAssignmentIds(List<String> courseAssignmentIds) {
-    return examRepository.findExamsByCourseAssignmentIdIn(courseAssignmentIds);
+  public List<Exam> getExamsByStudentIdAndCourse(String studentId, Course course) {
+    var groupFlows =
+        groupFlowService.getStudentGroupFlowAtLevel(studentId, course.getStudentLevel());
+    var groupFlowAtLevel = groupFlowService.findLatestGroupFlowPeriods(groupFlows);
+    var groupIds = groupFlowAtLevel.stream().map(groupFlow -> groupFlow.group().getId()).toList();
+    return examRepository.findExamsByCourseIdAndGroupId(course.getId(), groupIds);
   }
 }

@@ -101,6 +101,13 @@ public class RetakeExamController {
             sessionId, courseId, studentRef, page, pageSize));
   }
 
+  @PatchMapping("/retake_exams/validate-or-not")
+  public List<StudentRetakeExam> validateRetakeExams(
+      @RequestBody List<CrupdateRetakeExam> updateRetakeExams) {
+    return retakeExamMapper.toStudentRetakeRestList(
+        retakeExamService.validateRetakeExams(retakeExamMapper.toDomainList(updateRetakeExams)));
+  }
+
   @PatchMapping("/retake_exams/to_cancel")
   public List<StudentRetakeExam> requestToCancelRetakeExams(
       @RequestBody List<CancelRetakeExamRequest> cancelRetakeExamRequests) {

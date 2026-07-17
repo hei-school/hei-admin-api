@@ -53,9 +53,9 @@ public class CourseResultService {
   @Transactional
   public List<CourseResult> getCourseResultsByStudentIdAndLevel(
       String studentId, StudentLevel level) {
-    var student = userService.getById(studentId);
-    var studentGroupFlowsAtLevel = groupFlowService.getStudentGroupFlowAtLevel(student, level);
-    var studentLatestGroupFlowsAtLevel = findLatestGroupFlowPeriods(studentGroupFlowsAtLevel);
+    var studentGroupFlowsAtLevel = groupFlowService.getStudentGroupFlowAtLevel(studentId, level);
+    var studentLatestGroupFlowsAtLevel =
+        groupFlowService.findLatestGroupFlowPeriods(studentGroupFlowsAtLevel);
     var studentGroupCourseAssignmentsAtLevel =
         getGroupsCourseAssignmentsByGroupFlowsAtLevel(studentLatestGroupFlowsAtLevel, level);
     return studentGroupCourseAssignmentsAtLevel.stream()
@@ -64,34 +64,7 @@ public class CourseResultService {
         .toList();
   }
 
-  private List<GroupFlowPeriod> findLatestGroupFlowPeriods(List<GroupFlowPeriod> groupFlowPeriods) {
-    if (groupFlowPeriods.isEmpty()) {
-      return List.of();
-    }
-
-    var latestPromotion = latestPromotion(groupFlowPeriods);
-
-    return groupFlowPeriods.stream()
-        .filter(
-            groupFlowPeriod ->
-                extractGroupPromotion(groupFlowPeriod.group().getRef()).equals(latestPromotion))
-        .toList();
-  }
-
-  private String latestPromotion(List<GroupFlowPeriod> groupFlowPeriods) {
-    return extractGroupPromotion(
-        groupFlowPeriods.stream()
-            .max(comparing(GroupFlowPeriod::start))
-            .orElseThrow()
-            .group()
-            .getRef());
-  }
-
-  private String extractGroupPromotion(String groupRef) {
-    return GROUP_TRAILING_DIGITS.matcher(groupRef).replaceAll("");
-  }
-
-  private List<CourseDto> getGroupsCourseAssignmentsByGroupFlowsAtLevel(
+  private List<CourseAssignment> getGroupsCourseAssignmentsByGroupFlowsAtLevel(
       List<GroupFlowPeriod> studentLatestGroupFlows, StudentLevel level) {
 
     var courseAssignments =
@@ -155,12 +128,6 @@ public class CourseResultService {
     } else {
       return courseResult.status(CourseResultStatus.VALIDATED);
     }
-  }
-
-  private List<Exam> getExamsByCourseDto(CourseDto courseDto) {
-    return courseDto.courseAssigments().stream()
-        .flatMap(courseAssignment -> courseAssignment.getExams().stream())
-        .toList();
   }
 
   public BigDecimal obtainedCreditsOfCourseResults(List<CourseResult> courseResults) {
