@@ -1169,7 +1169,8 @@ public class SecurityConf {
         || uri.equals("/delay_penalty")
         || uri.startsWith("/admins")
         || uri.startsWith("/managers")
-        || uri.startsWith("/students")
-        || uri.startsWith("/groups");
+        || uri.equals("/students")
+        || uri.matches("/students/[^/]+$")
+        || uri.matches("/students/[^/]+/fees.*");
   }
 }
