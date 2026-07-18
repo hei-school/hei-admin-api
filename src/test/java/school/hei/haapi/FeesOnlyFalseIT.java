@@ -21,28 +21,27 @@ import school.hei.haapi.integration.conf.TestUtils;
 @TestPropertySource(properties = "FEES_ONLY=false")
 class FeesOnlyDisabledIT extends FacadeITMockedThirdParties {
 
-    private ApiClient anApiClient(String token) {
-        return TestUtils.anApiClient(token, localPort);
-    }
+  private ApiClient anApiClient(String token) {
+    return TestUtils.anApiClient(token, localPort);
+  }
 
-    @BeforeEach
-    void setUp() {
-        setUpCasdoor(casdoorAuthServiceMock, certificateLoaderMock);
-        setUpCognito(cognitoComponentMock);
-    }
+  @BeforeEach
+  void setUp() {
+    setUpCasdoor(casdoorAuthServiceMock, certificateLoaderMock);
+    setUpCognito(cognitoComponentMock);
+  }
 
-    @Test
-    void fees_only_endpoint_is_accessible_when_fees_only_disabled() {
-        var api = new PayingApi(anApiClient(MANAGER1_TOKEN));
+  @Test
+  void fees_only_endpoint_is_accessible_when_fees_only_disabled() {
+    var api = new PayingApi(anApiClient(MANAGER1_TOKEN));
 
-        assertDoesNotThrow(
-                () -> api.getFees(null, null, null, null, null, null, 1, 10, false, null));
-    }
+    assertDoesNotThrow(() -> api.getFees(null, null, null, null, null, null, 1, 10, false, null));
+  }
 
-    @Test
-    void non_fees_only_endpoint_is_accessible_when_fees_only_disabled() {
-        var api = new UsersApi(anApiClient(MANAGER1_TOKEN));
+  @Test
+  void non_fees_only_endpoint_is_accessible_when_fees_only_disabled() {
+    var api = new UsersApi(anApiClient(MANAGER1_TOKEN));
 
-        assertDoesNotThrow(() -> api.getMonitors(1, 10, null, null, null));
-    }
+    assertDoesNotThrow(() -> api.getMonitors(1, 10, null, null, null));
+  }
 }

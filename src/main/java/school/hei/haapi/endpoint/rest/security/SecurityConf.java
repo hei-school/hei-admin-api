@@ -18,6 +18,7 @@ import static school.hei.haapi.endpoint.rest.security.model.Role.TEACHER;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
@@ -37,7 +38,6 @@ import school.hei.haapi.model.exception.ForbiddenException;
 import school.hei.haapi.repository.CorRepository;
 import school.hei.haapi.service.CourseAssignmentService;
 import school.hei.haapi.service.MonitoringStudentService;
-import org.springframework.beans.factory.annotation.Value;
 
 @Configuration
 @Slf4j
@@ -72,28 +72,26 @@ public class SecurityConf {
     return new ProviderManager(authProvider);
   }
 
-    @Bean
-    @Order(1)
-    public SecurityFilterChain feesOnlyFilterChain(HttpSecurity http) throws Exception {
-        if (!feesOnly) {
-            http
-                    .securityMatcher(request -> false)
-                    .authorizeHttpRequests(req -> req.anyRequest().denyAll());
-            return http.build();
-        }
-
-        http
-                .securityMatcher(request -> !isFeesOnlyAllowed(request.getRequestURI()))
-                .authorizeHttpRequests(req -> req.anyRequest().denyAll())
-                .cors(AbstractHttpConfigurer::disable)
-                .csrf(AbstractHttpConfigurer::disable)
-                .formLogin(AbstractHttpConfigurer::disable)
-                .logout(AbstractHttpConfigurer::disable);
-        return http.build();
+  @Bean
+  @Order(1)
+  public SecurityFilterChain feesOnlyFilterChain(HttpSecurity http) throws Exception {
+    if (!feesOnly) {
+      http.securityMatcher(request -> false)
+          .authorizeHttpRequests(req -> req.anyRequest().denyAll());
+      return http.build();
     }
 
-    @Bean
-    @Order(2)
+    http.securityMatcher(request -> !isFeesOnlyAllowed(request.getRequestURI()))
+        .authorizeHttpRequests(req -> req.anyRequest().denyAll())
+        .cors(AbstractHttpConfigurer::disable)
+        .csrf(AbstractHttpConfigurer::disable)
+        .formLogin(AbstractHttpConfigurer::disable)
+        .logout(AbstractHttpConfigurer::disable);
+    return http.build();
+  }
+
+  @Bean
+  @Order(2)
   public SecurityFilterChain configure(HttpSecurity httpSecurity) throws Exception {
     // @formatter:off
     AntPathRequestMatcher nonAccessibleBySuspendedUserPath =
@@ -1161,17 +1159,17 @@ public class SecurityConf {
     return bearerFilter;
   }
 
-    private boolean isFeesOnlyAllowed(String uri) {
-        return uri.equals("/ping")
-                || uri.equals("/whoami")
-                || uri.equals("/health/db")
-                || uri.startsWith("/authentication/")
-                || uri.startsWith("/fees")
-                || uri.startsWith("/mpbs")
-                || uri.equals("/delay_penalty")
-                || uri.startsWith("/admins")
-                || uri.startsWith("/managers")
-                || uri.startsWith("/students")
-                || uri.startsWith("/groups");
-    }
+  private boolean isFeesOnlyAllowed(String uri) {
+    return uri.equals("/ping")
+        || uri.equals("/whoami")
+        || uri.equals("/health/db")
+        || uri.startsWith("/authentication/")
+        || uri.startsWith("/fees")
+        || uri.startsWith("/mpbs")
+        || uri.equals("/delay_penalty")
+        || uri.startsWith("/admins")
+        || uri.startsWith("/managers")
+        || uri.startsWith("/students")
+        || uri.startsWith("/groups");
+  }
 }
