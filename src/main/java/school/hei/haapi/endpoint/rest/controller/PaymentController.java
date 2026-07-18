@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import school.hei.haapi.endpoint.FeesOnly;
 import school.hei.haapi.endpoint.rest.mapper.PaymentMapper;
 import school.hei.haapi.endpoint.rest.model.CreatePayment;
 import school.hei.haapi.endpoint.rest.model.Payment;
@@ -22,7 +21,6 @@ import school.hei.haapi.service.PaymentService;
 
 @RestController
 @AllArgsConstructor
-@FeesOnly
 public class PaymentController {
   private final PaymentService paymentService;
   private final PaymentMapper paymentMapper;

@@ -17,7 +17,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
-import school.hei.haapi.endpoint.FeesOnly;
 import school.hei.haapi.endpoint.rest.mapper.GroupFlowMapper;
 import school.hei.haapi.endpoint.rest.mapper.SexEnumMapper;
 import school.hei.haapi.endpoint.rest.mapper.StatusCheckMapper;
@@ -51,7 +50,6 @@ import school.hei.haapi.service.UserService;
 
 @RestController
 @AllArgsConstructor
-@FeesOnly
 public class StudentController {
   private final UserService userService;
   private final UserMapper userMapper;
