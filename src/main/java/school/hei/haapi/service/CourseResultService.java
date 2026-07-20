@@ -55,12 +55,9 @@ public class CourseResultService {
       String studentId, StudentLevel level) {
     var student = userService.getById(studentId);
     var studentGroupFlowsAtLevel = groupFlowService.getStudentGroupFlowAtLevel(student, level);
-    log.info("StudentGroupFlowPeriods at level : {}", studentGroupFlowsAtLevel);
     var studentLatestGroupFlowsAtLevel = findLatestGroupFlowPeriods(studentGroupFlowsAtLevel);
-    log.info("StudentLatestGroupFlows at level : {}", studentLatestGroupFlowsAtLevel);
     var studentGroupCourseAssignmentsAtLevel =
         getGroupsCourseAssignmentsByGroupFlowsAtLevel(studentLatestGroupFlowsAtLevel, level);
-    log.info("StudentGroupCourseAssignments at level : {}", studentGroupCourseAssignmentsAtLevel);
     return studentGroupCourseAssignmentsAtLevel.stream()
         .map(courseDto -> computeStudentCourseResult(courseDto, student))
         .sorted(comparing(courseResult -> courseResult.getStatus().ordinal()))
