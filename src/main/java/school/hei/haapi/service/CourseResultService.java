@@ -74,7 +74,7 @@ public class CourseResultService {
     return groupFlowPeriods.stream()
         .filter(
             groupFlowPeriod ->
-                extractGroupPromotion(groupFlowPeriod.group().getName()).equals(latestPromotion))
+                extractGroupPromotion(groupFlowPeriod.group().getRef()).equals(latestPromotion))
         .toList();
   }
 
@@ -84,11 +84,11 @@ public class CourseResultService {
             .max(comparing(GroupFlowPeriod::start))
             .orElseThrow()
             .group()
-            .getName());
+            .getRef());
   }
 
-  private String extractGroupPromotion(String groupName) {
-    return GROUP_TRAILING_DIGITS.matcher(groupName).replaceAll("");
+  private String extractGroupPromotion(String groupRef) {
+    return GROUP_TRAILING_DIGITS.matcher(groupRef).replaceAll("");
   }
 
   private List<CourseDto> getGroupsCourseAssignmentsByGroupFlowsAtLevel(
@@ -126,11 +126,13 @@ public class CourseResultService {
 
   private CourseResult computeStudentCourseResult(CourseDto courseDto, User student) {
     var courseExams = getExamsByCourseDto(courseDto);
+    log.info("Course exams : {}", courseExams);
     var courseAssignmentIds =
         courseDto.courseAssigments().stream().map(CourseAssignment::getId).toList();
     var studentGrades =
         gradeRepository.findGradesByCourseAssignmentIdsAndStudentId(
             courseAssignmentIds, student.getId());
+    log.info("Student grades : {}", studentGrades);
     var courseResult = new CourseResult().course(courseMapper.toRest(courseDto.course()));
 
     if (courseExams.isEmpty()) {
