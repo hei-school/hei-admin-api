@@ -8253,6 +8253,13 @@ components:
           type: string
         status:
           $ref: "#/components/schemas/RetakeExamStatus"
+    UpdateRetakeExamStatus:
+      type: object
+      properties:
+        retake_exam_id:
+          type: string
+        status:
+          $ref: "#/components/schemas/RetakeExamStatus"
     CancelRetakeExamRequest:
       type: object
       properties:
