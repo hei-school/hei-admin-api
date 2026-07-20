@@ -29,6 +29,7 @@ public class GradeMapper {
   private final UpdateGradeValidator updateGradeValidator;
   private final ExamMapper examMapper;
   private final GradeRepository gradeRepository;
+  private static final String COMMENT = "Retake exam validate";
 
   // todo: to review all class
   public school.hei.haapi.model.Grade toDomain(Grade grade) {
@@ -122,9 +123,9 @@ public class GradeMapper {
         grade, grade.getStudent(), comment, grade.getExam());
   }
 
-  public List<school.hei.haapi.model.notEntity.UpdateGrade> toUpdategrades(
+  public List<school.hei.haapi.model.notEntity.UpdateGrade> toUpdateGrades(
       List<school.hei.haapi.model.Grade> grades) {
-    return grades.stream().map(grade -> toDomain(grade, "Rattrapage validé")).toList();
+    return grades.stream().map(grade -> toDomain(grade, COMMENT)).toList();
   }
 
   public List<school.hei.haapi.model.notEntity.UpdateGrade> toDomainList(

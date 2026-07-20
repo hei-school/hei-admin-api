@@ -25,6 +25,7 @@ import school.hei.haapi.endpoint.rest.model.RetakeExam;
 import school.hei.haapi.endpoint.rest.model.RetakeExamToCancel;
 import school.hei.haapi.endpoint.rest.model.Student;
 import school.hei.haapi.endpoint.rest.model.StudentRetakeExam;
+import school.hei.haapi.endpoint.rest.model.UpdateRetakeExamStatus;
 import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.model.RetakeExamStatus;
@@ -101,11 +102,12 @@ public class RetakeExamController {
             sessionId, courseId, studentRef, page, pageSize));
   }
 
-  @PatchMapping("/retake_exams/validate-or-not")
-  public List<StudentRetakeExam> validateRetakeExams(
-      @RequestBody List<CrupdateRetakeExam> updateRetakeExams) {
+  @PatchMapping("/retake_exams/status")
+  public List<StudentRetakeExam> updateRetakeExamsStatus(
+      @RequestBody List<UpdateRetakeExamStatus> updateRetakeExamStatus) {
     return retakeExamMapper.toStudentRetakeRestList(
-        retakeExamService.validateRetakeExams(retakeExamMapper.toDomainList(updateRetakeExams)));
+        retakeExamService.updateRetakeExams(
+            retakeExamMapper.toUpdateRetakeExamsStatus(updateRetakeExamStatus)));
   }
 
   @PatchMapping("/retake_exams/to_cancel")

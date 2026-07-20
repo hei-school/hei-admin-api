@@ -40,19 +40,19 @@ public class RetakeExamService {
   private final RetakeExamDao retakeExamDao;
   private final PaginationFromPageAndPageSize paginationFromPageAndPageSize;
   private final GradeService gradeService;
-  private final ExamService examService;
   private final GradeMapper gradeMapper;
 
   public List<RetakeExam> crupdateRetakeExams(List<RetakeExam> crupdateRetakeExams) {
     return retakeExamRepository.saveAll(crupdateRetakeExams);
   }
 
-  public List<RetakeExam> validateRetakeExams(List<RetakeExam> retakeExams) {
+  public List<RetakeExam> updateRetakeExams(List<RetakeExam> retakeExams) {
     var grades =
         retakeExams.stream()
+            .filter(retakeExam -> VALIDATE.equals(retakeExam.getStatus()))
             .flatMap(retakeExam -> gradeService.getGradesByRetakeExam(retakeExam).stream())
             .toList();
-    gradeService.updateParticipantGrade(gradeMapper.toUpdategrades(grades));
+    gradeService.updateParticipantGrade(gradeMapper.toUpdateGrades(grades));
     return retakeExamRepository.saveAll(retakeExams);
   }
 

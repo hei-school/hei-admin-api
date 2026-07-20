@@ -54,10 +54,11 @@ public class ExamService {
   }
 
   public List<Exam> getExamsByStudentIdAndCourse(String studentId, Course course) {
-    var groupFlows =
+    var groupFlowPeriods =
         groupFlowService.findStudentLatestGroupFlowPeriodsAtLevel(
             studentId, course.getStudentLevel());
-    var groupIds = groupFlows.stream().map(groupFlow -> groupFlow.group().getId()).toList();
+    var groupIds =
+        groupFlowPeriods.stream().map(groupFlowPeriod -> groupFlowPeriod.group().getId()).toList();
     return examRepository.findExamsByCourseIdAndGroupId(course.getId(), groupIds);
   }
 }

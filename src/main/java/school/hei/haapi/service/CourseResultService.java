@@ -5,6 +5,7 @@ import static java.math.BigDecimal.ZERO;
 import static java.math.MathContext.DECIMAL128;
 import static java.util.Comparator.comparing;
 import static java.util.Objects.nonNull;
+import static java.util.regex.Pattern.compile;
 import static school.hei.haapi.endpoint.rest.model.ResultOverviewStatus.INVALIDATED;
 import static school.hei.haapi.endpoint.rest.model.ResultOverviewStatus.IN_PROGRESS;
 import static school.hei.haapi.endpoint.rest.model.ResultOverviewStatus.NOT_STARTED;
@@ -16,6 +17,8 @@ import java.math.BigDecimal;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -25,6 +28,9 @@ import school.hei.haapi.endpoint.rest.model.CourseResultStatus;
 import school.hei.haapi.endpoint.rest.model.ResultOverviewStatus;
 import school.hei.haapi.endpoint.rest.model.StudentLevel;
 import school.hei.haapi.model.CourseAssignment;
+import school.hei.haapi.model.Exam;
+import school.hei.haapi.model.User;
+import school.hei.haapi.model.dto.CourseDto;
 import school.hei.haapi.model.dto.GroupFlowPeriod;
 import school.hei.haapi.model.exception.CoursesCreditSumZero;
 import school.hei.haapi.model.exception.ExamsCoefficientSumZero;
@@ -35,12 +41,14 @@ import school.hei.haapi.repository.GradeRepository;
 @Slf4j
 public class CourseResultService {
   private final CourseMapper courseMapper;
+  private final UserService userService;
   private final CourseAssignmentService courseAssignmentService;
   private final GroupFlowService groupFlowService;
   private final GradeRepository gradeRepository;
 
   private static final BigDecimal VALIDATED_YEAR_CREDIT = BigDecimal.valueOf(30);
   private static final BigDecimal VALIDATED_YEAR_AVERAGE = TEN;
+  private static final Pattern GROUP_TRAILING_DIGITS = compile("\\d+$");
 
   @Transactional
   public List<CourseResult> getCourseResultsByStudentIdAndLevel(
@@ -55,7 +63,7 @@ public class CourseResultService {
         .toList();
   }
 
-  private List<CourseAssignment> getGroupsCourseAssignmentsByGroupFlowsAtLevel(
+  private List<CourseDto> getGroupsCourseAssignmentsByGroupFlowsAtLevel(
       List<GroupFlowPeriod> studentLatestGroupFlows, StudentLevel level) {
 
     var courseAssignments =
@@ -90,13 +98,11 @@ public class CourseResultService {
 
   private CourseResult computeStudentCourseResult(CourseDto courseDto, User student) {
     var courseExams = getExamsByCourseDto(courseDto);
-    log.info("Course exams : {}", courseExams);
     var courseAssignmentIds =
         courseDto.courseAssigments().stream().map(CourseAssignment::getId).toList();
     var studentGrades =
         gradeRepository.findGradesByCourseAssignmentIdsAndStudentId(
             courseAssignmentIds, student.getId());
-    log.info("Student grades : {}", studentGrades);
     var courseResult = new CourseResult().course(courseMapper.toRest(courseDto.course()));
 
     if (courseExams.isEmpty()) {
@@ -119,6 +125,12 @@ public class CourseResultService {
     } else {
       return courseResult.status(CourseResultStatus.VALIDATED);
     }
+  }
+
+  private List<Exam> getExamsByCourseDto(CourseDto courseDto) {
+    return courseDto.courseAssigments().stream()
+        .flatMap(courseAssignment -> courseAssignment.getExams().stream())
+        .toList();
   }
 
   public BigDecimal obtainedCreditsOfCourseResults(List<CourseResult> courseResults) {
