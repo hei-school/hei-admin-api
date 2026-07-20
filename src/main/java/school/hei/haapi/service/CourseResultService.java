@@ -29,12 +29,27 @@ import school.hei.haapi.endpoint.rest.model.ResultOverviewStatus;
 import school.hei.haapi.endpoint.rest.model.StudentLevel;
 import school.hei.haapi.model.CourseAssignment;
 import school.hei.haapi.model.Exam;
-import school.hei.haapi.model.User;
 import school.hei.haapi.model.dto.CourseDto;
 import school.hei.haapi.model.dto.GroupFlowPeriod;
 import school.hei.haapi.model.exception.CoursesCreditSumZero;
 import school.hei.haapi.model.exception.ExamsCoefficientSumZero;
 import school.hei.haapi.repository.GradeRepository;
+
+import java.math.BigDecimal;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+
+import static java.math.BigDecimal.TEN;
+import static java.math.BigDecimal.ZERO;
+import static java.math.MathContext.DECIMAL128;
+import static java.util.Comparator.comparing;
+import static java.util.Objects.nonNull;
+import static school.hei.haapi.endpoint.rest.model.ResultOverviewStatus.INVALIDATED;
+import static school.hei.haapi.endpoint.rest.model.ResultOverviewStatus.IN_PROGRESS;
+import static school.hei.haapi.endpoint.rest.model.ResultOverviewStatus.NOT_STARTED;
+import static school.hei.haapi.endpoint.rest.model.ResultOverviewStatus.VALIDATED;
+import static school.hei.haapi.model.Grade.weightedAverageOfGrades;
 
 @Service
 @AllArgsConstructor
@@ -56,7 +71,7 @@ public class CourseResultService {
     var studentLatestGroupFlowsAtLevel =
         groupFlowService.findStudentLatestGroupFlowPeriodsAtLevel(studentId, level);
     var studentGroupCourseAssignmentsAtLevel =
-        getGroupsCourseAssignmentsByGroupFlowsAtLevel(studentLatestGroupFlowsAtLevel, level);
+        courseAssignmentService.getGroupsCourseAssignmentsByGroupFlowsAtLevel(studentLatestGroupFlowsAtLevel, level);
     return studentGroupCourseAssignmentsAtLevel.stream()
         .map(courseDto -> computeStudentCourseResult(courseDto, student))
         .sorted(comparing(courseResult -> courseResult.getStatus().ordinal()))

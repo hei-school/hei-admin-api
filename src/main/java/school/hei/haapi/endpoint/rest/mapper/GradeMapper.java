@@ -1,9 +1,5 @@
 package school.hei.haapi.endpoint.rest.mapper;
 
-import static java.time.Instant.now;
-
-import java.math.BigDecimal;
-import java.util.List;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 import school.hei.haapi.endpoint.rest.model.CreateGrade;
@@ -18,6 +14,11 @@ import school.hei.haapi.model.dto.GradeImportDto;
 import school.hei.haapi.repository.GradeRepository;
 import school.hei.haapi.service.ExamService;
 import school.hei.haapi.service.UserService;
+
+import java.math.BigDecimal;
+import java.util.List;
+
+import static java.time.Instant.now;
 
 @Component
 @AllArgsConstructor

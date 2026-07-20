@@ -1,9 +1,5 @@
 package school.hei.haapi.service;
 
-import static org.springframework.data.domain.Sort.Direction.DESC;
-
-import java.time.Instant;
-import java.util.List;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -13,10 +9,16 @@ import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.Course;
 import school.hei.haapi.model.Exam;
 import school.hei.haapi.model.PageFromOne;
+import school.hei.haapi.model.dto.CourseDto;
 import school.hei.haapi.model.exception.NotFoundException;
 import school.hei.haapi.model.validator.ExamValidator;
 import school.hei.haapi.repository.ExamRepository;
 import school.hei.haapi.repository.dao.ExamDao;
+
+import java.time.Instant;
+import java.util.List;
+
+import static org.springframework.data.domain.Sort.Direction.DESC;
 
 @Service
 @AllArgsConstructor
@@ -25,7 +27,6 @@ public class ExamService {
   private final ExamDao examDao;
   private final ExamValidator validator;
   private final GroupFlowService groupFlowService;
-  private final CourseResultService courseResultService;
 
   public List<Exam> updateOrSaveAll(List<Exam> exams) {
     validator.accept(exams);
@@ -61,4 +62,10 @@ public class ExamService {
         groupFlowPeriods.stream().map(groupFlowPeriod -> groupFlowPeriod.group().getId()).toList();
     return examRepository.findExamsByCourseIdAndGroupId(course.getId(), groupIds);
   }
+
+    public List<Exam> getExamsByCourseDto(CourseDto courseDto) {
+        return courseDto.courseAssigments().stream()
+                .flatMap(courseAssignment -> courseAssignment.getExams().stream())
+                .toList();
+    }
 }

@@ -1,17 +1,5 @@
 package school.hei.haapi.service;
 
-import static java.time.Instant.now;
-import static java.util.Comparator.comparing;
-import static java.util.stream.Collectors.toUnmodifiableSet;
-import static school.hei.haapi.endpoint.rest.model.CourseResultStatus.INCOMPLETE;
-import static school.hei.haapi.model.RetakeExamStatus.INVALIDATE;
-import static school.hei.haapi.model.RetakeExamStatus.REGISTERED;
-import static school.hei.haapi.model.RetakeExamStatus.TO_CANCEL;
-import static school.hei.haapi.model.RetakeExamStatus.VALIDATE;
-
-import java.util.List;
-import java.util.Objects;
-import java.util.stream.Stream;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -29,6 +17,19 @@ import school.hei.haapi.model.exception.NotFoundException;
 import school.hei.haapi.model.pagination.PaginationFromPageAndPageSize;
 import school.hei.haapi.repository.RetakeExamRepository;
 import school.hei.haapi.repository.dao.RetakeExamDao;
+
+import java.util.List;
+import java.util.Objects;
+import java.util.stream.Stream;
+
+import static java.time.Instant.now;
+import static java.util.Comparator.comparing;
+import static java.util.stream.Collectors.toUnmodifiableSet;
+import static school.hei.haapi.endpoint.rest.model.CourseResultStatus.INCOMPLETE;
+import static school.hei.haapi.model.RetakeExamStatus.INVALIDATE;
+import static school.hei.haapi.model.RetakeExamStatus.REGISTERED;
+import static school.hei.haapi.model.RetakeExamStatus.TO_CANCEL;
+import static school.hei.haapi.model.RetakeExamStatus.VALIDATE;
 
 @Service
 @AllArgsConstructor

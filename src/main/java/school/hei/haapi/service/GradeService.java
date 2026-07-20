@@ -1,25 +1,6 @@
 package school.hei.haapi.service;
 
-import static org.apache.poi.ss.usermodel.CellType.NUMERIC;
-import static org.apache.poi.ss.usermodel.Row.MissingCellPolicy.CREATE_NULL_AS_BLANK;
-import static school.hei.haapi.model.User.Status.ALUMNI;
-import static school.hei.haapi.model.User.Status.ENABLED;
-import static school.hei.haapi.model.exception.ApiException.ExceptionType.SERVER_EXCEPTION;
-
 import jakarta.transaction.Transactional;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.IOException;
-import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.ss.usermodel.Cell;
@@ -53,6 +34,26 @@ import school.hei.haapi.repository.dao.GradeDao;
 import school.hei.haapi.service.utils.excel.ExcelParser;
 import school.hei.haapi.service.utils.excel.ParseResult;
 
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import static org.apache.poi.ss.usermodel.CellType.NUMERIC;
+import static org.apache.poi.ss.usermodel.Row.MissingCellPolicy.CREATE_NULL_AS_BLANK;
+import static school.hei.haapi.model.User.Status.ALUMNI;
+import static school.hei.haapi.model.User.Status.ENABLED;
+import static school.hei.haapi.model.exception.ApiException.ExceptionType.SERVER_EXCEPTION;
+
 @Slf4j
 @Service
 @AllArgsConstructor
@@ -69,6 +70,7 @@ public class GradeService {
   private final ExamParticipantService examParticipantService;
 
   private static final String GRADE_XLSX_IMPORT_BUCKET_KEY = "/STUDENT_EXAM_GRADE_XLSX_IMPORT/";
+  private static final Double VALIDATED_YEAR_AVERAGE = 10.;
   private final GradeChangeHistoryRepository gradeChangeHistoryRepository;
   private final PromotionService promotionService;
 
@@ -158,7 +160,7 @@ public class GradeService {
         examService.getExamsByStudentIdAndCourse(
             retakeExam.getStudent().getId(), retakeExam.getCourse());
     return exams.stream()
-        .map(exam -> Grade.builder().exam(exam).student(retakeExam.getStudent()).score(10.).build())
+        .map(exam -> Grade.builder().exam(exam).student(retakeExam.getStudent()).score(VALIDATED_YEAR_AVERAGE).build())
         .toList();
   }
 
