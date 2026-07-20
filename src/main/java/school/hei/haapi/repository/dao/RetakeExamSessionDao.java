@@ -13,11 +13,11 @@ import java.util.List;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.query.QueryUtils;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Repository;
 import school.hei.haapi.endpoint.rest.model.StudentLevel;
 import school.hei.haapi.model.RetakeExamSession;
 
-@Component
+@Repository
 @AllArgsConstructor
 public class RetakeExamSessionDao {
   private final EntityManager entityManager;
