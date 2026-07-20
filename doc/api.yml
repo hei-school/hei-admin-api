@@ -1947,6 +1947,39 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
+  /retake_exams/status:
+    patch:
+      tags:
+        - RetakeExam
+      summary: Update status of multiple retake exams
+      operationId: updateRetakeExamsStatus
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: "#/components/schemas/UpdateRetakeExamStatus"
+      responses:
+        '200':
+          description: Retake exams' status successfully updated
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/StudentRetakeExam'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
   /retake_exam_sessions/{session_id}/retake_exams:
     put:
       tags:
@@ -8250,6 +8283,13 @@ components:
         session_id:
           type: string
         student_id:
+          type: string
+        status:
+          $ref: "#/components/schemas/RetakeExamStatus"
+    UpdateRetakeExamStatus:
+      type: object
+      properties:
+        retake_exam_id:
           type: string
         status:
           $ref: "#/components/schemas/RetakeExamStatus"

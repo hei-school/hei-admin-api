@@ -9,11 +9,11 @@ import java.util.ArrayList;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Pageable;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Repository;
 import school.hei.haapi.model.RetakeExam;
 import school.hei.haapi.model.RetakeExamStatus;
 
-@Component
+@Repository
 @AllArgsConstructor
 public class RetakeExamDao {
   private final EntityManager entityManager;
