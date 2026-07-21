@@ -18,7 +18,6 @@ import static school.hei.haapi.endpoint.rest.security.model.Role.TEACHER;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
@@ -50,9 +49,6 @@ public class SecurityConf {
   private final HandlerExceptionResolver exceptionResolver;
   private final CorRepository corRepository;
 
-  @Value("${FEES_ONLY:false}")
-  private boolean feesOnly;
-
   public SecurityConf(
       CasdoorAuthProvider authProvider,
       // InternalToExternalErrorHandler behind
@@ -70,24 +66,6 @@ public class SecurityConf {
   @Bean
   public AuthenticationManager authenticationManager() {
     return new ProviderManager(authProvider);
-  }
-
-  @Bean
-  @Order(1)
-  public SecurityFilterChain feesOnlyFilterChain(HttpSecurity http) throws Exception {
-    if (!feesOnly) {
-      http.securityMatcher(request -> false)
-          .authorizeHttpRequests(req -> req.anyRequest().denyAll());
-      return http.build();
-    }
-
-    http.securityMatcher(request -> !isFeesOnlyAllowed(request.getRequestURI()))
-        .authorizeHttpRequests(req -> req.anyRequest().denyAll())
-        .cors(AbstractHttpConfigurer::disable)
-        .csrf(AbstractHttpConfigurer::disable)
-        .formLogin(AbstractHttpConfigurer::disable)
-        .logout(AbstractHttpConfigurer::disable);
-    return http.build();
   }
 
   @Bean
@@ -1157,20 +1135,5 @@ public class SecurityConf {
             // not handled by AccessDeniedException and AuthenticationEntryPoint
             exceptionResolver.resolveException(req, res, null, forbiddenWithRemoteInfo(req)));
     return bearerFilter;
-  }
-
-  private boolean isFeesOnlyAllowed(String uri) {
-    return uri.equals("/ping")
-        || uri.equals("/whoami")
-        || uri.equals("/health/db")
-        || uri.startsWith("/authentication/")
-        || uri.startsWith("/fees")
-        || uri.startsWith("/mpbs")
-        || uri.equals("/delay_penalty")
-        || uri.startsWith("/admins")
-        || uri.startsWith("/managers")
-        || uri.equals("/students")
-        || uri.matches("/students/[^/]+$")
-        || uri.matches("/students/[^/]+/fees.*");
   }
 }
