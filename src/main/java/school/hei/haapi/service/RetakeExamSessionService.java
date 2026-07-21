@@ -4,7 +4,7 @@ import java.time.Instant;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Pageable;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 import school.hei.haapi.endpoint.rest.model.StudentLevel;
 import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.PageFromOne;
@@ -15,7 +15,7 @@ import school.hei.haapi.model.pagination.PaginationFromPageAndPageSize;
 import school.hei.haapi.repository.RetakeExamSessionRepository;
 import school.hei.haapi.repository.dao.RetakeExamSessionDao;
 
-@Component
+@Service
 @AllArgsConstructor
 public class RetakeExamSessionService {
   private final RetakeExamSessionRepository retakeExamSessionRepository;

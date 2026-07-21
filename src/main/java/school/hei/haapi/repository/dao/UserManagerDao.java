@@ -212,7 +212,6 @@ public class UserManagerDao {
     User user = entityManager.find(User.class, userId);
     if (user != null) {
       user.setStatus(status);
-      entityManager.merge(user);
     }
   }
 
