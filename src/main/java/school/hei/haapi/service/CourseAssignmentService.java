@@ -1,5 +1,10 @@
 package school.hei.haapi.service;
 
+import static org.springframework.data.domain.Sort.Direction.DESC;
+
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
@@ -19,12 +24,6 @@ import school.hei.haapi.model.validator.CourseAssignmentValidator;
 import school.hei.haapi.repository.CourseAssignmentRepository;
 import school.hei.haapi.repository.UserRepository;
 import school.hei.haapi.repository.dao.CourseAssignmentDao;
-
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
-
-import static org.springframework.data.domain.Sort.Direction.DESC;
 
 @Slf4j
 @Service
@@ -102,38 +101,37 @@ public class CourseAssignmentService {
     return courseAssignmentRepository.findAllByCourseId(courseId, pageable);
   }
 
+  public List<CourseDto> getGroupsCourseAssignmentsByGroupFlowsAtLevel(
+      List<GroupFlowPeriod> studentLatestGroupFlows, StudentLevel level) {
 
-    public List<CourseDto> getGroupsCourseAssignmentsByGroupFlowsAtLevel(
-            List<GroupFlowPeriod> studentLatestGroupFlows, StudentLevel level) {
+    var courseAssignments =
+        studentLatestGroupFlows.stream()
+            .flatMap(
+                groupFlowPeriod ->
+                    getGroupCourseAssignmentsByLevelBetweenPeriod(groupFlowPeriod, level).stream())
+            .collect(Collectors.groupingBy(CourseAssignment::getCourse));
 
-        var courseAssignments =
-                studentLatestGroupFlows.stream()
-                        .flatMap(
-                                groupFlowPeriod ->
-                                        getGroupCourseAssignmentsByLevelBetweenPeriod(groupFlowPeriod, level).stream())
-                        .collect(Collectors.groupingBy(CourseAssignment::getCourse));
+    return courseAssignments.entrySet().stream()
+        .map(entry -> new CourseDto(entry.getKey(), entry.getValue()))
+        .toList();
+  }
 
-        return courseAssignments.entrySet().stream()
-                .map(entry -> new CourseDto(entry.getKey(), entry.getValue()))
-                .toList();
+  @Transactional
+  private List<CourseAssignment> getGroupCourseAssignmentsByLevelBetweenPeriod(
+      GroupFlowPeriod groupFlowPeriod, StudentLevel level) {
+    return getByGroupId(groupFlowPeriod.group().getId()).stream()
+        .filter(courseAssignment -> level.equals(courseAssignment.getCourse().getStudentLevel()))
+        .filter(courseAssignment -> hasExamOrAssignedBeforeLeave(courseAssignment, groupFlowPeriod))
+        .toList();
+  }
+
+  private boolean hasExamOrAssignedBeforeLeave(
+      CourseAssignment courseAssignment, GroupFlowPeriod groupFlowPeriod) {
+    var courseExams = courseAssignment.getExams();
+    if (courseExams.isEmpty() && groupFlowPeriod.end() == null) {
+      return true;
     }
-
-    @Transactional
-    private List<CourseAssignment> getGroupCourseAssignmentsByLevelBetweenPeriod(
-            GroupFlowPeriod groupFlowPeriod, StudentLevel level) {
-        return getByGroupId(groupFlowPeriod.group().getId()).stream()
-                .filter(courseAssignment -> level.equals(courseAssignment.getCourse().getStudentLevel()))
-                .filter(courseAssignment -> hasExamOrAssignedBeforeLeave(courseAssignment, groupFlowPeriod))
-                .toList();
-    }
-
-    private boolean hasExamOrAssignedBeforeLeave(
-            CourseAssignment courseAssignment, GroupFlowPeriod groupFlowPeriod) {
-        var courseExams = courseAssignment.getExams();
-        if (courseExams.isEmpty() && groupFlowPeriod.end() == null) {
-            return true;
-        }
-        return courseExams.stream()
-                .anyMatch(courseExam -> groupFlowPeriod.contains(courseExam.getExaminationDate()));
-    }
+    return courseExams.stream()
+        .anyMatch(courseExam -> groupFlowPeriod.contains(courseExam.getExaminationDate()));
+  }
 }

@@ -123,7 +123,7 @@ public class GroupFlowService {
     return groupFlowPeriods.stream()
         .filter(
             groupFlowPeriod ->
-                extractGroupPromotion(groupFlowPeriod.group().getName()).equals(latestPromotion))
+                extractGroupPromotion(groupFlowPeriod.group().getRef()).equals(latestPromotion))
         .toList();
   }
 
@@ -133,10 +133,10 @@ public class GroupFlowService {
             .max(comparing(GroupFlowPeriod::start))
             .orElseThrow()
             .group()
-            .getName());
+            .getRef());
   }
 
-  private String extractGroupPromotion(String groupName) {
-    return GROUP_TRAILING_DIGITS.matcher(groupName).replaceAll("");
+  private String extractGroupPromotion(String groupRef) {
+    return GROUP_TRAILING_DIGITS.matcher(groupRef).replaceAll("");
   }
 }

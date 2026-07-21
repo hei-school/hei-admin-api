@@ -1,5 +1,9 @@
 package school.hei.haapi.service;
 
+import static org.springframework.data.domain.Sort.Direction.DESC;
+
+import java.time.Instant;
+import java.util.List;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -14,11 +18,6 @@ import school.hei.haapi.model.exception.NotFoundException;
 import school.hei.haapi.model.validator.ExamValidator;
 import school.hei.haapi.repository.ExamRepository;
 import school.hei.haapi.repository.dao.ExamDao;
-
-import java.time.Instant;
-import java.util.List;
-
-import static org.springframework.data.domain.Sort.Direction.DESC;
 
 @Service
 @AllArgsConstructor
@@ -63,9 +62,9 @@ public class ExamService {
     return examRepository.findExamsByCourseIdAndGroupId(course.getId(), groupIds);
   }
 
-    public List<Exam> getExamsByCourseDto(CourseDto courseDto) {
-        return courseDto.courseAssigments().stream()
-                .flatMap(courseAssignment -> courseAssignment.getExams().stream())
-                .toList();
-    }
+  public List<Exam> getExamsByCourseDto(CourseDto courseDto) {
+    return courseDto.courseAssigments().stream()
+        .flatMap(courseAssignment -> courseAssignment.getExams().stream())
+        .toList();
+  }
 }
