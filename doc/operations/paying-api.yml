@@ -660,6 +660,7 @@ operations:
           $ref: '../components.yml#/components/responses/500'
   getFeeTemplates:
     get:
+      deprecated: true
       tags:
         - Paying
       summary: Get all fee templates
@@ -704,8 +705,144 @@ operations:
           $ref: '../components.yml#/components/responses/429'
         '500':
           $ref: '../components.yml#/components/responses/500'
+  feeTemplatesContentOperations:
+    get:
+      tags:
+        - Paying
+      summary: Retrieve existing fee template content
+      parameters:
+        - in: path
+          name: id
+          description: Fee template identifier
+          schema:
+            type: string
+          required: true
+      operationId: getContentByFeeTemplateId
+      responses:
+        '200':
+          description: List of fee template content
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '../components.yml#/components/schemas/FeeTemplateContent'
+        '403':
+          $ref: '../components.yml#/components/responses/403'
+        '404':
+          $ref: '../components.yml#/components/responses/404'
+        '429':
+          $ref: '../components.yml#/components/responses/429'
+        '500':
+          $ref: '../components.yml#/components/responses/500'
+    put:
+      tags:
+        - Paying
+      summary: Update contents for a specific fee templates
+      parameters:
+        - in: path
+          name: id
+          description: Fee template identifier
+          schema:
+            type: string
+          required: true
+      operationId: crupdateFeeTemplatesContent
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '../components.yml#/components/schemas/FeeTemplateContent'
+      responses:
+        '200':
+          description: Updated fee template content
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '../components.yml#/components/schemas/FeeTemplateContent'
+        '400':
+          $ref: '../components.yml#/components/responses/400'
+        '403':
+          $ref: '../components.yml#/components/responses/403'
+        '404':
+          $ref: '../components.yml#/components/responses/404'
+        '429':
+          $ref: '../components.yml#/components/responses/429'
+        '500':
+          $ref: '../components.yml#/components/responses/500'
+  feeTemplatesOperations:
+    get:
+      tags:
+        - Paying
+      summary: Get existing fee templates
+      parameters:
+        - name: page
+          in: query
+          schema:
+            $ref: '../components.yml#/components/schemas/Page'
+        - name: pageSize
+          in: query
+          schema:
+            $ref: '../components.yml#/components/schemas/PageSize'
+      operationId: getV2FeeTemplates
+      responses:
+        '200':
+          description: List of fee templates
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '../components.yml#/components/schemas/V2FeeTemplate'
+        '400':
+          $ref: '../components.yml#/components/responses/400'
+        '403':
+          $ref: '../components.yml#/components/responses/403'
+        '404':
+          $ref: '../components.yml#/components/responses/404'
+        '429':
+          $ref: '../components.yml#/components/responses/429'
+        '500':
+          $ref: '../components.yml#/components/responses/500'
+    put:
+      tags:
+        - Paying
+      summary: Create or update existing fee templates
+      operationId: crupdateV2FeeTemplates
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '../components.yml#/components/schemas/V2CrupdateFeeTemplate'
+      responses:
+        '200':
+          description: List of created or updated fee templates
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '../components.yml#/components/schemas/V2FeeTemplate'
+        '400':
+          $ref: '../components.yml#/components/responses/400'
+        '403':
+          $ref: '../components.yml#/components/responses/403'
+        '404':
+          $ref: '../components.yml#/components/responses/404'
+        '429':
+          $ref: '../components.yml#/components/responses/429'
+        '500':
+          $ref: '../components.yml#/components/responses/500'
   feesTemplatesById:
     get:
+      deprecated: true
       tags:
         - Paying
       summary: Get fee template by id
@@ -735,6 +872,7 @@ operations:
         '500':
           $ref: '../components.yml#/components/responses/500'
     put:
+      deprecated: true
       tags:
         - Paying
       summary: Create a new fee type or update existing fee type
