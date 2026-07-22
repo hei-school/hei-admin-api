@@ -29,6 +29,7 @@ public class GradeMapper {
   private final UpdateGradeValidator updateGradeValidator;
   private final ExamMapper examMapper;
   private final GradeRepository gradeRepository;
+  private static final String COMMENT = "Retake exam validate";
 
   // todo: to review all class
   public school.hei.haapi.model.Grade toDomain(Grade grade) {
@@ -116,16 +117,22 @@ public class GradeMapper {
     return new school.hei.haapi.model.notEntity.UpdateGrade(grade, student, comment, exam);
   }
 
+  public school.hei.haapi.model.notEntity.UpdateGrade toDomain(
+      school.hei.haapi.model.Grade grade, String comment) {
+    return new school.hei.haapi.model.notEntity.UpdateGrade(
+        grade, grade.getStudent(), comment, grade.getExam());
+  }
+
+  public List<school.hei.haapi.model.notEntity.UpdateGrade> toUpdateGrades(
+      List<school.hei.haapi.model.Grade> grades) {
+    return grades.stream().map(grade -> toDomain(grade, COMMENT)).toList();
+  }
+
   public List<school.hei.haapi.model.notEntity.UpdateGrade> toDomainList(
       List<GradeImportDto> gradeDtos, String examId, String comment) {
     var exam = examService.getExamById(examId);
     return gradeDtos.stream()
         .map(gradeImportDto -> toDomain(gradeImportDto, gradeImportDto.getRef(), exam, comment))
         .toList();
-  }
-
-  public GradeImportDto mapToDto(String ref, Double score) {
-    new GradeImportDto();
-    return GradeImportDto.builder().ref(ref).score(score).build();
   }
 }

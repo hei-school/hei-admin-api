@@ -1,10 +1,13 @@
 package school.hei.haapi.service;
 
+import static java.util.Comparator.comparing;
+import static java.util.regex.Pattern.compile;
 import static school.hei.haapi.model.GroupFlow.GroupFlowType.JOIN;
 import static school.hei.haapi.model.GroupFlow.GroupFlowType.LEAVE;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -30,6 +33,7 @@ public class GroupFlowService {
   private final GroupRepository groupRepository;
   private final UserRepository userRepository;
   private final GroupFlowValidator validator;
+  private static final Pattern GROUP_TRAILING_DIGITS = compile("\\d+$");
 
   private void logger(GroupFlow studentGroupFlow) {
     log.info(
@@ -82,12 +86,15 @@ public class GroupFlowService {
         .build();
   }
 
-  public List<GroupFlowPeriod> getStudentGroupFlowAtLevel(User student, StudentLevel level) {
-    var groupFlows = repository.findByFlowTypeAndStudentAndLevel(student, level);
+  public List<GroupFlowPeriod> findStudentLatestGroupFlowPeriodsAtLevel(
+      String studentId, StudentLevel level) {
+    var groupFlows = repository.findByFlowTypeAndStudentAndLevel(studentId, level);
     var groupFlowsByGroup = groupFlows.stream().collect(Collectors.groupingBy(GroupFlow::getGroup));
-    return groupFlowsByGroup.entrySet().stream()
-        .map(entry -> toGroupFlowPeriod(entry.getKey(), entry.getValue()))
-        .toList();
+    var groupFlowPeriods =
+        groupFlowsByGroup.entrySet().stream()
+            .map(entry -> toGroupFlowPeriod(entry.getKey(), entry.getValue()))
+            .toList();
+    return findLatestGroupFlowPeriods(groupFlowPeriods);
   }
 
   private GroupFlowPeriod toGroupFlowPeriod(Group group, List<GroupFlow> groupFlows) {
@@ -104,5 +111,32 @@ public class GroupFlowService {
             .max(Instant::compareTo)
             .orElse(null);
     return new GroupFlowPeriod(group, start, end);
+  }
+
+  private List<GroupFlowPeriod> findLatestGroupFlowPeriods(List<GroupFlowPeriod> groupFlowPeriods) {
+    if (groupFlowPeriods.isEmpty()) {
+      return List.of();
+    }
+
+    var latestPromotion = latestPromotion(groupFlowPeriods);
+
+    return groupFlowPeriods.stream()
+        .filter(
+            groupFlowPeriod ->
+                extractGroupPromotion(groupFlowPeriod.group().getRef()).equals(latestPromotion))
+        .toList();
+  }
+
+  private String latestPromotion(List<GroupFlowPeriod> groupFlowPeriods) {
+    return extractGroupPromotion(
+        groupFlowPeriods.stream()
+            .max(comparing(GroupFlowPeriod::start))
+            .orElseThrow()
+            .group()
+            .getRef());
+  }
+
+  private String extractGroupPromotion(String groupRef) {
+    return GROUP_TRAILING_DIGITS.matcher(groupRef).replaceAll("");
   }
 }

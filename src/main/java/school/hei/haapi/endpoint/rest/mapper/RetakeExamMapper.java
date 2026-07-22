@@ -9,8 +9,7 @@ import school.hei.haapi.endpoint.rest.model.RetakeExam;
 import school.hei.haapi.endpoint.rest.model.RetakeExamStatus;
 import school.hei.haapi.endpoint.rest.model.RetakeExamToCancel;
 import school.hei.haapi.endpoint.rest.model.StudentRetakeExam;
-import school.hei.haapi.model.Course;
-import school.hei.haapi.model.RetakeExamSession;
+import school.hei.haapi.endpoint.rest.model.UpdateRetakeExamStatus;
 import school.hei.haapi.service.CourseService;
 import school.hei.haapi.service.RetakeExamService;
 import school.hei.haapi.service.RetakeExamSessionService;
@@ -29,9 +28,8 @@ public class RetakeExamMapper {
 
   public school.hei.haapi.model.RetakeExam toDomainCrupdate(CrupdateRetakeExam crupdateRetakeExam) {
     var studentUser = userService.getById(crupdateRetakeExam.getStudentId());
-    RetakeExamSession retakeExamSession =
-        retakeExamSessionService.getById(crupdateRetakeExam.getSessionId());
-    Course course = courseService.getById(crupdateRetakeExam.getCourseId());
+    var retakeExamSession = retakeExamSessionService.getById(crupdateRetakeExam.getSessionId());
+    var course = courseService.getById(crupdateRetakeExam.getCourseId());
     return school.hei.haapi.model.RetakeExam.builder()
         .id(crupdateRetakeExam.getId())
         .student(studentUser)
@@ -90,17 +88,20 @@ public class RetakeExamMapper {
     return retakeExamRest;
   }
 
-  public school.hei.haapi.model.RetakeExam toDomain(RetakeExam retakeExam) {
-    return school.hei.haapi.model.RetakeExam.builder()
-        .id(retakeExam.getId())
-        .course(courseMapper.toDomain(retakeExam.getCourse()))
-        .session(retakeExamSessionMapper.toDomain(retakeExam.getSession()))
-        .status(school.hei.haapi.model.RetakeExamStatus.valueOf(retakeExam.getStatus().name()))
-        .build();
+  public school.hei.haapi.model.RetakeExam toDomain(UpdateRetakeExamStatus updateRetakeExamStatus) {
+    var retakeExam = retakeExamService.getById(updateRetakeExamStatus.getRetakeExamId());
+    retakeExam.setStatus(
+        school.hei.haapi.model.RetakeExamStatus.valueOf(updateRetakeExamStatus.getStatus().name()));
+    return retakeExam;
   }
 
   public List<RetakeExam> toRestList(List<school.hei.haapi.model.RetakeExam> retakeExams) {
     return retakeExams.stream().map(this::toRest).toList();
+  }
+
+  public List<school.hei.haapi.model.RetakeExam> toUpdateRetakeExamsStatus(
+      List<UpdateRetakeExamStatus> updateRetakeExamsStatus) {
+    return updateRetakeExamsStatus.stream().map(this::toDomain).toList();
   }
 
   public List<school.hei.haapi.model.RetakeExam> toDomainList(

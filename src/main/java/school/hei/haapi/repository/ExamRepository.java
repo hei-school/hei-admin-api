@@ -9,10 +9,14 @@ import school.hei.haapi.model.Exam;
 
 @Repository
 public interface ExamRepository extends JpaRepository<Exam, String> {
-  @Query("select e from Exam e where e.courseAssignment.course.id = :course_id ")
-  List<Exam> findExamsByCourseId(@Param("course_id") String courseId);
-
-  @Query("select e from Exam e where e.courseAssignment.id in :course_assignment_ids ")
-  List<Exam> findExamsByCourseAssignmentIdIn(
-      @Param("course_assignment_ids") List<String> courseAssignmentIds);
+  @Query(
+      """
+      select distinct e
+      from Exam e
+      join e.courseAssignment.groups g
+      where e.courseAssignment.course.id = :courseId
+        and g.id in :groupIds
+      """)
+  List<Exam> findExamsByCourseIdAndGroupId(
+      @Param("courseId") String courseId, @Param("groupIds") List<String> groupIds);
 }

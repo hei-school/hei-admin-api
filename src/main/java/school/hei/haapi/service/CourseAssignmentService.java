@@ -4,6 +4,7 @@ import static org.springframework.data.domain.Sort.Direction.DESC;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
@@ -11,13 +12,12 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import school.hei.haapi.endpoint.rest.mapper.CourseAssignmentMapper;
+import school.hei.haapi.endpoint.rest.model.StudentLevel;
 import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.CourseAssignment;
-import school.hei.haapi.model.Group;
-import school.hei.haapi.model.GroupFlow;
 import school.hei.haapi.model.PageFromOne;
-import school.hei.haapi.model.User;
+import school.hei.haapi.model.dto.CourseDto;
+import school.hei.haapi.model.dto.GroupFlowPeriod;
 import school.hei.haapi.model.exception.NotFoundException;
 import school.hei.haapi.model.pagination.PaginationFromPageAndPageSize;
 import school.hei.haapi.model.validator.CourseAssignmentValidator;
@@ -31,23 +31,12 @@ import school.hei.haapi.repository.dao.CourseAssignmentDao;
 public class CourseAssignmentService {
   private final UserRepository userRepository;
   private final CourseAssignmentRepository courseAssignmentRepository;
-  private final CourseAssignmentMapper courseAssignmentMapper;
   private final CourseAssignmentValidator courseAssignmentValidator;
   private final CourseAssignmentDao courseAssignmentDao;
   private final PaginationFromPageAndPageSize pageableFromPageAndSize;
 
   public Optional<CourseAssignment> findById(String courseAssignmentId) {
     return courseAssignmentRepository.findById(courseAssignmentId);
-  }
-
-  public List<CourseAssignment> getByStudentId(String userId) {
-    User student = userRepository.getById(userId);
-    /*
-     *   TODO: Optimize heavy db call
-     */
-    List<Group> groups =
-        student.getGroupFlows().stream().map(GroupFlow::getGroup).distinct().toList();
-    return courseAssignmentMapper.toDomainCourseAssignmentsByGroups(groups);
   }
 
   public List<CourseAssignment> getByGroupId(
@@ -110,5 +99,40 @@ public class CourseAssignmentService {
       String courseId, PageFromOne page, BoundedPageSize pageSize) {
     Pageable pageable = pageableFromPageAndSize.apply(page, pageSize);
     return courseAssignmentRepository.findAllByCourseId(courseId, pageable);
+  }
+
+  @Transactional
+  public List<CourseDto> getGroupsCourseAssignmentsByGroupFlowsAtLevel(
+      List<GroupFlowPeriod> studentLatestGroupFlows, StudentLevel level) {
+
+    var courseAssignments =
+        studentLatestGroupFlows.stream()
+            .flatMap(
+                groupFlowPeriod ->
+                    getGroupCourseAssignmentsByLevelBetweenPeriod(groupFlowPeriod, level).stream())
+            .collect(Collectors.groupingBy(CourseAssignment::getCourse));
+
+    return courseAssignments.entrySet().stream()
+        .map(entry -> new CourseDto(entry.getKey(), entry.getValue()))
+        .toList();
+  }
+
+  @Transactional
+  protected List<CourseAssignment> getGroupCourseAssignmentsByLevelBetweenPeriod(
+      GroupFlowPeriod groupFlowPeriod, StudentLevel level) {
+    return getByGroupId(groupFlowPeriod.group().getId()).stream()
+        .filter(courseAssignment -> level.equals(courseAssignment.getCourse().getStudentLevel()))
+        .filter(courseAssignment -> hasExamOrAssignedBeforeLeave(courseAssignment, groupFlowPeriod))
+        .toList();
+  }
+
+  private boolean hasExamOrAssignedBeforeLeave(
+      CourseAssignment courseAssignment, GroupFlowPeriod groupFlowPeriod) {
+    var courseExams = courseAssignment.getExams();
+    if (courseExams.isEmpty() && groupFlowPeriod.end() == null) {
+      return true;
+    }
+    return courseExams.stream()
+        .anyMatch(courseExam -> groupFlowPeriod.contains(courseExam.getExaminationDate()));
   }
 }

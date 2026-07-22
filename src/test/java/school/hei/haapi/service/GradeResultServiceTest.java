@@ -13,6 +13,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.mockStatic;
@@ -43,12 +44,15 @@ import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Spy;
+import org.mockito.junit.jupiter.MockitoExtension;
 import school.hei.haapi.endpoint.event.EventProducer;
 import school.hei.haapi.endpoint.event.model.YearlyResultTranscriptGeneration;
 import school.hei.haapi.endpoint.rest.mapper.CourseMapper;
 import school.hei.haapi.endpoint.rest.model.CourseResultStatus;
 import school.hei.haapi.endpoint.rest.model.StudentLevel;
-import school.hei.haapi.endpoint.rest.model.YearlyResult;
 import school.hei.haapi.endpoint.rest.security.AuthProvider;
 import school.hei.haapi.endpoint.rest.security.model.Principal;
 import school.hei.haapi.file.bucket.BucketComponent;
@@ -74,9 +78,10 @@ import school.hei.haapi.service.utils.HtmlParser;
 import school.hei.haapi.service.utils.PdfRenderer;
 
 @Slf4j
+@ExtendWith(MockitoExtension.class)
 class GradeResultServiceTest {
   private final GradeRepository gradeRepository = mock();
-  private final CourseAssignmentService courseAssignmentService = mock();
+  @Spy @InjectMocks private CourseAssignmentService courseAssignmentService;
   private final GroupFlowService groupFlowService = mock();
   private final CourseService courseService = mock();
   private final UserService userService = mock();
@@ -84,6 +89,7 @@ class GradeResultServiceTest {
   private final FileInfoService fileInfoService = mock();
   private final EventProducer eventProducer = mock();
   private final Mailer mailer = mock();
+  @Spy @InjectMocks private ExamService examService;
   private final YearlyResultGenerationRequestRepository yearlyResultGenerationRequestRepository =
       mock();
   private final YearlyResultGenerationService yearlyResultGenerationService =
@@ -93,25 +99,13 @@ class GradeResultServiceTest {
           new Base64Converter(),
           yearlyResultGenerationRequestRepository,
           new ClassPathResourceResolver());
-  private final GradeResultService subject =
-      new GradeResultService(
-          new CourseResultService(
-              new CourseMapper(),
-              userService,
-              courseAssignmentService,
-              groupFlowService,
-              gradeRepository),
-          yearlyResultGenerationService,
-          bucketComponent,
-          userService,
-          fileInfoService,
-          eventProducer);
-  private final YearlyResultTranscriptGenerationService yearlyResultTranscriptGenerationService =
-      new YearlyResultTranscriptGenerationService(subject, mailer, bucketComponent, userService);
+  private GradeResultService subject;
 
+  private YearlyResultTranscriptGenerationService yearlyResultTranscriptGenerationService;
   private static final String STUDENT1_ID = "id";
-  private static final String STUDENT2_ID = "bad student";
+  private static final String STUDENT2_ID = "student 2";
   private static final String STUDENT3_ID = "Student with missing grade";
+  private static final String BAD_STUDENT_ID = "bad student";
   private static final String STUDENT1_FIRST_NAME = "Student";
   private static final String STUDENT1_LAST_NAME = "One";
   private static final String STUDENT1_REF = "STD1";
@@ -119,6 +113,7 @@ class GradeResultServiceTest {
   private static final User student1 = mock();
   private static final User student2 = mock();
   private static final User student3 = mock();
+  private static final User badStudent = mock();
 
   private static Promotion promotion() {
     return mockPromotion();
@@ -135,7 +130,7 @@ class GradeResultServiceTest {
   private static final String SECU3_COURSE_ASSIGNMENT_ID = "secu3-ca";
   private static final String L2_COURSE_ASSIGNMENT_ID = "l2-ca";
   private static final String L3_COURSE_ASSIGNMENT_ID = "l3-ca";
-  private static final String BAD_COURSE_ASSIGNEMENT_ID = "bad-ca";
+  private static final String BAD_COURSE_ASSIGNMENT_ID = "bad-ca";
 
   private static User teacher() {
     return mockUser(TEACHER_ID);
@@ -190,7 +185,7 @@ class GradeResultServiceTest {
 
   private static CourseAssignment badCourseAssignment() {
     return mockCourseAssignment(
-        BAD_COURSE_ASSIGNEMENT_ID, badCourse(), teacher(), List.of(badExam()));
+        BAD_COURSE_ASSIGNMENT_ID, badCourse(), teacher(), List.of(badExam()));
   }
 
   private static final String MGT1_EXAM_ID = "mgt1 exam";
@@ -245,7 +240,11 @@ class GradeResultServiceTest {
   }
 
   private static Group group() {
-    return mockGroup(promotion());
+    return mockGroup(promotion(), GROUP_ID);
+  }
+
+  private static Group badGroup() {
+    return mockGroup(promotion(), BAD_GROUP_ID);
   }
 
   private static Grade student1Mgt1Grade() {
@@ -362,9 +361,18 @@ class GradeResultServiceTest {
     return GroupFlow.builder().group(group()).build();
   }
 
+  private static GroupFlow badGroupFlow() {
+    return GroupFlow.builder().group(badGroup()).build();
+  }
+
   private static GroupFlowPeriod groupFLowPeriod() {
     return new GroupFlowPeriod(
         group(), parse("2021-02-01T00:00:00Z"), parse("2029-01-01T00:00:00Z"));
+  }
+
+  private static GroupFlowPeriod badGroupFLowPeriod() {
+    return new GroupFlowPeriod(
+        badGroup(), parse("2021-02-01T00:00:00Z"), parse("2029-01-01T00:00:00Z"));
   }
 
   private static GroupFlowPeriod groupFLowPeriodWithNullEnd() {
@@ -417,6 +425,22 @@ class GradeResultServiceTest {
 
   @BeforeEach
   void setUp() {
+    subject =
+        new GradeResultService(
+            new CourseResultService(
+                new CourseMapper(),
+                courseAssignmentService,
+                groupFlowService,
+                gradeRepository,
+                examService),
+            yearlyResultGenerationService,
+            bucketComponent,
+            userService,
+            fileInfoService,
+            eventProducer);
+
+    yearlyResultTranscriptGenerationService =
+        new YearlyResultTranscriptGenerationService(subject, mailer, bucketComponent, userService);
     // Mock student1 grades
     when(student1.getId()).thenReturn(STUDENT1_ID);
     when(student1.getFirstName()).thenReturn(STUDENT1_FIRST_NAME);
@@ -427,10 +451,12 @@ class GradeResultServiceTest {
     doReturn(List.of(groupFlow())).when(student1).getGroupFlows();
     doReturn(List.of(groupFlow())).when(student2).getGroupFlows();
     doReturn(List.of(groupFlow())).when(student3).getGroupFlows();
+    doReturn(List.of(badGroupFlow())).when(badStudent).getGroupFlows();
 
     // Mock student Ids
     when(student2.getId()).thenReturn(STUDENT2_ID);
     when(student3.getId()).thenReturn(STUDENT3_ID);
+    when(badStudent.getId()).thenReturn(BAD_STUDENT_ID);
 
     // Mock student1 grades
     when(gradeRepository.findGradesByCourseAssignmentIdsAndStudentId(
@@ -508,24 +534,42 @@ class GradeResultServiceTest {
     when(userService.getById(STUDENT1_ID)).thenReturn(student1);
     when(userService.getById(STUDENT2_ID)).thenReturn(student2);
     when(userService.getById(STUDENT3_ID)).thenReturn(student3);
+    when(userService.getById(BAD_STUDENT_ID)).thenReturn(badStudent);
     when(student1.findGroupAt(any())).thenReturn(Optional.of(group()));
     when(student2.findGroupAt(any())).thenReturn(Optional.of(group()));
     when(student3.findGroupAt(any())).thenReturn(Optional.of(group()));
+    when(badStudent.findGroupAt(any())).thenReturn(Optional.of(badGroup()));
 
-    when(groupFlowService.getStudentGroupFlowAtLevel(any(), any()))
-        .thenReturn(Collections.singletonList(groupFLowPeriod()));
-    when(courseAssignmentService.getByGroupId(group().getId()))
-        .thenReturn(
-            List.of(
-                mgt1CourseAssignment(),
-                prog1CourseAssignment(),
-                donne1CourseAssignment(),
-                web1CourseAssignment(),
-                sys1CourseAssignment(),
-                lv1CourseAssignment(),
-                secu3CourseAssignment(),
-                l2CourseAssignment(),
-                l3CourseAssignment()));
+    doAnswer(
+            invocation -> {
+              var studentId = invocation.getArgument(0);
+              var studentLevel = invocation.getArgument(1);
+              if (BAD_STUDENT_ID.equals(studentId) && L1.equals(studentLevel)) {
+                return List.of(badGroupFLowPeriod());
+              }
+              return List.of(groupFLowPeriod());
+            })
+        .when(groupFlowService)
+        .findStudentLatestGroupFlowPeriodsAtLevel(any(), any());
+    doAnswer(
+            invocation -> {
+              var argument = invocation.getArgument(0);
+              if (argument.equals(group().getId())) {
+                return List.of(
+                    mgt1CourseAssignment(),
+                    prog1CourseAssignment(),
+                    donne1CourseAssignment(),
+                    web1CourseAssignment(),
+                    sys1CourseAssignment(),
+                    lv1CourseAssignment(),
+                    secu3CourseAssignment(),
+                    l2CourseAssignment(),
+                    l3CourseAssignment());
+              }
+              return List.of(badCourseAssignment());
+            })
+        .when(courseAssignmentService)
+        .getByGroupId(anyString());
   }
 
   @Test
@@ -564,9 +608,8 @@ class GradeResultServiceTest {
     when(gradeRepository.findGradesByCourseAssignmentIdsAndStudentId(
             List.of(m1CourseAssignment().getId()), STUDENT2_ID))
         .thenReturn(List.of());
-    when(groupFlowService.getStudentGroupFlowAtLevel(any(), any()))
+    when(groupFlowService.findStudentLatestGroupFlowPeriodsAtLevel(any(), any()))
         .thenReturn(Collections.singletonList(groupFLowPeriodWithNullEnd()));
-    when(courseAssignmentService.getByGroupId(any())).thenReturn(List.of(m1CourseAssignment));
     var result = subject.getYearlyResultByStudentIdAndByLevel(STUDENT2_ID, targetLevel);
 
     assertEquals(targetLevel, result.getLevel());
@@ -663,10 +706,9 @@ class GradeResultServiceTest {
 
   @Test
   void yearly_result_with_course_credits_sum_zero_ko() {
-    when(courseAssignmentService.getByGroupId(any())).thenReturn(List.of(badCourseAssignment()));
     assertThrows(
         CoursesCreditSumZero.class,
-        () -> subject.getYearlyResultByStudentIdAndByLevel(STUDENT1_ID, L1));
+        () -> subject.getYearlyResultByStudentIdAndByLevel(BAD_STUDENT_ID, L1));
   }
 
   @Test
@@ -741,8 +783,7 @@ class GradeResultServiceTest {
 
   @Test
   void yearly_result_event_handler_ok() {
-    YearlyResult student1YearlyResult =
-        subject.getYearlyResultByStudentIdAndByLevel(STUDENT1_ID, L1);
+    var student1YearlyResult = subject.getYearlyResultByStudentIdAndByLevel(STUDENT1_ID, L1);
 
     when(userService.getById(anyString())).thenReturn(student1);
     when(yearlyResultGenerationRequestRepository.save(any())).thenAnswer(e -> e.getArgument(0));
@@ -782,14 +823,10 @@ class GradeResultServiceTest {
   private static final String GROUP_ID = "test-grp";
   private static final String GROUP_NAME = "Groupe test";
   private static final String GROUP_REF = "GRP_TST";
+  private static final String BAD_GROUP_ID = "bad-test-grp";
 
-  private static Group mockGroup(Promotion promotion) {
-    return Group.builder()
-        .id(GROUP_ID)
-        .name(GROUP_NAME)
-        .ref(GROUP_REF)
-        .promotion(promotion)
-        .build();
+  private static Group mockGroup(Promotion promotion, String groupId) {
+    return Group.builder().id(groupId).name(GROUP_NAME).ref(GROUP_REF).promotion(promotion).build();
   }
 
   private static Grade mockGrade(Exam exam, double score) {
