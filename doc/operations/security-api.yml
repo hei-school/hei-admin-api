@@ -1,0 +1,126 @@
+operations:
+  whoami:
+    get:
+      tags:
+        - Security
+      summary: Who am I? Tells you who you are.
+      operationId: whoami
+      responses:
+        '200':
+          description: Who you are
+          content:
+            application/json:
+              schema:
+                $ref: '../components.yml#/components/schemas/Whoami'
+        '400':
+          $ref: '../components.yml#/components/responses/400'
+        '403':
+          $ref: '../components.yml#/components/responses/403'
+        '404':
+          $ref: '../components.yml#/components/responses/404'
+        '429':
+          $ref: '../components.yml#/components/responses/429'
+        '500':
+          $ref: '../components.yml#/components/responses/500'
+  ping:
+    get:
+      tags:
+        - Security
+      summary: pong
+      operationId: ping
+      responses:
+        '200':
+          description: pong
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: pong
+        '400':
+          $ref: '../components.yml#/components/responses/400'
+        '403':
+          $ref: '../components.yml#/components/responses/403'
+        '404':
+          $ref: '../components.yml#/components/responses/404'
+        '429':
+          $ref: '../components.yml#/components/responses/429'
+        '500':
+          $ref: '../components.yml#/components/responses/500'
+  amISuspended:
+    get:
+      tags:
+        - Security
+      summary: Assert that the connected user is not SUSPENDED
+      operationId: amISuspended
+      responses:
+        '200':
+          description: Assertion that user(STUDENT) is not SUSPENDED
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: not suspended
+        '400':
+          $ref: '../components.yml#/components/responses/400'
+        '403':
+          $ref: '../components.yml#/components/responses/403'
+        '404':
+          $ref: '../components.yml#/components/responses/404'
+        '429':
+          $ref: '../components.yml#/components/responses/429'
+        '500':
+          $ref: '../components.yml#/components/responses/500'
+  getLoginPageURL:
+    get:
+      tags:
+        - Security
+      summary: Get login page URL
+      operationId: getLoginPageURL
+      parameters:
+        - name: redirect_uri
+          required: false
+          in: query
+          description: "specified redirection url"
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Return login page URL
+          content:
+            text/plain:
+              schema:
+                type: string
+        '400':
+          $ref: '../components.yml#/components/responses/400'
+        '500':
+          $ref: '../components.yml#/components/responses/500'
+  getToken:
+    post:
+      tags:
+        - Security
+      summary: Get token
+      operationId: getToken
+      parameters:
+        - name: code
+          required: true
+          in: query
+          description: "Oauth2 authorization code"
+          schema:
+            type: string
+        - name: state
+          required: true
+          in: query
+          description: "Application name"
+          schema:
+            type: string
+      responses:
+        '200':
+          description: get token
+          content:
+            text/plain:
+              schema:
+                type: string
+        '400':
+          $ref: '../components.yml#/components/responses/400'
+        '500':
+          $ref: '../components.yml#/components/responses/500'

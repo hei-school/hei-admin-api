@@ -1,0 +1,667 @@
+operations:
+  getGradesByStudentId:
+    get:
+      tags:
+        - Grades
+      summary: Get student grades.
+      operationId: getGradesByStudentId
+      parameters:
+        - name: student_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: page
+          in: query
+          schema:
+            $ref: '../components.yml#/components/schemas/Page'
+          description: Set value to 1 by default if null is provided
+          required: false
+        - name: page_size
+          in: query
+          description: Set value to 15 by default if null is provided
+          schema:
+            $ref: '../components.yml#/components/schemas/PageSize'
+      responses:
+        '200':
+          description: List of a student's grades, showing the exam and the course of these grades.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '../components.yml#/components/schemas/Grade'
+        '400':
+          $ref: '../components.yml#/components/responses/400'
+        '403':
+          $ref: '../components.yml#/components/responses/403'
+        '404':
+          $ref: '../components.yml#/components/responses/404'
+        '429':
+          $ref: '../components.yml#/components/responses/429'
+        '500':
+          $ref: '../components.yml#/components/responses/500'
+  getYearlyResult:
+    get:
+      tags:
+        - Grades
+      summary: Get the yearly result of a given student for the given level.
+      operationId: getYearlyResult
+      parameters:
+        - $ref: "../components.yml#/components/parameters/PathStudentId"
+        - name: student_level
+          required: true
+          in: path
+          schema:
+            $ref: "../components.yml#/components/schemas/StudentLevel"
+      responses:
+        '200':
+          description: Yearly result of the specified student.
+          content:
+            application/json:
+              schema:
+                $ref: "../components.yml#/components/schemas/YearlyResult"
+        '400':
+          $ref: '../components.yml#/components/responses/400'
+        '403':
+          $ref: '../components.yml#/components/responses/403'
+        '404':
+          $ref: '../components.yml#/components/responses/404'
+        '429':
+          $ref: '../components.yml#/components/responses/429'
+        '500':
+          $ref: '../components.yml#/components/responses/500'
+  getYearlyResultTranscript:
+    get:
+      tags:
+        - Grades
+      summary: Get the yearly result transcript of a given student for the given level.
+      operationId: getYearlyResultTranscript
+      parameters:
+        - $ref: "../components.yml#/components/parameters/PathStudentId"
+        - name: student_level
+          required: true
+          in: path
+          schema:
+            $ref: "../components.yml#/components/schemas/StudentLevel"
+      responses:
+        '200':
+          description: Yearly result transcript for the specified student.
+          content:
+            application/json:
+              schema:
+                $ref: "../components.yml#/components/schemas/YearlyResultGenerationTranscript"
+        '400':
+          $ref: '../components.yml#/components/responses/400'
+        '403':
+          $ref: '../components.yml#/components/responses/403'
+        '404':
+          $ref: '../components.yml#/components/responses/404'
+        '429':
+          $ref: '../components.yml#/components/responses/429'
+        '500':
+          $ref: '../components.yml#/components/responses/500'
+  getCourseGrades:
+    get:
+      tags:
+        - Grades
+      summary: Get the Grades of a given student for a given course.
+      operationId: getCourseGrades
+      parameters:
+        - $ref: '../components.yml#/components/parameters/Page'
+        - $ref: '../components.yml#/components/parameters/PageSize'
+        - $ref: '../components.yml#/components/parameters/UpdateDateSort'
+        - $ref: "../components.yml#/components/parameters/PathStudentId"
+        - $ref: "../components.yml#/components/parameters/PathCourseId"
+      responses:
+        '200':
+          description: List of Grades of the specified student.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "../components.yml#/components/schemas/Grade"
+        '400':
+          $ref: '../components.yml#/components/responses/400'
+        '403':
+          $ref: '../components.yml#/components/responses/403'
+        '404':
+          $ref: '../components.yml#/components/responses/404'
+        '429':
+          $ref: '../components.yml#/components/responses/429'
+        '500':
+          $ref: '../components.yml#/components/responses/500'
+  getResultsSummary:
+    get:
+      tags:
+        - Grades
+      summary: Get the results of a given student for all levels
+      operationId: getResultsSummary
+      parameters:
+        - $ref: "../components.yml#/components/parameters/PathStudentId"
+      responses:
+        '200':
+          description: Yearly result of the specified student.
+          content:
+            application/json:
+              schema:
+                $ref: "../components.yml#/components/schemas/ResultSummary"
+        '400':
+          $ref: '../components.yml#/components/responses/400'
+        '403':
+          $ref: '../components.yml#/components/responses/403'
+        '404':
+          $ref: '../components.yml#/components/responses/404'
+        '429':
+          $ref: '../components.yml#/components/responses/429'
+        '500':
+          $ref: '../components.yml#/components/responses/500'
+  getResultsSummaryTranscript:
+    get:
+      tags:
+        - Grades
+      summary: Get over all the results summary transcript of a given student
+      operationId: getResultsSummaryTranscript
+      parameters:
+        - $ref: "../components.yml#/components/parameters/PathStudentId"
+      responses:
+        '200':
+          description: Pdf file of all results summary transcript of the specified student.
+          content:
+            application/pdf:
+              schema:
+                type: string
+                format: binary
+        '400':
+          $ref: '../components.yml#/components/responses/400'
+        '403':
+          $ref: '../components.yml#/components/responses/403'
+        '404':
+          $ref: '../components.yml#/components/responses/404'
+        '429':
+          $ref: '../components.yml#/components/responses/429'
+        '500':
+          $ref: '../components.yml#/components/responses/500'
+  getCourseStudentsGrade:
+    get:
+      tags:
+        - Grades
+      summary: Get students grade for exams in a specific course
+      parameters:
+        - $ref: '../components.yml#/components/parameters/Page'
+        - $ref: '../components.yml#/components/parameters/PageSize'
+        - $ref: '../components.yml#/components/parameters/UpdateDateSort'
+        - $ref: '../components.yml#/components/parameters/PathCourseId'
+        - $ref: '../components.yml#/components/parameters/GroupRef'
+      operationId: getCourseStudentsGrade
+      responses:
+        '200':
+          description: Student list with grade for this course
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '../components.yml#/components/schemas/StudentIdentifierGrade'
+        '400':
+          $ref: '../components.yml#/components/responses/400'
+        '403':
+          $ref: '../components.yml#/components/responses/403'
+        '404':
+          $ref: '../components.yml#/components/responses/404'
+        '429':
+          $ref: '../components.yml#/components/responses/429'
+        '500':
+          $ref: '../components.yml#/components/responses/500'
+  getStudentCourseGradeStats:
+    get:
+      tags:
+        - Grades
+      summary: Get student grade statistics for exams in a specific course
+      parameters:
+        - $ref: '../components.yml#/components/parameters/PathCourseId'
+        - $ref: '../components.yml#/components/parameters/PathStudentId'
+      operationId: getStudentCourseGradeStats
+      responses:
+        '200':
+          description: The student grade statistics for this course
+          content:
+            application/json:
+              schema:
+                $ref: '../components.yml#/components/schemas/StudentCourseGradeStats'
+        '400':
+          $ref: '../components.yml#/components/responses/400'
+        '403':
+          $ref: '../components.yml#/components/responses/403'
+        '404':
+          $ref: '../components.yml#/components/responses/404'
+        '429':
+          $ref: '../components.yml#/components/responses/429'
+        '500':
+          $ref: '../components.yml#/components/responses/500'
+  getStudentExamsGrade:
+    get:
+      tags:
+        - Grades
+      summary: Get student exams grade in a specific course
+      parameters:
+        - $ref: '../components.yml#/components/parameters/PathCourseId'
+        - $ref: '../components.yml#/components/parameters/PathStudentId'
+      operationId: getStudentExamsGrade
+      responses:
+        '200':
+          description: The student exams grade for this course
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '../components.yml#/components/schemas/StudentExamGrade'
+        '400':
+          $ref: '../components.yml#/components/responses/400'
+        '403':
+          $ref: '../components.yml#/components/responses/403'
+        '404':
+          $ref: '../components.yml#/components/responses/404'
+        '429':
+          $ref: '../components.yml#/components/responses/429'
+        '500':
+          $ref: '../components.yml#/components/responses/500'
+  getExamGradeStats:
+    get:
+      tags:
+        - Grades
+      summary: Get the exam grade stats
+      operationId: getExamGradeStats
+      parameters:
+        - $ref: '../components.yml#/components/parameters/PathExamId'
+      responses:
+        '200':
+          description: The exam grade stats
+          content:
+            application/json:
+              schema:
+                $ref: '../components.yml#/components/schemas/ExamGradeStats'
+        '400':
+          $ref: '../components.yml#/components/responses/400'
+        '403':
+          $ref: '../components.yml#/components/responses/403'
+        '404':
+          $ref: '../components.yml#/components/responses/404'
+        '429':
+          $ref: '../components.yml#/components/responses/429'
+        '500':
+          $ref: '../components.yml#/components/responses/500'
+  examsStudentsGrade:
+    get:
+      tags:
+        - Grades
+      summary: Return a participant with his exam grade
+      operationId: getParticipantGrade
+      parameters:
+        - name: exam_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: student_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: The specified participant with his grade
+          content:
+            application/json:
+              schema:
+                $ref: '../components.yml#/components/schemas/Grade'
+        '400':
+          $ref: '../components.yml#/components/responses/400'
+        '403':
+          $ref: '../components.yml#/components/responses/403'
+        '404':
+          $ref: '../components.yml#/components/responses/404'
+        '429':
+          $ref: '../components.yml#/components/responses/429'
+        '500':
+          $ref: '../components.yml#/components/responses/500'
+    post:
+      tags:
+        - Grades
+      summary: Create a participant exam grade
+      operationId: createParticipantGrade
+      parameters:
+        - name: exam_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: student_id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: Specific student's grade which should be creates
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '../components.yml#/components/schemas/CreateGrade'
+      responses:
+        '200':
+          description: The created grade for the specified student
+          content:
+            application/json:
+              schema:
+                $ref: '../components.yml#/components/schemas/Grade'
+        '400':
+          $ref: '../components.yml#/components/responses/400'
+        '403':
+          $ref: '../components.yml#/components/responses/403'
+        '404':
+          $ref: '../components.yml#/components/responses/404'
+        '429':
+          $ref: '../components.yml#/components/responses/429'
+        '500':
+          $ref: '../components.yml#/components/responses/500'
+  correctParticipantGrade:
+    post:
+      tags:
+        - Grades
+      summary: Correct a participant exam grade
+      operationId: correctParticipantGrade
+      parameters:
+        - name: exam_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: student_id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: Updated grade for a specific student
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '../components.yml#/components/schemas/UpdateGrade'
+      responses:
+        '200':
+          description: The specified participant with his grade
+          content:
+            application/json:
+              schema:
+                $ref: '../components.yml#/components/schemas/Grade'
+        '400':
+          $ref: '../components.yml#/components/responses/400'
+        '403':
+          $ref: '../components.yml#/components/responses/403'
+        '404':
+          $ref: '../components.yml#/components/responses/404'
+        '429':
+          $ref: '../components.yml#/components/responses/429'
+        '500':
+          $ref: '../components.yml#/components/responses/500'
+  examsGrades:
+    get:
+      tags:
+        - Grades
+      summary: Return all students with their grade
+      operationId: getStudentGradesForExam
+      parameters:
+        - name: exam_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - $ref: '../components.yml#/components/parameters/Page'
+        - $ref: '../components.yml#/components/parameters/PageSize'
+        - $ref: '../components.yml#/components/parameters/StudentRef'
+      responses:
+        '200':
+          description: All students grades from an exam specific
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '../components.yml#/components/schemas/StudentGrade'
+        '400':
+          $ref: '../components.yml#/components/responses/400'
+        '403':
+          $ref: '../components.yml#/components/responses/403'
+        '404':
+          $ref: '../components.yml#/components/responses/404'
+        '429':
+          $ref: '../components.yml#/components/responses/429'
+        '500':
+          $ref: '../components.yml#/components/responses/500'
+    post:
+      tags:
+        - Grades
+      summary: Create student grades in exam
+      operationId: createParticipantsGradeForExam
+      parameters:
+        - name: exam_id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: Created grades for a specific students in exam
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '../components.yml#/components/schemas/CreateGrade'
+      responses:
+        '200':
+          description: All students grades from an exam specific
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '../components.yml#/components/schemas/StudentGrade'
+        '400':
+          $ref: '../components.yml#/components/responses/400'
+        '403':
+          $ref: '../components.yml#/components/responses/403'
+        '404':
+          $ref: '../components.yml#/components/responses/404'
+        '429':
+          $ref: '../components.yml#/components/responses/429'
+        '500':
+          $ref: '../components.yml#/components/responses/500'
+  importStudentsExamGrade:
+    post:
+      tags:
+        - Grades
+      summary: Import students exam grade from an excel file
+      operationId: importStudentsExamGrade
+      parameters:
+        - name: exam_id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: Form containing the xlsx file for students exam grade to import
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              $ref: "../components.yml#/components/schemas/UploadFile"
+      responses:
+        '200':
+          description: Status of the validation of imported students exam grade
+          content:
+            application/json:
+              schema:
+                $ref: '../components.yml#/components/schemas/ImportGradeResult'
+        '400':
+          $ref: '../components.yml#/components/responses/400'
+        '403':
+          $ref: '../components.yml#/components/responses/403'
+        '404':
+          $ref: '../components.yml#/components/responses/404'
+        '429':
+          $ref: '../components.yml#/components/responses/429'
+        '500':
+          $ref: '../components.yml#/components/responses/500'
+  importStudentsExamGradeUpdated:
+    post:
+      tags:
+        - Grades
+      summary: Import students exam grade updated from an excel file
+      operationId: importStudentsExamGradeUpdated
+      parameters:
+        - name: exam_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: comment
+          in: query
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: Form containing the xlsx file for students exam grade to update
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '../components.yml#/components/schemas/UploadFile'
+      responses:
+        '200':
+          description: Status of the validation of imported students exam grade updated
+          content:
+            application/json:
+              schema:
+                $ref: '../components.yml#/components/schemas/ImportGradeResult'
+        '400':
+          $ref: '../components.yml#/components/responses/400'
+        '403':
+          $ref: '../components.yml#/components/responses/403'
+        '404':
+          $ref: '../components.yml#/components/responses/404'
+        '429':
+          $ref: '../components.yml#/components/responses/429'
+        '500':
+          $ref: '../components.yml#/components/responses/500'
+  getStudentsGradesTemplateForExam:
+    get:
+      tags:
+        - Grades
+      summary: Return grade template
+      operationId: getStudentsGradesTemplateForExam
+      parameters:
+        - name: exam_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Grades template for a specific exam
+          content:
+            application/vnd.openxmlformats-officedocument.spreadsheetml.sheet:
+              schema:
+                type: string
+                format: binary
+        '400':
+          $ref: '../components.yml#/components/responses/400'
+        '403':
+          $ref: '../components.yml#/components/responses/403'
+        '404':
+          $ref: '../components.yml#/components/responses/404'
+        '429':
+          $ref: '../components.yml#/components/responses/429'
+        '500':
+          $ref: '../components.yml#/components/responses/500'
+  correctParticipantsGradeForExam:
+    post:
+      tags:
+        - Grades
+      summary: Correct student grades in exam
+      operationId: correctParticipantsGradeForExam
+      parameters:
+        - name: exam_id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: Corrected grades for a specific students in exam
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '../components.yml#/components/schemas/UpdateGrade'
+      responses:
+        '200':
+          description: All students grades from an exam specific
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '../components.yml#/components/schemas/StudentGrade'
+        '400':
+          $ref: '../components.yml#/components/responses/400'
+        '403':
+          $ref: '../components.yml#/components/responses/403'
+        '404':
+          $ref: '../components.yml#/components/responses/404'
+        '429':
+          $ref: '../components.yml#/components/responses/429'
+        '500':
+          $ref: '../components.yml#/components/responses/500'
+  getOrderedGradeHistory:
+    get:
+      tags:
+        - Grades
+      operationId: getOrderedGradeHistory
+      summary: Get the history for specific garde
+      parameters:
+        - $ref: '../components.yml#/components/parameters/PathGradeId'
+        - $ref: '../components.yml#/components/parameters/Page'
+        - $ref: '../components.yml#/components/parameters/PageSize'
+        - $ref: '../components.yml#/components/parameters/DatetimeFromFilter'
+        - $ref: '../components.yml#/components/parameters/DatetimeToFilter'
+        - name: comment
+          in: query
+          description: filter results if the string contains this one given - case insensitive
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Change history for specific garde
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '../components.yml#/components/schemas/GradeHistory'
+        '400':
+          $ref: '../components.yml#/components/responses/400'
+        '403':
+          $ref: '../components.yml#/components/responses/403'
+        '404':
+          $ref: '../components.yml#/components/responses/404'
+        '429':
+          $ref: '../components.yml#/components/responses/429'
+        '500':
+          $ref: '../components.yml#/components/responses/500'

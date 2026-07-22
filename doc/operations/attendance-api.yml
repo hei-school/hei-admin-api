@@ -1,0 +1,170 @@
+operations:
+  createAttendanceMovement:
+    post:
+      tags:
+        - Attendance
+      summary: Create attendance movement of one student
+      operationId: createAttendanceMovement
+      deprecated: true
+      requestBody:
+        description: Attendance movement to create
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '../components.yml#/components/schemas/CreateAttendanceMovement'
+      responses:
+        '200':
+          description: Created student attendance movement
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '../components.yml#/components/schemas/StudentAttendanceMovement'
+        '400':
+          $ref: '../components.yml#/components/responses/400'
+        '403':
+          $ref: '../components.yml#/components/responses/403'
+        '404':
+          $ref: '../components.yml#/components/responses/404'
+        '429':
+          $ref: '../components.yml#/components/responses/429'
+        '500':
+          $ref: '../components.yml#/components/responses/500'
+  getStudentsAttendance:
+    get:
+      tags:
+        - Attendance
+      summary: Get all attendances by courses ids or student key word
+      operationId: getStudentsAttendance
+      deprecated: true
+      parameters:
+        - name: page
+          in: query
+          schema:
+            $ref: '../components.yml#/components/schemas/Page'
+        - name: page_size
+          in: query
+          schema:
+            $ref: '../components.yml#/components/schemas/PageSize'
+        - name: courses_ids
+          required: false
+          in: query
+          style: form
+          explode: true
+          description: Filter attendance by courses ids
+          schema:
+            type: array
+            items:
+              example: 'course1_id'
+        - name: teachers_ids
+          required: false
+          in: query
+          style: form
+          explode: true
+          description: Filter attendance by teachers ids
+          schema:
+            type: array
+            items:
+              example: 'teacher1_id'
+        - name: student_key_word
+          in: query
+          required: false
+          description: Filter attendance by student `ref, lastname, firstname`
+          schema:
+            type: string
+        - name: from
+          in: query
+          required: false
+          description: Filter attendance from a date, return attendances of the current week by default
+          schema:
+            type: string
+            format: date-time
+        - name: to
+          required: false
+          in: query
+          description: Filter attendance before a date, return attendances of the current week by default
+          schema:
+            type: string
+            format: date-time
+        - name: attendance_statuses
+          required: false
+          in: query
+          style: form
+          explode: true
+          description: Filter attendance by attendance status value
+          schema:
+            type: array
+            items:
+              $ref: '../components.yml#/components/schemas/AttendanceStatus'
+      responses:
+        '200':
+          description: List of attendance by courses ids or student key word
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '../components.yml#/components/schemas/StudentAttendance'
+        '400':
+          $ref: '../components.yml#/components/responses/400'
+        '403':
+          $ref: '../components.yml#/components/responses/403'
+        '404':
+          $ref: '../components.yml#/components/responses/404'
+        '429':
+          $ref: '../components.yml#/components/responses/429'
+        '500':
+          $ref: '../components.yml#/components/responses/500'
+  getStudentAttendance:
+    get:
+      tags:
+        - Attendance
+      operationId: getStudentAttendance
+      summary: Get student attendance between date intervals
+      parameters:
+        - in: query
+          name: from
+          schema:
+            type: string
+            format: date-time
+          required: true
+        - in: query
+          name: to
+          schema:
+            type: string
+            format: date-time
+          required: true
+        - in: path
+          name: id
+          schema:
+            type: string
+          required: true
+        - in: query
+          name: attendanceStatus
+          schema:
+            $ref: '../components.yml#/components/schemas/AttendanceStatus'
+          description: Filter student attendance by status. Default value is MISSING.
+        - in: query
+          style: form
+          explode: true
+          name: title
+          schema:
+            type: array
+            items:
+              type: string
+          description: |
+            Filter student attendance by list of titles. Usually, title substitutes course code, for example PROG1.
+          required: false
+      responses:
+        200:
+          description: List of student attendance between date intervals
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '../components.yml#/components/schemas/StudentGlobalAttendance'

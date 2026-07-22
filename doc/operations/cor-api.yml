@@ -1,0 +1,160 @@
+operations:
+  getCors:
+    get:
+      tags:
+        - Cor
+      operationId: getCors
+      summary: Get all CORs
+      parameters:
+        - $ref: '../components.yml#/components/parameters/Page'
+        - $ref: '../components.yml#/components/parameters/PageSize'
+        - $ref: '../components.yml#/components/parameters/DatetimeFromFilter'
+        - $ref: '../components.yml#/components/parameters/DatetimeToFilter'
+        - $ref: '../components.yml#/components/parameters/StudentRef'
+        - $ref: '../components.yml#/components/parameters/GroupRef'
+        - $ref: '../components.yml#/components/parameters/CorStatuses'
+      responses:
+        '200':
+          description: List of COR
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "../components.yml#/components/schemas/Cor"
+        '400':
+          $ref: '../components.yml#/components/responses/400'
+        '403':
+          $ref: '../components.yml#/components/responses/403'
+        '404':
+          $ref: '../components.yml#/components/responses/404'
+        '429':
+          $ref: '../components.yml#/components/responses/429'
+        '500':
+          $ref: '../components.yml#/components/responses/500'
+  getCorById:
+    get:
+      tags:
+        - Cor
+      operationId: getCorById
+      summary: Get COR by id
+      parameters:
+        - $ref: '../components.yml#/components/parameters/PathCorId'
+      responses:
+        '200':
+          description: The COR with the corresponding id
+          content:
+            application/json:
+              schema:
+                $ref: '../components.yml#/components/schemas/Cor'
+        '400':
+          $ref: '../components.yml#/components/responses/400'
+        '403':
+          $ref: '../components.yml#/components/responses/403'
+        '404':
+          $ref: '../components.yml#/components/responses/404'
+        '429':
+          $ref: '../components.yml#/components/responses/429'
+        '500':
+          $ref: '../components.yml#/components/responses/500'
+  commentCorById:
+    post:
+      tags:
+        - Cor
+      operationId: commentCorById
+      summary: Change the status of the COR and add some comment about the change
+      parameters:
+        - $ref: '../components.yml#/components/parameters/PathCorId'
+      requestBody:
+        description: Comment for the cor
+        content:
+          application/json:
+            schema:
+              $ref: '../components.yml#/components/schemas/CorCommentInfo'
+      responses:
+        '200':
+          description: The COR with the corresponding id
+          content:
+            application/json:
+              schema:
+                $ref: '../components.yml#/components/schemas/CorComment'
+        '400':
+          $ref: '../components.yml#/components/responses/400'
+        '403':
+          $ref: '../components.yml#/components/responses/403'
+        '404':
+          $ref: '../components.yml#/components/responses/404'
+        '429':
+          $ref: '../components.yml#/components/responses/429'
+        '500':
+          $ref: '../components.yml#/components/responses/500'
+  studentsCors:
+    get:
+      tags:
+        - Cor
+        - User
+      operationId: getStudentCors
+      summary: Get all CORs for the given student_id
+      parameters:
+        - in: path
+          name: student_id
+          required: true
+          schema:
+            type: string
+        - $ref: '../components.yml#/components/parameters/Page'
+        - $ref: '../components.yml#/components/parameters/PageSize'
+      responses:
+        '200':
+          description: List of COR for the given student_id
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "../components.yml#/components/schemas/Cor"
+        '400':
+          $ref: '../components.yml#/components/responses/400'
+        '403':
+          $ref: '../components.yml#/components/responses/403'
+        '404':
+          $ref: '../components.yml#/components/responses/404'
+        '429':
+          $ref: '../components.yml#/components/responses/429'
+        '500':
+          $ref: '../components.yml#/components/responses/500'
+    put:
+      tags:
+        - Cor
+        - User
+      operationId: crupdateStudentCors
+      parameters:
+        - in: path
+          name: student_id
+          required: true
+          schema:
+            type: string
+      summary: Create cor or update cor information for the current student
+      requestBody:
+        description: CORs to Crupdate
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "../components.yml#/components/schemas/CrupdateCor"
+      responses:
+        '200':
+          description: Crupdated COR
+          content:
+            application/json:
+              schema:
+                $ref: "../components.yml#/components/schemas/Cor"
+        '400':
+          $ref: '../components.yml#/components/responses/400'
+        '403':
+          $ref: '../components.yml#/components/responses/403'
+        '404':
+          $ref: '../components.yml#/components/responses/404'
+        '429':
+          $ref: '../components.yml#/components/responses/429'
+        '500':
+          $ref: '../components.yml#/components/responses/500'

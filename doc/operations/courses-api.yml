@@ -1,0 +1,377 @@
+operations:
+  getCourseById:
+    get:
+      tags:
+        - Courses
+      summary: Get course by identifier
+      parameters:
+        - $ref: '../components.yml#/components/parameters/PathCourseId'
+      operationId: getCourseById
+      responses:
+        '200':
+          description: The identified course
+          content:
+            application/json:
+              schema:
+                $ref: '../components.yml#/components/schemas/Course'
+        '400':
+          $ref: '../components.yml#/components/responses/400'
+        '403':
+          $ref: '../components.yml#/components/responses/403'
+        '404':
+          $ref: '../components.yml#/components/responses/404'
+        '429':
+          $ref: '../components.yml#/components/responses/429'
+        '500':
+          $ref: '../components.yml#/components/responses/500'
+  coursesCourseAssignments:
+    put:
+      tags:
+        - Courses
+      summary: Add or update course_assignments for a given course id.
+      parameters:
+        - name: course_id
+          in: path
+          required: true
+          schema:
+            type: string
+      operationId: createOrUpdateCourseAssignmentsByCourseId
+      requestBody:
+        required: true
+        description: course_assignment to create / update
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '../components.yml#/components/schemas/CrupdateCourseAssignment'
+      responses:
+        '200':
+          description: All course_assignments that have been created / updated
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '../components.yml#/components/schemas/CourseAssignment'
+        '400':
+          $ref: '../components.yml#/components/responses/400'
+        '403':
+          $ref: '../components.yml#/components/responses/403'
+        '404':
+          $ref: '../components.yml#/components/responses/404'
+        '429':
+          $ref: '../components.yml#/components/responses/429'
+        '500':
+          $ref: '../components.yml#/components/responses/500'
+    get:
+      tags:
+        - Courses
+      summary: Get all course_assignments for a given course
+      parameters:
+        - name: course_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - $ref: '../components.yml#/components/parameters/Page'
+        - $ref: '../components.yml#/components/parameters/PageSize'
+      operationId: getCourseAssignmentsByCourseId
+      responses:
+        '200':
+          description: List of all course_assignments for a course
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '../components.yml#/components/schemas/CourseAssignment'
+        '400':
+          $ref: '../components.yml#/components/responses/400'
+        '403':
+          $ref: '../components.yml#/components/responses/403'
+        '404':
+          $ref: '../components.yml#/components/responses/404'
+        '429':
+          $ref: '../components.yml#/components/responses/429'
+        '500':
+          $ref: '../components.yml#/components/responses/500'
+  courses:
+    get:
+      tags:
+        - Courses
+      summary: Get all courses
+      operationId: getCourses
+      parameters:
+        - name: code
+          in: query
+          description: "Filter courses by code, case is ignored"
+          schema:
+            type: string
+        - name: name
+          in: query
+          description: "Filter courses by name, case is ignored"
+          schema:
+            type: string
+        - name: credits
+          in: query
+          description: "Filter courses by credits"
+          schema:
+            type: integer
+        - name: teacher_first_name
+          in: query
+          description: "Filter courses by teacher firstname, case is ignored"
+          schema:
+            type: string
+        - name: teacher_last_name
+          in: query
+          description: "Filter courses by teacher lastname, case is ignored"
+          schema:
+            type: string
+        - name: credits_order
+          in: query
+          schema:
+            $ref: '../components.yml#/components/schemas/CourseDirection'
+        - name: code_order
+          in: query
+          schema:
+            $ref: '../components.yml#/components/schemas/CourseDirection'
+        - name: page
+          in: query
+          schema:
+            $ref: '../components.yml#/components/schemas/Page'
+          description: Set value to 1 by default if null is provided
+          required: false
+        - name: page_size
+          in: query
+          description: Set value to 15 by default if null is provided
+          schema:
+            $ref: '../components.yml#/components/schemas/PageSize'
+        - name: level
+          in: query
+          description: Filter by student academic level
+          schema:
+            $ref: '../components.yml#/components/schemas/StudentLevel'
+      responses:
+        '200':
+          description: List of all courses
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '../components.yml#/components/schemas/Course'
+        '400':
+          $ref: '../components.yml#/components/responses/400'
+        '403':
+          $ref: '../components.yml#/components/responses/403'
+        '404':
+          $ref: '../components.yml#/components/responses/404'
+        '429':
+          $ref: '../components.yml#/components/responses/429'
+        '500':
+          $ref: '../components.yml#/components/responses/500'
+    put:
+      tags:
+        - Courses
+      summary: Create new courses or update existing courses
+      description: Update courses when `id` are provided, create them otherwise.
+      operationId: CreateOrUpdateCourses
+      requestBody:
+        description: Courses to update
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '../components.yml#/components/schemas/Course'
+      responses:
+        '200':
+          description: Course created or modified
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '../components.yml#/components/schemas/Course'
+        '400':
+          $ref: '../components.yml#/components/responses/400'
+        '403':
+          $ref: '../components.yml#/components/responses/403'
+        '404':
+          $ref: '../components.yml#/components/responses/404'
+        '429':
+          $ref: '../components.yml#/components/responses/429'
+        '500':
+          $ref: '../components.yml#/components/responses/500'
+  getCourseAssignmentsByGroupId:
+    get:
+      tags:
+        - Courses
+      summary: Get all group course_assignments
+      parameters:
+        - name: group_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: page
+          in: query
+          schema:
+            $ref: '../components.yml#/components/schemas/Page'
+          description: Set value to 1 by default if null is provided
+          required: false
+        - name: page_size
+          in: query
+          description: Set value to 15 by default if null is provided
+          schema:
+            $ref: '../components.yml#/components/schemas/PageSize'
+      operationId: getCourseAssignmentsByGroupId
+      responses:
+        '200':
+          description: List of all course_assignments in specific group
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '../components.yml#/components/schemas/CourseAssignment'
+        '400':
+          $ref: '../components.yml#/components/responses/400'
+        '403':
+          $ref: '../components.yml#/components/responses/403'
+        '404':
+          $ref: '../components.yml#/components/responses/404'
+        '429':
+          $ref: '../components.yml#/components/responses/429'
+        '500':
+          $ref: '../components.yml#/components/responses/500'
+  getCourseAssignmentByTeacherId:
+    get:
+      tags:
+        - Courses
+      summary: Get all course_assignments to a teacher
+      parameters:
+        - name: teacher_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: page
+          in: query
+          schema:
+            $ref: '../components.yml#/components/schemas/Page'
+          description: Set value to 1 by default if null is provided
+          required: false
+        - name: page_size
+          in: query
+          description: Set value to 15 by default if null is provided
+          schema:
+            $ref: '../components.yml#/components/schemas/PageSize'
+      operationId: getCourseAssignmentByTeacherId
+      responses:
+        '200':
+          description: List of all course_assignments for a teacher
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '../components.yml#/components/schemas/CourseAssignment'
+        '400':
+          $ref: '../components.yml#/components/responses/400'
+        '403':
+          $ref: '../components.yml#/components/responses/403'
+        '404':
+          $ref: '../components.yml#/components/responses/404'
+        '429':
+          $ref: '../components.yml#/components/responses/429'
+        '500':
+          $ref: '../components.yml#/components/responses/500'
+  courseAssignments:
+    get:
+      tags:
+        - Courses
+      summary: Get all course_assignments
+      parameters:
+        - name: teacher_id
+          in: query
+          schema:
+            type: string
+          required: false
+        - name: group_id
+          required: false
+          in: query
+          schema:
+            type: string
+        - name: course_id
+          in: query
+          schema:
+            type: string
+          required: false
+        - name: page
+          in: query
+          schema:
+            $ref: '../components.yml#/components/schemas/Page'
+          description: Set value to 1 by default if null is provided
+          required: false
+        - name: page_size
+          in: query
+          description: Set value to 15 by default if null is provided
+          schema:
+            $ref: '../components.yml#/components/schemas/PageSize'
+          required: false
+      operationId: getCourseAssignmentsByCriteria
+      responses:
+        '200':
+          description: List of all course_assignments
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '../components.yml#/components/schemas/CourseAssignment'
+        '400':
+          $ref: '../components.yml#/components/responses/400'
+        '403':
+          $ref: '../components.yml#/components/responses/403'
+        '404':
+          $ref: '../components.yml#/components/responses/404'
+        '429':
+          $ref: '../components.yml#/components/responses/429'
+        '500':
+          $ref: '../components.yml#/components/responses/500'
+    put:
+      tags:
+        - Courses
+      summary: Add or update course_assignments for a given course id.
+      operationId: createOrUpdateCourseAssignments
+      requestBody:
+        required: true
+        description: course_assignment to create / update
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '../components.yml#/components/schemas/CrupdateCourseAssignment'
+      responses:
+        '200':
+          description: All course_assignments that have been created / updated
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '../components.yml#/components/schemas/CourseAssignment'
+        '400':
+          $ref: '../components.yml#/components/responses/400'
+        '403':
+          $ref: '../components.yml#/components/responses/403'
+        '404':
+          $ref: '../components.yml#/components/responses/404'
+        '429':
+          $ref: '../components.yml#/components/responses/429'
+        '500':
+          $ref: '../components.yml#/components/responses/500'

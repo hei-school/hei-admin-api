@@ -1,0 +1,1131 @@
+operations:
+  createDelayPenaltyChange:
+    post:
+      tags:
+        - Paying
+      summary: Change current delay penalty configuration
+      operationId: createDelayPenaltyChange
+      requestBody:
+        description: Delay penalties to create
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '../components.yml#/components/schemas/CreateDelayPenaltyChange'
+      responses:
+        '200':
+          description: List of created delay penalties
+          content:
+            application/json:
+              schema:
+                $ref: '../components.yml#/components/schemas/DelayPenalty'
+        '400':
+          $ref: '../components.yml#/components/responses/400'
+        '403':
+          $ref: '../components.yml#/components/responses/403'
+        '404':
+          $ref: '../components.yml#/components/responses/404'
+        '429':
+          $ref: '../components.yml#/components/responses/429'
+        '500':
+          $ref: '../components.yml#/components/responses/500'
+  getDelayPenalty:
+    get:
+      tags:
+        - Paying
+      summary: Get current delay penalty
+      operationId: getDelayPenalty
+      responses:
+        '200':
+          description: Active delay penalty
+          content:
+            application/json:
+              schema:
+                $ref: '../components.yml#/components/schemas/DelayPenalty'
+        '400':
+          $ref: '../components.yml#/components/responses/400'
+        '403':
+          $ref: '../components.yml#/components/responses/403'
+        '404':
+          $ref: '../components.yml#/components/responses/404'
+        '429':
+          $ref: '../components.yml#/components/responses/429'
+        '500':
+          $ref: '../components.yml#/components/responses/500'
+  getPaidFeeReceipt:
+    get:
+      tags:
+        - Paying
+      summary: Get receipt of paid fee
+      parameters:
+        - name: student_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: fee_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: payment_id
+          in: path
+          required: true
+          schema:
+            type: string
+      operationId: getPaidFeeReceipt
+      responses:
+        '200':
+          description: Paid fee receipt
+          content:
+            application/pdf:
+              schema:
+                type: string
+                format: byte
+                example: PDF VERSION
+        '400':
+          $ref: '../components.yml#/components/responses/400'
+        '403':
+          $ref: '../components.yml#/components/responses/403'
+        '404':
+          $ref: '../components.yml#/components/responses/404'
+        '429':
+          $ref: '../components.yml#/components/responses/429'
+        '500':
+          $ref: '../components.yml#/components/responses/500'
+  generateFeeReceipts:
+    put:
+      tags:
+        - Paying
+      summary: Send email with a S3 pre-sign link of fee receipts in a mandatory date range
+      requestBody:
+        description: fee receipts info to send
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '../components.yml#/components/schemas/GenerationReceiptsRequest'
+      operationId: generateFeeReceipts
+      responses:
+        '200':
+          description: statistic about fee receipts to process
+          content:
+            application/json:
+              schema:
+                $ref: '../components.yml#/components/schemas/GeneratedReceiptsStatistic'
+        '400':
+          $ref: '../components.yml#/components/responses/400'
+        '403':
+          $ref: '../components.yml#/components/responses/403'
+        '404':
+          $ref: '../components.yml#/components/responses/404'
+        '429':
+          $ref: '../components.yml#/components/responses/429'
+        '500':
+          $ref: '../components.yml#/components/responses/500'
+  studentsFeesById:
+    get:
+      tags:
+        - Paying
+      summary: Get student fee by identifier
+      parameters:
+        - name: student_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: fee_id
+          in: path
+          required: true
+          schema:
+            type: string
+      operationId: getStudentFeeById
+      responses:
+        '200':
+          description: Identified student fee
+          content:
+            application/json:
+              schema:
+                $ref: '../components.yml#/components/schemas/Fee'
+        '400':
+          $ref: '../components.yml#/components/responses/400'
+        '403':
+          $ref: '../components.yml#/components/responses/403'
+        '404':
+          $ref: '../components.yml#/components/responses/404'
+        '429':
+          $ref: '../components.yml#/components/responses/429'
+        '500':
+          $ref: '../components.yml#/components/responses/500'
+    delete:
+      tags:
+        - Paying
+      summary: Delete student fee by identifier.
+      description: Soft delete
+      operationId: deleteStudentFeeById
+      parameters:
+        - name: fee_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: student_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: student fee deleted by identifier.
+          content:
+            application/json:
+              schema:
+                $ref: '../components.yml#/components/schemas/Fee'
+        '400':
+          $ref: '../components.yml#/components/responses/400'
+        '403':
+          $ref: '../components.yml#/components/responses/403'
+        '404':
+          $ref: '../components.yml#/components/responses/404'
+        '429':
+          $ref: '../components.yml#/components/responses/429'
+        '500':
+          $ref: '../components.yml#/components/responses/500'
+  studentsFees:
+    get:
+      tags:
+        - Paying
+      summary: Get all student fees ordered by due datetime desc
+      description: Fees can be filtered with an optional payment status parameter.
+      parameters:
+        - name: student_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: page
+          in: query
+          schema:
+            $ref: '../components.yml#/components/schemas/Page'
+        - name: page_size
+          in: query
+          schema:
+            $ref: '../components.yml#/components/schemas/PageSize'
+        - name: status
+          in: query
+          schema:
+            $ref: '../components.yml#/components/schemas/FeeStatusEnum'
+      operationId: getFeesByStudentId
+      responses:
+        '200':
+          description: List of all student fees
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '../components.yml#/components/schemas/Fee'
+        '400':
+          $ref: '../components.yml#/components/responses/400'
+        '403':
+          $ref: '../components.yml#/components/responses/403'
+        '404':
+          $ref: '../components.yml#/components/responses/404'
+        '429':
+          $ref: '../components.yml#/components/responses/429'
+        '500':
+          $ref: '../components.yml#/components/responses/500'
+    post:
+      tags:
+        - Paying
+      summary: Create student fees
+      parameters:
+        - name: student_id
+          in: path
+          required: true
+          schema:
+            type: string
+      operationId: createStudentFees
+      requestBody:
+        description: Student fees to create
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '../components.yml#/components/schemas/CreateFee'
+      responses:
+        '200':
+          description: Created student fees
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '../components.yml#/components/schemas/Fee'
+        '400':
+          $ref: '../components.yml#/components/responses/400'
+        '403':
+          $ref: '../components.yml#/components/responses/403'
+        '404':
+          $ref: '../components.yml#/components/responses/404'
+        '429':
+          $ref: '../components.yml#/components/responses/429'
+        '500':
+          $ref: '../components.yml#/components/responses/500'
+    put:
+      tags:
+        - Paying
+      summary: Update student fees, can only modify due_datetime and comment, must contain an ID
+      parameters:
+        - name: student_id
+          in: path
+          required: true
+          schema:
+            type: string
+      operationId: updateStudentFees
+      requestBody:
+        description: Student fees to update
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '../components.yml#/components/schemas/Fee'
+      responses:
+        '200':
+          description: Update student fees
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '../components.yml#/components/schemas/Fee'
+        '400':
+          $ref: '../components.yml#/components/responses/400'
+        '403':
+          $ref: '../components.yml#/components/responses/403'
+        '404':
+          $ref: '../components.yml#/components/responses/404'
+        '429':
+          $ref: '../components.yml#/components/responses/429'
+        '500':
+          $ref: '../components.yml#/components/responses/500'
+  generateFeesListAsXlsx:
+    get:
+      tags:
+        - Paying
+      summary: Generate fees list as xlsx
+      operationId: generateFeesListAsXlsx
+      parameters:
+        - name: status
+          in: query
+          required: false
+          schema:
+            $ref: '../components.yml#/components/schemas/FeeStatusEnum'
+        - name: from_due_datetime
+          in: query
+          required: false
+          schema:
+            type: string
+            format: date-time
+        - name: to_due_datetime
+          in: query
+          required: false
+          schema:
+            type: string
+            format: date-time
+      responses:
+        '200':
+          description: List of fees in a xlsx file
+          content:
+            application/xlsx:
+              schema:
+                type: string
+                format: byte
+                example: XLSX VERSION
+        '400':
+          $ref: '../components.yml#/components/responses/400'
+        '403':
+          $ref: '../components.yml#/components/responses/403'
+        '404':
+          $ref: '../components.yml#/components/responses/404'
+        '429':
+          $ref: '../components.yml#/components/responses/429'
+        '500':
+          $ref: '../components.yml#/components/responses/500'
+  fees:
+    put:
+      tags:
+        - Paying
+      summary: Crupdate student fees
+      operationId: crupdateStudentFees
+      requestBody:
+        description: Student fees to update if id is provided, create otherwise.
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '../components.yml#/components/schemas/CrupdateStudentFee'
+      responses:
+        '200':
+          description: Created or updated student fees
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '../components.yml#/components/schemas/Fee'
+        '400':
+          $ref: '../components.yml#/components/responses/400'
+        '403':
+          $ref: '../components.yml#/components/responses/403'
+        '404':
+          $ref: '../components.yml#/components/responses/404'
+        '429':
+          $ref: '../components.yml#/components/responses/429'
+        '500':
+          $ref: '../components.yml#/components/responses/500'
+    get:
+      tags:
+        - Paying
+      summary: Get all student fees filtered by status and month
+      parameters:
+        - name: transaction_status
+          required: false
+          in: query
+          schema:
+            $ref: '../components.yml#/components/schemas/MpbsStatus'
+        - name: type
+          required: false
+          in: query
+          schema:
+            $ref: '../components.yml#/components/schemas/FeeTypeEnum'
+        - name: status
+          in: query
+          description: "See the PaymentStatus object for its value."
+          schema:
+            type: string
+            default: LATE
+            allOf:
+              - $ref: '../components.yml#/components/schemas/FeeStatusEnum'
+        - name: category
+          in: query
+          schema:
+            type: string
+            allOf:
+              - $ref: '../components.yml#/components/schemas/FeeCategory'
+        - name: month_from
+          in: query
+          schema:
+            type: string
+            format: date-time
+          required: false
+        - name: month_to
+          in: query
+          schema:
+            type: string
+            format: date-time
+          required: false
+        - name: page
+          in: query
+          schema:
+            $ref: '../components.yml#/components/schemas/Page'
+        - name: page_size
+          in: query
+          schema:
+            $ref: '../components.yml#/components/schemas/PageSize'
+        - name: isMpbs
+          in: query
+          schema:
+            type: boolean
+        - name: student_ref
+          in: query
+          required: false
+          schema:
+            type: string
+      operationId: getFees
+      responses:
+        '200':
+          description: List of filtered student fees
+          content:
+            application/json:
+              schema:
+                $ref: '../components.yml#/components/schemas/FeesWithStats'
+        '400':
+          $ref: '../components.yml#/components/responses/400'
+        '403':
+          $ref: '../components.yml#/components/responses/403'
+        '404':
+          $ref: '../components.yml#/components/responses/404'
+        '429':
+          $ref: '../components.yml#/components/responses/429'
+        '500':
+          $ref: '../components.yml#/components/responses/500'
+  getFeesStats:
+    get:
+      tags:
+        - Paying
+      summary: Get monthly statistics on Fees, the actual month by default
+      parameters:
+        - name: month_from
+          in: query
+          schema:
+            type: string
+            format: date-time
+          required: false
+        - name: month_to
+          in: query
+          schema:
+            type: string
+            format: date-time
+          required: false
+      operationId: getFeesStats
+      responses:
+        '200':
+          description: Fees stats info
+          content:
+            application/json:
+              schema:
+                $ref: '../components.yml#/components/schemas/FeesStatistics'
+  generateAdvancedStats:
+    post:
+      tags:
+        - Paying
+      summary: Triggers a generation of the statistics of all the fees in the given date range to cache them
+      parameters:
+        - name: date_from
+          in: query
+          schema:
+            type: string
+            format: date-time
+          required: true
+        - name: date_to
+          in: query
+          schema:
+            type: string
+            format: date-time
+          required: true
+      operationId: generateAdvancedStats
+      responses:
+        '200':
+          description: Advanced Fees stats info
+          content:
+            application/json:
+              schema:
+                $ref: '../components.yml#/components/schemas/AdvancedFeeStatisticsGeneration'
+        '400':
+          $ref: '../components.yml#/components/responses/400'
+        '403':
+          $ref: '../components.yml#/components/responses/403'
+        '404':
+          $ref: '../components.yml#/components/responses/404'
+        '429':
+          $ref: '../components.yml#/components/responses/429'
+        '500':
+          $ref: '../components.yml#/components/responses/500'
+  getAdvancedFeesStats:
+    get:
+      tags:
+        - Paying
+      summary: Get advanced monthly statistics on Fees, the actual month by default
+      parameters:
+        - name: month_from
+          in: query
+          schema:
+            type: string
+            format: date
+          required: false
+        - name: month_to
+          in: query
+          schema:
+            type: string
+            format: date
+          required: false
+        - name: type
+          in: query
+          schema:
+            $ref: "../components.yml#/components/schemas/AdvancedFeeStatisticsType"
+      operationId: getAdvancedFeesStats
+      responses:
+        '200':
+          description: Advanced Fees stats info
+          content:
+            application/json:
+              schema:
+                $ref: '../components.yml#/components/schemas/AdvancedFeesStatistics'
+        '400':
+          $ref: '../components.yml#/components/responses/400'
+        '403':
+          $ref: '../components.yml#/components/responses/403'
+        '404':
+          $ref: '../components.yml#/components/responses/404'
+        '429':
+          $ref: '../components.yml#/components/responses/429'
+        '500':
+          $ref: '../components.yml#/components/responses/500'
+  exportAllFees:
+    get:
+      tags:
+        - Paying
+      summary: Generate fees xlxs file with an optional month range.
+      description: Generate an fees excel file, stores it in (S3 compatible storage), and returns a presigned URL that can later be user to view the file.
+      operationId: exportAllFees
+      parameters:
+        - name: month_from
+          in: query
+          schema:
+            type: string
+            format: date-time
+          required: false
+        - name: month_to
+          in: query
+          schema:
+            type: string
+            format: date-time
+          required: false
+        - name: type
+          in: query
+          required: true
+          schema:
+            $ref: "../components.yml#/components/schemas/AdvancedFeeStatisticsType"
+      responses:
+        '200':
+          description: File successfully generated and stored
+          content:
+            text/plain:
+              schema:
+                type: string
+        '400':
+          $ref: '../components.yml#/components/responses/400'
+        '403':
+          $ref: '../components.yml#/components/responses/403'
+        '429':
+          $ref: '../components.yml#/components/responses/429'
+        '500':
+          $ref: '../components.yml#/components/responses/500'
+  exportAdvancedFeesStats:
+    get:
+      tags:
+        - Paying
+      summary: Generate advanced fees statistics file with an optional month range.
+      description: Generates an advanced fees statistics excel file, stores it in
+        (S3 compatible storage), and returns a presigned URL that can
+        later be used to view the file.
+      operationId: exportAdvancedFeesStats
+      parameters:
+        - name: month_from
+          in: query
+          schema:
+            type: string
+            format: date
+          required: false
+        - name: month_to
+          in: query
+          schema:
+            type: string
+            format: date
+          required: false
+        - name: type
+          in: query
+          required: true
+          schema:
+            $ref: "../components.yml#/components/schemas/AdvancedFeeStatisticsType"
+        - name: status
+          in: query
+          description: "See the PaymentStatus object for its value."
+          required: false
+          schema:
+            type: string
+            allOf:
+              - $ref: '../components.yml#/components/schemas/FeeStatusEnum'
+      responses:
+        '200':
+          description: File successfully generated and stored
+          content:
+            text/plain:
+              schema:
+                type: string
+        '400':
+          $ref: '../components.yml#/components/responses/400'
+        '403':
+          $ref: '../components.yml#/components/responses/403'
+        '429':
+          $ref: '../components.yml#/components/responses/429'
+        '500':
+          $ref: '../components.yml#/components/responses/500'
+  getFeeTemplates:
+    get:
+      tags:
+        - Paying
+      summary: Get all fee templates
+      parameters:
+        - name: name
+          in: query
+          schema:
+            type: string
+        - name: amount
+          in: query
+          schema:
+            type: integer
+        - name: number_of_payments
+          in: query
+          schema:
+            type: integer
+        - name: page
+          in: query
+          schema:
+            $ref: '../components.yml#/components/schemas/Page'
+        - name: page_size
+          in: query
+          schema:
+            $ref: '../components.yml#/components/schemas/PageSize'
+      operationId: getFeeTemplates
+      responses:
+        '200':
+          description: List of templates of fee
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '../components.yml#/components/schemas/FeeTemplate'
+        '400':
+          $ref: '../components.yml#/components/responses/400'
+        '403':
+          $ref: '../components.yml#/components/responses/403'
+        '404':
+          $ref: '../components.yml#/components/responses/404'
+        '429':
+          $ref: '../components.yml#/components/responses/429'
+        '500':
+          $ref: '../components.yml#/components/responses/500'
+  feesTemplatesById:
+    get:
+      tags:
+        - Paying
+      summary: Get fee template by id
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      description: Get fee template by `id` if `id` exists
+      operationId: getFeeTemplateById
+      responses:
+        '200':
+          description: The fee template requested
+          content:
+            application/json:
+              schema:
+                $ref: '../components.yml#/components/schemas/FeeTemplate'
+        '400':
+          $ref: '../components.yml#/components/responses/400'
+        '403':
+          $ref: '../components.yml#/components/responses/403'
+        '404':
+          $ref: '../components.yml#/components/responses/404'
+        '429':
+          $ref: '../components.yml#/components/responses/429'
+        '500':
+          $ref: '../components.yml#/components/responses/500'
+    put:
+      tags:
+        - Paying
+      summary: Create a new fee type or update existing fee type
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      description: Update fee type if `id` exist, create it otherwise.
+      operationId: crupdateFeeTemplate
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '../components.yml#/components/schemas/CrupdateFeeTemplate'
+      responses:
+        '200':
+          description: The created or updated fee type
+          content:
+            application/json:
+              schema:
+                $ref: '../components.yml#/components/schemas/FeeTemplate'
+        '400':
+          $ref: '../components.yml#/components/responses/400'
+        '403':
+          $ref: '../components.yml#/components/responses/403'
+        '404':
+          $ref: '../components.yml#/components/responses/404'
+        '429':
+          $ref: '../components.yml#/components/responses/429'
+        '500':
+          $ref: '../components.yml#/components/responses/500'
+  getFetchedMobileTransactions:
+    get:
+      tags:
+        - Paying
+      summary: Get all mobile payment by student.
+      description: Fetched mobile payment by student.
+      parameters:
+        - name: student_ref
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: transaction_ref
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: from
+          in: query
+          required: false
+          schema:
+            type: string
+            format: date-time
+        - name: to
+          in: query
+          required: false
+          schema:
+            type: string
+            format: date-time
+      operationId: getFetchedMobileTransactions
+      responses:
+        '200':
+          description: List of all fetched mobile transactions
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '../components.yml#/components/schemas/Mpbs'
+        '400':
+          $ref: '../components.yml#/components/responses/400'
+        '403':
+          $ref: '../components.yml#/components/responses/403'
+        '404':
+          $ref: '../components.yml#/components/responses/404'
+        '429':
+          $ref: '../components.yml#/components/responses/429'
+        '500':
+          $ref: '../components.yml#/components/responses/500'
+  pendFailedMpbs:
+    post:
+      tags:
+        - Paying
+      summary: Pend failed mobile payment
+      description: Convert failed mobile payment to pending
+      parameters:
+        - $ref: '../components.yml#/components/parameters/PathMpbsId'
+      operationId: pendFailedMpbs
+      responses:
+        '200':
+          description: The pended mobile payment
+          content:
+            application/json:
+              schema:
+                $ref: '../components.yml#/components/schemas/Mpbs'
+        '400':
+          $ref: '../components.yml#/components/responses/400'
+        '403':
+          $ref: '../components.yml#/components/responses/403'
+        '404':
+          $ref: '../components.yml#/components/responses/404'
+        '429':
+          $ref: '../components.yml#/components/responses/429'
+        '500':
+          $ref: '../components.yml#/components/responses/500'
+  studentsFeesMpbs:
+    get:
+      tags:
+        - Paying
+      summary: Get, if exists, all Mobile Payment By Student - All (MPBS) associated to the fee.
+      operationId: getMpbs
+      parameters:
+        - name: student_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: fee_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: List of all MPBS
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '../components.yml#/components/schemas/Mpbs'
+        '400':
+          $ref: '../components.yml#/components/responses/400'
+        '403':
+          $ref: '../components.yml#/components/responses/403'
+        '404':
+          $ref: '../components.yml#/components/responses/404'
+        '429':
+          $ref: '../components.yml#/components/responses/429'
+        '500':
+          $ref: '../components.yml#/components/responses/500'
+    put:
+      tags:
+        - Paying
+      summary: |
+        Create a MPBS.
+        Only the student that owns the fee can do it.
+        No manager nor teacher can.
+      description: |
+        The payload has no `amount` field
+        since a MPBS implicitly pays the remaining unpaid amount of the fee.
+
+        In case the amount paid by the student differs,
+        then the (scheduled) verifications will fail and manual fix from a manager is required.
+
+        When the verification succeeds, and only then,
+        a `Fee.Payment` object is automatically created to reflect the `Fee.Mbps`.
+      operationId: crupdateMpbs
+      parameters:
+        - name: student_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: fee_id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: The MPBS to create
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '../components.yml#/components/schemas/CrupdateMpbs'
+      responses:
+        '200':
+          description: The created MPBS
+          content:
+            application/json:
+              schema:
+                $ref: '../components.yml#/components/schemas/Mpbs'
+        '400':
+          $ref: '../components.yml#/components/responses/400'
+        '403':
+          $ref: '../components.yml#/components/responses/403'
+        '404':
+          $ref: '../components.yml#/components/responses/404'
+        '429':
+          $ref: '../components.yml#/components/responses/429'
+        '500':
+          $ref: '../components.yml#/components/responses/500'
+  verifyMpbs:
+    post:
+      tags:
+        - Paying
+      summary: Verify mpbs from xls provided by Orange
+      operationId: verifyMpbs
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              $ref: "../components.yml#/components/schemas/UploadFile"
+      responses:
+        '200':
+          description: The mpbs updated
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '../components.yml#/components/schemas/Mpbs'
+        '400':
+          $ref: '../components.yml#/components/responses/400'
+        '403':
+          $ref: '../components.yml#/components/responses/403'
+        '404':
+          $ref: '../components.yml#/components/responses/404'
+        '429':
+          $ref: '../components.yml#/components/responses/429'
+        '500':
+          $ref: '../components.yml#/components/responses/500'
+  getMpbsVerifications:
+    get:
+      tags:
+        - Paying
+      summary: |
+        Get list of MpbsVerification associated to the Mpbs.
+        Verifications are scheduled 4 times a day.
+      operationId: getMpbsVerifications
+      parameters:
+        - name: student_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: fee_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: The list of MbpsVerification
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '../components.yml#/components/schemas/MpbsVerification'
+        '400':
+          $ref: '../components.yml#/components/responses/400'
+        '403':
+          $ref: '../components.yml#/components/responses/403'
+        '404':
+          $ref: '../components.yml#/components/responses/404'
+        '429':
+          $ref: '../components.yml#/components/responses/429'
+        '500':
+          $ref: '../components.yml#/components/responses/500'
+  studentsFeesPayments:
+    get:
+      tags:
+        - Paying
+      summary: Get all student payments of a specific fee. Resulting list is ordered by creation datetime desc.
+      parameters:
+        - name: student_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: fee_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: page
+          in: query
+          schema:
+            $ref: '../components.yml#/components/schemas/Page'
+        - name: page_size
+          in: query
+          schema:
+            $ref: '../components.yml#/components/schemas/PageSize'
+      operationId: getStudentPayments
+      responses:
+        '200':
+          description: List of all student payments
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '../components.yml#/components/schemas/Payment'
+        '400':
+          $ref: '../components.yml#/components/responses/400'
+        '403':
+          $ref: '../components.yml#/components/responses/403'
+        '404':
+          $ref: '../components.yml#/components/responses/404'
+        '429':
+          $ref: '../components.yml#/components/responses/429'
+        '500':
+          $ref: '../components.yml#/components/responses/500'
+    post:
+      tags:
+        - Paying
+      summary: Create student payments
+      parameters:
+        - name: student_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: fee_id
+          in: path
+          required: true
+          schema:
+            type: string
+      operationId: createStudentPayments
+      requestBody:
+        description: Student payments to create
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '../components.yml#/components/schemas/CreatePayment'
+      responses:
+        '200':
+          description: Created student payments
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '../components.yml#/components/schemas/Payment'
+        '400':
+          $ref: '../components.yml#/components/responses/400'
+        '403':
+          $ref: '../components.yml#/components/responses/403'
+        '404':
+          $ref: '../components.yml#/components/responses/404'
+        '429':
+          $ref: '../components.yml#/components/responses/429'
+        '500':
+          $ref: '../components.yml#/components/responses/500'
+  deleteStudentFeePaymentById:
+    delete:
+      tags:
+        - Paying
+      summary: Delete student payment on a fee.
+      description: Soft delete
+      operationId: deleteStudentFeePaymentById
+      parameters:
+        - name: student_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: fee_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: payment_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: deleted payment
+          content:
+            application/json:
+              schema:
+                $ref: '../components.yml#/components/schemas/Payment'
+        '400':
+          $ref: '../components.yml#/components/responses/400'
+        '403':
+          $ref: '../components.yml#/components/responses/403'
+        '404':
+          $ref: '../components.yml#/components/responses/404'
+        '429':
+          $ref: '../components.yml#/components/responses/429'
+        '500':
+          $ref: '../components.yml#/components/responses/500'
