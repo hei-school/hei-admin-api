@@ -1,29 +1,9 @@
 package school.hei.haapi.service;
 
-import static org.apache.poi.ss.usermodel.CellType.NUMERIC;
-import static org.apache.poi.ss.usermodel.Row.MissingCellPolicy.CREATE_NULL_AS_BLANK;
-import static school.hei.haapi.model.User.Status.ALUMNI;
-import static school.hei.haapi.model.User.Status.ENABLED;
-import static school.hei.haapi.model.exception.ApiException.ExceptionType.SERVER_EXCEPTION;
-
 import jakarta.transaction.Transactional;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.IOException;
-import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import school.hei.haapi.endpoint.event.EventProducer;
@@ -40,18 +20,33 @@ import school.hei.haapi.model.Group;
 import school.hei.haapi.model.GroupFlow;
 import school.hei.haapi.model.dto.GradeDto;
 import school.hei.haapi.model.dto.GradeImportDto;
-import school.hei.haapi.model.exception.ApiException;
 import school.hei.haapi.model.exception.BadRequestException;
 import school.hei.haapi.model.exception.NotFoundException;
 import school.hei.haapi.model.notEntity.UpdateGrade;
 import school.hei.haapi.model.validator.IsNewGradeChecker;
 import school.hei.haapi.repository.CourseAssignmentRepository;
 import school.hei.haapi.repository.ExamRepository;
-import school.hei.haapi.repository.GradeChangeHistoryRepository;
 import school.hei.haapi.repository.GradeRepository;
 import school.hei.haapi.repository.dao.GradeDao;
+import school.hei.haapi.service.utils.XlsxCellsGenerator;
 import school.hei.haapi.service.utils.excel.ExcelParser;
 import school.hei.haapi.service.utils.excel.ParseResult;
+
+import java.io.File;
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import static org.apache.poi.ss.usermodel.CellType.NUMERIC;
+import static org.apache.poi.ss.usermodel.Row.MissingCellPolicy.CREATE_NULL_AS_BLANK;
+import static school.hei.haapi.model.User.Status.ALUMNI;
+import static school.hei.haapi.model.User.Status.ENABLED;
 
 @Slf4j
 @Service
@@ -66,10 +61,9 @@ public class GradeService {
   private final EventProducer eventProducer;
   private final GradeMapper gradeMapper;
   private final ExamRepository examRepository;
-  private final ExamParticipantService examParticipantService;
 
   private static final String GRADE_XLSX_IMPORT_BUCKET_KEY = "/STUDENT_EXAM_GRADE_XLSX_IMPORT/";
-  private final GradeChangeHistoryRepository gradeChangeHistoryRepository;
+  private static final List<String> HEADERS = List.of("ref", "score");
   private final PromotionService promotionService;
 
   public List<Grade> getGradesByStudentId(String studentId) {
@@ -202,7 +196,7 @@ public class GradeService {
 
       var skippedRefs = skippedGrades.stream().map(GradeImportDto::getRef).toList();
       var gradeInvalidScoreRefs = gradeInvalidScores.stream().map(GradeImportDto::getRef).toList();
-      List<String> allInvalidRefs = new ArrayList<>(skippedRefs);
+      var allInvalidRefs = new ArrayList<>(skippedRefs);
       allInvalidRefs.addAll(gradeInvalidScoreRefs);
 
       importResults =
@@ -304,34 +298,25 @@ public class GradeService {
 
   public List<GradeImportDto> filterExistingGrades(
       List<GradeImportDto> grades, String examId, String comment) {
-    var savedGrades = gradeRepository.getGradesByExamId(examId, List.of(ENABLED, ALUMNI));
-    var savedGradeIds = savedGrades.stream().map(GradeDto::getId).toList();
-    var gradeChangeHistories =
-        gradeChangeHistoryRepository.findByGradeIdsOrderedByChangeInstantAsc(savedGradeIds);
-    List<GradeImportDto> filterGrades;
+    var existingGrades = gradeRepository.getLatestGradesByExamId(examId, List.of(ENABLED, ALUMNI));
     if (comment == null) {
-      filterGrades =
-          grades.stream()
-              .filter(
-                  grade ->
-                      savedGrades.stream()
-                          .anyMatch(gradeSaved -> grade.getRef().equals(gradeSaved.getRef())))
-              .toList();
+      return grades.stream()
+          .filter(
+              grade ->
+                  existingGrades.stream()
+                      .anyMatch(gradeSaved -> grade.getRef().equals(gradeSaved.getRef())))
+          .toList();
     } else {
-      var existingGrades =
-          Stream.concat(gradeChangeHistories.stream(), savedGrades.stream()).toList();
-      filterGrades =
-          grades.stream()
-              .filter(
-                  grade ->
-                      existingGrades.stream()
-                          .anyMatch(
-                              existingGrade ->
-                                  existingGrade.getRef().equals(grade.getRef())
-                                      && existingGrade.getScore().equals(grade.getScore())))
-              .toList();
+      return grades.stream()
+          .filter(
+              grade ->
+                  existingGrades.stream()
+                      .anyMatch(
+                          existingGrade ->
+                              existingGrade.getRef().equals(grade.getRef())
+                                  && existingGrade.getScore().equals(grade.getScore())))
+          .toList();
     }
-    return filterGrades;
   }
 
   public List<GradeImportDto> checkSkippedRows(ParseResult<GradeImportDto> parseResult) {
@@ -343,18 +328,7 @@ public class GradeService {
       }
       Object refValue = row.getCell(0, CREATE_NULL_AS_BLANK).getStringCellValue();
       Cell scoreCell = row.getCell(1, CREATE_NULL_AS_BLANK);
-      Double score = null;
-
-      if (scoreCell != null) {
-        if (scoreCell.getCellType() == NUMERIC) {
-          score = scoreCell.getNumericCellValue();
-        } else {
-          var stringScore = scoreCell.getStringCellValue().trim();
-          if (!stringScore.isBlank()) {
-            score = Double.valueOf(stringScore);
-          }
-        }
-      }
+      Double score = extractScoreCell(scoreCell);
       var ref = refValue != null ? refValue.toString() : null;
       var invalid = new GradeImportDto();
       invalid.setRef(ref);
@@ -363,6 +337,17 @@ public class GradeService {
     }
 
     return allInvalids;
+  }
+
+  private static Double extractScoreCell(Cell scoreCell) {
+    if (scoreCell == null) {
+      return null;
+    }
+    if (scoreCell.getCellType() == NUMERIC) {
+      return scoreCell.getNumericCellValue();
+    }
+    var stringScore = scoreCell.getStringCellValue().trim();
+    return stringScore.isBlank() ? null : Double.valueOf(stringScore);
   }
 
   private List<GradeImportDto> checkInvalidScore(ParseResult<GradeImportDto> parseResult) {
@@ -447,59 +432,8 @@ public class GradeService {
   }
 
   public byte[] generateGradesTemplate(String examId) {
-    var existingGrades = gradeRepository.getGradesByExamId(examId, List.of(ENABLED, ALUMNI));
-    var gradeIds = existingGrades.stream().map(GradeDto::getId).toList();
-    var gradeHistories =
-        gradeChangeHistoryRepository.findByGradeIdsOrderedByChangeInstantAsc(gradeIds);
-    List<GradeDto> allGrades =
-        existingGrades.stream()
-            .map(
-                existing -> {
-                  var lastGradeChangeHistory =
-                      gradeHistories.stream()
-                          .filter(gradeDto -> Objects.equals(gradeDto.getRef(), existing.getRef()))
-                          .toList();
-                  if (!lastGradeChangeHistory.isEmpty()) {
-                    return lastGradeChangeHistory.getLast();
-                  }
-                  return GradeDto.builder()
-                      .id(existing.getId())
-                      .ref(existing.getRef())
-                      .score(existing.getScore())
-                      .build();
-                })
-            .toList();
-    Map<String, Double> studentScoreAndRefs = new HashMap<>();
-    for (var grade : allGrades) {
-      studentScoreAndRefs.put(grade.getRef(), grade.getScore());
-    }
-    var participants = examParticipantService.getExamParticipantsGrade(examId, null, null, null);
-    try (var workbook = new XSSFWorkbook()) {
-      var fileName = "note_" + examId;
-      var sheet = workbook.createSheet(fileName);
-      var headerRow = sheet.createRow(0);
-      headerRow.createCell(0).setCellValue("ref");
-      headerRow.createCell(1).setCellValue("score");
-      int rowIndex = 1;
-      for (var participant : participants) {
-        var row = sheet.createRow(rowIndex++);
-        var ref = participant.getStudent().getRef();
-        row.createCell(0).setCellValue(ref);
-        var score = studentScoreAndRefs.get(ref);
-        if (score != null) {
-          row.createCell(1).setCellValue(score);
-        } else {
-          row.createCell(1);
-        }
-      }
-      sheet.autoSizeColumn(0);
-      sheet.autoSizeColumn(1);
-      try (ByteArrayOutputStream template = new ByteArrayOutputStream()) {
-        workbook.write(template);
-        return template.toByteArray();
-      }
-    } catch (IOException e) {
-      throw new ApiException(SERVER_EXCEPTION, e);
-    }
+    var xlsxCellGenerator = new XlsxCellsGenerator<GradeDto>();
+    var existingGrades = gradeRepository.getLatestGradesByExamId(examId, List.of(ENABLED, ALUMNI));
+    return xlsxCellGenerator.apply(existingGrades, HEADERS);
   }
 }

@@ -31,9 +31,19 @@ public interface GradeRepository extends JpaRepository<Grade, String> {
   List<Grade> getAllByStudent(User student);
 
   @Query(
-      "select new school.hei.haapi.model.dto.GradeDto(g.id, g.student.ref, g.score) from Grade g"
-          + " where g.exam.id = :exam_id and g.student.status in :statuses")
-  List<GradeDto> getGradesByExamId(
+      """
+    SELECT new school.hei.haapi.model.dto.GradeDto(g.id, g.student.ref, CAST(COALESCE(gch.score, g.score) AS double))
+    FROM Grade g
+    LEFT JOIN GradeChangeHistory gch
+    ON gch.grade.id = g.id
+    AND gch.changeInstant = (
+    SELECT MAX(gch2.changeInstant)
+    FROM GradeChangeHistory gch2
+    WHERE gch2.grade.id = g.id
+    )
+    WHERE g.exam.id = :exam_id AND g.student.status IN :statuses
+""")
+  List<GradeDto> getLatestGradesByExamId(
       @Param("exam_id") String examId, @Param("statuses") List<User.Status> statuses);
 
   @Query(
