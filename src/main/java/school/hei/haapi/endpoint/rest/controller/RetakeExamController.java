@@ -64,9 +64,9 @@ public class RetakeExamController {
 
   @GetMapping("/students/{student_id}/retake_exams")
   public List<CourseResult> getStudentRetakeExams(
-      @PathVariable("student_id") String student_id,
+      @PathVariable("student_id") String studentId,
       @RequestParam(defaultValue = "", required = false) CourseResultStatus status) {
-    return gradeResultService.getStudentRetakeExams(student_id, status);
+    return gradeResultService.getStudentRetakeExams(studentId, status);
   }
 
   @GetMapping("/retake_exams")

@@ -101,6 +101,7 @@ public class CourseAssignmentService {
     return courseAssignmentRepository.findAllByCourseId(courseId, pageable);
   }
 
+  @Transactional
   public List<CourseDto> getGroupsCourseAssignmentsByGroupFlowsAtLevel(
       List<GroupFlowPeriod> studentLatestGroupFlows, StudentLevel level) {
 
@@ -117,7 +118,7 @@ public class CourseAssignmentService {
   }
 
   @Transactional
-  private List<CourseAssignment> getGroupCourseAssignmentsByLevelBetweenPeriod(
+  protected List<CourseAssignment> getGroupCourseAssignmentsByLevelBetweenPeriod(
       GroupFlowPeriod groupFlowPeriod, StudentLevel level) {
     return getByGroupId(groupFlowPeriod.group().getId()).stream()
         .filter(courseAssignment -> level.equals(courseAssignment.getCourse().getStudentLevel()))

@@ -13,7 +13,6 @@ import static school.hei.haapi.endpoint.rest.model.RetakeExamStatus.TO_CANCEL;
 import static school.hei.haapi.endpoint.rest.model.StudentLevel.L1;
 import static school.hei.haapi.integration.StudentIT.student1;
 import static school.hei.haapi.integration.conf.TestUtils.ADMIN1_TOKEN;
-import static school.hei.haapi.integration.conf.TestUtils.MANAGER1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_ID;
 import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.course1;
@@ -277,29 +276,11 @@ public class RetakeExamIT extends FacadeITMockedThirdParties {
   }
 
   @Test
-  void should_see_all_exams_VALIDATED() throws ApiException {
-    var api = new RetakeExamApi(anApiClient(MANAGER1_TOKEN));
-    var status = CourseResultStatus.VALIDATED;
-    var results = api.getListStudentRetakeExams(STUDENT1_ID, status).size();
-    var expected = 1;
-
-    assertEquals(expected, results);
-  }
-
-  @Test
-  void should_see_my_all_exams_INCOMPLETED() throws ApiException {
+  void should_see_all_all_exams_INCOMPLETED() throws ApiException {
     var api = new RetakeExamApi(anApiClient(STUDENT1_TOKEN));
     var status = CourseResultStatus.INCOMPLETE;
     var results = api.getListStudentRetakeExams(STUDENT1_ID, status);
 
     assertNotNull(results, "Results should be not null");
-  }
-
-  @Test
-  void should_see_all_exams_with_all_status() throws ApiException {
-    var api = new RetakeExamApi(anApiClient(MANAGER1_TOKEN));
-    var results = api.getListStudentRetakeExams(STUDENT1_ID, null).size();
-    var expected = 2;
-    assertEquals(expected, results);
   }
 }

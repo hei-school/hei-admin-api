@@ -226,9 +226,8 @@ class StudentRetakeExamIT extends FacadeITMockedThirdParties {
 
   @AfterEach
   void tearDown() {
-    retakeExamRepository.deleteAll(savedRetakeExams);
-    retakeExamSessionRepository.delete(retakeExamSession);
     retakeExamRepository.deleteAll(List.of(axelRetakeExam, tolojanaharyRetakeExam));
+    retakeExamSessionRepository.delete(retakeExamSession);
     gradeChangeHistoryRepository.deleteAll(
         gradeChangeHistoryRepository.findGradeChangeHistoriesByGradeIn(
             List.of(oldYearGrade, axelYearGrade, repeatingYearGrade)));
