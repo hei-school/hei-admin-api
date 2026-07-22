@@ -257,6 +257,10 @@ paths:
     $ref: './operations/paying-api.yml#/operations/getFeeTemplates'
   '/fees/templates/{id}':
     $ref: './operations/paying-api.yml#/operations/feesTemplatesById'
+  /feeTemplates:
+    $ref: './operations/paying-api.yml#/operations/feeTemplatesOperations'
+  /feeTemplates/{id}/content:
+    $ref: './operations/paying-api.yml#/operations/feeTemplatesContentOperations'
   /mpbs:
     $ref: './operations/paying-api.yml#/operations/getFetchedMobileTransactions'
   '/mpbs/{mpbs_id}/pend':

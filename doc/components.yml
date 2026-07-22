@@ -2157,3 +2157,34 @@ components:
           $ref: '#/components/schemas/UserIdentifier'
         results_overview:
           $ref: '#/components/schemas/ResultsOverview'
+    FeeTemplateContent:
+      type: object
+      properties:
+        id:
+          type: string
+        label:
+          type: string
+        amount:
+          type: integer
+        due_date:
+          type: string
+          format: date
+    V2CrupdateFeeTemplate:
+      type: object
+      properties:
+        id:
+          type: string
+        label:
+          type: string
+        type:
+          $ref: '#/components/schemas/FeeTypeEnum'
+        category:
+          $ref: '#/components/schemas/FeeCategory'
+    V2FeeTemplate:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/V2CrupdateFeeTemplate'
+      properties:
+        creation_datetime:
+          type: string
+          format: date-time
