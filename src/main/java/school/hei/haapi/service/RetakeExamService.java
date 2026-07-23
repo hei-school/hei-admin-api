@@ -52,7 +52,9 @@ public class RetakeExamService {
             .filter(retakeExam -> VALIDATE.equals(retakeExam.getStatus()))
             .flatMap(retakeExam -> gradeService.getGradesByRetakeExam(retakeExam).stream())
             .toList();
-    gradeService.updateParticipantGrade(gradeMapper.toUpdateGrades(grades));
+    if (!grades.isEmpty()) {
+      gradeService.updateParticipantGrade(gradeMapper.toUpdateGrades(grades));
+    }
     return retakeExamRepository.saveAll(retakeExams);
   }
 
