@@ -404,7 +404,7 @@ operations:
               schema:
                 type: array
                 items:
-                  $ref: '../components.yml#/components/schemas/Student'
+                  $ref: '../components.yml#/components/schemas/StudentRetakeExam'
         '400':
           $ref: '../components.yml#/components/responses/400'
         '403':

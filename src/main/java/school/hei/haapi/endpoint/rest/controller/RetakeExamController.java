@@ -23,7 +23,6 @@ import school.hei.haapi.endpoint.rest.model.CourseResultStatus;
 import school.hei.haapi.endpoint.rest.model.CrupdateRetakeExam;
 import school.hei.haapi.endpoint.rest.model.RetakeExam;
 import school.hei.haapi.endpoint.rest.model.RetakeExamToCancel;
-import school.hei.haapi.endpoint.rest.model.Student;
 import school.hei.haapi.endpoint.rest.model.StudentRetakeExam;
 import school.hei.haapi.endpoint.rest.model.UpdateRetakeExamStatus;
 import school.hei.haapi.model.BoundedPageSize;
@@ -91,13 +90,13 @@ public class RetakeExamController {
   }
 
   @GetMapping("/retake_exam_sessions/{session_id}/retake_exam_courses/{course_id}/participants")
-  public List<Student> getRetakeExamParticipantByCourseIdAndSessionId(
+  public List<StudentRetakeExam> getRetakeExamParticipantByCourseIdAndSessionId(
       @PathVariable("session_id") String sessionId,
       @PathVariable("course_id") String courseId,
       @RequestParam(value = "student_ref", required = false) String studentRef,
       @RequestParam(value = "page", defaultValue = "1") PageFromOne page,
       @RequestParam(value = "page_size", defaultValue = "15") BoundedPageSize pageSize) {
-    return userMapper.toRestStudents(
+    return retakeExamMapper.toStudentRetakeRestList(
         retakeExamService.getAllRetakeExamParticipantByCourseAndBySessionId(
             sessionId, courseId, studentRef, page, pageSize));
   }

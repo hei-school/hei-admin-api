@@ -149,22 +149,20 @@ public class RetakeExamService {
         .toList();
   }
 
-  public List<school.hei.haapi.model.User> getAllRetakeExamParticipantByCourseAndBySessionId(
+  public List<RetakeExam> getAllRetakeExamParticipantByCourseAndBySessionId(
       String sessionId,
       String courseId,
       String studentRef,
       PageFromOne page,
       BoundedPageSize pageSize) {
     var pageable = paginationFromPageAndPageSize.apply(page, pageSize);
-    var retakeExams =
-        retakeExamDao.filterByCriteria(
-            sessionId,
-            null,
-            studentRef,
-            courseId,
-            null,
-            List.of(REGISTERED, TO_CANCEL, INVALIDATE, VALIDATE),
-            pageable);
-    return retakeExams.stream().map(RetakeExam::getStudent).toList();
+    return retakeExamDao.filterByCriteria(
+        sessionId,
+        null,
+        studentRef,
+        courseId,
+        null,
+        List.of(REGISTERED, TO_CANCEL, INVALIDATE, VALIDATE),
+        pageable);
   }
 }
