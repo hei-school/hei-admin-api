@@ -1,3 +1,12 @@
+# [1.164.0](https://github.com/hei-school/hei-admin-api/compare/v1.163.0...v1.164.0) (2026-07-23)
+
+
+### Features
+
+* validate retake exams and update automatically exams grades ([12f5278](https://github.com/hei-school/hei-admin-api/commit/12f52780ccb5f77a52598d37aa792eff6c59b4a2))
+
+
+
 # [1.163.0](https://github.com/hei-school/hei-admin-api/compare/v1.162.0...v1.163.0) (2026-07-22)
 
 
@@ -166,21 +175,6 @@
 ### Features
 
 * (doc) add new enpoint to export advanced stats ([0030b5f](https://github.com/hei-school/hei-admin-api/commit/0030b5f48181add68cd886c41a6cbb95c860a4e6))
-
-
-
-# [1.150.0](https://github.com/hei-school/hei-admin-api/compare/v1.149.0...v1.150.0) (2026-01-22)
-
-
-### Bug Fixes
-
-* get all exams ([1f40bcf](https://github.com/hei-school/hei-admin-api/commit/1f40bcf49c85572f7d0c053f74ce255dd83df2f5))
-
-
-### Features
-
-* add result summary generation ([4ca97a5](https://github.com/hei-school/hei-admin-api/commit/4ca97a562949bcdefdb0a2027d95a7ef29d58eb6))
-* allow admin to create a new student ([4b5814e](https://github.com/hei-school/hei-admin-api/commit/4b5814e6ab01e0eef887b2178ed13efe92f6f6f5))
 
 
 
