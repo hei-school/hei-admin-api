@@ -80,6 +80,10 @@ public class SecurityConf {
             exceptionHandlingConfigurer ->
                 exceptionHandlingConfigurer
                     .authenticationEntryPoint(
+                        // note(spring-exception)
+                        // https://stackoverflow.com/questions/59417122/how-to-handle-usernamenotfoundexception-spring-security
+                        // issues like when a user tries to access a resource
+                        // without appropriate authentication elements
                         (req, res, e) ->
                             exceptionResolver.resolveException(
                                 req, res, null, forbiddenWithRemoteInfo(req)))
@@ -1124,6 +1128,10 @@ public class SecurityConf {
                     .authenticated()
                     .requestMatchers("/**")
                     .denyAll())
+        // disable superfluous protections
+        // Eg if all clients are non-browser then no csrf
+        // https://docs.spring.io/spring-security/site/docs/3.2.0.CI-SNAPSHOT/reference/html/csrf.html,
+        // Sec 13.3
         .cors(AbstractHttpConfigurer::disable)
         .csrf(AbstractHttpConfigurer::disable)
         .formLogin(AbstractHttpConfigurer::disable)
@@ -1148,6 +1156,11 @@ public class SecurityConf {
         (httpServletRequest, httpServletResponse, authentication) -> {});
     bearerFilter.setAuthenticationFailureHandler(
         (req, res, e) ->
+            // note(spring-exception)
+            // issues like when a user is not found(i.e. UsernameNotFoundException)
+            // or other exceptions thrown inside authentication provider.
+            // In fact, this handles other authentication exceptions that are
+            // not handled by AccessDeniedException and AuthenticationEntryPoint
             exceptionResolver.resolveException(req, res, null, forbiddenWithRemoteInfo(req)));
     return bearerFilter;
   }
