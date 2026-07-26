@@ -24,11 +24,11 @@ class FeesOnlyFilterTest {
 
   @Test
   void fees_only_inactive_all_requests_pass() throws ServletException, IOException {
-    FeesOnlyFilter filter = new FeesOnlyFilter(false);
+    var filter = new FeesOnlyFilter(false);
 
-    MockHttpServletRequest request = new MockHttpServletRequest();
+    var request = new MockHttpServletRequest();
     request.setRequestURI("/teachers");
-    MockHttpServletResponse response = new MockHttpServletResponse();
+    var response = new MockHttpServletResponse();
 
     filter.doFilterInternal(request, response, filterChain);
 
@@ -38,15 +38,15 @@ class FeesOnlyFilterTest {
 
   @Test
   void fees_only_active_allows_configured_prefixes() throws ServletException, IOException {
-    FeesOnlyFilter filter = new FeesOnlyFilter(true);
+    var filter = new FeesOnlyFilter(true);
 
-    List<String> allowedPrefixes =
+    var allowedPrefixes =
         List.of("/fees", "/students", "/whoami", "/ping", "/authentication", "/health", "/mpbs");
 
-    for (String prefix : allowedPrefixes) {
-      MockHttpServletRequest request = new MockHttpServletRequest();
+    for (var prefix : allowedPrefixes) {
+      var request = new MockHttpServletRequest();
       request.setRequestURI(prefix);
-      MockHttpServletResponse response = new MockHttpServletResponse();
+      var response = new MockHttpServletResponse();
 
       filter.doFilterInternal(request, response, filterChain);
 
@@ -57,15 +57,14 @@ class FeesOnlyFilterTest {
 
   @Test
   void fees_only_active_blocks_other_uris() throws ServletException, IOException {
-    FeesOnlyFilter filter = new FeesOnlyFilter(true);
+    var filter = new FeesOnlyFilter(true);
 
-    List<String> blockedUris =
-        List.of("/teachers", "/groups", "/events", "/courses", "/exams", "/unknown");
+    var blockedUris = List.of("/teachers", "/groups", "/events", "/courses", "/exams", "/unknown");
 
-    for (String uri : blockedUris) {
-      MockHttpServletRequest request = new MockHttpServletRequest();
+    for (var uri : blockedUris) {
+      var request = new MockHttpServletRequest();
       request.setRequestURI(uri);
-      MockHttpServletResponse response = new MockHttpServletResponse();
+      var response = new MockHttpServletResponse();
 
       filter.doFilterInternal(request, response, filterChain);
 
@@ -78,11 +77,11 @@ class FeesOnlyFilterTest {
 
   @Test
   void fees_only_active_allows_subpaths_of_allowed_prefixes() throws ServletException, IOException {
-    FeesOnlyFilter filter = new FeesOnlyFilter(true);
+    var filter = new FeesOnlyFilter(true);
 
-    MockHttpServletRequest request = new MockHttpServletRequest();
+    var request = new MockHttpServletRequest();
     request.setRequestURI("/students/student1_id/fees/fee1_id/payments");
-    MockHttpServletResponse response = new MockHttpServletResponse();
+    var response = new MockHttpServletResponse();
 
     filter.doFilterInternal(request, response, filterChain);
 
@@ -92,15 +91,14 @@ class FeesOnlyFilterTest {
 
   @Test
   void fees_only_inactive_allows_previously_blocked_uris() throws ServletException, IOException {
-    FeesOnlyFilter filter = new FeesOnlyFilter(false);
+    var filter = new FeesOnlyFilter(false);
 
-    List<String> uris =
-        List.of("/teachers", "/groups", "/events", "/courses", "/exams", "/unknown");
+    var uris = List.of("/teachers", "/groups", "/events", "/courses", "/exams", "/unknown");
 
-    for (String uri : uris) {
-      MockHttpServletRequest request = new MockHttpServletRequest();
+    for (var uri : uris) {
+      var request = new MockHttpServletRequest();
       request.setRequestURI(uri);
-      MockHttpServletResponse response = new MockHttpServletResponse();
+      var response = new MockHttpServletResponse();
 
       filter.doFilterInternal(request, response, filterChain);
 
@@ -111,11 +109,11 @@ class FeesOnlyFilterTest {
 
   @Test
   void fees_only_inactive_does_not_write_forbidden_body() throws ServletException, IOException {
-    FeesOnlyFilter filter = new FeesOnlyFilter(false);
+    var filter = new FeesOnlyFilter(false);
 
-    MockHttpServletRequest request = new MockHttpServletRequest();
+    var request = new MockHttpServletRequest();
     request.setRequestURI("/exams");
-    MockHttpServletResponse response = new MockHttpServletResponse();
+    var response = new MockHttpServletResponse();
 
     filter.doFilterInternal(request, response, filterChain);
 
@@ -126,14 +124,14 @@ class FeesOnlyFilterTest {
   @Test
   void fees_only_inactive_calls_filter_chain_for_every_request()
       throws ServletException, IOException {
-    FeesOnlyFilter filter = new FeesOnlyFilter(false);
+    var filter = new FeesOnlyFilter(false);
 
-    List<String> uris = List.of("/fees", "/students", "/teachers", "/anything/goes/here");
+    var uris = List.of("/fees", "/students", "/teachers", "/anything/goes/here");
 
-    for (String uri : uris) {
-      MockHttpServletRequest request = new MockHttpServletRequest();
+    for (var uri : uris) {
+      var request = new MockHttpServletRequest();
       request.setRequestURI(uri);
-      MockHttpServletResponse response = new MockHttpServletResponse();
+      var response = new MockHttpServletResponse();
 
       filter.doFilterInternal(request, response, filterChain);
 
@@ -143,11 +141,11 @@ class FeesOnlyFilterTest {
 
   @Test
   void fees_only_inactive_allows_root_and_empty_like_uris() throws ServletException, IOException {
-    FeesOnlyFilter filter = new FeesOnlyFilter(false);
+    var filter = new FeesOnlyFilter(false);
 
-    MockHttpServletRequest request = new MockHttpServletRequest();
+    var request = new MockHttpServletRequest();
     request.setRequestURI("/");
-    MockHttpServletResponse response = new MockHttpServletResponse();
+    var response = new MockHttpServletResponse();
 
     filter.doFilterInternal(request, response, filterChain);
 
@@ -158,11 +156,11 @@ class FeesOnlyFilterTest {
   @Test
   void fees_only_active_does_not_call_filter_chain_when_blocked()
       throws ServletException, IOException {
-    FeesOnlyFilter filter = new FeesOnlyFilter(true);
+    var filter = new FeesOnlyFilter(true);
 
-    MockHttpServletRequest request = new MockHttpServletRequest();
+    var request = new MockHttpServletRequest();
     request.setRequestURI("/teachers");
-    MockHttpServletResponse response = new MockHttpServletResponse();
+    var response = new MockHttpServletResponse();
 
     filter.doFilterInternal(request, response, filterChain);
 
@@ -172,11 +170,11 @@ class FeesOnlyFilterTest {
   @Test
   void fees_only_active_blocked_response_has_json_content_type()
       throws ServletException, IOException {
-    FeesOnlyFilter filter = new FeesOnlyFilter(true);
+    var filter = new FeesOnlyFilter(true);
 
-    MockHttpServletRequest request = new MockHttpServletRequest();
+    var request = new MockHttpServletRequest();
     request.setRequestURI("/teachers");
-    MockHttpServletResponse response = new MockHttpServletResponse();
+    var response = new MockHttpServletResponse();
 
     filter.doFilterInternal(request, response, filterChain);
 
@@ -186,11 +184,11 @@ class FeesOnlyFilterTest {
   @Test
   void fees_only_active_blocks_uris_that_merely_start_with_allowed_prefix()
       throws ServletException, IOException {
-    FeesOnlyFilter filter = new FeesOnlyFilter(true);
+    var filter = new FeesOnlyFilter(true);
 
-    MockHttpServletRequest request = new MockHttpServletRequest();
+    var request = new MockHttpServletRequest();
     request.setRequestURI("/feesnotreal");
-    MockHttpServletResponse response = new MockHttpServletResponse();
+    var response = new MockHttpServletResponse();
 
     filter.doFilterInternal(request, response, filterChain);
 
@@ -202,11 +200,11 @@ class FeesOnlyFilterTest {
 
   @Test
   void fees_only_active_is_case_sensitive_on_prefixes() throws ServletException, IOException {
-    FeesOnlyFilter filter = new FeesOnlyFilter(true);
+    var filter = new FeesOnlyFilter(true);
 
-    MockHttpServletRequest request = new MockHttpServletRequest();
+    var request = new MockHttpServletRequest();
     request.setRequestURI("/FEES/invoice1");
-    MockHttpServletResponse response = new MockHttpServletResponse();
+    var response = new MockHttpServletResponse();
 
     filter.doFilterInternal(request, response, filterChain);
 
@@ -218,11 +216,11 @@ class FeesOnlyFilterTest {
 
   @Test
   void fees_only_active_blocks_empty_uri() throws ServletException, IOException {
-    FeesOnlyFilter filter = new FeesOnlyFilter(true);
+    var filter = new FeesOnlyFilter(true);
 
-    MockHttpServletRequest request = new MockHttpServletRequest();
+    var request = new MockHttpServletRequest();
     request.setRequestURI("");
-    MockHttpServletResponse response = new MockHttpServletResponse();
+    var response = new MockHttpServletResponse();
 
     filter.doFilterInternal(request, response, filterChain);
 
