@@ -840,6 +840,146 @@ operations:
           $ref: '../components.yml#/components/responses/429'
         '500':
           $ref: '../components.yml#/components/responses/500'
+  feeCreationJobsOperations:
+    get:
+      tags:
+        - Paying
+      summary: Get list of existing fee creation jobs
+      operationId: getFeeCreationJobs
+      parameters:
+        - name: page
+          in: query
+          schema:
+            $ref: '../components.yml#/components/schemas/Page'
+        - name: page_size
+          in: query
+          schema:
+            $ref: '../components.yml#/components/schemas/PageSize'
+      responses:
+        '200':
+          description: List of existing fee creation jobs
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '../components.yml#/components/schemas/FeeCreationJob'
+        '400':
+          $ref: '../components.yml#/components/responses/400'
+        '403':
+          $ref: '../components.yml#/components/responses/403'
+        '404':
+          $ref: '../components.yml#/components/responses/404'
+        '429':
+          $ref: '../components.yml#/components/responses/429'
+        '500':
+          $ref: '../components.yml#/components/responses/500'
+    put:
+      tags:
+        - Paying
+      summary: Create fee creation jobs
+      description: |
+        Asynchronously create fees for each provided student reference,
+        from the contents of the fee template identified by `fee_template_id`.
+        One task is created per student reference, and each task creates
+        as many fees as the template holds contents.
+        Each job identifier is provided by the client, so submitting twice the
+        same identifier does not enqueue the same work twice.
+        The returned jobs are meant to be polled through `GET /feeCreationJobs/{id}`
+        until their `status.progression` reaches `FINISHED`.
+        Unknown student references, and students already charged through a former
+        job for the same template, are not rejected upfront: they are reported
+        in the `failures` of the corresponding job.
+      operationId: crupdateFeeCreationJobs
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '../components.yml#/components/schemas/CrupdateFeeCreationJob'
+      responses:
+        '200':
+          description: Accepted fee creation jobs
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '../components.yml#/components/schemas/FeeCreationJob'
+        '400':
+          $ref: '../components.yml#/components/responses/400'
+        '403':
+          $ref: '../components.yml#/components/responses/403'
+        '404':
+          $ref: '../components.yml#/components/responses/404'
+        '429':
+          $ref: '../components.yml#/components/responses/429'
+        '500':
+          $ref: '../components.yml#/components/responses/500'
+  getFeeCreationJob:
+    get:
+      tags:
+        - Paying
+      summary: Get a fee creation job by id
+      description: |
+        Retrieve the current state of a fee creation job.
+        While `status.progression` is not `FINISHED`, `status.health` stays `UNKNOWN`
+        and the counters reflect the tasks processed so far.
+      parameters:
+        - in: path
+          name: id
+          description: Fee creation job identifier
+          schema:
+            type: string
+          required: true
+      operationId: getFeeCreationJobById
+      responses:
+        '200':
+          description: The fee creation job
+          content:
+            application/json:
+              schema:
+                $ref: '../components.yml#/components/schemas/FeeCreationJob'
+        '403':
+          $ref: '../components.yml#/components/responses/403'
+        '404':
+          $ref: '../components.yml#/components/responses/404'
+        '429':
+          $ref: '../components.yml#/components/responses/429'
+        '500':
+          $ref: '../components.yml#/components/responses/500'
+  getFeeCreationJobStudents:
+    get:
+      tags:
+        - Paying
+      summary: Get list of students attempted to fees creation through actual jobs
+      parameters:
+        - in: path
+          name: id
+          description: Fee creation job identifier
+          schema:
+            type: string
+          required: true
+      operationId: getFeeCreationJobStudents
+      responses:
+        '200':
+          description: List of students with fees creation status
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '../components.yml#/components/schemas/FeeStudentCreation'
+        '403':
+          $ref: '../components.yml#/components/responses/403'
+        '404':
+          $ref: '../components.yml#/components/responses/404'
+        '429':
+          $ref: '../components.yml#/components/responses/429'
+        '500':
+          $ref: '../components.yml#/components/responses/500'
   feesTemplatesById:
     get:
       deprecated: true

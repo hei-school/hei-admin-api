@@ -188,6 +188,10 @@ public class SecurityConf {
                     antMatcher(PUT, "/feeTemplates"),
                     antMatcher(GET, "/feeTemplates/*/content"),
                     antMatcher(PUT, "/feeTemplates/*/content"),
+                    antMatcher(PUT, "/feeCreationJobs"),
+                    antMatcher(GET, "/feeCreationJobs"),
+                    antMatcher(GET, "/feeCreationJobs/*"),
+                    antMatcher(GET, "/feeCreationJobs/*/students"),
                     antMatcher(GET, "/teachers"),
                     antMatcher(GET, "/teachers/*"),
                     antMatcher(GET, "/teachers/**"),
@@ -502,6 +506,14 @@ public class SecurityConf {
                     .requestMatchers(GET, "/feeTemplates/*/content")
                     .hasAnyRole(MANAGER.getRole(), ADMIN.getRole())
                     .requestMatchers(PUT, "/feeTemplates/*/content")
+                    .hasAnyRole(MANAGER.getRole(), ADMIN.getRole())
+                    .requestMatchers(PUT, "/feeCreationJobs")
+                    .hasAnyRole(MANAGER.getRole(), ADMIN.getRole())
+                    .requestMatchers(GET, "/feeCreationJobs")
+                    .hasAnyRole(MANAGER.getRole(), ADMIN.getRole())
+                    .requestMatchers(GET, "/feeCreationJobs/*")
+                    .hasAnyRole(MANAGER.getRole(), ADMIN.getRole())
+                    .requestMatchers(GET, "/feeCreationJobs/*/students")
                     .hasAnyRole(MANAGER.getRole(), ADMIN.getRole())
                     .requestMatchers(GET, "/fees/templates")
                     .hasAnyRole(STUDENT.getRole(), MANAGER.getRole(), ADMIN.getRole())

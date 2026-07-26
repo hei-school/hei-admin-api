@@ -59,6 +59,7 @@ public class FeeTemplateService {
             .orElseThrow(
                 () ->
                     new NotFoundException("Fee template id=" + templateIdentifier + " not found"));
+    v2FeeTemplateContents.forEach(content -> content.setFeeTemplate(v2FeeTemplate));
     var savedFeeTemplate =
         v2FeeTemplateRepository.save(
             v2FeeTemplate.toBuilder().feeTemplateContents(v2FeeTemplateContents).build());
