@@ -1,6 +1,7 @@
 package school.hei.haapi.endpoint.rest.mapper;
 
 import java.math.BigInteger;
+import java.util.List;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 import school.hei.haapi.endpoint.rest.model.*;
@@ -41,6 +42,18 @@ public class FeeTemplateMapper {
         .type(domain.getType())
         .category(domain.getCategory())
         .creationDatetime(domain.getCreationDatetime());
+  }
+
+  public V2DetailedFeeTemplate toRestDetailed(school.hei.haapi.model.V2FeeTemplate domain) {
+    var contents = domain.getFeeTemplateContents();
+    return new V2DetailedFeeTemplate()
+        .id(domain.getId())
+        .label(domain.getLabel())
+        .type(domain.getType())
+        .category(domain.getCategory())
+        .creationDatetime(domain.getCreationDatetime())
+        .contents(
+            contents == null ? List.of() : contents.stream().map(this::toRestContent).toList());
   }
 
   public school.hei.haapi.model.V2FeeTemplate toDomain(V2CrupdateFeeTemplate rest) {

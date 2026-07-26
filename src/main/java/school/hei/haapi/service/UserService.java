@@ -135,6 +135,10 @@ public class UserService {
         .orElseThrow(() -> new NotFoundException("User with id: " + userId + " not found"));
   }
 
+  public List<User> findAllByRefIn(List<String> userRefs) {
+    return userRepository.findAllByRefIn(userRefs);
+  }
+
   // TODO: Must be get, find must return Optional
   public User findByRef(String userRef) {
     return userRepository

@@ -2188,3 +2188,97 @@ components:
         creation_datetime:
           type: string
           format: date-time
+    V2DetailedFeeTemplate:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/V2FeeTemplate'
+      properties:
+        contents:
+          type: array
+          items:
+            $ref: '#/components/schemas/FeeTemplateContent'
+    JobProgression:
+      type: string
+      enum:
+        - PENDING
+        - PROCESSING
+        - FINISHED
+    JobHealth:
+      type: string
+      enum:
+        - UNKNOWN
+        - SUCCEEDED
+        - FAILED
+    JobStatus:
+      type: object
+      properties:
+        progression:
+          $ref: '#/components/schemas/JobProgression'
+        health:
+          $ref: '#/components/schemas/JobHealth'
+        creation_datetime:
+          type: string
+          format: date-time
+    CrupdateFeeCreationJob:
+      type: object
+      properties:
+        id:
+          type: string
+        fee_template_id:
+          type: string
+        student_refs:
+          type: array
+          items:
+            type: string
+    FeeCreationJobFailure:
+      type: object
+      properties:
+        student_ref:
+          type: string
+        message:
+          type: string
+    FeeCreationJob:
+      type: object
+      properties:
+        id:
+          type: string
+        status:
+          $ref: '#/components/schemas/JobStatus'
+        fee_template:
+          $ref: '#/components/schemas/V2DetailedFeeTemplate'
+        creation_datetime:
+          type: string
+          format: date-time
+        end_datetime:
+          type: string
+          format: date-time
+        statistics:
+          $ref: '#/components/schemas/FeeCreationJobStatistics'
+        failures:
+          type: array
+          items:
+            $ref: '#/components/schemas/FeeCreationJobFailure'
+    FeeCreationJobStatistics:
+      type: object
+      properties:
+        total_count:
+          type: integer
+        success_count:
+          type: integer
+        failure_count:
+          type: integer
+        update_datetime:
+          type: string
+          format: date-time
+    FeeStudentCreationStatus:
+      allOf:
+        - $ref: '#/components/schemas/JobStatus'
+    FeeStudentCreation:
+      type: object
+      properties:
+        student:
+          $ref: '#/components/schemas/UserIdentifier'
+        fees_creation_status:
+          $ref: '#/components/schemas/FeeStudentCreationStatus'
+        message:
+          type: string
