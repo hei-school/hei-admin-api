@@ -1,0 +1,361 @@
+operations:
+  getStudentsLetters:
+    get:
+      tags:
+        - Letters
+      summary: All students letters paginated
+      operationId: getStudentsLetters
+      parameters:
+        - name: page
+          in: query
+          schema:
+            $ref: '../components.yml#/components/schemas/Page'
+          description: Set value to 1 by default if null is provided
+          required: false
+        - name: page_size
+          in: query
+          description: Set value to 15 by default if null is provided
+          schema:
+            $ref: '../components.yml#/components/schemas/PageSize'
+          required: false
+        - name: student_ref
+          in: query
+          description: Filter by student ref
+          schema:
+            type: string
+          required: false
+        - name: ref
+          in: query
+          description: Filter by letter ref
+          schema:
+            type: string
+          required: false
+        - name: status
+          in: query
+          description: Filter by status
+          schema:
+            $ref: '../components.yml#/components/schemas/LetterStatus'
+        - name: name
+          in: query
+          description: Filter by student name
+          schema:
+            type: string
+          required: false
+        - name: fee_id
+          in: query
+          description: Filter letter by fee id
+          required: false
+          schema:
+            type: string
+        - name: is_linked_with_fee
+          in: query
+          required: false
+          schema:
+            type: boolean
+      responses:
+        '200':
+          description: Letters
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '../components.yml#/components/schemas/Letter'
+        '400':
+          $ref: '../components.yml#/components/responses/400'
+        '403':
+          $ref: '../components.yml#/components/responses/403'
+        '404':
+          $ref: '../components.yml#/components/responses/404'
+        '429':
+          $ref: '../components.yml#/components/responses/429'
+        '500':
+          $ref: '../components.yml#/components/responses/500'
+  letters:
+    get:
+      tags:
+        - Letters
+      summary: All letters paginated
+      operationId: getLetters
+      parameters:
+        - name: page
+          in: query
+          schema:
+            $ref: '../components.yml#/components/schemas/Page'
+          description: Set value to 1 by default if null is provided
+          required: false
+        - name: page_size
+          in: query
+          description: Set value to 15 by default if null is provided
+          schema:
+            $ref: '../components.yml#/components/schemas/PageSize'
+          required: false
+        - $ref: '../components.yml#/components/parameters/StudentRef'
+        - name: ref
+          in: query
+          description: Filter by letter ref
+          schema:
+            type: string
+          required: false
+        - name: status
+          in: query
+          description: Filter by status
+          schema:
+            $ref: '../components.yml#/components/schemas/LetterStatus'
+        - name: name
+          in: query
+          description: Filter by student name
+          schema:
+            type: string
+          required: false
+        - name: fee_id
+          in: query
+          description: Filter letter by fee id
+          required: false
+          schema:
+            type: string
+        - name: is_linked_with_fee
+          in: query
+          required: false
+          schema:
+            type: boolean
+        - $ref: '../components.yml#/components/parameters/RoleParamEnum'
+      responses:
+        '200':
+          description: Letters
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '../components.yml#/components/schemas/Letter'
+        '400':
+          $ref: '../components.yml#/components/responses/400'
+        '403':
+          $ref: '../components.yml#/components/responses/403'
+        '404':
+          $ref: '../components.yml#/components/responses/404'
+        '429':
+          $ref: '../components.yml#/components/responses/429'
+        '500':
+          $ref: '../components.yml#/components/responses/500'
+    put:
+      tags:
+        - Letters
+      summary: Update letters status
+      operationId: updateLettersStatus
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '../components.yml#/components/schemas/UpdateLettersStatus'
+      responses:
+        '200':
+          description: The letters updated
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '../components.yml#/components/schemas/Letter'
+        '400':
+          $ref: '../components.yml#/components/responses/400'
+        '403':
+          $ref: '../components.yml#/components/responses/403'
+        '404':
+          $ref: '../components.yml#/components/responses/404'
+        '429':
+          $ref: '../components.yml#/components/responses/429'
+        '500':
+          $ref: '../components.yml#/components/responses/500'
+  getLetterById:
+    get:
+      tags:
+        - Letters
+      summary: Letter by the given id
+      operationId: getLetterById
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: The letters updated
+          content:
+            application/json:
+              schema:
+                $ref: '../components.yml#/components/schemas/Letter'
+        '400':
+          $ref: '../components.yml#/components/responses/400'
+        '403':
+          $ref: '../components.yml#/components/responses/403'
+        '404':
+          $ref: '../components.yml#/components/responses/404'
+        '429':
+          $ref: '../components.yml#/components/responses/429'
+        '500':
+          $ref: '../components.yml#/components/responses/500'
+  getStudentsLetterStats:
+    get:
+      tags:
+        - Letters
+      summary: Get stats for letters
+      operationId: getStudentsLetterStats
+      responses:
+        '200':
+          description: Some stats for letters
+          content:
+            application/json:
+              schema:
+                $ref: '../components.yml#/components/schemas/LetterStats'
+        '400':
+          $ref: '../components.yml#/components/responses/400'
+        '403':
+          $ref: '../components.yml#/components/responses/403'
+        '404':
+          $ref: '../components.yml#/components/responses/404'
+        '429':
+          $ref: '../components.yml#/components/responses/429'
+        '500':
+          $ref: '../components.yml#/components/responses/500'
+  getLetterStats:
+    get:
+      tags:
+        - Letters
+      summary: Get stats for letters
+      operationId: getLetterStats
+      parameters:
+        - $ref: '../components.yml#/components/parameters/RoleParamEnum'
+      responses:
+        '200':
+          description: Some stats for letters
+          content:
+            application/json:
+              schema:
+                $ref: '../components.yml#/components/schemas/LetterStats'
+        '400':
+          $ref: '../components.yml#/components/responses/400'
+        '403':
+          $ref: '../components.yml#/components/responses/403'
+        '404':
+          $ref: '../components.yml#/components/responses/404'
+        '429':
+          $ref: '../components.yml#/components/responses/429'
+        '500':
+          $ref: '../components.yml#/components/responses/500'
+  usersLetters:
+    get:
+      tags:
+        - Letters
+      summary: Letters by the given user id
+      operationId: getLettersByUserId
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: event_id
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: page
+          in: query
+          schema:
+            $ref: '../components.yml#/components/schemas/Page'
+          description: Set value to 1 by default if null is provided
+          required: false
+        - name: page_size
+          in: query
+          description: Set value to 15 by default if null is provided
+          schema:
+            $ref: '../components.yml#/components/schemas/PageSize'
+        - name: status
+          in: query
+          description: Filter by status
+          schema:
+            $ref: '../components.yml#/components/schemas/LetterStatus'
+      responses:
+        '200':
+          description: All letters by the given student id
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '../components.yml#/components/schemas/Letter'
+        '400':
+          $ref: '../components.yml#/components/responses/400'
+        '403':
+          $ref: '../components.yml#/components/responses/403'
+        '404':
+          $ref: '../components.yml#/components/responses/404'
+        '429':
+          $ref: '../components.yml#/components/responses/429'
+        '500':
+          $ref: '../components.yml#/components/responses/500'
+    post:
+      tags:
+        - Letters
+      summary: Create a letter for the given user id
+      operationId: createLetter
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: filename
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: description
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: fee_id
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: amount
+          in: query
+          required: false
+          schema:
+            type: integer
+        - name: event_participant_id
+          in: query
+          required: false
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              $ref: "../components.yml#/components/schemas/UploadFile"
+      responses:
+        '200':
+          description: The letter by the given student id
+          content:
+            application/json:
+              schema:
+                $ref: '../components.yml#/components/schemas/Letter'
+        '400':
+          $ref: '../components.yml#/components/responses/400'
+        '403':
+          $ref: '../components.yml#/components/responses/403'
+        '404':
+          $ref: '../components.yml#/components/responses/404'
+        '429':
+          $ref: '../components.yml#/components/responses/429'
+        '500':
+          $ref: '../components.yml#/components/responses/500'

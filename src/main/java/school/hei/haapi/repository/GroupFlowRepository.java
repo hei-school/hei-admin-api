@@ -7,7 +7,6 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import school.hei.haapi.endpoint.rest.model.StudentLevel;
 import school.hei.haapi.model.GroupFlow;
-import school.hei.haapi.model.User;
 
 @Repository
 public interface GroupFlowRepository extends JpaRepository<GroupFlow, String> {
@@ -17,9 +16,9 @@ public interface GroupFlowRepository extends JpaRepository<GroupFlow, String> {
       JOIN gf.group g
       JOIN CourseAssignment ca ON g MEMBER OF ca.groups
       JOIN ca.course c
-      WHERE gf.student = :student
+      WHERE gf.student.id = :student_id
       AND c.studentLevel = :level
       """)
   List<GroupFlow> findByFlowTypeAndStudentAndLevel(
-      @Param("student") User student, @Param("level") StudentLevel level);
+      @Param("student_id") String studentId, @Param("level") StudentLevel level);
 }

@@ -1,0 +1,237 @@
+operations:
+  courseAssignmentsExams:
+    get:
+      tags:
+        - Exams
+      summary: Get all exam infos of a specified course_assignment.
+      parameters:
+        - name: course_assignment_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: page
+          in: query
+          schema:
+            $ref: '../components.yml#/components/schemas/Page'
+          description: Set value to 1 by default if null is provided
+          required: false
+        - name: page_size
+          in: query
+          description: Set value to 15 by default if null is provided
+          schema:
+            $ref: '../components.yml#/components/schemas/PageSize'
+      operationId: getExamsByCourseAssignment
+      responses:
+        '200':
+          description: List of exam infos without the participants of the specified course
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '../components.yml#/components/schemas/Exam'
+        '400':
+          $ref: '../components.yml#/components/responses/400'
+        '403':
+          $ref: '../components.yml#/components/responses/403'
+        '404':
+          $ref: '../components.yml#/components/responses/404'
+        '429':
+          $ref: '../components.yml#/components/responses/429'
+        '500':
+          $ref: '../components.yml#/components/responses/500'
+    put:
+      tags:
+        - Exams
+      summary: Create new exams or update existing exams
+      description: Update exams when `id` are provided, create them otherwise.
+      parameters:
+        - name: course_assignment_id
+          in: path
+          required: true
+          schema:
+            type: string
+      operationId: createOrUpdateExams
+      requestBody:
+        required: true
+        description: Exams to update
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '../components.yml#/components/schemas/Exam'
+      responses:
+        '200':
+          description: Exams infos without the students participated
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '../components.yml#/components/schemas/Exam'
+        '400':
+          $ref: '../components.yml#/components/responses/400'
+        '403':
+          $ref: '../components.yml#/components/responses/403'
+        '404':
+          $ref: '../components.yml#/components/responses/404'
+        '429':
+          $ref: '../components.yml#/components/responses/429'
+        '500':
+          $ref: '../components.yml#/components/responses/500'
+  exams:
+    get:
+      tags:
+        - Exams
+      summary: Get all exam infos.
+      parameters:
+        - $ref: '../components.yml#/components/parameters/TeacherId'
+        - name: title
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: course_code
+          in: query
+          required: false
+          example: PROG1
+          schema:
+            type: string
+        - $ref: "../components.yml#/components/parameters/GroupRef"
+        - name: examination_date_from
+          in: query
+          required: false
+          schema:
+            type: string
+            format: date-time
+        - name: examination_date_to
+          in: query
+          required: false
+          schema:
+            type: string
+            format: date-time
+        - name: page
+          in: query
+          schema:
+            $ref: '../components.yml#/components/schemas/Page'
+          description: Set value to 1 by default if null is provided
+          required: false
+        - name: page_size
+          in: query
+          description: Set value to 15 by default if null is provided
+          schema:
+            $ref: '../components.yml#/components/schemas/PageSize'
+      operationId: getAllExams
+      responses:
+        '200':
+          description: List of exam infos without the participants
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '../components.yml#/components/schemas/Exam'
+        '400':
+          $ref: '../components.yml#/components/responses/400'
+        '403':
+          $ref: '../components.yml#/components/responses/403'
+        '404':
+          $ref: '../components.yml#/components/responses/404'
+        '429':
+          $ref: '../components.yml#/components/responses/429'
+        '500':
+          $ref: '../components.yml#/components/responses/500'
+    put:
+      tags:
+        - Exams
+      summary: Create new exams or update existing exams
+      operationId: CreateOrUpdateExamsInfos
+      requestBody:
+        required: true
+        description: Exams to update
+        content:
+          application/json:
+            schema:
+              $ref: '../components.yml#/components/schemas/CrupdateExam'
+      responses:
+        '200':
+          description: Exams infos without the students participated
+          content:
+            application/json:
+              schema:
+                $ref: '../components.yml#/components/schemas/Exam'
+        '400':
+          $ref: '../components.yml#/components/responses/400'
+        '403':
+          $ref: '../components.yml#/components/responses/403'
+        '404':
+          $ref: '../components.yml#/components/responses/404'
+        '429':
+          $ref: '../components.yml#/components/responses/429'
+        '500':
+          $ref: '../components.yml#/components/responses/500'
+  getExamOneExamById:
+    get:
+      tags:
+        - Exams
+      summary: Get exam by id
+      operationId: getExamOneExamById
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: A specific exam
+          content:
+            application/json:
+              schema:
+                $ref: '../components.yml#/components/schemas/Exam'
+        '400':
+          $ref: '../components.yml#/components/responses/400'
+        '403':
+          $ref: '../components.yml#/components/responses/403'
+        '404':
+          $ref: '../components.yml#/components/responses/404'
+        '429':
+          $ref: '../components.yml#/components/responses/429'
+        '500':
+          $ref: '../components.yml#/components/responses/500'
+  getExamById:
+    get:
+      tags:
+        - Exams
+      summary: Get a course_assignment exam.
+      operationId: getExamById
+      parameters:
+        - name: course_assignment_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: exam_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: A specific exam
+          content:
+            application/json:
+              schema:
+                $ref: '../components.yml#/components/schemas/Exam'
+        '400':
+          $ref: '../components.yml#/components/responses/400'
+        '403':
+          $ref: '../components.yml#/components/responses/403'
+        '404':
+          $ref: '../components.yml#/components/responses/404'
+        '429':
+          $ref: '../components.yml#/components/responses/429'
+        '500':
+          $ref: '../components.yml#/components/responses/500'

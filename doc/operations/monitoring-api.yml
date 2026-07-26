@@ -1,0 +1,186 @@
+operations:
+  monitorsLink:
+    post:
+      tags:
+        - Monitoring
+      summary: Approve or deny a list of monitor student link requests
+      operationId: updateMonitorStudentLinkStatus
+      requestBody:
+        required: true
+        description: List of monitor student link ids and status to set
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                monitor_student_link:
+                  type: array
+                  items:
+                    $ref: '../components.yml#/components/schemas/UpdateMonitorStudentLink'
+      responses:
+        '200':
+          description: List of student linked to a monitor
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '../components.yml#/components/schemas/MonitorStudentLink'
+        '400':
+          $ref: '../components.yml#/components/responses/400'
+        '403':
+          $ref: '../components.yml#/components/responses/403'
+        '404':
+          $ref: '../components.yml#/components/responses/404'
+        '429':
+          $ref: '../components.yml#/components/responses/429'
+        '500':
+          $ref: '../components.yml#/components/responses/500'
+    get:
+      tags:
+        - Monitoring
+      parameters:
+        - $ref: '../components.yml#/components/parameters/Page'
+        - $ref: '../components.yml#/components/parameters/PageSize'
+      summary: Get all link request to a monitor that is pending
+      operationId: getLinkStudentRequests
+      responses:
+        '200':
+          description: List of monitor student linked
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '../components.yml#/components/schemas/MonitorStudentLink'
+        '400':
+          $ref: '../components.yml#/components/responses/400'
+        '403':
+          $ref: '../components.yml#/components/responses/403'
+        '404':
+          $ref: '../components.yml#/components/responses/404'
+        '429':
+          $ref: '../components.yml#/components/responses/429'
+        '500':
+          $ref: '../components.yml#/components/responses/500'
+  getLinkedStudentByIdAndMonitorId:
+    get:
+      tags:
+        - Monitoring
+      summary: Get a student using its monitor id.
+      parameters:
+        - name: monitor_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: student_id
+          in: path
+          required: true
+          schema:
+            type: string
+      operationId: getLinkedStudentByIdAndMonitorId
+      responses:
+        '200':
+          description: A student monitored by the monitor_id with the given student_id
+          content:
+            application/json:
+              schema:
+                $ref: "../components.yml#/components/schemas/Student"
+        '400':
+          $ref: '../components.yml#/components/responses/400'
+        '403':
+          $ref: '../components.yml#/components/responses/403'
+        '404':
+          $ref: '../components.yml#/components/responses/404'
+        '429':
+          $ref: '../components.yml#/components/responses/429'
+        '500':
+          $ref: '../components.yml#/components/responses/500'
+  monitorsStudents:
+    get:
+      tags:
+        - Monitoring
+      summary: Get all students linked to a monitor
+      description: All students linked to a monitor order by Ref ASC
+      operationId: getLinkedStudentsByMonitorId
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: page
+          in: query
+          schema:
+            $ref: '../components.yml#/components/schemas/Page'
+          description: Set value to 1 by default if null is provided
+          required: true
+        - name: page_size
+          in: query
+          required: true
+          description: Set value to 15 by default if null is provided
+          schema:
+            $ref: '../components.yml#/components/schemas/PageSize'
+      responses:
+        '200':
+          description: List of student linked to a monitor
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '../components.yml#/components/schemas/Student'
+        '400':
+          $ref: '../components.yml#/components/responses/400'
+        '403':
+          $ref: '../components.yml#/components/responses/403'
+        '404':
+          $ref: '../components.yml#/components/responses/404'
+        '429':
+          $ref: '../components.yml#/components/responses/429'
+        '500':
+          $ref: '../components.yml#/components/responses/500'
+    put:
+      tags:
+        - Monitoring
+      summary: Link students to monitor
+      description: Link given students to a monitor
+      operationId: linkStudentsByMonitorId
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        description: Students to be linked to a monitor
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                students_ids:
+                  type: array
+                  items:
+                    type: string
+      responses:
+        '200':
+          description: List of student linked to a monitor
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '../components.yml#/components/schemas/Student'
+        '400':
+          $ref: '../components.yml#/components/responses/400'
+        '403':
+          $ref: '../components.yml#/components/responses/403'
+        '404':
+          $ref: '../components.yml#/components/responses/404'
+        '429':
+          $ref: '../components.yml#/components/responses/429'
+        '500':
+          $ref: '../components.yml#/components/responses/500'

@@ -290,6 +290,7 @@ public class SecurityConf {
                     antMatcher(PATCH, "/retake_exams/to_cancel"),
                     antMatcher(PATCH, "/retake_exams/cancel"),
                     antMatcher(PATCH, "/retake_exams/reject"),
+                    antMatcher(PATCH, "/retake_exams/status"),
                     antMatcher(PUT, "/retake_exam_sessions/*/retake_exams"),
                     antMatcher(GET, "/students/*/sessions/*/retake_exams"),
                     antMatcher(GET, "/retake_exam_sessions/*/retake_exam_courses"),
@@ -849,6 +850,8 @@ public class SecurityConf {
                     .requestMatchers(PATCH, "/retake_exams/cancel")
                     .hasAnyRole(MANAGER.getRole(), ADMIN.getRole())
                     .requestMatchers(PATCH, "/retake_exams/reject")
+                    .hasAnyRole(MANAGER.getRole(), ADMIN.getRole())
+                    .requestMatchers(PATCH, "/retake_exams/status")
                     .hasAnyRole(MANAGER.getRole(), ADMIN.getRole())
                     .requestMatchers(PUT, "/retake_exam_sessions/*/retake_exams")
                     .hasAnyRole(

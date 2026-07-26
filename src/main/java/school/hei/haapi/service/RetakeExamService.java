@@ -14,10 +14,10 @@ import java.util.Objects;
 import java.util.stream.Stream;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import school.hei.haapi.endpoint.rest.mapper.CourseMapper;
-import school.hei.haapi.endpoint.rest.model.Course;
+import school.hei.haapi.endpoint.rest.mapper.GradeMapper;
 import school.hei.haapi.endpoint.rest.model.CourseResult;
 import school.hei.haapi.endpoint.rest.model.YearlyResult;
 import school.hei.haapi.model.BoundedPageSize;
@@ -39,11 +39,26 @@ public class RetakeExamService {
   private final CourseMapper courseMapper;
   private final RetakeExamDao retakeExamDao;
   private final PaginationFromPageAndPageSize paginationFromPageAndPageSize;
+  private final GradeService gradeService;
+  private final GradeMapper gradeMapper;
 
   public List<RetakeExam> crupdateRetakeExams(List<RetakeExam> crupdateRetakeExams) {
     return retakeExamRepository.saveAll(crupdateRetakeExams);
   }
 
+  public List<RetakeExam> updateRetakeExams(List<RetakeExam> retakeExams) {
+    var grades =
+        retakeExams.stream()
+            .filter(retakeExam -> VALIDATE.equals(retakeExam.getStatus()))
+            .flatMap(retakeExam -> gradeService.getGradesByRetakeExam(retakeExam).stream())
+            .toList();
+    if (!grades.isEmpty()) {
+      gradeService.updateParticipantGrade(gradeMapper.toUpdateGrades(grades));
+    }
+    return retakeExamRepository.saveAll(retakeExams);
+  }
+
+  @Transactional
   public RetakeExam getById(String id) {
     return retakeExamRepository
         .findById(id)
@@ -83,27 +98,26 @@ public class RetakeExamService {
     //  - one for determining what needs retake
     var combinedList = Stream.concat(newRetakeExams, existingRetakeExamsInCurrentSession).toList();
 
-    int from = (page.getValue() - 1) * pageSize.getValue();
-    int to = Math.min(from + pageSize.getValue(), combinedList.size());
+    var from = (page.getValue() - 1) * pageSize.getValue();
+    var to = Math.min(from + pageSize.getValue(), combinedList.size());
 
     return from >= combinedList.size() ? List.of() : combinedList.subList(from, to);
   }
 
   private RetakeExam courseResultAndSessionToRetake(
       CourseResult courseResult, RetakeExamSession session) {
-    Course course = courseResult.getCourse();
+    var course = courseResult.getCourse();
     if (course == null) {
       throw new IllegalStateException("Course must not be null for CourseResult: " + courseResult);
     }
-    RetakeExam retakeExam = new RetakeExam();
+    var retakeExam = new RetakeExam();
     retakeExam.setCourse(courseMapper.toDomain(course));
     retakeExam.setSession(session);
     return retakeExam;
   }
 
   private List<CourseResult> getCourseResultToRetake(String studentId) {
-    List<YearlyResult> yearlyResults =
-        gradeResultService.getStudentResultSummary(studentId).getYearlyResults();
+    var yearlyResults = gradeResultService.getStudentResultSummary(studentId).getYearlyResults();
 
     if (yearlyResults == null) return List.of();
 
@@ -121,7 +135,7 @@ public class RetakeExamService {
       String studentRef,
       PageFromOne page,
       BoundedPageSize pageSize) {
-    Pageable pageable = PageRequest.of(page.getValue() - 1, pageSize.getValue());
+    var pageable = PageRequest.of(page.getValue() - 1, pageSize.getValue());
     return retakeExamDao.filterByCriteria(null, null, studentRef, null, null, statuses, pageable);
   }
 
@@ -137,22 +151,20 @@ public class RetakeExamService {
         .toList();
   }
 
-  public List<school.hei.haapi.model.User> getAllRetakeExamParticipantByCourseAndBySessionId(
+  public List<RetakeExam> getAllRetakeExamParticipantByCourseAndBySessionId(
       String sessionId,
       String courseId,
       String studentRef,
       PageFromOne page,
       BoundedPageSize pageSize) {
     var pageable = paginationFromPageAndPageSize.apply(page, pageSize);
-    var retakeExams =
-        retakeExamDao.filterByCriteria(
-            sessionId,
-            null,
-            studentRef,
-            courseId,
-            null,
-            List.of(REGISTERED, TO_CANCEL, INVALIDATE, VALIDATE),
-            pageable);
-    return retakeExams.stream().map(RetakeExam::getStudent).toList();
+    return retakeExamDao.filterByCriteria(
+        sessionId,
+        null,
+        studentRef,
+        courseId,
+        null,
+        List.of(REGISTERED, TO_CANCEL, INVALIDATE, VALIDATE),
+        pageable);
   }
 }

@@ -1,0 +1,1502 @@
+operations:
+  getGroupStats:
+    get:
+      tags:
+        - Users
+      summary: Get some stats infos about students.
+      operationId: getGroupStats
+      responses:
+        '200':
+          description: Stats info
+          content:
+            application/json:
+              schema:
+                $ref: '../components.yml#/components/schemas/GroupStatistics'
+  getStats:
+    get:
+      tags:
+        - Users
+      summary: Get some stats infos about students.
+      operationId: getStats
+      responses:
+        '200':
+          description: Stats info
+          content:
+            application/json:
+              schema:
+                $ref: '../components.yml#/components/schemas/Statistics'
+  studentsWorkInfo:
+    get:
+      tags:
+        - Users
+      summary: Get student work info.
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+      operationId: getStudentWorkInfo
+      responses:
+        '200':
+          description: List of Student work info
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '../components.yml#/components/schemas/WorkStudyStudent'
+        '400':
+          $ref: '../components.yml#/components/responses/400'
+        '403':
+          $ref: '../components.yml#/components/responses/403'
+        '404':
+          $ref: '../components.yml#/components/responses/404'
+        '429':
+          $ref: '../components.yml#/components/responses/429'
+        '500':
+          $ref: '../components.yml#/components/responses/500'
+    put:
+      tags:
+        - Users
+      summary: Create or update work study info of Student.
+      parameters:
+        - name: id
+          required: true
+          schema:
+            type: string
+          in: path
+      operationId: createOrUpdateStudentWorkStudyInfo
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '../components.yml#/components/schemas/CrupdateWorkStudyStudent'
+      responses:
+        '200':
+          description: List of Student work info
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '../components.yml#/components/schemas/WorkStudyStudent'
+        '400':
+          $ref: '../components.yml#/components/responses/400'
+        '403':
+          $ref: '../components.yml#/components/responses/403'
+        '404':
+          $ref: '../components.yml#/components/responses/404'
+        '429':
+          $ref: '../components.yml#/components/responses/429'
+        '500':
+          $ref: '../components.yml#/components/responses/500'
+  studentsById:
+    get:
+      tags:
+        - Users
+      summary: Get student by identifier
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      operationId: getStudentById
+      responses:
+        '200':
+          description: The identified student
+          content:
+            application/json:
+              schema:
+                $ref: '../components.yml#/components/schemas/Student'
+        '400':
+          $ref: '../components.yml#/components/responses/400'
+        '403':
+          $ref: '../components.yml#/components/responses/403'
+        '404':
+          $ref: '../components.yml#/components/responses/404'
+        '429':
+          $ref: '../components.yml#/components/responses/429'
+        '500':
+          $ref: '../components.yml#/components/responses/500'
+    put:
+      tags:
+        - Users
+      summary: Update student
+      operationId: updateStudent
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: Student to update
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '../components.yml#/components/schemas/CrupdateStudent'
+      responses:
+        '200':
+          description: student updated.
+          content:
+            application/json:
+              schema:
+                $ref: '../components.yml#/components/schemas/Student'
+        '400':
+          $ref: '../components.yml#/components/responses/400'
+        '403':
+          $ref: '../components.yml#/components/responses/403'
+        '404':
+          $ref: '../components.yml#/components/responses/404'
+        '429':
+          $ref: '../components.yml#/components/responses/429'
+        '500':
+          $ref: '../components.yml#/components/responses/500'
+  getStudentLevel:
+    get:
+      tags:
+        - Users
+      summary: Get student level
+      operationId: getStudentLevel
+      parameters:
+        - name: student_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: The student level
+          content:
+            application/json:
+              schema:
+                $ref: '../components.yml#/components/schemas/StudentLevel'
+        '400':
+          $ref: '../components.yml#/components/responses/400'
+        '403':
+          $ref: '../components.yml#/components/responses/403'
+        '404':
+          $ref: '../components.yml#/components/responses/404'
+        '429':
+          $ref: '../components.yml#/components/responses/429'
+        '500':
+          $ref: '../components.yml#/components/responses/500'
+  students:
+    get:
+      tags:
+        - Users
+      summary: Get all students
+      operationId: getStudents
+      parameters:
+        - name: page
+          in: query
+          schema:
+            $ref: '../components.yml#/components/schemas/Page'
+        - name: page_size
+          in: query
+          schema:
+            $ref: '../components.yml#/components/schemas/PageSize'
+        - name: ref
+          in: query
+          description: "Filter students by ref, case is ignored"
+          schema:
+            type: string
+        - name: first_name
+          in: query
+          description: "Filter students by first name, case is ignored"
+          schema:
+            type: string
+        - name: last_name
+          in: query
+          description: "Filter students by last name, case is ignored"
+          schema:
+            type: string
+        - name: course_id
+          in: query
+          description: "Filter students by course they are linked to"
+          schema:
+            type: string
+        - name: status
+          required: false
+          in: query
+          description: Filter students by status value return all by default
+          schema:
+            $ref: '../components.yml#/components/schemas/EnableStatus'
+        - name: sex
+          required: false
+          in: query
+          description: Filter students by sex value return all by default
+          schema:
+            $ref: '../components.yml#/components/schemas/Sex'
+        - name: work_study_status
+          required: false
+          in: query
+          description: Filter students by work study status
+          schema:
+            $ref: '../components.yml#/components/schemas/WorkStudyStatus'
+        - name: commitment_begin_date
+          required: false
+          in: query
+          description: Filter students by commitment begin date
+          schema:
+            type: string
+            format: date-time
+        - name: exclude_groups
+          required: false
+          in: query
+          style: form
+          explode: true
+          description: List of group ids to exclude students from
+          schema:
+            type: array
+            items:
+              type: string
+      responses:
+        '200':
+          description: List of students, ordered by ref.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '../components.yml#/components/schemas/Student'
+
+        '400':
+          $ref: '../components.yml#/components/responses/400'
+        '403':
+          $ref: '../components.yml#/components/responses/403'
+        '404':
+          $ref: '../components.yml#/components/responses/404'
+        '429':
+          $ref: '../components.yml#/components/responses/429'
+        '500':
+          $ref: '../components.yml#/components/responses/500'
+    put:
+      tags:
+        - Users
+      summary: Create new students or update existing students
+      description: Update students when `id` are provided, create them otherwise.
+      operationId: createOrUpdateStudents
+      parameters:
+        - name: due_datetime
+          required: false
+          in: query
+          schema:
+            type: string
+            format: date-time
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '../components.yml#/components/schemas/CrupdateStudent'
+      responses:
+        '200':
+          description: The created or updated students
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  allOf:
+                    - $ref: '../components.yml#/components/schemas/Student'
+        '400':
+          $ref: '../components.yml#/components/responses/400'
+        '403':
+          $ref: '../components.yml#/components/responses/403'
+        '404':
+          $ref: '../components.yml#/components/responses/404'
+        '429':
+          $ref: '../components.yml#/components/responses/429'
+        '500':
+          $ref: '../components.yml#/components/responses/500'
+  getStudentImportTemplateURL:
+    get:
+      tags:
+        - Users
+      summary: Get a presigned url to get the template for student import
+      operationId: getStudentImportTemplateURL
+      responses:
+        '200':
+          description: The presigned URL for getting the student import template
+          content:
+            text/plain:
+              schema:
+                type: string
+        '400':
+          $ref: '../components.yml#/components/responses/400'
+        '403':
+          $ref: '../components.yml#/components/responses/403'
+        '404':
+          $ref: '../components.yml#/components/responses/404'
+        '429':
+          $ref: '../components.yml#/components/responses/429'
+        '500':
+          $ref: '../components.yml#/components/responses/500'
+  importStudents:
+    post:
+      tags:
+        - Users
+      summary: Import students from an excel file
+      operationId: importStudents
+      parameters:
+        - in: query
+          name: due_datetime
+          required: false
+          schema:
+            type: string
+            format: date-time
+      requestBody:
+        description: Form containing the xlsx file for students to import
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '../components.yml#/components/schemas/UploadFile'
+      responses:
+        '200':
+          description: Status of the validation of imported students
+          content:
+            application/json:
+              schema:
+                $ref: '../components.yml#/components/schemas/StudentImportValidationResult'
+        '400':
+          $ref: '../components.yml#/components/responses/400'
+        '403':
+          $ref: '../components.yml#/components/responses/403'
+        '404':
+          $ref: '../components.yml#/components/responses/404'
+        '429':
+          $ref: '../components.yml#/components/responses/429'
+        '500':
+          $ref: '../components.yml#/components/responses/500'
+  getStudentsResultOverviewsByStatus:
+    get:
+      tags:
+        - Users
+      summary: Get a list of each student's result overview
+      operationId: getStudentsResultOverviewsByStatus
+      parameters:
+        - name: promotion_id
+          in: query
+          required: true
+          description: Promotion's id
+          schema:
+            type: string
+        - name: status
+          in: query
+          required: true
+          description: Result overview status we want (validated or not validated, such as invalidated, in progress or not started)
+          schema:
+            $ref: '../components.yml#/components/schemas/ResultOverviewStatus'
+        - name: page
+          in: query
+          schema:
+            $ref: '../components.yml#/components/schemas/Page'
+        - name: page_size
+          in: query
+          schema:
+            $ref: '../components.yml#/components/schemas/PageSize'
+      responses:
+        '200':
+          description: List of students overviews matching the given status
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '../components.yml#/components/schemas/StudentResultOverview'
+        '400':
+          $ref: '../components.yml#/components/responses/400'
+        '403':
+          $ref: '../components.yml#/components/responses/403'
+        '404':
+          $ref: '../components.yml#/components/responses/404'
+        '429':
+          $ref: '../components.yml#/components/responses/429'
+        '500':
+          $ref: '../components.yml#/components/responses/500'
+  monitorsById:
+    put:
+      tags:
+        - Users
+      summary: Update monitor by identifier
+      operationId: updateMonitorById
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: Monitor to update
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '../components.yml#/components/schemas/CrupdateMonitor'
+      responses:
+        '200':
+          description: monitor updated.
+          content:
+            application/json:
+              schema:
+                $ref: '../components.yml#/components/schemas/Monitor'
+        '400':
+          $ref: '../components.yml#/components/responses/400'
+        '403':
+          $ref: '../components.yml#/components/responses/403'
+        '404':
+          $ref: '../components.yml#/components/responses/404'
+        '429':
+          $ref: '../components.yml#/components/responses/429'
+        '500':
+          $ref: '../components.yml#/components/responses/500'
+    get:
+      tags:
+        - Users
+      summary: Get monitor by identifier
+      operationId: getMonitorById
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: monitor by identifier.
+          content:
+            application/json:
+              schema:
+                $ref: '../components.yml#/components/schemas/Monitor'
+        '400':
+          $ref: '../components.yml#/components/responses/400'
+        '403':
+          $ref: '../components.yml#/components/responses/403'
+        '404':
+          $ref: '../components.yml#/components/responses/404'
+        '429':
+          $ref: '../components.yml#/components/responses/429'
+        '500':
+          $ref: '../components.yml#/components/responses/500'
+  monitors:
+    get:
+      tags:
+        - Users
+      summary: Get All monitors
+      operationId: getMonitors
+      parameters:
+        - name: page
+          in: query
+          schema:
+            $ref: '../components.yml#/components/schemas/Page'
+        - name: page_size
+          in: query
+          schema:
+            $ref: '../components.yml#/components/schemas/PageSize'
+        - name: ref
+          in: query
+          description: "Filter students by ref, case is ignored"
+          schema:
+            type: string
+        - name: first_name
+          in: query
+          description: "Filter students by first name, case is ignored"
+          schema:
+            type: string
+        - name: last_name
+          in: query
+          description: "Filter students by last name, case is ignored"
+          schema:
+            type: string
+      responses:
+        '200':
+          description: List of monitors, ordered by ref.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '../components.yml#/components/schemas/Monitor'
+        '400':
+          $ref: '../components.yml#/components/responses/400'
+        '403':
+          $ref: '../components.yml#/components/responses/403'
+        '404':
+          $ref: '../components.yml#/components/responses/404'
+        '429':
+          $ref: '../components.yml#/components/responses/429'
+        '500':
+          $ref: '../components.yml#/components/responses/500'
+    put:
+      tags:
+        - Users
+      summary: Create new monitors or update existing monitors
+      description: Update monitors when `id` are provided, create them otherwise.
+      operationId: createOrUpdateMonitors
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '../components.yml#/components/schemas/CrupdateMonitor'
+      responses:
+        '200':
+          description: The created or updated monitors
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '../components.yml#/components/schemas/Monitor'
+        '400':
+          $ref: '../components.yml#/components/responses/400'
+        '403':
+          $ref: '../components.yml#/components/responses/403'
+        '404':
+          $ref: '../components.yml#/components/responses/404'
+        '429':
+          $ref: '../components.yml#/components/responses/429'
+        '500':
+          $ref: '../components.yml#/components/responses/500'
+  generateTeachersInXlsx:
+    get:
+      tags:
+        - Users
+      summary: Get all teachers as xlsx file
+      operationId: generateTeachersInXlsx
+      responses:
+        '200':
+          description: List of teacher in a xlsx file
+          content:
+            application/xlsx:
+              schema:
+                type: string
+                format: byte
+                example: XLSX VERSION
+        '400':
+          $ref: '../components.yml#/components/responses/400'
+        '403':
+          $ref: '../components.yml#/components/responses/403'
+        '404':
+          $ref: '../components.yml#/components/responses/404'
+        '429':
+          $ref: '../components.yml#/components/responses/429'
+        '500':
+          $ref: '../components.yml#/components/responses/500'
+  generateStudentsInXlsx:
+    get:
+      tags:
+        - Users
+      summary: Get all students with filter as xlsx file
+      operationId: generateStudentsInXlsx
+      parameters:
+        - name: course_id
+          in: query
+          description: "Filter students by course they are linked to"
+          schema:
+            type: string
+        - name: status
+          required: false
+          in: query
+          description: Filter students by status value return all by default
+          schema:
+            $ref: '../components.yml#/components/schemas/EnableStatus'
+        - name: sex
+          required: false
+          in: query
+          description: Filter students by sex value return all by default
+          schema:
+            $ref: '../components.yml#/components/schemas/Sex'
+        - name: work_study_status
+          required: false
+          in: query
+          description: Filter students by work study status
+          schema:
+            $ref: '../components.yml#/components/schemas/WorkStudyStatus'
+        - name: exclude_groups
+          required: false
+          in: query
+          style: form
+          explode: true
+          description: List of group ids to exclude students from
+          schema:
+            type: array
+            items:
+              type: string
+      responses:
+        '200':
+          description: List of students in a xlsx file
+          content:
+            application/xlsx:
+              schema:
+                type: string
+                format: byte
+                example: XLSX VERSION
+        '400':
+          $ref: '../components.yml#/components/responses/400'
+        '403':
+          $ref: '../components.yml#/components/responses/403'
+        '404':
+          $ref: '../components.yml#/components/responses/404'
+        '429':
+          $ref: '../components.yml#/components/responses/429'
+        '500':
+          $ref: '../components.yml#/components/responses/500'
+  teachersById:
+    get:
+      tags:
+        - Users
+      summary: Get teacher by identifier
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      operationId: getTeacherById
+      responses:
+        '200':
+          description: The identified teacher
+          content:
+            application/json:
+              schema:
+                $ref: '../components.yml#/components/schemas/Teacher'
+        '400':
+          $ref: '../components.yml#/components/responses/400'
+        '403':
+          $ref: '../components.yml#/components/responses/403'
+        '404':
+          $ref: '../components.yml#/components/responses/404'
+        '429':
+          $ref: '../components.yml#/components/responses/429'
+        '500':
+          $ref: '../components.yml#/components/responses/500'
+    put:
+      tags:
+        - Users
+      summary: Update teacher
+      operationId: updateTeacher
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: Teacher to update
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '../components.yml#/components/schemas/CrupdateTeacher'
+      responses:
+        '200':
+          description: updated teacher.
+          content:
+            application/json:
+              schema:
+                $ref: '../components.yml#/components/schemas/Teacher'
+        '400':
+          $ref: '../components.yml#/components/responses/400'
+        '403':
+          $ref: '../components.yml#/components/responses/403'
+        '404':
+          $ref: '../components.yml#/components/responses/404'
+        '429':
+          $ref: '../components.yml#/components/responses/429'
+        '500':
+          $ref: '../components.yml#/components/responses/500'
+  teachers:
+    get:
+      tags:
+        - Users
+      summary: Get all teachers
+      operationId: getTeachers
+      parameters:
+        - name: page
+          in: query
+          schema:
+            $ref: '../components.yml#/components/schemas/Page'
+        - name: page_size
+          in: query
+          schema:
+            $ref: '../components.yml#/components/schemas/PageSize'
+        - name: ref
+          in: query
+          description: "Filter teachers by ref, case is ignored"
+          schema:
+            type: string
+        - name: first_name
+          in: query
+          description: "Filter teachers by first name, case is ignored"
+          schema:
+            type: string
+        - name: last_name
+          in: query
+          description: "Filter teachers by last name, case is ignored"
+          schema:
+            type: string
+        - name: status
+          required: false
+          in: query
+          description: Filter teachers by status value return all by default
+          schema:
+            $ref: '../components.yml#/components/schemas/EnableStatus'
+        - name: sex
+          required: false
+          in: query
+          description: Filter teachers by sex value return all by default
+          schema:
+            $ref: '../components.yml#/components/schemas/Sex'
+      responses:
+        '200':
+          description: List of teachers, ordered by ref.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '../components.yml#/components/schemas/Teacher'
+        '400':
+          $ref: '../components.yml#/components/responses/400'
+        '403':
+          $ref: '../components.yml#/components/responses/403'
+        '404':
+          $ref: '../components.yml#/components/responses/404'
+        '429':
+          $ref: '../components.yml#/components/responses/429'
+        '500':
+          $ref: '../components.yml#/components/responses/500'
+    put:
+      tags:
+        - Users
+      summary: Create new teachers or update existing teachers
+      description: Update teachers when `id` are provided, create them otherwise.
+      operationId: createOrUpdateTeachers
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '../components.yml#/components/schemas/CrupdateTeacher'
+      responses:
+        '200':
+          description: The created or updated teachers
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '../components.yml#/components/schemas/Teacher'
+        '400':
+          $ref: '../components.yml#/components/responses/400'
+        '403':
+          $ref: '../components.yml#/components/responses/403'
+        '404':
+          $ref: '../components.yml#/components/responses/404'
+        '429':
+          $ref: '../components.yml#/components/responses/429'
+        '500':
+          $ref: '../components.yml#/components/responses/500'
+  managersById:
+    get:
+      tags:
+        - Users
+      summary: Get manager by identifier
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      operationId: getManagerById
+      responses:
+        '200':
+          description: The identified manager
+          content:
+            application/json:
+              schema:
+                $ref: '../components.yml#/components/schemas/Manager'
+        '400':
+          $ref: '../components.yml#/components/responses/400'
+        '403':
+          $ref: '../components.yml#/components/responses/403'
+        '404':
+          $ref: '../components.yml#/components/responses/404'
+        '429':
+          $ref: '../components.yml#/components/responses/429'
+        '500':
+          $ref: '../components.yml#/components/responses/500'
+    put:
+      tags:
+        - Users
+      summary: Update manager
+      operationId: updateManager
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: manager to update
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '../components.yml#/components/schemas/CrupdateManager'
+      responses:
+        '200':
+          description: updated manager.
+          content:
+            application/json:
+              schema:
+                $ref: '../components.yml#/components/schemas/Manager'
+        '400':
+          $ref: '../components.yml#/components/responses/400'
+        '403':
+          $ref: '../components.yml#/components/responses/403'
+        '404':
+          $ref: '../components.yml#/components/responses/404'
+        '429':
+          $ref: '../components.yml#/components/responses/429'
+        '500':
+          $ref: '../components.yml#/components/responses/500'
+  adminsById:
+    get:
+      tags:
+        - Users
+      summary: Get admin by identifier
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      operationId: getAdminById
+      responses:
+        '200':
+          description: The identified admin
+          content:
+            application/json:
+              schema:
+                $ref: '../components.yml#/components/schemas/Admin'
+        '400':
+          $ref: '../components.yml#/components/responses/400'
+        '403':
+          $ref: '../components.yml#/components/responses/403'
+        '404':
+          $ref: '../components.yml#/components/responses/404'
+        '429':
+          $ref: '../components.yml#/components/responses/429'
+        '500':
+          $ref: '../components.yml#/components/responses/500'
+    put:
+      tags:
+        - Users
+      summary: Update admin
+      operationId: updateAdmin
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: admin to update
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '../components.yml#/components/schemas/CrupdateManager'
+      responses:
+        '200':
+          description: updated manager.
+          content:
+            application/json:
+              schema:
+                $ref: '../components.yml#/components/schemas/Manager'
+        '400':
+          $ref: '../components.yml#/components/responses/400'
+        '403':
+          $ref: '../components.yml#/components/responses/403'
+        '404':
+          $ref: '../components.yml#/components/responses/404'
+        '429':
+          $ref: '../components.yml#/components/responses/429'
+        '500':
+          $ref: '../components.yml#/components/responses/500'
+  getManagers:
+    get:
+      tags:
+        - Users
+      summary: Get all managers
+      operationId: getManagers
+      parameters:
+        - name: page
+          in: query
+          schema:
+            $ref: '../components.yml#/components/schemas/Page'
+        - name: page_size
+          in: query
+          schema:
+            $ref: '../components.yml#/components/schemas/PageSize'
+        - name: status
+          required: false
+          in: query
+          description: Filter managers by status value return all by default
+          schema:
+            $ref: '../components.yml#/components/schemas/EnableStatus'
+        - name: sex
+          required: false
+          in: query
+          description: Filter managers by sex value return all by default
+          schema:
+            $ref: '../components.yml#/components/schemas/Sex'
+      responses:
+        '200':
+          description: List of managers, ordered by ref.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '../components.yml#/components/schemas/Manager'
+        '400':
+          $ref: '../components.yml#/components/responses/400'
+        '403':
+          $ref: '../components.yml#/components/responses/403'
+        '404':
+          $ref: '../components.yml#/components/responses/404'
+        '429':
+          $ref: '../components.yml#/components/responses/429'
+        '500':
+          $ref: '../components.yml#/components/responses/500'
+  staffMembers:
+    get:
+      tags:
+        - Users
+      summary: Get all staff members
+      operationId: getStaffMembers
+      parameters:
+        - name: page
+          in: query
+          schema:
+            $ref: '../components.yml#/components/schemas/Page'
+        - name: page_size
+          in: query
+          schema:
+            $ref: '../components.yml#/components/schemas/PageSize'
+        - name: status
+          required: false
+          in: query
+          description: Filter staff members by status value return all by default
+          schema:
+            $ref: '../components.yml#/components/schemas/EnableStatus'
+        - name: sex
+          required: false
+          in: query
+          description: Filter staff members by sex value return all by default
+          schema:
+            $ref: '../components.yml#/components/schemas/Sex'
+        - name: first_name
+          in: query
+          description: Filter staff members by first name, case is ignored
+          schema:
+            type: string
+        - name: last_name
+          in: query
+          description: Filter staff members by last name, case is ignored
+          schema:
+            type: string
+      responses:
+        '200':
+          description: List of staff members, ordered by ref.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '../components.yml#/components/schemas/StaffMember'
+        '400':
+          $ref: '../components.yml#/components/responses/400'
+        '403':
+          $ref: '../components.yml#/components/responses/403'
+        '404':
+          $ref: '../components.yml#/components/responses/404'
+        '429':
+          $ref: '../components.yml#/components/responses/429'
+        '500':
+          $ref: '../components.yml#/components/responses/500'
+    put:
+      tags:
+        - Users
+      summary: Create or update staff members
+      operationId: crupdateStaffMembers
+      requestBody:
+        description: staff members
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '../components.yml#/components/schemas/StaffMember'
+      responses:
+        '200':
+          description: List of staff members, ordered by ref.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '../components.yml#/components/schemas/StaffMember'
+        '400':
+          $ref: '../components.yml#/components/responses/400'
+        '403':
+          $ref: '../components.yml#/components/responses/403'
+        '404':
+          $ref: '../components.yml#/components/responses/404'
+        '429':
+          $ref: '../components.yml#/components/responses/429'
+        '500':
+          $ref: '../components.yml#/components/responses/500'
+  organizers:
+    get:
+      tags:
+        - Users
+      summary: Get all organizers
+      operationId: getOrganizers
+      parameters:
+        - name: page
+          in: query
+          schema:
+            $ref: '../components.yml#/components/schemas/Page'
+        - name: page_size
+          in: query
+          schema:
+            $ref: '../components.yml#/components/schemas/PageSize'
+        - name: status
+          required: false
+          in: query
+          description: Filter organizers by status value return all by default
+          schema:
+            $ref: '../components.yml#/components/schemas/EnableStatus'
+        - name: sex
+          required: false
+          in: query
+          description: Filter organizers by sex value return all by default
+          schema:
+            $ref: '../components.yml#/components/schemas/Sex'
+        - name: first_name
+          required: false
+          in: query
+          description: Filter organizers by first name, case is ignored
+          schema:
+            type: string
+        - name: last_name
+          required: false
+          in: query
+          description: Filter organizers by last name, case is ignored
+          schema:
+            type: string
+        - name: ref
+          required: false
+          in: query
+          description: Filter organizers by ref
+          schema:
+            type: string
+      responses:
+        '200':
+          description: List of organizers, ordered by ref.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '../components.yml#/components/schemas/Organizer'
+        '400':
+          $ref: '../components.yml#/components/responses/400'
+        '403':
+          $ref: '../components.yml#/components/responses/403'
+        '404':
+          $ref: '../components.yml#/components/responses/404'
+        '429':
+          $ref: '../components.yml#/components/responses/429'
+        '500':
+          $ref: '../components.yml#/components/responses/500'
+    put:
+      tags:
+        - Users
+      summary: Create or update organizers
+      operationId: crupdateOrganizers
+      requestBody:
+        description: organizers
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '../components.yml#/components/schemas/Organizer'
+      responses:
+        '200':
+          description: List of organizer, ordered by ref.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '../components.yml#/components/schemas/Organizer'
+        '400':
+          $ref: '../components.yml#/components/responses/400'
+        '403':
+          $ref: '../components.yml#/components/responses/403'
+        '404':
+          $ref: '../components.yml#/components/responses/404'
+        '429':
+          $ref: '../components.yml#/components/responses/429'
+        '500':
+          $ref: '../components.yml#/components/responses/500'
+  getOrganizerById:
+    get:
+      tags:
+        - Users
+      summary: Get organizer by id
+      operationId: getOrganizerById
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: The organizer.
+          content:
+            application/json:
+              schema:
+                $ref: '../components.yml#/components/schemas/Organizer'
+        '400':
+          $ref: '../components.yml#/components/responses/400'
+        '403':
+          $ref: '../components.yml#/components/responses/403'
+        '404':
+          $ref: '../components.yml#/components/responses/404'
+        '429':
+          $ref: '../components.yml#/components/responses/429'
+        '500':
+          $ref: '../components.yml#/components/responses/500'
+  getStaffMembersIntoXlsx:
+    get:
+      tags:
+        - Users
+      summary: Get all staff members as xlsx file
+      operationId: getStaffMembersIntoXlsx
+      responses:
+        '200':
+          description: An excel file containing a list of all staff members.
+          content:
+            application/xlsx:
+              schema:
+                type: string
+                format: byte
+                example: XLSX VERSION
+        '400':
+          $ref: '../components.yml#/components/responses/400'
+        '403':
+          $ref: '../components.yml#/components/responses/403'
+        '404':
+          $ref: '../components.yml#/components/responses/404'
+        '429':
+          $ref: '../components.yml#/components/responses/429'
+        '500':
+          $ref: '../components.yml#/components/responses/500'
+  staffMembersById:
+    get:
+      tags:
+        - Users
+      summary: Get staff member by the given id
+      operationId: getStaffMemberById
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: The staff member
+          content:
+            application/json:
+              schema:
+                $ref: '../components.yml#/components/schemas/StaffMember'
+        '400':
+          $ref: '../components.yml#/components/responses/400'
+        '403':
+          $ref: '../components.yml#/components/responses/403'
+        '404':
+          $ref: '../components.yml#/components/responses/404'
+        '429':
+          $ref: '../components.yml#/components/responses/429'
+        '500':
+          $ref: '../components.yml#/components/responses/500'
+    put:
+      tags:
+        - Users
+      summary: Update staff member info
+      operationId: updateStaffMember
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: staff member
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '../components.yml#/components/schemas/StaffMember'
+      responses:
+        '200':
+          description: List of staff members, ordered by ref.
+          content:
+            application/json:
+              schema:
+                $ref: '../components.yml#/components/schemas/StaffMember'
+        '400':
+          $ref: '../components.yml#/components/responses/400'
+        '403':
+          $ref: '../components.yml#/components/responses/403'
+        '404':
+          $ref: '../components.yml#/components/responses/404'
+        '429':
+          $ref: '../components.yml#/components/responses/429'
+        '500':
+          $ref: '../components.yml#/components/responses/500'
+  uploadTeacherProfilePicture:
+    post:
+      tags:
+        - Users
+      summary: Upload teacher profile picture
+      operationId: uploadTeacherProfilePicture
+      parameters:
+        - name: teacher_id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              $ref: "../components.yml#/components/schemas/UploadFile"
+      responses:
+        '200':
+          description: Teacher updated
+          content:
+            application/json:
+              schema:
+                $ref: '../components.yml#/components/schemas/Teacher'
+        '400':
+          $ref: '../components.yml#/components/responses/400'
+        '403':
+          $ref: '../components.yml#/components/responses/403'
+        '404':
+          $ref: '../components.yml#/components/responses/404'
+        '429':
+          $ref: '../components.yml#/components/responses/429'
+        '500':
+          $ref: '../components.yml#/components/responses/500'
+  uploadOrganizerProfilePicture:
+    post:
+      tags:
+        - Users
+      summary: Upload organizer profile picture
+      operationId: uploadOrganizerProfilePicture
+      parameters:
+        - name: organizer_id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              $ref: "../components.yml#/components/schemas/UploadFile"
+      responses:
+        '200':
+          description: Organizer updated
+          content:
+            application/json:
+              schema:
+                $ref: '../components.yml#/components/schemas/Organizer'
+        '400':
+          $ref: '../components.yml#/components/responses/400'
+        '403':
+          $ref: '../components.yml#/components/responses/403'
+        '404':
+          $ref: '../components.yml#/components/responses/404'
+        '429':
+          $ref: '../components.yml#/components/responses/429'
+        '500':
+          $ref: '../components.yml#/components/responses/500'
+  uploadManagerProfilePicture:
+    post:
+      tags:
+        - Users
+      summary: Upload manager profile picture
+      operationId: uploadManagerProfilePicture
+      parameters:
+        - name: manager_id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              $ref: "../components.yml#/components/schemas/UploadFile"
+      responses:
+        '200':
+          description: Manager updated
+          content:
+            application/json:
+              schema:
+                $ref: '../components.yml#/components/schemas/Manager'
+        '400':
+          $ref: '../components.yml#/components/responses/400'
+        '403':
+          $ref: '../components.yml#/components/responses/403'
+        '404':
+          $ref: '../components.yml#/components/responses/404'
+        '429':
+          $ref: '../components.yml#/components/responses/429'
+        '500':
+          $ref: '../components.yml#/components/responses/500'
+  uploadStudentProfilePicture:
+    post:
+      tags:
+        - Users
+      summary: Upload student profile picture
+      operationId: uploadStudentProfilePicture
+      parameters:
+        - name: student_id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              $ref: "../components.yml#/components/schemas/UploadFile"
+      responses:
+        '200':
+          description: Student updated
+          content:
+            application/json:
+              schema:
+                $ref: '../components.yml#/components/schemas/Student'
+        '400':
+          $ref: '../components.yml#/components/responses/400'
+        '403':
+          $ref: '../components.yml#/components/responses/403'
+        '404':
+          $ref: '../components.yml#/components/responses/404'
+        '429':
+          $ref: '../components.yml#/components/responses/429'
+        '500':
+          $ref: '../components.yml#/components/responses/500'
+  uploadAdminProfilePicture:
+    post:
+      tags:
+        - Users
+      summary: Upload admin profile picture
+      operationId: uploadAdminProfilePicture
+      parameters:
+        - name: admin_id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              $ref: "../components.yml#/components/schemas/UploadFile"
+      responses:
+        '200':
+          description: Admin updated
+          content:
+            application/json:
+              schema:
+                $ref: '../components.yml#/components/schemas/Admin'
+        '400':
+          $ref: '../components.yml#/components/responses/400'
+        '403':
+          $ref: '../components.yml#/components/responses/403'
+        '404':
+          $ref: '../components.yml#/components/responses/404'
+        '429':
+          $ref: '../components.yml#/components/responses/429'
+        '500':
+          $ref: '../components.yml#/components/responses/500'
+  uploadStaffMemberProfilePicture:
+    post:
+      tags:
+        - Users
+      summary: Upload staff member profile picture
+      operationId: uploadStaffMemberProfilePicture
+      parameters:
+        - name: staff_id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              $ref: "../components.yml#/components/schemas/UploadFile"
+      responses:
+        '200':
+          description: Staff updated
+          content:
+            application/json:
+              schema:
+                $ref: '../components.yml#/components/schemas/StaffMember'
+        '400':
+          $ref: '../components.yml#/components/responses/400'
+        '403':
+          $ref: '../components.yml#/components/responses/403'
+        '404':
+          $ref: '../components.yml#/components/responses/404'
+        '429':
+          $ref: '../components.yml#/components/responses/429'
+        '500':
+          $ref: '../components.yml#/components/responses/500'

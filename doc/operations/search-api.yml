@@ -1,0 +1,31 @@
+operations:
+  globalSearchUser:
+    get:
+      tags:
+        - Search
+      summary: Global search across user entities
+      description: Retrieve users from multiple user-related entities based on a search term.
+      parameters:
+        - name: search
+          in: query
+          description: Search term used to filter users.
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Search results
+          content:
+            application/json:
+              schema:
+                $ref: '../components.yml#/components/schemas/SearchResultsUser'
+        '400':
+          $ref: '../components.yml#/components/responses/400'
+        '403':
+          $ref: '../components.yml#/components/responses/403'
+        '404':
+          $ref: '../components.yml#/components/responses/404'
+        '429':
+          $ref: '../components.yml#/components/responses/429'
+        '500':
+          $ref: '../components.yml#/components/responses/500'

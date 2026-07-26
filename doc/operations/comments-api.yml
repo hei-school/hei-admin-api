@@ -1,0 +1,137 @@
+operations:
+  getComments:
+    get:
+      tags:
+        - Comments
+      summary: Get all comments.
+      operationId: getComments
+      parameters:
+        - name: page
+          in: query
+          schema:
+            $ref: '../components.yml#/components/schemas/Page'
+          description: Set value to 1 by default if null is provided
+          required: false
+        - name: page_size
+          in: query
+          description: Set value to 15 by default if null is provided
+          schema:
+            $ref: '../components.yml#/components/schemas/PageSize'
+          required: false
+        - name: timestamp_direction
+          in: query
+          schema:
+            $ref: '../components.yml#/components/schemas/OrderDirection'
+        - name: student_ref
+          in: query
+          schema:
+            type: string
+          required: false
+      responses:
+        '200':
+          description: Comments filtered with criteria if provided
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '../components.yml#/components/schemas/Comment'
+        '400':
+          $ref: '../components.yml#/components/responses/400'
+        '403':
+          $ref: '../components.yml#/components/responses/403'
+        '404':
+          $ref: '../components.yml#/components/responses/404'
+        '429':
+          $ref: '../components.yml#/components/responses/429'
+        '500':
+          $ref: '../components.yml#/components/responses/500'
+  studentsComments:
+    get:
+      tags:
+        - Comments
+      summary: Get all student comments with filter criteria if provided
+      operationId: getStudentComments
+      parameters:
+        - name: student_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: observer_id
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: page
+          in: query
+          schema:
+            $ref: '../components.yml#/components/schemas/Page'
+          description: Set value to 1 by default if null is provided
+          required: false
+        - name: page_size
+          in: query
+          description: Set value to 15 by default if null is provided
+          schema:
+            $ref: '../components.yml#/components/schemas/PageSize'
+          required: false
+      responses:
+        '200':
+          description: Comments filtered with criteria if provided
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '../components.yml#/components/schemas/Comment'
+        '400':
+          $ref: '../components.yml#/components/responses/400'
+        '403':
+          $ref: '../components.yml#/components/responses/403'
+        '404':
+          $ref: '../components.yml#/components/responses/404'
+        '429':
+          $ref: '../components.yml#/components/responses/429'
+        '500':
+          $ref: '../components.yml#/components/responses/500'
+
+    post:
+      tags:
+        - Comments
+      summary: Teacher or manager comments about a student
+      operationId: postComment
+      parameters:
+        - name: student_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: observer_id
+          in: query
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: The content of the comment
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '../components.yml#/components/schemas/CreateComment'
+      responses:
+        '200':
+          description: The
+          content:
+            application/json:
+              schema:
+                $ref: '../components.yml#/components/schemas/Comment'
+        '400':
+          $ref: '../components.yml#/components/responses/400'
+        '403':
+          $ref: '../components.yml#/components/responses/403'
+        '404':
+          $ref: '../components.yml#/components/responses/404'
+        '429':
+          $ref: '../components.yml#/components/responses/429'
+        '500':
+          $ref: '../components.yml#/components/responses/500'
