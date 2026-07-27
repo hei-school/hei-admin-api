@@ -47,7 +47,7 @@ import school.hei.haapi.service.event.FeeCreationTaskTriggeredService;
 @AutoConfigureMockMvc
 public class FeeCreationJobIT extends FacadeITMockedThirdParties {
   private static final String FEE_TEMPLATE_ID = "v2_fee_template1_id";
-  private static final String UNKNOWN_STUDENT_REF = "STD21099";
+  private static final String UNKNOWN_STUDENT_REF = "STD26999";
 
   @MockBean private EventProducer eventProducer;
 
@@ -156,7 +156,7 @@ public class FeeCreationJobIT extends FacadeITMockedThirdParties {
 
   @Test
   void a_fully_processed_job_succeeds_and_creates_one_fee_per_content() throws ApiException {
-    var studentRef = "STD21002";
+    var studentRef = "STD26002";
     submitJob("job_succeeded_id", List.of(studentRef));
 
     drainTasksOf("job_succeeded_id", 1);
@@ -218,7 +218,7 @@ public class FeeCreationJobIT extends FacadeITMockedThirdParties {
 
   @Test
   void a_partly_failed_job_reports_each_task_on_its_own() throws ApiException {
-    var succeedingRef = "STD21003";
+    var succeedingRef = "STD26003";
     submitJob("job_mixed_id", List.of(succeedingRef, UNKNOWN_STUDENT_REF));
 
     drainTasksOf("job_mixed_id", 2);
@@ -243,7 +243,7 @@ public class FeeCreationJobIT extends FacadeITMockedThirdParties {
 
   @Test
   void charging_twice_the_same_template_to_a_student_is_refused() throws ApiException {
-    var studentRef = "STD21009";
+    var studentRef = "STD26004";
     submitJob("job_first_charge_id", List.of(studentRef));
     drainTasksOf("job_first_charge_id", 1);
     assertEquals(
@@ -274,10 +274,10 @@ public class FeeCreationJobIT extends FacadeITMockedThirdParties {
   @Test
   void submitting_a_known_job_again_neither_duplicates_tasks_nor_redispatches()
       throws ApiException {
-    submitJob("job_idempotent_id", List.of("STD21001"));
+    submitJob("job_idempotent_id", List.of("STD26005"));
     drainTasksOf("job_idempotent_id", 1);
 
-    var resubmitted = submitJob("job_idempotent_id", List.of("STD21001", "STD21002"));
+    var resubmitted = submitJob("job_idempotent_id", List.of("STD26005", "STD26002"));
 
     // the second submission returns the job as it stands, the extra reference is ignored
     assertEquals(FINISHED, resubmitted.getStatus().getProgression());
@@ -293,7 +293,7 @@ public class FeeCreationJobIT extends FacadeITMockedThirdParties {
 
   @Test
   void jobs_are_listed_most_recent_first() throws ApiException {
-    submitJob("job_listed_id", List.of("STD21001"));
+    submitJob("job_listed_id", List.of("STD26005"));
 
     var listed = managerApi().getFeeCreationJobs(1, 10);
 
