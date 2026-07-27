@@ -1,5 +1,6 @@
 package school.hei.haapi.integration.conf;
 
+import static java.lang.System.currentTimeMillis;
 import static java.time.ZoneOffset.UTC;
 import static java.util.UUID.randomUUID;
 import static java.util.concurrent.TimeUnit.DAYS;
@@ -87,13 +88,13 @@ public class FakeDataProvider {
   private static String someRef(User.Role role) {
     return someRef(
         switch (role) {
-          case STUDENT -> "STD";
-          case STAFF_MEMBER -> "STAFF";
-          case TEACHER -> "TCH";
-          case MANAGER -> "MGR";
-          case ADMIN -> "ADM";
-          case MONITOR -> "MTR";
-          case ORGANIZER -> "ORG";
+          case STUDENT -> "STD-" + currentTimeMillis();
+          case STAFF_MEMBER -> "STAFF-" + currentTimeMillis();
+          case TEACHER -> "TCH-" + currentTimeMillis();
+          case MANAGER -> "MGR-" + currentTimeMillis();
+          case ADMIN -> "ADM-" + currentTimeMillis();
+          case MONITOR -> "MTR-" + currentTimeMillis();
+          case ORGANIZER -> "ORG-" + currentTimeMillis();
         });
   }
 
