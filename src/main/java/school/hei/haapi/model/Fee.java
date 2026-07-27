@@ -109,6 +109,11 @@ public class Fee implements Serializable {
   @Enumerated(STRING)
   private FeeFrequency frequency;
 
+  @ManyToOne
+  @JoinColumn(name = "id_fee_template")
+  @EqualsAndHashCode.Exclude
+  private V2FeeTemplate feeTemplate;
+
   public Instant getCreationDatetime() {
     return creationDatetime.truncatedTo(ChronoUnit.MILLIS);
   }

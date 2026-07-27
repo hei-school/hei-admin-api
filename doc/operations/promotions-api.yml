@@ -1,0 +1,213 @@
+operations:
+  generateStudentsPromotionInXlsx:
+    get:
+      tags:
+        - Promotions
+      summary: Get all students in promotion as xlsx file
+      operationId: generateStudentsPromotionInXlsx
+      parameters:
+        - name: promotion_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: List of students in a xlsx file
+          content:
+            application/xlsx:
+              schema:
+                type: string
+                format: byte
+                example: XLSX VERSION
+        '400':
+          $ref: '../components.yml#/components/responses/400'
+        '403':
+          $ref: '../components.yml#/components/responses/403'
+        '404':
+          $ref: '../components.yml#/components/responses/404'
+        '429':
+          $ref: '../components.yml#/components/responses/429'
+        '500':
+          $ref: '../components.yml#/components/responses/500'
+  promotions:
+    get:
+      tags:
+        - Promotions
+      operationId: getPromotions
+      summary: Get all promotions
+      parameters:
+        - name: page
+          in: query
+          schema:
+            $ref: '../components.yml#/components/schemas/Page'
+          description: Set value to 1 by default if null is provided
+          required: false
+        - name: page_size
+          in: query
+          description: Set value to 15 by default if null is provided
+          schema:
+            $ref: '../components.yml#/components/schemas/PageSize'
+          required: false
+        - name: name
+          in: query
+          description: Filter promotion by name
+          schema:
+            type: string
+          required: false
+        - name: ref
+          in: query
+          description: Filter promotion by ref
+          schema:
+            type: string
+          required: false
+        - name: group_ref
+          in: query
+          description: Filter promotion by group ref
+          schema:
+            type: string
+          required: false
+      responses:
+        '200':
+          description: Promotions filtered with criteria if provided
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '../components.yml#/components/schemas/Promotion'
+        '400':
+          $ref: '../components.yml#/components/responses/400'
+        '403':
+          $ref: '../components.yml#/components/responses/403'
+        '404':
+          $ref: '../components.yml#/components/responses/404'
+        '429':
+          $ref: '../components.yml#/components/responses/429'
+        '500':
+          $ref: '../components.yml#/components/responses/500'
+    put:
+      tags:
+        - Promotions
+      operationId: crupdatePromotion
+      summary: Update promotion if `id` provided, create otherwise
+      requestBody:
+        description: Create or update promotion
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '../components.yml#/components/schemas/CrupdatePromotion'
+
+      responses:
+        '200':
+          description: The promotion created
+          content:
+            application/json:
+              schema:
+                $ref: '../components.yml#/components/schemas/Promotion'
+        '400':
+          $ref: '../components.yml#/components/responses/400'
+        '403':
+          $ref: '../components.yml#/components/responses/403'
+        '404':
+          $ref: '../components.yml#/components/responses/404'
+        '429':
+          $ref: '../components.yml#/components/responses/429'
+        '500':
+          $ref: '../components.yml#/components/responses/500'
+  getPromotionById:
+    get:
+      tags:
+        - Promotions
+      operationId: getPromotionById
+      summary: Get promotion by the given id
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: The promotion queried
+          content:
+            application/json:
+              schema:
+                $ref: '../components.yml#/components/schemas/Promotion'
+        '400':
+          $ref: '../components.yml#/components/responses/400'
+        '403':
+          $ref: '../components.yml#/components/responses/403'
+        '404':
+          $ref: '../components.yml#/components/responses/404'
+        '429':
+          $ref: '../components.yml#/components/responses/429'
+        '500':
+          $ref: '../components.yml#/components/responses/500'
+  getStudentsByPromotion:
+    get:
+      tags:
+        - Promotions
+      operationId: getStudentsByPromotion
+      summary: Get students in the promotion
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: List of students in a xlsx file
+          content:
+            application/xlsx:
+              schema:
+                type: string
+                format: byte
+                example: XLSX VERSION
+        '400':
+          $ref: '../components.yml#/components/responses/400'
+        '403':
+          $ref: '../components.yml#/components/responses/403'
+        '404':
+          $ref: '../components.yml#/components/responses/404'
+        '429':
+          $ref: '../components.yml#/components/responses/429'
+        '500':
+          $ref: '../components.yml#/components/responses/500'
+  updatePromotionGroups:
+    put:
+      tags:
+        - Promotions
+      operationId: updatePromotionGroups
+      summary: Add or remove promotion's groups
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: List of group ids to add
+        content:
+          application/json:
+            schema:
+              $ref: '../components.yml#/components/schemas/UpdatePromotionSGroup'
+      responses:
+        '200':
+          description: The promotion created
+          content:
+            application/json:
+              schema:
+                $ref: '../components.yml#/components/schemas/Promotion'
+        '400':
+          $ref: '../components.yml#/components/responses/400'
+        '403':
+          $ref: '../components.yml#/components/responses/403'
+        '404':
+          $ref: '../components.yml#/components/responses/404'
+        '429':
+          $ref: '../components.yml#/components/responses/429'
+        '500':
+          $ref: '../components.yml#/components/responses/500'

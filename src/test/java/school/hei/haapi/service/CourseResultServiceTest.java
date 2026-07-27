@@ -73,7 +73,6 @@ class CourseResultServiceTest extends FacadeITMockedThirdParties {
   private Exam prog3Exam;
   private Exam secu1Exam;
   private Grade repeatingYearGrade;
-  @Autowired private ExamService examService;
   @Autowired private ExamRepository examRepository;
   @Autowired private GradeRepository gradeRepository;
 

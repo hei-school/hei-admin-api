@@ -1,9 +1,11 @@
 package school.hei.haapi.endpoint.rest.mapper;
 
+import java.math.BigInteger;
+import java.util.List;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
-import school.hei.haapi.endpoint.rest.model.CrupdateFeeTemplate;
-import school.hei.haapi.endpoint.rest.model.FeeTemplate;
+import school.hei.haapi.endpoint.rest.model.*;
+import school.hei.haapi.model.V2FeeTemplateContent;
 
 @Component
 @AllArgsConstructor
@@ -31,5 +33,52 @@ public class FeeTemplateMapper {
         .frequency(domain.getFrequency())
         .creationDatetime(domain.getCreationDatetime())
         .numberOfPayments(domain.getNumberOfPayments());
+  }
+
+  public V2FeeTemplate toRest(school.hei.haapi.model.V2FeeTemplate domain) {
+    return new V2FeeTemplate()
+        .id(domain.getId())
+        .label(domain.getLabel())
+        .type(domain.getType())
+        .category(domain.getCategory())
+        .creationDatetime(domain.getCreationDatetime());
+  }
+
+  public V2DetailedFeeTemplate toRestDetailed(school.hei.haapi.model.V2FeeTemplate domain) {
+    var contents = domain.getFeeTemplateContents();
+    return new V2DetailedFeeTemplate()
+        .id(domain.getId())
+        .label(domain.getLabel())
+        .type(domain.getType())
+        .category(domain.getCategory())
+        .creationDatetime(domain.getCreationDatetime())
+        .contents(
+            contents == null ? List.of() : contents.stream().map(this::toRestContent).toList());
+  }
+
+  public school.hei.haapi.model.V2FeeTemplate toDomain(V2CrupdateFeeTemplate rest) {
+    return school.hei.haapi.model.V2FeeTemplate.builder()
+        .id(rest.getId())
+        .label(rest.getLabel())
+        .type(rest.getType())
+        .category(rest.getCategory())
+        .build();
+  }
+
+  public FeeTemplateContent toRestContent(school.hei.haapi.model.V2FeeTemplateContent domain) {
+    return new FeeTemplateContent()
+        .id(domain.getId())
+        .label(domain.getLabel())
+        .amount(domain.getAmount().intValue())
+        .dueDate(domain.getDueDate());
+  }
+
+  public school.hei.haapi.model.V2FeeTemplateContent toDomainContent(FeeTemplateContent rest) {
+    return V2FeeTemplateContent.builder()
+        .id(rest.getId())
+        .label(rest.getLabel())
+        .amount(rest.getAmount() == null ? null : BigInteger.valueOf(rest.getAmount()))
+        .dueDate(rest.getDueDate())
+        .build();
   }
 }

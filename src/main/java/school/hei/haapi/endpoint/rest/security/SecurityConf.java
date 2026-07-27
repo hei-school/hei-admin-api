@@ -184,6 +184,14 @@ public class SecurityConf {
                     antMatcher(GET, "/fees/templates"),
                     antMatcher(PUT, "/fees/templates/*"),
                     antMatcher(GET, "/fees/templates/*"),
+                    antMatcher(GET, "/feeTemplates"),
+                    antMatcher(PUT, "/feeTemplates"),
+                    antMatcher(GET, "/feeTemplates/*/content"),
+                    antMatcher(PUT, "/feeTemplates/*/content"),
+                    antMatcher(PUT, "/feeCreationJobs"),
+                    antMatcher(GET, "/feeCreationJobs"),
+                    antMatcher(GET, "/feeCreationJobs/*"),
+                    antMatcher(GET, "/feeCreationJobs/*/students"),
                     antMatcher(GET, "/teachers"),
                     antMatcher(GET, "/teachers/*"),
                     antMatcher(GET, "/teachers/**"),
@@ -288,6 +296,7 @@ public class SecurityConf {
                     antMatcher(PATCH, "/retake_exams/to_cancel"),
                     antMatcher(PATCH, "/retake_exams/cancel"),
                     antMatcher(PATCH, "/retake_exams/reject"),
+                    antMatcher(PATCH, "/retake_exams/status"),
                     antMatcher(PUT, "/retake_exam_sessions/*/retake_exams"),
                     antMatcher(GET, "/students/*/sessions/*/retake_exams"),
                     antMatcher(GET, "/retake_exam_sessions/*/retake_exam_courses"),
@@ -490,6 +499,22 @@ public class SecurityConf {
                     //
                     // Fees resources
                     //
+                    .requestMatchers(GET, "/feeTemplates")
+                    .hasAnyRole(MANAGER.getRole(), ADMIN.getRole())
+                    .requestMatchers(PUT, "/feeTemplates")
+                    .hasAnyRole(MANAGER.getRole(), ADMIN.getRole())
+                    .requestMatchers(GET, "/feeTemplates/*/content")
+                    .hasAnyRole(MANAGER.getRole(), ADMIN.getRole())
+                    .requestMatchers(PUT, "/feeTemplates/*/content")
+                    .hasAnyRole(MANAGER.getRole(), ADMIN.getRole())
+                    .requestMatchers(PUT, "/feeCreationJobs")
+                    .hasAnyRole(MANAGER.getRole(), ADMIN.getRole())
+                    .requestMatchers(GET, "/feeCreationJobs")
+                    .hasAnyRole(MANAGER.getRole(), ADMIN.getRole())
+                    .requestMatchers(GET, "/feeCreationJobs/*")
+                    .hasAnyRole(MANAGER.getRole(), ADMIN.getRole())
+                    .requestMatchers(GET, "/feeCreationJobs/*/students")
+                    .hasAnyRole(MANAGER.getRole(), ADMIN.getRole())
                     .requestMatchers(GET, "/fees/templates")
                     .hasAnyRole(STUDENT.getRole(), MANAGER.getRole(), ADMIN.getRole())
                     .requestMatchers(PUT, "/fees/templates/*")
@@ -847,6 +872,8 @@ public class SecurityConf {
                     .requestMatchers(PATCH, "/retake_exams/cancel")
                     .hasAnyRole(MANAGER.getRole(), ADMIN.getRole())
                     .requestMatchers(PATCH, "/retake_exams/reject")
+                    .hasAnyRole(MANAGER.getRole(), ADMIN.getRole())
+                    .requestMatchers(PATCH, "/retake_exams/status")
                     .hasAnyRole(MANAGER.getRole(), ADMIN.getRole())
                     .requestMatchers(PUT, "/retake_exam_sessions/*/retake_exams")
                     .hasAnyRole(

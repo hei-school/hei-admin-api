@@ -23,8 +23,8 @@ import school.hei.haapi.endpoint.rest.model.CourseResultStatus;
 import school.hei.haapi.endpoint.rest.model.CrupdateRetakeExam;
 import school.hei.haapi.endpoint.rest.model.RetakeExam;
 import school.hei.haapi.endpoint.rest.model.RetakeExamToCancel;
-import school.hei.haapi.endpoint.rest.model.Student;
 import school.hei.haapi.endpoint.rest.model.StudentRetakeExam;
+import school.hei.haapi.endpoint.rest.model.UpdateRetakeExamStatus;
 import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.model.RetakeExamStatus;
@@ -63,9 +63,9 @@ public class RetakeExamController {
 
   @GetMapping("/students/{student_id}/retake_exams")
   public List<CourseResult> getStudentRetakeExams(
-      @PathVariable("student_id") String student_id,
+      @PathVariable("student_id") String studentId,
       @RequestParam(defaultValue = "", required = false) CourseResultStatus status) {
-    return gradeResultService.getStudentRetakeExams(student_id, status);
+    return gradeResultService.getStudentRetakeExams(studentId, status);
   }
 
   @GetMapping("/retake_exams")
@@ -90,15 +90,23 @@ public class RetakeExamController {
   }
 
   @GetMapping("/retake_exam_sessions/{session_id}/retake_exam_courses/{course_id}/participants")
-  public List<Student> getRetakeExamParticipantByCourseIdAndSessionId(
+  public List<StudentRetakeExam> getRetakeExamParticipantByCourseIdAndSessionId(
       @PathVariable("session_id") String sessionId,
       @PathVariable("course_id") String courseId,
       @RequestParam(value = "student_ref", required = false) String studentRef,
       @RequestParam(value = "page", defaultValue = "1") PageFromOne page,
       @RequestParam(value = "page_size", defaultValue = "15") BoundedPageSize pageSize) {
-    return userMapper.toRestStudents(
+    return retakeExamMapper.toStudentRetakeRestList(
         retakeExamService.getAllRetakeExamParticipantByCourseAndBySessionId(
             sessionId, courseId, studentRef, page, pageSize));
+  }
+
+  @PatchMapping("/retake_exams/status")
+  public List<StudentRetakeExam> updateRetakeExamsStatus(
+      @RequestBody List<UpdateRetakeExamStatus> updateRetakeExamStatus) {
+    return retakeExamMapper.toStudentRetakeRestList(
+        retakeExamService.updateRetakeExams(
+            retakeExamMapper.toUpdateRetakeExamsStatus(updateRetakeExamStatus)));
   }
 
   @PatchMapping("/retake_exams/to_cancel")

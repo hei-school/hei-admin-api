@@ -5,7 +5,6 @@ import static java.math.BigDecimal.ZERO;
 import static java.math.MathContext.DECIMAL128;
 import static java.util.Comparator.comparing;
 import static java.util.Objects.nonNull;
-import static java.util.regex.Pattern.compile;
 import static school.hei.haapi.endpoint.rest.model.ResultOverviewStatus.INVALIDATED;
 import static school.hei.haapi.endpoint.rest.model.ResultOverviewStatus.IN_PROGRESS;
 import static school.hei.haapi.endpoint.rest.model.ResultOverviewStatus.NOT_STARTED;
@@ -17,8 +16,6 @@ import java.math.BigDecimal;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -28,10 +25,7 @@ import school.hei.haapi.endpoint.rest.model.CourseResultStatus;
 import school.hei.haapi.endpoint.rest.model.ResultOverviewStatus;
 import school.hei.haapi.endpoint.rest.model.StudentLevel;
 import school.hei.haapi.model.CourseAssignment;
-import school.hei.haapi.model.Exam;
-import school.hei.haapi.model.User;
 import school.hei.haapi.model.dto.CourseDto;
-import school.hei.haapi.model.dto.GroupFlowPeriod;
 import school.hei.haapi.model.exception.CoursesCreditSumZero;
 import school.hei.haapi.model.exception.ExamsCoefficientSumZero;
 import school.hei.haapi.repository.GradeRepository;
@@ -41,98 +35,34 @@ import school.hei.haapi.repository.GradeRepository;
 @Slf4j
 public class CourseResultService {
   private final CourseMapper courseMapper;
-  private final UserService userService;
   private final CourseAssignmentService courseAssignmentService;
   private final GroupFlowService groupFlowService;
   private final GradeRepository gradeRepository;
+  private final ExamService examService;
 
   private static final BigDecimal VALIDATED_YEAR_CREDIT = BigDecimal.valueOf(30);
   private static final BigDecimal VALIDATED_YEAR_AVERAGE = TEN;
-  private static final Pattern GROUP_TRAILING_DIGITS = compile("\\d+$");
 
   @Transactional
   public List<CourseResult> getCourseResultsByStudentIdAndLevel(
       String studentId, StudentLevel level) {
-    var student = userService.getById(studentId);
-    var studentGroupFlowsAtLevel = groupFlowService.getStudentGroupFlowAtLevel(student, level);
-    var studentLatestGroupFlowsAtLevel = findLatestGroupFlowPeriods(studentGroupFlowsAtLevel);
+    var studentLatestGroupFlowsAtLevel =
+        groupFlowService.findStudentLatestGroupFlowPeriodsAtLevel(studentId, level);
     var studentGroupCourseAssignmentsAtLevel =
-        getGroupsCourseAssignmentsByGroupFlowsAtLevel(studentLatestGroupFlowsAtLevel, level);
+        courseAssignmentService.getGroupsCourseAssignmentsByGroupFlowsAtLevel(
+            studentLatestGroupFlowsAtLevel, level);
     return studentGroupCourseAssignmentsAtLevel.stream()
-        .map(courseDto -> computeStudentCourseResult(courseDto, student))
+        .map(courseDto -> computeStudentCourseResult(courseDto, studentId))
         .sorted(comparing(courseResult -> courseResult.getStatus().ordinal()))
         .toList();
   }
 
-  private List<GroupFlowPeriod> findLatestGroupFlowPeriods(List<GroupFlowPeriod> groupFlowPeriods) {
-    if (groupFlowPeriods.isEmpty()) {
-      return List.of();
-    }
-
-    var latestPromotion = latestPromotion(groupFlowPeriods);
-
-    return groupFlowPeriods.stream()
-        .filter(
-            groupFlowPeriod ->
-                extractGroupPromotion(groupFlowPeriod.group().getRef()).equals(latestPromotion))
-        .toList();
-  }
-
-  private String latestPromotion(List<GroupFlowPeriod> groupFlowPeriods) {
-    return extractGroupPromotion(
-        groupFlowPeriods.stream()
-            .max(comparing(GroupFlowPeriod::start))
-            .orElseThrow()
-            .group()
-            .getRef());
-  }
-
-  private String extractGroupPromotion(String groupRef) {
-    return GROUP_TRAILING_DIGITS.matcher(groupRef).replaceAll("");
-  }
-
-  private List<CourseDto> getGroupsCourseAssignmentsByGroupFlowsAtLevel(
-      List<GroupFlowPeriod> studentLatestGroupFlows, StudentLevel level) {
-
-    var courseAssignments =
-        studentLatestGroupFlows.stream()
-            .flatMap(
-                groupFlowPeriod ->
-                    getGroupCourseAssignmentsByLevelBetweenPeriod(groupFlowPeriod, level).stream())
-            .collect(Collectors.groupingBy(CourseAssignment::getCourse));
-
-    return courseAssignments.entrySet().stream()
-        .map(entry -> new CourseDto(entry.getKey(), entry.getValue()))
-        .toList();
-  }
-
-  private List<CourseAssignment> getGroupCourseAssignmentsByLevelBetweenPeriod(
-      GroupFlowPeriod groupFlowPeriod, StudentLevel level) {
-    return courseAssignmentService.getByGroupId(groupFlowPeriod.group().getId()).stream()
-        .filter(courseAssignment -> level.equals(courseAssignment.getCourse().getStudentLevel()))
-        .filter(courseAssignment -> hasExamOrAssignedBeforeLeave(courseAssignment, groupFlowPeriod))
-        .toList();
-  }
-
-  private boolean hasExamOrAssignedBeforeLeave(
-      CourseAssignment courseAssignment, GroupFlowPeriod groupFlowPeriod) {
-    var courseExams = courseAssignment.getExams();
-    if (courseExams.isEmpty() && groupFlowPeriod.end() == null) {
-      return true;
-    }
-    return courseExams.stream()
-        .anyMatch(courseExam -> groupFlowPeriod.contains(courseExam.getExaminationDate()));
-  }
-
-  private CourseResult computeStudentCourseResult(CourseDto courseDto, User student) {
-    var courseExams = getExamsByCourseDto(courseDto);
-    log.info("Course exams : {}", courseExams);
+  private CourseResult computeStudentCourseResult(CourseDto courseDto, String studentId) {
+    var courseExams = examService.getExamsByCourseDto(courseDto);
     var courseAssignmentIds =
         courseDto.courseAssigments().stream().map(CourseAssignment::getId).toList();
     var studentGrades =
-        gradeRepository.findGradesByCourseAssignmentIdsAndStudentId(
-            courseAssignmentIds, student.getId());
-    log.info("Student grades : {}", studentGrades);
+        gradeRepository.findGradesByCourseAssignmentIdsAndStudentId(courseAssignmentIds, studentId);
     var courseResult = new CourseResult().course(courseMapper.toRest(courseDto.course()));
 
     if (courseExams.isEmpty()) {
@@ -155,12 +85,6 @@ public class CourseResultService {
     } else {
       return courseResult.status(CourseResultStatus.VALIDATED);
     }
-  }
-
-  private List<Exam> getExamsByCourseDto(CourseDto courseDto) {
-    return courseDto.courseAssigments().stream()
-        .flatMap(courseAssignment -> courseAssignment.getExams().stream())
-        .toList();
   }
 
   public BigDecimal obtainedCreditsOfCourseResults(List<CourseResult> courseResults) {

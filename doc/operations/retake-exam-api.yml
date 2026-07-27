@@ -1,0 +1,455 @@
+operations:
+  getListStudentRetakeExams:
+    get:
+      tags:
+        - RetakeExam
+      summary: Get retake exams for a student
+      operationId: getListStudentRetakeExams
+      parameters:
+        - $ref: "../components.yml#/components/parameters/PathStudentId"
+        - name: status
+          in: query
+          required: false
+          description: Filter by course result status. Returns all if omitted.
+          schema:
+            $ref: "../components.yml#/components/schemas/CourseResultStatus"
+      responses:
+        '200':
+          description: List of retake exams for queried student.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '../components.yml#/components/schemas/CourseResult'
+        '400':
+          $ref: '../components.yml#/components/responses/400'
+        '403':
+          $ref: '../components.yml#/components/responses/403'
+        '404':
+          $ref: '../components.yml#/components/responses/404'
+        '429':
+          $ref: '../components.yml#/components/responses/429'
+        '500':
+          $ref: '../components.yml#/components/responses/500'
+  retakeExamSessions:
+    get:
+      tags:
+        - RetakeExam
+      summary: Get list of retake exams sessions infos filtered by criteria.
+      parameters:
+        - name: title
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: student_level
+          in: query
+          style: form
+          explode: true
+          required: false
+          schema:
+            type: array
+            items:
+              $ref: '../components.yml#/components/schemas/StudentLevel'
+        - $ref: '../components.yml#/components/parameters/DatetimeFromFilter'
+        - $ref: '../components.yml#/components/parameters/DatetimeToFilter'
+        - $ref: '../components.yml#/components/parameters/Page'
+        - $ref: '../components.yml#/components/parameters/PageSize'
+      operationId: getRetakeExamSessions
+      responses:
+        '200':
+          description: List of retake exam sessions info
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '../components.yml#/components/schemas/RetakeExamSession'
+        '400':
+          $ref: '../components.yml#/components/responses/400'
+        '403':
+          $ref: '../components.yml#/components/responses/403'
+        '404':
+          $ref: '../components.yml#/components/responses/404'
+        '429':
+          $ref: '../components.yml#/components/responses/429'
+        '500':
+          $ref: '../components.yml#/components/responses/500'
+    put:
+      tags:
+        - RetakeExam
+      summary: Create or update list of retake exam sessions
+      operationId: createOrUpdateRetakeExamSessions
+      requestBody:
+        required: true
+        description: List of retake exam sessions to save
+        content:
+          application/json:
+            schema:
+              $ref: '../components.yml#/components/schemas/RetakeExamSession'
+      responses:
+        '200':
+          description: List of retake exam sessions saved
+          content:
+            application/json:
+              schema:
+                $ref: '../components.yml#/components/schemas/RetakeExamSession'
+        '400':
+          $ref: '../components.yml#/components/responses/400'
+        '403':
+          $ref: '../components.yml#/components/responses/403'
+        '404':
+          $ref: '../components.yml#/components/responses/404'
+        '429':
+          $ref: '../components.yml#/components/responses/429'
+        '500':
+          $ref: '../components.yml#/components/responses/500'
+  getRetakeExamSessionById:
+    get:
+      tags:
+        - RetakeExam
+      summary: Get retake exam session by identifier
+      parameters:
+        - name: session_id
+          in: path
+          required: true
+          schema:
+            type: string
+      operationId: getRetakeExamSessionById
+      responses:
+        '200':
+          description: Retake exam session by identifier
+          content:
+            application/json:
+              schema:
+                $ref: '../components.yml#/components/schemas/RetakeExamSession'
+        '400':
+          $ref: '../components.yml#/components/responses/400'
+        '403':
+          $ref: '../components.yml#/components/responses/403'
+        '404':
+          $ref: '../components.yml#/components/responses/404'
+        '429':
+          $ref: '../components.yml#/components/responses/429'
+        '500':
+          $ref: '../components.yml#/components/responses/500'
+  getAllRetakeExams:
+    get:
+      tags:
+        - RetakeExam
+      summary: Get all retake exams infos
+      parameters:
+        - $ref: '../components.yml#/components/parameters/RetakeExamStatuses'
+        - $ref: '../components.yml#/components/parameters/StudentRef'
+        - $ref: '../components.yml#/components/parameters/DatetimeFromFilter'
+        - $ref: '../components.yml#/components/parameters/DatetimeToFilter'
+        - $ref: '../components.yml#/components/parameters/Page'
+        - $ref: '../components.yml#/components/parameters/PageSize'
+      operationId: getAllRetakeExams
+      responses:
+        '200':
+          description: List of retake exams for a specific session
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '../components.yml#/components/schemas/StudentRetakeExam'
+        '400':
+          $ref: '../components.yml#/components/responses/400'
+        '403':
+          $ref: '../components.yml#/components/responses/403'
+        '404':
+          $ref: '../components.yml#/components/responses/404'
+        '429':
+          $ref: '../components.yml#/components/responses/429'
+        '500':
+          $ref: '../components.yml#/components/responses/500'
+  requestToCancelRetakeExams:
+    patch:
+      tags:
+        - RetakeExam
+      summary: Request to cancel multiple retake exams
+      operationId: requestToCancelRetakeExams
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: "../components.yml#/components/schemas/CancelRetakeExamRequest"
+      responses:
+        '200':
+          description: Request to cancel retake exams
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '../components.yml#/components/schemas/StudentRetakeExam'
+        '400':
+          $ref: '../components.yml#/components/responses/400'
+        '403':
+          $ref: '../components.yml#/components/responses/403'
+        '404':
+          $ref: '../components.yml#/components/responses/404'
+        '429':
+          $ref: '../components.yml#/components/responses/429'
+        '500':
+          $ref: '../components.yml#/components/responses/500'
+  cancelRetakeExams:
+    patch:
+      tags:
+        - RetakeExam
+      summary: Cancel multiple retake exams
+      operationId: cancelRetakeExams
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: "../components.yml#/components/schemas/RetakeExamToCancel"
+      responses:
+        '200':
+          description: Retake exams successfully canceled
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '../components.yml#/components/schemas/StudentRetakeExam'
+        '400':
+          $ref: '../components.yml#/components/responses/400'
+        '403':
+          $ref: '../components.yml#/components/responses/403'
+        '404':
+          $ref: '../components.yml#/components/responses/404'
+        '429':
+          $ref: '../components.yml#/components/responses/429'
+        '500':
+          $ref: '../components.yml#/components/responses/500'
+  rejectToCancelRetakeExamRequests:
+    patch:
+      tags:
+        - RetakeExam
+      summary: Reject multiple retake exam cancellation requests
+      operationId: rejectToCancelRetakeExamRequests
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: "../components.yml#/components/schemas/CancelRetakeExamRequest"
+      responses:
+        '200':
+          description: Retake exam successfully rejected
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '../components.yml#/components/schemas/StudentRetakeExam'
+        '400':
+          $ref: '../components.yml#/components/responses/400'
+        '403':
+          $ref: '../components.yml#/components/responses/403'
+        '404':
+          $ref: '../components.yml#/components/responses/404'
+        '429':
+          $ref: '../components.yml#/components/responses/429'
+        '500':
+          $ref: '../components.yml#/components/responses/500'
+  updateRetakeExamsStatus:
+    patch:
+      tags:
+        - RetakeExam
+      summary: Update status of multiple retake exams
+      operationId: updateRetakeExamsStatus
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: "../components.yml#/components/schemas/UpdateRetakeExamStatus"
+      responses:
+        '200':
+          description: Retake exams' status successfully updated
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '../components.yml#/components/schemas/StudentRetakeExam'
+        '400':
+          $ref: '../components.yml#/components/responses/400'
+        '403':
+          $ref: '../components.yml#/components/responses/403'
+        '404':
+          $ref: '../components.yml#/components/responses/404'
+        '429':
+          $ref: '../components.yml#/components/responses/429'
+        '500':
+          $ref: '../components.yml#/components/responses/500'
+  createOrUpdateRetakeExam:
+    put:
+      tags:
+        - RetakeExam
+      summary: Create or update existing list of retake exam
+      parameters:
+        - name: session_id
+          in: path
+          required: true
+          schema:
+            type: string
+      operationId: createOrUpdateRetakeExam
+      requestBody:
+        required: true
+        description: List of retake exams to save
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '../components.yml#/components/schemas/CrupdateRetakeExam'
+      responses:
+        '200':
+          description: List of retake exams created or updated
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '../components.yml#/components/schemas/StudentRetakeExam'
+        '400':
+          $ref: '../components.yml#/components/responses/400'
+        '403':
+          $ref: '../components.yml#/components/responses/403'
+        '404':
+          $ref: '../components.yml#/components/responses/404'
+        '429':
+          $ref: '../components.yml#/components/responses/429'
+        '500':
+          $ref: '../components.yml#/components/responses/500'
+  getRetakeExamCoursesBySessionId:
+    get:
+      tags:
+        - RetakeExam
+      summary: Get all retake exam courses for a specific session
+      parameters:
+        - name: session_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: course_code
+          in: query
+          required: false
+          schema:
+            type: string
+        - $ref: '../components.yml#/components/parameters/Page'
+        - $ref: '../components.yml#/components/parameters/PageSize'
+      operationId: getRetakeExamCoursesBySessionId
+      responses:
+        '200':
+          description: List of retake exams courses for a specific session
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '../components.yml#/components/schemas/Course'
+        '400':
+          $ref: '../components.yml#/components/responses/400'
+        '403':
+          $ref: '../components.yml#/components/responses/403'
+        '404':
+          $ref: '../components.yml#/components/responses/404'
+        '429':
+          $ref: '../components.yml#/components/responses/429'
+        '500':
+          $ref: '../components.yml#/components/responses/500'
+  getRetakeExamParticipantByCourseIdAndSessionId:
+    get:
+      tags:
+        - RetakeExam
+      summary: Get all participant for a specific retake exam course inside a session
+      parameters:
+        - name: session_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: course_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - $ref: '../components.yml#/components/parameters/StudentRef'
+        - $ref: '../components.yml#/components/parameters/Page'
+        - $ref: '../components.yml#/components/parameters/PageSize'
+      operationId: getRetakeExamParticipantByCourseIdAndSessionId
+      responses:
+        '200':
+          description: List of retake exam participant for a specific course in session
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '../components.yml#/components/schemas/StudentRetakeExam'
+        '400':
+          $ref: '../components.yml#/components/responses/400'
+        '403':
+          $ref: '../components.yml#/components/responses/403'
+        '404':
+          $ref: '../components.yml#/components/responses/404'
+        '429':
+          $ref: '../components.yml#/components/responses/429'
+        '500':
+          $ref: '../components.yml#/components/responses/500'
+  getStudentRetakeExamBySession:
+    get:
+      tags:
+        - RetakeExam
+      summary: Get a student retake exams for a session
+      operationId: getStudentRetakeExamBySession
+      parameters:
+        - name: student_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: session_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - $ref: '../components.yml#/components/parameters/Page'
+        - $ref: '../components.yml#/components/parameters/PageSize'
+      responses:
+        '200':
+          description: List of retake exams for a specific student
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '../components.yml#/components/schemas/RetakeExam'
+        '400':
+          $ref: '../components.yml#/components/responses/400'
+        '403':
+          $ref: '../components.yml#/components/responses/403'
+        '404':
+          $ref: '../components.yml#/components/responses/404'
+        '429':
+          $ref: '../components.yml#/components/responses/429'
+        '500':
+          $ref: '../components.yml#/components/responses/500'

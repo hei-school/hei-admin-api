@@ -1,0 +1,529 @@
+operations:
+  generateEventStudentsParticipantInXlsx:
+    get:
+      tags:
+        - Events
+      summary: Get all students in event as xlsx file
+      operationId: generateEventStudentsParticipantInXlsx
+      parameters:
+        - name: event_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: List of students in a xlsx file
+          content:
+            application/xlsx:
+              schema:
+                type: string
+                format: byte
+                example: XLSX VERSION
+        '400':
+          $ref: '../components.yml#/components/responses/400'
+        '403':
+          $ref: '../components.yml#/components/responses/403'
+        '404':
+          $ref: '../components.yml#/components/responses/404'
+        '429':
+          $ref: '../components.yml#/components/responses/429'
+        '500':
+          $ref: '../components.yml#/components/responses/500'
+  events:
+    get:
+      tags:
+        - Events
+      summary: Get all events.
+      parameters:
+        - name: page
+          in: query
+          schema:
+            $ref: '../components.yml#/components/schemas/Page'
+          description: Set value to 1 by default if null is provided
+          required: false
+        - name: page_size
+          in: query
+          description: Set value to 15 by default if null is provided
+          schema:
+            $ref: '../components.yml#/components/schemas/PageSize'
+        - name: from
+          in: query
+          description: Filter events from a given date, return events of current week by default
+          schema:
+            type: string
+            format: date-time
+          required: false
+        - name: to
+          in: query
+          description: Filter events after a given date, return events of current week by default
+          schema:
+            type: string
+            format: date-time
+          required: false
+        - name: event_type
+          in: query
+          required: false
+          description: Filter events by event type
+          schema:
+            $ref: '../components.yml#/components/schemas/EventType'
+        - name: title
+          in: query
+          required: false
+          description: Filter events by title
+          schema:
+            type: string
+        - name: group_id
+          in: query
+          required: false
+          description: Filter events by group id
+          schema:
+            type: string
+        - $ref: '../components.yml#/components/parameters/TeacherId'
+        - $ref: '../components.yml#/components/parameters/GroupRef'
+      operationId: getEvents
+      responses:
+        '200':
+          description: List of events
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '../components.yml#/components/schemas/Event'
+        '400':
+          $ref: '../components.yml#/components/responses/400'
+        '403':
+          $ref: '../components.yml#/components/responses/403'
+        '429':
+          $ref: '../components.yml#/components/responses/429'
+        '500':
+          $ref: '../components.yml#/components/responses/500'
+    put:
+      tags:
+        - Events
+      summary: Create or update events
+      description: |
+        Update if `id` is provided, create otherwise.
+        Create by frequency if `frequency_day`, `frequency_number`, `frequency_beginning_hour` and `frequency_ending_hour` are provided
+
+        **Note:** This function creates an initial event from the payload,
+        then schedules weekly events based on the `frequency` query parameter.
+      operationId: crupdateEvents
+      parameters:
+        - name: frequency_day
+          required: false
+          in: query
+          description: define the day frequency, the next event will be scheduled on `frequency_day`.
+          schema:
+            $ref: '../components.yml#/components/schemas/FrequencyScopeDay'
+          example: Monday
+        - name: frequency_number
+          required: false
+          in: query
+          description: define the number of frequency. Determines how many events will be created.
+          schema:
+            type: integer
+          example: 1
+        - name: frequency_beginning_hour
+          required: false
+          in: query
+          description: |
+            what time does the frequency start, format HH:MM
+
+            **IMPORTANT** The frequency_beginning_hour must be send as UTC+3
+          schema:
+            type: string
+          example: "08:00"
+        - name: frequency_ending_hour
+          required: false
+          in: query
+          description: |
+            what time does the frequency end, format HH:MM
+
+            **IMPORTANT** The frequency_beginning_hour must be send as UTC+3
+          schema:
+            type: string
+          example: "10:00"
+      requestBody:
+        required: true
+        description: Event to create or update
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '../components.yml#/components/schemas/CreateEvent'
+            example:
+              - title: 'exam - salle B'
+                description: 'exam - salle B'
+                color: '#f6bf26'
+                begin_datetime: '2025-02-24T09:00:00Z'
+                end_datetime: '2025-02-24T09:30:00Z'
+                event_type: 'EXAM'
+                planner_id: 'teacher_id_1'
+                course_id: 'course_id_1'
+                groups: [ ]
+              - title: 'test'
+                description: 'description'
+                color: '#f6bf26'
+                begin_datetime: '2025-01-01T00:00:00Z'
+                end_datetime: '2025-01-01T00:00:00Z'
+                event_type: 'EXAM'
+                planner_id: 'teacher_id_1'
+                course_id: 'course_id_1'
+                groups: [ ]
+      responses:
+        '200':
+          description: Event created
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '../components.yml#/components/schemas/Event'
+                example:
+                  - id: 123456
+                    type: 'EXAM'
+                    title: 'exam - salle B'
+                    color: '#f6bf26'
+                    description: 'exam - salle B'
+                    begin_datetime: '2025-02-24T09:00:00Z'
+                    end_datetime: '2025-02-24T09:30:00Z'
+                    planner_id:
+                      id: 'teacher_id_1'
+                    course_id:
+                      id: 'course_id_1'
+                    groups: [ ]
+                  - id: 223456
+                    type: 'EXAM'
+                    title: 'exam - salle B'
+                    color: '#f6bf26'
+                    description: 'exam - salle B'
+                    begin_datetime: '2025-03-03T08:00:00Z'
+                    end_datetime: '2025-03-03T10:00:00Z'
+                    planner_id:
+                      id: 'teacher_id_1'
+                    course_id:
+                      id: 'course_id_1'
+                    groups: [ ]
+        '400':
+          $ref: '../components.yml#/components/responses/400'
+        '403':
+          $ref: '../components.yml#/components/responses/403'
+        '404':
+          $ref: '../components.yml#/components/responses/404'
+        '429':
+          $ref: '../components.yml#/components/responses/429'
+        '500':
+          $ref: '../components.yml#/components/responses/500'
+  eventsById:
+    get:
+      tags:
+        - Events
+      summary: Get event by identifier
+      parameters:
+        - name: id
+          required: true
+          schema:
+            type: string
+          in: path
+      operationId: getEventById
+      responses:
+        '200':
+          description: Event by identifier
+          content:
+            application/json:
+              schema:
+                $ref: '../components.yml#/components/schemas/Event'
+        '400':
+          $ref: '../components.yml#/components/responses/400'
+        '403':
+          $ref: '../components.yml#/components/responses/403'
+        '404':
+          $ref: '../components.yml#/components/responses/404'
+        '429':
+          $ref: '../components.yml#/components/responses/429'
+        '500':
+          $ref: '../components.yml#/components/responses/500'
+    delete:
+      tags:
+        - Events
+      summary: Delete event by id
+      description: Soft delete
+      operationId: deleteEventById
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: event deleted by id
+          content:
+            application/json:
+              schema:
+                $ref: '../components.yml#/components/schemas/Event'
+        '400':
+          $ref: '../components.yml#/components/responses/400'
+        '403':
+          $ref: '../components.yml#/components/responses/403'
+        '404':
+          $ref: '../components.yml#/components/responses/404'
+        '429':
+          $ref: '../components.yml#/components/responses/429'
+        '500':
+          $ref: '../components.yml#/components/responses/500'
+  eventsParticipants:
+    get:
+      tags:
+        - Events
+      summary: Users taking parts to event
+      operationId: getEventParticipants
+      parameters:
+        - name: id
+          in: path
+          schema:
+            type: string
+          required: true
+        - name: page
+          in: query
+          schema:
+            $ref: '../components.yml#/components/schemas/Page'
+          description: Set value to 1 by default if null is provided
+          required: false
+        - name: page_size
+          in: query
+          description: Set value to 15 by default if null is provided
+          schema:
+            $ref: '../components.yml#/components/schemas/PageSize'
+        - name: group_ref
+          in: query
+          description: Filter by group ref
+          schema:
+            type: string
+          required: false
+        - name: student_ref
+          in: query
+          description: Filter by student std
+          schema:
+            type: string
+          required: false
+        - name: name
+          in: query
+          description: Filter by student name
+          schema:
+            type: string
+          required: false
+        - name: status
+          in: query
+          description: Filter by AttendanceStatus
+          schema:
+            $ref: "../components.yml#/components/schemas/AttendanceStatus"
+          required: false
+      responses:
+        '200':
+          description: Participants of the event
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '../components.yml#/components/schemas/EventParticipant'
+        '400':
+          $ref: '../components.yml#/components/responses/400'
+        '403':
+          $ref: '../components.yml#/components/responses/403'
+        '404':
+          $ref: '../components.yml#/components/responses/404'
+        '429':
+          $ref: '../components.yml#/components/responses/429'
+        '500':
+          $ref: '../components.yml#/components/responses/500'
+    put:
+      tags:
+        - Events
+      summary: Update event participants status
+      parameters:
+        - name: id
+          in: path
+          schema:
+            type: string
+          required: true
+      operationId: updateEventParticipantsStatus
+      requestBody:
+        description: Participants attend for given event
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '../components.yml#/components/schemas/UpdateEventParticipant'
+      responses:
+        '200':
+          description: Participants attended for given event
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '../components.yml#/components/schemas/EventParticipant'
+        '400':
+          $ref: '../components.yml#/components/responses/400'
+        '403':
+          $ref: '../components.yml#/components/responses/403'
+        '404':
+          $ref: '../components.yml#/components/responses/404'
+        '429':
+          $ref: '../components.yml#/components/responses/429'
+        '500':
+          $ref: '../components.yml#/components/responses/500'
+  getAllEventParticipants:
+    get:
+      tags:
+        - Events
+      summary: All users events participations
+      operationId: getAllEventParticipants
+      parameters:
+        - name: course_id
+          in: query
+          required: false
+          description: Filter event participants by the given course id value
+          schema:
+            type: string
+        - name: page
+          in: query
+          schema:
+            $ref: '../components.yml#/components/schemas/Page'
+          description: Set value to 1 by default if null is provided
+          required: false
+        - name: page_size
+          in: query
+          description: Set value to 15 by default if null is provided
+          schema:
+            $ref: '../components.yml#/components/schemas/PageSize'
+        - $ref: '../components.yml#/components/parameters/DatetimeFromFilter'
+        - $ref: '../components.yml#/components/parameters/DatetimeToFilter'
+        - name: attendance_status
+          required: false
+          in: query
+          description: Filter event participants by attendance status value
+          schema:
+            $ref: '../components.yml#/components/schemas/AttendanceStatus'
+        - $ref: '../components.yml#/components/parameters/GroupRef'
+        - $ref: '../components.yml#/components/parameters/StudentRef'
+        - $ref: '../components.yml#/components/parameters/StudentName'
+      responses:
+        '200':
+          description: Filtered participants of all the events
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "../components.yml#/components/schemas/EventAttendance"
+        '400':
+          $ref: '../components.yml#/components/responses/400'
+        '403':
+          $ref: '../components.yml#/components/responses/403'
+        '404':
+          $ref: '../components.yml#/components/responses/404'
+        '429':
+          $ref: '../components.yml#/components/responses/429'
+        '500':
+          $ref: '../components.yml#/components/responses/500'
+  getEventParticipantStats:
+    get:
+      tags:
+        - Events
+      summary: Get stats for a student
+      operationId: getEventParticipantStats
+      parameters:
+        - name: from_event_begin
+          description: from event datetime to fetch, by default the current date_time.
+          required: false
+          in: query
+          schema:
+            type: string
+            format: date-time
+        - name: to_event_begin
+          description: to event datetime to fetch, by default the current date_time.
+          required: false
+          in: query
+          schema:
+            type: string
+            format: date-time
+        - name: student_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: EventParticipantStats filtered by criteria if provided
+          content:
+            application/json:
+              schema:
+                $ref: '../components.yml#/components/schemas/EventParticipantStats'
+        '400':
+          $ref: '../components.yml#/components/responses/400'
+        '403':
+          $ref: '../components.yml#/components/responses/403'
+        '404':
+          $ref: '../components.yml#/components/responses/404'
+        '429':
+          $ref: '../components.yml#/components/responses/429'
+        '500':
+          $ref: '../components.yml#/components/responses/500'
+  getEventStats:
+    get:
+      tags:
+        - Events
+      summary: Get stats infos about events.
+      operationId: getEventStats
+      parameters:
+        - name: id
+          in: query
+          description: the eventId of the event, this can be left empty and will return the stats of all events
+          required: false
+          schema:
+            type: string
+        - name: from
+          required: false
+          in: query
+          description: |
+            specify the date of start of the event.
+            If `to` is specified but this parameter is left blank, the default value will be the current date_time
+            If both `from` and `to` is not provided, this will return the stats for all the events
+          schema:
+            type: string
+            format: date-time
+        - name: to
+          required: false
+          description: |
+            specify the date of end of the event.
+            If `from` is specified but this parameter is left blank, the default value will be the current date_time
+            If both `from` and `to` is not provided, this will return the stats for all the events
+          in: query
+          schema:
+            type: string
+            format: date-time
+      responses:
+        '200':
+          description: Stats info
+          content:
+            application/json:
+              schema:
+                $ref: '../components.yml#/components/schemas/EventStats'
+        '400':
+          $ref: '../components.yml#/components/responses/400'
+        '403':
+          $ref: '../components.yml#/components/responses/403'
+        '404':
+          $ref: '../components.yml#/components/responses/404'
+        '429':
+          $ref: '../components.yml#/components/responses/429'
+        '500':
+          $ref: '../components.yml#/components/responses/500'

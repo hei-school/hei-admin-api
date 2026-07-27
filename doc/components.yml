@@ -1,0 +1,2284 @@
+components:
+  parameters:
+    PageSize:
+      name: page_size
+      in: query
+      example: 50
+      required: false
+      description: Page size for the retrieved ressources
+      schema:
+        $ref: '#/components/schemas/PageSize'
+    Page:
+      name: page
+      in: query
+      example: 1
+      required: false
+      description: Page number for the retrieved ressources
+      schema:
+        $ref: '#/components/schemas/Page'
+    DatetimeFromFilter:
+      name: from
+      in: query
+      description: Filter creation date result by a given date
+      schema:
+        type: string
+        format: date-time
+      required: false
+    DatetimeToFilter:
+      name: to
+      in: query
+      description: Filter creation date result by a given date
+      schema:
+        type: string
+        format: date-time
+      required: false
+    UpdateDateSort:
+      name: sortDate
+      in: query
+      description: Sort update date result, no sort by default
+      required: false
+      schema:
+        $ref: '#/components/schemas/SortOrder'
+    GroupRef:
+      name: group_ref
+      in: query
+      style: form
+      explode: true
+      required: false
+      description: Filter by group ref
+      schema:
+        type: array
+        items:
+          type: string
+    CorStatuses:
+      name: cor_status
+      in: query
+      style: form
+      explode: true
+      required: false
+      description: Filter by cor actual status
+      schema:
+        type: array
+        items:
+          $ref: '#/components/schemas/CorStatus'
+    StudentRef:
+      name: student_ref
+      in: query
+      example: STD21001
+      required: false
+      description: Filter by student ref
+      schema:
+        type: string
+    StudentName:
+      name: student_name
+      in: query
+      required: false
+      description: Filter by student first name or last name
+      schema:
+        type: string
+    TeacherId:
+      name: teacher_id
+      in: query
+      required: false
+      schema:
+        type: string
+    PathExamId:
+      name: exams_id
+      in: path
+      required: true
+      schema:
+        type: string
+    PathCourseId:
+      name: course_id
+      in: path
+      required: true
+      schema:
+        type: string
+    PathStudentId:
+      name: student_id
+      in: path
+      required: true
+      schema:
+        type: string
+    PathGradeId:
+      name: grade_id
+      in: path
+      required: true
+      schema:
+        type: string
+    PathMpbsId:
+      name: mpbs_id
+      in: path
+      required: true
+      schema:
+        type: string
+    PathCorId:
+      name: cor_id
+      in: path
+      required: true
+      schema:
+        type: string
+    RetakeExamStatuses:
+      name: retake_exam_status
+      in: query
+      style: form
+      explode: true
+      required: false
+      description: Filter by retake exam actual status
+      schema:
+        type: array
+        items:
+          $ref: '#/components/schemas/RetakeExamStatus'
+    RoleParamEnum:
+      name: role
+      in: query
+      style: form
+      explode: true
+      description: Filter by role
+      required: false
+      schema:
+        type: array
+        items:
+          $ref: '#/components/schemas/RoleEnum'
+  responses:
+    '400':
+      description: Bad request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/BadRequestException'
+    '403':
+      description: Forbidden
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/NotAuthorizedException'
+    '404':
+      description: Not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ResourceNotFoundException'
+    '429':
+      description: Too many requests to the API
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/TooManyRequestsException'
+    '500':
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/InternalServerException'
+  schemas:
+    Whoami:
+      properties:
+        id:
+          type: string
+        role:
+          type: string
+          enum:
+            - MONITOR
+            - STUDENT
+            - TEACHER
+            - MANAGER
+            - ADMIN
+            - STAFF_MEMBER
+            - ORGANIZER
+        bearer:
+          type: string
+    UserIdentifier:
+      type: object
+      properties:
+        id:
+          type: string
+        ref:
+          type: string
+          example: STD000001
+        first_name:
+          type: string
+        last_name:
+          type: string
+        email:
+          type: string
+        nic:
+          type: string
+    StudentAttendanceMovement:
+      properties:
+        id:
+          type: string
+        attendance_movement_type:
+          $ref: '#/components/schemas/AttendanceMovementType'
+        created_at:
+          type: string
+          format: date-time
+        place:
+          $ref: '#/components/schemas/PlaceEnum'
+        student:
+          $ref: '#/components/schemas/Student'
+    SortOrder:
+      type: string
+      enum:
+        - ASCENDING
+        - DESCENDING
+    CrupdateUser:
+      allOf:
+        - $ref: '#/components/schemas/UserIdentifier'
+        - type: object
+          properties:
+            sex:
+              $ref: '#/components/schemas/Sex'
+            birth_date:
+              type: string
+              format: date
+            birth_place:
+              type: string
+            address:
+              type: string
+            phone:
+              type: string
+            entrance_datetime:
+              type: string
+              format: date-time
+            coordinates:
+              $ref: '#/components/schemas/Coordinates'
+            high_school_origin:
+              type: string
+            status:
+              $ref: '#/components/schemas/EnableStatus'
+    WorkStudyStatus:
+      type: string
+      enum:
+        - HAVE_BEEN_WORKING
+        - WILL_BE_WORKING
+        - WORKING
+        - NOT_WORKING
+    SpecializationField:
+      type: string
+      enum:
+        - COMMON_CORE
+        - EL
+        - TN
+    Sex:
+      type: string
+      enum:
+        - M
+        - F
+    EnableStatus:
+      type: string
+      enum:
+        - ENABLED
+        - DISABLED
+        - SUSPENDED
+        - ALUMNI
+    FileType:
+      type: string
+      enum:
+        - TRANSCRIPT
+        - DOCUMENT
+        - WORK_DOCUMENT
+        - OTHER
+        - PROFILE_PICTURE
+    EventType:
+      type: string
+      enum:
+        - EXAM
+        - COURSE
+        - INTEGRATION
+        - SEMINAR
+        - SUPPORT_SESSION
+        - OTHER
+
+    ### TODO: Rename to StudentAttendance when actual is renamed into StudentEventAttendance
+    StudentGlobalAttendance:
+      allOf:
+        - $ref: '#/components/schemas/EventBase'
+      type: object
+      properties:
+        attendance_status:
+          $ref: '#/components/schemas/AttendanceStatus'
+
+    ### TODO: rename to StudentEventAttendance or it is Student Attendance for a specific course
+    StudentAttendance:
+      type: object
+      properties:
+        id:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+        late_of:
+          type: integer
+          description: if the student is late, that defines how late he or she is
+        place:
+          $ref: '#/components/schemas/PlaceEnum'
+        is_late:
+          type: boolean
+        course_session:
+          $ref: '#/components/schemas/CourseSession'
+        student:
+          $ref: '#/components/schemas/Student'
+    CourseSession:
+      type: object
+      properties:
+        id:
+          type: string
+        course_assignment:
+          $ref: '#/components/schemas/CourseAssignment'
+        begin:
+          type: string
+          format: date-time
+        end:
+          type: string
+          format: date-time
+    CrupdateStudent:
+      allOf:
+        - $ref: '#/components/schemas/CrupdateUser'
+      properties:
+        specialization_field:
+          $ref: '#/components/schemas/SpecializationField'
+        payment_frequency:
+          $ref: '#/components/schemas/PaymentFrequency'
+    CrupdateMonitor:
+      allOf:
+        - $ref: '#/components/schemas/CrupdateUser'
+      properties:
+        student_refs:
+          type: array
+          items:
+            type: string
+            example: "STD20001"
+    CrupdateTeacher:
+      allOf:
+        - $ref: '#/components/schemas/CrupdateUser'
+    CrupdateManager:
+      allOf:
+        - $ref: '#/components/schemas/CrupdateUser'
+    CrupdateOrganizer:
+      allOf:
+        - $ref: '#/components/schemas/CrupdateUser'
+    CrupdateWorkStudyStudent:
+      properties:
+        id:
+          type: string
+        student_id:
+          type: string
+        commitment_begin_date:
+          type: string
+          format: date-time
+        commitment_end_date:
+          type: string
+          format: date-time
+        business:
+          type: string
+        company:
+          type: string
+    WorkStudyInfo:
+      properties:
+        id:
+          type: string
+        commitment_begin_date:
+          type: string
+          format: date-time
+        commitment_end_date:
+          type: string
+          format: date-time
+        business:
+          type: string
+        company:
+          type: string
+    WorkStudyStudent:
+      allOf:
+        - $ref: '#/components/schemas/UserIdentifier'
+      properties:
+        work_study_info:
+          type: array
+          items:
+            $ref: '#/components/schemas/WorkStudyInfo'
+    Student:
+      allOf:
+        - $ref: '#/components/schemas/CrupdateUser'
+      properties:
+        specialization_field:
+          $ref: '#/components/schemas/SpecializationField'
+        professional_experience:
+          $ref: '#/components/schemas/ProfessionalExperienceFileTypeEnum'
+        work_study_status:
+          $ref: '#/components/schemas/WorkStudyStatus'
+        commitment_begin_date:
+          type: string
+          format: date-time
+        commitment_end_date:
+          type: string
+          format: date-time
+        profile_picture:
+          type: string
+        groups:
+          type: array
+          items:
+            $ref: '#/components/schemas/Group'
+        is_repeating_year:
+          type: boolean
+    Monitor:
+      allOf:
+        - $ref: '#/components/schemas/CrupdateUser'
+      properties:
+        profile_picture:
+          type: string
+    Teacher:
+      allOf:
+        - $ref: '#/components/schemas/CrupdateUser'
+      properties:
+        profile_picture:
+          type: string
+    Manager:
+      allOf:
+        - $ref: '#/components/schemas/CrupdateUser'
+      properties:
+        profile_picture:
+          type: string
+    Admin:
+      allOf:
+        - $ref: '#/components/schemas/CrupdateUser'
+      properties:
+        profile_picture:
+          type: string
+    Organizer:
+      allOf:
+        - $ref: '#/components/schemas/CrupdateUser'
+      properties:
+        profile_picture:
+          type: string
+    GroupIdentifier:
+      type: object
+      properties:
+        attributed_color:
+          type: string
+        id:
+          type: string
+        name:
+          type: string
+          example: The group number one
+        ref:
+          type: string
+          example: G1
+    Group:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+          example: The group number one
+        ref:
+          type: string
+          example: G1
+        creation_datetime:
+          type: string
+          format: date-time
+        size:
+          type: integer
+        attributed_color:
+          type: string
+    CreateGroup:
+      type: object
+      properties:
+        students:
+          type: array
+          items:
+            type: string
+      allOf:
+        - $ref: '#/components/schemas/Group'
+    GroupFlow:
+      type: object
+      properties:
+        id:
+          type: string
+        flow_datetime:
+          type: string
+          format: date-time
+      allOf:
+        - $ref: '#/components/schemas/CreateGroupFlow'
+    CreateGroupFlow:
+      type: object
+      properties:
+        move_type:
+          type: string
+          enum:
+            - JOIN
+            - LEAVE
+        group_id:
+          type: string
+        student_id:
+          type: string
+    CourseTemplate:
+      type: object
+      properties:
+        id:
+          type: string
+        level:
+          $ref: "#/components/schemas/StudentLevel"
+        code:
+          type: string
+          example: PROG1
+        name:
+          type: string
+          example: Algorithmics
+        credits:
+          type: integer
+        total_hours:
+          type: integer
+    UpdateMonitorStudentLink:
+      type: object
+      properties:
+        id:
+          type: string
+        student_id:
+          type: string
+        monitor_id:
+          type: string
+        status:
+          $ref: '#/components/schemas/MonitorStudentLinkStatus'
+    MonitorStudentLinkStatus:
+      type: string
+      enum:
+        - LINKED
+        - DENIED
+    MonitorStudentLink:
+      type: object
+      properties:
+        id:
+          type: string
+        monitor:
+          $ref: '#/components/schemas/Monitor'
+        student:
+          $ref: '#/components/schemas/Student'
+    Course:
+      allOf:
+        - $ref: '#/components/schemas/CourseTemplate'
+    CrupdateCourseAssignment:
+      type: object
+      properties:
+        id:
+          type: string
+        main_teacher_id:
+          type: string
+        course_id:
+          type: string
+        group_ids:
+          type: array
+          items:
+            type: string
+    WorkDocumentInfo:
+      allOf:
+        - $ref: '#/components/schemas/FileInfo'
+      type: object
+      properties:
+        professional_experience:
+          $ref: '#/components/schemas/ProfessionalExperienceFileTypeEnum'
+    FileInfo:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        creation_datetime:
+          type: string
+          format: date-time
+        file_type:
+          $ref: '#/components/schemas/FileType'
+        file_url:
+          type: string
+    OwnCloudPermission:
+      type: string
+      enum:
+        - READ
+        - DELETE
+        - UPDATE
+        - CREATE
+        - SHARE
+    ShareInfo:
+      type: object
+      properties:
+        expiration:
+          type: string
+        path:
+          type: string
+        url:
+          type: string
+        permission:
+          type: array
+          items:
+            $ref: '#/components/schemas/OwnCloudPermission'
+    CourseAssignment:
+      type: object
+      properties:
+        id:
+          type: string
+        main_teacher:
+          $ref: '#/components/schemas/Teacher'
+        course:
+          $ref: '#/components/schemas/Course'
+        groups:
+          type: array
+          items:
+            $ref: '#/components/schemas/Group'
+    StudentExamGrade:
+      type: object
+      properties:
+        score:
+          type: number
+          format: double
+          example: 12.5
+        exam:
+          $ref: '#/components/schemas/Exam'
+    Exam:
+      type: object
+      properties:
+        id:
+          type: string
+        coefficient:
+          $ref: '#/components/schemas/Fraction'
+        title:
+          type: string
+        examination_date:
+          type: string
+          format: date-time
+        course_assignment:
+          $ref: '#/components/schemas/CourseAssignment'
+    Fraction:
+      type: object
+      properties:
+        numerator:
+          type: integer
+        denominator:
+          type: integer
+    CrupdateExam:
+      type: object
+      properties:
+        id:
+          type: string
+        coefficient:
+          $ref: '#/components/schemas/Fraction'
+        title:
+          type: string
+        examination_date:
+          type: string
+          format: date-time
+        course_assignment_id:
+          type: string
+    Grade:
+      type: object
+      required:
+        - score
+      properties:
+        id:
+          type: string
+        exam:
+          $ref: "#/components/schemas/Exam"
+        score:
+          type: number
+          format: double
+          example: 12.5
+        created_at:
+          type: string
+          format: date-time
+        update_date:
+          type: string
+          format: date-time
+    StudentLevel:
+      type: string
+      enum:
+        - L1
+        - L2
+        - L3
+        - M1
+        - M2
+    ExamGradeStats:
+      type: object
+      properties:
+        average:
+          type: number
+          format: double
+          example: 12.5
+    StudentCourseGradeStats:
+      type: object
+      properties:
+        average:
+          type: number
+          format: double
+          example: 12.5
+    CourseResult:
+      type: object
+      properties:
+        id:
+          type: string
+        course:
+          $ref: "#/components/schemas/Course"
+        weighted_average:
+          type: number
+        status:
+          $ref: "#/components/schemas/CourseResultStatus"
+    CourseResultStatus:
+      type: string
+      enum:
+        - VALIDATED
+        - IN_PROGRESS
+        - INCOMPLETE
+        - NOT_STARTED
+    ResultSummary:
+      type: object
+      allOf:
+        - $ref: "#/components/schemas/ResultsOverview"
+      properties:
+        yearly_results:
+          type: array
+          items:
+            $ref: "#/components/schemas/YearlyResult"
+    YearlyResult:
+      type: object
+      allOf:
+        - $ref: "#/components/schemas/ResultsOverview"
+      properties:
+        level:
+          $ref: "#/components/schemas/StudentLevel"
+        course_results:
+          type: array
+          items:
+            $ref: "#/components/schemas/CourseResult"
+    YearlyResultGenerationTranscript:
+      type: object
+      properties:
+        status:
+          $ref: "#/components/schemas/YearlyResultGenerationStatus"
+        link:
+          type: string
+    YearlyResultGenerationStatus:
+      type: string
+      enum:
+        - GENERATING
+        - AVAILABLE
+    StudentIdentifierGrade:
+      type: object
+      properties:
+        weighted_average:
+          type: number
+          format: double
+          example: 12.5
+        student:
+          $ref: '#/components/schemas/UserIdentifier'
+    CreateGrade:
+      type: object
+      properties:
+        score:
+          type: number
+          format: double
+          example: 12.5
+        student_id:
+          type: string
+    ResultsOverview:
+      type: object
+      properties:
+        weighted_average:
+          type: number
+        obtained_credits:
+          type: number
+        status:
+          $ref: '#/components/schemas/ResultOverviewStatus'
+        total_credits:
+          type: number
+    ResultOverviewStatus:
+      type: string
+      enum:
+        - VALIDATED
+        - INVALIDATED
+        - IN_PROGRESS
+        - NOT_STARTED
+    StudentGrade:
+      properties:
+        grade:
+          $ref: '#/components/schemas/Grade'
+        student:
+          $ref: '#/components/schemas/Student'
+    UpdateGrade:
+      properties:
+        grade:
+          $ref: '#/components/schemas/CreateGrade'
+        student_ref:
+          type: string
+        comment:
+          type: string
+    GradeHistory:
+      properties:
+        created_at:
+          type: string
+          format: date-time
+        score:
+          type: number
+          format: double
+          example: 12.5
+        comment:
+          type: string
+    CourseAssignmentExam:
+      allOf:
+        - $ref: '#/components/schemas/CourseAssignment'
+      properties:
+        exams:
+          type: array
+          items:
+            $ref: '#/components/schemas/StudentGrade'
+    RetakeExamSession:
+      type: object
+      properties:
+        id:
+          type: string
+        title:
+          type: string
+        date_from:
+          type: string
+          format: date-time
+        date_to:
+          type: string
+          format: date-time
+        student_levels:
+          type: array
+          items:
+            $ref: '#/components/schemas/StudentLevel'
+    RetakeExam:
+      type: object
+      properties:
+        id:
+          type: string
+        course:
+          $ref: "#/components/schemas/Course"
+        session:
+          $ref: "#/components/schemas/RetakeExamSession"
+        registration_date:
+          type: string
+          format: date-time
+        cancel_reason:
+          type: string
+        rejection_reason:
+          type: string
+        status:
+          $ref: "#/components/schemas/RetakeExamStatus"
+    CrupdateRetakeExam:
+      type: object
+      properties:
+        id:
+          type: string
+        course_id:
+          type: string
+        session_id:
+          type: string
+        student_id:
+          type: string
+        status:
+          $ref: "#/components/schemas/RetakeExamStatus"
+    UpdateRetakeExamStatus:
+      type: object
+      properties:
+        retake_exam_id:
+          type: string
+        status:
+          $ref: "#/components/schemas/RetakeExamStatus"
+    CancelRetakeExamRequest:
+      type: object
+      properties:
+        retake_exam_id:
+          type: string
+        reason:
+          type: string
+          description: Reason provided by the student or manager for canceling or not cancelling the retake request
+      required:
+        - reason
+        - retake_exam_id
+    RetakeExamToCancel:
+      type: object
+      properties:
+        retake_exam_id:
+          type: string
+      required:
+        - retake_exam_id
+    StudentRetakeExam:
+      type: object
+      allOf:
+        - $ref: "#/components/schemas/RetakeExam"
+      properties:
+        ### TODO: must be Student resource ou some attributes only ?
+        student_identifier:
+          $ref: "#/components/schemas/UserIdentifier"
+    RetakeExamStatus:
+      type: string
+      enum:
+        - REGISTERED
+        - TO_CANCEL
+        - CANCELED
+        - INVALIDATE
+        - VALIDATE
+    CreateAttendanceMovement:
+      type: object
+      properties:
+        student_id:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+        attendance_movement_type:
+          $ref: '#/components/schemas/AttendanceMovementType'
+        place:
+          $ref: '#/components/schemas/PlaceEnum'
+    ProfessionalExperienceFileTypeEnum:
+      type: string
+      enum:
+        - WORKER_STUDENT
+        - BUSINESS_OWNER
+        - INTERN_STUDENT
+        - INTERN_PROJECT
+    PlaceEnum:
+      type: string
+      enum:
+        - IVANDRY
+        - ANDRAHARO
+        - UNKNOWN
+    RoleEnum:
+      type: string
+      enum:
+        - STUDENT
+        - TEACHER
+        - STAFF_MEMBER
+    CreateFee:
+      type: object
+      properties:
+        type:
+          $ref: '#/components/schemas/FeeTypeEnum'
+        comment:
+          type: string
+        total_amount:
+          type: integer
+        creation_datetime:
+          type: string
+          format: date-time
+        due_datetime:
+          type: string
+          format: date-time
+        category:
+          $ref: '#/components/schemas/FeeCategory'
+        frequency:
+          $ref: '#/components/schemas/FeeFrequency'
+    CrupdateStudentFee:
+      properties:
+        id:
+          type: string
+        student_id:
+          type: string
+      allOf:
+        - $ref: '#/components/schemas/CreateFee'
+    ModelFee:
+      allOf:
+        - $ref: '#/components/schemas/Fee'
+      properties:
+        payments:
+          type: array
+          items:
+            $ref: '#/components/schemas/Payment'
+    FeesWithStats:
+      properties:
+        statistics:
+          $ref: '#/components/schemas/FeesStatistics'
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Fee'
+    Fee:
+      allOf:
+        - $ref: '#/components/schemas/CreateFee'
+      type: object
+      properties:
+        id:
+          type: string
+        student_ref:
+          type: string
+        student_id:
+          type: string
+        remaining_amount:
+          type: integer
+        status:
+          $ref: '#/components/schemas/FeeStatusEnum'
+        updated_at:
+          type: string
+          format: date-time
+        mpbs:
+          type: array
+          items:
+            $ref: '#/components/schemas/Mpbs'
+        letter:
+          $ref: '#/components/schemas/FeeLetter'
+        student_first_name:
+          type: string
+    FeeCategory:
+      type: string
+      enum:
+        - L1
+        - L2
+        - L3
+        - OTHER
+        - UNKNOWN
+        - WORK_FEES
+    FeeLetter:
+      type: object
+      properties:
+        id:
+          type: string
+        approval_datetime:
+          type: string
+          format: date-time
+        creation_datetime:
+          type: string
+          format: date-time
+        ref:
+          type: string
+        status:
+          $ref: '#/components/schemas/LetterStatus'
+        file_url:
+          type: string
+    CreateDelayPenaltyChange:
+      type: object
+      properties:
+        interest_percent:
+          type: integer
+        interest_timerate:
+          type: string
+          enum:
+            - DAILY
+        grace_delay:
+          type: integer
+        applicability_delay_after_grace:
+          type: integer
+    DelayPenalty:
+      allOf:
+        - $ref: '#/components/schemas/CreateDelayPenaltyChange'
+      type: object
+      properties:
+        id:
+          type: string
+        creation_datetime:
+          type: string
+          format: date-time
+    MpbsStatus:
+      type: string
+      enum:
+        - PENDING
+        - SUCCESS
+        - FAILED
+    MobileMoneyType:
+      type: string
+      enum:
+        - MVOLA
+        - ORANGE_MONEY
+        - AIRTEL_MONEY
+    CreatePayment:
+      type: object
+      properties:
+        type:
+          type: string
+          enum:
+            - BANK_TRANSFER
+            - CASH
+            - MOBILE_MONEY
+            - SCHOLARSHIP
+            - FIX
+        amount:
+          type: integer
+        comment:
+          type: string
+        creation_datetime:
+          type: string
+          format: date-time
+    Coordinates:
+      type: object
+      properties:
+        longitude:
+          type: number
+          format: double
+        latitude:
+          type: number
+          format: double
+    CrupdateFeeTemplate:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        category:
+          $ref: "#/components/schemas/FeeCategory"
+        frequency:
+          $ref: "#/components/schemas/FeeFrequency"
+        type:
+          $ref: '#/components/schemas/FeeTypeEnum'
+        amount:
+          type: integer
+        number_of_payments:
+          type: integer
+    FeeTemplate:
+      allOf:
+        - $ref: '#/components/schemas/CrupdateFeeTemplate'
+      type: object
+      properties:
+        creation_datetime:
+          type: string
+          format: date-time
+    FeeFrequency:
+      type: string
+      enum:
+        - YEARLY
+        - MONTHLY
+        - UNKNOWN
+    Payment:
+      allOf:
+        - $ref: '#/components/schemas/CreatePayment'
+      type: object
+      properties:
+        id:
+          type: string
+        fee_id:
+          type: string
+        creation_datetime:
+          type: string
+          format: date-time
+    CrupdateMpbs:
+      type: object
+      properties:
+        id:
+          type: string
+        student_id:
+          type: string
+        fee_id:
+          type: string
+        psp_id:
+          type: string
+          description: The couple `(fee_id, psp_id)` MUST be unique
+        psp_type:
+          $ref: '#/components/schemas/MobileMoneyType'
+    Mpbs:
+      allOf:
+        - $ref: '#/components/schemas/CrupdateMpbs'
+      type: object
+      properties:
+        amount:
+          type: integer
+        creation_datetime:
+          type: string
+          format: date-time
+        psp_own_datetime_verification:
+          type: string
+          format: date-time
+        successfully_verified_on:
+          type: string
+          format: date-time
+        last_datetime_verification:
+          type: string
+          format: date-time
+        status:
+          $ref: '#/components/schemas/MpbsStatus'
+        remainingRetry:
+          type: integer
+    MpbsVerification:
+      allOf:
+        - $ref: '#/components/schemas/CrupdateMpbs'
+      type: object
+      properties:
+        amount_of_fee_remaining_payment:
+          type: integer
+        amount_in_psp:
+          type: integer
+        creation_datetime_of_payment_in_psp:
+          type: string
+          format: date-time
+        creation_datetime_of_mpbs:
+          type: string
+          format: date-time
+        creation_datetime:
+          type: string
+          format: date-time
+        comment:
+          type: string
+          description: In particular, PSP error messages go here
+    EventBase:
+      type: object
+      properties:
+        id:
+          type: string
+        title:
+          type: string
+        description:
+          type: string
+        begin_datetime:
+          type: string
+          format: date-time
+        end_datetime:
+          type: string
+          format: date-time
+        is_online:
+          type: boolean
+        event_type:
+          $ref: '#/components/schemas/EventType'
+        location:
+          $ref: '#/components/schemas/EventLocation'
+    CreateEvent:
+      allOf:
+        - $ref: '#/components/schemas/EventBase'
+      type: object
+      properties:
+        id:
+          type: string
+        color:
+          type: string
+        planner_id:
+          description: user id
+          type: string
+        course_id:
+          type: string
+        groups:
+          type: array
+          items:
+            $ref: '#/components/schemas/GroupIdentifier'
+    EventLocation:
+      type: object
+      properties:
+        room:
+          $ref: '#/components/schemas/RoomEnum'
+        place:
+          $ref: '#/components/schemas/PlaceEnum'
+    RoomEnum:
+      type: string
+      enum:
+        - ALGEBRE
+        - PI
+        - SIGMA
+        - NP
+        - B
+        - UNKNOWN
+    MissingStatus:
+      type: string
+      enum:
+        - JUSTIFIED
+        - UNJUSTIFIED
+    AttendanceStatus:
+      type: string
+      enum:
+        - MISSING
+        - LATE
+        - PRESENT
+        - UNCHECKED
+        - JUSTIFIED_ABSENCE
+        - UNJUSTIFIED_ABSENCE
+    UpdateEventParticipant:
+      type: object
+      properties:
+        id:
+          type: string
+        event_status:
+          $ref: '#/components/schemas/AttendanceStatus'
+        group_id:
+          type: string
+    EventParticipantLetter:
+      type: object
+      properties:
+        description:
+          type: string
+        file_url:
+          type: string
+        status:
+          $ref: '#/components/schemas/LetterStatus'
+        ref:
+          type: string
+        creation_datetime:
+          type: string
+          format: date-time
+    EventAttendance:
+      type: object
+      properties:
+        event_participant:
+          $ref: '#/components/schemas/EventParticipant'
+        event:
+          $ref: '#/components/schemas/Event'
+    EventParticipant:
+      allOf:
+        - $ref: '#/components/schemas/UserIdentifier'
+      type: object
+      properties:
+        student_status:
+          $ref: '#/components/schemas/EnableStatus'
+        group_name:
+          type: string
+        event_status:
+          $ref: '#/components/schemas/AttendanceStatus'
+        student_id:
+          type: string
+        letter:
+          type: array
+          items:
+            $ref: '#/components/schemas/EventParticipantLetter'
+    Event:
+      allOf:
+        - $ref: '#/components/schemas/EventBase'
+      type: object
+      properties:
+        id:
+          type: string
+        type:
+          $ref: '#/components/schemas/EventType'
+        color:
+          type: string
+        planner:
+          $ref: '#/components/schemas/UserIdentifier'
+        course:
+          $ref: '#/components/schemas/Course'
+        groups:
+          type: array
+          items:
+            $ref: '#/components/schemas/GroupIdentifier'
+        count:
+          $ref: '#/components/schemas/EventStats'
+    MissedEventStats:
+      type: object
+      properties:
+        total:
+          type: integer
+          format: int64
+        justified:
+          type: integer
+          format: int64
+        unjustified:
+          type: integer
+          format: int64
+    EventStats:
+      type: object
+      properties:
+        missed_stats:
+          $ref: "#/components/schemas/MissedEventStats"
+        present:
+          type: integer
+          format: int64
+        late:
+          type: integer
+          format: int64
+        unchecked:
+          type: integer
+          format: int64
+        total:
+          type: integer
+          format: int64
+    EventParticipantStats:
+      type: object
+      properties:
+        missed_events:
+          $ref: "#/components/schemas/MissedEventStats"
+        assisted_events:
+          type: integer
+          format: int64
+        late_events:
+          type: integer
+          format: int64
+        unchecked_events:
+          type: integer
+          format: int64
+        total_events:
+          type: integer
+          format: int64
+    CrupdatePromotion:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        ref:
+          type: string
+        cycle_level:
+          $ref: '#/components/schemas/CycleEnum'
+    UpdatePromotionSGroup:
+      type: object
+      properties:
+        type:
+          type: string
+          enum:
+            - ADD
+            - REMOVE
+        group_ids:
+          type: array
+          items:
+            type: string
+    Promotion:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/CrupdatePromotion'
+      properties:
+        creation_datetime:
+          type: string
+          format: date-time
+        groups:
+          type: array
+          items:
+            $ref: '#/components/schemas/GroupIdentifier'
+        cycle:
+          $ref: '#/components/schemas/CycleEnum'
+        studentLevels:
+          type: array
+          items:
+            $ref: '#/components/schemas/StudentLevel'
+          readOnly: true
+      required:
+        - cycle
+    CycleEnum:
+      type: string
+      enum:
+        - BACHELOR
+        - MASTER
+        - DOCTORATE
+    FeeStatusEnum:
+      type: string
+      enum:
+        - UNPAID
+        - PAID
+        - LATE
+        - PENDING
+    FeeTypeEnum:
+      type: string
+      enum:
+        - TUITION
+        - HARDWARE
+        - STUDENT_INSURANCE
+        - RETAKE_EXAM_COSTS
+    UploadFile:
+      type: object
+      properties:
+        file_to_upload:
+          type: string
+          format: binary
+          description: User profile picture
+    OrderDirection:
+      type: string
+      enum:
+        - ASC
+        - DESC
+    Page:
+      type: integer
+      description: Start at `1`
+    PageSize:
+      type: integer
+      description: Cannot exceed `500`
+      default: 15
+    AttendanceMovementType:
+      type: string
+      enum:
+        - IN
+        - OUT
+    CourseDirection:
+      type: string
+      enum:
+        - ASC
+        - DESC
+    Comment:
+      type: object
+      properties:
+        id:
+          type: string
+        subject:
+          $ref: '#/components/schemas/Student'
+        observer:
+          $ref: '#/components/schemas/Observer'
+        content:
+          type: string
+        creation_datetime:
+          type: string
+          format: date-time
+    CreateComment:
+      type: object
+      properties:
+        id:
+          type: string
+        student_id:
+          type: string
+        observer_id:
+          type: string
+        content:
+          type: string
+    Observer:
+      type: object
+      properties:
+        id:
+          type: string
+        ref:
+          type: string
+        first_name:
+          type: string
+        last_name:
+          type: string
+        profile_picture:
+          type: string
+        role:
+          type: string
+          enum:
+            - MANAGER
+            - TEACHER
+            - ADMIN
+    CreateAnnouncement:
+      type: object
+      properties:
+        id:
+          type: string
+        title:
+          type: string
+        content:
+          type: string
+        author_id:
+          type: string
+        scope:
+          $ref: '#/components/schemas/Scope'
+        target_group_list:
+          type: array
+          items:
+            type: string
+            example: [ "G1", "G2" ]
+            $ref: '#/components/schemas/GroupIdentifier'
+    Scope:
+      type: string
+      enum:
+        - GLOBAL
+        - TEACHER
+        - STUDENT
+        - MANAGER
+    Announcement:
+      type: object
+      properties:
+        id:
+          type: string
+        title:
+          type: string
+        content:
+          type: string
+        author:
+          type: object
+          properties:
+            id:
+              type: string
+            first_name:
+              type: string
+            last_name:
+              type: string
+            email:
+              type: string
+            profile_picture:
+              type: string
+        creation_datetime:
+          type: string
+          format: date-time
+        scope:
+          $ref: '#/components/schemas/Scope'
+        reaction_count:
+          type: integer
+          default: 0
+        hasCurrentUserReaction:
+          type: boolean
+          default: false
+    ReactionEnum:
+      type: string
+      enum:
+        - UNCHECK
+        - CHECK
+    GroupStatistics:
+      type: object
+      properties:
+        total_students:
+          type: integer
+        men:
+          $ref: '#/components/schemas/StatisticsDetails'
+        women:
+          $ref: '#/components/schemas/StatisticsDetails'
+    Statistics:
+      type: object
+      properties:
+        total_students:
+          type: integer
+          format: int64
+        students_alternating:
+          type: object
+          properties:
+            total:
+              type: integer
+              format: int64
+            working:
+              type: integer
+              format: int64
+            have_been_working:
+              type: integer
+              format: int64
+            not_working:
+              type: integer
+              format: int64
+            will_work:
+              type: integer
+              format: int64
+        men:
+          $ref: '#/components/schemas/StatisticsDetails'
+        women:
+          $ref: '#/components/schemas/StatisticsDetails'
+        total_groups:
+          type: integer
+          format: int64
+    StatisticsDetails:
+      type: object
+      properties:
+        total:
+          type: integer
+          format: int64
+        disabled:
+          type: integer
+          format: int64
+        enabled:
+          type: integer
+          format: int64
+        suspended:
+          type: integer
+          format: int64
+        alumni:
+          type: integer
+          format: int64
+    AdvancedFeeStatisticsGeneration:
+      type: object
+      properties:
+        data:
+          type: string
+    AdvancedFeeStatisticsType:
+      type: string
+      enum:
+        - ACCOUNTING
+        - RECEIPT
+    AdvancedFeesStatistics:
+      type: object
+      properties:
+        total_expected_fees_count:
+          $ref: "#/components/schemas/TotalExpectedFeesStats"
+        paid_fees_count:
+          $ref: "#/components/schemas/PaidFeesStats"
+        pending_fees_count:
+          $ref: "#/components/schemas/PendingFeesStats"
+        late_fees_count:
+          $ref: "#/components/schemas/LateFeesStats"
+        unpaid_fees_count:
+          $ref: "#/components/schemas/UnpaidFeesStats"
+        update_datetime:
+          type: string
+          format: date-time
+        expired:
+          type: boolean
+          description: Ths field will be `true` when the returned stats is outdated or needs to be generated.
+    BaseFeesStats:
+      type: object
+      properties:
+        first_grade_monthly:
+          type: integer
+          format: int64
+        second_grade_monthly:
+          type: integer
+          format: int64
+        third_grade_monthly:
+          type: integer
+          format: int64
+        first_grade_yearly:
+          type: integer
+          format: int64
+        second_grade_yearly:
+          type: integer
+          format: int64
+        third_grade_yearly:
+          type: integer
+          format: int64
+        other:
+          type: integer
+          format: int64
+        unknown_grade:
+          type: integer
+          format: int64
+        work_study:
+          type: integer
+          format: int64
+        monthly:
+          type: integer
+          format: int64
+        yearly:
+          type: integer
+          format: int64
+        unknown_frequency:
+          type: integer
+          format: int64
+    TotalExpectedFeesStats:
+      type: object
+      allOf:
+        - $ref: "#/components/schemas/BaseFeesStats"
+        - $ref: "#/components/schemas/RetakeExamFeesCount"
+    PaidFeesStats:
+      type: object
+      allOf:
+        - $ref: "#/components/schemas/BaseFeesStats"
+        - $ref: "#/components/schemas/RetakeExamFeesCount"
+      properties:
+        mobile_money:
+          type: number
+          format: int64
+        bank_fees:
+          type: number
+          format: int64
+    PendingFeesStats:
+      type: object
+      allOf:
+        - $ref: "#/components/schemas/BaseFeesStats"
+        - $ref: "#/components/schemas/RetakeExamFeesCount"
+    LateFeesStats:
+      type: object
+      allOf:
+        - $ref: "#/components/schemas/BaseFeesStats"
+        - $ref: "#/components/schemas/RetakeExamFeesCount"
+    UnpaidFeesStats:
+      type: object
+      allOf:
+        - $ref: "#/components/schemas/BaseFeesStats"
+        - $ref: "#/components/schemas/RetakeExamFeesCount"
+    RetakeExamFeesCount:
+      type: object
+      properties:
+        retakeExam_first_grade_count:
+          type: integer
+          format: int64
+        retakeExam_second_grade_count:
+          type: integer
+          format: int64
+        retakeExam_third_grade_count:
+          type: integer
+          format: int64
+    FeesStatistics:
+      type: object
+      properties:
+        total_fees:
+          type: integer
+        paid_fees:
+          type: integer
+        unpaid_fees:
+          type: integer
+        late_fees:
+          type: integer
+        pending_transaction:
+          type: integer
+        paid_by_transaction:
+          type: integer
+        total_monthly_fees:
+          type: integer
+        total_yearly_fees:
+          type: integer
+    Letter:
+      type: object
+      properties:
+        id:
+          type: string
+        description:
+          type: string
+        creation_datetime:
+          type: string
+          format: date-time
+        approval_datetime:
+          type: string
+          format: date-time
+        ref:
+          type: string
+        status:
+          $ref: '#/components/schemas/LetterStatus'
+        file_url:
+          type: string
+        fee:
+          type: object
+          properties:
+            id:
+              type: string
+            comment:
+              type: string
+            amount:
+              type: integer
+            type:
+              $ref: '#/components/schemas/FeeTypeEnum'
+        user:
+          allOf:
+            - $ref: '#/components/schemas/UserIdentifier'
+          properties:
+            profile_picture:
+              type: string
+        reason_for_refusal:
+          type: string
+    PagedLettersResponse:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/PagedResponse'
+        - properties:
+            data:
+              type: array
+              items:
+                $ref: '#/components/schemas/Letter'
+            pending_count:
+              type: integer
+            rejected_count:
+              type: integer
+            approved_count:
+              type: integer
+    LetterStats:
+      type: object
+      properties:
+        pending:
+          type: integer
+        received:
+          type: integer
+        rejected:
+          type: integer
+    LetterStatus:
+      type: string
+      enum:
+        - PENDING
+        - RECEIVED
+        - REJECTED
+    PagedResponse:
+      type: object
+      properties:
+        page_size:
+          type: integer
+        page_number:
+          type: integer
+        has_previous:
+          type: boolean
+        count:
+          type: integer
+    FrequencyScopeDay:
+      type: string
+      enum:
+        - MONDAY
+        - TUESDAY
+        - WEDNESDAY
+        - THURSDAY
+        - FRIDAY
+        - SATURDAY
+    PaymentFrequency:
+      type: string
+      enum:
+        - YEARLY
+        - MONTHLY
+    StatusCheckResult:
+      type: string
+      enum:
+        - PENDING
+        - WITHDRAWN
+        - ENROLLED
+    UpdateStatusCheck:
+      type: object
+      properties:
+        description:
+          type: string
+        result:
+          $ref: '#/components/schemas/StatusCheckResult'
+    CreateStatusCheck:
+      type: object
+      properties:
+        id:
+          type: string
+        concerned_student_id:
+          type: string
+        requesting_user_id:
+          type: string
+        description:
+          type: string
+    StatusCheck:
+      type: object
+      required:
+        - concerned_student
+        - requesting_user
+      properties:
+        id:
+          type: string
+        concerned_student:
+          $ref: '#/components/schemas/UserIdentifier'
+        requesting_user:
+          $ref: '#/components/schemas/UserIdentifier'
+        description:
+          type: string
+        result:
+          $ref: '#/components/schemas/StatusCheckResult'
+        creation_datetime:
+          type: string
+          format: date-time
+        update_datetime:
+          type: string
+          format: date-time
+    CorBase:
+      type: object
+      properties:
+        id:
+          type: string
+        description:
+          type: string
+        interview_date:
+          type: string
+          format: date-time
+        status:
+          $ref: '#/components/schemas/CorStatus'
+    CrupdateCor:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/CorBase'
+      properties:
+        concerned_student_id:
+          type: string
+        interviewer_ids:
+          type: array
+          items:
+            type: string
+    Cor:
+      type: object
+      allOf:
+        - $ref: "#/components/schemas/CorBase"
+      properties:
+        concerned_student:
+          $ref: "#/components/schemas/UserIdentifier"
+        interviewers:
+          type: array
+          items:
+            $ref: "#/components/schemas/UserIdentifier"
+        creation_datetime:
+          type: string
+          format: date-time
+        comments:
+          type: array
+          items:
+            $ref: '#/components/schemas/CorComment'
+    CorCommentInfo:
+      type: object
+      properties:
+        comment:
+          type: string
+          description: explanation of the reason or comment on change of status
+    CorComment:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/CorCommentInfo'
+      properties:
+        creation_date:
+          type: string
+          format: date-time
+    CorStatus:
+      type: string
+      enum:
+        - IN_PROGRESS
+        - STAY
+        - CANCELED
+        - LEAVE
+        - NO_SHOW
+    UpdateLettersStatus:
+      type: object
+      properties:
+        id:
+          type: string
+        status:
+          $ref: '#/components/schemas/LetterStatus'
+        reason_for_refusal:
+          type: string
+    UpdateLettersStatusResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Letter'
+    StaffMember:
+      allOf:
+        - $ref: '#/components/schemas/Teacher'
+      type: object
+      properties:
+        ending_service:
+          type: string
+          format: date-time
+        cnaps:
+          type: string
+        ostie:
+          type: string
+        function:
+          type: string
+        degree:
+          type: string
+    GenerationReceiptsRequest:
+      type: object
+      properties:
+        from:
+          type: string
+          format: date-time
+        to:
+          type: string
+          format: date-time
+    GeneratedReceiptsStatistic:
+      type: object
+      properties:
+        processedFileCount:
+          type: integer
+    Exception:
+      type: object
+      properties:
+        type:
+          type: string
+        message:
+          type: string
+    BadRequestException:
+      allOf:
+        - $ref: '#/components/schemas/Exception'
+      example:
+        type: BadRequestException
+        message: Bad request
+    NotAuthorizedException:
+      allOf:
+        - $ref: '#/components/schemas/Exception'
+      example:
+        type: NotAuthorizedException
+        message: Not authorized
+    ResourceNotFoundException:
+      allOf:
+        - $ref: '#/components/schemas/Exception'
+      example:
+        type: ResourceNotFoundException
+        message: Resource of type <T> identified by <I> not found
+    TooManyRequestsException:
+      allOf:
+        - $ref: '#/components/schemas/Exception'
+      example:
+        type: TooManyRequestsException
+        message: Too many requests
+    InternalServerException:
+      allOf:
+        - $ref: '#/components/schemas/Exception'
+      example:
+        type: InternalServerException
+        message: Unexpected error
+    StudentImportValidationResult:
+      type: "object"
+      properties:
+        validStudentNumber:
+          type: "integer"
+    StudentExamGradeImportValidationResult:
+      type: "object"
+      properties:
+        validStudentExamGradeNumber:
+          type: "integer"
+    ImportGradeStat:
+      type: object
+      properties:
+        totalRows:
+          type: integer
+          example: 50
+        validRows:
+          type: integer
+          example: 45
+        invalidRows:
+          type: integer
+          example: 5
+    GradeValidRow:
+      type: object
+      properties:
+        ref:
+          type: string
+          example: "STD21001"
+        score:
+          type: number
+          example: 18
+    GradeInvalidRow:
+      type: object
+      properties:
+        ref:
+          type: string
+          nullable: true
+          example: "STD21001"
+        score:
+          type: number
+          nullable: true
+          example: 30
+        reason:
+          type: string
+          example: "Score must be <= 20"
+    ImportGradeResult:
+      type: object
+      properties:
+        importGradeStats:
+          $ref: "#/components/schemas/ImportGradeStat"
+        validGrades:
+          type: array
+          items:
+            $ref: "#/components/schemas/GradeValidRow"
+        invalidGrades:
+          type: array
+          items:
+            $ref: "#/components/schemas/GradeInvalidRow"
+    SearchResultsUser:
+      type: object
+      properties:
+        students:
+          type: array
+          items:
+            $ref: "#/components/schemas/Student"
+        teachers:
+          type: array
+          items:
+            $ref: "#/components/schemas/Teacher"
+        managers:
+          type: array
+          items:
+            $ref: "#/components/schemas/Manager"
+        organisers:
+          type: array
+          items:
+            $ref: '#/components/schemas/Organizer'
+        monitors:
+          type: array
+          items:
+            $ref: '#/components/schemas/Monitor'
+        staffMembers:
+          type: array
+          items:
+            $ref: '#/components/schemas/StaffMember'
+    StudentResultOverview:
+      type: object
+      properties:
+        student:
+          $ref: '#/components/schemas/UserIdentifier'
+        results_overview:
+          $ref: '#/components/schemas/ResultsOverview'
+    FeeTemplateContent:
+      type: object
+      properties:
+        id:
+          type: string
+        label:
+          type: string
+        amount:
+          type: integer
+        due_date:
+          type: string
+          format: date
+    V2CrupdateFeeTemplate:
+      type: object
+      properties:
+        id:
+          type: string
+        label:
+          type: string
+        type:
+          $ref: '#/components/schemas/FeeTypeEnum'
+        category:
+          $ref: '#/components/schemas/FeeCategory'
+    V2FeeTemplate:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/V2CrupdateFeeTemplate'
+      properties:
+        creation_datetime:
+          type: string
+          format: date-time
+    V2DetailedFeeTemplate:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/V2FeeTemplate'
+      properties:
+        contents:
+          type: array
+          items:
+            $ref: '#/components/schemas/FeeTemplateContent'
+    JobProgression:
+      type: string
+      enum:
+        - PENDING
+        - PROCESSING
+        - FINISHED
+    JobHealth:
+      type: string
+      enum:
+        - UNKNOWN
+        - SUCCEEDED
+        - FAILED
+    JobStatus:
+      type: object
+      properties:
+        progression:
+          $ref: '#/components/schemas/JobProgression'
+        health:
+          $ref: '#/components/schemas/JobHealth'
+        creation_datetime:
+          type: string
+          format: date-time
+    CrupdateFeeCreationJob:
+      type: object
+      properties:
+        id:
+          type: string
+        fee_template_id:
+          type: string
+        student_refs:
+          type: array
+          items:
+            type: string
+    FeeCreationJobFailure:
+      type: object
+      properties:
+        student_ref:
+          type: string
+        message:
+          type: string
+    FeeCreationJob:
+      type: object
+      properties:
+        id:
+          type: string
+        status:
+          $ref: '#/components/schemas/JobStatus'
+        fee_template:
+          $ref: '#/components/schemas/V2DetailedFeeTemplate'
+        creation_datetime:
+          type: string
+          format: date-time
+        end_datetime:
+          type: string
+          format: date-time
+        statistics:
+          $ref: '#/components/schemas/FeeCreationJobStatistics'
+        failures:
+          type: array
+          items:
+            $ref: '#/components/schemas/FeeCreationJobFailure'
+    FeeCreationJobStatistics:
+      type: object
+      properties:
+        total_count:
+          type: integer
+        success_count:
+          type: integer
+        failure_count:
+          type: integer
+        update_datetime:
+          type: string
+          format: date-time
+    FeeStudentCreationStatus:
+      allOf:
+        - $ref: '#/components/schemas/JobStatus'
+    FeeStudentCreation:
+      type: object
+      properties:
+        student:
+          $ref: '#/components/schemas/UserIdentifier'
+        fees_creation_status:
+          $ref: '#/components/schemas/FeeStudentCreationStatus'
+        message:
+          type: string
