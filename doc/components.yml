@@ -974,6 +974,8 @@ components:
           type: string
         student_id:
           type: string
+        is_archived:
+          type: boolean
       allOf:
         - $ref: '#/components/schemas/CreateFee'
     ModelFee:
@@ -1018,6 +1020,8 @@ components:
           $ref: '#/components/schemas/FeeLetter'
         student_first_name:
           type: string
+        is_archived:
+          type: boolean
     FeeCategory:
       type: string
       enum:
@@ -1090,6 +1094,7 @@ components:
             - MOBILE_MONEY
             - SCHOLARSHIP
             - FIX
+            - CREDIT
         amount:
           type: integer
         comment:
@@ -2282,3 +2287,25 @@ components:
           $ref: '#/components/schemas/FeeStudentCreationStatus'
         message:
           type: string
+    CreditMovement:
+      type: string
+      enum:
+        - WITHDRAWAL
+        - DEPOSIT
+    Credit:
+      type: object
+      properties:
+        student:
+          $ref: '#/components/schemas/UserIdentifier'
+        value:
+          type: integer
+    CreditTransaction:
+      type: object
+      properties:
+         credit_id:
+           type: string
+         date_time:
+           type: string
+           format: date-time
+         movement:
+           $ref: '#/components/schemas/CreditMovement'
