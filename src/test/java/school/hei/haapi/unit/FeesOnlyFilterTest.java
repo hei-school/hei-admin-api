@@ -8,9 +8,10 @@ import static org.mockito.Mockito.verify;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import java.io.IOException;
-import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.mock.web.MockHttpServletRequest;
@@ -20,210 +21,115 @@ import school.hei.haapi.endpoint.rest.security.FeesOnlyFilter;
 @ExtendWith(MockitoExtension.class)
 class FeesOnlyFilterTest {
 
-  @Mock private FilterChain filterChain;
+    private static final String FORBIDDEN_BODY =
+            "{\"message\": \"This endpoint is disabled in FEES_ONLY mode\"}";
 
-  @Test
-  void fees_only_inactive_all_requests_pass() throws ServletException, IOException {
-    var filter = new FeesOnlyFilter(false);
+    @Mock private FilterChain filterChain;
 
-    var request = new MockHttpServletRequest();
-    request.setRequestURI("/teachers");
-    var response = new MockHttpServletResponse();
-
-    filter.doFilterInternal(request, response, filterChain);
-
-    assertEquals(200, response.getStatus());
-    verify(filterChain).doFilter(request, response);
-  }
-
-  @Test
-  void fees_only_active_allows_configured_prefixes() throws ServletException, IOException {
-    var filter = new FeesOnlyFilter(true);
-
-    var allowedPrefixes =
-        List.of("/fees", "/students", "/whoami", "/ping", "/authentication", "/health", "/mpbs");
-
-    for (var prefix : allowedPrefixes) {
-      var request = new MockHttpServletRequest();
-      request.setRequestURI(prefix);
-      var response = new MockHttpServletResponse();
-
-      filter.doFilterInternal(request, response, filterChain);
-
-      assertEquals(
-          200, response.getStatus(), "URI " + prefix + " should be allowed in FEES_ONLY mode");
+    private FeesOnlyFilter enabledFilter() {
+        return new FeesOnlyFilter(true);
     }
-  }
 
-  @Test
-  void fees_only_active_blocks_other_uris() throws ServletException, IOException {
-    var filter = new FeesOnlyFilter(true);
-
-    var blockedUris = List.of("/teachers", "/groups", "/events", "/courses", "/exams", "/unknown");
-
-    for (var uri : blockedUris) {
-      var request = new MockHttpServletRequest();
-      request.setRequestURI(uri);
-      var response = new MockHttpServletResponse();
-
-      filter.doFilterInternal(request, response, filterChain);
-
-      assertEquals(SC_FORBIDDEN, response.getStatus(), "URI " + uri + " should be blocked");
-      assertEquals(
-          "{\"message\": \"This endpoint is disabled in FEES_ONLY mode\"}",
-          response.getContentAsString());
+    private FeesOnlyFilter disabledFilter() {
+        return new FeesOnlyFilter(false);
     }
-  }
 
-  @Test
-  void fees_only_active_allows_subpaths_of_allowed_prefixes() throws ServletException, IOException {
-    var filter = new FeesOnlyFilter(true);
-
-    var request = new MockHttpServletRequest();
-    request.setRequestURI("/students/student1_id/fees/fee1_id/payments");
-    var response = new MockHttpServletResponse();
-
-    filter.doFilterInternal(request, response, filterChain);
-
-    assertEquals(200, response.getStatus());
-    verify(filterChain).doFilter(request, response);
-  }
-
-  @Test
-  void fees_only_inactive_allows_previously_blocked_uris() throws ServletException, IOException {
-    var filter = new FeesOnlyFilter(false);
-
-    var uris = List.of("/teachers", "/groups", "/events", "/courses", "/exams", "/unknown");
-
-    for (var uri : uris) {
-      var request = new MockHttpServletRequest();
-      request.setRequestURI(uri);
-      var response = new MockHttpServletResponse();
-
-      filter.doFilterInternal(request, response, filterChain);
-
-      assertEquals(
-          200, response.getStatus(), "URI " + uri + " should pass when FEES_ONLY is inactive");
+    private MockHttpServletRequest request(String uri) {
+        var request = new MockHttpServletRequest();
+        request.setRequestURI(uri);
+        return request;
     }
-  }
 
-  @Test
-  void fees_only_inactive_does_not_write_forbidden_body() throws ServletException, IOException {
-    var filter = new FeesOnlyFilter(false);
-
-    var request = new MockHttpServletRequest();
-    request.setRequestURI("/exams");
-    var response = new MockHttpServletResponse();
-
-    filter.doFilterInternal(request, response, filterChain);
-
-    assertEquals("", response.getContentAsString());
-    verify(filterChain).doFilter(request, response);
-  }
-
-  @Test
-  void fees_only_inactive_calls_filter_chain_for_every_request()
-      throws ServletException, IOException {
-    var filter = new FeesOnlyFilter(false);
-
-    var uris = List.of("/fees", "/students", "/teachers", "/anything/goes/here");
-
-    for (var uri : uris) {
-      var request = new MockHttpServletRequest();
-      request.setRequestURI(uri);
-      var response = new MockHttpServletResponse();
-
-      filter.doFilterInternal(request, response, filterChain);
-
-      verify(filterChain).doFilter(request, response);
+    private MockHttpServletResponse response() {
+        return new MockHttpServletResponse();
     }
-  }
 
-  @Test
-  void fees_only_inactive_allows_root_and_empty_like_uris() throws ServletException, IOException {
-    var filter = new FeesOnlyFilter(false);
+    private void assertAllowed(String uri, FeesOnlyFilter filter)
+            throws ServletException, IOException {
 
-    var request = new MockHttpServletRequest();
-    request.setRequestURI("/");
-    var response = new MockHttpServletResponse();
+        var request = request(uri);
+        var response = response();
 
-    filter.doFilterInternal(request, response, filterChain);
+        filter.doFilterInternal(request, response, filterChain);
 
-    assertEquals(200, response.getStatus());
-    verify(filterChain).doFilter(request, response);
-  }
+        assertEquals(200, response.getStatus());
+        verify(filterChain).doFilter(request, response);
+    }
 
-  @Test
-  void fees_only_active_does_not_call_filter_chain_when_blocked()
-      throws ServletException, IOException {
-    var filter = new FeesOnlyFilter(true);
+    private void assertBlocked(String uri, FeesOnlyFilter filter)
+            throws ServletException, IOException {
 
-    var request = new MockHttpServletRequest();
-    request.setRequestURI("/teachers");
-    var response = new MockHttpServletResponse();
+        var request = request(uri);
+        var response = response();
 
-    filter.doFilterInternal(request, response, filterChain);
+        filter.doFilterInternal(request, response, filterChain);
 
-    verify(filterChain, never()).doFilter(request, response);
-  }
+        assertEquals(SC_FORBIDDEN, response.getStatus());
+        assertEquals(FORBIDDEN_BODY, response.getContentAsString());
+        assertEquals("application/json", response.getContentType());
+        verify(filterChain, never()).doFilter(request, response);
+    }
 
-  @Test
-  void fees_only_active_blocked_response_has_json_content_type()
-      throws ServletException, IOException {
-    var filter = new FeesOnlyFilter(true);
+    @Test
+    void fees_only_inactive_all_requests_pass() throws Exception {
+        assertAllowed("/teachers", disabledFilter());
+    }
 
-    var request = new MockHttpServletRequest();
-    request.setRequestURI("/teachers");
-    var response = new MockHttpServletResponse();
+    @ParameterizedTest
+    @ValueSource(
+            strings = {"/fees", "/students", "/whoami", "/ping", "/authentication", "/health", "/mpbs"})
+    void fees_only_active_allows_configured_prefixes(String uri) throws Exception {
+        assertAllowed(uri, enabledFilter());
+    }
 
-    filter.doFilterInternal(request, response, filterChain);
+    @Test
+    void fees_only_active_allows_subpaths_of_allowed_prefixes() throws Exception {
+        assertAllowed("/students/student1_id/fees/fee1_id/payments", enabledFilter());
+    }
 
-    assertEquals("application/json", response.getContentType());
-  }
+    @ParameterizedTest
+    @ValueSource(
+            strings = {
+                    "/teachers",
+                    "/groups",
+                    "/events",
+                    "/courses",
+                    "/exams",
+                    "/unknown",
+                    "",
+                    "/feesnotreal",
+                    "/FEES/invoice1"
+            })
+    void fees_only_active_blocks_invalid_uris(String uri) throws Exception {
+        assertBlocked(uri, enabledFilter());
+    }
 
-  @Test
-  void fees_only_active_blocks_uris_that_merely_start_with_allowed_prefix()
-      throws ServletException, IOException {
-    var filter = new FeesOnlyFilter(true);
+    @ParameterizedTest
+    @ValueSource(strings = {"/teachers", "/groups", "/events", "/courses", "/exams", "/unknown"})
+    void fees_only_inactive_allows_previously_blocked_uris(String uri) throws Exception {
+        assertAllowed(uri, disabledFilter());
+    }
 
-    var request = new MockHttpServletRequest();
-    request.setRequestURI("/feesnotreal");
-    var response = new MockHttpServletResponse();
+    @ParameterizedTest
+    @ValueSource(strings = {"/fees", "/students", "/teachers", "/anything/goes/here"})
+    void fees_only_inactive_calls_filter_chain_for_every_request(String uri) throws Exception {
+        assertAllowed(uri, disabledFilter());
+    }
 
-    filter.doFilterInternal(request, response, filterChain);
+    @Test
+    void fees_only_inactive_does_not_write_forbidden_body() throws Exception {
 
-    assertEquals(
-        SC_FORBIDDEN,
-        response.getStatus(),
-        "'/feesnotreal' should not be treated as a valid subpath of '/fees'");
-  }
+        var request = request("/exams");
+        var response = response();
 
-  @Test
-  void fees_only_active_is_case_sensitive_on_prefixes() throws ServletException, IOException {
-    var filter = new FeesOnlyFilter(true);
+        disabledFilter().doFilterInternal(request, response, filterChain);
 
-    var request = new MockHttpServletRequest();
-    request.setRequestURI("/FEES/invoice1");
-    var response = new MockHttpServletResponse();
+        assertEquals("", response.getContentAsString());
+        verify(filterChain).doFilter(request, response);
+    }
 
-    filter.doFilterInternal(request, response, filterChain);
-
-    assertEquals(
-        SC_FORBIDDEN,
-        response.getStatus(),
-        "startsWith() is case sensitive: '/FEES' does not match the '/fees' prefix");
-  }
-
-  @Test
-  void fees_only_active_blocks_empty_uri() throws ServletException, IOException {
-    var filter = new FeesOnlyFilter(true);
-
-    var request = new MockHttpServletRequest();
-    request.setRequestURI("");
-    var response = new MockHttpServletResponse();
-
-    filter.doFilterInternal(request, response, filterChain);
-
-    assertEquals(SC_FORBIDDEN, response.getStatus());
-  }
+    @Test
+    void fees_only_inactive_allows_root_uri() throws Exception {
+        assertAllowed("/", disabledFilter());
+    }
 }
