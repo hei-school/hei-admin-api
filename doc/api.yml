@@ -11,6 +11,11 @@ info:
     authentication service.
     Then, start playing with our system!
 
+    When the `FEES_ONLY` environment variable is set to `true`, the API operates in a restricted mode
+    where only fees-related endpoints are accessible. All other endpoints return **HTTP 403** with
+    `{"message": "This endpoint is disabled in FEES_ONLY mode"}`.
+    The allowed prefixes are: `/fees`, `/students`, `/whoami`, `/ping`, `/authentication`, `/health`, `/mpbs`.
+
     The implementation of our API is [publicly disclosed](https://github.com/hei-school/hei-admin-api).
     You are welcome to try and compromise it. Happy hacking!
 
