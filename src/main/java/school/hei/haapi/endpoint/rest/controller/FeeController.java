@@ -20,9 +20,24 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import school.hei.haapi.endpoint.rest.mapper.CreditMapper;
 import school.hei.haapi.endpoint.rest.mapper.FeeMapper;
 import school.hei.haapi.endpoint.rest.mapper.FeeTemplateMapper;
-import school.hei.haapi.endpoint.rest.model.*;
+import school.hei.haapi.endpoint.rest.model.AdvancedFeeStatisticsGeneration;
+import school.hei.haapi.endpoint.rest.model.AdvancedFeeStatisticsType;
+import school.hei.haapi.endpoint.rest.model.AdvancedFeesStatistics;
+import school.hei.haapi.endpoint.rest.model.CreateFee;
+import school.hei.haapi.endpoint.rest.model.Credit;
+import school.hei.haapi.endpoint.rest.model.CrupdateFeeTemplate;
+import school.hei.haapi.endpoint.rest.model.CrupdateStudentFee;
+import school.hei.haapi.endpoint.rest.model.Fee;
+import school.hei.haapi.endpoint.rest.model.FeeCategory;
+import school.hei.haapi.endpoint.rest.model.FeeStatusEnum;
+import school.hei.haapi.endpoint.rest.model.FeeTemplate;
+import school.hei.haapi.endpoint.rest.model.FeeTypeEnum;
+import school.hei.haapi.endpoint.rest.model.FeesStatistics;
+import school.hei.haapi.endpoint.rest.model.FeesWithStats;
+import school.hei.haapi.endpoint.rest.model.MpbsStatus;
 import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.model.TrackActivity;
@@ -31,6 +46,7 @@ import school.hei.haapi.model.statistics.AdvancedFeeStats.AdvancedFeeStatsCountT
 import school.hei.haapi.model.validator.UpdateFeeValidator;
 import school.hei.haapi.repository.model.FeesStats;
 import school.hei.haapi.service.AdvancedFeeStatsService;
+import school.hei.haapi.service.CreditService;
 import school.hei.haapi.service.FeeService;
 import school.hei.haapi.service.FeeTemplateService;
 import school.hei.haapi.service.MpbsVerificationService;
@@ -49,6 +65,8 @@ public class FeeController {
   private final FeeTemplateMapper feeTemplateMapper;
   private final AdvancedFeeStatsService advancedFeeStatsService;
   private final MpbsVerificationService mpbsVerificationService;
+  private final CreditService creditService;
+  private final CreditMapper creditMapper;
 
   @GetMapping("/fees/{fee_id}")
   public Fee getFeeById(@PathVariable(name = "fee_id") String id) {
@@ -230,5 +248,15 @@ public class FeeController {
       @PathVariable String id, @RequestBody CrupdateFeeTemplate feeType) {
     return feeTemplateMapper.toRest(
         feeTemplateService.createOrUpdateFeeTemplate(feeTemplateMapper.toDomain(feeType)));
+  }
+
+  @GetMapping("student/{student_id}/credit")
+  public Credit getCreditByStudentId(@PathVariable String studentId) {
+    return creditMapper.toRest(creditService.getCreditByStudentId(studentId));
+  }
+
+  @GetMapping("student/{student_id}/transactions")
+  public List<CreditTransaction> getCreditTransactionsByStudentId(@PathVariable String studentId) {
+    return creditService.getCreditTransactionsByStudentId(studentId);
   }
 }
