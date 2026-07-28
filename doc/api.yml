@@ -257,6 +257,16 @@ paths:
     $ref: './operations/paying-api.yml#/operations/getFeeTemplates'
   '/fees/templates/{id}':
     $ref: './operations/paying-api.yml#/operations/feesTemplatesById'
+  /feeTemplates:
+    $ref: './operations/paying-api.yml#/operations/feeTemplatesOperations'
+  /feeTemplates/{id}/content:
+    $ref: './operations/paying-api.yml#/operations/feeTemplatesContentOperations'
+  /feeCreationJobs:
+    $ref: './operations/paying-api.yml#/operations/feeCreationJobsOperations'
+  '/feeCreationJobs/{id}':
+    $ref: './operations/paying-api.yml#/operations/getFeeCreationJob'
+  '/feeCreationJobs/{id}/students':
+    $ref: './operations/paying-api.yml#/operations/getFeeCreationJobStudents'
   /mpbs:
     $ref: './operations/paying-api.yml#/operations/getFetchedMobileTransactions'
   '/mpbs/{mpbs_id}/pend':
