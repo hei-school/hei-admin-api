@@ -16,17 +16,17 @@ import school.hei.haapi.endpoint.event.consumer.model.ConsumableEvent;
 @Component
 @Slf4j
 public class EventConsumer implements Consumer<List<ConsumableEvent>> {
-  private final Workers workers;
+  private final Workers<Void> workers;
   private final EventServiceInvoker eventServiceInvoker;
 
-  public EventConsumer(Workers workers, EventServiceInvoker eventServiceInvoker) {
+  public EventConsumer(Workers<Void> workers, EventServiceInvoker eventServiceInvoker) {
     this.workers = workers;
     this.eventServiceInvoker = eventServiceInvoker;
   }
 
   @Override
   public void accept(List<ConsumableEvent> consumableEvents) {
-    workers.invokeAll(consumableEvents.stream().map(this::toCallable).collect(toList()));
+    workers.apply(consumableEvents.stream().map(this::toCallable).collect(toList()));
   }
 
   private Callable<Void> toCallable(ConsumableEvent consumableEvent) {
