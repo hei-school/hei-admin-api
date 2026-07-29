@@ -1,14 +1,15 @@
 package school.hei.haapi.model;
 
-import static jakarta.persistence.GenerationType.IDENTITY;
-
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
+
 import java.time.Instant;
 import java.util.List;
+
+import static jakarta.persistence.GenerationType.IDENTITY;
 
 @Entity
 public class Credit {
