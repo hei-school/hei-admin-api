@@ -4,7 +4,12 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.time.Instant;
 import java.util.List;
@@ -12,13 +17,20 @@ import java.util.List;
 import static jakarta.persistence.GenerationType.IDENTITY;
 
 @Entity
+@AllArgsConstructor
+@Data
+@NoArgsConstructor
 public class Credit {
 
   @Id
   @GeneratedValue(strategy = IDENTITY)
   private String id;
 
-  private int value;
+  @OneToOne
+  @JoinColumn(name = "student_id", nullable = false, updatable = false)
+  private User student;
+
+  private int amount;
 
   private Instant creationDatetime;
 

@@ -1,18 +1,5 @@
 package school.hei.haapi.service;
 
-import static org.springframework.data.domain.Sort.Direction.DESC;
-import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.LATE;
-import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.PAID;
-import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.UNPAID;
-import static school.hei.haapi.endpoint.rest.model.Payment.TypeEnum.MOBILE_MONEY;
-import static school.hei.haapi.model.User.Status.DISABLED;
-import static school.hei.haapi.model.User.Status.ENABLED;
-import static school.hei.haapi.model.User.Status.SUSPENDED;
-import static school.hei.haapi.service.utils.InstantUtils.UTC3;
-
-import java.time.Instant;
-import java.time.LocalDate;
-import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
@@ -37,6 +24,20 @@ import school.hei.haapi.model.validator.PaymentValidator;
 import school.hei.haapi.repository.FeeRepository;
 import school.hei.haapi.repository.PaymentRepository;
 import school.hei.haapi.repository.dao.UserManagerDao;
+
+import java.time.Instant;
+import java.time.LocalDate;
+import java.util.List;
+
+import static org.springframework.data.domain.Sort.Direction.DESC;
+import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.LATE;
+import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.PAID;
+import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.UNPAID;
+import static school.hei.haapi.endpoint.rest.model.Payment.TypeEnum.MOBILE_MONEY;
+import static school.hei.haapi.model.User.Status.DISABLED;
+import static school.hei.haapi.model.User.Status.ENABLED;
+import static school.hei.haapi.model.User.Status.SUSPENDED;
+import static school.hei.haapi.service.utils.InstantUtils.UTC3;
 
 @Service
 @AllArgsConstructor
@@ -176,6 +177,10 @@ public class PaymentService {
     toCreate.forEach(
         payment -> computeRemainingAmount(payment.getFee().getId(), payment.getAmount()));
     return paymentRepository.saveAll(toCreate);
+  }
+
+  private boolean isPaidByCredit(Payment payment){
+     return "CREDIT".equals(payment.getType().getValue());
   }
 
   @Transactional

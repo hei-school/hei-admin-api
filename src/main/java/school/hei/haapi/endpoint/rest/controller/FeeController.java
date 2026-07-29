@@ -1,14 +1,5 @@
 package school.hei.haapi.endpoint.rest.controller;
 
-import static java.util.Optional.empty;
-import static java.util.stream.Collectors.toList;
-import static java.util.stream.Collectors.toUnmodifiableList;
-import static org.springframework.format.annotation.DateTimeFormat.ISO.DATE_TIME;
-
-import java.time.Instant;
-import java.time.LocalDate;
-import java.util.List;
-import java.util.Optional;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -41,6 +32,7 @@ import school.hei.haapi.endpoint.rest.model.MpbsStatus;
 import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.model.TrackActivity;
+import school.hei.haapi.model.Transaction;
 import school.hei.haapi.model.statistics.AdvancedFeeStats;
 import school.hei.haapi.model.statistics.AdvancedFeeStats.AdvancedFeeStatsCountType;
 import school.hei.haapi.model.validator.UpdateFeeValidator;
@@ -51,6 +43,16 @@ import school.hei.haapi.service.FeeService;
 import school.hei.haapi.service.FeeTemplateService;
 import school.hei.haapi.service.MpbsVerificationService;
 import school.hei.haapi.service.UserService;
+
+import java.time.Instant;
+import java.time.LocalDate;
+import java.util.List;
+import java.util.Optional;
+
+import static java.util.Optional.empty;
+import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toUnmodifiableList;
+import static org.springframework.format.annotation.DateTimeFormat.ISO.DATE_TIME;
 
 @RestController
 @AllArgsConstructor
@@ -256,7 +258,7 @@ public class FeeController {
   }
 
   @GetMapping("student/{student_id}/transactions")
-  public List<CreditTransaction> getCreditTransactionsByStudentId(@PathVariable String studentId) {
+  public List<Transaction> getCreditTransactionsByStudentId(@PathVariable String studentId) {
     return creditService.getCreditTransactionsByStudentId(studentId);
   }
 }

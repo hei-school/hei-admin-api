@@ -10,7 +10,7 @@ public class CreditMapper {
   private final UserMapper userMapper;
 
   public Credit toRest(school.hei.haapi.model.Credit credit) {
-    var identifier = userMapper.toIdentifier(credit.student());
-    return new Credit().student(identifier).value(credit.value());
+    var identifier = userMapper.toIdentifier(credit.getStudent());
+    return new Credit().student(identifier).amount(credit.getAmount());
   }
 }

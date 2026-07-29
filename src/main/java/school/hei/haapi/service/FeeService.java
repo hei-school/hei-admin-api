@@ -1,27 +1,6 @@
 package school.hei.haapi.service;
 
-import static java.time.Instant.now;
-import static java.util.UUID.randomUUID;
-import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.LATE;
-import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.PAID;
-import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.PENDING;
-import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.UNPAID;
-import static school.hei.haapi.endpoint.rest.model.FeeTypeEnum.TUITION;
-import static school.hei.haapi.model.exception.ApiException.ExceptionType.SERVER_EXCEPTION;
-import static school.hei.haapi.service.utils.FileUtils.createFileFromBytes;
-import static school.hei.haapi.service.utils.InstantUtils.getFirstDayOfActualMonth;
-
 import jakarta.transaction.Transactional;
-import java.time.Duration;
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Objects;
-import java.util.stream.Stream;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
@@ -56,6 +35,28 @@ import school.hei.haapi.repository.FeeRepository;
 import school.hei.haapi.repository.dao.FeeDao;
 import school.hei.haapi.repository.model.FeesStats;
 import school.hei.haapi.service.utils.XlsxCellsGenerator;
+
+import java.time.Duration;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Objects;
+import java.util.stream.Stream;
+
+import static java.time.Instant.now;
+import static java.util.UUID.randomUUID;
+import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.LATE;
+import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.PAID;
+import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.PENDING;
+import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.UNPAID;
+import static school.hei.haapi.endpoint.rest.model.FeeTypeEnum.TUITION;
+import static school.hei.haapi.model.exception.ApiException.ExceptionType.SERVER_EXCEPTION;
+import static school.hei.haapi.service.utils.FileUtils.createFileFromBytes;
+import static school.hei.haapi.service.utils.InstantUtils.getFirstDayOfActualMonth;
 
 @Service
 @AllArgsConstructor
@@ -434,4 +435,23 @@ public class FeeService {
   private static String formatToDayMonthYear(Instant instant) {
     return instant.atZone(ZoneId.systemDefault()).format(DateTimeFormatter.ofPattern("dd-MM-yyyy"));
   }
+
+    private int getStudentCreditAndUpdateFees(String studentId) {
+        var fees = feeRepository.findFeesByStudent_Id(studentId);
+        int creditAmount = 0;
+        var feesToUpdate = new ArrayList<Fee>();
+        for (var fee : fees) {
+            if (fee.isArchived()) {
+                creditAmount += fee.getTotalAmount();
+                continue;
+            }
+            if (fee.getRemainingAmount() < 0) {
+                creditAmount += -fee.getRemainingAmount();
+                fee.setRemainingAmount(0);
+                feesToUpdate.add(fee);
+            }
+        }
+        feeRepository.saveAll(feesToUpdate);
+        return creditAmount;
+    }
 }
