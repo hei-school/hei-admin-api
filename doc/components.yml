@@ -2297,7 +2297,7 @@ components:
       properties:
         student:
           $ref: '#/components/schemas/UserIdentifier'
-        value:
+        amount:
           type: integer
     CreditTransaction:
       type: object
@@ -2307,5 +2307,7 @@ components:
          date_time:
            type: string
            format: date-time
+         amount:
+           type: integer
          movement:
            $ref: '#/components/schemas/CreditMovement'
