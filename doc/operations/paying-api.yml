@@ -191,6 +191,39 @@ operations:
           $ref: '../components.yml#/components/responses/429'
         '500':
           $ref: '../components.yml#/components/responses/500'
+    archiveFee:
+      tags:
+        - Paying
+      summary: Archive student fee by identifier.
+      operationId: archiveStudentFeeById
+      parameters:
+        - name: fee_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: student_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: student fee archived by identifier.
+          content:
+            application/json:
+              schema:
+                $ref: '../components.yml#/components/schemas/Fee'
+        '400':
+          $ref: '../components.yml#/components/responses/400'
+        '403':
+          $ref: '../components.yml#/components/responses/403'
+        '404':
+          $ref: '../components.yml#/components/responses/404'
+        '429':
+          $ref: '../components.yml#/components/responses/429'
+        '500':
+          $ref: '../components.yml#/components/responses/500'
   studentsFees:
     get:
       tags:
