@@ -1,6 +1,27 @@
 package school.hei.haapi.service;
 
+import static java.time.Instant.now;
+import static java.util.UUID.randomUUID;
+import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.LATE;
+import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.PAID;
+import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.PENDING;
+import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.UNPAID;
+import static school.hei.haapi.endpoint.rest.model.FeeTypeEnum.TUITION;
+import static school.hei.haapi.model.exception.ApiException.ExceptionType.SERVER_EXCEPTION;
+import static school.hei.haapi.service.utils.FileUtils.createFileFromBytes;
+import static school.hei.haapi.service.utils.InstantUtils.getFirstDayOfActualMonth;
+
 import jakarta.transaction.Transactional;
+import java.time.Duration;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Objects;
+import java.util.stream.Stream;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
@@ -20,11 +41,9 @@ import school.hei.haapi.endpoint.rest.model.MpbsStatus;
 import school.hei.haapi.endpoint.rest.model.PaymentFrequency;
 import school.hei.haapi.file.bucket.BucketComponent;
 import school.hei.haapi.model.BoundedPageSize;
-import school.hei.haapi.model.Credit;
 import school.hei.haapi.model.Fee;
 import school.hei.haapi.model.FeeTemplate;
 import school.hei.haapi.model.PageFromOne;
-import school.hei.haapi.model.Transaction;
 import school.hei.haapi.model.User;
 import school.hei.haapi.model.dto.FeeDetailsDto;
 import school.hei.haapi.model.exception.ApiException;
@@ -34,31 +53,10 @@ import school.hei.haapi.model.mpbs.Mpbs;
 import school.hei.haapi.model.validator.FeeValidator;
 import school.hei.haapi.model.validator.UpdateFeeValidator;
 import school.hei.haapi.repository.FeeRepository;
+import school.hei.haapi.repository.TransactionRepository;
 import school.hei.haapi.repository.dao.FeeDao;
 import school.hei.haapi.repository.model.FeesStats;
 import school.hei.haapi.service.utils.XlsxCellsGenerator;
-
-import java.time.Duration;
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Objects;
-import java.util.stream.Stream;
-
-import static java.time.Instant.now;
-import static java.util.UUID.randomUUID;
-import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.LATE;
-import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.PAID;
-import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.PENDING;
-import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.UNPAID;
-import static school.hei.haapi.endpoint.rest.model.FeeTypeEnum.TUITION;
-import static school.hei.haapi.model.exception.ApiException.ExceptionType.SERVER_EXCEPTION;
-import static school.hei.haapi.service.utils.FileUtils.createFileFromBytes;
-import static school.hei.haapi.service.utils.InstantUtils.getFirstDayOfActualMonth;
 
 @Service
 @AllArgsConstructor
@@ -73,6 +71,7 @@ public class FeeService {
   private final FeeTemplateService feeTemplateService;
   private final FeeStatusHistoryService feeStatusHistoryService;
   private final BucketComponent bucketComponent;
+  private final TransactionRepository transactionRepository;
   private static final String MONTHLY_FEE_TEMPLATE_NAME = "Frais mensuel L1";
   private static final String YEARLY_FEE_TEMPLATE_NAME = "Frais annuel L1";
   private static final List<String> HEADERS =
@@ -91,9 +90,9 @@ public class FeeService {
           "dueDatetime",
           "addRefDate",
           "successfullyVerifiedAt");
-    private final UserService userService;
+  private final UserService userService;
 
-    public byte[] generateFeesAsXlsx(FeeStatusEnum feeStatus, Instant from, Instant to) {
+  public byte[] generateFeesAsXlsx(FeeStatusEnum feeStatus, Instant from, Instant to) {
     XlsxCellsGenerator<Fee> xlsxCellsGenerator = new XlsxCellsGenerator<>();
     List<Fee> feeList = feeDao.findAllByStatusAndDueDatetimeBetween(feeStatus, from, to);
     return xlsxCellsGenerator.apply(
@@ -169,13 +168,15 @@ public class FeeService {
   }
 
   @Transactional
-  public List<Fee> updateAll(List<Fee> fees, String studentId) {
+  public List<Fee> updateAll(List<Fee> fees) {
     updateFeeValidator.accept(fees);
     return feeRepository.saveAll(fees);
   }
 
-  private List<Fee> findByIds(List<String> ids){
-     return feeRepository.findAllByIds(ids);
+  public Fee update(Fee fee) {
+    updateFeeValidator.accept(fee);
+    creditService.depositArchivedFee(fee);
+    return feeRepository.save(fee);
   }
 
   public FeesStats getFeesStats(
@@ -443,35 +444,4 @@ public class FeeService {
   private static String formatToDayMonthYear(Instant instant) {
     return instant.atZone(ZoneId.systemDefault()).format(DateTimeFormatter.ofPattern("dd-MM-yyyy"));
   }
-
-    private int getStudentCreditAndUpdateFees(String studentId) {
-        var fees = feeRepository.findFeesByStudent_Id(studentId);
-        var credit = creditService.getCreditByStudentId(studentId);
-        var student = userService.getById(studentId);
-        int creditAmount = 0;
-        var feesToUpdate = new ArrayList<Fee>();
-        var transactions = new ArrayList<Transaction>();
-        for (var fee : fees) {
-            if (fee.isArchived()) {
-                creditAmount += fee.getTotalAmount();
-                continue;
-            }
-            if (fee.getRemainingAmount() < 0) {
-                creditAmount += -fee.getRemainingAmount();
-                fee.setRemainingAmount(0);
-                feesToUpdate.add(fee);
-            }
-        }
-        feeRepository.saveAll(feesToUpdate);
-
-        if(credit.isEmpty()){
-            var creditToSave = Credit.builder()
-                    .amount(creditAmount)
-                    .creationDatetime(now())
-                    .student(student)
-                    .build();
-            creditService.saveAll(List.of(creditToSave));
-        }
-        return creditAmount;
-    }
 }

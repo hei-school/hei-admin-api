@@ -1,5 +1,13 @@
 package school.hei.haapi.endpoint.rest.mapper;
 
+import static java.lang.Boolean.TRUE;
+import static school.hei.haapi.endpoint.rest.mapper.FileInfoMapper.ONE_DAY_DURATION_AS_LONG;
+import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.LATE;
+import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.PAID;
+import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.UNPAID;
+
+import java.time.Instant;
+import java.util.List;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 import school.hei.haapi.endpoint.rest.model.CreateFee;
@@ -17,15 +25,6 @@ import school.hei.haapi.service.LetterService;
 import school.hei.haapi.service.UserService;
 import school.hei.haapi.service.aws.FileService;
 import school.hei.haapi.service.utils.DataFormatterUtils;
-
-import java.time.Instant;
-import java.util.List;
-
-import static java.lang.Boolean.TRUE;
-import static school.hei.haapi.endpoint.rest.mapper.FileInfoMapper.ONE_DAY_DURATION_AS_LONG;
-import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.LATE;
-import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.PAID;
-import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.UNPAID;
 
 @Component
 @AllArgsConstructor
@@ -61,7 +60,7 @@ public class FeeMapper {
         .updatedAt(fee.getUpdatedAt())
         .dueDatetime(fee.getDueDatetime())
         .studentFirstName(fee.getStudent().getFirstName())
-            .isArchived(fee.isArchived())
+        .isArchived(fee.isArchived())
         .letter(letter == null ? null : toLetterFee(letter));
   }
 
@@ -95,7 +94,7 @@ public class FeeMapper {
         .comment(fee.getComment())
         .creationDatetime(fee.getCreationDatetime())
         .dueDatetime(fee.getDueDatetime())
-            .isArchived(TRUE.equals(fee.getIsArchived()))
+        .isArchived(TRUE.equals(fee.getIsArchived()))
         .build();
   }
 

@@ -1,5 +1,14 @@
 package school.hei.haapi.endpoint.rest.controller;
 
+import static java.util.Optional.empty;
+import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toUnmodifiableList;
+import static org.springframework.format.annotation.DateTimeFormat.ISO.DATE_TIME;
+
+import java.time.Instant;
+import java.time.LocalDate;
+import java.util.List;
+import java.util.Optional;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -43,16 +52,6 @@ import school.hei.haapi.service.FeeService;
 import school.hei.haapi.service.FeeTemplateService;
 import school.hei.haapi.service.MpbsVerificationService;
 import school.hei.haapi.service.UserService;
-
-import java.time.Instant;
-import java.time.LocalDate;
-import java.util.List;
-import java.util.Optional;
-
-import static java.util.Optional.empty;
-import static java.util.stream.Collectors.toList;
-import static java.util.stream.Collectors.toUnmodifiableList;
-import static org.springframework.format.annotation.DateTimeFormat.ISO.DATE_TIME;
 
 @RestController
 @AllArgsConstructor
@@ -103,9 +102,13 @@ public class FeeController {
     var student = userService.getById(studentId);
     List<school.hei.haapi.model.Fee> domainFeeList =
         fees.stream().map(fee -> feeMapper.toDomain(fee, student)).collect(toList());
-    return feeService.updateAll(domainFeeList, studentId).stream()
-        .map(feeMapper::toRestFee)
-        .toList();
+    return feeService.updateAll(domainFeeList).stream().map(feeMapper::toRestFee).toList();
+  }
+
+  @PutMapping("/students/{studentId}/fees/{feeId}")
+  public Fee archiveStudentFeeById(@PathVariable String studentId, @PathVariable String feeId) {
+    var fee = feeService.getById(feeId);
+    return feeMapper.toRestFee(feeService.update(fee));
   }
 
   @GetMapping("/students/{studentId}/fees")
@@ -258,9 +261,10 @@ public class FeeController {
   }
 
   @GetMapping("student/{student_id}/transactions")
-  public List<Transaction> getCreditTransactionsByStudentId(@PathVariable("student_id") String studentId,
-        @RequestParam(value = "page", defaultValue = "1") PageFromOne page,
-        @RequestParam(value = "page_size", defaultValue = "10") BoundedPageSize pageSize) {
+  public List<Transaction> getCreditTransactionsByStudentId(
+      @PathVariable("student_id") String studentId,
+      @RequestParam(value = "page", defaultValue = "1") PageFromOne page,
+      @RequestParam(value = "page_size", defaultValue = "10") BoundedPageSize pageSize) {
     return creditService.getCreditTransactionsByStudentId(studentId, page, pageSize);
   }
 }
