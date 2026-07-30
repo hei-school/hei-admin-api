@@ -1453,6 +1453,14 @@ operations:
           required: false
           schema:
             $ref: '../components.yml#/components/schemas/CreditMovement'
+        - name: page
+          in: query
+          schema:
+            $ref: '../components.yml#/components/schemas/Page'
+        - name: page_size
+          in: query
+          schema:
+            $ref: '../components.yml#/components/schemas/PageSize'
       responses:
         '200':
           description: List of the student's credit transactions.
@@ -1477,13 +1485,21 @@ operations:
       tags:
         - Paying
       summary: Get fee payments made using credit.
-      operationId: getCreditPayments
+      operationId: getCreditPaymentsByStatus
       parameters:
-        - name: fees_status
+        - name: status
           in: query
           required: false
           schema:
-            $ref: '../components.yml#/components/schemas/FeeStatusEnum'
+            $ref: '../components.yml#/components/schemas/PaymentStatus'
+        - name: page
+          in: query
+          schema:
+            $ref: '../components.yml#/components/schemas/Page'
+        - name: page_size
+          in: query
+          schema:
+            $ref: '../components.yml#/components/schemas/PageSize'
       responses:
         '200':
           description: List of fee payments made using credit.

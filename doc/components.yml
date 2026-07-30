@@ -1083,6 +1083,12 @@ components:
         - MVOLA
         - ORANGE_MONEY
         - AIRTEL_MONEY
+    PaymentStatus:
+      type: string
+      enum:
+        - VALIDATE
+        - INVALIDATE
+        - CREATED
     CreatePayment:
       type: object
       properties:
@@ -1099,6 +1105,8 @@ components:
           type: integer
         comment:
           type: string
+        status:
+          $ref: "#/components/schemas/PaymentStatus"
         creation_datetime:
           type: string
           format: date-time
@@ -2295,6 +2303,8 @@ components:
     Credit:
       type: object
       properties:
+        credit_id:
+          type: string
         student:
           $ref: '#/components/schemas/UserIdentifier'
         amount:
@@ -2302,8 +2312,12 @@ components:
     CreditTransaction:
       type: object
       properties:
-         credit_id:
+         transaction_id:
            type: string
+         credit:
+           $ref: '#/components/schemas/Credit'
+         fee:
+           $ref: '#/components/schemas/Fee'
          date_time:
            type: string
            format: date-time
