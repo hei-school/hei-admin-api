@@ -98,6 +98,11 @@ public class Fee implements Serializable {
   @EqualsAndHashCode.Exclude
   private List<Payment> payments;
 
+    @OneToMany(mappedBy = "fee", cascade = REMOVE)
+    @JsonIgnore
+    @EqualsAndHashCode.Exclude
+    private List<Transaction> transactions;
+
   @OneToMany(mappedBy = "fee", cascade = REMOVE, fetch = EAGER)
   @EqualsAndHashCode.Exclude
   private List<Mpbs> mobilePayments;

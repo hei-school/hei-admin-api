@@ -11,10 +11,13 @@ import school.hei.haapi.endpoint.event.EventProducer;
 import school.hei.haapi.endpoint.event.model.PaidFeeByMpbsNotificationBody;
 import school.hei.haapi.endpoint.event.model.SuspensionEndedEmailBody;
 import school.hei.haapi.model.BoundedPageSize;
+import school.hei.haapi.model.Credit;
 import school.hei.haapi.model.Fee;
 import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.model.Payment;
 import school.hei.haapi.model.PaymentNumberSequence;
+import school.hei.haapi.model.PaymentStatus;
+import school.hei.haapi.model.Transaction;
 import school.hei.haapi.model.User;
 import school.hei.haapi.model.dto.PaymentDto;
 import school.hei.haapi.model.exception.BadRequestException;
@@ -27,13 +30,17 @@ import school.hei.haapi.repository.dao.UserManagerDao;
 
 import java.time.Instant;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.springframework.data.domain.Sort.Direction.DESC;
 import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.LATE;
 import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.PAID;
 import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.UNPAID;
+import static school.hei.haapi.endpoint.rest.model.Payment.TypeEnum.CREDIT;
 import static school.hei.haapi.endpoint.rest.model.Payment.TypeEnum.MOBILE_MONEY;
+import static school.hei.haapi.model.CreditMovement.WITHDRAWAL;
+import static school.hei.haapi.model.PaymentStatus.VALIDATE;
 import static school.hei.haapi.model.User.Status.DISABLED;
 import static school.hei.haapi.model.User.Status.ENABLED;
 import static school.hei.haapi.model.User.Status.SUSPENDED;
@@ -51,6 +58,7 @@ public class PaymentService {
   private final PaymentValidator paymentValidator;
   private final EventProducer eventProducer;
   private final FeeStatusHistoryService feeStatusHistoryService;
+  private final CreditService creditService;
 
   public Payment deleteFeePaymentById(String paymentId) {
     Payment deletedPayment = getById(paymentId);
@@ -100,32 +108,7 @@ public class PaymentService {
     return paymentRepository.getByStudentIdAndFeeId(studentId, feeId);
   }
 
-  @Transactional
-  public void computeRemainingAmount(String feeId, int amount) {
-    Fee associatedFee = feeService.getById(feeId);
-    User student = associatedFee.getStudent();
-    // Array to hold the student's status before and after the payment
-    User.Status[] studentStatusBetweenPayingFee = new User.Status[2];
-    studentStatusBetweenPayingFee[0] = student.getStatus();
-
-    associatedFee.setRemainingAmount(associatedFee.getRemainingAmount() - amount);
-    computeUserStatusAfterPayingFee(student);
-    studentStatusBetweenPayingFee[1] = student.getStatus();
-    log.info("User status is computed to {}", studentStatusBetweenPayingFee[1]);
-
-    // If the student's status changes from SUSPENDED to ENABLED, send a notification
-    if (SUSPENDED.equals(studentStatusBetweenPayingFee[0])
-        && ENABLED.equals(studentStatusBetweenPayingFee[1])) {
-      notifyStudentForEnabling(associatedFee, amount);
-    }
-    if (associatedFee.getRemainingAmount() == 0) {
-      log.info("Remaining amount is 0");
-      associatedFee.updateStatus(PAID);
-      feeStatusHistoryService.saveFeeStatus(associatedFee.getStatus(), associatedFee);
-    }
-  }
-
-  private void notifyStudentForEnabling(Fee associatedFee, int amount) {
+    private void notifyStudentForEnabling(Fee associatedFee, int amount) {
     // Build the payment object without unnecessary fields (type and comment fields are omitted
     // since they are not used in the SuspensionEndedEmailBody)
     Payment payment =
@@ -174,10 +157,60 @@ public class PaymentService {
   @Transactional
   public List<Payment> saveAll(List<Payment> toCreate) {
     paymentValidator.accept(toCreate);
-    toCreate.forEach(
-        payment -> computeRemainingAmount(payment.getFee().getId(), payment.getAmount()));
+    var creditsPayments = toCreate.stream().filter(payment ->
+            !CREDIT.equals(payment.getType()) || VALIDATE.equals(payment.getStatus())
+    ).toList();
+    creditsPayments.forEach(
+        payment -> 
+            computeRemainingAmount(payment)
+    );
     return paymentRepository.saveAll(toCreate);
   }
+
+    @Transactional
+    public void computeRemainingAmount(Payment payment) {
+        var associatedFee = feeService.getById(payment.getFee().getId());
+        var student = associatedFee.getStudent();
+        // Array to hold the student's status before and after the payment
+        var studentStatusBetweenPayingFee = new User.Status[2];
+        studentStatusBetweenPayingFee[0] = student.getStatus();
+
+        associatedFee.setRemainingAmount(associatedFee.getRemainingAmount() - payment.getAmount());
+        computeUserStatusAfterPayingFee(student);
+        studentStatusBetweenPayingFee[1] = student.getStatus();
+        log.info("User status is computed to {}", studentStatusBetweenPayingFee[1]);
+
+        // If the student's status changes from SUSPENDED to ENABLED, send a notification
+        if (SUSPENDED.equals(studentStatusBetweenPayingFee[0])
+                && ENABLED.equals(studentStatusBetweenPayingFee[1])) {
+            notifyStudentForEnabling(associatedFee, payment.getAmount());
+        }
+        if (associatedFee.getRemainingAmount() == 0) {
+            log.info("Remaining amount is 0");
+            associatedFee.updateStatus(PAID);
+            feeStatusHistoryService.saveFeeStatus(associatedFee.getStatus(), associatedFee);
+        }
+        updateStudentCreditByPayment(payment, student);
+    }
+
+    private void updateStudentCreditByPayment(Payment payment, User student) {
+        var transactions = new ArrayList<Transaction>();
+        var credits = new ArrayList<Credit>();
+        if(isPaidByCredit(payment)){
+            var credit = creditService.getCreditByStudentId(student.getId());
+            var creditActualAmount = credit.getAmount();
+            var transaction = Transaction.builder()
+                    .credit(credit)
+                    .amount(payment.getAmount())
+                    .creditMovement(WITHDRAWAL)
+                    .build();
+            transactions.add(transaction);
+            credit.setAmount(creditActualAmount - payment.getAmount());
+            credits.add(credit);
+        }
+        creditService.saveTransactions(transactions);
+        creditService.saveAll(credits);
+    }
 
   private boolean isPaidByCredit(Payment payment){
      return "CREDIT".equals(payment.getType().getValue());
@@ -197,5 +230,10 @@ public class PaymentService {
 
   public List<Payment> getAllPaymentBetween(Instant from, Instant to) {
     return paymentRepository.getAllByCreationDatetimeBetweenOrderByCreationDatetimeAsc(from, to);
+  }
+
+  public List<Payment> getCreditPayments(PaymentStatus status, PageFromOne page, BoundedPageSize pageSize){
+      var pageable = PageRequest.of(page.getValue() - 1, pageSize.getValue(), Sort.by(DESC, "creationDatetime"));
+    return paymentRepository.findPaymentsByStatus(status, pageable);
   }
 }

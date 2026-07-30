@@ -253,12 +253,14 @@ public class FeeController {
   }
 
   @GetMapping("student/{student_id}/credit")
-  public Credit getCreditByStudentId(@PathVariable String studentId) {
-    return creditMapper.toRest(creditService.getCreditByStudentId(studentId));
+  public Credit getCreditByStudentId(@PathVariable("student_id") String studentId) {
+    return creditMapper.toRest(creditService.getCreditByStudentId(studentId).get());
   }
 
   @GetMapping("student/{student_id}/transactions")
-  public List<Transaction> getCreditTransactionsByStudentId(@PathVariable String studentId) {
-    return creditService.getCreditTransactionsByStudentId(studentId);
+  public List<Transaction> getCreditTransactionsByStudentId(@PathVariable("student_id") String studentId,
+        @RequestParam(value = "page", defaultValue = "1") PageFromOne page,
+        @RequestParam(value = "page_size", defaultValue = "10") BoundedPageSize pageSize) {
+    return creditService.getCreditTransactionsByStudentId(studentId, page, pageSize);
   }
 }

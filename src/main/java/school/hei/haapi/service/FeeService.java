@@ -20,9 +20,11 @@ import school.hei.haapi.endpoint.rest.model.MpbsStatus;
 import school.hei.haapi.endpoint.rest.model.PaymentFrequency;
 import school.hei.haapi.file.bucket.BucketComponent;
 import school.hei.haapi.model.BoundedPageSize;
+import school.hei.haapi.model.Credit;
 import school.hei.haapi.model.Fee;
 import school.hei.haapi.model.FeeTemplate;
 import school.hei.haapi.model.PageFromOne;
+import school.hei.haapi.model.Transaction;
 import school.hei.haapi.model.User;
 import school.hei.haapi.model.dto.FeeDetailsDto;
 import school.hei.haapi.model.exception.ApiException;
@@ -67,6 +69,7 @@ public class FeeService {
   private final UpdateFeeValidator updateFeeValidator;
   private final EventProducer<PojaEvent> eventProducer;
   private final FeeDao feeDao;
+  private final CreditService creditService;
   private final FeeTemplateService feeTemplateService;
   private final FeeStatusHistoryService feeStatusHistoryService;
   private final BucketComponent bucketComponent;
@@ -88,8 +91,9 @@ public class FeeService {
           "dueDatetime",
           "addRefDate",
           "successfullyVerifiedAt");
+    private final UserService userService;
 
-  public byte[] generateFeesAsXlsx(FeeStatusEnum feeStatus, Instant from, Instant to) {
+    public byte[] generateFeesAsXlsx(FeeStatusEnum feeStatus, Instant from, Instant to) {
     XlsxCellsGenerator<Fee> xlsxCellsGenerator = new XlsxCellsGenerator<>();
     List<Fee> feeList = feeDao.findAllByStatusAndDueDatetimeBetween(feeStatus, from, to);
     return xlsxCellsGenerator.apply(
@@ -168,6 +172,10 @@ public class FeeService {
   public List<Fee> updateAll(List<Fee> fees, String studentId) {
     updateFeeValidator.accept(fees);
     return feeRepository.saveAll(fees);
+  }
+
+  private List<Fee> findByIds(List<String> ids){
+     return feeRepository.findAllByIds(ids);
   }
 
   public FeesStats getFeesStats(
@@ -438,8 +446,11 @@ public class FeeService {
 
     private int getStudentCreditAndUpdateFees(String studentId) {
         var fees = feeRepository.findFeesByStudent_Id(studentId);
+        var credit = creditService.getCreditByStudentId(studentId);
+        var student = userService.getById(studentId);
         int creditAmount = 0;
         var feesToUpdate = new ArrayList<Fee>();
+        var transactions = new ArrayList<Transaction>();
         for (var fee : fees) {
             if (fee.isArchived()) {
                 creditAmount += fee.getTotalAmount();
@@ -452,6 +463,15 @@ public class FeeService {
             }
         }
         feeRepository.saveAll(feesToUpdate);
+
+        if(credit.isEmpty()){
+            var creditToSave = Credit.builder()
+                    .amount(creditAmount)
+                    .creationDatetime(now())
+                    .student(student)
+                    .build();
+            creditService.saveAll(List.of(creditToSave));
+        }
         return creditAmount;
     }
 }

@@ -7,10 +7,11 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.JdbcTypeCode;
-import school.hei.haapi.endpoint.rest.model.CreditMovement;
 
 import java.time.Instant;
 
@@ -21,6 +22,8 @@ import static org.hibernate.type.SqlTypes.NAMED_ENUM;
 @Entity
 @NoArgsConstructor
 @Data
+@Builder
+@AllArgsConstructor
 public class Transaction {
 
   @Id
@@ -34,6 +37,11 @@ public class Transaction {
   @JdbcTypeCode(NAMED_ENUM)
   @Enumerated(STRING)
   private CreditMovement creditMovement;
+
+
+    @ManyToOne
+    @JoinColumn(name = "fee_id", nullable = false, updatable = false)
+    private Fee fee;
 
   private int amount;
 
