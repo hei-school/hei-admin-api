@@ -11,7 +11,9 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import school.hei.haapi.endpoint.rest.api.PayingApi;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
+import school.hei.haapi.endpoint.rest.client.ApiException;
 import school.hei.haapi.endpoint.rest.mapper.FeeMapper;
+import school.hei.haapi.endpoint.rest.model.ArchiveFee;
 import school.hei.haapi.endpoint.rest.model.FeeStatusEnum;
 import school.hei.haapi.endpoint.rest.model.FeeTypeEnum;
 import school.hei.haapi.file.bucket.BucketComponent;
@@ -62,10 +64,10 @@ class CreditControllerIT extends FacadeITMockedThirdParties {
   }
 
   @Test
-  void getCreditByStudentId() {
+  void getCreditByStudentId() throws ApiException {
     var anApiClient = anApiClient(ADMIN1_TOKEN);
     var payingApi = new PayingApi(anApiClient);
-    //        var archivedFee = payingApi
+    var archivedFee = payingApi.archiveStudentFee("student-1", List.of(new ArchiveFee().feeId(feeToArchive().getId()).isArchived(true)));
   }
 
   @Test

@@ -1,14 +1,5 @@
 package school.hei.haapi.endpoint.rest.controller;
 
-import static java.util.Optional.empty;
-import static java.util.stream.Collectors.toList;
-import static java.util.stream.Collectors.toUnmodifiableList;
-import static org.springframework.format.annotation.DateTimeFormat.ISO.DATE_TIME;
-
-import java.time.Instant;
-import java.time.LocalDate;
-import java.util.List;
-import java.util.Optional;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -26,6 +17,7 @@ import school.hei.haapi.endpoint.rest.mapper.FeeTemplateMapper;
 import school.hei.haapi.endpoint.rest.model.AdvancedFeeStatisticsGeneration;
 import school.hei.haapi.endpoint.rest.model.AdvancedFeeStatisticsType;
 import school.hei.haapi.endpoint.rest.model.AdvancedFeesStatistics;
+import school.hei.haapi.endpoint.rest.model.ArchiveFee;
 import school.hei.haapi.endpoint.rest.model.CreateFee;
 import school.hei.haapi.endpoint.rest.model.CrupdateFeeTemplate;
 import school.hei.haapi.endpoint.rest.model.CrupdateStudentFee;
@@ -50,6 +42,16 @@ import school.hei.haapi.service.FeeService;
 import school.hei.haapi.service.FeeTemplateService;
 import school.hei.haapi.service.MpbsVerificationService;
 import school.hei.haapi.service.UserService;
+
+import java.time.Instant;
+import java.time.LocalDate;
+import java.util.List;
+import java.util.Optional;
+
+import static java.util.Optional.empty;
+import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toUnmodifiableList;
+import static org.springframework.format.annotation.DateTimeFormat.ISO.DATE_TIME;
 
 @RestController
 @AllArgsConstructor
@@ -103,9 +105,9 @@ public class FeeController {
     return feeService.updateAll(domainFeeList).stream().map(feeMapper::toRestFee).toList();
   }
 
-  @PutMapping("/students/{studentId}/fees/{feeId}")
-  public Fee archiveStudentFeeById(@PathVariable String studentId, @PathVariable String feeId) {
-    var fee = feeService.getById(feeId);
+  @PutMapping("/students/{studentId}/fees")
+  public Fee archiveStudentFeeById(@PathVariable String studentId, @RequestBody ArchiveFee feeToArchive) {
+    var fee = feeService.getById(feeToArchive.getFeeId());
     return feeMapper.toRestFee(feeService.archiveFee(fee));
   }
 
