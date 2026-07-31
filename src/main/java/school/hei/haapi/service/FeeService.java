@@ -53,7 +53,6 @@ import school.hei.haapi.model.mpbs.Mpbs;
 import school.hei.haapi.model.validator.FeeValidator;
 import school.hei.haapi.model.validator.UpdateFeeValidator;
 import school.hei.haapi.repository.FeeRepository;
-import school.hei.haapi.repository.TransactionRepository;
 import school.hei.haapi.repository.dao.FeeDao;
 import school.hei.haapi.repository.model.FeesStats;
 import school.hei.haapi.service.utils.XlsxCellsGenerator;
@@ -71,7 +70,6 @@ public class FeeService {
   private final FeeTemplateService feeTemplateService;
   private final FeeStatusHistoryService feeStatusHistoryService;
   private final BucketComponent bucketComponent;
-  private final TransactionRepository transactionRepository;
   private static final String MONTHLY_FEE_TEMPLATE_NAME = "Frais mensuel L1";
   private static final String YEARLY_FEE_TEMPLATE_NAME = "Frais annuel L1";
   private static final List<String> HEADERS =
@@ -90,7 +88,6 @@ public class FeeService {
           "dueDatetime",
           "addRefDate",
           "successfullyVerifiedAt");
-  private final UserService userService;
 
   public byte[] generateFeesAsXlsx(FeeStatusEnum feeStatus, Instant from, Instant to) {
     XlsxCellsGenerator<Fee> xlsxCellsGenerator = new XlsxCellsGenerator<>();

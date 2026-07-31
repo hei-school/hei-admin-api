@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -17,7 +18,6 @@ import school.hei.haapi.endpoint.rest.mapper.FeeTemplateMapper;
 import school.hei.haapi.endpoint.rest.model.AdvancedFeeStatisticsGeneration;
 import school.hei.haapi.endpoint.rest.model.AdvancedFeeStatisticsType;
 import school.hei.haapi.endpoint.rest.model.AdvancedFeesStatistics;
-import school.hei.haapi.endpoint.rest.model.ArchiveFee;
 import school.hei.haapi.endpoint.rest.model.CreateFee;
 import school.hei.haapi.endpoint.rest.model.CrupdateFeeTemplate;
 import school.hei.haapi.endpoint.rest.model.CrupdateStudentFee;
@@ -105,9 +105,9 @@ public class FeeController {
     return feeService.updateAll(domainFeeList).stream().map(feeMapper::toRestFee).toList();
   }
 
-  @PutMapping("/students/{studentId}/fees")
-  public Fee archiveStudentFeeById(@PathVariable String studentId, @RequestBody ArchiveFee feeToArchive) {
-    var fee = feeService.getById(feeToArchive.getFeeId());
+  @PatchMapping("/students/{studentId}/fees/{feeId}")
+  public Fee archiveStudentFeeById(@PathVariable String studentId, @PathVariable String feeId) {
+    var fee = feeService.getById(feeId);
     return feeMapper.toRestFee(feeService.archiveFee(fee));
   }
 

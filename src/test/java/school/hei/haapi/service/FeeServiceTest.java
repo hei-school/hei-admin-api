@@ -30,7 +30,11 @@ import org.junit.jupiter.api.Test;
 import school.hei.haapi.endpoint.event.EventProducer;
 import school.hei.haapi.file.bucket.BucketComponent;
 import school.hei.haapi.integration.conf.TestUtils;
-import school.hei.haapi.model.*;
+import school.hei.haapi.model.BoundedPageSize;
+import school.hei.haapi.model.Fee;
+import school.hei.haapi.model.PageFromOne;
+import school.hei.haapi.model.Payment;
+import school.hei.haapi.model.User;
 import school.hei.haapi.model.exception.BadRequestException;
 import school.hei.haapi.model.validator.FeeValidator;
 import school.hei.haapi.model.validator.UpdateFeeValidator;
@@ -48,6 +52,7 @@ class FeeServiceTest {
   private static FeeStatusHistoryService feeStatusHistoryService =
       mock(FeeStatusHistoryService.class);
   private static BucketComponent bucketComponent = mock(BucketComponent.class);
+  private static CreditService creditService = mock(CreditService.class);
   private static FeeService subject =
       new FeeService(
           feeRepository,
@@ -55,6 +60,7 @@ class FeeServiceTest {
           updateFeeValidator,
           eventProducer,
           feeDao,
+          creditService,
           feeTemplateService,
           feeStatusHistoryService,
           bucketComponent);

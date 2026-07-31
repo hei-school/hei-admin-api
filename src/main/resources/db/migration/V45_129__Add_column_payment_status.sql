@@ -6,7 +6,7 @@ $$
             from pg_type
             where typname = 'payment_status'
         ) then
-            create type credit_movement as enum (
+            create type payment_status as enum (
                 'VALIDATE',
                 'INVALIDATE',
                 'CREATED'
