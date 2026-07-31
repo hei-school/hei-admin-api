@@ -15,10 +15,10 @@ import org.springframework.stereotype.Service;
 import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.Credit;
 import school.hei.haapi.model.CreditMovement;
+import school.hei.haapi.model.CreditTransaction;
 import school.hei.haapi.model.Fee;
 import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.model.Payment;
-import school.hei.haapi.model.Transaction;
 import school.hei.haapi.model.User;
 import school.hei.haapi.model.exception.BadRequestException;
 import school.hei.haapi.repository.CreditRepository;
@@ -34,7 +34,7 @@ public class CreditService {
     return Optional.of(creditRepository.findCreditByStudent_Id(studentId));
   }
 
-  public List<Transaction> getCreditTransactionsByStudentId(
+  public List<CreditTransaction> getCreditTransactionsByStudentId(
       String studentId, PageFromOne page, BoundedPageSize pageSize) {
     var pageable =
         PageRequest.of(page.getValue() - 1, pageSize.getValue(), Sort.by(DESC, "creationDatetime"));
@@ -46,7 +46,7 @@ public class CreditService {
     return creditRepository.saveAll(credits);
   }
 
-  public List<Transaction> saveTransactions(List<Transaction> transactions) {
+  public List<CreditTransaction> saveCreditTransactions(List<CreditTransaction> transactions) {
     return transactionRepository.saveAll(transactions);
   }
 
@@ -89,14 +89,14 @@ public class CreditService {
   }
 
   private void applyTransaction(Credit credit, Fee fee, int amount, CreditMovement movement) {
-    if (movement == DEPOSIT) {
+    if (DEPOSIT.equals(movement)) {
       credit.setAmount(credit.getAmount() + amount);
     } else {
       credit.setAmount(credit.getAmount() - amount);
     }
     var savedCredit = saveAll(List.of(credit)).getFirst();
     var transaction =
-        Transaction.builder()
+        CreditTransaction.builder()
             .credit(savedCredit)
             .fee(fee)
             .amount(amount)
@@ -104,6 +104,6 @@ public class CreditService {
             .creationDatetime(now())
             .build();
 
-    saveTransactions(List.of(transaction));
+    saveCreditTransactions(List.of(transaction));
   }
 }

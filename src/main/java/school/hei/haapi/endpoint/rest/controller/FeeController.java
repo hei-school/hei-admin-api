@@ -27,7 +27,6 @@ import school.hei.haapi.endpoint.rest.model.AdvancedFeeStatisticsGeneration;
 import school.hei.haapi.endpoint.rest.model.AdvancedFeeStatisticsType;
 import school.hei.haapi.endpoint.rest.model.AdvancedFeesStatistics;
 import school.hei.haapi.endpoint.rest.model.CreateFee;
-import school.hei.haapi.endpoint.rest.model.Credit;
 import school.hei.haapi.endpoint.rest.model.CrupdateFeeTemplate;
 import school.hei.haapi.endpoint.rest.model.CrupdateStudentFee;
 import school.hei.haapi.endpoint.rest.model.Fee;
@@ -41,7 +40,6 @@ import school.hei.haapi.endpoint.rest.model.MpbsStatus;
 import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.model.TrackActivity;
-import school.hei.haapi.model.Transaction;
 import school.hei.haapi.model.statistics.AdvancedFeeStats;
 import school.hei.haapi.model.statistics.AdvancedFeeStats.AdvancedFeeStatsCountType;
 import school.hei.haapi.model.validator.UpdateFeeValidator;
@@ -108,7 +106,7 @@ public class FeeController {
   @PutMapping("/students/{studentId}/fees/{feeId}")
   public Fee archiveStudentFeeById(@PathVariable String studentId, @PathVariable String feeId) {
     var fee = feeService.getById(feeId);
-    return feeMapper.toRestFee(feeService.update(fee));
+    return feeMapper.toRestFee(feeService.archiveFee(fee));
   }
 
   @GetMapping("/students/{studentId}/fees")
@@ -253,18 +251,5 @@ public class FeeController {
       @PathVariable String id, @RequestBody CrupdateFeeTemplate feeType) {
     return feeTemplateMapper.toRest(
         feeTemplateService.createOrUpdateFeeTemplate(feeTemplateMapper.toDomain(feeType)));
-  }
-
-  @GetMapping("student/{student_id}/credit")
-  public Credit getCreditByStudentId(@PathVariable("student_id") String studentId) {
-    return creditMapper.toRest(creditService.getCreditByStudentId(studentId).get());
-  }
-
-  @GetMapping("student/{student_id}/transactions")
-  public List<Transaction> getCreditTransactionsByStudentId(
-      @PathVariable("student_id") String studentId,
-      @RequestParam(value = "page", defaultValue = "1") PageFromOne page,
-      @RequestParam(value = "page_size", defaultValue = "10") BoundedPageSize pageSize) {
-    return creditService.getCreditTransactionsByStudentId(studentId, page, pageSize);
   }
 }

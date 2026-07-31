@@ -36,5 +36,5 @@ public class Credit {
   private Instant creationDatetime;
 
   @OneToMany(mappedBy = "credit", fetch = FetchType.LAZY)
-  private List<Transaction> transactions;
+  private List<CreditTransaction> transactions;
 }

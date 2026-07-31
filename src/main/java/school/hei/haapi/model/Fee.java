@@ -100,7 +100,7 @@ public class Fee implements Serializable {
   @OneToMany(mappedBy = "fee", cascade = REMOVE)
   @JsonIgnore
   @EqualsAndHashCode.Exclude
-  private List<Transaction> transactions;
+  private List<CreditTransaction> transactions;
 
   @OneToMany(mappedBy = "fee", cascade = REMOVE, fetch = EAGER)
   @EqualsAndHashCode.Exclude

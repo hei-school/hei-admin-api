@@ -6,7 +6,6 @@ import static org.hibernate.type.SqlTypes.NAMED_ENUM;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.Enumerated;
-import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
@@ -23,13 +22,13 @@ import org.hibernate.annotations.JdbcTypeCode;
 @Data
 @Builder
 @AllArgsConstructor
-public class Transaction {
+public class CreditTransaction {
 
   @Id
   @GeneratedValue(strategy = IDENTITY)
   private String id;
 
-  @ManyToOne(fetch = FetchType.LAZY)
+  @ManyToOne
   @JoinColumn(name = "credit_id", nullable = false, updatable = false)
   private Credit credit;
 

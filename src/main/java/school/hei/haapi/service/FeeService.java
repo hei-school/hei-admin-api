@@ -173,9 +173,10 @@ public class FeeService {
     return feeRepository.saveAll(fees);
   }
 
-  public Fee update(Fee fee) {
+  public Fee archiveFee(Fee fee) {
     updateFeeValidator.accept(fee);
     creditService.depositArchivedFee(fee);
+    fee.setArchived(true);
     return feeRepository.save(fee);
   }
 
