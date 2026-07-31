@@ -191,6 +191,39 @@ operations:
           $ref: '../components.yml#/components/responses/429'
         '500':
           $ref: '../components.yml#/components/responses/500'
+    patch:
+      tags:
+        - Paying
+      summary: Archive student fee.
+      operationId: archiveStudentFee
+      parameters:
+        - name: student_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: fee_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: student fee archived.
+          content:
+            application/json:
+              schema:
+                $ref: '../components.yml#/components/schemas/Fee'
+        '400':
+          $ref: '../components.yml#/components/responses/400'
+        '403':
+          $ref: '../components.yml#/components/responses/403'
+        '404':
+          $ref: '../components.yml#/components/responses/404'
+        '429':
+          $ref: '../components.yml#/components/responses/429'
+        '500':
+          $ref: '../components.yml#/components/responses/500'
   studentsFees:
     get:
       tags:
@@ -303,43 +336,6 @@ operations:
                 type: array
                 items:
                   $ref: '../components.yml#/components/schemas/Fee'
-        '400':
-          $ref: '../components.yml#/components/responses/400'
-        '403':
-          $ref: '../components.yml#/components/responses/403'
-        '404':
-          $ref: '../components.yml#/components/responses/404'
-        '429':
-          $ref: '../components.yml#/components/responses/429'
-        '500':
-          $ref: '../components.yml#/components/responses/500'
-    patch:
-      tags:
-        - Paying
-      summary: Archive student fee.
-      operationId: archiveStudentFee
-      parameters:
-        - name: student_id
-          in: path
-          required: true
-          schema:
-            type: string
-      requestBody:
-        description: Student fee to archive
-        required: true
-        content:
-          application/json:
-            schema:
-              type: array
-              items:
-                $ref: '../components.yml#/components/schemas/ArchiveFee'
-      responses:
-        '200':
-          description: student fee archived.
-          content:
-            application/json:
-              schema:
-                $ref: '../components.yml#/components/schemas/Fee'
         '400':
           $ref: '../components.yml#/components/responses/400'
         '403':
