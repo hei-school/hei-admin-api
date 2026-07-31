@@ -2325,3 +2325,10 @@ components:
            type: integer
          movement:
            $ref: '#/components/schemas/CreditMovement'
+    ArchiveFee:
+      type: object
+      properties:
+        fee_id:
+          type: string
+        is_archived:
+          type: boolean
