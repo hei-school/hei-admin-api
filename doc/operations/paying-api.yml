@@ -1513,7 +1513,7 @@ operations:
           $ref: '../components.yml#/components/responses/429'
         '500':
           $ref: '../components.yml#/components/responses/500'
-  getCreditPayments:
+  getCreditPaymentsByStatus:
     get:
       tags:
         - Paying
@@ -1553,13 +1553,13 @@ operations:
         '500':
           $ref: '../components.yml#/components/responses/500'
   validateCreditPayments:
-    get:
+    patch:
       tags:
         - Paying
       summary: Validate fee payments made using credit.
-      operationId: validateCreditPaymentsByStatus
+      operationId: validateCreditPayments
       requestBody:
-        description: Students credit payments to create validate
+        description: Students credit payments to validate
         required: true
         content:
           application/json:
@@ -1569,7 +1569,7 @@ operations:
                 type: string
       responses:
         '200':
-          description: List of fee payments made using credit.
+          description: List of fee credit payments validate.
           content:
             application/json:
               schema:

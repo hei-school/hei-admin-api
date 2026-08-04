@@ -282,7 +282,7 @@ paths:
   '/students/{student_id}/fees/{fee_id}/payments/{payment_id}':
     $ref: './operations/paying-api.yml#/operations/deleteStudentFeePaymentById'
   '/students/credit-payments':
-    $ref: './operations/paying-api.yml#/operations/getCreditPayments'
+    $ref: './operations/paying-api.yml#/operations/getCreditPaymentsByStatus'
   '/students/payments/validate':
     $ref: './operations/paying-api.yml#/operations/validateCreditPayments'
   '/students/{student_id}/credit':
