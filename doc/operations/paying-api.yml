@@ -1552,3 +1552,37 @@ operations:
           $ref: '../components.yml#/components/responses/429'
         '500':
           $ref: '../components.yml#/components/responses/500'
+  validateCreditPayments:
+    get:
+      tags:
+        - Paying
+      summary: Validate fee payments made using credit.
+      operationId: validateCreditPaymentsByStatus
+      requestBody:
+        description: Students credit payments to create validate
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                type: string
+      responses:
+        '200':
+          description: List of fee payments made using credit.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '../components.yml#/components/schemas/Payment'
+        '400':
+          $ref: '../components.yml#/components/responses/400'
+        '403':
+          $ref: '../components.yml#/components/responses/403'
+        '404':
+          $ref: '../components.yml#/components/responses/404'
+        '429':
+          $ref: '../components.yml#/components/responses/429'
+        '500':
+          $ref: '../components.yml#/components/responses/500'
