@@ -89,6 +89,10 @@ public class PaymentService {
         .orElseThrow(() -> new NotFoundException("Payment with id: " + paymentId + " not found"));
   }
 
+  public List<Payment> getByIds(List<String> paymentIds) {
+    return paymentRepository.findByIds(paymentIds);
+  }
+
   public List<Payment> getByStudentIdAndFeeId(
       String studentId, String feeId, PageFromOne page, BoundedPageSize pageSize) {
     Pageable pageable =
@@ -98,10 +102,6 @@ public class PaymentService {
 
   public List<Payment> getByFeeIdOrderByCreationDatetimeAsc(String feeId) {
     return paymentRepository.findAllByFee_IdOrderByCreationDatetimeAsc(feeId);
-  }
-
-  List<Payment> getByStudentIdAndFeeId(String studentId, String feeId) {
-    return paymentRepository.getByStudentIdAndFeeId(studentId, feeId);
   }
 
   private void notifyStudentForEnabling(Fee associatedFee, int amount) {
@@ -211,10 +211,10 @@ public class PaymentService {
     return paymentRepository.getAllByCreationDatetimeBetweenOrderByCreationDatetimeAsc(from, to);
   }
 
-  public List<Payment> getCreditPayments(
+  public List<Payment> getCreditPaymentsByStatus(
       PaymentStatus status, PageFromOne page, BoundedPageSize pageSize) {
     var pageable =
         PageRequest.of(page.getValue() - 1, pageSize.getValue(), Sort.by(DESC, "creationDatetime"));
-    return paymentRepository.findPaymentsByStatus(status, pageable);
+    return paymentRepository.findPaymentsByStatusAndType(status, CREDIT, pageable);
   }
 }

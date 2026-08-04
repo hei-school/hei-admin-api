@@ -31,7 +31,7 @@ public class CreditService {
   private final TransactionRepository transactionRepository;
 
   public Optional<Credit> getCreditByStudentId(String studentId) {
-    return Optional.of(creditRepository.findCreditByStudent_Id(studentId));
+    return creditRepository.findCreditByStudent_Id(studentId);
   }
 
   public List<CreditTransaction> getCreditTransactionsByStudentId(

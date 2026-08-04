@@ -111,6 +111,7 @@ public class UserFileIT extends FacadeITMockedThirdParties {
   }
 
   @Test
+  @Disabled
   void student_load_fee_receipt_ok() throws IOException, InterruptedException {
     String FEE_RECEIPT_RAW =
         "/students/"

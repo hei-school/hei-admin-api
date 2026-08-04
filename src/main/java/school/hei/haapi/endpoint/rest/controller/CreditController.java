@@ -21,12 +21,12 @@ public class CreditController {
   private final CreditService creditService;
   private final CreditMapper creditMapper;
 
-  @GetMapping("student/{student_id}/credit")
+  @GetMapping("/students/{student_id}/credit")
   public Credit getCreditByStudentId(@PathVariable("student_id") String studentId) {
     return creditMapper.toRest(creditService.getCreditByStudentId(studentId).get());
   }
 
-  @GetMapping("student/{student_id}/transactions")
+  @GetMapping("/students/{student_id}/credit/transactions")
   public List<CreditTransaction> getCreditTransactionsByStudentId(
       @PathVariable("student_id") String studentId,
       @RequestParam(value = "page", defaultValue = "1") PageFromOne page,

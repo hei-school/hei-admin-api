@@ -15,4 +15,6 @@ $$
     end;
 $$;
 
-alter table payment add column if not exists "payment_status" payment_status;
+alter table payment add column if not exists "status" payment_status default 'VALIDATE';
+alter table payment alter column status set not null;
+update payment set status = 'VALIDATE' where status is null;

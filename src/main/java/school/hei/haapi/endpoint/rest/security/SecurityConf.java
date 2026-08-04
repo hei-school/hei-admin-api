@@ -1,5 +1,20 @@
 package school.hei.haapi.endpoint.rest.security;
 
+import static org.springframework.http.HttpMethod.DELETE;
+import static org.springframework.http.HttpMethod.GET;
+import static org.springframework.http.HttpMethod.OPTIONS;
+import static org.springframework.http.HttpMethod.PATCH;
+import static org.springframework.http.HttpMethod.POST;
+import static org.springframework.http.HttpMethod.PUT;
+import static org.springframework.security.web.util.matcher.AntPathRequestMatcher.antMatcher;
+import static school.hei.haapi.endpoint.rest.security.model.Role.ADMIN;
+import static school.hei.haapi.endpoint.rest.security.model.Role.MANAGER;
+import static school.hei.haapi.endpoint.rest.security.model.Role.MONITOR;
+import static school.hei.haapi.endpoint.rest.security.model.Role.ORGANIZER;
+import static school.hei.haapi.endpoint.rest.security.model.Role.STAFF_MEMBER;
+import static school.hei.haapi.endpoint.rest.security.model.Role.STUDENT;
+import static school.hei.haapi.endpoint.rest.security.model.Role.TEACHER;
+
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -21,21 +36,6 @@ import school.hei.haapi.model.exception.ForbiddenException;
 import school.hei.haapi.repository.CorRepository;
 import school.hei.haapi.service.CourseAssignmentService;
 import school.hei.haapi.service.MonitoringStudentService;
-
-import static org.springframework.http.HttpMethod.DELETE;
-import static org.springframework.http.HttpMethod.GET;
-import static org.springframework.http.HttpMethod.OPTIONS;
-import static org.springframework.http.HttpMethod.PATCH;
-import static org.springframework.http.HttpMethod.POST;
-import static org.springframework.http.HttpMethod.PUT;
-import static org.springframework.security.web.util.matcher.AntPathRequestMatcher.antMatcher;
-import static school.hei.haapi.endpoint.rest.security.model.Role.ADMIN;
-import static school.hei.haapi.endpoint.rest.security.model.Role.MANAGER;
-import static school.hei.haapi.endpoint.rest.security.model.Role.MONITOR;
-import static school.hei.haapi.endpoint.rest.security.model.Role.ORGANIZER;
-import static school.hei.haapi.endpoint.rest.security.model.Role.STAFF_MEMBER;
-import static school.hei.haapi.endpoint.rest.security.model.Role.STUDENT;
-import static school.hei.haapi.endpoint.rest.security.model.Role.TEACHER;
 
 @Configuration
 @Slf4j
@@ -158,12 +158,14 @@ public class SecurityConf {
                     antMatcher(GET, "/students/*/fees/*"),
                     antMatcher(GET, "/students/*/fees/*/payments/*/receipt/raw"),
                     antMatcher(DELETE, "/students/*/fees/*"),
+                    antMatcher(PATCH, "/students/*/fees/*"),
                     antMatcher(GET, "/students/*/fees/*/payments"),
                     antMatcher(POST, "/students/*/fees/*/payments"),
                     antMatcher(DELETE, "/students/*/fees/*/payments/*"),
-                    antMatcher(GET,"/students/credit-payments"),
-                        antMatcher(GET,"/students/{student_id}/credit"),
-                        antMatcher(GET,"/students/{student_id}/credit/transactions"),
+                    antMatcher(PATCH, "/students/payments/validate"),
+                    antMatcher(GET, "/students/credit-payments"),
+                    antMatcher(GET, "/students/{student_id}/credit"),
+                    antMatcher(GET, "/students/{student_id}/credit/transactions"),
                     antMatcher(GET, "/students/*/fees"),
                     antMatcher(POST, "/students/*/fees"),
                     antMatcher(PUT, "/students/*/fees"),
@@ -575,6 +577,8 @@ public class SecurityConf {
                     .hasRole(MONITOR.getRole())
                     .requestMatchers(DELETE, "/students/*/fees/*")
                     .hasAnyRole(MANAGER.getRole(), ADMIN.getRole())
+                    .requestMatchers(PATCH, "/students/*/fees/*")
+                    .hasAnyRole(MANAGER.getRole(), ADMIN.getRole())
                     .requestMatchers(GET, "/students/*/fees/*")
                     .hasAnyRole(MANAGER.getRole(), ADMIN.getRole())
                     .requestMatchers(
@@ -631,7 +635,7 @@ public class SecurityConf {
                     .requestMatchers(GET, "/students/*/fees/*/payments")
                     .hasAnyRole(MANAGER.getRole(), ADMIN.getRole())
                     .requestMatchers(POST, "/students/*/fees/*/payments")
-                    .hasAnyRole(MANAGER.getRole(), ADMIN.getRole())
+                    .hasAnyRole(MANAGER.getRole(), ADMIN.getRole(), STUDENT.getRole())
                     .requestMatchers(GET, "/students/*/fees")
                     .hasAnyRole(MANAGER.getRole(), ADMIN.getRole())
                     .requestMatchers(new SelfMatcher(POST, "/students/*/fees", "students"))
@@ -650,11 +654,13 @@ public class SecurityConf {
                     .hasAnyRole(MANAGER.getRole(), ADMIN.getRole())
                     .requestMatchers(POST, "/students/*/fees/*/payments")
                     .hasAnyRole(MANAGER.getRole(), ADMIN.getRole())
-                    .requestMatchers(POST, "/students/credit-payments")
+                    .requestMatchers(PATCH, "/students/payments/validate")
                     .hasAnyRole(MANAGER.getRole(), ADMIN.getRole())
-                    .requestMatchers(POST, "/students/{student_id}/credit")
+                    .requestMatchers(GET, "/students/credit-payments")
+                    .hasAnyRole(MANAGER.getRole(), ADMIN.getRole())
+                    .requestMatchers(GET, "/students/{student_id}/credit")
                     .hasAnyRole(STUDENT.getRole(), MANAGER.getRole(), ADMIN.getRole())
-                    .requestMatchers(POST, "/students/{student_id}/credit/transactions")
+                    .requestMatchers(GET, "/students/{student_id}/credit/transactions")
                     .hasAnyRole(STUDENT.getRole(), MANAGER.getRole(), ADMIN.getRole())
                     .requestMatchers(
                         new StudentMonitorMatcher(

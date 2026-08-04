@@ -1,11 +1,13 @@
 package school.hei.haapi.endpoint.rest.controller;
 
 import static java.util.stream.Collectors.toUnmodifiableList;
+import static school.hei.haapi.model.PaymentStatus.VALIDATE;
 
 import java.util.List;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -35,6 +37,13 @@ public class PaymentController {
         .collect(toUnmodifiableList());
   }
 
+  @PatchMapping("/students/payments/validate")
+  public List<Payment> validatePayments(@RequestBody List<String> paymentIds) {
+    var payments = paymentService.getByIds(paymentIds);
+    payments.forEach(payment -> payment.setStatus(VALIDATE));
+    return paymentMapper.toRestPayment(paymentService.saveAll(payments));
+  }
+
   @DeleteMapping("/students/{studentId}/fees/{feeId}/payments/{paymentId}")
   public Payment deleteStudentFeePaymentById(
       @PathVariable(name = "studentId") String studentId,
@@ -54,13 +63,13 @@ public class PaymentController {
         .collect(toUnmodifiableList());
   }
 
-  @GetMapping("/students/payments")
-  public List<Payment> getCreditPayments(
+  @GetMapping("/students/credit-payments")
+  public List<Payment> getCreditPaymentsByStatus(
       @RequestParam(value = "status", required = false) PaymentStatus status,
       @RequestParam(value = "page", required = false) PageFromOne page,
       @RequestParam(value = "page_size", required = false) BoundedPageSize pageSize) {
     return paymentMapper.toRestPayment(
-        paymentService.getCreditPayments(
+        paymentService.getCreditPaymentsByStatus(
             school.hei.haapi.model.PaymentStatus.valueOf(String.valueOf(status)), page, pageSize));
   }
 }

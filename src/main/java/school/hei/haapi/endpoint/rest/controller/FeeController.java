@@ -1,5 +1,14 @@
 package school.hei.haapi.endpoint.rest.controller;
 
+import static java.util.Optional.empty;
+import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toUnmodifiableList;
+import static org.springframework.format.annotation.DateTimeFormat.ISO.DATE_TIME;
+
+import java.time.Instant;
+import java.time.LocalDate;
+import java.util.List;
+import java.util.Optional;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -12,7 +21,6 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import school.hei.haapi.endpoint.rest.mapper.CreditMapper;
 import school.hei.haapi.endpoint.rest.mapper.FeeMapper;
 import school.hei.haapi.endpoint.rest.mapper.FeeTemplateMapper;
 import school.hei.haapi.endpoint.rest.model.AdvancedFeeStatisticsGeneration;
@@ -37,21 +45,10 @@ import school.hei.haapi.model.statistics.AdvancedFeeStats.AdvancedFeeStatsCountT
 import school.hei.haapi.model.validator.UpdateFeeValidator;
 import school.hei.haapi.repository.model.FeesStats;
 import school.hei.haapi.service.AdvancedFeeStatsService;
-import school.hei.haapi.service.CreditService;
 import school.hei.haapi.service.FeeService;
 import school.hei.haapi.service.FeeTemplateService;
 import school.hei.haapi.service.MpbsVerificationService;
 import school.hei.haapi.service.UserService;
-
-import java.time.Instant;
-import java.time.LocalDate;
-import java.util.List;
-import java.util.Optional;
-
-import static java.util.Optional.empty;
-import static java.util.stream.Collectors.toList;
-import static java.util.stream.Collectors.toUnmodifiableList;
-import static org.springframework.format.annotation.DateTimeFormat.ISO.DATE_TIME;
 
 @RestController
 @AllArgsConstructor
@@ -66,8 +63,6 @@ public class FeeController {
   private final FeeTemplateMapper feeTemplateMapper;
   private final AdvancedFeeStatsService advancedFeeStatsService;
   private final MpbsVerificationService mpbsVerificationService;
-  private final CreditService creditService;
-  private final CreditMapper creditMapper;
 
   @GetMapping("/fees/{fee_id}")
   public Fee getFeeById(@PathVariable(name = "fee_id") String id) {
