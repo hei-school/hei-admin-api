@@ -286,6 +286,14 @@ paths:
     $ref: './operations/paying-api.yml#/operations/studentsFeesPayments'
   '/students/{student_id}/fees/{fee_id}/payments/{payment_id}':
     $ref: './operations/paying-api.yml#/operations/deleteStudentFeePaymentById'
+  '/students/credit-payments':
+    $ref: './operations/paying-api.yml#/operations/getCreditPaymentsByStatus'
+  '/students/payments/validate':
+    $ref: './operations/paying-api.yml#/operations/validateCreditPayments'
+  '/students/{student_id}/credit':
+    $ref: './operations/paying-api.yml#/operations/getCreditByStudentId'
+  '/students/{student_id}/credit-transactions':
+    $ref: './operations/paying-api.yml#/operations/getCreditTransactionsByStudentId'
   # Attendance
   /attendance/movement:
     $ref: './operations/attendance-api.yml#/operations/createAttendanceMovement'
