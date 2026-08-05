@@ -40,10 +40,12 @@ import school.hei.haapi.model.validator.FeeValidator;
 import school.hei.haapi.model.validator.UpdateFeeValidator;
 import school.hei.haapi.repository.FeeRepository;
 import school.hei.haapi.repository.dao.FeeDao;
+import school.hei.haapi.repository.dao.UserManagerDao;
 import school.hei.haapi.repository.model.FeesStats;
 
 class FeeServiceTest {
   private static FeeRepository feeRepository = mock(FeeRepository.class);
+  private static UserManagerDao userManagerDao = mock(UserManagerDao.class);
   private static FeeValidator feeValidator = new FeeValidator();
   private static EventProducer eventProducer = mock(EventProducer.class);
   private static UpdateFeeValidator updateFeeValidator = mock(UpdateFeeValidator.class);
@@ -63,6 +65,7 @@ class FeeServiceTest {
           creditService,
           feeTemplateService,
           feeStatusHistoryService,
+          userManagerDao,
           bucketComponent);
 
   private static FeesStats emptyFeeStats() {

@@ -17,7 +17,8 @@ import school.hei.haapi.service.MpbsService;
 class ComputeVerifiedMobilePaymentTest {
   private final MpbsService mpbsServiceMock = mock();
   private final FeeService feeServiceMock =
-      new FeeService(mock(), mock(), mock(), mock(), mock(), mock(), mock(), mock(), mock());
+      new FeeService(
+          mock(), mock(), mock(), mock(), mock(), mock(), mock(), mock(), mock(), mock());
   private final ComputeVerifiedMobilePayment subject =
       new ComputeVerifiedMobilePayment(mock(), mpbsServiceMock, feeServiceMock, mock());
 
