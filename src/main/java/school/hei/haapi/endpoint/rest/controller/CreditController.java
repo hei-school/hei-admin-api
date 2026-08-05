@@ -12,6 +12,7 @@ import school.hei.haapi.endpoint.rest.model.CreditTransaction;
 import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.model.TrackActivity;
+import school.hei.haapi.model.exception.NotFoundException;
 import school.hei.haapi.service.CreditService;
 
 @RestController
@@ -23,7 +24,13 @@ public class CreditController {
 
   @GetMapping("/students/{student_id}/credit")
   public Credit getCreditByStudentId(@PathVariable("student_id") String studentId) {
-    return creditMapper.toRest(creditService.getCreditByStudentId(studentId).get());
+    return creditService
+        .getCreditByStudentId(studentId)
+        .map(creditMapper::toRest)
+        .orElseThrow(
+            () ->
+                new NotFoundException(
+                    "Student with id {" + studentId + "} doesn't have a credit yet."));
   }
 
   @GetMapping("/students/{student_id}/credit/transactions")

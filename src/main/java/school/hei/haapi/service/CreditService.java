@@ -38,8 +38,11 @@ public class CreditService {
       String studentId, PageFromOne page, BoundedPageSize pageSize) {
     var pageable =
         PageRequest.of(page.getValue() - 1, pageSize.getValue(), Sort.by(DESC, "creationDatetime"));
-    var credit = getCreditByStudentId(studentId).get();
-    return transactionRepository.findTransactionsByCredit_Id(credit.getId(), pageable);
+    var credit = getCreditByStudentId(studentId);
+    if (credit.isEmpty()) {
+      throw new BadRequestException("The student doesn't have a credit");
+    }
+    return transactionRepository.findTransactionsByCredit_Id(credit.get().getId(), pageable);
   }
 
   public List<Credit> saveAll(List<Credit> credits) {

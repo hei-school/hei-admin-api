@@ -150,7 +150,6 @@ public class PaymentService {
     return paymentRepository.save(paymentFromMpbs);
   }
 
-  @Transactional
   public List<Payment> saveAll(List<Payment> toCreate) {
     paymentValidator.accept(toCreate);
     var creditsPayments =
@@ -167,7 +166,6 @@ public class PaymentService {
     return paymentRepository.saveAll(toCreate);
   }
 
-  @Transactional
   public void computeRemainingAmount(String feeId, int amount) {
     var associatedFee = feeService.getById(feeId);
     var student = associatedFee.getStudent();

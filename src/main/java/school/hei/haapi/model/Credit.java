@@ -9,6 +9,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
+import java.io.Serializable;
 import java.time.Instant;
 import java.util.List;
 import lombok.AllArgsConstructor;
@@ -21,7 +22,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @Builder
-public class Credit {
+public class Credit implements Serializable {
 
   @Id
   @GeneratedValue(strategy = IDENTITY)

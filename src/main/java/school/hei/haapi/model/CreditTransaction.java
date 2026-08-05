@@ -10,6 +10,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import java.io.Serializable;
 import java.time.Instant;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -22,7 +23,7 @@ import org.hibernate.annotations.JdbcTypeCode;
 @Data
 @Builder
 @AllArgsConstructor
-public class CreditTransaction {
+public class CreditTransaction implements Serializable {
 
   @Id
   @GeneratedValue(strategy = IDENTITY)
