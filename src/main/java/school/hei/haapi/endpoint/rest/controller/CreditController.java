@@ -33,7 +33,7 @@ public class CreditController {
                     "Student with id {" + studentId + "} doesn't have a credit yet."));
   }
 
-  @GetMapping("/students/{student_id}/credit/transactions")
+  @GetMapping("/students/{student_id}/credit-transactions")
   public List<CreditTransaction> getCreditTransactionsByStudentId(
       @PathVariable("student_id") String studentId,
       @RequestParam(value = "page", defaultValue = "1") PageFromOne page,

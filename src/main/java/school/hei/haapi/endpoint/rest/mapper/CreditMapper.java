@@ -19,6 +19,7 @@ public class CreditMapper {
       throw new NotFoundException("Student doesn't have credit yet.");
     }
     return new Credit()
+        .id(credit.getId())
         .student(userMapper.toIdentifier(credit.getStudent()))
         .amount(credit.getAmount());
   }
