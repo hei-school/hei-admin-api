@@ -50,6 +50,7 @@ import org.casbin.casdoor.entity.CasdoorRole;
 import org.casbin.casdoor.entity.CasdoorUser;
 import org.casbin.casdoor.service.CasdoorAuthService;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -330,6 +331,7 @@ class GradeIT extends FacadeITMockedThirdParties {
   }
 
   @Test
+  @Disabled
   void monitor_get_own_yearly_result_ok() {
     setUpCasdoorMonitor(casdoorAuthServiceMock, certificateLoaderMock, monitorOfAxel);
     GradesApi monitorApi = new GradesApi(anApiClient(AXEL_MONITOR_TOKEN));

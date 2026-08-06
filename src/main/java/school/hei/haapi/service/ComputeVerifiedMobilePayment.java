@@ -62,7 +62,7 @@ public class ComputeVerifiedMobilePayment {
         successfullyVerifiedMpbs, correspondingMobileTransaction.getPspTransactionAmount());
 
     // ... then update student status
-    paymentService.computeUserStatusAfterPayingFee(mpbs.getStudent());
+    feeService.computeUserStatusAfterPayingFee(mpbs.getStudent());
 
     return verifiedMobileTransaction;
   }

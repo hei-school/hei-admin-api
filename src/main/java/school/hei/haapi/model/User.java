@@ -6,7 +6,9 @@ import static jakarta.persistence.GenerationType.IDENTITY;
 import static java.util.Comparator.comparing;
 import static org.hibernate.type.SqlTypes.NAMED_ENUM;
 import static school.hei.haapi.model.GroupFlow.GroupFlowType.JOIN;
-import static school.hei.haapi.model.User.Status.*;
+import static school.hei.haapi.model.User.Status.DISABLED;
+import static school.hei.haapi.model.User.Status.ENABLED;
+import static school.hei.haapi.model.User.Status.SUSPENDED;
 import static school.hei.haapi.model.exception.ApiException.ExceptionType.SERVER_EXCEPTION;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -20,6 +22,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -137,6 +140,10 @@ public class User implements Serializable {
   @OneToMany(mappedBy = "student", fetch = LAZY)
   @JsonIgnore
   private List<WorkDocument> workDocuments;
+
+  @OneToOne(mappedBy = "student", fetch = LAZY)
+  @JsonIgnore
+  private Credit credit;
 
   // RELATION (MONITOR - STUDENT): Which Monitor follows which students or which student is
   // following by which monitor

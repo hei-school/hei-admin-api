@@ -1,11 +1,11 @@
 package school.hei.haapi.model;
 
-import static jakarta.persistence.EnumType.STRING;
 import static jakarta.persistence.GenerationType.IDENTITY;
 import static java.time.temporal.ChronoUnit.SECONDS;
-import static org.hibernate.type.SqlTypes.NAMED_ENUM;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
@@ -26,6 +26,7 @@ import org.hibernate.Hibernate;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.SQLRestriction;
+import org.hibernate.type.SqlTypes;
 
 @Entity
 @Table(name = "\"payment\"")
@@ -51,8 +52,9 @@ public class Payment implements Serializable {
   @JoinColumn(name = "number_id")
   private PaymentNumberSequence sequence;
 
-  @JdbcTypeCode(NAMED_ENUM)
-  @Enumerated(STRING)
+  @Enumerated(EnumType.STRING)
+  @JdbcTypeCode(SqlTypes.NAMED_ENUM)
+  @Column(columnDefinition = "payment_type")
   private school.hei.haapi.endpoint.rest.model.Payment.TypeEnum type;
 
   private Integer amount;
@@ -61,6 +63,11 @@ public class Payment implements Serializable {
   private Instant creationDatetime;
 
   private boolean isDeleted;
+
+  @Enumerated(EnumType.STRING)
+  @JdbcTypeCode(SqlTypes.NAMED_ENUM)
+  @Column(name = "status")
+  private PaymentStatus status;
 
   public Instant getCreationDatetime() {
     return creationDatetime.truncatedTo(SECONDS);

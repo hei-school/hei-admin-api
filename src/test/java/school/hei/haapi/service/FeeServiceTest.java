@@ -30,16 +30,22 @@ import org.junit.jupiter.api.Test;
 import school.hei.haapi.endpoint.event.EventProducer;
 import school.hei.haapi.file.bucket.BucketComponent;
 import school.hei.haapi.integration.conf.TestUtils;
-import school.hei.haapi.model.*;
+import school.hei.haapi.model.BoundedPageSize;
+import school.hei.haapi.model.Fee;
+import school.hei.haapi.model.PageFromOne;
+import school.hei.haapi.model.Payment;
+import school.hei.haapi.model.User;
 import school.hei.haapi.model.exception.BadRequestException;
 import school.hei.haapi.model.validator.FeeValidator;
 import school.hei.haapi.model.validator.UpdateFeeValidator;
 import school.hei.haapi.repository.FeeRepository;
 import school.hei.haapi.repository.dao.FeeDao;
+import school.hei.haapi.repository.dao.UserManagerDao;
 import school.hei.haapi.repository.model.FeesStats;
 
 class FeeServiceTest {
   private static FeeRepository feeRepository = mock(FeeRepository.class);
+  private static UserManagerDao userManagerDao = mock(UserManagerDao.class);
   private static FeeValidator feeValidator = new FeeValidator();
   private static EventProducer eventProducer = mock(EventProducer.class);
   private static UpdateFeeValidator updateFeeValidator = mock(UpdateFeeValidator.class);
@@ -48,6 +54,7 @@ class FeeServiceTest {
   private static FeeStatusHistoryService feeStatusHistoryService =
       mock(FeeStatusHistoryService.class);
   private static BucketComponent bucketComponent = mock(BucketComponent.class);
+  private static CreditService creditService = mock(CreditService.class);
   private static FeeService subject =
       new FeeService(
           feeRepository,
@@ -55,8 +62,10 @@ class FeeServiceTest {
           updateFeeValidator,
           eventProducer,
           feeDao,
+          creditService,
           feeTemplateService,
           feeStatusHistoryService,
+          userManagerDao,
           bucketComponent);
 
   private static FeesStats emptyFeeStats() {

@@ -1,6 +1,6 @@
 package school.hei.haapi.service;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 import static school.hei.haapi.endpoint.rest.model.EnableStatus.ENABLED;
 import static school.hei.haapi.endpoint.rest.model.EnableStatus.SUSPENDED;
@@ -104,10 +104,10 @@ class PaymentServiceTest extends MockedThirdParties {
     // here correspondingStudent has paid all their fees late (fee3_id, fee6_id, fee7_id and the
     // created
     // correspondingFee)
-    subject.computeRemainingAmount(FEE3_ID, 5000);
-    subject.computeRemainingAmount(FEE6_ID, 5000);
-    subject.computeRemainingAmount(FEE7_ID, 5000);
-    subject.computeRemainingAmount(correspondingFee.getId(), 5000);
+    feeService.computeRemainingAmount(FEE3_ID, 5000);
+    feeService.computeRemainingAmount(FEE6_ID, 5000);
+    feeService.computeRemainingAmount(FEE7_ID, 5000);
+    feeService.computeRemainingAmount(correspondingFee.getId(), 5000);
 
     var actualStudent1 = usersApi.getStudentById(STUDENT1_ID);
     assertEquals(ENABLED, actualStudent1.getStatus());
@@ -119,8 +119,8 @@ class PaymentServiceTest extends MockedThirdParties {
     User userWithUnpaidFees = student2();
     User userWithoutUnpaidFees = student3();
 
-    subject.computeUserStatusAfterPayingFee(userWithUnpaidFees);
-    subject.computeUserStatusAfterPayingFee(userWithoutUnpaidFees);
+    feeService.computeUserStatusAfterPayingFee(userWithUnpaidFees);
+    feeService.computeUserStatusAfterPayingFee(userWithoutUnpaidFees);
     User updatedUserWithUnpaidFees = userService.getById(userWithUnpaidFees.getId());
     User updatedUserWithoutUnpaidFees = userService.getById(userWithoutUnpaidFees.getId());
 
@@ -128,27 +128,12 @@ class PaymentServiceTest extends MockedThirdParties {
     assertEquals(User.Status.ENABLED, updatedUserWithoutUnpaidFees.getStatus());
 
     // here student2 has paid all their fees late
-    subject.computeRemainingAmount(student2UnpaidFee1().getId(), 5000);
-    subject.computeRemainingAmount(student2UnpaidFee2().getId(), 5000);
-    subject.computeUserStatusAfterPayingFee(userWithUnpaidFees);
+    feeService.computeRemainingAmount(student2UnpaidFee1().getId(), 5000);
+    feeService.computeRemainingAmount(student2UnpaidFee2().getId(), 5000);
+    feeService.computeUserStatusAfterPayingFee(userWithUnpaidFees);
     User userPaidAllLateFees = userService.getById(userWithUnpaidFees.getId());
 
     assertEquals(User.Status.ENABLED, userPaidAllLateFees.getStatus());
-  }
-
-  public static Fee student1UnpaidFee1() {
-    return Fee.builder()
-        .id("fee3_id")
-        .student(student1())
-        .type(TUITION)
-        .comment("Comment")
-        .remainingAmount(5000)
-        .totalAmount(5000)
-        .status(LATE)
-        .creationDatetime(Instant.parse("2022-12-08T08:25:24.00Z"))
-        .dueDatetime(Instant.parse("2023-02-08T08:30:24.00Z"))
-        .updatedAt(Instant.parse("2021-12-09T08:25:24.00Z"))
-        .build();
   }
 
   public static Fee student2UnpaidFee1() {

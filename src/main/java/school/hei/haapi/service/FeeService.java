@@ -7,6 +7,9 @@ import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.PAID;
 import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.PENDING;
 import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.UNPAID;
 import static school.hei.haapi.endpoint.rest.model.FeeTypeEnum.TUITION;
+import static school.hei.haapi.model.User.Status.DISABLED;
+import static school.hei.haapi.model.User.Status.ENABLED;
+import static school.hei.haapi.model.User.Status.SUSPENDED;
 import static school.hei.haapi.model.exception.ApiException.ExceptionType.SERVER_EXCEPTION;
 import static school.hei.haapi.service.utils.FileUtils.createFileFromBytes;
 import static school.hei.haapi.service.utils.InstantUtils.getFirstDayOfActualMonth;
@@ -31,6 +34,7 @@ import school.hei.haapi.endpoint.event.EventProducer;
 import school.hei.haapi.endpoint.event.model.LateFeeVerified;
 import school.hei.haapi.endpoint.event.model.PojaEvent;
 import school.hei.haapi.endpoint.event.model.StudentsWithOverdueFeesReminder;
+import school.hei.haapi.endpoint.event.model.SuspensionEndedEmailBody;
 import school.hei.haapi.endpoint.event.model.UnpaidFeesReminder;
 import school.hei.haapi.endpoint.rest.model.AdvancedFeeStatisticsType;
 import school.hei.haapi.endpoint.rest.model.FeeCategory;
@@ -44,6 +48,7 @@ import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.Fee;
 import school.hei.haapi.model.FeeTemplate;
 import school.hei.haapi.model.PageFromOne;
+import school.hei.haapi.model.Payment;
 import school.hei.haapi.model.User;
 import school.hei.haapi.model.dto.FeeDetailsDto;
 import school.hei.haapi.model.exception.ApiException;
@@ -54,6 +59,7 @@ import school.hei.haapi.model.validator.FeeValidator;
 import school.hei.haapi.model.validator.UpdateFeeValidator;
 import school.hei.haapi.repository.FeeRepository;
 import school.hei.haapi.repository.dao.FeeDao;
+import school.hei.haapi.repository.dao.UserManagerDao;
 import school.hei.haapi.repository.model.FeesStats;
 import school.hei.haapi.service.utils.XlsxCellsGenerator;
 
@@ -66,8 +72,10 @@ public class FeeService {
   private final UpdateFeeValidator updateFeeValidator;
   private final EventProducer<PojaEvent> eventProducer;
   private final FeeDao feeDao;
+  private final CreditService creditService;
   private final FeeTemplateService feeTemplateService;
   private final FeeStatusHistoryService feeStatusHistoryService;
+  private final UserManagerDao userManagerDao;
   private final BucketComponent bucketComponent;
   private static final String MONTHLY_FEE_TEMPLATE_NAME = "Frais mensuel L1";
   private static final String YEARLY_FEE_TEMPLATE_NAME = "Frais annuel L1";
@@ -164,9 +172,16 @@ public class FeeService {
   }
 
   @Transactional
-  public List<Fee> updateAll(List<Fee> fees, String studentId) {
+  public List<Fee> updateAll(List<Fee> fees) {
     updateFeeValidator.accept(fees);
     return feeRepository.saveAll(fees);
+  }
+
+  public Fee archiveFee(Fee fee) {
+    updateFeeValidator.accept(fee);
+    creditService.depositArchivedFee(fee);
+    fee.setArchived(true);
+    return feeRepository.save(fee);
   }
 
   public FeesStats getFeesStats(
@@ -433,5 +448,64 @@ public class FeeService {
 
   private static String formatToDayMonthYear(Instant instant) {
     return instant.atZone(ZoneId.systemDefault()).format(DateTimeFormatter.ofPattern("dd-MM-yyyy"));
+  }
+
+  @Transactional
+  public void computeRemainingAmount(String feeId, int amount) {
+    var associatedFee = getById(feeId);
+    var student = associatedFee.getStudent();
+    // Array to hold the student's status before and after the payment
+    var studentStatusBetweenPayingFee = new User.Status[2];
+    studentStatusBetweenPayingFee[0] = student.getStatus();
+
+    associatedFee.setRemainingAmount(associatedFee.getRemainingAmount() - amount);
+    computeUserStatusAfterPayingFee(student);
+    studentStatusBetweenPayingFee[1] = student.getStatus();
+    log.info("User status is computed to {}", studentStatusBetweenPayingFee[1]);
+
+    // If the student's status changes from SUSPENDED to ENABLED, send a notification
+    if (SUSPENDED.equals(studentStatusBetweenPayingFee[0])
+        && ENABLED.equals(studentStatusBetweenPayingFee[1])) {
+      notifyStudentForEnabling(associatedFee, amount);
+    }
+
+    creditService.transferFeeOverpaymentToCredit(associatedFee, student);
+
+    if (associatedFee.getRemainingAmount() == 0) {
+      log.info("Remaining amount is 0");
+      associatedFee.updateStatus(PAID);
+      feeStatusHistoryService.saveFeeStatus(associatedFee.getStatus(), associatedFee);
+    }
+  }
+
+  private void notifyStudentForEnabling(Fee associatedFee, int amount) {
+    // Build the payment object without unnecessary fields (type and comment fields are omitted
+    // since they are not used in the SuspensionEndedEmailBody)
+    Payment payment =
+        Payment.builder().fee(associatedFee).amount(amount).creationDatetime(now()).build();
+    SuspensionEndedEmailBody suspensionEndedEmailBody = SuspensionEndedEmailBody.from(payment);
+    eventProducer.accept(List.of(suspensionEndedEmailBody));
+    log.info(
+        "End of suspension notification for user {} sent to Queue.",
+        suspensionEndedEmailBody.getMpbsAuthorEmail());
+  }
+
+  @Transactional
+  public void computeUserStatusAfterPayingFee(User userToResetStatus) {
+    if (DISABLED.equals(userToResetStatus.getStatus())) {
+      return;
+    }
+    Instant now = now();
+    List<Fee> unpaidFeesBeforeNow =
+        feeRepository.getStudentFeesUnpaidOrLateFrom(now, userToResetStatus.getId(), LATE);
+    log.info("unpaid student fees size = {}", unpaidFeesBeforeNow.size());
+    log.info("user corresponding = {}", userToResetStatus.toString());
+    if (!unpaidFeesBeforeNow.isEmpty()) {
+      log.info("SUSPENDED");
+      userManagerDao.updateUserStatusById(SUSPENDED, userToResetStatus.getId());
+    } else {
+      log.info("RE - ENABLED");
+      userManagerDao.updateUserStatusById(ENABLED, userToResetStatus.getId());
+    }
   }
 }

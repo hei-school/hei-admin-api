@@ -1,11 +1,13 @@
 package school.hei.haapi.endpoint.rest.controller;
 
 import static java.util.stream.Collectors.toUnmodifiableList;
+import static school.hei.haapi.model.PaymentStatus.VALIDATE;
 
 import java.util.List;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -14,9 +16,9 @@ import org.springframework.web.bind.annotation.RestController;
 import school.hei.haapi.endpoint.rest.mapper.PaymentMapper;
 import school.hei.haapi.endpoint.rest.model.CreatePayment;
 import school.hei.haapi.endpoint.rest.model.Payment;
+import school.hei.haapi.endpoint.rest.model.PaymentStatus;
 import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.PageFromOne;
-import school.hei.haapi.service.FeeService;
 import school.hei.haapi.service.PaymentService;
 
 @RestController
@@ -24,7 +26,6 @@ import school.hei.haapi.service.PaymentService;
 public class PaymentController {
   private final PaymentService paymentService;
   private final PaymentMapper paymentMapper;
-  private final FeeService feeService;
 
   @PostMapping("/students/{studentId}/fees/{feeId}/payments")
   public List<Payment> createPayments(
@@ -34,6 +35,13 @@ public class PaymentController {
     return paymentService.saveAll(paymentMapper.toDomainPayment(feeId, toCreate)).stream()
         .map(paymentMapper::toRestPayment)
         .collect(toUnmodifiableList());
+  }
+
+  @PatchMapping("/students/payments/validate")
+  public List<Payment> validatePayments(@RequestBody List<String> paymentIds) {
+    var payments = paymentService.getByIds(paymentIds);
+    payments.forEach(payment -> payment.setStatus(VALIDATE));
+    return paymentMapper.toRestPayment(paymentService.saveAll(payments));
   }
 
   @DeleteMapping("/students/{studentId}/fees/{feeId}/payments/{paymentId}")
@@ -53,5 +61,15 @@ public class PaymentController {
     return paymentService.getByStudentIdAndFeeId(studentId, feeId, page, pageSize).stream()
         .map(paymentMapper::toRestPayment)
         .collect(toUnmodifiableList());
+  }
+
+  @GetMapping("/students/credit-payments")
+  public List<Payment> getCreditPaymentsByStatus(
+      @RequestParam(value = "status", required = false) PaymentStatus status,
+      @RequestParam(value = "page", required = false) PageFromOne page,
+      @RequestParam(value = "page_size", required = false) BoundedPageSize pageSize) {
+    return paymentMapper.toRestPayment(
+        paymentService.getCreditPaymentsByStatus(
+            school.hei.haapi.model.PaymentStatus.valueOf(String.valueOf(status)), page, pageSize));
   }
 }

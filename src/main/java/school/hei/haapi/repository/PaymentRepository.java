@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import school.hei.haapi.model.Payment;
+import school.hei.haapi.model.PaymentStatus;
 
 @Repository
 public interface PaymentRepository extends JpaRepository<Payment, String> {
@@ -29,5 +30,14 @@ public interface PaymentRepository extends JpaRepository<Payment, String> {
 
   List<Payment> getAllByCreationDatetimeBetweenOrderByCreationDatetimeAsc(Instant from, Instant to);
 
-  Integer countByCreationDatetimeBetweenOrderByCreationDatetimeAsc(Instant from, Instant to);
+  @Query(
+      """
+select p from Payment p where p.id in :ids
+""")
+  List<Payment> findByIds(@Param("ids") List<String> ids);
+
+  List<Payment> findPaymentsByStatusAndType(
+      PaymentStatus status,
+      school.hei.haapi.endpoint.rest.model.Payment.TypeEnum type,
+      Pageable pageable);
 }
