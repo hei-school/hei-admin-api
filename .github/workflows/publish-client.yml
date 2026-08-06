@@ -60,7 +60,6 @@ jobs:
           cd build/gen-ts/
           sed -i "s/\"https:\/\/api-dev.hei.school\"/\(process.env.REACT_APP_API_URL || \"\"\)/g" base.ts
           sed -i "s/\"dependencies\"/\"peerDependencies\"/g" package.json
-          sed -i 's/"axios": *"[^"]*"/"axios": "1.18.1"/' package.json
           sed -i '11d' tsconfig.json && sed -i "s/\"es6\",/\"es6\",\"DOM\"/g" tsconfig.json
           echo -e "\n*.ts\nnode_module\n!*.d.ts\n.idea\n.vscode\n.openapi-generator\n.openapi-generator-ignore\ngit_push.sh" >> .npmignore
           npm config set always-auth true
