@@ -2303,7 +2303,7 @@ components:
     Credit:
       type: object
       properties:
-        credit_id:
+        id:
           type: string
         student:
           $ref: '#/components/schemas/UserIdentifier'
