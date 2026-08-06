@@ -1,3 +1,14 @@
+# [1.165.0](https://github.com/hei-school/hei-admin-api/compare/v1.164.0...v1.165.0) (2026-08-06)
+
+
+### Features
+
+* add fees only mode filter ([bdf0651](https://github.com/hei-school/hei-admin-api/commit/bdf06512111cd5f403030e00e2f806d77f970cb6))
+* create fee template with specific content ([f04be45](https://github.com/hei-school/hei-admin-api/commit/f04be45fcde3c564f3e6496f25aed43d7347baf0))
+* create fees through async jobs ([56a5ae7](https://github.com/hei-school/hei-admin-api/commit/56a5ae7dc5a5aa95e71cc0ec9ac5c12497ed0f53))
+
+
+
 # [1.164.0](https://github.com/hei-school/hei-admin-api/compare/v1.163.0...v1.164.0) (2026-07-23)
 
 
@@ -159,22 +170,6 @@
 * **doc:** add new endpoint to export all fees ([39dc0d9](https://github.com/hei-school/hei-admin-api/commit/39dc0d980cb1b7b0ee0c498e3aefc2237254526d))
 * export advanced fees stats ([e30aaa9](https://github.com/hei-school/hei-admin-api/commit/e30aaa984da1dc1c20f4cee18ef560f7de2762ae))
 * export raw fees ([9f803c8](https://github.com/hei-school/hei-admin-api/commit/9f803c860223eef1b0b0a3ae79285d4cc2424a97))
-
-
-
-# [1.151.0](https://github.com/hei-school/hei-admin-api/compare/v1.150.0...v1.151.0) (2026-01-30)
-
-
-### Bug Fixes
-
-* add UNPAID_COUNT stat type to advancedFeeStats ([a649491](https://github.com/hei-school/hei-admin-api/commit/a6494912c132bba341feee48c33e038ca1b841e7))
-* generateTranscript serialisation error ([470d06f](https://github.com/hei-school/hei-admin-api/commit/470d06f39a1690152bd9516d7f2f6230c8e11559))
-* **global_search:** return presigned S3 URL in UserDto ([b092e84](https://github.com/hei-school/hei-admin-api/commit/b092e847702be940ffa235525cc0801e8e9f03f4))
-
-
-### Features
-
-* (doc) add new enpoint to export advanced stats ([0030b5f](https://github.com/hei-school/hei-admin-api/commit/0030b5f48181add68cd886c41a6cbb95c860a4e6))
 
 
 
