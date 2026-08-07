@@ -45,8 +45,8 @@ public class DocumensoDocument implements Serializable {
   private TemplateDocumenso template;
 
   @ManyToOne
-  @JoinColumn(name = "promotion_id")
-  private Promotion promotion;
+  @JoinColumn(name = "student_id")
+  private User student;
 
   @Enumerated(STRING)
   private StudentLevel level;

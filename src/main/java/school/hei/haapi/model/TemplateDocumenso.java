@@ -33,12 +33,8 @@ public class TemplateDocumenso implements Serializable {
   private String id;
 
   private Long documensoTemplateId;
-
   private String title;
-
   private String type;
-
   @ManyToOne private User admin;
-
   @CreationTimestamp private Instant creationDatetime;
 }

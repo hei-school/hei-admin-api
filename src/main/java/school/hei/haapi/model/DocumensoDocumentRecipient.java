@@ -41,8 +41,6 @@ public class DocumensoDocumentRecipient implements Serializable {
   private User user;
 
   private Long documensoRecipientId;
-
   private String signingToken;
-
   private Instant signedDatetime;
 }
