@@ -1,6 +1,5 @@
 package school.hei.haapi.endpoint.rest.controller;
 
-import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -22,15 +21,11 @@ public class DocumensoDocumentController {
   private final DocumensoMapper documensoMapper;
 
   @PostMapping("/documenso-documents")
-  public DocumensoDocument generateDocumensoDocument(@RequestBody CrupdateDocumensoDocument toCreate) {
+  public DocumensoDocument generateDocumensoDocument(
+      @RequestBody CrupdateDocumensoDocument toCreate) {
     var document =
-        documensoDocumentService.generateForPromotionLevel(
-            toCreate.getPromotionId(),
-            toCreate.getLevel(),
-            toCreate.getDocumensoTemplateId(),
-            toCreate.getAdminId(),
-            toCreate.getMonitorId(),
-            Map.of());
+        documensoDocumentService.generateDocument(
+            toCreate.getStudentId(), toCreate.getTemplateName());
     return documensoMapper.toRest(document);
   }
 

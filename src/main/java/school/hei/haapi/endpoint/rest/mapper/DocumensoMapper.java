@@ -21,7 +21,7 @@ public class DocumensoMapper {
         .id(domain.getId())
         .documensoDocumentId(domain.getDocumensoDocumentId())
         .status(DocumensoDocumentStatus.valueOf(domain.getStatus().name()))
-        .promotionId(domain.getPromotion().getId())
+        .studentId(domain.getStudent().getId())
         .level(domain.getLevel())
         .templateId(domain.getTemplate().getId());
   }
