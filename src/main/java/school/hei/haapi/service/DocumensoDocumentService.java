@@ -3,14 +3,15 @@ package school.hei.haapi.service;
 import static school.hei.haapi.model.exception.ApiException.ExceptionType.SERVER_EXCEPTION;
 
 import java.math.BigDecimal;
+import java.text.Normalizer;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
-import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import school.hei.haapi.endpoint.rest.model.FeeFrequency;
 import school.hei.haapi.endpoint.rest.model.FileType;
 import school.hei.haapi.endpoint.rest.model.StudentLevel;
 import school.hei.haapi.file.bucket.BucketComponent;
@@ -26,74 +27,65 @@ import school.hei.haapi.repository.DocumensoDocumentRecipientRepository;
 import school.hei.haapi.repository.DocumensoDocumentRepository;
 import school.hei.haapi.repository.FeeRepository;
 import school.hei.haapi.repository.FileInfoRepository;
-import school.hei.haapi.repository.PromotionRepository;
+import school.hei.haapi.repository.MonitoringStudentRepository;
 import school.hei.haapi.repository.TemplateDocumensoRepository;
 import school.hei.haapi.repository.UserRepository;
 import school.hei.haapi.service.documenso.DocumensoClient;
 import school.hei.haapi.service.documenso.gen.model.TemplateCreateDocumentFromTemplateRequest;
 import school.hei.haapi.service.documenso.gen.model.TemplateCreateDocumentFromTemplateRequestPrefillFieldsInner;
 import school.hei.haapi.service.documenso.gen.model.TemplateCreateDocumentFromTemplateRequestRecipientsInner;
+import school.hei.haapi.service.documenso.gen.model.TemplateGetTemplateById200ResponseFieldsInner;
 
 @Service
 @AllArgsConstructor
 public class DocumensoDocumentService {
+  private static final Map<String, java.util.function.Function<StudentSnapshot, String>>
+      FIELD_LABEL_MATCHERS =
+          Map.of(
+              "nom et prenom", s -> s.fullName,
+              "inscrit", s -> s.levelLabel,
+              "cin", s -> s.nic,
+              "adresse personnelle", s -> s.address,
+              "telephone", s -> s.phone);
+
   private final DocumensoClient documensoClient;
   private final DocumensoDocumentRepository documensoDocumentRepository;
   private final DocumensoDocumentRecipientRepository documensoDocumentRecipientRepository;
   private final TemplateDocumensoRepository templateDocumensoRepository;
-  private final PromotionRepository promotionRepository;
   private final UserRepository userRepository;
+  private final MonitoringStudentRepository monitoringStudentRepository;
   private final FeeRepository feeRepository;
   private final FileInfoRepository fileInfoRepository;
   private final BucketComponent bucketComponent;
 
   @Transactional
-  public DocumensoDocument generateForPromotionLevel(
-      String promotionId,
-      StudentLevel level,
-      long documensoTemplateId,
-      String adminId,
-      String monitorId,
-      Map<Long, String> prefillFieldValues) {
-    var promotion =
-        promotionRepository
-            .findById(promotionId)
-            .orElseThrow(() -> new NotFoundException("Promotion with id: " + promotionId));
-    var admin =
+  public DocumensoDocument generateDocument(String studentId, String templateName) {
+    var student =
         userRepository
-            .findById(adminId)
-            .orElseThrow(() -> new NotFoundException("User with id: " + adminId));
+            .findById(studentId)
+            .orElseThrow(() -> new NotFoundException("User with id: " + studentId));
     var monitor =
-        userRepository
-            .findById(monitorId)
-            .orElseThrow(() -> new NotFoundException("User with id: " + monitorId));
-    var template =
-        templateDocumensoRepository
-            .findByDocumensoTemplateId(documensoTemplateId)
-            .orElseThrow(
-                () -> new NotFoundException("Documenso template: " + documensoTemplateId));
+        monitoringStudentRepository.findAllMonitorsByStudentId(studentId).stream()
+            .findFirst()
+            .orElseThrow(() -> new NotFoundException("No monitor linked to student " + studentId));
+    var level = safeLevelAt(student);
+    var template = resolveTemplateByName(templateName, level);
+    var documensoTemplateId = template.getDocumensoTemplateId();
 
     try {
       var remoteTemplate = documensoClient.getTemplate(documensoTemplateId);
       var placeholders = remoteTemplate.getRecipients();
-      if (placeholders == null || placeholders.size() < 2) {
+      if (placeholders == null || placeholders.isEmpty()) {
         throw new ApiException(
             SERVER_EXCEPTION,
-            "Documenso template "
-                + documensoTemplateId
-                + " must define at least 2 recipient placeholders (admin + monitor)");
+            "Documenso template " + documensoTemplateId + " must define a recipient placeholder");
       }
 
       var request = new TemplateCreateDocumentFromTemplateRequest();
       request.setTemplateId(BigDecimal.valueOf(documensoTemplateId));
-      request.setRecipients(
-          List.of(
-              toRecipient(placeholders.get(0).getId(), admin),
-              toRecipient(placeholders.get(1).getId(), monitor)));
-      if (prefillFieldValues != null && !prefillFieldValues.isEmpty()) {
-        request.setPrefillFields(
-            prefillFieldValues.entrySet().stream().map(this::toPrefillField).toList());
-      }
+      request.setRecipients(List.of(toRecipient(placeholders.get(0).getId(), monitor)));
+      request.setPrefillFields(
+          buildPrefillFields(remoteTemplate.getFields(), new StudentSnapshot(student, level)));
 
       var response = documensoClient.useTemplate(request);
 
@@ -102,17 +94,16 @@ public class DocumensoDocumentService {
               DocumensoDocument.builder()
                   .documensoDocumentId(response.getId().longValue())
                   .template(template)
-                  .promotion(promotion)
+                  .student(student)
                   .level(level)
                   .status(DocumensoDocument.Status.PENDING)
                   .build());
 
       for (var recipient : response.getRecipients()) {
-        var user = recipient.getEmail().equals(admin.getEmail()) ? admin : monitor;
         documensoDocumentRecipientRepository.save(
             DocumensoDocumentRecipient.builder()
                 .document(document)
-                .user(user)
+                .user(monitor)
                 .documensoRecipientId(recipient.getId().longValue())
                 .signingToken(recipient.getToken())
                 .build());
@@ -121,6 +112,33 @@ public class DocumensoDocumentService {
     } catch (school.hei.haapi.service.documenso.gen.invoker.ApiException e) {
       throw new ApiException(SERVER_EXCEPTION, e);
     }
+  }
+
+  private school.hei.haapi.model.TemplateDocumenso resolveTemplateByName(
+      String templateName, StudentLevel level) {
+    var candidates = templateDocumensoRepository.findAllByTitleContainingIgnoreCase(templateName);
+    if (candidates.isEmpty()) {
+      throw new NotFoundException("No synced Documenso template matching: " + templateName);
+    }
+    if (candidates.size() == 1) {
+      return candidates.get(0);
+    }
+    if (level != null) {
+      var matchingLevel =
+          candidates.stream()
+              .filter(
+                  candidate -> normalize(candidate.getTitle()).contains(normalize(level.name())))
+              .toList();
+      if (matchingLevel.size() == 1) {
+        return matchingLevel.get(0);
+      }
+    }
+    throw new ApiException(
+        SERVER_EXCEPTION,
+        "Several Documenso templates match \""
+            + templateName
+            + "\" and the student's level doesn't disambiguate them: "
+            + candidates.stream().map(school.hei.haapi.model.TemplateDocumenso::getTitle).toList());
   }
 
   private TemplateCreateDocumentFromTemplateRequestRecipientsInner toRecipient(
@@ -132,41 +150,70 @@ public class DocumensoDocumentService {
     return recipient;
   }
 
+  private List<TemplateCreateDocumentFromTemplateRequestPrefillFieldsInner> buildPrefillFields(
+      List<TemplateGetTemplateById200ResponseFieldsInner> fields, StudentSnapshot student) {
+    var prefillFields =
+        new ArrayList<TemplateCreateDocumentFromTemplateRequestPrefillFieldsInner>();
+    if (fields == null) {
+      return prefillFields;
+    }
+    for (var field : fields) {
+      if (!"TEXT".equalsIgnoreCase(field.getType())) {
+        continue;
+      }
+      var label = field.getLabel() != null ? field.getLabel() : field.getPlaceholder();
+      if (label == null) {
+        continue;
+      }
+      var normalizedLabel = normalize(label);
+      FIELD_LABEL_MATCHERS.entrySet().stream()
+          .filter(matcher -> normalizedLabel.contains(matcher.getKey()))
+          .findFirst()
+          .map(matcher -> matcher.getValue().apply(student))
+          .filter(value -> value != null && !value.isBlank())
+          .ifPresent(value -> prefillFields.add(toPrefillField(field.getId(), value)));
+    }
+    return prefillFields;
+  }
+
+  private static String normalize(String value) {
+    var withoutAccents = Normalizer.normalize(value, Normalizer.Form.NFD).replaceAll("\\p{M}", "");
+    return withoutAccents.toLowerCase(Locale.FRENCH);
+  }
+
   private TemplateCreateDocumentFromTemplateRequestPrefillFieldsInner toPrefillField(
-      Map.Entry<Long, String> entry) {
+      BigDecimal fieldId, String value) {
     var field = new TemplateCreateDocumentFromTemplateRequestPrefillFieldsInner();
-    field.setId(BigDecimal.valueOf(entry.getKey()));
+    field.setId(fieldId);
     field.setType(TemplateCreateDocumentFromTemplateRequestPrefillFieldsInner.TypeEnum.TEXT);
-    field.setValue(entry.getValue());
+    field.setValue(value);
     return field;
   }
 
-  public List<User> findMonthlyPayingStudentsForPromotionLevel(
-      String promotionId, StudentLevel level) {
-    var monthlyPayers =
-        feeRepository.findAllByFrequency(FeeFrequency.MONTHLY).stream()
-            .map(fee -> fee.getStudent().getId())
-            .collect(Collectors.toSet());
-    return userRepository.findAllByRoleAndStatus(User.Role.STUDENT, User.Status.ENABLED).stream()
-        .filter(student -> monthlyPayers.contains(student.getId()))
-        .filter(
-            student ->
-                student
-                    .findCurrentGroup()
-                    .map(
-                        group ->
-                            group.getPromotion().getId().equals(promotionId)
-                                && level == safeLevelAt(group.getPromotion()))
-                    .orElse(false))
-        .toList();
+  private record StudentSnapshot(
+      String fullName, String nic, String address, String phone, String levelLabel) {
+    StudentSnapshot(User student, StudentLevel level) {
+      this(
+          student.getFirstName() + " " + student.getLastName(),
+          student.getNic(),
+          student.getAddress(),
+          student.getPhone(),
+          level == null ? null : Promotion.getLevelString(level));
+    }
   }
 
-  private StudentLevel safeLevelAt(Promotion promotion) {
-    try {
-      return promotion.getLevelAt(Instant.now());
-    } catch (PromotionLevelOutOfRangeException e) {
-      return null;
-    }
+  private StudentLevel safeLevelAt(User student) {
+    return student
+        .findCurrentGroup()
+        .flatMap(
+            group -> {
+              try {
+                return java.util.Optional.of(group.getPromotion().getLevelAt(Instant.now()));
+              } catch (PromotionLevelOutOfRangeException e) {
+                return java.util.Optional.empty();
+              }
+            })
+        .orElse(null);
   }
 
   public String getSigningToken(String documentId, String requestingUserId) {
@@ -197,8 +244,7 @@ public class DocumensoDocumentService {
     var document =
         documensoDocumentRepository
             .findByDocumensoDocumentId(documensoDocumentId)
-            .orElseThrow(
-                () -> new NotFoundException("Documenso document " + documensoDocumentId));
+            .orElseThrow(() -> new NotFoundException("Documenso document " + documensoDocumentId));
 
     try {
       var signedFile = documensoClient.downloadSignedDocument(documensoDocumentId);

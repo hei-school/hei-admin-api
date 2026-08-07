@@ -3,7 +3,6 @@ package school.hei.haapi.service;
 import static java.time.Instant.now;
 import static java.time.ZoneOffset.UTC;
 import static java.time.temporal.ChronoUnit.DAYS;
-import static java.time.temporal.ChronoUnit.SECONDS;
 import static java.time.temporal.TemporalAdjusters.lastDayOfMonth;
 import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.groupingByConcurrent;
@@ -38,6 +37,8 @@ import java.math.BigDecimal;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -175,11 +176,11 @@ public class AdvancedFeeStatsService {
         sheet.autoSizeColumn(i);
       }
       workbook.write(bytes);
-      var now = Instant.now().truncatedTo(SECONDS);
+      var now = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss"));
+      var filename = "advanced-fees-stats-" + now + ".xlsx";
       var file = createFileFromBytes(bytes.toByteArray(), "advanced-fees-stats-" + now, ".xlsx");
-      var bucketKey = "advanced-fees-stats-" + now + ".xlsx";
-      bucketComponent.upload(file, bucketKey);
-      return bucketComponent.presign(bucketKey, Duration.ofDays(1)).toString();
+      bucketComponent.upload(file, filename);
+      return bucketComponent.presign(filename, Duration.ofDays(1)).toString();
     } catch (IOException e) {
       throw new ApiException(SERVER_EXCEPTION, e);
     }
