@@ -6,9 +6,11 @@ import java.math.BigDecimal;
 import java.text.Normalizer;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Optional;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -39,15 +41,6 @@ import school.hei.haapi.service.documenso.gen.model.TemplateGetTemplateById200Re
 @Service
 @AllArgsConstructor
 public class DocumensoDocumentService {
-  private static final Map<String, java.util.function.Function<StudentSnapshot, String>>
-      FIELD_LABEL_MATCHERS =
-          Map.of(
-              "nom et prenom", s -> s.fullName,
-              "inscrit", s -> s.levelLabel,
-              "cin", s -> s.nic,
-              "adresse personnelle", s -> s.address,
-              "telephone", s -> s.phone);
-
   private final DocumensoClient documensoClient;
   private final DocumensoDocumentRepository documensoDocumentRepository;
   private final DocumensoDocumentRecipientRepository documensoDocumentRecipientRepository;
@@ -85,7 +78,7 @@ public class DocumensoDocumentService {
       request.setTemplateId(BigDecimal.valueOf(documensoTemplateId));
       request.setRecipients(List.of(toRecipient(placeholders.get(0).getId(), monitor)));
       request.setPrefillFields(
-          buildPrefillFields(remoteTemplate.getFields(), new StudentSnapshot(student, level)));
+          buildPrefillFields(template, remoteTemplate.getFields(), student, monitor, level));
 
       var response = documensoClient.useTemplate(request);
 
@@ -150,30 +143,134 @@ public class DocumensoDocumentService {
     return recipient;
   }
 
+  /**
+   * Dispatches to a prefill strategy keyed by the template's title, since each document type lays
+   * its fields out differently (e.g. "Fiche d'engagement" repeats the same address/phone/CIN
+   * labels for up to 3 guardians and the student, whereas a future "Contrat d'alternance" or
+   * "Fiche de paye" would need its own rules). Unknown document types fall back to a single-person
+   * (student) match on uniquely-labelled fields only.
+   */
   private List<TemplateCreateDocumentFromTemplateRequestPrefillFieldsInner> buildPrefillFields(
-      List<TemplateGetTemplateById200ResponseFieldsInner> fields, StudentSnapshot student) {
-    var prefillFields =
-        new ArrayList<TemplateCreateDocumentFromTemplateRequestPrefillFieldsInner>();
-    if (fields == null) {
-      return prefillFields;
+      school.hei.haapi.model.TemplateDocumenso template,
+      List<TemplateGetTemplateById200ResponseFieldsInner> fields,
+      User student,
+      User monitor,
+      StudentLevel level) {
+    if (fields == null || fields.isEmpty()) {
+      return List.of();
     }
-    for (var field : fields) {
-      if (!"TEXT".equalsIgnoreCase(field.getType())) {
-        continue;
+    var textFields = fields.stream().filter(f -> "TEXT".equalsIgnoreCase(f.getType())).toList();
+    if (normalize(template.getTitle()).contains("engagement")) {
+      return buildFicheEngagementPrefillFields(
+          textFields, new PersonSnapshot(student), new PersonSnapshot(monitor), level);
+    }
+    return buildDefaultPrefillFields(textFields, new PersonSnapshot(student), level);
+  }
+
+  /**
+   * "Fiche d'engagement" repeats "Adresse personnelle"/"Téléphones"/"Titulaire de la CIN" once per
+   * guardian block (up to 3, topmost first) and once more for the student (always last, below the
+   * guardian blocks). Since the monitor stands in for the topmost guardian, we fill that occurrence
+   * with the monitor's data and the last occurrence with the student's, using each field's position
+   * on the page to tell them apart — the label text alone is identical across occurrences.
+   */
+  private List<TemplateCreateDocumentFromTemplateRequestPrefillFieldsInner>
+      buildFicheEngagementPrefillFields(
+          List<TemplateGetTemplateById200ResponseFieldsInner> textFields,
+          PersonSnapshot student,
+          PersonSnapshot monitor,
+          StudentLevel level) {
+    var prefillFields = new ArrayList<TemplateCreateDocumentFromTemplateRequestPrefillFieldsInner>();
+
+    matchOnly(textFields, "nom et prenom", student.fullName()).ifPresent(prefillFields::add);
+    matchOnly(textFields, "inscrit", level == null ? null : Promotion.getLevelString(level))
+        .ifPresent(prefillFields::add);
+    // only ever labelled on guardian blocks, so the topmost occurrence is always the monitor's,
+    // regardless of how many guardian blocks the template actually has.
+    matchByPosition(textFields, "pere/", monitor.fullName(), true).ifPresent(prefillFields::add);
+
+    // shared with the student block below it: when both occur, top -> monitor, bottom -> student;
+    // when the template only has one occurrence, it's the student's own (more essential) field.
+    for (var keyword : List.of("adresse personnelle", "telephone", "titulaire de la cin")) {
+      var candidates = fieldsMatching(textFields, keyword);
+      if (candidates.size() >= 2) {
+        matchAt(candidates.get(0), monitor.field(keyword)).ifPresent(prefillFields::add);
+        matchAt(candidates.get(candidates.size() - 1), student.field(keyword))
+            .ifPresent(prefillFields::add);
+      } else if (candidates.size() == 1) {
+        matchAt(candidates.get(0), student.field(keyword)).ifPresent(prefillFields::add);
       }
-      var label = field.getLabel() != null ? field.getLabel() : field.getPlaceholder();
-      if (label == null) {
-        continue;
-      }
-      var normalizedLabel = normalize(label);
-      FIELD_LABEL_MATCHERS.entrySet().stream()
-          .filter(matcher -> normalizedLabel.contains(matcher.getKey()))
-          .findFirst()
-          .map(matcher -> matcher.getValue().apply(student))
-          .filter(value -> value != null && !value.isBlank())
-          .ifPresent(value -> prefillFields.add(toPrefillField(field.getId(), value)));
     }
     return prefillFields;
+  }
+
+  /** Fallback for document types without a dedicated strategy: matches uniquely-labelled fields only. */
+  private List<TemplateCreateDocumentFromTemplateRequestPrefillFieldsInner> buildDefaultPrefillFields(
+      List<TemplateGetTemplateById200ResponseFieldsInner> textFields,
+      PersonSnapshot student,
+      StudentLevel level) {
+    var prefillFields = new ArrayList<TemplateCreateDocumentFromTemplateRequestPrefillFieldsInner>();
+    matchOnly(textFields, "nom et prenom", student.fullName()).ifPresent(prefillFields::add);
+    matchOnly(textFields, "inscrit", level == null ? null : Promotion.getLevelString(level))
+        .ifPresent(prefillFields::add);
+    matchOnly(textFields, "titulaire de la cin", student.nic()).ifPresent(prefillFields::add);
+    matchOnly(textFields, "adresse personnelle", student.address()).ifPresent(prefillFields::add);
+    matchOnly(textFields, "telephone", student.phone()).ifPresent(prefillFields::add);
+    return prefillFields;
+  }
+
+  private Optional<TemplateCreateDocumentFromTemplateRequestPrefillFieldsInner> matchOnly(
+      List<TemplateGetTemplateById200ResponseFieldsInner> fields, String labelKeyword, String value) {
+    if (value == null || value.isBlank()) {
+      return Optional.empty();
+    }
+    return fields.stream()
+        .filter(field -> labelContains(field, labelKeyword))
+        .findFirst()
+        .map(field -> toPrefillField(field.getId(), value));
+  }
+
+  private Optional<TemplateCreateDocumentFromTemplateRequestPrefillFieldsInner> matchByPosition(
+      List<TemplateGetTemplateById200ResponseFieldsInner> fields,
+      String labelKeyword,
+      String value,
+      boolean topmost) {
+    var candidates = fieldsMatching(fields, labelKeyword);
+    if (candidates.isEmpty()) {
+      return Optional.empty();
+    }
+    var chosen = topmost ? candidates.get(0) : candidates.get(candidates.size() - 1);
+    return matchAt(chosen, value);
+  }
+
+  /** All fields whose label/placeholder contains {@code labelKeyword}, sorted top-to-bottom. */
+  private static List<TemplateGetTemplateById200ResponseFieldsInner> fieldsMatching(
+      List<TemplateGetTemplateById200ResponseFieldsInner> fields, String labelKeyword) {
+    return fields.stream()
+        .filter(field -> labelContains(field, labelKeyword))
+        .sorted(
+            Comparator.comparing(
+                    (TemplateGetTemplateById200ResponseFieldsInner f) -> orZero(f.getPage()))
+                .thenComparing(f -> orZero(f.getPositionY())))
+        .toList();
+  }
+
+  private Optional<TemplateCreateDocumentFromTemplateRequestPrefillFieldsInner> matchAt(
+      TemplateGetTemplateById200ResponseFieldsInner field, String value) {
+    if (value == null || value.isBlank()) {
+      return Optional.empty();
+    }
+    return Optional.of(toPrefillField(field.getId(), value));
+  }
+
+  private static boolean labelContains(
+      TemplateGetTemplateById200ResponseFieldsInner field, String labelKeyword) {
+    var label = field.getLabel() != null ? field.getLabel() : field.getPlaceholder();
+    return label != null && normalize(label).contains(labelKeyword);
+  }
+
+  private static BigDecimal orZero(BigDecimal value) {
+    return value == null ? BigDecimal.ZERO : value;
   }
 
   private static String normalize(String value) {
@@ -190,15 +287,22 @@ public class DocumensoDocumentService {
     return field;
   }
 
-  private record StudentSnapshot(
-      String fullName, String nic, String address, String phone, String levelLabel) {
-    StudentSnapshot(User student, StudentLevel level) {
+  private record PersonSnapshot(String fullName, String nic, String address, String phone) {
+    PersonSnapshot(User user) {
       this(
-          student.getFirstName() + " " + student.getLastName(),
-          student.getNic(),
-          student.getAddress(),
-          student.getPhone(),
-          level == null ? null : Promotion.getLevelString(level));
+          user.getFirstName() + " " + user.getLastName(),
+          user.getNic(),
+          user.getAddress(),
+          user.getPhone());
+    }
+
+    String field(String labelKeyword) {
+      return switch (labelKeyword) {
+        case "adresse personnelle" -> address;
+        case "telephone" -> phone;
+        case "titulaire de la cin" -> nic;
+        default -> null;
+      };
     }
   }
 

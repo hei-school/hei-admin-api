@@ -129,6 +129,10 @@ paths:
                           type: string
                         placeholder:
                           type: string
+                        page:
+                          type: number
+                        positionY:
+                          type: number
                       required:
                         - id
                         - type

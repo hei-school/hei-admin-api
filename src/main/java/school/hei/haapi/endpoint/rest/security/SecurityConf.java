@@ -51,7 +51,6 @@ public class SecurityConf {
 
   public SecurityConf(
       CasdoorAuthProvider authProvider,
-      // InternalToExternalErrorHandler behind
       @Qualifier("handlerExceptionResolver") HandlerExceptionResolver exceptionResolver,
       CourseAssignmentService courseAssignmentService,
       MonitoringStudentService monitoringStudentService,
@@ -152,6 +151,9 @@ public class SecurityConf {
                     antMatcher(POST, "/cors/*/comment"),
                     antMatcher(GET, "/students/*/cors"),
                     antMatcher(PUT, "/students/*/cors"),
+                    antMatcher(POST, "/documenso-templates/sync"),
+                    antMatcher(POST, "/documenso-documents"),
+                    antMatcher(GET, "/documenso-documents/*/signing-token"),
                     antMatcher(PUT, "/students/*/fees/*/mpbs"),
                     antMatcher(GET, "/students/*/fees/*/mpbs"),
                     antMatcher(GET, "/students/*/fees/*/mpbs/verifications"),
@@ -350,6 +352,7 @@ public class SecurityConf {
                             // casdoor
                             new AntPathRequestMatcher("/authentication/signin", POST.name()),
                             new AntPathRequestMatcher("/authentication/login-url", GET.name()),
+                            new AntPathRequestMatcher("/documenso/webhook", POST.name()),
                             new AntPathRequestMatcher("/**", OPTIONS.toString())))
                     .permitAll()
                     .requestMatchers(GET, "/whoami")
@@ -1093,6 +1096,12 @@ public class SecurityConf {
                     .hasAnyRole(TEACHER.getRole(), MANAGER.getRole(), ADMIN.getRole())
                     .requestMatchers(PUT, "/students/*/cors")
                     .hasAnyRole(MANAGER.getRole(), ADMIN.getRole())
+                    .requestMatchers(POST, "/documenso-templates/sync")
+                    .hasAnyRole(ADMIN.getRole())
+                    .requestMatchers(POST, "/documenso-documents")
+                    .hasAnyRole(ADMIN.getRole())
+                    .requestMatchers(GET, "/documenso-documents/*/signing-token")
+                    .hasAnyRole(ADMIN.getRole(), MONITOR.getRole())
                     //
                     // Attendances resources
                     //

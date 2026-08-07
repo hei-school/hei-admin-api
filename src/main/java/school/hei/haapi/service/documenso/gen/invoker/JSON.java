@@ -3,35 +3,32 @@ package school.hei.haapi.service.documenso.gen.invoker;
 import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.json.JsonMapper;
+import org.openapitools.jackson.nullable.JsonNullableModule;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import school.hei.haapi.service.documenso.gen.model.*;
+
 import java.text.DateFormat;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import org.openapitools.jackson.nullable.JsonNullableModule;
-import school.hei.haapi.service.documenso.gen.model.*;
 
-@jakarta.annotation.Generated(
-    value = "org.openapitools.codegen.languages.JavaClientCodegen",
-    date = "2026-08-05T19:23:09.660393+03:00[Indian/Antananarivo]",
-    comments = "Generator version: 7.7.0")
+@jakarta.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2026-08-07T13:13:31.473413100+03:00[Indian/Antananarivo]", comments = "Generator version: 7.7.0")
 public class JSON {
   private ObjectMapper mapper;
 
   public JSON() {
-    mapper =
-        JsonMapper.builder()
-            .serializationInclusion(JsonInclude.Include.NON_NULL)
-            .disable(MapperFeature.ALLOW_COERCION_OF_SCALARS)
-            .enable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
-            .enable(DeserializationFeature.FAIL_ON_INVALID_SUBTYPE)
-            .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
-            .enable(SerializationFeature.WRITE_ENUMS_USING_TO_STRING)
-            .enable(DeserializationFeature.READ_ENUMS_USING_TO_STRING)
-            .defaultDateFormat(new RFC3339DateFormat())
-            .addModule(new JavaTimeModule())
-            .build();
+    mapper = JsonMapper.builder()
+        .serializationInclusion(JsonInclude.Include.NON_NULL)
+        .disable(MapperFeature.ALLOW_COERCION_OF_SCALARS)
+        .enable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
+        .enable(DeserializationFeature.FAIL_ON_INVALID_SUBTYPE)
+        .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
+        .enable(SerializationFeature.WRITE_ENUMS_USING_TO_STRING)
+        .enable(DeserializationFeature.READ_ENUMS_USING_TO_STRING)
+        .defaultDateFormat(new RFC3339DateFormat())
+        .addModule(new JavaTimeModule())
+        .build();
     JsonNullableModule jnm = new JsonNullableModule();
     mapper.registerModule(jnm);
   }
@@ -50,16 +47,15 @@ public class JSON {
    *
    * @return object mapper
    */
-  public ObjectMapper getMapper() {
-    return mapper;
-  }
+  public ObjectMapper getMapper() { return mapper; }
 
   /**
-   * Returns the target model class that should be used to deserialize the input data. The
-   * discriminator mappings are used to determine the target model class.
+   * Returns the target model class that should be used to deserialize the input data.
+   * The discriminator mappings are used to determine the target model class.
    *
    * @param node The input data.
    * @param modelClass The class that contains the discriminator mappings.
+   *
    * @return the target model class.
    */
   public static Class<?> getClassForElement(JsonNode node, Class<?> modelClass) {
@@ -70,11 +66,10 @@ public class JSON {
     return null;
   }
 
-  /** Helper class to register the discriminator mappings. */
-  @jakarta.annotation.Generated(
-      value = "org.openapitools.codegen.languages.JavaClientCodegen",
-      date = "2026-08-05T19:23:09.660393+03:00[Indian/Antananarivo]",
-      comments = "Generator version: 7.7.0")
+  /**
+   * Helper class to register the discriminator mappings.
+   */
+  @jakarta.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2026-08-07T13:13:31.473413100+03:00[Indian/Antananarivo]", comments = "Generator version: 7.7.0")
   private static class ClassDiscriminatorMapping {
     // The model class name.
     Class<?> modelClass;
@@ -116,12 +111,13 @@ public class JSON {
     }
 
     /**
-     * Returns the target model class that should be used to deserialize the input data. This
-     * function can be invoked for anyOf/oneOf composed models with discriminator mappings. The
-     * discriminator mappings are used to determine the target model class.
+     * Returns the target model class that should be used to deserialize the input data.
+     * This function can be invoked for anyOf/oneOf composed models with discriminator mappings.
+     * The discriminator mappings are used to determine the target model class.
      *
      * @param node The input data.
      * @param visitedClasses The set of classes that have already been visited.
+     *
      * @return the target model class.
      */
     Class<?> getClassForElement(JsonNode node, Set<Class<?>> visitedClasses) {
@@ -164,16 +160,16 @@ public class JSON {
   /**
    * Returns true if inst is an instance of modelClass in the OpenAPI model hierarchy.
    *
-   * <p>The Java class hierarchy is not implemented the same way as the OpenAPI model hierarchy, so
-   * it's not possible to use the instanceof keyword.
+   * The Java class hierarchy is not implemented the same way as the OpenAPI model hierarchy,
+   * so it's not possible to use the instanceof keyword.
    *
    * @param modelClass A OpenAPI model class.
    * @param inst The instance object.
    * @param visitedClasses The set of classes that have already been visited.
+   *
    * @return true if inst is an instance of modelClass in the OpenAPI model hierarchy.
    */
-  public static boolean isInstanceOf(
-      Class<?> modelClass, Object inst, Set<Class<?>> visitedClasses) {
+  public static boolean isInstanceOf(Class<?> modelClass, Object inst, Set<Class<?>> visitedClasses) {
     if (modelClass.isInstance(inst)) {
       // This handles the 'allOf' use case with single parent inheritance.
       return true;
@@ -197,32 +193,34 @@ public class JSON {
     return false;
   }
 
-  /** A map of discriminators for all model classes. */
+  /**
+   * A map of discriminators for all model classes.
+   */
   private static Map<Class<?>, ClassDiscriminatorMapping> modelDiscriminators = new HashMap<>();
 
-  /** A map of oneOf/anyOf descendants for each model class. */
+  /**
+   * A map of oneOf/anyOf descendants for each model class.
+   */
   private static Map<Class<?>, Map<String, Class<?>>> modelDescendants = new HashMap<>();
 
   /**
-   * Register a model class discriminator.
-   *
-   * @param modelClass the model class
-   * @param discriminatorPropertyName the name of the discriminator property
-   * @param mappings a map with the discriminator mappings.
-   */
-  public static void registerDiscriminator(
-      Class<?> modelClass, String discriminatorPropertyName, Map<String, Class<?>> mappings) {
-    ClassDiscriminatorMapping m =
-        new ClassDiscriminatorMapping(modelClass, discriminatorPropertyName, mappings);
+    * Register a model class discriminator.
+    *
+    * @param modelClass the model class
+    * @param discriminatorPropertyName the name of the discriminator property
+    * @param mappings a map with the discriminator mappings.
+    */
+  public static void registerDiscriminator(Class<?> modelClass, String discriminatorPropertyName, Map<String, Class<?>> mappings) {
+    ClassDiscriminatorMapping m = new ClassDiscriminatorMapping(modelClass, discriminatorPropertyName, mappings);
     modelDiscriminators.put(modelClass, m);
   }
 
   /**
-   * Register the oneOf/anyOf descendants of the modelClass.
-   *
-   * @param modelClass the model class
-   * @param descendants a map of oneOf/anyOf descendants.
-   */
+    * Register the oneOf/anyOf descendants of the modelClass.
+    *
+    * @param modelClass the model class
+    * @param descendants a map of oneOf/anyOf descendants.
+    */
   public static void registerDescendants(Class<?> modelClass, Map<String, Class<?>> descendants) {
     modelDescendants.put(modelClass, descendants);
   }
@@ -234,19 +232,19 @@ public class JSON {
   }
 
   /**
-   * Get the default JSON instance.
-   *
-   * @return the default JSON instance
-   */
+    * Get the default JSON instance.
+    *
+    * @return the default JSON instance
+    */
   public static JSON getDefault() {
     return json;
   }
 
   /**
-   * Set the default JSON instance.
-   *
-   * @param json JSON instance to be used
-   */
+    * Set the default JSON instance.
+    *
+    * @param json JSON instance to be used
+    */
   public static void setDefault(JSON json) {
     JSON.json = json;
   }
