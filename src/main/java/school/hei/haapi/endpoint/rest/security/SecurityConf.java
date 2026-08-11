@@ -1099,9 +1099,9 @@ public class SecurityConf {
                     .requestMatchers(POST, "/documenso-templates/sync")
                     .hasAnyRole(ADMIN.getRole())
                     .requestMatchers(POST, "/documenso-documents")
-                    .hasAnyRole(ADMIN.getRole())
+                    .hasAnyRole(ADMIN.getRole(), MANAGER.getRole())
                     .requestMatchers(GET, "/documenso-documents/*/signing-token")
-                    .hasAnyRole(ADMIN.getRole(), MONITOR.getRole())
+                    .hasAnyRole(ADMIN.getRole(), MANAGER.getRole(), MONITOR.getRole())
                     //
                     // Attendances resources
                     //
