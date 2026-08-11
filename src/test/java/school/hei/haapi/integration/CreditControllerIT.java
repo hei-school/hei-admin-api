@@ -142,6 +142,30 @@ class CreditControllerIT extends FacadeITMockedThirdParties {
     assertEquals(150000, actualCredit.getAmount());
   }
 
+  @Test
+  void manager_reject_credit_payments_OK() throws ApiException {
+    var studentApiClient = anApiClient(STUDENT1_TOKEN);
+    var managerApiClient = anApiClient(MANAGER1_TOKEN);
+    var studentPayingApi = new PayingApi(studentApiClient);
+    var managerPayingApi = new PayingApi(managerApiClient);
+    managerPayingApi.archiveStudentFee(student.getId(), feeToArchive.getId());
+    var payments =
+        studentPayingApi.createStudentPayments(
+            student.getId(), currentFee.getId(), List.of(bankPayment(), creditPaymentCreated()));
+    var paymentsToReject = managerPayingApi.getCreditPaymentsByStatus(PaymentStatus.CREATED, 1, 10);
+    assertEquals(payments.getLast(), paymentsToReject.getFirst());
+    var creditPaymentsRejected =
+        managerPayingApi.rejectCreditPayments(List.of(paymentsToReject.getFirst().getId()));
+    assertNotNull(creditPaymentsRejected);
+    assertEquals(PaymentStatus.INVALIDATE, creditPaymentsRejected.getFirst().getStatus());
+    var feeNotPaid = managerPayingApi.getStudentFeeById(student.getId(), currentFee.getId());
+    assertNotNull(feeNotPaid);
+    assertEquals(50000, feeNotPaid.getRemainingAmount());
+    var actualCredit = managerPayingApi.getCreditByStudentId(student.getId());
+    assertNotNull(actualCredit);
+    assertEquals(200000, actualCredit.getAmount());
+  }
+
   private static User student() {
     return User.builder()
         .ref("STD" + UUID.randomUUID())

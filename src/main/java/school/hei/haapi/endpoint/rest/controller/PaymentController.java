@@ -1,6 +1,7 @@
 package school.hei.haapi.endpoint.rest.controller;
 
 import static java.util.stream.Collectors.toUnmodifiableList;
+import static school.hei.haapi.model.PaymentStatus.INVALIDATE;
 import static school.hei.haapi.model.PaymentStatus.VALIDATE;
 
 import java.util.List;
@@ -41,6 +42,13 @@ public class PaymentController {
   public List<Payment> validatePayments(@RequestBody List<String> paymentIds) {
     var payments = paymentService.getByIds(paymentIds);
     payments.forEach(payment -> payment.setStatus(VALIDATE));
+    return paymentMapper.toRestPayment(paymentService.saveAll(payments));
+  }
+
+  @PatchMapping("/students/payments/reject")
+  public List<Payment> rejectPayments(@RequestBody List<String> paymentIds) {
+    var payments = paymentService.getByIds(paymentIds);
+    payments.forEach(payment -> payment.setStatus(INVALIDATE));
     return paymentMapper.toRestPayment(paymentService.saveAll(payments));
   }
 
