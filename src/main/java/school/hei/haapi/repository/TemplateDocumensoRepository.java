@@ -9,5 +9,6 @@ import school.hei.haapi.model.TemplateDocumenso;
 @Repository
 public interface TemplateDocumensoRepository extends JpaRepository<TemplateDocumenso, String> {
   Optional<TemplateDocumenso> findByDocumensoTemplateId(Long documensoTemplateId);
+
   List<TemplateDocumenso> findAllByTitleContainingIgnoreCase(String title);
 }
