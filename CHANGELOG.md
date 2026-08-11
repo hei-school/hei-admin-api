@@ -1,3 +1,18 @@
+# [1.166.0](https://github.com/hei-school/hei-admin-api/compare/v1.165.1...v1.166.0) (2026-08-11)
+
+
+### Bug Fixes
+
+* get student credit transactions ([a5f583e](https://github.com/hei-school/hei-admin-api/commit/a5f583ed88a402b1367a560ca843421dc19cd941))
+
+
+### Features
+
+* implement fees archiving and credit movement tracking ([f6f2ffd](https://github.com/hei-school/hei-admin-api/commit/f6f2ffd8c83833fdfdf0c704ee0d8c6635ddc291))
+* reject credit payment ([8497a7f](https://github.com/hei-school/hei-admin-api/commit/8497a7f713b82d0d514711c6b68ce8d35c0fb4e1))
+
+
+
 ## [1.165.1](https://github.com/hei-school/hei-admin-api/compare/v1.165.0...v1.165.1) (2026-08-06)
 
 
@@ -133,22 +148,6 @@
 ### Bug Fixes
 
 * fees mapper ([489b7ae](https://github.com/hei-school/hei-admin-api/commit/489b7aef69f737474521d1318aed2568a7757f6a))
-
-
-
-# [1.154.0](https://github.com/hei-school/hei-admin-api/compare/v1.152.0...v1.154.0) (2026-03-12)
-
-
-### Bug Fixes
-
-* remove unecessary student alumni filter ([831c6eb](https://github.com/hei-school/hei-admin-api/commit/831c6ebaf07c0da945d46b235b06eda19250fddd))
-
-
-### Features
-
-* (doc)  client version ([4879ff0](https://github.com/hei-school/hei-admin-api/commit/4879ff0cc003dcc79fbc0cc89c2e54fbd79b7cc2))
-* add filter fees by category ([96fcf38](https://github.com/hei-school/hei-admin-api/commit/96fcf383eafbdcea6931eb968f3d3b46ff258e39))
-* add non alumni self matcher for scholarship certificate  ([47b3528](https://github.com/hei-school/hei-admin-api/commit/47b35281e4c3c8c55df0daceda6b2330fa1d602c))
 
 
 
