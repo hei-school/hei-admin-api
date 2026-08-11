@@ -102,7 +102,7 @@ public class DocumensoDocumentService {
                 .build());
       }
       return document;
-    } catch (school.hei.haapi.service.documenso.gen.invoker.ApiException e) {
+    } catch (org.springframework.web.client.RestClientException e) {
       throw new ApiException(SERVER_EXCEPTION, e);
     }
   }
@@ -143,13 +143,6 @@ public class DocumensoDocumentService {
     return recipient;
   }
 
-  /**
-   * Dispatches to a prefill strategy keyed by the template's title, since each document type lays
-   * its fields out differently (e.g. "Fiche d'engagement" repeats the same address/phone/CIN
-   * labels for up to 3 guardians and the student, whereas a future "Contrat d'alternance" or
-   * "Fiche de paye" would need its own rules). Unknown document types fall back to a single-person
-   * (student) match on uniquely-labelled fields only.
-   */
   private List<TemplateCreateDocumentFromTemplateRequestPrefillFieldsInner> buildPrefillFields(
       school.hei.haapi.model.TemplateDocumenso template,
       List<TemplateGetTemplateById200ResponseFieldsInner> fields,
@@ -167,30 +160,19 @@ public class DocumensoDocumentService {
     return buildDefaultPrefillFields(textFields, new PersonSnapshot(student), level);
   }
 
-  /**
-   * "Fiche d'engagement" repeats "Adresse personnelle"/"Téléphones"/"Titulaire de la CIN" once per
-   * guardian block (up to 3, topmost first) and once more for the student (always last, below the
-   * guardian blocks). Since the monitor stands in for the topmost guardian, we fill that occurrence
-   * with the monitor's data and the last occurrence with the student's, using each field's position
-   * on the page to tell them apart — the label text alone is identical across occurrences.
-   */
   private List<TemplateCreateDocumentFromTemplateRequestPrefillFieldsInner>
       buildFicheEngagementPrefillFields(
           List<TemplateGetTemplateById200ResponseFieldsInner> textFields,
           PersonSnapshot student,
           PersonSnapshot monitor,
           StudentLevel level) {
-    var prefillFields = new ArrayList<TemplateCreateDocumentFromTemplateRequestPrefillFieldsInner>();
+    var prefillFields =
+        new ArrayList<TemplateCreateDocumentFromTemplateRequestPrefillFieldsInner>();
 
     matchOnly(textFields, "nom et prenom", student.fullName()).ifPresent(prefillFields::add);
     matchOnly(textFields, "inscrit", level == null ? null : Promotion.getLevelString(level))
         .ifPresent(prefillFields::add);
-    // only ever labelled on guardian blocks, so the topmost occurrence is always the monitor's,
-    // regardless of how many guardian blocks the template actually has.
     matchByPosition(textFields, "pere/", monitor.fullName(), true).ifPresent(prefillFields::add);
-
-    // shared with the student block below it: when both occur, top -> monitor, bottom -> student;
-    // when the template only has one occurrence, it's the student's own (more essential) field.
     for (var keyword : List.of("adresse personnelle", "telephone", "titulaire de la cin")) {
       var candidates = fieldsMatching(textFields, keyword);
       if (candidates.size() >= 2) {
@@ -204,12 +186,13 @@ public class DocumensoDocumentService {
     return prefillFields;
   }
 
-  /** Fallback for document types without a dedicated strategy: matches uniquely-labelled fields only. */
-  private List<TemplateCreateDocumentFromTemplateRequestPrefillFieldsInner> buildDefaultPrefillFields(
-      List<TemplateGetTemplateById200ResponseFieldsInner> textFields,
-      PersonSnapshot student,
-      StudentLevel level) {
-    var prefillFields = new ArrayList<TemplateCreateDocumentFromTemplateRequestPrefillFieldsInner>();
+  private List<TemplateCreateDocumentFromTemplateRequestPrefillFieldsInner>
+      buildDefaultPrefillFields(
+          List<TemplateGetTemplateById200ResponseFieldsInner> textFields,
+          PersonSnapshot student,
+          StudentLevel level) {
+    var prefillFields =
+        new ArrayList<TemplateCreateDocumentFromTemplateRequestPrefillFieldsInner>();
     matchOnly(textFields, "nom et prenom", student.fullName()).ifPresent(prefillFields::add);
     matchOnly(textFields, "inscrit", level == null ? null : Promotion.getLevelString(level))
         .ifPresent(prefillFields::add);
@@ -220,7 +203,9 @@ public class DocumensoDocumentService {
   }
 
   private Optional<TemplateCreateDocumentFromTemplateRequestPrefillFieldsInner> matchOnly(
-      List<TemplateGetTemplateById200ResponseFieldsInner> fields, String labelKeyword, String value) {
+      List<TemplateGetTemplateById200ResponseFieldsInner> fields,
+      String labelKeyword,
+      String value) {
     if (value == null || value.isBlank()) {
       return Optional.empty();
     }
@@ -243,7 +228,6 @@ public class DocumensoDocumentService {
     return matchAt(chosen, value);
   }
 
-  /** All fields whose label/placeholder contains {@code labelKeyword}, sorted top-to-bottom. */
   private static List<TemplateGetTemplateById200ResponseFieldsInner> fieldsMatching(
       List<TemplateGetTemplateById200ResponseFieldsInner> fields, String labelKeyword) {
     return fields.stream()
@@ -367,7 +351,7 @@ public class DocumensoDocumentService {
       document.setStatus(DocumensoDocument.Status.COMPLETED);
       document.setCompletedDatetime(Instant.now());
       documensoDocumentRepository.save(document);
-    } catch (school.hei.haapi.service.documenso.gen.invoker.ApiException e) {
+    } catch (org.springframework.web.client.RestClientException e) {
       throw new ApiException(SERVER_EXCEPTION, e);
     }
   }

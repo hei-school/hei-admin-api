@@ -91,8 +91,6 @@ class DocumensoIT extends FacadeITMockedThirdParties {
         monitor.getId(), List.of(student.getId()), "LINKED");
 
     templateExternalId = ThreadLocalRandom.current().nextLong(1_000, 1_000_000_000);
-    // unique per test so concurrent/accumulated rows from other tests never make
-    // resolveTemplateByName's "contains" search ambiguous
     templateTitle = "Fiche d'engagement L1 " + UUID.randomUUID();
     template =
         templateDocumensoRepository.save(
@@ -176,9 +174,7 @@ class DocumensoIT extends FacadeITMockedThirdParties {
                         .token("monitor-token")));
 
     var toCreate =
-        new CrupdateDocumensoDocument()
-            .studentId(student.getId())
-            .templateName(templateTitle);
+        new CrupdateDocumensoDocument().studentId(student.getId()).templateName(templateTitle);
 
     var created = anApi(ADMIN1_TOKEN).generateDocumensoDocument(toCreate);
 
@@ -237,7 +233,6 @@ class DocumensoIT extends FacadeITMockedThirdParties {
                         .label("Téléphones")
                         .page(BigDecimal.ONE)
                         .positionY(BigDecimal.valueOf(120)))
-                // student block, further down the page -> student
                 .addFieldsItem(
                     new TemplateGetTemplateById200ResponseFieldsInner()
                         .id(BigDecimal.valueOf(30))
@@ -273,9 +268,7 @@ class DocumensoIT extends FacadeITMockedThirdParties {
                         .token("monitor-token")));
 
     var toCreate =
-        new CrupdateDocumensoDocument()
-            .studentId(student.getId())
-            .templateName(templateTitle);
+        new CrupdateDocumensoDocument().studentId(student.getId()).templateName(templateTitle);
 
     anApi(ADMIN1_TOKEN).generateDocumensoDocument(toCreate);
 
@@ -300,9 +293,7 @@ class DocumensoIT extends FacadeITMockedThirdParties {
   @Test
   void student_generate_document_ko() {
     var toCreate =
-        new CrupdateDocumensoDocument()
-            .studentId(student.getId())
-            .templateName(templateTitle);
+        new CrupdateDocumensoDocument().studentId(student.getId()).templateName(templateTitle);
 
     assertThrowsForbiddenException(() -> anApi(STUDENT1_TOKEN).generateDocumensoDocument(toCreate));
   }
