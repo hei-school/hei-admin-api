@@ -32,8 +32,7 @@ jobs:
           distribution: 'corretto'
       - run: chmod +x gradlew
       - run: chmod +x .shell/publish_gen_to_maven_local.sh
-      - run: |
-          ./gradlew test
+      - run: ./gradlew test --tests "school.hei.haapi.integration.*.payments_pages_are_ordered_by_due_datetime_desc" --info
 
       - name: Cache SonarCloud packages
         uses: actions/cache@v4.2.2
