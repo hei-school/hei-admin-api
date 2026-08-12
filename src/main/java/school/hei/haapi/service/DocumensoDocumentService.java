@@ -107,7 +107,7 @@ public class DocumensoDocumentService {
     }
   }
 
-  private school.hei.haapi.model.TemplateDocumenso resolveTemplateByName(
+  private TemplateDocumenso resolveTemplateByName(
       String templateName, StudentLevel level) {
     var candidates = templateDocumensoRepository.findAllByTitleContainingIgnoreCase(templateName);
     if (candidates.isEmpty()) {
