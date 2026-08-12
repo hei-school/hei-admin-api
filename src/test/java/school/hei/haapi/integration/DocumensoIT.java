@@ -307,7 +307,7 @@ class DocumensoIT extends FacadeITMockedThirdParties {
                 .template(template)
                 .student(student)
                 .level(StudentLevel.L1)
-                .status(DocumensoDocument.Status.PENDING)
+                .status(school.hei.haapi.model.DocumensoDocumentStatus.PENDING)
                 .build());
 
     var signedFile = File.createTempFile("signed", ".pdf");
@@ -320,7 +320,7 @@ class DocumensoIT extends FacadeITMockedThirdParties {
 
     assertEquals(200, response.statusCode());
     var updated = documensoDocumentRepository.findById(pendingDocument.getId()).orElseThrow();
-    assertEquals(DocumensoDocument.Status.COMPLETED, updated.getStatus());
+    assertEquals(school.hei.haapi.model.DocumensoDocumentStatus.COMPLETED, updated.getStatus());
     assertNotNull(updated.getFileInfo());
     verify(bucketComponentMock).upload(eq(signedFile), any());
   }
