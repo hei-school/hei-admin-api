@@ -89,7 +89,7 @@ public class DocumensoDocumentService {
                   .template(template)
                   .student(student)
                   .level(level)
-                  .status(DocumensoDocument.Status.PENDING)
+                  .status(PENDING)
                   .build());
 
       for (var recipient : response.getRecipients()) {
