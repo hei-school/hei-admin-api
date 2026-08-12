@@ -53,7 +53,7 @@ public class DocumensoDocument implements Serializable {
 
   @Enumerated(STRING)
   @JdbcTypeCode(NAMED_ENUM)
-  private Status status;
+  private DocumensoDocumentStatus status;
 
   @ManyToOne
   @JoinColumn(name = "file_info_id")
@@ -62,10 +62,4 @@ public class DocumensoDocument implements Serializable {
   @CreationTimestamp private Instant creationDatetime;
 
   private Instant completedDatetime;
-
-  public enum Status {
-    PENDING,
-    COMPLETED,
-    REJECTED,
-  }
 }
