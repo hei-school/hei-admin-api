@@ -16,7 +16,7 @@ public class DocumensoMapper {
         .adminId(domain.getAdmin() == null ? null : domain.getAdmin().getId());
   }
 
-  public DocumensoDocument toRest(school.hei.haapi.model.DocumensoDocument domain) {
+  public DocumensoDocument toRest(DocumensoDocument domain) {
     return new DocumensoDocument()
         .id(domain.getId())
         .documensoDocumentId(domain.getDocumensoDocumentId())
