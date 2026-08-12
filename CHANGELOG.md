@@ -1,3 +1,12 @@
+## [1.166.1](https://github.com/hei-school/hei-admin-api/compare/v1.166.0...v1.166.1) (2026-08-12)
+
+
+### Bug Fixes
+
+* pin axios version to 1.18.1 ([54199a6](https://github.com/hei-school/hei-admin-api/commit/54199a63f8b236a5b5d2bb41ba644f2deb9bf99d))
+
+
+
 # [1.166.0](https://github.com/hei-school/hei-admin-api/compare/v1.165.1...v1.166.0) (2026-08-11)
 
 
@@ -139,15 +148,6 @@
 ### Features
 
 * add status-checks to flag potential withdrawing students ([821726d](https://github.com/hei-school/hei-admin-api/commit/821726d68c1a36120ffc5ed10d7bd9a57b4b03a4))
-
-
-
-## [1.154.1](https://github.com/hei-school/hei-admin-api/compare/v1.154.0...v1.154.1) (2026-03-12)
-
-
-### Bug Fixes
-
-* fees mapper ([489b7ae](https://github.com/hei-school/hei-admin-api/commit/489b7aef69f737474521d1318aed2568a7757f6a))
 
 
 
