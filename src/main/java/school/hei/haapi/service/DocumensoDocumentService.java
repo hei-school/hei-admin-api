@@ -102,7 +102,7 @@ public class DocumensoDocumentService {
                 .build());
       }
       return document;
-    } catch (org.springframework.web.client.RestClientException e) {
+    } catch (RestClientException e) {
       throw new ApiException(SERVER_EXCEPTION, e);
     }
   }
