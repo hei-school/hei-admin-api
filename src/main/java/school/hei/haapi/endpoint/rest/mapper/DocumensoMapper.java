@@ -7,7 +7,7 @@ import school.hei.haapi.endpoint.rest.model.TemplateDocumenso;
 
 @Component
 public class DocumensoMapper {
-  public TemplateDocumenso toRest(school.hei.haapi.model.TemplateDocumenso domain) {
+  public TemplateDocumenso toRest(TemplateDocumenso domain) {
     return new TemplateDocumenso()
         .id(domain.getId())
         .documensoTemplateId(domain.getDocumensoTemplateId())
