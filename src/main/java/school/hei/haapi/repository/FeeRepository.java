@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+import school.hei.haapi.endpoint.rest.model.FeeFrequency;
 import school.hei.haapi.endpoint.rest.model.FeeStatusEnum;
 import school.hei.haapi.model.Fee;
 
@@ -17,6 +18,8 @@ public interface FeeRepository extends JpaRepository<Fee, String> {
   boolean existsByStudentIdAndFeeTemplateId(String studentId, String feeTemplateId);
 
   List<Fee> findAllByStatus(FeeStatusEnum status);
+
+  List<Fee> findAllByFrequency(FeeFrequency frequency);
 
   List<Fee> getFeesByStudentIdAndStatusOrderByDueDatetimeDesc(
       String studentId, FeeStatusEnum status, Pageable pageable);

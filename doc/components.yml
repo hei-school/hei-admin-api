@@ -2325,15 +2325,57 @@ components:
            type: integer
          movement:
            $ref: '#/components/schemas/CreditMovement'
-    CreditPayment:
-      allOf:
-        - $ref: '#/components/schemas/CreatePayment'
+    TemplateDocumenso:
       type: object
       properties:
         id:
           type: string
-        fee:
-          $ref: '#/components/schemas/Fee'
-        creation_date:
+        documensoTemplateId:
+          type: integer
+          format: int64
+        title:
           type: string
-          format: date
+        type:
+          type: string
+        adminId:
+          type: string
+    DocumensoDocumentStatus:
+      type: string
+      enum:
+        - PENDING
+        - COMPLETED
+        - REJECTED
+    DocumensoDocument:
+      type: object
+      properties:
+        id:
+          type: string
+        documensoDocumentId:
+          type: integer
+          format: int64
+        status:
+          $ref: '#/components/schemas/DocumensoDocumentStatus'
+        studentId:
+          type: string
+        level:
+          $ref: '#/components/schemas/StudentLevel'
+        templateId:
+          type: string
+    CrupdateDocumensoDocument:
+      type: object
+      properties:
+        studentId:
+          type: string
+        templateName:
+          type: string
+          description: >-
+            Name of the Documenso template to use (e.g. "Fiche d'engagement"), matched against the
+            template's title as synced from the Documenso interface.
+      required:
+        - studentId
+        - templateName
+    DocumensoSigningToken:
+      type: object
+      properties:
+        token:
+          type: string

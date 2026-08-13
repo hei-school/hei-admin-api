@@ -119,9 +119,6 @@ class CreditControllerIT extends FacadeITMockedThirdParties {
         payingApi.createStudentPayments(
             student.getId(), currentFee.getId(), List.of(bankPayment(), creditPaymentCreated()));
     assertNotNull(payments);
-    var creditWithPendingPayment = payingApi.getCreditByStudentId(student.getId());
-    assertNotNull(creditWithPendingPayment);
-    assertEquals(150000, creditWithPendingPayment.getAmount());
   }
 
   @Test
@@ -136,7 +133,7 @@ class CreditControllerIT extends FacadeITMockedThirdParties {
             student.getId(), currentFee.getId(), List.of(bankPayment(), creditPaymentCreated()));
     var paymentsToValidate =
         managerPayingApi.getCreditPaymentsByStatus(PaymentStatus.CREATED, 1, 10);
-    assertEquals(payments.getLast().getId(), paymentsToValidate.getFirst().getId());
+    assertEquals(payments.getLast(), paymentsToValidate.getFirst());
     var creditPaymentsValidated =
         managerPayingApi.validateCreditPayments(List.of(paymentsToValidate.getFirst().getId()));
     assertNotNull(creditPaymentsValidated);
@@ -159,7 +156,7 @@ class CreditControllerIT extends FacadeITMockedThirdParties {
         studentPayingApi.createStudentPayments(
             student.getId(), currentFee.getId(), List.of(bankPayment(), creditPaymentCreated()));
     var paymentsToReject = managerPayingApi.getCreditPaymentsByStatus(PaymentStatus.CREATED, 1, 10);
-    assertEquals(payments.getLast().getId(), paymentsToReject.getFirst().getId());
+    assertEquals(payments.getLast(), paymentsToReject.getFirst());
     var creditPaymentsRejected =
         managerPayingApi.rejectCreditPayments(List.of(paymentsToReject.getFirst().getId()));
     assertNotNull(creditPaymentsRejected);

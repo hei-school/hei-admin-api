@@ -377,6 +377,13 @@ paths:
     $ref: './operations/cor-api.yml#/operations/commentCorById'
   '/students/{student_id}/cors':
     $ref: './operations/cor-api.yml#/operations/studentsCors'
+  # Documenso
+  /documenso-templates/sync:
+    $ref: './operations/documenso-api.yml#/operations/syncDocumensoTemplates'
+  /documenso-documents:
+    $ref: './operations/documenso-api.yml#/operations/generateDocumensoDocument'
+  '/documenso-documents/{id}/signing-token':
+    $ref: './operations/documenso-api.yml#/operations/getDocumensoDocumentSigningToken'
 
 components:
   securitySchemes:

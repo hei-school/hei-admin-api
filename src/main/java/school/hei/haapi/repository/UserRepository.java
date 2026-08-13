@@ -18,6 +18,8 @@ import school.hei.haapi.model.dto.StatisticsDto;
 public interface UserRepository extends JpaRepository<User, String> {
   Optional<User> findByEmail(String email);
 
+  Optional<User> findByDocumensoUserId(Long documensoUserId);
+
   List<User> findAllByStatus(User.Status status);
 
   List<User> findAllByRoleAndStatus(Role role, User.Status status);
