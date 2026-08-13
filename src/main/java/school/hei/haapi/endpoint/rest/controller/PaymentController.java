@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import school.hei.haapi.endpoint.rest.mapper.PaymentMapper;
 import school.hei.haapi.endpoint.rest.model.CreatePayment;
+import school.hei.haapi.endpoint.rest.model.CreditPayment;
 import school.hei.haapi.endpoint.rest.model.Payment;
 import school.hei.haapi.endpoint.rest.model.PaymentStatus;
 import school.hei.haapi.model.BoundedPageSize;
@@ -39,17 +40,17 @@ public class PaymentController {
   }
 
   @PatchMapping("/students/payments/validate")
-  public List<Payment> validatePayments(@RequestBody List<String> paymentIds) {
+  public List<CreditPayment> validatePayments(@RequestBody List<String> paymentIds) {
     var payments = paymentService.getByIds(paymentIds);
     payments.forEach(payment -> payment.setStatus(VALIDATE));
-    return paymentMapper.toRestPayment(paymentService.saveAll(payments));
+    return paymentMapper.toRestCreditPayment(paymentService.saveAll(payments));
   }
 
   @PatchMapping("/students/payments/reject")
-  public List<Payment> rejectPayments(@RequestBody List<String> paymentIds) {
+  public List<CreditPayment> rejectPayments(@RequestBody List<String> paymentIds) {
     var payments = paymentService.getByIds(paymentIds);
     payments.forEach(payment -> payment.setStatus(INVALIDATE));
-    return paymentMapper.toRestPayment(paymentService.saveAll(payments));
+    return paymentMapper.toRestCreditPayment(paymentService.saveAll(payments));
   }
 
   @DeleteMapping("/students/{studentId}/fees/{feeId}/payments/{paymentId}")
@@ -72,11 +73,11 @@ public class PaymentController {
   }
 
   @GetMapping("/students/credit-payments")
-  public List<Payment> getCreditPaymentsByStatus(
+  public List<CreditPayment> getCreditPaymentsByStatus(
       @RequestParam(value = "status", required = false) PaymentStatus status,
       @RequestParam(value = "page", required = false) PageFromOne page,
       @RequestParam(value = "page_size", required = false) BoundedPageSize pageSize) {
-    return paymentMapper.toRestPayment(
+    return paymentMapper.toRestCreditPayment(
         paymentService.getCreditPaymentsByStatus(
             school.hei.haapi.model.PaymentStatus.valueOf(String.valueOf(status)), page, pageSize));
   }

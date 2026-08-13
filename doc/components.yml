@@ -2333,7 +2333,7 @@ components:
         id:
           type: string
         fee:
-         - $ref: '#/components/schemas/Fee'
-        creation_datetime:
+          $ref: '#/components/schemas/Fee'
+        creation_date:
           type: string
-          format: date-time
+          format: date
