@@ -40,10 +40,4 @@ select p from Payment p where p.id in :ids
       PaymentStatus status,
       school.hei.haapi.endpoint.rest.model.Payment.TypeEnum type,
       Pageable pageable);
-
-  @Query(
-      value =
-          "select coalesce(sum(p.amount), 0) from Payment p join Fee f on f.id = p.fee.id"
-              + " where f.student.id = :student_id and p.type = 'CREDIT' and p.status = 'CREATED'")
-  int sumPendingCreditPaymentsAmountByStudentId(@Param("student_id") String studentId);
 }
