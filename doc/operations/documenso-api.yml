@@ -1,0 +1,72 @@
+operations:
+  syncDocumensoTemplates:
+    post:
+      tags:
+        - Documenso
+      summary: Sync the local template catalog from the templates created in the Documenso interface
+      operationId: syncDocumensoTemplates
+      responses:
+        '200':
+          description: The synced templates
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '../components.yml#/components/schemas/TemplateDocumenso'
+        '403':
+          $ref: '../components.yml#/components/responses/403'
+        '500':
+          $ref: '../components.yml#/components/responses/500'
+  generateDocumensoDocument:
+    post:
+      tags:
+        - Documenso
+      summary: Generate a document from a Documenso template for a promotion level, to be signed by the admin and the monitor
+      operationId: generateDocumensoDocument
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '../components.yml#/components/schemas/CrupdateDocumensoDocument'
+      responses:
+        '200':
+          description: The pending Documenso document
+          content:
+            application/json:
+              schema:
+                $ref: '../components.yml#/components/schemas/DocumensoDocument'
+        '400':
+          $ref: '../components.yml#/components/responses/400'
+        '403':
+          $ref: '../components.yml#/components/responses/403'
+        '404':
+          $ref: '../components.yml#/components/responses/404'
+        '500':
+          $ref: '../components.yml#/components/responses/500'
+  getDocumensoDocumentSigningToken:
+    get:
+      tags:
+        - Documenso
+      summary: Get the Documenso signing token for the authenticated user's recipient slot on a document
+      operationId: getDocumensoDocumentSigningToken
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: The signing token
+          content:
+            application/json:
+              schema:
+                $ref: '../components.yml#/components/schemas/DocumensoSigningToken'
+        '403':
+          $ref: '../components.yml#/components/responses/403'
+        '404':
+          $ref: '../components.yml#/components/responses/404'
+        '500':
+          $ref: '../components.yml#/components/responses/500'
