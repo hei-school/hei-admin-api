@@ -1541,7 +1541,7 @@ operations:
               schema:
                 type: array
                 items:
-                  $ref: '../components.yml#/components/schemas/Payment'
+                  $ref: '../components.yml#/components/schemas/CreditPayment'
         '400':
           $ref: '../components.yml#/components/responses/400'
         '403':
@@ -1575,7 +1575,7 @@ operations:
               schema:
                 type: array
                 items:
-                  $ref: '../components.yml#/components/schemas/Payment'
+                  $ref: '../components.yml#/components/schemas/CreditPayment'
         '400':
           $ref: '../components.yml#/components/responses/400'
         '403':
@@ -1609,7 +1609,7 @@ operations:
               schema:
                 type: array
                 items:
-                  $ref: '../components.yml#/components/schemas/Payment'
+                  $ref: '../components.yml#/components/schemas/CreditPayment'
         '400':
           $ref: '../components.yml#/components/responses/400'
         '403':

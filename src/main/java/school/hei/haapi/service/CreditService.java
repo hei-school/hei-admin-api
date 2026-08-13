@@ -22,6 +22,7 @@ import school.hei.haapi.model.Payment;
 import school.hei.haapi.model.User;
 import school.hei.haapi.model.exception.BadRequestException;
 import school.hei.haapi.repository.CreditRepository;
+import school.hei.haapi.repository.PaymentRepository;
 import school.hei.haapi.repository.TransactionRepository;
 
 @Service
@@ -29,9 +30,19 @@ import school.hei.haapi.repository.TransactionRepository;
 public class CreditService {
   private final CreditRepository creditRepository;
   private final TransactionRepository transactionRepository;
+  private final PaymentRepository paymentRepository;
 
   public Optional<Credit> getCreditByStudentId(String studentId) {
-    return creditRepository.findCreditByStudent_Id(studentId);
+    var credit = creditRepository.findCreditByStudent_Id(studentId);
+    credit.ifPresent(
+        value ->
+            value.setAmount(
+                value.getAmount() - getPendingCreditPaymentsAmountByStudentId(studentId)));
+    return credit;
+  }
+
+  private int getPendingCreditPaymentsAmountByStudentId(String studentId) {
+    return paymentRepository.sumPendingCreditPaymentsAmountByStudentId(studentId);
   }
 
   public List<CreditTransaction> getCreditTransactionsByStudentId(

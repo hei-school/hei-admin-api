@@ -24,13 +24,14 @@ public class CreditController {
 
   @GetMapping("/students/{student_id}/credit")
   public Credit getCreditByStudentId(@PathVariable("student_id") String studentId) {
-    return creditService
-        .getCreditByStudentId(studentId)
-        .map(creditMapper::toRest)
-        .orElseThrow(
-            () ->
-                new NotFoundException(
-                    "Student with id {" + studentId + "} doesn't have a credit yet."));
+    var credit =
+        creditService
+            .getCreditByStudentId(studentId)
+            .orElseThrow(
+                () ->
+                    new NotFoundException(
+                        "Student with id {" + studentId + "} doesn't have a credit yet."));
+    return creditMapper.toRest(credit);
   }
 
   @GetMapping("/students/{student_id}/credit-transactions")
