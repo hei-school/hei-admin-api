@@ -10,9 +10,9 @@ import java.util.Optional;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 import school.hei.haapi.endpoint.rest.model.StudentLevel;
+import school.hei.haapi.model.DocumensoTemplateFieldLabels;
 import school.hei.haapi.model.PersonSnapshot;
 import school.hei.haapi.model.TemplateDocumenso;
-import school.hei.haapi.model.DocumensoTemplateFieldLabels;
 import school.hei.haapi.service.documenso.gen.model.TemplateCreateDocumentFromTemplateRequestPrefillFieldsInner;
 import school.hei.haapi.service.documenso.gen.model.TemplateGetTemplateById200ResponseFieldsInner;
 
@@ -48,13 +48,20 @@ public class PrefillFieldsFactory {
 
     matchOnly(textFields, DocumensoTemplateFieldLabels.FULL_NAME, student.fullName())
         .ifPresent(prefillFields::add);
-    matchOnly(textFields, DocumensoTemplateFieldLabels.LEVEL, level == null ? null : getLevelString(level))
+    matchOnly(
+            textFields,
+            DocumensoTemplateFieldLabels.LEVEL,
+            level == null ? null : getLevelString(level))
         .ifPresent(prefillFields::add);
-    matchByPosition(textFields, DocumensoTemplateFieldLabels.PARENT_INDICATOR, monitor.fullName(), true)
+    matchByPosition(
+            textFields, DocumensoTemplateFieldLabels.PARENT_INDICATOR, monitor.fullName(), true)
         .ifPresent(prefillFields::add);
 
     for (var label :
-        List.of(DocumensoTemplateFieldLabels.ADDRESS, DocumensoTemplateFieldLabels.PHONE, DocumensoTemplateFieldLabels.NIC)) {
+        List.of(
+            DocumensoTemplateFieldLabels.ADDRESS,
+            DocumensoTemplateFieldLabels.PHONE,
+            DocumensoTemplateFieldLabels.NIC)) {
       addFieldPairIfFound(textFields, prefillFields, label, monitor, student);
     }
     return prefillFields;
@@ -68,12 +75,17 @@ public class PrefillFieldsFactory {
         new ArrayList<TemplateCreateDocumentFromTemplateRequestPrefillFieldsInner>();
     matchOnly(textFields, DocumensoTemplateFieldLabels.FULL_NAME, student.fullName())
         .ifPresent(prefillFields::add);
-    matchOnly(textFields, DocumensoTemplateFieldLabels.LEVEL, level == null ? null : getLevelString(level))
+    matchOnly(
+            textFields,
+            DocumensoTemplateFieldLabels.LEVEL,
+            level == null ? null : getLevelString(level))
         .ifPresent(prefillFields::add);
-    matchOnly(textFields, DocumensoTemplateFieldLabels.NIC, student.nic()).ifPresent(prefillFields::add);
+    matchOnly(textFields, DocumensoTemplateFieldLabels.NIC, student.nic())
+        .ifPresent(prefillFields::add);
     matchOnly(textFields, DocumensoTemplateFieldLabels.ADDRESS, student.address())
         .ifPresent(prefillFields::add);
-    matchOnly(textFields, DocumensoTemplateFieldLabels.PHONE, student.phone()).ifPresent(prefillFields::add);
+    matchOnly(textFields, DocumensoTemplateFieldLabels.PHONE, student.phone())
+        .ifPresent(prefillFields::add);
     return prefillFields;
   }
 
