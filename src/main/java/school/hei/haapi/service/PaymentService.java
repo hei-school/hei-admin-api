@@ -1,13 +1,12 @@
 package school.hei.haapi.service;
 
+import static java.time.Instant.now;
 import static org.springframework.data.domain.Sort.Direction.DESC;
 import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.LATE;
-import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.PAID;
 import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.UNPAID;
+import static school.hei.haapi.endpoint.rest.model.Payment.TypeEnum.CREDIT;
 import static school.hei.haapi.endpoint.rest.model.Payment.TypeEnum.MOBILE_MONEY;
-import static school.hei.haapi.model.User.Status.DISABLED;
-import static school.hei.haapi.model.User.Status.ENABLED;
-import static school.hei.haapi.model.User.Status.SUSPENDED;
+import static school.hei.haapi.model.PaymentStatus.VALIDATE;
 import static school.hei.haapi.service.utils.InstantUtils.UTC3;
 
 import java.time.Instant;
@@ -22,13 +21,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import school.hei.haapi.endpoint.event.EventProducer;
 import school.hei.haapi.endpoint.event.model.PaidFeeByMpbsNotificationBody;
-import school.hei.haapi.endpoint.event.model.SuspensionEndedEmailBody;
 import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.Fee;
 import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.model.Payment;
 import school.hei.haapi.model.PaymentNumberSequence;
-import school.hei.haapi.model.User;
+import school.hei.haapi.model.PaymentStatus;
 import school.hei.haapi.model.dto.PaymentDto;
 import school.hei.haapi.model.exception.BadRequestException;
 import school.hei.haapi.model.exception.NotFoundException;
@@ -36,7 +34,6 @@ import school.hei.haapi.model.mpbs.Mpbs;
 import school.hei.haapi.model.validator.PaymentValidator;
 import school.hei.haapi.repository.FeeRepository;
 import school.hei.haapi.repository.PaymentRepository;
-import school.hei.haapi.repository.dao.UserManagerDao;
 
 @Service
 @AllArgsConstructor
@@ -46,10 +43,10 @@ public class PaymentService {
   private final FeeRepository feeRepository;
   private final PaymentRepository paymentRepository;
   private final FeeService feeService;
-  private final UserManagerDao userManagerDao;
   private final PaymentValidator paymentValidator;
   private final EventProducer eventProducer;
   private final FeeStatusHistoryService feeStatusHistoryService;
+  private final CreditService creditService;
 
   public Payment deleteFeePaymentById(String paymentId) {
     Payment deletedPayment = getById(paymentId);
@@ -65,7 +62,7 @@ public class PaymentService {
   }
 
   private void resetRemainingAmountBetweenDelete(Fee associatedFee, int amount) {
-    Instant now = Instant.now();
+    Instant now = now();
     associatedFee.setRemainingAmount(associatedFee.getRemainingAmount() + amount);
 
     if (associatedFee.getDueDatetime().isBefore(now) && associatedFee.getRemainingAmount() != 0) {
@@ -84,6 +81,10 @@ public class PaymentService {
         .orElseThrow(() -> new NotFoundException("Payment with id: " + paymentId + " not found"));
   }
 
+  public List<Payment> getByIds(List<String> paymentIds) {
+    return paymentRepository.findByIds(paymentIds);
+  }
+
   public List<Payment> getByStudentIdAndFeeId(
       String studentId, String feeId, PageFromOne page, BoundedPageSize pageSize) {
     Pageable pageable =
@@ -95,66 +96,6 @@ public class PaymentService {
     return paymentRepository.findAllByFee_IdOrderByCreationDatetimeAsc(feeId);
   }
 
-  List<Payment> getByStudentIdAndFeeId(String studentId, String feeId) {
-    return paymentRepository.getByStudentIdAndFeeId(studentId, feeId);
-  }
-
-  @Transactional
-  public void computeRemainingAmount(String feeId, int amount) {
-    Fee associatedFee = feeService.getById(feeId);
-    User student = associatedFee.getStudent();
-    // Array to hold the student's status before and after the payment
-    User.Status[] studentStatusBetweenPayingFee = new User.Status[2];
-    studentStatusBetweenPayingFee[0] = student.getStatus();
-
-    associatedFee.setRemainingAmount(associatedFee.getRemainingAmount() - amount);
-    computeUserStatusAfterPayingFee(student);
-    studentStatusBetweenPayingFee[1] = student.getStatus();
-    log.info("User status is computed to {}", studentStatusBetweenPayingFee[1]);
-
-    // If the student's status changes from SUSPENDED to ENABLED, send a notification
-    if (SUSPENDED.equals(studentStatusBetweenPayingFee[0])
-        && ENABLED.equals(studentStatusBetweenPayingFee[1])) {
-      notifyStudentForEnabling(associatedFee, amount);
-    }
-    if (associatedFee.getRemainingAmount() == 0) {
-      log.info("Remaining amount is 0");
-      associatedFee.updateStatus(PAID);
-      feeStatusHistoryService.saveFeeStatus(associatedFee.getStatus(), associatedFee);
-    }
-  }
-
-  private void notifyStudentForEnabling(Fee associatedFee, int amount) {
-    // Build the payment object without unnecessary fields (type and comment fields are omitted
-    // since they are not used in the SuspensionEndedEmailBody)
-    Payment payment =
-        Payment.builder().fee(associatedFee).amount(amount).creationDatetime(Instant.now()).build();
-    SuspensionEndedEmailBody suspensionEndedEmailBody = SuspensionEndedEmailBody.from(payment);
-    eventProducer.accept(List.of(suspensionEndedEmailBody));
-    log.info(
-        "End of suspension notification for user {} sent to Queue.",
-        suspensionEndedEmailBody.getMpbsAuthorEmail());
-  }
-
-  @Transactional
-  public void computeUserStatusAfterPayingFee(User userToResetStatus) {
-    if (DISABLED.equals(userToResetStatus.getStatus())) {
-      return;
-    }
-    Instant now = Instant.now();
-    List<Fee> unpaidFeesBeforeNow =
-        feeRepository.getStudentFeesUnpaidOrLateFrom(now, userToResetStatus.getId(), LATE);
-    log.info("unpaid student fees size = {}", unpaidFeesBeforeNow.size());
-    log.info("user corresponding = {}", userToResetStatus.toString());
-    if (!unpaidFeesBeforeNow.isEmpty()) {
-      log.info("SUSPENDED");
-      userManagerDao.updateUserStatusById(SUSPENDED, userToResetStatus.getId());
-    } else {
-      log.info("RE - ENABLED");
-      userManagerDao.updateUserStatusById(ENABLED, userToResetStatus.getId());
-    }
-  }
-
   @Transactional
   public Payment savePaymentFromMpbs(Mpbs verifiedMpbs, int amount) {
     Fee correspondingFee = verifiedMpbs.getFee();
@@ -163,7 +104,7 @@ public class PaymentService {
             .type(MOBILE_MONEY)
             .fee(correspondingFee)
             .amount(amount)
-            .creationDatetime(Instant.now())
+            .creationDatetime(now())
             .comment(correspondingFee.getComment())
             .build();
     eventProducer.accept(List.of(PaidFeeByMpbsNotificationBody.from(paymentFromMpbs)));
@@ -173,8 +114,17 @@ public class PaymentService {
   @Transactional
   public List<Payment> saveAll(List<Payment> toCreate) {
     paymentValidator.accept(toCreate);
-    toCreate.forEach(
-        payment -> computeRemainingAmount(payment.getFee().getId(), payment.getAmount()));
+    var creditsPayments =
+        toCreate.stream()
+            .filter(
+                payment ->
+                    !CREDIT.equals(payment.getType()) || VALIDATE.equals(payment.getStatus()))
+            .toList();
+    creditsPayments.forEach(
+        payment -> {
+          feeService.computeRemainingAmount(payment.getFee().getId(), payment.getAmount());
+          creditService.subtractStudentCreditByPayment(payment);
+        });
     return paymentRepository.saveAll(toCreate);
   }
 
@@ -192,5 +142,12 @@ public class PaymentService {
 
   public List<Payment> getAllPaymentBetween(Instant from, Instant to) {
     return paymentRepository.getAllByCreationDatetimeBetweenOrderByCreationDatetimeAsc(from, to);
+  }
+
+  public List<Payment> getCreditPaymentsByStatus(
+      PaymentStatus status, PageFromOne page, BoundedPageSize pageSize) {
+    var pageable =
+        PageRequest.of(page.getValue() - 1, pageSize.getValue(), Sort.by(DESC, "creationDatetime"));
+    return paymentRepository.findPaymentsByStatusAndType(status, CREDIT, pageable);
   }
 }

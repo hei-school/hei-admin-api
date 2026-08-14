@@ -49,7 +49,6 @@ import school.hei.haapi.model.User;
 import school.hei.haapi.repository.UserRepository;
 import school.hei.haapi.service.FeeService;
 import school.hei.haapi.service.MpbsService;
-import school.hei.haapi.service.PaymentService;
 import school.hei.haapi.service.UserService;
 import school.hei.haapi.service.event.CheckSuspendedStudentsStatusService;
 import school.hei.haapi.service.event.SuspendStudentsWithOverdueFeesService;
@@ -63,7 +62,6 @@ import software.amazon.awssdk.services.eventbridge.EventBridgeClient;
 public class CheckStudentsStatusTest extends MockedThirdParties {
   @Autowired private CheckSuspendedStudentsStatusService checkSuspendedStudentsStatusService;
   @Autowired private SuspendStudentsWithOverdueFeesService suspendStudentsWithOverdueFeesService;
-  @Autowired private PaymentService paymentService;
   @Autowired private UserService userService;
   @Autowired private UserRepository userRepository;
   @Autowired private MpbsService mpbsService;
@@ -126,8 +124,8 @@ public class CheckStudentsStatusTest extends MockedThirdParties {
     User suspendedStudent2 = userService.getById(student2.getId());
     assertEquals(SUSPENDED, suspendedStudent2.getStatus());
 
-    paymentService.computeRemainingAmount(FEE4_ID, 5000);
-    paymentService.computeRemainingAmount(FEE5_ID, 5000);
+    feeService.computeRemainingAmount(FEE4_ID, 5000);
+    feeService.computeRemainingAmount(FEE5_ID, 5000);
 
     // here, we check if the suspended student has paid all their fees
     checkSuspendedStudentsStatusService.updateStatusBasedOnPayment();

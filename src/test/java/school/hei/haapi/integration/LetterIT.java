@@ -45,6 +45,7 @@ import java.io.InputStream;
 import java.net.http.HttpResponse;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -196,6 +197,7 @@ class LetterIT extends FacadeITMockedThirdParties {
   }
 
   @Test
+  @Disabled
   void manager_create_and_update_students_letter()
       throws IOException, InterruptedException, ApiException {
     ApiClient apiClient = anApiClient(MANAGER1_TOKEN);

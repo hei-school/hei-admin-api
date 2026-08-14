@@ -191,6 +191,39 @@ operations:
           $ref: '../components.yml#/components/responses/429'
         '500':
           $ref: '../components.yml#/components/responses/500'
+    patch:
+      tags:
+        - Paying
+      summary: Archive student fee.
+      operationId: archiveStudentFee
+      parameters:
+        - name: student_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: fee_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: student fee archived.
+          content:
+            application/json:
+              schema:
+                $ref: '../components.yml#/components/schemas/Fee'
+        '400':
+          $ref: '../components.yml#/components/responses/400'
+        '403':
+          $ref: '../components.yml#/components/responses/403'
+        '404':
+          $ref: '../components.yml#/components/responses/404'
+        '429':
+          $ref: '../components.yml#/components/responses/429'
+        '500':
+          $ref: '../components.yml#/components/responses/500'
   studentsFees:
     get:
       tags:
@@ -1397,6 +1430,186 @@ operations:
             application/json:
               schema:
                 $ref: '../components.yml#/components/schemas/Payment'
+        '400':
+          $ref: '../components.yml#/components/responses/400'
+        '403':
+          $ref: '../components.yml#/components/responses/403'
+        '404':
+          $ref: '../components.yml#/components/responses/404'
+        '429':
+          $ref: '../components.yml#/components/responses/429'
+        '500':
+          $ref: '../components.yml#/components/responses/500'
+  getCreditByStudentId:
+    get:
+      tags:
+        - Paying
+      summary: Get a student's available credit.
+      operationId: getCreditByStudentId
+      parameters:
+        - name: student_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Student's available credit.
+          content:
+            application/json:
+              schema:
+                $ref: '../components.yml#/components/schemas/Credit'
+        '400':
+          $ref: '../components.yml#/components/responses/400'
+        '403':
+          $ref: '../components.yml#/components/responses/403'
+        '404':
+          $ref: '../components.yml#/components/responses/404'
+        '429':
+          $ref: '../components.yml#/components/responses/429'
+        '500':
+          $ref: '../components.yml#/components/responses/500'
+  getCreditTransactionsByStudentId:
+    get:
+      tags:
+        - Paying
+      summary: Get a student's credit transactions.
+      operationId: getCreditTransactionsByStudentId
+      parameters:
+        - name: student_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: movement
+          in: query
+          required: false
+          schema:
+            $ref: '../components.yml#/components/schemas/CreditMovement'
+        - name: page
+          in: query
+          schema:
+            $ref: '../components.yml#/components/schemas/Page'
+        - name: page_size
+          in: query
+          schema:
+            $ref: '../components.yml#/components/schemas/PageSize'
+      responses:
+        '200':
+          description: List of the student's credit transactions.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '../components.yml#/components/schemas/CreditTransaction'
+        '400':
+          $ref: '../components.yml#/components/responses/400'
+        '403':
+          $ref: '../components.yml#/components/responses/403'
+        '404':
+          $ref: '../components.yml#/components/responses/404'
+        '429':
+          $ref: '../components.yml#/components/responses/429'
+        '500':
+          $ref: '../components.yml#/components/responses/500'
+  getCreditPaymentsByStatus:
+    get:
+      tags:
+        - Paying
+      summary: Get fee payments made using credit.
+      operationId: getCreditPaymentsByStatus
+      parameters:
+        - name: status
+          in: query
+          required: false
+          schema:
+            $ref: '../components.yml#/components/schemas/PaymentStatus'
+        - name: page
+          in: query
+          schema:
+            $ref: '../components.yml#/components/schemas/Page'
+        - name: page_size
+          in: query
+          schema:
+            $ref: '../components.yml#/components/schemas/PageSize'
+      responses:
+        '200':
+          description: List of fee payments made using credit.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '../components.yml#/components/schemas/CreditPayment'
+        '400':
+          $ref: '../components.yml#/components/responses/400'
+        '403':
+          $ref: '../components.yml#/components/responses/403'
+        '404':
+          $ref: '../components.yml#/components/responses/404'
+        '429':
+          $ref: '../components.yml#/components/responses/429'
+        '500':
+          $ref: '../components.yml#/components/responses/500'
+  validateCreditPayments:
+    patch:
+      tags:
+        - Paying
+      summary: Validate fee payments made using credit.
+      operationId: validateCreditPayments
+      requestBody:
+        description: Students credit payments to validate
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                type: string
+      responses:
+        '200':
+          description: List of fee credit payments validate.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '../components.yml#/components/schemas/CreditPayment'
+        '400':
+          $ref: '../components.yml#/components/responses/400'
+        '403':
+          $ref: '../components.yml#/components/responses/403'
+        '404':
+          $ref: '../components.yml#/components/responses/404'
+        '429':
+          $ref: '../components.yml#/components/responses/429'
+        '500':
+          $ref: '../components.yml#/components/responses/500'
+  rejectCreditPayments:
+    patch:
+      tags:
+        - Paying
+      summary: Reject fee payments made using credit.
+      operationId: rejectCreditPayments
+      requestBody:
+        description: Students credit payments to reject
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                type: string
+      responses:
+        '200':
+          description: List of fee credit payments rejected.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '../components.yml#/components/schemas/CreditPayment'
         '400':
           $ref: '../components.yml#/components/responses/400'
         '403':

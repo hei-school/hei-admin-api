@@ -14,6 +14,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -22,7 +23,20 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import school.hei.haapi.endpoint.rest.mapper.FeeMapper;
 import school.hei.haapi.endpoint.rest.mapper.FeeTemplateMapper;
-import school.hei.haapi.endpoint.rest.model.*;
+import school.hei.haapi.endpoint.rest.model.AdvancedFeeStatisticsGeneration;
+import school.hei.haapi.endpoint.rest.model.AdvancedFeeStatisticsType;
+import school.hei.haapi.endpoint.rest.model.AdvancedFeesStatistics;
+import school.hei.haapi.endpoint.rest.model.CreateFee;
+import school.hei.haapi.endpoint.rest.model.CrupdateFeeTemplate;
+import school.hei.haapi.endpoint.rest.model.CrupdateStudentFee;
+import school.hei.haapi.endpoint.rest.model.Fee;
+import school.hei.haapi.endpoint.rest.model.FeeCategory;
+import school.hei.haapi.endpoint.rest.model.FeeStatusEnum;
+import school.hei.haapi.endpoint.rest.model.FeeTemplate;
+import school.hei.haapi.endpoint.rest.model.FeeTypeEnum;
+import school.hei.haapi.endpoint.rest.model.FeesStatistics;
+import school.hei.haapi.endpoint.rest.model.FeesWithStats;
+import school.hei.haapi.endpoint.rest.model.MpbsStatus;
 import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.model.TrackActivity;
@@ -83,9 +97,13 @@ public class FeeController {
     var student = userService.getById(studentId);
     List<school.hei.haapi.model.Fee> domainFeeList =
         fees.stream().map(fee -> feeMapper.toDomain(fee, student)).collect(toList());
-    return feeService.updateAll(domainFeeList, studentId).stream()
-        .map(feeMapper::toRestFee)
-        .toList();
+    return feeService.updateAll(domainFeeList).stream().map(feeMapper::toRestFee).toList();
+  }
+
+  @PatchMapping("/students/{studentId}/fees/{feeId}")
+  public Fee archiveStudentFeeById(@PathVariable String studentId, @PathVariable String feeId) {
+    var fee = feeService.getById(feeId);
+    return feeMapper.toRestFee(feeService.archiveFee(fee));
   }
 
   @GetMapping("/students/{studentId}/fees")

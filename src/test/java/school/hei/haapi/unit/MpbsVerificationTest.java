@@ -39,10 +39,10 @@ import school.hei.haapi.model.psp.vola.api.VolaClient;
 import school.hei.haapi.model.psp.vola.api.gen.client.model.PspPayment;
 import school.hei.haapi.service.ComputeVerifiedMobilePayment;
 import school.hei.haapi.service.FailedMobilePaymentNotification;
+import school.hei.haapi.service.FeeService;
 import school.hei.haapi.service.MobilePaymentService;
 import school.hei.haapi.service.MpbsService;
 import school.hei.haapi.service.MpbsVerificationService;
-import school.hei.haapi.service.PaymentService;
 import school.hei.haapi.service.UnverifiedMobilePaymentHandler;
 import school.hei.haapi.service.utils.CollectionUtils;
 
@@ -54,7 +54,7 @@ class MpbsVerificationTest {
   EventProducer<PaidFeeByMpbsFailedNotificationBody> eventProducerMock = mock();
   VolaClient volaClientMock = mock();
   MpbsService mpbsServiceMock = mock();
-  PaymentService paymentServiceMock = mock();
+  FeeService feeServiceMock = mock();
   MpbsMapper mpbsMapperMock = mock();
   MpbsVerificationService subject =
       initMpbsVerificationService(
@@ -82,7 +82,7 @@ class MpbsVerificationTest {
         new VolaMapper(),
         mpbsServiceMock,
         mpbsMapperMock,
-        paymentServiceMock);
+        feeServiceMock);
   }
 
   @Test

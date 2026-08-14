@@ -319,7 +319,7 @@ class FeeIT extends FacadeITMockedThirdParties {
         api.getFees(null, null, PAID, null, fee1().getCreationDatetime(), null, 1, 10, false, null);
 
     assertEquals(fee1(), actualFee);
-    assertEquals(2, actualFees2.getData().size());
+    assertEquals(3, actualFees2.getData().size());
     assertTrue(actualFees1.contains(fee1()));
     assertTrue(actualFees1.contains(fee2()));
     assertTrue(actualFees1.contains(fee3()));
@@ -745,7 +745,7 @@ class FeeIT extends FacadeITMockedThirdParties {
     var manager1Client = anApiClient(MANAGER1_TOKEN);
     var api = new PayingApi(manager1Client);
     var actualWorkFees = api.getFees(null, null, null, L1, null, null, 1, 10, false, null);
-    assertEquals(0, actualWorkFees.getData().size());
+    assertEquals(1, actualWorkFees.getData().size());
   }
 
   @Test

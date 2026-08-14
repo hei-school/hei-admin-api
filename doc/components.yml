@@ -974,6 +974,8 @@ components:
           type: string
         student_id:
           type: string
+        is_archived:
+          type: boolean
       allOf:
         - $ref: '#/components/schemas/CreateFee'
     ModelFee:
@@ -1018,6 +1020,8 @@ components:
           $ref: '#/components/schemas/FeeLetter'
         student_first_name:
           type: string
+        is_archived:
+          type: boolean
     FeeCategory:
       type: string
       enum:
@@ -1079,6 +1083,12 @@ components:
         - MVOLA
         - ORANGE_MONEY
         - AIRTEL_MONEY
+    PaymentStatus:
+      type: string
+      enum:
+        - VALIDATE
+        - INVALIDATE
+        - CREATED
     CreatePayment:
       type: object
       properties:
@@ -1090,10 +1100,13 @@ components:
             - MOBILE_MONEY
             - SCHOLARSHIP
             - FIX
+            - CREDIT
         amount:
           type: integer
         comment:
           type: string
+        status:
+          $ref: "#/components/schemas/PaymentStatus"
         creation_datetime:
           type: string
           format: date-time
@@ -2282,3 +2295,45 @@ components:
           $ref: '#/components/schemas/FeeStudentCreationStatus'
         message:
           type: string
+    CreditMovement:
+      type: string
+      enum:
+        - WITHDRAWAL
+        - DEPOSIT
+    Credit:
+      type: object
+      properties:
+        id:
+          type: string
+        student:
+          $ref: '#/components/schemas/UserIdentifier'
+        amount:
+          type: integer
+    CreditTransaction:
+      type: object
+      properties:
+         transaction_id:
+           type: string
+         credit:
+           $ref: '#/components/schemas/Credit'
+         fee:
+           $ref: '#/components/schemas/Fee'
+         date_time:
+           type: string
+           format: date-time
+         amount:
+           type: integer
+         movement:
+           $ref: '#/components/schemas/CreditMovement'
+    CreditPayment:
+      allOf:
+        - $ref: '#/components/schemas/CreatePayment'
+      type: object
+      properties:
+        id:
+          type: string
+        fee:
+          $ref: '#/components/schemas/Fee'
+        creation_date:
+          type: string
+          format: date

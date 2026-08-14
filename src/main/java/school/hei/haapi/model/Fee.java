@@ -15,7 +15,14 @@ import static school.hei.haapi.model.fee.PaymentType.BANK;
 import static school.hei.haapi.model.fee.PaymentType.MPBS;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import jakarta.persistence.*;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
 import java.io.Serializable;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
@@ -90,6 +97,11 @@ public class Fee implements Serializable {
   @EqualsAndHashCode.Exclude
   private List<Payment> payments;
 
+  @OneToMany(mappedBy = "fee", cascade = REMOVE)
+  @JsonIgnore
+  @EqualsAndHashCode.Exclude
+  private List<CreditTransaction> transactions;
+
   @OneToMany(mappedBy = "fee", cascade = REMOVE, fetch = EAGER)
   @EqualsAndHashCode.Exclude
   private List<Mpbs> mobilePayments;
@@ -113,6 +125,8 @@ public class Fee implements Serializable {
   @JoinColumn(name = "id_fee_template")
   @EqualsAndHashCode.Exclude
   private V2FeeTemplate feeTemplate;
+
+  private boolean isArchived;
 
   public Instant getCreationDatetime() {
     return creationDatetime.truncatedTo(ChronoUnit.MILLIS);

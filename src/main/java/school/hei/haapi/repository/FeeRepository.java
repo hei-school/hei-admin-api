@@ -93,4 +93,12 @@ public interface FeeRepository extends JpaRepository<Fee, String> {
           + ") )"
           + "order by fsh.datetime desc")
   List<Fee> findAllByDueDatetimeBetween(Instant from, Instant to);
+
+  List<Fee> findFeesByStudent_Id(String studentId);
+
+  @Query(
+      """
+    select f from Fee f where f.id in :ids
+""")
+  List<Fee> findAllByIds(@Param("ids") List<String> ids);
 }

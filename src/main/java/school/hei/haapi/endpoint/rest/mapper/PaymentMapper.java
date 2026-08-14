@@ -6,9 +6,11 @@ import java.util.List;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 import school.hei.haapi.endpoint.rest.model.CreatePayment;
+import school.hei.haapi.endpoint.rest.model.CreditPayment;
 import school.hei.haapi.endpoint.rest.model.Payment;
 import school.hei.haapi.endpoint.rest.validator.CreatePaymentValidator;
 import school.hei.haapi.model.Fee;
+import school.hei.haapi.model.PaymentStatus;
 import school.hei.haapi.model.exception.BadRequestException;
 import school.hei.haapi.model.exception.NotFoundException;
 import school.hei.haapi.service.FeeService;
@@ -17,6 +19,7 @@ import school.hei.haapi.service.FeeService;
 @AllArgsConstructor
 public class PaymentMapper {
   private final FeeService feeService;
+  private final FeeMapper feeMapper;
   private final CreatePaymentValidator createPaymentValidator;
 
   public Payment toRestPayment(school.hei.haapi.model.Payment payment) {
@@ -26,7 +29,27 @@ public class PaymentMapper {
         .type(payment.getType())
         .amount(payment.getAmount())
         .comment(payment.getComment())
+        .status(
+            school.hei.haapi.endpoint.rest.model.PaymentStatus.valueOf(
+                payment.getStatus().toString()))
         .creationDatetime(payment.getCreationDatetime());
+  }
+
+  public CreditPayment toRestCreditPayment(school.hei.haapi.model.Payment payment) {
+    return new CreditPayment()
+        .id(payment.getId())
+        .fee(feeMapper.toRestFee(payment.getFee()))
+        .type(CreditPayment.TypeEnum.valueOf(payment.getType().toString()))
+        .amount(payment.getAmount())
+        .comment(payment.getComment())
+        .status(
+            school.hei.haapi.endpoint.rest.model.PaymentStatus.valueOf(
+                payment.getStatus().toString()))
+        .creationDatetime(payment.getCreationDatetime());
+  }
+
+  public List<CreditPayment> toRestCreditPayment(List<school.hei.haapi.model.Payment> payments) {
+    return payments.stream().map(this::toRestCreditPayment).toList();
   }
 
   private school.hei.haapi.model.Payment toDomainPayment(
@@ -38,6 +61,7 @@ public class PaymentMapper {
         .creationDatetime(createPayment.getCreationDatetime())
         .amount(createPayment.getAmount())
         .comment(createPayment.getComment())
+        .status(PaymentStatus.valueOf(createPayment.getStatus().toString()))
         .build();
   }
 
@@ -64,6 +88,8 @@ public class PaymentMapper {
         return Payment.TypeEnum.FIX;
       case BANK_TRANSFER:
         return Payment.TypeEnum.BANK_TRANSFER;
+      case CREDIT:
+        return Payment.TypeEnum.CREDIT;
       default:
         throw new BadRequestException("Unexpected paymentType: " + createPaymentType.getValue());
     }

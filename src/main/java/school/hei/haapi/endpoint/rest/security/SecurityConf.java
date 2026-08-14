@@ -47,6 +47,7 @@ public class SecurityConf {
   private final AbstractUserDetailsAuthenticationProvider authProvider;
   private final HandlerExceptionResolver exceptionResolver;
   private final CorRepository corRepository;
+  private final FeesOnlyFilter feesOnlyFilter;
 
   public SecurityConf(
       CasdoorAuthProvider authProvider,
@@ -54,12 +55,14 @@ public class SecurityConf {
       @Qualifier("handlerExceptionResolver") HandlerExceptionResolver exceptionResolver,
       CourseAssignmentService courseAssignmentService,
       MonitoringStudentService monitoringStudentService,
-      CorRepository corRepository) {
+      CorRepository corRepository,
+      FeesOnlyFilter feesOnlyFilter) {
     this.authProvider = authProvider;
     this.exceptionResolver = exceptionResolver;
     this.courseAssignmentService = courseAssignmentService;
     this.monitoringStudentService = monitoringStudentService;
     this.corRepository = corRepository;
+    this.feesOnlyFilter = feesOnlyFilter;
   }
 
   @Bean
@@ -92,6 +95,7 @@ public class SecurityConf {
 
         // authenticate
         .authenticationProvider(authProvider)
+        .addFilterBefore(feesOnlyFilter, AnonymousAuthenticationFilter.class)
         .addFilterBefore(
             bearerFilter(
                 new OrRequestMatcher(
@@ -154,9 +158,15 @@ public class SecurityConf {
                     antMatcher(GET, "/students/*/fees/*"),
                     antMatcher(GET, "/students/*/fees/*/payments/*/receipt/raw"),
                     antMatcher(DELETE, "/students/*/fees/*"),
+                    antMatcher(PATCH, "/students/*/fees/*"),
                     antMatcher(GET, "/students/*/fees/*/payments"),
                     antMatcher(POST, "/students/*/fees/*/payments"),
                     antMatcher(DELETE, "/students/*/fees/*/payments/*"),
+                    antMatcher(PATCH, "/students/payments/validate"),
+                    antMatcher(PATCH, "/students/payments/reject"),
+                    antMatcher(GET, "/students/credit-payments"),
+                    antMatcher(GET, "/students/{student_id}/credit"),
+                    antMatcher(GET, "/students/{student_id}/credit-transactions"),
                     antMatcher(GET, "/students/*/fees"),
                     antMatcher(POST, "/students/*/fees"),
                     antMatcher(PUT, "/students/*/fees"),
@@ -568,6 +578,8 @@ public class SecurityConf {
                     .hasRole(MONITOR.getRole())
                     .requestMatchers(DELETE, "/students/*/fees/*")
                     .hasAnyRole(MANAGER.getRole(), ADMIN.getRole())
+                    .requestMatchers(PATCH, "/students/*/fees/*")
+                    .hasAnyRole(MANAGER.getRole(), ADMIN.getRole())
                     .requestMatchers(GET, "/students/*/fees/*")
                     .hasAnyRole(MANAGER.getRole(), ADMIN.getRole())
                     .requestMatchers(
@@ -624,7 +636,7 @@ public class SecurityConf {
                     .requestMatchers(GET, "/students/*/fees/*/payments")
                     .hasAnyRole(MANAGER.getRole(), ADMIN.getRole())
                     .requestMatchers(POST, "/students/*/fees/*/payments")
-                    .hasAnyRole(MANAGER.getRole(), ADMIN.getRole())
+                    .hasAnyRole(MANAGER.getRole(), ADMIN.getRole(), STUDENT.getRole())
                     .requestMatchers(GET, "/students/*/fees")
                     .hasAnyRole(MANAGER.getRole(), ADMIN.getRole())
                     .requestMatchers(new SelfMatcher(POST, "/students/*/fees", "students"))
@@ -643,6 +655,16 @@ public class SecurityConf {
                     .hasAnyRole(MANAGER.getRole(), ADMIN.getRole())
                     .requestMatchers(POST, "/students/*/fees/*/payments")
                     .hasAnyRole(MANAGER.getRole(), ADMIN.getRole())
+                    .requestMatchers(PATCH, "/students/payments/validate")
+                    .hasAnyRole(MANAGER.getRole(), ADMIN.getRole())
+                    .requestMatchers(PATCH, "/students/payments/reject")
+                    .hasAnyRole(MANAGER.getRole(), ADMIN.getRole())
+                    .requestMatchers(GET, "/students/credit-payments")
+                    .hasAnyRole(MANAGER.getRole(), ADMIN.getRole())
+                    .requestMatchers(GET, "/students/{student_id}/credit")
+                    .hasAnyRole(STUDENT.getRole(), MANAGER.getRole(), ADMIN.getRole())
+                    .requestMatchers(GET, "/students/{student_id}/credit-transactions")
+                    .hasAnyRole(STUDENT.getRole(), MANAGER.getRole(), ADMIN.getRole())
                     .requestMatchers(
                         new StudentMonitorMatcher(
                             GET, "/students/*", "students", monitoringStudentService))
