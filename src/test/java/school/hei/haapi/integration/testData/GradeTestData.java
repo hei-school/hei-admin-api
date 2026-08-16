@@ -20,7 +20,13 @@ public class GradeTestData {
         .build();
   }
 
+  /**
+   * Scores are whole numbers on purpose: the weighted average goes through {@link
+   * org.apache.commons.lang3.math.Fraction}, and a score with a long decimal expansion turns into a
+   * fraction whose denominator overflows an int as soon as a few of them are summed.
+   */
   public static List<Grade> createRandomGrades(List<User> students, Exam exam) {
+    var random = new Random();
     return students.stream()
         .map(
             student ->
@@ -28,7 +34,7 @@ public class GradeTestData {
                     .id(randomUUID().toString())
                     .exam(exam)
                     .student(student)
-                    .score(new Random().nextDouble(5, 20))
+                    .score((double) random.nextInt(5, 20))
                     .build())
         .toList();
   }
