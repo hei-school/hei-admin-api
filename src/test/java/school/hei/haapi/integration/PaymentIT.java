@@ -7,407 +7,430 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static school.hei.haapi.endpoint.rest.model.EnableStatus.ENABLED;
 import static school.hei.haapi.endpoint.rest.model.EnableStatus.SUSPENDED;
+import static school.hei.haapi.endpoint.rest.model.FeeCategory.UNKNOWN;
 import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.PAID;
-import static school.hei.haapi.integration.StudentIT.someCreatableStudent;
-import static school.hei.haapi.integration.StudentIT.student1;
-import static school.hei.haapi.integration.conf.TestUtils.FEE1_ID;
-import static school.hei.haapi.integration.conf.TestUtils.FEE3_ID;
-import static school.hei.haapi.integration.conf.TestUtils.FEE5_ID;
-import static school.hei.haapi.integration.conf.TestUtils.FEE6_ID;
-import static school.hei.haapi.integration.conf.TestUtils.MANAGER1_TOKEN;
-import static school.hei.haapi.integration.conf.TestUtils.MONITOR1_TOKEN;
-import static school.hei.haapi.integration.conf.TestUtils.PAYMENT1_ID;
-import static school.hei.haapi.integration.conf.TestUtils.PAYMENT2_ID;
-import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_ID;
-import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_TOKEN;
-import static school.hei.haapi.integration.conf.TestUtils.STUDENT2_ID;
-import static school.hei.haapi.integration.conf.TestUtils.TEACHER1_TOKEN;
-import static school.hei.haapi.integration.conf.TestUtils.assertThrowsApiException;
-import static school.hei.haapi.integration.conf.TestUtils.assertThrowsForbiddenException;
-import static school.hei.haapi.integration.conf.TestUtils.creatableFee1;
-import static school.hei.haapi.integration.conf.TestUtils.setUpCasdoor;
-import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
-import static school.hei.haapi.integration.conf.TestUtils.setUpEventBridge;
-import static school.hei.haapi.integration.conf.TestUtils.setUpS3Service;
+import static school.hei.haapi.endpoint.rest.model.FeeTypeEnum.TUITION;
+import static school.hei.haapi.integration.conf.ApiAssertions.assertThrowsApiException;
+import static school.hei.haapi.integration.conf.ApiAssertions.assertThrowsForbiddenException;
+import static school.hei.haapi.integration.conf.TestAuth.tokenFor;
+import static school.hei.haapi.integration.conf.TestMocks.setUpEventBridge;
+import static school.hei.haapi.integration.conf.TestMocks.setUpS3Service;
+import static school.hei.haapi.integration.testData.FeeTestData.createPendingFee;
+import static school.hei.haapi.integration.testData.ManagerTestData.hasina;
+import static school.hei.haapi.integration.testData.MonitorTestData.monitorOfAxel;
+import static school.hei.haapi.integration.testData.PaymentTestData.aPayment;
+import static school.hei.haapi.integration.testData.StudentTestData.axel;
+import static school.hei.haapi.integration.testData.StudentTestData.freddy;
+import static school.hei.haapi.integration.testData.TeacherTestData.toky;
 import static school.hei.haapi.model.exception.ApiException.ExceptionType.SERVER_EXCEPTION;
 
 import jakarta.persistence.EntityManager;
-import jakarta.persistence.Query;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.testcontainers.junit.jupiter.Testcontainers;
 import school.hei.haapi.endpoint.rest.api.PayingApi;
 import school.hei.haapi.endpoint.rest.api.UsersApi;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
+import school.hei.haapi.endpoint.rest.model.Coordinates;
+import school.hei.haapi.endpoint.rest.model.CreateFee;
 import school.hei.haapi.endpoint.rest.model.CreatePayment;
 import school.hei.haapi.endpoint.rest.model.CrupdateStudent;
-import school.hei.haapi.endpoint.rest.model.Fee;
-import school.hei.haapi.endpoint.rest.model.Payment;
+import school.hei.haapi.endpoint.rest.model.FeeFrequency;
 import school.hei.haapi.endpoint.rest.model.PaymentStatus;
-import school.hei.haapi.endpoint.rest.model.Student;
+import school.hei.haapi.endpoint.rest.model.Sex;
 import school.hei.haapi.integration.conf.FacadeITMockedThirdParties;
 import school.hei.haapi.integration.conf.TestUtils;
+import school.hei.haapi.model.Fee;
+import school.hei.haapi.model.Payment;
+import school.hei.haapi.model.User;
+import school.hei.haapi.repository.FeeRepository;
+import school.hei.haapi.repository.PaymentRepository;
+import school.hei.haapi.repository.UserRepository;
 import software.amazon.awssdk.services.eventbridge.EventBridgeClient;
 
-@Testcontainers
-@AutoConfigureMockMvc
 class PaymentIT extends FacadeITMockedThirdParties {
+  private static final Instant DUE_DATETIME = Instant.parse("2022-12-08T08:25:24.00Z");
+
   @Autowired EntityManager entityManager;
+  @Autowired private UserRepository userRepository;
+  @Autowired private FeeRepository feeRepository;
+  @Autowired private PaymentRepository paymentRepository;
   @MockBean private EventBridgeClient eventBridgeClientMock;
+
+  private User studentAxel;
+  private User studentFreddy;
+  private User monitorAxel;
+  private User managerHasina;
+  private User teacherToky;
+
+  /** Half paid: 2000 + 3000 out of 10000. */
+  private Fee axelPartlyPaidFee;
+
+  /** Untouched, 5000 remaining — the room left for the "amount exceeds remaining" cases. */
+  private Fee axelOpenFee;
+
+  private Fee freddyOpenFee;
+  private Payment axelCashPayment;
+  private Payment axelMobileMoneyPayment;
+
+  private String axelToken;
+  private String freddyToken;
+  private String monitorToken;
+  private String managerToken;
+  private String teacherToken;
+
+  private void setUpTestData() {
+    studentAxel = userRepository.save(axel());
+    studentFreddy = userRepository.save(freddy());
+
+    // the join table is keyed monitor_id -> student_id, so the followed students hang off the
+    // monitor
+    monitorAxel = monitorOfAxel();
+    monitorAxel.setMonitors(new ArrayList<>(List.of(studentAxel)));
+    monitorAxel = userRepository.save(monitorAxel);
+
+    managerHasina = userRepository.save(hasina());
+    teacherToky = userRepository.save(toky());
+
+    axelPartlyPaidFee = feeRepository.save(createPendingFee(studentAxel, 10000, DUE_DATETIME));
+    axelOpenFee = feeRepository.save(createPendingFee(studentAxel, 5000, DUE_DATETIME));
+    freddyOpenFee = feeRepository.save(createPendingFee(studentFreddy, 5000, DUE_DATETIME));
+
+    axelCashPayment =
+        paymentRepository.save(
+            aPayment(
+                axelPartlyPaidFee,
+                school.hei.haapi.endpoint.rest.model.Payment.TypeEnum.CASH,
+                2000,
+                "Comment",
+                Instant.parse("2022-11-08T08:25:24.00Z")));
+    axelMobileMoneyPayment =
+        paymentRepository.save(
+            aPayment(
+                axelPartlyPaidFee,
+                school.hei.haapi.endpoint.rest.model.Payment.TypeEnum.MOBILE_MONEY,
+                3000,
+                null,
+                Instant.parse("2022-11-10T08:25:25.00Z")));
+
+    axelPartlyPaidFee.setRemainingAmount(5000);
+    axelPartlyPaidFee = feeRepository.save(axelPartlyPaidFee);
+  }
+
+  @BeforeEach
+  void setUp() {
+    setUpEventBridge(eventBridgeClientMock);
+    setUpTestData();
+    setUpS3Service(fileService, studentAxel);
+
+    axelToken = tokenFor(casdoorAuthServiceMock, studentAxel);
+    freddyToken = tokenFor(casdoorAuthServiceMock, studentFreddy);
+    monitorToken = tokenFor(casdoorAuthServiceMock, monitorAxel);
+    managerToken = tokenFor(casdoorAuthServiceMock, managerHasina);
+    teacherToken = tokenFor(casdoorAuthServiceMock, teacherToky);
+  }
+
+  @AfterEach
+  void tearDown() {
+    var ownedFeeIds =
+        List.of(axelPartlyPaidFee.getId(), axelOpenFee.getId(), freddyOpenFee.getId());
+    paymentRepository.deleteAll(
+        paymentRepository.findAll().stream()
+            .filter(p -> p.getFee() != null && ownedFeeIds.contains(p.getFee().getId()))
+            .toList());
+    feeRepository.deleteAllById(ownedFeeIds);
+    // drop the join rows before the users they point at
+    monitorAxel.setMonitors(new ArrayList<>());
+    userRepository.save(monitorAxel);
+    userRepository.deleteAll(
+        List.of(studentAxel, studentFreddy, monitorAxel, managerHasina, teacherToky));
+  }
+
+  private PayingApi apiAs(String token) {
+    return new PayingApi(anApiClient(token));
+  }
 
   private ApiClient anApiClient(String token) {
     return TestUtils.anApiClient(token, localPort);
   }
 
-  /***
-   * Get payment by id without jpa, avoiding FILTER isDeleted = true | false
-   * @param paymentId
-   * @return Payment data by id
-   */
-  private school.hei.haapi.model.Payment getPaymentByIdWithoutJpaFiltering(String paymentId) {
+  /** Reads a payment bypassing the JPA {@code isDeleted} filter. */
+  private Payment getPaymentByIdWithoutJpaFiltering(String paymentId) {
     try {
-      Query q =
-          entityManager.createNativeQuery(
-              "SELECT * FROM \"payment\" where id = ?", school.hei.haapi.model.Payment.class);
+      var q =
+          entityManager.createNativeQuery("SELECT * FROM \"payment\" where id = ?", Payment.class);
       q.setParameter(1, paymentId);
-      return (school.hei.haapi.model.Payment) q.getSingleResult();
+      return (Payment) q.getSingleResult();
     } catch (NullPointerException e) {
       throw new school.hei.haapi.model.exception.ApiException(SERVER_EXCEPTION, e.getMessage());
     }
   }
 
-  static Payment payment1() {
-    return new Payment()
-        .id(PAYMENT1_ID)
-        .feeId(FEE1_ID)
-        .type(Payment.TypeEnum.CASH)
-        .status(PaymentStatus.VALIDATE)
-        .amount(2000)
-        .comment("Comment")
-        .creationDatetime(Instant.parse("2022-11-08T08:25:24.00Z"));
+  private static List<String> idsOf(List<school.hei.haapi.endpoint.rest.model.Payment> payments) {
+    return payments.stream().map(payment -> payment.getId()).toList();
   }
 
-  static Payment payment2() {
-    return new Payment()
-        .id(PAYMENT2_ID)
-        .feeId(FEE1_ID)
-        .type(Payment.TypeEnum.MOBILE_MONEY)
-        .amount(3000)
-        .status(PaymentStatus.VALIDATE)
-        .comment(null)
-        .creationDatetime(Instant.parse("2022-11-10T08:25:25.00Z"));
-  }
-
-  static CreatePayment paymentWithAfterNowCreationDatetime() {
+  private static CreatePayment aCreatablePayment(int amount) {
     return new CreatePayment()
         .type(CreatePayment.TypeEnum.CASH)
-        .status(PaymentStatus.VALIDATE)
-        .amount(2000)
-        .comment("creation datetime upper than now")
-        .creationDatetime(Instant.now().plusSeconds(60));
-  }
-
-  static CreatePayment paymentNoCreationDatetime() {
-    return new CreatePayment()
-        .type(CreatePayment.TypeEnum.CASH)
-        .status(PaymentStatus.VALIDATE)
-        .amount(2000)
-        .comment("non given creation datetime");
-  }
-
-  static CreatePayment createWithBankType() {
-    return new CreatePayment()
-        .type(CreatePayment.TypeEnum.BANK_TRANSFER)
-        .amount(2000)
-        .comment("Comment")
-        .status(PaymentStatus.VALIDATE)
-        .creationDatetime(Instant.parse("2022-11-08T08:25:24.00Z"));
-  }
-
-  static CreatePayment creatablePayment1() {
-    return new CreatePayment()
-        .type(CreatePayment.TypeEnum.CASH)
-        .amount(2000)
+        .amount(amount)
         .status(PaymentStatus.VALIDATE)
         .comment("Comment")
         .creationDatetime(Instant.parse("2022-11-08T08:25:24.00Z"));
-  }
-
-  static CreatePayment creatablePaymentZ() {
-    return new CreatePayment()
-        .type(CreatePayment.TypeEnum.CASH)
-        .amount(5000)
-        .comment("Comment")
-        .status(PaymentStatus.VALIDATE)
-        .creationDatetime(Instant.parse("2022-11-08T08:25:24.00Z"));
-  }
-
-  static CreatePayment creatablePayment2() {
-    return new CreatePayment()
-        .type(CreatePayment.TypeEnum.MOBILE_MONEY)
-        .creationDatetime(Instant.parse("2022-11-10T08:25:25.00Z"))
-        .status(PaymentStatus.VALIDATE)
-        .amount(6000)
-        .comment("Comment");
-  }
-
-  @BeforeEach
-  void setUp() {
-    setUpCasdoor(casdoorAuthServiceMock, certificateLoaderMock);
-    setUpCognito(cognitoComponentMock);
-    setUpS3Service(fileService, student1());
-    setUpEventBridge(eventBridgeClientMock);
   }
 
   @Test
-  @Disabled
   void student_read_ok() throws ApiException {
-    ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
-    PayingApi api = new PayingApi(student1Client);
+    var actual =
+        apiAs(axelToken).getStudentPayments(studentAxel.getId(), axelPartlyPaidFee.getId(), 1, 5);
 
-    List<Payment> actual = api.getStudentPayments(STUDENT1_ID, FEE1_ID, 1, 5);
-
-    assertTrue(actual.contains(payment1()));
-    assertTrue(actual.contains(payment2()));
+    assertTrue(idsOf(actual).contains(axelCashPayment.getId()));
+    assertTrue(idsOf(actual).contains(axelMobileMoneyPayment.getId()));
   }
 
   @Test
-  @Disabled
   void monitor_read_own_followed_student_payment_ok() throws ApiException {
-    ApiClient monitor1Client = anApiClient(MONITOR1_TOKEN);
-    PayingApi api = new PayingApi(monitor1Client);
+    var actual =
+        apiAs(monitorToken)
+            .getStudentPayments(studentAxel.getId(), axelPartlyPaidFee.getId(), 1, 5);
 
-    List<Payment> actual = api.getStudentPayments(STUDENT1_ID, FEE1_ID, 1, 5);
-
-    assertTrue(actual.contains(payment1()));
-    assertTrue(actual.contains(payment2()));
+    assertTrue(idsOf(actual).contains(axelCashPayment.getId()));
+    assertTrue(idsOf(actual).contains(axelMobileMoneyPayment.getId()));
   }
 
   @Test
-  @Disabled
   void manager_read_ok() throws ApiException {
-    ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
-    PayingApi api = new PayingApi(manager1Client);
+    var actual =
+        apiAs(managerToken)
+            .getStudentPayments(studentAxel.getId(), axelPartlyPaidFee.getId(), 1, 5);
 
-    List<Payment> actual = api.getStudentPayments(STUDENT1_ID, FEE1_ID, 1, 5);
-
-    assertTrue(actual.contains(payment1()));
-    assertTrue(actual.contains(payment2()));
+    assertTrue(idsOf(actual).contains(axelCashPayment.getId()));
+    assertTrue(idsOf(actual).contains(axelMobileMoneyPayment.getId()));
   }
 
   @Test
-  @Disabled("dirty")
   void manager_delete_payment_ok() throws ApiException {
-    ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
-    PayingApi api = new PayingApi(manager1Client);
+    var api = apiAs(managerToken);
 
-    Payment deletedPayment = api.deleteStudentFeePaymentById(STUDENT1_ID, FEE1_ID, PAYMENT1_ID);
-    assertEquals(payment1(), deletedPayment);
-    Fee actualFee = api.getStudentFeeById(STUDENT1_ID, FEE1_ID);
-    assertEquals(2000, actualFee.getRemainingAmount());
+    var deletedPayment =
+        api.deleteStudentFeePaymentById(
+            studentAxel.getId(), axelPartlyPaidFee.getId(), axelCashPayment.getId());
+    assertEquals(axelCashPayment.getId(), deletedPayment.getId());
 
-    List<Payment> payments = api.getStudentPayments(STUDENT1_ID, FEE1_ID, 1, 5);
-    assertFalse(payments.contains(deletedPayment));
+    var actualFee = api.getStudentFeeById(studentAxel.getId(), axelPartlyPaidFee.getId());
+    assertEquals(7000, actualFee.getRemainingAmount());
 
-    // test: check if the payment is not deleted but has been flagged as deleted.
-    school.hei.haapi.model.Payment actualPaymentData =
-        getPaymentByIdWithoutJpaFiltering(PAYMENT1_ID);
-    assertTrue(actualPaymentData.isDeleted());
+    var payments = api.getStudentPayments(studentAxel.getId(), axelPartlyPaidFee.getId(), 1, 5);
+    assertFalse(idsOf(payments).contains(axelCashPayment.getId()));
+
+    // soft delete: the row is still there, only flagged
+    assertTrue(getPaymentByIdWithoutJpaFiltering(axelCashPayment.getId()).isDeleted());
   }
 
   @Test
   void student_read_ko() {
-    ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
-    PayingApi api = new PayingApi(student1Client);
+    var api = apiAs(axelToken);
 
     assertThrowsApiException(
         "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
-        () -> api.getStudentPayments(STUDENT2_ID, FEE3_ID, null, null));
+        () -> api.getStudentPayments(studentFreddy.getId(), freddyOpenFee.getId(), null, null));
   }
 
   @Test
   void monitor_read_other_student_payment_ko() {
-    ApiClient monitor1Client = anApiClient(MONITOR1_TOKEN);
-    PayingApi api = new PayingApi(monitor1Client);
+    var api = apiAs(monitorToken);
 
-    assertThrowsForbiddenException(() -> api.getStudentPayments(STUDENT2_ID, FEE3_ID, null, null));
+    assertThrowsForbiddenException(
+        () -> api.getStudentPayments(studentFreddy.getId(), freddyOpenFee.getId(), null, null));
   }
 
   @Test
   void teacher_read_ko() {
-    ApiClient teacher1Client = anApiClient(TEACHER1_TOKEN);
-    PayingApi api = new PayingApi(teacher1Client);
+    var api = apiAs(teacherToken);
 
     assertThrowsApiException(
         "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
-        () -> api.getStudentPayments(STUDENT2_ID, FEE3_ID, null, null));
+        () -> api.getStudentPayments(studentFreddy.getId(), freddyOpenFee.getId(), null, null));
   }
 
   @Test
   void manager_write_with_bank_type_ok() throws ApiException {
-    ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
-    PayingApi api = new PayingApi(manager1Client);
+    var api = apiAs(managerToken);
+    var bankTransfer =
+        new CreatePayment()
+            .type(CreatePayment.TypeEnum.BANK_TRANSFER)
+            .amount(2000)
+            .comment("Comment")
+            .status(PaymentStatus.VALIDATE)
+            .creationDatetime(Instant.parse("2022-11-08T08:25:24.00Z"));
 
-    List<Payment> actual =
-        api.createStudentPayments(STUDENT2_ID, FEE5_ID, List.of(createWithBankType()));
+    var actual =
+        api.createStudentPayments(
+            studentFreddy.getId(), freddyOpenFee.getId(), List.of(bankTransfer));
 
-    List<Payment> expected = api.getStudentPayments(STUDENT2_ID, FEE5_ID, 1, 5);
-    assertTrue(expected.containsAll(actual));
+    var reread = api.getStudentPayments(studentFreddy.getId(), freddyOpenFee.getId(), 1, 5);
+    assertTrue(reread.containsAll(actual));
   }
 
   @Test
   void manager_write_ok() throws ApiException {
-    ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
-    PayingApi api = new PayingApi(manager1Client);
+    var api = apiAs(managerToken);
 
-    List<Payment> actual =
-        api.createStudentPayments(STUDENT1_ID, FEE3_ID, List.of(creatablePayment1()));
+    var actual =
+        api.createStudentPayments(
+            studentAxel.getId(), axelOpenFee.getId(), List.of(aCreatablePayment(2000)));
 
-    List<Payment> expected = api.getStudentPayments(STUDENT1_ID, FEE3_ID, 1, 5);
-    assertTrue(expected.containsAll(actual));
+    var reread = api.getStudentPayments(studentAxel.getId(), axelOpenFee.getId(), 1, 5);
+    assertTrue(reread.containsAll(actual));
   }
 
   @Test
-  @Disabled("dirty")
   void student_is_now_enabled_after_paying_fee() throws ApiException {
-    ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
-    PayingApi payingApi = new PayingApi(manager1Client);
-    UsersApi usersApi = new UsersApi(manager1Client);
-    CrupdateStudent subject = someCreatableStudent();
-    subject.setStatus(ENABLED);
+    var managerClient = anApiClient(managerToken);
+    var payingApi = new PayingApi(managerClient);
+    var usersApi = new UsersApi(managerClient);
 
-    // Assert before all that the actual student is SUSPENDED ...
-    Student student = usersApi.createOrUpdateStudents(List.of(subject), null).getFirst();
+    var subject = aCreatableStudent();
+    var student = usersApi.createOrUpdateStudents(List.of(subject), null).getFirst();
     assertEquals(ENABLED, student.getStatus());
-    // Update inserted user
+
     subject.setId(student.getId());
     subject.setStatus(SUSPENDED);
-    Student actualSuspended = usersApi.createOrUpdateStudents(List.of(subject), null).getFirst();
+    var actualSuspended = usersApi.createOrUpdateStudents(List.of(subject), null).getFirst();
     assertEquals(SUSPENDED, actualSuspended.getStatus());
 
-    String subjectId = student.getId();
+    var subjectId = student.getId();
+    var createdFee = payingApi.createStudentFees(subjectId, List.of(aCreatableFee())).getFirst();
 
-    // ... create corresponding fee ...
-    Fee createdFee = payingApi.createStudentFees(subjectId, List.of(creatableFee1())).getFirst();
+    payingApi.createStudentPayments(
+        subjectId, createdFee.getId(), List.of(aCreatablePayment(5000)));
 
-    // ... after all assert that the status of student is ENABLED
-    payingApi.createStudentPayments(subjectId, createdFee.getId(), List.of(creatablePaymentZ()));
-    Fee actualFee = payingApi.getStudentFeeById(subjectId, createdFee.getId());
-    Student actualStudent = usersApi.getStudentById(subjectId);
+    assertEquals(PAID, payingApi.getStudentFeeById(subjectId, createdFee.getId()).getStatus());
+    assertEquals(ENABLED, usersApi.getStudentById(subjectId).getStatus());
 
-    assertEquals(PAID, actualFee.getStatus());
-    assertEquals(ENABLED, actualStudent.getStatus());
+    feeRepository.deleteById(createdFee.getId());
+    userRepository.deleteById(subjectId);
   }
 
   @Test
   void teacher_write_ko() {
-    ApiClient teacher1Client = anApiClient(TEACHER1_TOKEN);
-    PayingApi api = new PayingApi(teacher1Client);
+    var api = apiAs(teacherToken);
 
     assertThrowsApiException(
         "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
-        () -> api.createStudentPayments(STUDENT1_ID, FEE1_ID, List.of()));
-  }
-
-  @Test
-  @Disabled("A student can create payment if only he have a credit.")
-  void student_write_ko() {
-    ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
-    PayingApi api = new PayingApi(student1Client);
-
-    assertThrowsApiException(
-        "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
-        () -> api.createStudentPayments(STUDENT1_ID, FEE1_ID, List.of()));
+        () -> api.createStudentPayments(studentAxel.getId(), axelOpenFee.getId(), List.of()));
   }
 
   @Test
   void manager_write_ko() throws ApiException {
-    ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
-    PayingApi api = new PayingApi(manager1Client);
-    List<Payment> expected = api.getStudentPayments(STUDENT1_ID, FEE3_ID, 1, 5);
+    var api = apiAs(managerToken);
+    var before = api.getStudentPayments(studentAxel.getId(), axelOpenFee.getId(), 1, 5);
 
     assertThrowsApiException(
         "{\"type\":\"400 BAD_REQUEST\",\"message\":\"Payment amount (8000)"
             + " exceeds fee remaining amount (5000)\"}",
         () ->
             api.createStudentPayments(
-                STUDENT1_ID, FEE3_ID, List.of(creatablePayment1(), creatablePayment2())));
+                studentAxel.getId(),
+                axelOpenFee.getId(),
+                List.of(aCreatablePayment(2000), aCreatablePayment(6000))));
 
-    List<Payment> actual = api.getStudentPayments(STUDENT1_ID, FEE3_ID, 1, 5);
-    assertEquals(0, expected.size());
-    assertEquals(expected, actual);
+    var after = api.getStudentPayments(studentAxel.getId(), axelOpenFee.getId(), 1, 5);
+    assertEquals(0, before.size());
+    assertEquals(before, after);
   }
 
   @Test
   void manager_write_with_some_bad_fields_ko() {
-    ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
-    PayingApi api = new PayingApi(manager1Client);
-    CreatePayment toCreate1 = creatablePayment1().amount(null);
-    CreatePayment toCreate2 = creatablePayment1().amount(-1);
+    var api = apiAs(managerToken);
+    var noAmount = aCreatablePayment(2000).amount(null);
+    var negativeAmount = aCreatablePayment(2000).amount(-1);
 
-    ApiException exception1 =
+    var noAmountException =
         assertThrows(
             ApiException.class,
-            () -> api.createStudentPayments(STUDENT1_ID, FEE1_ID, List.of(toCreate1)));
-    ApiException exception2 =
+            () ->
+                api.createStudentPayments(
+                    studentAxel.getId(), axelOpenFee.getId(), List.of(noAmount)));
+    var negativeAmountException =
         assertThrows(
             ApiException.class,
-            () -> api.createStudentPayments(STUDENT1_ID, FEE1_ID, List.of(toCreate2)));
+            () ->
+                api.createStudentPayments(
+                    studentAxel.getId(), axelOpenFee.getId(), List.of(negativeAmount)));
 
-    String exceptionMessage1 = exception1.getMessage();
-    String exceptionMessage2 = exception2.getMessage();
-    assertTrue(exceptionMessage1.contains("Amount is mandatory"));
-    assertTrue(exceptionMessage2.contains("Amount must be positive"));
+    assertTrue(noAmountException.getMessage().contains("Amount is mandatory"));
+    assertTrue(negativeAmountException.getMessage().contains("Amount must be positive"));
   }
 
   @Test
   void manager_write_with_non_given_creation_datetime_ko() {
-    ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
-    PayingApi api = new PayingApi(manager1Client);
+    var api = apiAs(managerToken);
+    var noCreationDatetime = aCreatablePayment(2000).creationDatetime(null);
 
     assertThrowsApiException(
         "{\"type\":\"400 BAD_REQUEST\",\"message\":\"Creation datetime is mandatory\"}",
         () ->
-            api.createStudentPayments(STUDENT1_ID, FEE3_ID, List.of(paymentNoCreationDatetime())));
+            api.createStudentPayments(
+                studentAxel.getId(), axelOpenFee.getId(), List.of(noCreationDatetime)));
   }
 
   @Test
   void manager_write_with_creation_datetime_after_current_time_ko() {
-    ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
-    PayingApi api = new PayingApi(manager1Client);
+    var api = apiAs(managerToken);
+    var inTheFuture = aCreatablePayment(2000).creationDatetime(Instant.now().plusSeconds(60));
 
-    // cannot test instant now when creating payment
     assertThrows(
         ApiException.class,
         () ->
             api.createStudentPayments(
-                STUDENT1_ID, FEE3_ID, List.of(paymentWithAfterNowCreationDatetime())));
+                studentAxel.getId(), axelOpenFee.getId(), List.of(inTheFuture)));
   }
 
   @Test
   void manager_write_changes_expected() throws ApiException {
-    ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
-    PayingApi api = new PayingApi(manager1Client);
-    Fee fee = api.getStudentFeeById(STUDENT1_ID, FEE6_ID);
+    var api = apiAs(managerToken);
+    var fee = api.getStudentFeeById(studentAxel.getId(), axelOpenFee.getId());
 
-    List<Payment> actual =
-        api.createStudentPayments(fee.getStudentId(), fee.getId(), List.of(creatablePayment1()));
+    var actual =
+        api.createStudentPayments(
+            fee.getStudentId(), fee.getId(), List.of(aCreatablePayment(2000)));
 
-    List<Payment> expected = api.getStudentPayments(fee.getStudentId(), fee.getId(), 1, 10);
+    var reread = api.getStudentPayments(fee.getStudentId(), fee.getId(), 1, 10);
+    var refreshedFee = api.getStudentFeeById(fee.getStudentId(), fee.getId());
 
-    Fee actualFee3 = api.getStudentFeeById(fee.getStudentId(), fee.getId());
-    assertNotEquals(fee, actualFee3);
-    assertEquals(
-        (fee.getRemainingAmount() - creatablePayment1().getAmount()),
-        actualFee3.getRemainingAmount());
+    assertNotEquals(fee, refreshedFee);
+    assertEquals(fee.getRemainingAmount() - 2000, refreshedFee.getRemainingAmount());
+    assertEquals(reread, actual);
+  }
 
-    assertEquals(expected, actual);
+  private static CreateFee aCreatableFee() {
+    return new CreateFee()
+        .type(TUITION)
+        .totalAmount(5000)
+        .category(UNKNOWN)
+        .frequency(FeeFrequency.UNKNOWN)
+        .comment("Comment")
+        .dueDatetime(Instant.parse("2021-12-08T08:25:24.00Z"));
+  }
+
+  private static CrupdateStudent aCreatableStudent() {
+    return new CrupdateStudent()
+        .firstName("Nouveau")
+        .lastName("Etudiant")
+        .email("test+payment-" + java.util.UUID.randomUUID() + "@hei.school")
+        .ref("STD" + java.util.UUID.randomUUID())
+        .status(ENABLED)
+        .sex(Sex.M)
+        .birthDate(java.time.LocalDate.parse("2000-01-01"))
+        .entranceDatetime(Instant.parse("2021-11-08T08:25:24.00Z"))
+        .address("Adr 1")
+        .coordinates(new Coordinates().longitude(10.0).latitude(10.0));
   }
 }

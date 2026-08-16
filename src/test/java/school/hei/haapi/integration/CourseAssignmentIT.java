@@ -1,25 +1,22 @@
 package school.hei.haapi.integration;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static school.hei.haapi.integration.StudentIT.student1;
-import static school.hei.haapi.integration.conf.TestUtils.MANAGER1_TOKEN;
+import static school.hei.haapi.integration.conf.ApiAssertions.assertCourseAssignmentsIgnoringGroupCreationDateTime;
+import static school.hei.haapi.integration.conf.ApiAssertions.assertThrowsApiException;
+import static school.hei.haapi.integration.conf.TestAuth.tokenFor;
+import static school.hei.haapi.integration.conf.TestMocks.setUpS3Service;
 import static school.hei.haapi.integration.conf.TestUtils.NOT_EXISTING_ID;
-import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_TOKEN;
-import static school.hei.haapi.integration.conf.TestUtils.TEACHER1_TOKEN;
-import static school.hei.haapi.integration.conf.TestUtils.assertCourseAssignmentsIgnoringGroupCreationDateTime;
-import static school.hei.haapi.integration.conf.TestUtils.assertThrowsApiException;
-import static school.hei.haapi.integration.conf.TestUtils.setUpCasdoor;
-import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
-import static school.hei.haapi.integration.conf.TestUtils.setUpS3Service;
-import static school.hei.haapi.integration.test_data.CourseAssignmentTestData.createCourseAssignment;
-import static school.hei.haapi.integration.test_data.CourseAssignmentTestData.createCrupdateCourseAssignment;
-import static school.hei.haapi.integration.test_data.CourseTestData.prog1;
-import static school.hei.haapi.integration.test_data.CourseTestData.prog2;
-import static school.hei.haapi.integration.test_data.CourseTestData.prog4;
-import static school.hei.haapi.integration.test_data.GroupTestData.g1;
-import static school.hei.haapi.integration.test_data.GroupTestData.g2;
-import static school.hei.haapi.integration.test_data.TeacherTestData.ryan;
-import static school.hei.haapi.integration.test_data.TeacherTestData.toky;
+import static school.hei.haapi.integration.testData.CourseAssignmentTestData.createCourseAssignment;
+import static school.hei.haapi.integration.testData.CourseAssignmentTestData.createCrupdateCourseAssignment;
+import static school.hei.haapi.integration.testData.CourseTestData.prog1;
+import static school.hei.haapi.integration.testData.CourseTestData.prog2;
+import static school.hei.haapi.integration.testData.CourseTestData.prog4;
+import static school.hei.haapi.integration.testData.GroupTestData.g1;
+import static school.hei.haapi.integration.testData.GroupTestData.g2;
+import static school.hei.haapi.integration.testData.ManagerTestData.hasina;
+import static school.hei.haapi.integration.testData.StudentTestData.axel;
+import static school.hei.haapi.integration.testData.TeacherTestData.ryan;
+import static school.hei.haapi.integration.testData.TeacherTestData.toky;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -31,11 +28,11 @@ import school.hei.haapi.endpoint.rest.api.CoursesApi;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
 import school.hei.haapi.endpoint.rest.mapper.CourseAssignmentMapper;
-import school.hei.haapi.endpoint.rest.model.CourseAssignment;
 import school.hei.haapi.integration.conf.FacadeITMockedThirdParties;
 import school.hei.haapi.integration.conf.FakeDataProvider;
 import school.hei.haapi.integration.conf.TestUtils;
 import school.hei.haapi.model.Course;
+import school.hei.haapi.model.CourseAssignment;
 import school.hei.haapi.model.Group;
 import school.hei.haapi.model.User;
 import school.hei.haapi.repository.CourseAssignmentRepository;
@@ -52,13 +49,18 @@ class CourseAssignmentIT extends FacadeITMockedThirdParties {
   private Course courseProg1, courseProg2;
   private User teacherToky, teacherRyan;
   private Group groupG1, groupG2;
-  private school.hei.haapi.model.CourseAssignment assignProg1_toToky_forG1AndG2;
-  private school.hei.haapi.model.CourseAssignment assignProg2_toToky_forG1;
-  private school.hei.haapi.model.CourseAssignment assignProg2_toRyan_forG2;
+  private CourseAssignment assignProg1_toToky_forG1AndG2;
+  private CourseAssignment assignProg2_toToky_forG1;
+  private CourseAssignment assignProg2_toRyan_forG2;
   private List<String> courseIds = new ArrayList<>();
   private List<String> teacherIds = new ArrayList<>();
   private List<String> groupIds = new ArrayList<>();
   private List<String> courseAssignmentIds = new ArrayList<>();
+  private User studentAxel;
+  private User managerHasina;
+  private String studentToken;
+  private String managerToken;
+  private String teacherTokyToken;
 
   private void setUpTestData() {
     courseProg1 = prog1();
@@ -81,6 +83,12 @@ class CourseAssignmentIT extends FacadeITMockedThirdParties {
     courseIds.addAll(List.of(courseProg1.getId(), courseProg2.getId()));
     teacherIds.addAll(List.of(teacherToky.getId(), teacherRyan.getId()));
     groupIds.addAll(List.of(groupG1.getId(), groupG2.getId()));
+    studentAxel = teacherRepository.save(axel());
+    managerHasina = teacherRepository.save(hasina());
+    studentToken = tokenFor(casdoorAuthServiceMock, studentAxel);
+    managerToken = tokenFor(casdoorAuthServiceMock, managerHasina);
+    teacherTokyToken = tokenFor(casdoorAuthServiceMock, teacherToky);
+
     courseAssignmentIds.addAll(
         List.of(
             assignProg2_toToky_forG1.getId(),
@@ -94,16 +102,15 @@ class CourseAssignmentIT extends FacadeITMockedThirdParties {
 
   @BeforeEach
   void setUp() {
-    setUpCasdoor(casdoorAuthServiceMock, certificateLoaderMock);
-    setUpCognito(cognitoComponentMock);
-    setUpS3Service(fileService, student1());
     setUpTestData();
+    setUpS3Service(fileService, studentAxel);
   }
 
   @AfterEach
   void tearDown() {
     courseRepository.deleteAllById(courseIds);
     teacherRepository.deleteAllById(teacherIds);
+    teacherRepository.deleteAll(List.of(studentAxel, managerHasina));
     groupRepository.deleteAllById(groupIds);
     courseAssignmentRepository.deleteAllById(courseAssignmentIds);
     courseAssignmentIds = new ArrayList<>();
@@ -113,19 +120,19 @@ class CourseAssignmentIT extends FacadeITMockedThirdParties {
   }
 
   private void assertCourseAssignments(
-      String method,
-      String id,
-      List<school.hei.haapi.model.CourseAssignment> expected,
-      CoursesApi api)
+      String method, String id, List<CourseAssignment> expected, CoursesApi api)
       throws ApiException {
     assertRestCourseAssignments(
         method, id, expected.stream().map(courseAssignmentMapper::toRest).toList(), api);
   }
 
   private void assertRestCourseAssignments(
-      String method, String id, List<CourseAssignment> expected, CoursesApi api)
+      String method,
+      String id,
+      List<school.hei.haapi.endpoint.rest.model.CourseAssignment> expected,
+      CoursesApi api)
       throws ApiException {
-    List<CourseAssignment> actual =
+    var actual =
         switch (method) {
           case "byTeacherId" -> api.getCourseAssignmentByTeacherId(id, 1, 10);
           case "byCourseId" -> api.getCourseAssignmentsByCourseId(id, 1, 10);
@@ -137,8 +144,8 @@ class CourseAssignmentIT extends FacadeITMockedThirdParties {
 
   @Test
   void student_read_ok() throws ApiException {
-    ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
-    CoursesApi api = new CoursesApi(student1Client);
+    var student1Client = anApiClient(studentToken);
+    var api = new CoursesApi(student1Client);
 
     assertCourseAssignments(
         "byTeacherId",
@@ -149,8 +156,8 @@ class CourseAssignmentIT extends FacadeITMockedThirdParties {
 
   @Test
   void manager_read_with_bad_id_ko() {
-    ApiClient teacher1Client = anApiClient(MANAGER1_TOKEN);
-    CoursesApi api = new CoursesApi(teacher1Client);
+    var teacher1Client = anApiClient(managerToken);
+    var api = new CoursesApi(teacher1Client);
 
     assertThrowsApiException(
         "{\"type\":\"404 NOT_FOUND\",\"message\":\"Teacher with id: "
@@ -161,8 +168,8 @@ class CourseAssignmentIT extends FacadeITMockedThirdParties {
 
   @Test
   void teacher_read_ok() throws ApiException {
-    ApiClient teacherClient = anApiClient(TEACHER1_TOKEN);
-    CoursesApi api = new CoursesApi(teacherClient);
+    var teacherClient = anApiClient(teacherTokyToken);
+    var api = new CoursesApi(teacherClient);
 
     assertCourseAssignments(
         "byGroupId",
@@ -188,8 +195,8 @@ class CourseAssignmentIT extends FacadeITMockedThirdParties {
 
   @Test
   void student_create_or_update_ko() {
-    ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
-    CoursesApi api = new CoursesApi(student1Client);
+    var student1Client = anApiClient(studentToken);
+    var api = new CoursesApi(student1Client);
 
     assertThrowsApiException(
         "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
@@ -200,8 +207,8 @@ class CourseAssignmentIT extends FacadeITMockedThirdParties {
 
   @Test
   void teacher_create_or_update_ko() {
-    ApiClient teacher1Client = anApiClient(TEACHER1_TOKEN);
-    CoursesApi api = new CoursesApi(teacher1Client);
+    var teacher1Client = anApiClient(teacherTokyToken);
+    var api = new CoursesApi(teacher1Client);
 
     assertThrowsApiException(
         "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
@@ -215,16 +222,16 @@ class CourseAssignmentIT extends FacadeITMockedThirdParties {
 
   @Test
   void manager_create_ok() throws ApiException {
-    ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
-    CoursesApi api = new CoursesApi(manager1Client);
-    Course courseProg4 = prog4();
+    var manager1Client = anApiClient(managerToken);
+    var api = new CoursesApi(manager1Client);
+    var courseProg4 = prog4();
     courseRepository.save(courseProg4);
     courseIds.add(courseProg4.getId());
     var toCreate =
         createCrupdateCourseAssignment(courseProg4, teacherToky, List.of(groupG1, groupG2));
     int initialSize = api.getCourseAssignmentsByCriteria(null, null, null, null, null).size();
 
-    List<CourseAssignment> created = api.createOrUpdateCourseAssignments(List.of(toCreate));
+    var created = api.createOrUpdateCourseAssignments(List.of(toCreate));
     courseAssignmentIds.add(created.getFirst().getId());
 
     assertEquals(
@@ -236,13 +243,12 @@ class CourseAssignmentIT extends FacadeITMockedThirdParties {
 
   @Test
   void manager_update_ok() throws ApiException {
-    ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
-    CoursesApi api = new CoursesApi(manager1Client);
+    var manager1Client = anApiClient(managerToken);
+    var api = new CoursesApi(manager1Client);
 
     var toUpdate =
         createCrupdateCourseAssignment(courseProg1, teacherRyan, List.of(groupG1, groupG2));
-    List<CourseAssignment> updatedRestCourseAssignment =
-        api.createOrUpdateCourseAssignments(List.of(toUpdate));
+    var updatedRestCourseAssignment = api.createOrUpdateCourseAssignments(List.of(toUpdate));
     courseAssignmentIds.remove(assignProg1_toToky_forG1AndG2.getId());
     courseAssignmentIds.add(updatedRestCourseAssignment.getFirst().getId());
 

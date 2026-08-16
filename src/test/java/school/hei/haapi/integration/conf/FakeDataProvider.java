@@ -9,9 +9,6 @@ import static school.hei.haapi.endpoint.rest.model.FeeCategory.L1;
 import static school.hei.haapi.endpoint.rest.model.FeeFrequency.MONTHLY;
 import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.PENDING;
 import static school.hei.haapi.endpoint.rest.model.FeeTypeEnum.TUITION;
-import static school.hei.haapi.integration.conf.TestUtils.COURSE1_ID;
-import static school.hei.haapi.integration.conf.TestUtils.MANAGER_ID;
-import static school.hei.haapi.integration.conf.TestUtils.group1;
 import static school.hei.haapi.model.Event.PlaceName.IVANDRY;
 import static school.hei.haapi.model.Event.RoomName.UNKNOWN;
 import static school.hei.haapi.model.User.Role.STUDENT;
@@ -100,9 +97,9 @@ public class FakeDataProvider {
 
   public static CrupdateCourseAssignment createCourseAssignment() {
     return new CrupdateCourseAssignment()
-        .courseId("course2_id")
-        .groupIds(List.of("group2_id"))
-        .mainTeacherId("teacher2_id");
+        .courseId(randomUUID().toString())
+        .groupIds(List.of(randomUUID().toString()))
+        .mainTeacherId(randomUUID().toString());
   }
 
   public static CorCommentInfo someCorCommentInfo() {
@@ -206,7 +203,6 @@ public class FakeDataProvider {
       List<Group> groups) {
     return new CreateEvent()
         .id("event" + randomUUID() + "_id")
-        .courseId(COURSE1_ID)
         .beginDatetime(beginDatetime)
         .endDatetime(endDatetime)
         .description("Another event")
@@ -222,17 +218,10 @@ public class FakeDataProvider {
         .place(faker.options().option(PlaceEnum.class));
   }
 
+  /** No group attached: callers that need participants pass their own groups. */
   public static CreateEvent someCreatableEvent(
       EventType eventType, String planerId, Instant beginDatetime, Instant endDatetime) {
-    return someCreatableEvent(eventType, planerId, beginDatetime, endDatetime, List.of(group1()));
-  }
-
-  public static CreateEvent someCreatableEventByManager1(EventType eventType) {
-    return someCreatableEvent(
-        eventType,
-        MANAGER_ID,
-        Instant.parse("2023-12-08T08:00:00.00Z"),
-        Instant.parse("2023-12-08T10:00:00.00Z"));
+    return someCreatableEvent(eventType, planerId, beginDatetime, endDatetime, List.of());
   }
 
   public static User someStudent(String firstName) {

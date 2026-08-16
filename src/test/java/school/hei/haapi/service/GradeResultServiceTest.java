@@ -31,7 +31,7 @@ import static school.hei.haapi.endpoint.rest.model.StudentLevel.M1;
 import static school.hei.haapi.endpoint.rest.model.StudentLevel.M2;
 import static school.hei.haapi.endpoint.rest.model.YearlyResultGenerationStatus.AVAILABLE;
 import static school.hei.haapi.endpoint.rest.model.YearlyResultGenerationStatus.GENERATING;
-import static school.hei.haapi.integration.conf.TestUtils.assertThrowsDomainBadRequestException;
+import static school.hei.haapi.integration.conf.ApiAssertions.assertThrowsDomainBadRequestException;
 import static school.hei.haapi.model.CycleLevel.BACHELOR;
 
 import java.net.MalformedURLException;

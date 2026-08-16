@@ -5,7 +5,7 @@ import static java.util.Collections.emptyList;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static school.hei.haapi.integration.conf.TestUtils.assertThrowsDomainBadRequestException;
+import static school.hei.haapi.integration.conf.ApiAssertions.assertThrowsDomainBadRequestException;
 
 import java.util.List;
 import org.apache.commons.lang3.math.Fraction;
@@ -38,7 +38,7 @@ class ExamValidatorTest {
 
   @Test
   void acceptListOfExams_WithValidExams_ShouldNotThrowException() {
-    List<Exam> exams = List.of(validExam(), validExam());
+    var exams = List.of(validExam(), validExam());
 
     assertDoesNotThrow(() -> subject.accept(exams));
   }
@@ -78,7 +78,7 @@ class ExamValidatorTest {
     var exam = new Exam();
 
     var exception = assertThrowsDomainBadRequestException(() -> subject.accept(exam));
-    String message = exception.getMessage();
+    var message = exception.getMessage();
     assertTrue(message.contains("Title is mandatory"));
     assertTrue(message.contains("Awarded course is mandatory"));
     assertTrue(message.contains("Examination date is mandatory"));
@@ -90,7 +90,7 @@ class ExamValidatorTest {
     var invalidExam = validExam();
     invalidExam.setTitle(null);
 
-    List<Exam> exams = List.of(validExam(), invalidExam);
+    var exams = List.of(validExam(), invalidExam);
 
     var exception = assertThrowsDomainBadRequestException(() -> subject.accept(exams));
 
@@ -110,7 +110,7 @@ class ExamValidatorTest {
     var invalidExam2 = validExam();
     invalidExam2.setCourseAssignment(null);
 
-    List<Exam> exams = List.of(invalidExam1, invalidExam2);
+    var exams = List.of(invalidExam1, invalidExam2);
 
     var exception = assertThrowsDomainBadRequestException(() -> subject.accept(exams));
 

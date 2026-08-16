@@ -2,50 +2,46 @@ package school.hei.haapi.unit;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
-import static school.hei.haapi.endpoint.rest.model.MobileMoneyType.ORANGE_MONEY;
-import static school.hei.haapi.integration.MpbsIT.createableMpbsFromFeeIdForStudent;
-import static school.hei.haapi.integration.conf.TestUtils.FEE4_ID;
-import static school.hei.haapi.integration.conf.TestUtils.FEE5_ID;
-import static school.hei.haapi.integration.conf.TestUtils.MANAGER1_TOKEN;
-import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_ID;
-import static school.hei.haapi.integration.conf.TestUtils.STUDENT2_ID;
-import static school.hei.haapi.integration.conf.TestUtils.STUDENT2_TOKEN;
-import static school.hei.haapi.integration.conf.TestUtils.anAvailableRandomPort;
-import static school.hei.haapi.integration.conf.TestUtils.creatableFee1;
-import static school.hei.haapi.integration.conf.TestUtils.setUpCasdoor;
-import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
-import static school.hei.haapi.integration.conf.TestUtils.setUpEventBridge;
-import static school.hei.haapi.integration.test_data.MpbsTestData.createCrupdateMpbs;
-import static school.hei.haapi.model.User.Sex.F;
-import static school.hei.haapi.model.User.Sex.M;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.when;
+import static school.hei.haapi.endpoint.rest.model.FeeCategory.UNKNOWN;
+import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.LATE;
+import static school.hei.haapi.endpoint.rest.model.FeeTypeEnum.TUITION;
+import static school.hei.haapi.integration.conf.TestAuth.tokenFor;
+import static school.hei.haapi.integration.conf.TestMocks.setUpEventBridge;
+import static school.hei.haapi.integration.testData.FeeTestData.createFeeWithStatus;
+import static school.hei.haapi.integration.testData.ManagerTestData.hasina;
+import static school.hei.haapi.integration.testData.MpbsTestData.createableMpbsFromFeeIdForStudent;
+import static school.hei.haapi.integration.testData.StudentTestData.axel;
+import static school.hei.haapi.integration.testData.StudentTestData.freddy;
 import static school.hei.haapi.model.User.Status.ENABLED;
 import static school.hei.haapi.model.User.Status.SUSPENDED;
 
 import java.time.Instant;
-import java.time.LocalDate;
+import java.time.ZoneOffset;
+import java.util.ArrayList;
 import java.util.List;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.transaction.annotation.Transactional;
-import org.testcontainers.junit.jupiter.Testcontainers;
 import school.hei.haapi.endpoint.rest.api.PayingApi;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
-import school.hei.haapi.endpoint.rest.model.CrupdateMpbs;
-import school.hei.haapi.endpoint.rest.model.Fee;
-import school.hei.haapi.endpoint.rest.model.Mpbs;
-import school.hei.haapi.integration.conf.AbstractContextInitializer;
-import school.hei.haapi.integration.conf.MockedThirdParties;
+import school.hei.haapi.endpoint.rest.model.CreateFee;
+import school.hei.haapi.endpoint.rest.model.FeeFrequency;
+import school.hei.haapi.integration.conf.FacadeITMockedThirdParties;
 import school.hei.haapi.integration.conf.TestUtils;
+import school.hei.haapi.model.Fee;
 import school.hei.haapi.model.User;
+import school.hei.haapi.model.psp.vola.api.VolaClient;
+import school.hei.haapi.model.psp.vola.api.gen.client.model.Payment;
+import school.hei.haapi.model.psp.vola.api.gen.client.model.PspPayment;
+import school.hei.haapi.repository.FeeRepository;
 import school.hei.haapi.repository.UserRepository;
 import school.hei.haapi.service.FeeService;
 import school.hei.haapi.service.MpbsService;
@@ -54,138 +50,156 @@ import school.hei.haapi.service.event.CheckSuspendedStudentsStatusService;
 import school.hei.haapi.service.event.SuspendStudentsWithOverdueFeesService;
 import software.amazon.awssdk.services.eventbridge.EventBridgeClient;
 
-@SpringBootTest(webEnvironment = RANDOM_PORT)
-@Testcontainers
-@ContextConfiguration(initializers = CheckStudentsStatusTest.ContextInitializer.class)
-@AutoConfigureMockMvc
-@Transactional
-public class CheckStudentsStatusTest extends MockedThirdParties {
+public class CheckStudentsStatusTest extends FacadeITMockedThirdParties {
   @Autowired private CheckSuspendedStudentsStatusService checkSuspendedStudentsStatusService;
   @Autowired private SuspendStudentsWithOverdueFeesService suspendStudentsWithOverdueFeesService;
   @Autowired private UserService userService;
   @Autowired private UserRepository userRepository;
+  @Autowired private FeeRepository feeRepository;
   @Autowired private MpbsService mpbsService;
   @Autowired private FeeService feeService;
+  @Autowired private JdbcTemplate jdbcTemplate;
   @MockBean private EventBridgeClient eventBridgeClientMock;
+  @MockBean private VolaClient volaClientMock;
+
+  private User manager;
+  private User indebtedStudent;
+  private User otherIndebtedStudent;
+  private Fee lateFee1;
+  private Fee lateFee2;
+  private Fee otherLateFee;
+
+  private String managerToken;
+  private String indebtedStudentToken;
+
+  /** Fees created through the API on top of the fixtures, swept in tearDown. */
+  private final List<String> apiCreatedFeeIds = new ArrayList<>();
 
   @BeforeEach
   void setUp() {
-    setUpCasdoor(casdoorAuthServiceMock, certificateLoaderMock);
-    setUpCognito(cognitoComponentMock);
     setUpEventBridge(eventBridgeClientMock);
+
+    manager = userRepository.save(hasina());
+    indebtedStudent = userRepository.save(axel());
+    otherIndebtedStudent = userRepository.save(freddy());
+    lateFee1 = feeRepository.save(someLateFee(indebtedStudent));
+    lateFee2 = feeRepository.save(someLateFee(indebtedStudent));
+    otherLateFee = feeRepository.save(someLateFee(otherIndebtedStudent));
+
+    managerToken = tokenFor(casdoorAuthServiceMock, manager);
+    indebtedStudentToken = tokenFor(casdoorAuthServiceMock, indebtedStudent);
+
+    setUpVolaClient();
   }
 
-  private static User student1() {
-    User student1 = new User();
-    student1.setId("student1_id");
-    student1.setFirstName("Ryan");
-    student1.setLastName("Andria");
-    student1.setEmail("test+ryan@hei.school");
-    student1.setRef("STD21001");
-    student1.setStatus(ENABLED);
-    student1.setSex(M);
-    student1.setBirthDate(LocalDate.parse("2000-01-01"));
-    student1.setEntranceDatetime(Instant.parse("2021-11-08T08:25:24.00Z"));
-    student1.setPhone("0322411123");
-    student1.setAddress("Adr 1");
-    student1.setLatitude(-123.123);
-    student1.setLongitude(123.0);
-    student1.setHighSchoolOrigin("Lycée Andohalo");
-    return student1;
+  /** Registering an mpbs calls the PSP: the payment comes back as still being verified. */
+  private void setUpVolaClient() {
+    when(volaClientMock.create(any(PspPayment.PspTypeEnum.class), anyString(), anyString()))
+        .thenAnswer(
+            invocation ->
+                Payment.builder()
+                    .pspPayment(
+                        PspPayment.builder()
+                            .id(invocation.getArgument(1))
+                            .pspType(PspPayment.PspTypeEnum.ORANGE_MONEY)
+                            .build())
+                    .verificationStatus(Payment.VerificationStatusEnum.VERIFYING)
+                    .lastPspVerificationInstant(Instant.now().atOffset(ZoneOffset.UTC))
+                    .creationInstant(Instant.now().atOffset(ZoneOffset.UTC))
+                    .build());
   }
 
-  private static User student2() {
-    User student2 = new User();
-    student2.setId("student2_id");
-    student2.setFirstName("Two");
-    student2.setLastName("Student");
-    student2.setEmail("test+student2@hei.school");
-    student2.setRef("STD21002");
-    student2.setStatus(ENABLED);
-    student2.setSex(F);
-    student2.setBirthDate(LocalDate.parse("2000-01-02"));
-    student2.setEntranceDatetime(Instant.parse("2021-11-09T08:26:24.00Z"));
-    student2.setPhone("0322411124");
-    student2.setAddress("Adr 2");
-    student2.setLatitude(255.255);
-    student2.setLongitude(-255.255);
-    student2.setHighSchoolOrigin("Lycée Andohalo");
-    return student2;
+  @AfterEach
+  void tearDown() {
+    List<String> feeIds = new ArrayList<>(apiCreatedFeeIds);
+    feeIds.addAll(List.of(lateFee1.getId(), lateFee2.getId(), otherLateFee.getId()));
+    // Fee carries @SQLDelete, so a repository delete would only flag is_deleted: reach the tables
+    // directly, children first.
+    feeIds.forEach(
+        feeId -> {
+          jdbcTemplate.update(
+              "DELETE FROM \"mpbs_status_history\" WHERE mpbs_id IN (SELECT id FROM \"mpbs\" WHERE"
+                  + " fee_id = ?)",
+              feeId);
+          jdbcTemplate.update("DELETE FROM \"mpbs_verification\" WHERE fee_id = ?", feeId);
+
+          jdbcTemplate.update("DELETE FROM \"mpbs\" WHERE fee_id = ?", feeId);
+          jdbcTemplate.update("DELETE FROM \"fee_status_history\" WHERE fee_id = ?", feeId);
+          jdbcTemplate.update("DELETE FROM \"payment\" WHERE fee_id = ?", feeId);
+          jdbcTemplate.update("DELETE FROM \"fee\" WHERE id = ?", feeId);
+        });
+    apiCreatedFeeIds.clear();
+    userRepository.deleteAll(List.of(indebtedStudent, otherIndebtedStudent, manager));
   }
 
-  @Test
-  @DirtiesContext
-  void update_students_status_ok() {
-    User student2 = student2();
-    assertEquals(ENABLED, student2.getStatus());
-
-    // here, we check if the enabled student has paid all their fees
-    suspendStudentsWithOverdueFeesService.suspendStudentsWithUnpaidOrLateFee();
-    User suspendedStudent2 = userService.getById(student2.getId());
-    assertEquals(SUSPENDED, suspendedStudent2.getStatus());
-
-    feeService.computeRemainingAmount(FEE4_ID, 5000);
-    feeService.computeRemainingAmount(FEE5_ID, 5000);
-
-    // here, we check if the suspended student has paid all their fees
-    checkSuspendedStudentsStatusService.updateStatusBasedOnPayment();
-    User suspendedStudentChecked = userService.getById(student2.getId());
-    assertEquals(ENABLED, suspendedStudentChecked.getStatus());
+  private static Fee someLateFee(User student) {
+    return createFeeWithStatus(student, 5_000, Instant.parse("2023-02-08T08:30:24.00Z"), LATE);
   }
 
-  @Test
-  @Disabled("TODO: dirty, create new student")
-  void pending_students_status_ok() throws ApiException {
-    ApiClient managerClient = anApiClient(MANAGER1_TOKEN);
-    ApiClient studentClient = anApiClient(STUDENT2_TOKEN);
-    PayingApi managerPayingApi = new PayingApi(managerClient);
-    PayingApi studentPayingApi = new PayingApi(studentClient);
-
-    // Student2 must enable
-    assertEquals(ENABLED, userService.getById(STUDENT2_ID).getStatus());
-
-    // Create student 2 fee
-    Fee student2Fee =
-        managerPayingApi.createStudentFees(STUDENT2_ID, List.of(creatableFee1())).getFirst();
-    Mpbs pendingMpbs =
-        studentPayingApi.crupdateMpbs(
-            STUDENT2_ID,
-            student2Fee.getId(),
-            createableMpbsFromFeeIdForStudent(STUDENT2_ID, student2Fee.getId()));
-
-    suspendStudentsWithOverdueFeesService.suspendStudentsWithUnpaidOrLateFee();
-
-    // student2 have unpaid or late fee
-    assertTrue(userService.getStudentsWithLateFee().contains(userService.getById(STUDENT2_ID)));
-
-    // student2 is still ENABLE, because of the pending Mbps
-    assertEquals(1, mpbsService.countPendingOfStudent(STUDENT2_ID));
-    assertEquals(ENABLED, userService.getById(STUDENT2_ID).getStatus());
-  }
-
-  @Test
-  void get_all_students_with_unpaid_or_late_fee_ok() {
-    List<User> studentsWithUnpaidOrLateFee = userRepository.getStudentsWithLateFees();
-
-    assertEquals(2, studentsWithUnpaidOrLateFee.size());
-    assertTrue(studentsWithUnpaidOrLateFee.contains(student1()));
-    assertTrue(studentsWithUnpaidOrLateFee.contains(student2()));
-  }
-
-  private static CrupdateMpbs createableMpbsFromFeeIdWithStudent1(String feeId) {
-    return createCrupdateMpbs(STUDENT1_ID, feeId, "MP240726.1541.D88425", ORANGE_MONEY);
+  private static CreateFee someCreatableFee() {
+    return new CreateFee()
+        .type(TUITION)
+        .totalAmount(5000)
+        .category(UNKNOWN)
+        .frequency(FeeFrequency.UNKNOWN)
+        .comment("Comment")
+        .dueDatetime(Instant.parse("2021-12-08T08:25:24.00Z"));
   }
 
   private ApiClient anApiClient(String token) {
     return TestUtils.anApiClient(token, localPort);
   }
 
-  static class ContextInitializer extends AbstractContextInitializer {
-    public static final int SERVER_PORT = anAvailableRandomPort();
+  @Test
+  @DirtiesContext
+  void update_students_status_ok() {
+    assertEquals(ENABLED, userService.getById(indebtedStudent.getId()).getStatus());
 
-    @Override
-    public int getServerPort() {
-      return SERVER_PORT;
-    }
+    // here, we check if the enabled student has paid all their fees
+    suspendStudentsWithOverdueFeesService.suspendStudentsWithUnpaidOrLateFee();
+    assertEquals(SUSPENDED, userService.getById(indebtedStudent.getId()).getStatus());
+
+    feeService.computeRemainingAmount(lateFee1.getId(), 5000);
+    feeService.computeRemainingAmount(lateFee2.getId(), 5000);
+
+    // here, we check if the suspended student has paid all their fees
+    checkSuspendedStudentsStatusService.updateStatusBasedOnPayment();
+    assertEquals(ENABLED, userService.getById(indebtedStudent.getId()).getStatus());
+  }
+
+  @Test
+  @DirtiesContext
+  void pending_students_status_ok() throws ApiException {
+    var managerPayingApi = new PayingApi(anApiClient(managerToken));
+    var studentPayingApi = new PayingApi(anApiClient(indebtedStudentToken));
+    var studentId = indebtedStudent.getId();
+
+    assertEquals(ENABLED, userService.getById(studentId).getStatus());
+
+    var studentFee =
+        managerPayingApi.createStudentFees(studentId, List.of(someCreatableFee())).getFirst();
+    apiCreatedFeeIds.add(studentFee.getId());
+    studentPayingApi.crupdateMpbs(
+        studentId,
+        studentFee.getId(),
+        createableMpbsFromFeeIdForStudent(studentId, studentFee.getId()));
+
+    suspendStudentsWithOverdueFeesService.suspendStudentsWithUnpaidOrLateFee();
+
+    // the student does have an unpaid or late fee
+    assertTrue(userService.getStudentsWithLateFee().contains(userService.getById(studentId)));
+
+    // yet they stay enabled, because of the pending mpbs
+    assertEquals(1, mpbsService.countPendingOfStudent(studentId));
+    assertEquals(ENABLED, userService.getById(studentId).getStatus());
+  }
+
+  @Test
+  void get_all_students_with_unpaid_or_late_fee_ok() {
+    var studentIdsWithUnpaidOrLateFee =
+        userRepository.getStudentsWithLateFees().stream().map(User::getId).toList();
+
+    assertTrue(studentIdsWithUnpaidOrLateFee.contains(indebtedStudent.getId()));
+    assertTrue(studentIdsWithUnpaidOrLateFee.contains(otherIndebtedStudent.getId()));
   }
 }

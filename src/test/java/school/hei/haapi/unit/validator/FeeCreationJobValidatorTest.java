@@ -2,7 +2,7 @@ package school.hei.haapi.unit.validator;
 
 import static java.util.Arrays.asList;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static school.hei.haapi.integration.conf.TestUtils.assertThrowsDomainBadRequestException;
+import static school.hei.haapi.integration.conf.ApiAssertions.assertThrowsDomainBadRequestException;
 
 import java.util.List;
 import org.junit.jupiter.api.Test;

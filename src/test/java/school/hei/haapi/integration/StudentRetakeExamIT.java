@@ -6,17 +6,16 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static school.hei.haapi.endpoint.rest.model.RetakeExamStatus.INVALIDATE;
 import static school.hei.haapi.endpoint.rest.model.RetakeExamStatus.VALIDATE;
 import static school.hei.haapi.endpoint.rest.model.StudentLevel.L1;
-import static school.hei.haapi.integration.conf.TestUtils.ADMIN1_TOKEN;
-import static school.hei.haapi.integration.conf.TestUtils.setUpCasdoor;
-import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
-import static school.hei.haapi.integration.test_data.CourseTestData.prog1;
-import static school.hei.haapi.integration.test_data.ExamTestData.createExam;
-import static school.hei.haapi.integration.test_data.GroupTestData.g1;
-import static school.hei.haapi.integration.test_data.GroupTestData.g2;
-import static school.hei.haapi.integration.test_data.GroupTestData.h1;
-import static school.hei.haapi.integration.test_data.StudentTestData.axel;
-import static school.hei.haapi.integration.test_data.StudentTestData.tolojanahary;
-import static school.hei.haapi.integration.test_data.TeacherTestData.ryan;
+import static school.hei.haapi.integration.conf.TestAuth.tokenFor;
+import static school.hei.haapi.integration.testData.CourseTestData.prog1;
+import static school.hei.haapi.integration.testData.ExamTestData.createExam;
+import static school.hei.haapi.integration.testData.GroupTestData.g1;
+import static school.hei.haapi.integration.testData.GroupTestData.g2;
+import static school.hei.haapi.integration.testData.GroupTestData.h1;
+import static school.hei.haapi.integration.testData.StaffTestData.adminMialy;
+import static school.hei.haapi.integration.testData.StudentTestData.axel;
+import static school.hei.haapi.integration.testData.StudentTestData.tolojanahary;
+import static school.hei.haapi.integration.testData.TeacherTestData.ryan;
 import static school.hei.haapi.model.GroupFlow.GroupFlowType.JOIN;
 import static school.hei.haapi.model.GroupFlow.GroupFlowType.LEAVE;
 import static school.hei.haapi.model.RetakeExamStatus.REGISTERED;
@@ -99,6 +98,8 @@ class StudentRetakeExamIT extends FacadeITMockedThirdParties {
   private Course savedCourse;
   private RetakeExamSession savedRetakeExamSession;
   private List<User> savedUsers;
+  private User adminUser;
+  private String adminToken;
 
   private ApiClient anApiClient(String token) {
     return TestUtils.anApiClient(token, localPort);
@@ -106,8 +107,6 @@ class StudentRetakeExamIT extends FacadeITMockedThirdParties {
 
   @BeforeEach
   void setUp() {
-    setUpCasdoor(casdoorAuthServiceMock, certificateLoaderMock);
-    setUpCognito(cognitoComponentMock);
     setUpTestData();
   }
 
@@ -186,6 +185,8 @@ class StudentRetakeExamIT extends FacadeITMockedThirdParties {
     savedRetakeExamSession = retakeExamSessionRepository.save(retakeExamSession);
     savedUsers =
         userRepository.saveAll(List.of(studentAxel, repeatingStudentTolojanahary, teacherRyan));
+    adminUser = userRepository.save(adminMialy());
+    adminToken = tokenFor(casdoorAuthServiceMock, adminUser);
     axelRetakeExam =
         RetakeExam.builder()
             .id("re-axel-id")
@@ -241,12 +242,13 @@ class StudentRetakeExamIT extends FacadeITMockedThirdParties {
             tolojanaharyLeaveOldGroupFlow,
             tolojanaharyNewGroupFlow));
     groupRepository.deleteAll(List.of(group1, group2, group3));
-    userRepository.deleteAll(List.of(studentAxel, repeatingStudentTolojanahary, teacherRyan));
+    userRepository.deleteAll(
+        List.of(studentAxel, repeatingStudentTolojanahary, teacherRyan, adminUser));
   }
 
   @Test
   void manager_validate_students_retake_exams_OK() throws ApiException {
-    var anApiClient = anApiClient(ADMIN1_TOKEN);
+    var anApiClient = anApiClient(adminToken);
     var api = new RetakeExamApi(anApiClient);
     var actual = api.updateRetakeExamsStatus(updateRetakeExamStatuses);
     assertNotNull(actual);

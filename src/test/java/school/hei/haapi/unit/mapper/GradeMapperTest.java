@@ -48,14 +48,14 @@ class GradeMapperTest {
     var updateGradeEmptyComment = new UpdateGrade().comment("").grade(grade);
     var updateGradeNullComment = new UpdateGrade().grade(grade);
 
-    BadRequestException badRequestExceptionEmptyComment =
+    var badRequestExceptionEmptyComment =
         assertThrows(
             BadRequestException.class, () -> subject.toDomain(updateGradeEmptyComment, "", ""));
     assertEquals(
         "Grade modification must be followed by comment about the change",
         badRequestExceptionEmptyComment.getMessage());
 
-    BadRequestException badRequestExceptionNullComment =
+    var badRequestExceptionNullComment =
         assertThrows(
             BadRequestException.class, () -> subject.toDomain(updateGradeNullComment, "", ""));
     assertEquals(

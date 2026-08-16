@@ -93,7 +93,7 @@ class OrangeScrappingApiIT extends FacadeITMockedThirdParties {
   void fetchThenSaveTransactionsDetails() {
     try (MockedStatic<HttpClient> mockedHttpClient = Mockito.mockStatic(HttpClient.class)) {
       mockedHttpClient.when(HttpClient::newHttpClient).thenReturn(httpClientMock);
-      List<TransactionDetails> actual = subject.fetchThenSaveTransactionsDetails(ORANGE_MONEY);
+      var actual = subject.fetchThenSaveTransactionsDetails(ORANGE_MONEY);
 
       assertEquals(expectedFetchedTransactionDetails(), actual);
     }
@@ -101,7 +101,7 @@ class OrangeScrappingApiIT extends FacadeITMockedThirdParties {
 
   @Test
   void getByTransactionRef() {
-    TransactionDetails actual = subject.getByTransactionRef(ORANGE_MONEY, "psp2_id");
+    var actual = subject.getByTransactionRef(ORANGE_MONEY, "psp2_id");
 
     assertEquals(expectedFetchedTransactionDetails().get(0), actual);
   }

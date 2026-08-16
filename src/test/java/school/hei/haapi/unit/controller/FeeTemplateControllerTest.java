@@ -17,10 +17,10 @@ import school.hei.haapi.endpoint.rest.controller.FeeTemplateController;
 import school.hei.haapi.endpoint.rest.mapper.FeeTemplateMapper;
 import school.hei.haapi.endpoint.rest.model.FeeTemplateContent;
 import school.hei.haapi.endpoint.rest.model.V2CrupdateFeeTemplate;
-import school.hei.haapi.endpoint.rest.model.V2FeeTemplate;
 import school.hei.haapi.endpoint.rest.validator.FeeTemplateValidator;
 import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.PageFromOne;
+import school.hei.haapi.model.V2FeeTemplate;
 import school.hei.haapi.model.V2FeeTemplateContent;
 import school.hei.haapi.model.exception.BadRequestException;
 import school.hei.haapi.service.FeeTemplateService;
@@ -42,8 +42,8 @@ class FeeTemplateControllerTest {
 
   @Test
   void getV2FeeTemplates_delegates_and_maps_to_rest() {
-    var restDomain = new school.hei.haapi.model.V2FeeTemplate();
-    var rest = new V2FeeTemplate().id(randomUUID().toString());
+    var restDomain = new V2FeeTemplate();
+    var rest = new school.hei.haapi.endpoint.rest.model.V2FeeTemplate().id(randomUUID().toString());
     when(feeTemplateService.getV2FeeTemplates(1, 10)).thenReturn(List.of(restDomain));
     when(feeTemplateMapper.toRest(restDomain)).thenReturn(rest);
 
@@ -56,9 +56,9 @@ class FeeTemplateControllerTest {
   @Test
   void crupdateV2FeeTemplates_validates_maps_and_delegates() {
     var payload = new V2CrupdateFeeTemplate().id(randomUUID().toString());
-    var domain = new school.hei.haapi.model.V2FeeTemplate();
-    var savedDomain = new school.hei.haapi.model.V2FeeTemplate();
-    var rest = new V2FeeTemplate().id(randomUUID().toString());
+    var domain = new V2FeeTemplate();
+    var savedDomain = new V2FeeTemplate();
+    var rest = new school.hei.haapi.endpoint.rest.model.V2FeeTemplate().id(randomUUID().toString());
     when(feeTemplateMapper.toDomain(payload)).thenReturn(domain);
     when(feeTemplateService.crupdateV2FeeTemplates(List.of(domain)))
         .thenReturn(List.of(savedDomain));

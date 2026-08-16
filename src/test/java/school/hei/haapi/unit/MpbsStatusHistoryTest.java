@@ -9,7 +9,6 @@ import org.junit.jupiter.api.Test;
 import school.hei.haapi.endpoint.rest.model.MpbsStatus;
 import school.hei.haapi.integration.conf.FakeDataProvider;
 import school.hei.haapi.model.User;
-import school.hei.haapi.model.mpbs.Mpbs;
 import school.hei.haapi.model.mpbs.MpbsStatusHistory;
 
 class MpbsStatusHistoryTest {
@@ -17,10 +16,10 @@ class MpbsStatusHistoryTest {
 
   @Test
   void compare_with_have_same_status_ok() {
-    String correctId = "id";
-    String incorrectId = "bad id";
-    MpbsStatus correctStatus = PENDING;
-    MpbsStatus incorrectStatus = FAILED;
+    var correctId = "id";
+    var incorrectId = "bad id";
+    var correctStatus = PENDING;
+    var incorrectStatus = FAILED;
     var mpbsStatusHistory = someMpbsStatusHistory(correctId, correctStatus);
     var sameMpbsStatusHistory = someMpbsStatusHistory(correctId, correctStatus);
     var mpbsStatusHistoryWithIncorrectId = someMpbsStatusHistory(incorrectId, correctStatus);
@@ -32,7 +31,7 @@ class MpbsStatusHistoryTest {
   }
 
   private MpbsStatusHistory someMpbsStatusHistory(String mpbsId, MpbsStatus status) {
-    Mpbs mpbsInStatus = fakeDataProvider.someMpbs(new User());
+    var mpbsInStatus = fakeDataProvider.someMpbs(new User());
     mpbsInStatus.setId(mpbsId);
     mpbsInStatus.setStatus(status);
     return MpbsStatusHistory.builder().mpbs(mpbsInStatus).status(status).build();

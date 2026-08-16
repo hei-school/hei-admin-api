@@ -9,14 +9,12 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.test.annotation.DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD;
 import static school.hei.haapi.endpoint.rest.model.AttendanceStatus.MISSING;
 import static school.hei.haapi.endpoint.rest.model.AttendanceStatus.PRESENT;
-import static school.hei.haapi.endpoint.rest.model.EnableStatus.DISABLED;
 import static school.hei.haapi.endpoint.rest.model.EventType.COURSE;
 import static school.hei.haapi.endpoint.rest.model.FrequencyScopeDay.MONDAY;
-import static school.hei.haapi.integration.StudentIT.someCreatableStudentList;
 import static school.hei.haapi.integration.conf.FakeDataProvider.someCreatableEvent;
-import static school.hei.haapi.integration.conf.TestUtils.MANAGER_ID;
-import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
-import static school.hei.haapi.integration.conf.TestUtils.setUpEventBridge;
+import static school.hei.haapi.integration.conf.TestMocks.setUpEventBridge;
+import static school.hei.haapi.integration.testData.ManagerTestData.hasina;
+import static school.hei.haapi.integration.testData.StudentTestData.axel;
 
 import java.time.Instant;
 import java.time.LocalDate;
@@ -30,7 +28,6 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import school.hei.haapi.endpoint.rest.mapper.EventMapper;
 import school.hei.haapi.endpoint.rest.mapper.GroupMapper;
-import school.hei.haapi.endpoint.rest.mapper.UserMapper;
 import school.hei.haapi.endpoint.rest.model.EventParticipantStats;
 import school.hei.haapi.endpoint.rest.model.EventStats;
 import school.hei.haapi.endpoint.rest.model.MissedEventStats;
@@ -40,11 +37,10 @@ import school.hei.haapi.integration.conf.FakeDataProvider;
 import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.Event;
 import school.hei.haapi.model.EventFrequencyNumber;
-import school.hei.haapi.model.EventParticipant;
-import school.hei.haapi.model.Group;
 import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.model.User;
 import school.hei.haapi.model.notEntity.CreateGroup;
+import school.hei.haapi.repository.UserRepository;
 import school.hei.haapi.service.utils.InstantUtils;
 import software.amazon.awssdk.services.eventbridge.EventBridgeClient;
 
@@ -58,27 +54,29 @@ class DirtyEventServiceTest extends FacadeITMockedThirdParties {
   @Autowired private UserService userService;
   @Autowired private GroupService groupService;
   @Autowired private GroupMapper groupMapper;
-  @Autowired private UserMapper userMapper;
   @MockBean private EventBridgeClient eventBridgeClientMock;
   @Autowired private FakeDataProvider fakeDataProvider;
+  @Autowired private UserRepository userRepository;
+
+  /** The manager planning the events, minted fresh so no seeded row is relied upon. */
+  private User planner;
 
   @BeforeEach
   void setUp() {
-    setUpCognito(cognitoComponentMock);
     setUpEventBridge(eventBridgeClientMock);
+    planner = userRepository.save(hasina());
+  }
+
+  /** One student of its own, disabled or not, instead of a fixture mirroring a seeded row. */
+  private List<User> saveStudents(User.Status status) {
+    var student = axel();
+    student.setStatus(status);
+    return userService.saveAll(List.of(student));
   }
 
   @Test
   void create_event_no_disabled_student_ok() {
-    var disabledStudents =
-        userService.saveAll(
-            someCreatableStudentList(1).stream()
-                .map(
-                    user -> {
-                      user.status(DISABLED);
-                      return userMapper.toDomain(user);
-                    })
-                .toList());
+    var disabledStudents = saveStudents(User.Status.DISABLED);
     var randomGroup =
         groupService.saveAll(
             List.of(
@@ -89,11 +87,11 @@ class DirtyEventServiceTest extends FacadeITMockedThirdParties {
         eventMapper.toDomain(
             someCreatableEvent(
                 COURSE,
-                MANAGER_ID,
+                planner.getId(),
                 now(),
                 now().plusSeconds(69),
                 randomGroup.stream().map(groupMapper::toRest).toList()));
-    List<Event> createdEvents =
+    var createdEvents =
         subject.createOrUpdateEvent(
             List.of(creatableEvent), CreateEventFrequency.builder().build());
 
@@ -113,29 +111,27 @@ class DirtyEventServiceTest extends FacadeITMockedThirdParties {
 
   @Test
   void create_event_trigger_event_participant_creation() {
-    List<User> randomUsers =
-        userService.saveAll(
-            someCreatableStudentList(1).stream().map(userMapper::toDomain).toList());
-    List<Group> randomGroups =
+    var randomUsers = saveStudents(User.Status.ENABLED);
+    var randomGroups =
         groupService.saveAll(
             List.of(
                 new CreateGroup(
                     groupMapper.toDomain(fakeDataProvider.createGroup()),
                     randomUsers.stream().map(User::getId).toList())));
 
-    Event creatableEvent =
+    var creatableEvent =
         eventMapper.toDomain(
             someCreatableEvent(
                 COURSE,
-                MANAGER_ID,
+                planner.getId(),
                 now(),
                 now().plusSeconds(60),
                 randomGroups.stream().map(groupMapper::toRest).toList()));
-    List<Event> randomCourseEvent =
+    var randomCourseEvent =
         subject.createOrUpdateEvent(
             List.of(creatableEvent), CreateEventFrequency.builder().build());
 
-    List<EventParticipant> eventParticipants =
+    var eventParticipants =
         participantService.getEventParticipants(
             randomCourseEvent.getFirst().getId(),
             new PageFromOne(1),
@@ -156,12 +152,16 @@ class DirtyEventServiceTest extends FacadeITMockedThirdParties {
 
   @Test
   void create_event_by_frequency_ok() {
-    Instant eventBeginDate = InstantUtils.mondayOfTheWeek(LocalDate.of(2023, 12, 8));
-    Event creatableEvent =
+    var eventBeginDate = InstantUtils.mondayOfTheWeek(LocalDate.of(2023, 12, 8));
+    var creatableEvent =
         eventMapper.toDomain(
             someCreatableEvent(
-                COURSE, MANAGER_ID, eventBeginDate, eventBeginDate.plusSeconds(60), List.of()));
-    List<Event> createdEvent =
+                COURSE,
+                planner.getId(),
+                eventBeginDate,
+                eventBeginDate.plusSeconds(60),
+                List.of()));
+    var createdEvent =
         subject.createOrUpdateEvent(
             List.of(creatableEvent),
             CreateEventFrequency.builder()
@@ -175,52 +175,49 @@ class DirtyEventServiceTest extends FacadeITMockedThirdParties {
     assertEquals(4, createdEvent.size());
 
     // Sort the result for better readability in the test
-    List<Event> sortedEvent =
-        createdEvent.stream().sorted(comparing(Event::getBeginDatetime)).toList();
+    var sortedEvent = createdEvent.stream().sorted(comparing(Event::getBeginDatetime)).toList();
 
     // The events are separated by 1 week
-    Event eventWeek1 = sortedEvent.getFirst();
+    var eventWeek1 = sortedEvent.getFirst();
     assertEquals(creatableEvent.getBeginDatetime(), eventWeek1.getBeginDatetime());
     assertEquals(creatableEvent.getEndDatetime(), eventWeek1.getEndDatetime());
 
-    Event eventWeek2 = sortedEvent.get(1);
+    var eventWeek2 = sortedEvent.get(1);
     assertEquals(Instant.parse("2023-12-11T10:00:00+03:00"), eventWeek2.getBeginDatetime());
     assertEquals(Instant.parse("2023-12-11T11:00:00+03:00"), eventWeek2.getEndDatetime());
 
-    Event eventWeek3 = sortedEvent.get(2);
+    var eventWeek3 = sortedEvent.get(2);
     assertEquals(Instant.parse("2023-12-18T10:00:00+03:00"), eventWeek3.getBeginDatetime());
     assertEquals(Instant.parse("2023-12-18T11:00:00+03:00"), eventWeek3.getEndDatetime());
 
-    Event eventWeek4 = sortedEvent.get(3);
+    var eventWeek4 = sortedEvent.get(3);
     assertEquals(Instant.parse("2023-12-25T10:00:00+03:00"), eventWeek4.getBeginDatetime());
     assertEquals(Instant.parse("2023-12-25T11:00:00+03:00"), eventWeek4.getEndDatetime());
   }
 
   @Test
   void event_stats_are_exact() {
-    List<User> randomUsers =
-        userService.saveAll(
-            someCreatableStudentList(1).stream().map(userMapper::toDomain).toList());
-    List<Group> randomGroups =
+    var randomUsers = saveStudents(User.Status.ENABLED);
+    var randomGroups =
         groupService.saveAll(
             List.of(
                 new CreateGroup(
                     groupMapper.toDomain(fakeDataProvider.createGroup()),
                     randomUsers.stream().map(User::getId).toList())));
 
-    List<Event> randomCourseEvent =
+    var randomCourseEvent =
         subject.createOrUpdateEvent(
             List.of(
                 eventMapper.toDomain(
                     someCreatableEvent(
                         COURSE,
-                        MANAGER_ID,
+                        planner.getId(),
                         now(),
                         now().plusSeconds(60),
                         randomGroups.stream().map(groupMapper::toRest).toList()))),
             CreateEventFrequency.builder().build());
 
-    List<EventParticipant> eventParticipants =
+    var eventParticipants =
         participantService.getEventParticipants(
             randomCourseEvent.getFirst().getId(),
             new PageFromOne(1),
@@ -234,7 +231,7 @@ class DirtyEventServiceTest extends FacadeITMockedThirdParties {
     eventParticipants.getFirst().setStatus(PRESENT);
     participantService.updateEventParticipants(eventParticipants);
 
-    EventStats stats = subject.getStats(randomCourseEvent.getFirst().getId(), null, null);
+    var stats = subject.getStats(randomCourseEvent.getFirst().getId(), null, null);
     var expectedStats =
         new EventStats()
             .late(0L)
@@ -247,10 +244,8 @@ class DirtyEventServiceTest extends FacadeITMockedThirdParties {
 
   @Test
   void event_participant_stats_are_exact() {
-    List<User> randomUsers =
-        userService.saveAll(
-            someCreatableStudentList(1).stream().map(userMapper::toDomain).toList());
-    List<Group> randomGroups =
+    var randomUsers = saveStudents(User.Status.ENABLED);
+    var randomGroups =
         groupService.saveAll(
             List.of(
                 new CreateGroup(
@@ -262,12 +257,12 @@ class DirtyEventServiceTest extends FacadeITMockedThirdParties {
                 eventMapper.toDomain(
                     someCreatableEvent(
                         COURSE,
-                        MANAGER_ID,
+                        planner.getId(),
                         now(),
                         now().plusSeconds(60),
                         randomGroups.stream().map(groupMapper::toRest).toList()))),
             CreateEventFrequency.builder().build());
-    List<EventParticipant> eventParticipants =
+    var eventParticipants =
         participantService.getEventParticipants(
             randomCourseEvent.getFirst().getId(),
             new PageFromOne(1),

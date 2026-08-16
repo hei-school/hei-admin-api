@@ -1,8 +1,9 @@
 package school.hei.haapi.integration;
 
-import static org.hibernate.validator.internal.util.Contracts.assertNotNull;
+import static java.util.UUID.randomUUID;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.PAID;
@@ -10,87 +11,161 @@ import static school.hei.haapi.endpoint.rest.model.FileType.OTHER;
 import static school.hei.haapi.endpoint.rest.model.LetterStatus.PENDING;
 import static school.hei.haapi.endpoint.rest.model.LetterStatus.RECEIVED;
 import static school.hei.haapi.endpoint.rest.model.LetterStatus.REJECTED;
-import static school.hei.haapi.integration.StudentIT.student1;
-import static school.hei.haapi.integration.conf.TestUtils.ADMIN1_TOKEN;
-import static school.hei.haapi.integration.conf.TestUtils.EVENT2_ID;
-import static school.hei.haapi.integration.conf.TestUtils.EVENT_PARTICIPANT5_ID;
-import static school.hei.haapi.integration.conf.TestUtils.FEE1_ID;
-import static school.hei.haapi.integration.conf.TestUtils.LETTER1_ID;
-import static school.hei.haapi.integration.conf.TestUtils.MANAGER1_TOKEN;
-import static school.hei.haapi.integration.conf.TestUtils.STAFF_MEMBER1_ID;
-import static school.hei.haapi.integration.conf.TestUtils.STAFF_MEMBER1_TOKEN;
-import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_ID;
-import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_TOKEN;
-import static school.hei.haapi.integration.conf.TestUtils.STUDENT2_ID;
-import static school.hei.haapi.integration.conf.TestUtils.STUDENT3_ID;
-import static school.hei.haapi.integration.conf.TestUtils.TEACHER1_ID;
-import static school.hei.haapi.integration.conf.TestUtils.TEACHER1_TOKEN;
-import static school.hei.haapi.integration.conf.TestUtils.assertBadRequestException;
-import static school.hei.haapi.integration.conf.TestUtils.assertThrowsForbiddenException;
-import static school.hei.haapi.integration.conf.TestUtils.getMockedFile;
-import static school.hei.haapi.integration.conf.TestUtils.letter1;
-import static school.hei.haapi.integration.conf.TestUtils.letter2;
-import static school.hei.haapi.integration.conf.TestUtils.letter3;
-import static school.hei.haapi.integration.conf.TestUtils.letter5;
-import static school.hei.haapi.integration.conf.TestUtils.setUpCasdoor;
-import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
-import static school.hei.haapi.integration.conf.TestUtils.setUpEventBridge;
-import static school.hei.haapi.integration.conf.TestUtils.setUpS3Service;
-import static school.hei.haapi.integration.conf.TestUtils.teacherLetter;
-import static school.hei.haapi.integration.conf.TestUtils.uploadLetter;
+import static school.hei.haapi.integration.conf.ApiAssertions.assertBadRequestException;
+import static school.hei.haapi.integration.conf.ApiAssertions.assertThrowsForbiddenException;
+import static school.hei.haapi.integration.conf.TestAuth.tokenFor;
+import static school.hei.haapi.integration.conf.TestFiles.getMockedFile;
+import static school.hei.haapi.integration.conf.TestFiles.uploadLetter;
+import static school.hei.haapi.integration.conf.TestMocks.setUpEventBridge;
+import static school.hei.haapi.integration.conf.TestMocks.setUpS3Service;
+import static school.hei.haapi.integration.testData.FeeTestData.createPendingFee;
+import static school.hei.haapi.integration.testData.LetterTestData.aLetter;
+import static school.hei.haapi.integration.testData.ManagerTestData.hasina;
+import static school.hei.haapi.integration.testData.StaffTestData.adminMialy;
+import static school.hei.haapi.integration.testData.StaffTestData.staffMemberRina;
+import static school.hei.haapi.integration.testData.StudentTestData.axel;
+import static school.hei.haapi.integration.testData.StudentTestData.freddy;
+import static school.hei.haapi.integration.testData.TeacherTestData.toky;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
-import java.io.InputStream;
-import java.net.http.HttpResponse;
+import java.time.Instant;
 import java.util.List;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.testcontainers.junit.jupiter.Testcontainers;
-import school.hei.haapi.endpoint.rest.api.EventsApi;
+import org.springframework.jdbc.core.JdbcTemplate;
 import school.hei.haapi.endpoint.rest.api.FilesApi;
 import school.hei.haapi.endpoint.rest.api.LettersApi;
 import school.hei.haapi.endpoint.rest.api.PayingApi;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
-import school.hei.haapi.endpoint.rest.model.EventParticipant;
-import school.hei.haapi.endpoint.rest.model.EventParticipantLetter;
-import school.hei.haapi.endpoint.rest.model.Fee;
-import school.hei.haapi.endpoint.rest.model.FileInfo;
 import school.hei.haapi.endpoint.rest.model.Letter;
-import school.hei.haapi.endpoint.rest.model.LetterStats;
 import school.hei.haapi.endpoint.rest.model.RoleEnum;
 import school.hei.haapi.endpoint.rest.model.UpdateLettersStatus;
 import school.hei.haapi.integration.conf.FacadeITMockedThirdParties;
 import school.hei.haapi.integration.conf.TestUtils;
+import school.hei.haapi.model.Fee;
+import school.hei.haapi.model.User;
+import school.hei.haapi.repository.FeeRepository;
+import school.hei.haapi.repository.LetterRepository;
+import school.hei.haapi.repository.UserRepository;
 import software.amazon.awssdk.services.eventbridge.EventBridgeClient;
 
-@Testcontainers
-@AutoConfigureMockMvc
 class LetterIT extends FacadeITMockedThirdParties {
   @MockBean EventBridgeClient eventBridgeClientMock;
   @Autowired ObjectMapper objectMapper;
+  @Autowired private UserRepository userRepository;
+  @Autowired private LetterRepository letterRepository;
+  @Autowired private FeeRepository feeRepository;
+
+  @Autowired private JdbcTemplate jdbcTemplate;
+
+  private User studentAxel;
+  private User studentFreddy;
+  private User teacherToky;
+  private User staffRina;
+  private User managerHasina;
+  private User adminUser;
+
+  private school.hei.haapi.model.Letter axelReceivedLetter;
+  private school.hei.haapi.model.Letter axelPendingLetter;
+  private school.hei.haapi.model.Letter freddyPendingLetter;
+  private school.hei.haapi.model.Letter teacherLetter;
+  private school.hei.haapi.model.Letter staffLetter;
+  private Fee axelFee;
+
+  private String axelToken;
+  private String teacherToken;
+  private String staffToken;
+  private String managerToken;
+  private String adminToken;
+
+  void setUpTestData() {
+    studentAxel = userRepository.save(axel());
+    studentFreddy = userRepository.save(freddy());
+    teacherToky = userRepository.save(toky());
+    staffRina = userRepository.save(staffMemberRina());
+    managerHasina = userRepository.save(hasina());
+    adminUser = userRepository.save(adminMialy());
+
+    axelFee =
+        feeRepository.save(
+            createPendingFee(studentAxel, 5000, Instant.parse("2022-12-08T08:25:24.00Z"))
+                .toBuilder()
+                // settling a fee through a letter issues a BANK_TRANSFER payment, which the
+                // validator requires to carry the fee comment
+                .comment("Frais de scolarite")
+                .build());
+
+    axelReceivedLetter =
+        letterRepository.save(aLetter(studentAxel, "Certificat de residence", RECEIVED));
+    axelPendingLetter =
+        letterRepository.save(aLetter(studentAxel, "Bordereau de versement", PENDING));
+    freddyPendingLetter = letterRepository.save(aLetter(studentFreddy, "CV", PENDING));
+    teacherLetter = letterRepository.save(aLetter(teacherToky, "Teacher file", RECEIVED));
+    staffLetter = letterRepository.save(aLetter(staffRina, "Staff file", PENDING));
+  }
 
   @BeforeEach
   void setUp() {
-    setUpCasdoor(casdoorAuthServiceMock, certificateLoaderMock);
-    setUpCognito(cognitoComponentMock);
     setUpEventBridge(eventBridgeClientMock);
-    setUpS3Service(fileService, student1());
+    setUpTestData();
+    setUpS3Service(fileService, studentAxel);
+
+    axelToken = tokenFor(casdoorAuthServiceMock, studentAxel);
+    teacherToken = tokenFor(casdoorAuthServiceMock, teacherToky);
+    staffToken = tokenFor(casdoorAuthServiceMock, staffRina);
+    managerToken = tokenFor(casdoorAuthServiceMock, managerHasina);
+    adminToken = tokenFor(casdoorAuthServiceMock, adminUser);
+  }
+
+  @AfterEach
+  void tearDown() {
+    letterRepository.deleteAll(
+        letterRepository.findAll().stream()
+            .filter(l -> ownedUserIds().contains(l.getUser().getId()))
+            .toList());
+    // accepting a fee-linked letter creates a payment: it has to go before the fee, or it is
+
+    // left dangling for whichever test next reads payments globally
+
+    jdbcTemplate.update("DELETE FROM \"payment\" WHERE fee_id = ?", axelFee.getId());
+
+    jdbcTemplate.update("DELETE FROM \"fee_status_history\" WHERE fee_id = ?", axelFee.getId());
+
+    jdbcTemplate.update("DELETE FROM \"fee\" WHERE id = ?", axelFee.getId());
+    userRepository.deleteAll(
+        List.of(studentAxel, studentFreddy, teacherToky, staffRina, managerHasina, adminUser));
+  }
+
+  private List<String> ownedUserIds() {
+    return List.of(
+        studentAxel.getId(),
+        studentFreddy.getId(),
+        teacherToky.getId(),
+        staffRina.getId(),
+        managerHasina.getId(),
+        adminUser.getId());
+  }
+
+  private LettersApi apiAs(String token) {
+    return new LettersApi(anApiClient(token));
   }
 
   private ApiClient anApiClient(String token) {
     return TestUtils.anApiClient(token, localPort);
   }
 
+  private static List<String> idsOf(List<Letter> letters) {
+    return letters.stream().map(Letter::getId).toList();
+  }
+
   @Test
   void manager_read_ko() {
-    ApiClient apiClient = anApiClient(MANAGER1_TOKEN);
-    LettersApi api = new LettersApi(apiClient);
+    var api = apiAs(managerToken);
 
     assertThrowsForbiddenException(() -> api.getLetterStats(null));
     assertThrowsForbiddenException(
@@ -99,127 +174,113 @@ class LetterIT extends FacadeITMockedThirdParties {
 
   @Test
   void manager_read_stats_ok() throws ApiException {
-    ApiClient apiClient = anApiClient(MANAGER1_TOKEN);
-    LettersApi api = new LettersApi(apiClient);
+    var letterStats = apiAs(managerToken).getStudentsLetterStats();
 
-    LetterStats letterStats = api.getStudentsLetterStats();
     assertNotNull(letterStats);
   }
 
   @Test
   void admin_read_stats_ok() throws ApiException {
-    ApiClient apiClient = anApiClient(ADMIN1_TOKEN);
-    LettersApi api = new LettersApi(apiClient);
+    var letterStats = apiAs(adminToken).getStudentsLetterStats();
 
-    LetterStats letterStats = api.getStudentsLetterStats();
     assertNotNull(letterStats);
   }
 
   @Test
-  void admin_read_letters() throws ApiException {
-    ApiClient apiClient = anApiClient(ADMIN1_TOKEN);
-    LettersApi api = new LettersApi(apiClient);
-  }
+  void staff_read_own_letters_ok() throws ApiException {
+    var api = apiAs(staffToken);
 
-  @Test
-  void staff_read_letters() throws ApiException {
-    ApiClient apiClient = anApiClient(STAFF_MEMBER1_TOKEN);
-    LettersApi api = new LettersApi(apiClient);
+    var letters = api.getLettersByUserId(staffRina.getId(), null, 1, 15, null);
 
-    List<Letter> letters = api.getLettersByUserId(STAFF_MEMBER1_ID, null, 1, 15, null);
     assertEquals(1, letters.size());
-
+    assertEquals(staffLetter.getId(), letters.getFirst().getId());
     assertThrowsForbiddenException(() -> api.getLetterStats(null));
   }
 
   @Test
   void manager_read_ok() throws ApiException {
-    ApiClient apiClient = anApiClient(MANAGER1_TOKEN);
-    LettersApi api = new LettersApi(apiClient);
+    var api = apiAs(managerToken);
 
-    List<Letter> actual = api.getStudentsLetters(1, 15, null, null, null, null, null, null);
-    assertTrue(actual.contains(letter1()));
-    assertTrue(actual.contains(letter2()));
-    assertTrue(actual.contains(letter3()));
-    assertFalse(actual.contains(teacherLetter()));
+    var actual = api.getStudentsLetters(1, 15, null, null, null, null, null, null);
+    assertTrue(idsOf(actual).contains(axelReceivedLetter.getId()));
+    assertTrue(idsOf(actual).contains(axelPendingLetter.getId()));
+    assertTrue(idsOf(actual).contains(freddyPendingLetter.getId()));
+    assertFalse(idsOf(actual).contains(teacherLetter.getId()));
 
-    List<Letter> filteredByStudentRef =
-        api.getStudentsLetters(1, 15, "STD21001", null, null, null, null, null);
-    assertTrue(filteredByStudentRef.contains(letter1()));
-    assertTrue(filteredByStudentRef.contains(letter2()));
-    assertFalse(filteredByStudentRef.contains(letter3()));
+    var filteredByStudentRef =
+        api.getStudentsLetters(1, 15, studentAxel.getRef(), null, null, null, null, null);
+    assertTrue(idsOf(filteredByStudentRef).contains(axelReceivedLetter.getId()));
+    assertTrue(idsOf(filteredByStudentRef).contains(axelPendingLetter.getId()));
+    assertFalse(idsOf(filteredByStudentRef).contains(freddyPendingLetter.getId()));
 
-    List<Letter> filteredByStudentName =
-        api.getStudentsLetters(1, 15, null, null, null, "Ryan", null, null);
-    assertTrue(filteredByStudentName.contains(letter1()));
-    assertTrue(filteredByStudentName.contains(letter2()));
-    assertFalse(filteredByStudentName.contains(letter3()));
+    var filteredByStudentName =
+        api.getStudentsLetters(1, 15, null, null, null, studentAxel.getFirstName(), null, null);
+    assertTrue(idsOf(filteredByStudentName).contains(axelReceivedLetter.getId()));
+    assertTrue(idsOf(filteredByStudentName).contains(axelPendingLetter.getId()));
+    assertFalse(idsOf(filteredByStudentName).contains(freddyPendingLetter.getId()));
 
-    List<Letter> filteredByLetterRef =
-        api.getStudentsLetters(1, 15, null, "letter1_ref", null, null, null, null);
-    assertTrue(filteredByLetterRef.contains(letter1()));
-    assertFalse(filteredByLetterRef.contains(letter2()));
+    var filteredByLetterRef =
+        api.getStudentsLetters(1, 15, null, axelReceivedLetter.getRef(), null, null, null, null);
+    assertTrue(idsOf(filteredByLetterRef).contains(axelReceivedLetter.getId()));
+    assertFalse(idsOf(filteredByLetterRef).contains(axelPendingLetter.getId()));
 
-    List<Letter> actual3 = api.getStudentsLetters(1, 15, null, null, PENDING, null, null, null);
-    assertFalse(actual3.contains(letter1()));
-    assertTrue(actual3.contains(letter2()));
-    assertTrue(actual3.contains(letter3()));
+    var filteredByStatus =
+        api.getStudentsLetters(1, 15, studentAxel.getRef(), null, PENDING, null, null, null);
+    assertFalse(idsOf(filteredByStatus).contains(axelReceivedLetter.getId()));
+    assertTrue(idsOf(filteredByStatus).contains(axelPendingLetter.getId()));
   }
 
   @Test
   void manager_read_by_id() throws ApiException {
-    ApiClient apiClient = anApiClient(MANAGER1_TOKEN);
-    LettersApi api = new LettersApi(apiClient);
+    var actual = apiAs(managerToken).getLetterById(axelReceivedLetter.getId());
 
-    Letter actual = api.getLetterById(LETTER1_ID);
-    assertEquals(letter1(), actual);
+    assertEquals(axelReceivedLetter.getId(), actual.getId());
+    assertEquals(axelReceivedLetter.getRef(), actual.getRef());
+    assertEquals(axelReceivedLetter.getDescription(), actual.getDescription());
+    assertEquals(RECEIVED, actual.getStatus());
   }
 
   @Test
   void manager_read_students_letter() throws ApiException {
-    ApiClient apiClient = anApiClient(MANAGER1_TOKEN);
-    LettersApi api = new LettersApi(apiClient);
+    var api = apiAs(managerToken);
 
-    List<Letter> actual = api.getLettersByUserId(STUDENT1_ID, null, 1, 15, null);
-    assertTrue(actual.contains(letter1()));
-    assertTrue(actual.contains(letter2()));
-    assertFalse(actual.contains(letter3()));
+    var axelLetters = api.getLettersByUserId(studentAxel.getId(), null, 1, 15, null);
+    assertTrue(idsOf(axelLetters).contains(axelReceivedLetter.getId()));
+    assertTrue(idsOf(axelLetters).contains(axelPendingLetter.getId()));
+    assertFalse(idsOf(axelLetters).contains(freddyPendingLetter.getId()));
 
-    List<Letter> actual2 = api.getLettersByUserId(STUDENT2_ID, null, 1, 15, null);
-    assertFalse(actual2.contains(letter1()));
-    assertFalse(actual2.contains(letter2()));
-    assertTrue(actual2.contains(letter3()));
+    var freddyLetters = api.getLettersByUserId(studentFreddy.getId(), null, 1, 15, null);
+    assertFalse(idsOf(freddyLetters).contains(axelReceivedLetter.getId()));
+    assertTrue(idsOf(freddyLetters).contains(freddyPendingLetter.getId()));
 
-    List<Letter> actual3 = api.getLettersByUserId(STUDENT1_ID, null, 1, 15, PENDING);
-    assertFalse(actual3.contains(letter1()));
-    assertTrue(actual3.contains(letter2()));
-    assertFalse(actual3.contains(letter3()));
+    var axelPendingOnly = api.getLettersByUserId(studentAxel.getId(), null, 1, 15, PENDING);
+    assertFalse(idsOf(axelPendingOnly).contains(axelReceivedLetter.getId()));
+    assertTrue(idsOf(axelPendingOnly).contains(axelPendingLetter.getId()));
   }
 
   @Test
-  @Disabled
   void manager_create_and_update_students_letter()
       throws IOException, InterruptedException, ApiException {
-    ApiClient apiClient = anApiClient(MANAGER1_TOKEN);
-    LettersApi api = new LettersApi(apiClient);
-    PayingApi payingApi = new PayingApi(apiClient);
-    FilesApi filesApi = new FilesApi(apiClient);
+    var apiClient = anApiClient(managerToken);
+    var api = new LettersApi(apiClient);
+    var payingApi = new PayingApi(apiClient);
+    var filesApi = new FilesApi(apiClient);
 
-    HttpResponse<InputStream> toBeReceived =
+    var toBeReceived =
         uploadLetter(
-            localPort, MANAGER1_TOKEN, STUDENT1_ID, "Certificat", "file", null, null, null);
-    Letter createdLetter1 = objectMapper.readValue(toBeReceived.body(), Letter.class);
+            localPort, managerToken, studentAxel.getId(), "Certificat", "file", null, null, null);
+    var createdLetter1 = objectMapper.readValue(toBeReceived.body(), Letter.class);
     assertEquals("Certificat", createdLetter1.getDescription());
     assertEquals(PENDING, createdLetter1.getStatus());
 
-    HttpResponse<InputStream> toBeRejected =
-        uploadLetter(localPort, MANAGER1_TOKEN, STUDENT1_ID, "A rejeter", "file", null, null, null);
-
-    Letter createdLetter2 = objectMapper.readValue(toBeRejected.body(), Letter.class);
+    var toBeRejected =
+        uploadLetter(
+            localPort, managerToken, studentAxel.getId(), "A rejeter", "file", null, null, null);
+    var createdLetter2 = objectMapper.readValue(toBeRejected.body(), Letter.class);
     assertEquals("A rejeter", createdLetter2.getDescription());
     assertEquals(PENDING, createdLetter2.getStatus());
 
-    List<Letter> updatedLetters =
+    var updatedLetters =
         api.updateLettersStatus(
             List.of(
                 new UpdateLettersStatus().id(createdLetter1.getId()).status(RECEIVED),
@@ -228,118 +289,91 @@ class LetterIT extends FacadeITMockedThirdParties {
                     .status(REJECTED)
                     .reasonForRefusal("Mauvais format")));
 
-    Letter updatedLetter1 = updatedLetters.getFirst();
+    var updatedLetter1 = updatedLetters.getFirst();
     assertEquals(RECEIVED, updatedLetter1.getStatus());
     assertNotNull(updatedLetter1.getApprovalDatetime());
     assertEquals(createdLetter1.getId(), updatedLetter1.getId());
     assertNull(createdLetter1.getFee());
 
-    Letter updatedLetter2 = updatedLetters.get(1);
+    var updatedLetter2 = updatedLetters.get(1);
     assertEquals(REJECTED, updatedLetter2.getStatus());
     assertNotNull(updatedLetter2.getApprovalDatetime());
     assertEquals(createdLetter2.getId(), updatedLetter2.getId());
 
-    // Check if the file info is saved
-    List<FileInfo> fileInfos = filesApi.getUserFiles(STUDENT1_ID, 1, 15, OTHER);
-    assertEquals(2, fileInfos.size());
+    // only the accepted letter is filed: LetterService saves a FileInfo on RECEIVED, not on
+    // REJECTED
+    var fileInfos = filesApi.getUserFiles(studentAxel.getId(), 1, 15, OTHER);
+    assertEquals(1, fileInfos.size());
+    assertEquals(createdLetter1.getDescription(), fileInfos.getFirst().getName());
 
-    // Test fee payment
-    HttpResponse<InputStream> testFeePayment =
+    var notLinkedToAFee =
+        api.getStudentsLetters(1, 15, studentAxel.getRef(), null, null, null, null, false);
+    assertTrue(idsOf(notLinkedToAFee).contains(axelReceivedLetter.getId()));
+    assertTrue(idsOf(notLinkedToAFee).contains(axelPendingLetter.getId()));
+  }
+
+  @Test
+  void manager_accepting_a_fee_linked_letter_settles_the_fee()
+      throws IOException, InterruptedException, ApiException {
+    var apiClient = anApiClient(managerToken);
+    var api = new LettersApi(apiClient);
+    var payingApi = new PayingApi(apiClient);
+
+    var feeLetterUpload =
         uploadLetter(
-            localPort, MANAGER1_TOKEN, STUDENT1_ID, "Test fee", "file", "fee7_id", 5000, null);
+            localPort,
+            managerToken,
+            studentAxel.getId(),
+            "Test fee",
+            "file",
+            axelFee.getId(),
+            5000,
+            null);
+    var createdFeeLetter = objectMapper.readValue(feeLetterUpload.body(), Letter.class);
 
-    Letter createdLetter3 = objectMapper.readValue(testFeePayment.body(), Letter.class);
-    Letter feeLetterUpdated =
+    var feeLetterUpdated =
         api.updateLettersStatus(
-                List.of(new UpdateLettersStatus().id(createdLetter3.getId()).status(RECEIVED)))
+                List.of(new UpdateLettersStatus().id(createdFeeLetter.getId()).status(RECEIVED)))
             .getFirst();
 
-    Fee actualFee = payingApi.getStudentFeeById(STUDENT1_ID, "fee7_id");
+    var actualFee = payingApi.getStudentFeeById(studentAxel.getId(), axelFee.getId());
     assertEquals(actualFee.getComment(), feeLetterUpdated.getFee().getComment());
     assertEquals(actualFee.getType(), feeLetterUpdated.getFee().getType());
     assertEquals(PAID, actualFee.getStatus());
 
-    List<Letter> testFilterByFeeId =
-        api.getStudentsLetters(1, 15, null, null, null, null, "fee7_id", null);
-    assertEquals(testFilterByFeeId.getFirst().getId(), feeLetterUpdated.getId());
-    assertFalse(testFilterByFeeId.contains(updatedLetter1));
-    assertFalse(testFilterByFeeId.contains(updatedLetter2));
-
-    List<Letter> testFilterByIsLinked =
-        api.getStudentsLetters(1, 15, null, null, null, null, null, true);
-    assertEquals(testFilterByIsLinked.getFirst().getId(), feeLetterUpdated.getId());
-    assertFalse(testFilterByFeeId.contains(updatedLetter1));
-    assertFalse(testFilterByFeeId.contains(updatedLetter2));
-
-    List<Letter> testFilterByIsNotLinked =
-        api.getStudentsLetters(1, 15, null, null, null, null, null, false);
-    assertTrue(testFilterByIsNotLinked.contains(letter1()));
-    assertTrue(testFilterByIsNotLinked.contains(letter2()));
-  }
-
-  @Test
-  void test_letter_linked_with_event_participant()
-      throws IOException, InterruptedException, ApiException {
-    ApiClient apiClient = anApiClient(MANAGER1_TOKEN);
-
-    HttpResponse<InputStream> testEvent =
-        uploadLetter(
-            localPort,
-            MANAGER1_TOKEN,
-            STUDENT3_ID,
-            "Test event 1",
-            "file",
-            null,
-            null,
-            EVENT_PARTICIPANT5_ID);
-
-    Letter createdLetter4 = objectMapper.readValue(testEvent.body(), Letter.class);
-
-    assertEquals("Test event 1", createdLetter4.getDescription());
-
-    EventParticipantLetter expectedEventParticipantLetter =
-        new EventParticipantLetter()
-            .creationDatetime(createdLetter4.getCreationDatetime())
-            .status(createdLetter4.getStatus())
-            .ref(createdLetter4.getRef())
-            .description(createdLetter4.getDescription());
-
-    EventsApi eventsApi = new EventsApi(apiClient);
-
-    List<EventParticipant> eventParticipants =
-        eventsApi.getEventParticipants(EVENT2_ID, 1, 15, null, null, null, null);
-    assertEquals(expectedEventParticipantLetter, eventParticipants.get(2).getLetter().getFirst());
+    var filteredByFeeId =
+        api.getStudentsLetters(1, 15, null, null, null, null, axelFee.getId(), null);
+    assertEquals(feeLetterUpdated.getId(), filteredByFeeId.getFirst().getId());
   }
 
   @Test
   void student_read_self_ok() throws ApiException {
-    ApiClient apiClient = anApiClient(STUDENT1_TOKEN);
-    LettersApi api = new LettersApi(apiClient);
+    var actual = apiAs(axelToken).getLettersByUserId(studentAxel.getId(), null, 1, 15, null);
 
-    List<Letter> actual = api.getLettersByUserId(STUDENT1_ID, null, 1, 15, null);
-    assertTrue(actual.contains(letter1()));
-    assertTrue(actual.contains(letter2()));
-    assertFalse(actual.contains(letter3()));
+    assertTrue(idsOf(actual).contains(axelReceivedLetter.getId()));
+    assertTrue(idsOf(actual).contains(axelPendingLetter.getId()));
+    assertFalse(idsOf(actual).contains(freddyPendingLetter.getId()));
   }
 
   @Test
   void teacher_read_others_letter_ko() {
-    LettersApi api = new LettersApi(anApiClient(TEACHER1_TOKEN));
+    var api = apiAs(teacherToken);
 
-    assertThrowsForbiddenException(() -> api.getLettersByUserId(STUDENT1_ID, null, 1, 15, null));
+    assertThrowsForbiddenException(
+        () -> api.getLettersByUserId(studentAxel.getId(), null, 1, 15, null));
   }
 
   @Test
   void teacher_upload_letter_for_fee_ko() {
-    LettersApi api = new LettersApi(anApiClient(TEACHER1_TOKEN));
+    var api = apiAs(teacherToken);
 
     assertThrowsForbiddenException(
         () ->
             api.createLetter(
-                TEACHER1_ID,
+                teacherToky.getId(),
                 "filename",
                 "description",
-                "feeId",
+                axelFee.getId(),
                 null,
                 null,
                 getMockedFile("img", ".png")));
@@ -347,39 +381,39 @@ class LetterIT extends FacadeITMockedThirdParties {
     assertThrowsForbiddenException(
         () ->
             api.createLetter(
-                TEACHER1_ID,
+                teacherToky.getId(),
                 "filename",
                 "description",
                 null,
                 null,
-                STUDENT1_ID,
+                studentAxel.getId(),
                 getMockedFile("img", ".png")));
   }
 
   @Test
   void upload_letter_with_bad_request_ko() {
-    LettersApi api = new LettersApi(anApiClient(STUDENT1_TOKEN));
+    var api = apiAs(axelToken);
 
     assertBadRequestException(
         "Cannot link letter with both fee and event participant",
         () ->
             api.createLetter(
-                STUDENT1_ID,
+                studentAxel.getId(),
                 "filename",
                 "description",
-                FEE1_ID,
+                axelFee.getId(),
                 0,
-                STUDENT1_ID,
+                studentAxel.getId(),
                 getMockedFile("img", ".png")));
 
     assertBadRequestException(
         "Cannot create a letter for a fee without a given amount",
         () ->
             api.createLetter(
-                STUDENT1_ID,
+                studentAxel.getId(),
                 "filename",
                 "description",
-                FEE1_ID,
+                axelFee.getId(),
                 null,
                 null,
                 getMockedFile("img", ".png")));
@@ -387,50 +421,46 @@ class LetterIT extends FacadeITMockedThirdParties {
 
   @Test
   void teacher_read_self_ok() throws ApiException {
-    ApiClient apiClient = anApiClient(TEACHER1_TOKEN);
-    LettersApi api = new LettersApi(apiClient);
+    var actual = apiAs(teacherToken).getLettersByUserId(teacherToky.getId(), null, 1, 15, null);
 
-    List<Letter> actual = api.getLettersByUserId(TEACHER1_ID, null, 1, 15, null);
     assertEquals(1, actual.size());
+    assertEquals(teacherLetter.getId(), actual.getFirst().getId());
   }
 
   @Test
-  void student_forbidden_endpoint() throws ApiException {
-    ApiClient apiClient = anApiClient(STUDENT1_TOKEN);
-    LettersApi api = new LettersApi(apiClient);
+  void student_forbidden_endpoint() {
+    var api = apiAs(axelToken);
 
-    assertThrowsForbiddenException(() -> api.getLettersByUserId(STUDENT2_ID, null, 1, 15, null));
+    assertThrowsForbiddenException(
+        () -> api.getLettersByUserId(studentFreddy.getId(), null, 1, 15, null));
     assertThrowsForbiddenException(
         () ->
             api.updateLettersStatus(
-                List.of(new UpdateLettersStatus().id("test").status(RECEIVED))));
-    // TODO: The test should pass
-    // assertThrowsForbiddenException(() -> api.createLetter(STUDENT2_ID,"null","null",
-    // getMockedFile("img", ".png")));
+                List.of(new UpdateLettersStatus().id(randomUUID().toString()).status(RECEIVED))));
   }
 
   @Test
-  void student_upload_own_letter_ok() throws ApiException, IOException, InterruptedException {
-    HttpResponse<InputStream> response =
+  void student_upload_own_letter_ok() throws IOException, InterruptedException {
+    var response =
         uploadLetter(
-            localPort, STUDENT1_TOKEN, STUDENT1_ID, "Certificat", "file", null, null, null);
-    Letter createdLetter = objectMapper.readValue(response.body(), Letter.class);
+            localPort, axelToken, studentAxel.getId(), "Certificat", "file", null, null, null);
+
+    var createdLetter = objectMapper.readValue(response.body(), Letter.class);
     assertEquals("Certificat", createdLetter.getDescription());
     assertEquals(PENDING, createdLetter.getStatus());
   }
 
   @Test
   void admin_filter_letters_by_multiple_roles() throws ApiException {
-    ApiClient apiClient = anApiClient(ADMIN1_TOKEN);
-    LettersApi api = new LettersApi(apiClient);
-    List<RoleEnum> roles = List.of(RoleEnum.TEACHER, RoleEnum.STAFF_MEMBER);
-    List<Letter> letters = api.getLetters(1, 15, null, null, null, null, null, null, roles);
+    var roles = List.of(RoleEnum.TEACHER, RoleEnum.STAFF_MEMBER);
 
-    assertFalse(letters.contains(letter1()));
-    assertFalse(letters.contains(letter2()));
-    assertFalse(letters.contains(letter3()));
+    var letters = apiAs(adminToken).getLetters(1, 15, null, null, null, null, null, null, roles);
 
-    assertEquals(3, letters.size());
-    assertTrue(letters.stream().anyMatch(l -> l.getId().equals(letter5().getId())));
+    // students are excluded by the role filter, staff and teachers are kept
+    assertFalse(idsOf(letters).contains(axelReceivedLetter.getId()));
+    assertFalse(idsOf(letters).contains(axelPendingLetter.getId()));
+    assertFalse(idsOf(letters).contains(freddyPendingLetter.getId()));
+    assertTrue(idsOf(letters).contains(teacherLetter.getId()));
+    assertTrue(idsOf(letters).contains(staffLetter.getId()));
   }
 }

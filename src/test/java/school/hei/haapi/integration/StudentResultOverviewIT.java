@@ -13,37 +13,36 @@ import static school.hei.haapi.endpoint.rest.model.StudentLevel.L2;
 import static school.hei.haapi.endpoint.rest.model.StudentLevel.L3;
 import static school.hei.haapi.endpoint.rest.model.StudentLevel.M1;
 import static school.hei.haapi.endpoint.rest.model.StudentLevel.M2;
-import static school.hei.haapi.integration.conf.TestUtils.ADMIN1_TOKEN;
-import static school.hei.haapi.integration.conf.TestUtils.setUpCasdoor;
-import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
-import static school.hei.haapi.integration.test_data.StudentResultOverviewTestData.axelResultOverview;
-import static school.hei.haapi.integration.test_data.StudentResultOverviewTestData.axelYearlyResultL1;
-import static school.hei.haapi.integration.test_data.StudentResultOverviewTestData.axelYearlyResultL2;
-import static school.hei.haapi.integration.test_data.StudentResultOverviewTestData.axelYearlyResultL3;
-import static school.hei.haapi.integration.test_data.StudentResultOverviewTestData.freddyResultOverview;
-import static school.hei.haapi.integration.test_data.StudentResultOverviewTestData.freddyYearlyResultL1;
-import static school.hei.haapi.integration.test_data.StudentResultOverviewTestData.freddyYearlyResultL2;
-import static school.hei.haapi.integration.test_data.StudentResultOverviewTestData.freddyYearlyResultL3;
-import static school.hei.haapi.integration.test_data.StudentResultOverviewTestData.groupFlowAxel;
-import static school.hei.haapi.integration.test_data.StudentResultOverviewTestData.groupFlowFreddy;
-import static school.hei.haapi.integration.test_data.StudentResultOverviewTestData.groupFlowManitra;
-import static school.hei.haapi.integration.test_data.StudentResultOverviewTestData.groupFlowTolojanahary;
-import static school.hei.haapi.integration.test_data.StudentResultOverviewTestData.groupH;
-import static school.hei.haapi.integration.test_data.StudentResultOverviewTestData.groupJ;
-import static school.hei.haapi.integration.test_data.StudentResultOverviewTestData.manitraResultOverview;
-import static school.hei.haapi.integration.test_data.StudentResultOverviewTestData.manitraYearlyResultL1;
-import static school.hei.haapi.integration.test_data.StudentResultOverviewTestData.manitraYearlyResultL2;
-import static school.hei.haapi.integration.test_data.StudentResultOverviewTestData.manitraYearlyResultL3;
-import static school.hei.haapi.integration.test_data.StudentResultOverviewTestData.promotionH;
-import static school.hei.haapi.integration.test_data.StudentResultOverviewTestData.promotionJ;
-import static school.hei.haapi.integration.test_data.StudentResultOverviewTestData.tolojanaharyResultOverview;
-import static school.hei.haapi.integration.test_data.StudentResultOverviewTestData.tolojanaharyYearlyResultL1;
-import static school.hei.haapi.integration.test_data.StudentResultOverviewTestData.tolojanaharyYearlyResultL2;
-import static school.hei.haapi.integration.test_data.StudentResultOverviewTestData.tolojanaharyYearlyResultL3;
-import static school.hei.haapi.integration.test_data.StudentTestData.axel;
-import static school.hei.haapi.integration.test_data.StudentTestData.freddy;
-import static school.hei.haapi.integration.test_data.StudentTestData.manitra;
-import static school.hei.haapi.integration.test_data.StudentTestData.tolojanahary;
+import static school.hei.haapi.integration.conf.TestAuth.tokenFor;
+import static school.hei.haapi.integration.testData.StaffTestData.adminMialy;
+import static school.hei.haapi.integration.testData.StudentResultOverviewTestData.axelResultOverview;
+import static school.hei.haapi.integration.testData.StudentResultOverviewTestData.axelYearlyResultL1;
+import static school.hei.haapi.integration.testData.StudentResultOverviewTestData.axelYearlyResultL2;
+import static school.hei.haapi.integration.testData.StudentResultOverviewTestData.axelYearlyResultL3;
+import static school.hei.haapi.integration.testData.StudentResultOverviewTestData.freddyResultOverview;
+import static school.hei.haapi.integration.testData.StudentResultOverviewTestData.freddyYearlyResultL1;
+import static school.hei.haapi.integration.testData.StudentResultOverviewTestData.freddyYearlyResultL2;
+import static school.hei.haapi.integration.testData.StudentResultOverviewTestData.freddyYearlyResultL3;
+import static school.hei.haapi.integration.testData.StudentResultOverviewTestData.groupFlowAxel;
+import static school.hei.haapi.integration.testData.StudentResultOverviewTestData.groupFlowFreddy;
+import static school.hei.haapi.integration.testData.StudentResultOverviewTestData.groupFlowManitra;
+import static school.hei.haapi.integration.testData.StudentResultOverviewTestData.groupFlowTolojanahary;
+import static school.hei.haapi.integration.testData.StudentResultOverviewTestData.groupH;
+import static school.hei.haapi.integration.testData.StudentResultOverviewTestData.groupJ;
+import static school.hei.haapi.integration.testData.StudentResultOverviewTestData.manitraResultOverview;
+import static school.hei.haapi.integration.testData.StudentResultOverviewTestData.manitraYearlyResultL1;
+import static school.hei.haapi.integration.testData.StudentResultOverviewTestData.manitraYearlyResultL2;
+import static school.hei.haapi.integration.testData.StudentResultOverviewTestData.manitraYearlyResultL3;
+import static school.hei.haapi.integration.testData.StudentResultOverviewTestData.promotionH;
+import static school.hei.haapi.integration.testData.StudentResultOverviewTestData.promotionJ;
+import static school.hei.haapi.integration.testData.StudentResultOverviewTestData.tolojanaharyResultOverview;
+import static school.hei.haapi.integration.testData.StudentResultOverviewTestData.tolojanaharyYearlyResultL1;
+import static school.hei.haapi.integration.testData.StudentResultOverviewTestData.tolojanaharyYearlyResultL2;
+import static school.hei.haapi.integration.testData.StudentResultOverviewTestData.tolojanaharyYearlyResultL3;
+import static school.hei.haapi.integration.testData.StudentTestData.axel;
+import static school.hei.haapi.integration.testData.StudentTestData.freddy;
+import static school.hei.haapi.integration.testData.StudentTestData.manitra;
+import static school.hei.haapi.integration.testData.StudentTestData.tolojanahary;
 
 import java.util.Collection;
 import java.util.List;
@@ -97,6 +96,8 @@ public class StudentResultOverviewIT extends FacadeITMockedThirdParties {
   private User tolojanahary;
   private User manitra;
   private User freddy;
+  private User adminUser;
+  private String adminToken;
   private Group groupJ;
   private Group groupH;
   private GroupFlow groupFlowAxel;
@@ -164,8 +165,8 @@ public class StudentResultOverviewIT extends FacadeITMockedThirdParties {
   @BeforeEach
   void setUp() {
     setUpTestData();
-    setUpCasdoor(casdoorAuthServiceMock, certificateLoaderMock);
-    setUpCognito(cognitoComponentMock);
+    adminUser = userRepository.save(adminMialy());
+    adminToken = tokenFor(casdoorAuthServiceMock, adminUser);
   }
 
   @AfterEach
@@ -175,7 +176,7 @@ public class StudentResultOverviewIT extends FacadeITMockedThirdParties {
         List.of(groupFlowTolojanahary, groupFlowAxel, groupFlowManitra, groupFlowFreddy));
     groupRepository.deleteAllInBatch(List.of(groupH, groupJ));
     promotionRepository.deleteAllInBatch(List.of(promotionH, promotionJ));
-    userRepository.deleteAllInBatch(List.of(axel, tolojanahary, manitra, freddy));
+    userRepository.deleteAllInBatch(List.of(axel, tolojanahary, manitra, freddy, adminUser));
   }
 
   @Test
@@ -251,7 +252,7 @@ public class StudentResultOverviewIT extends FacadeITMockedThirdParties {
             .flatMap(Collection::stream)
             .toList());
 
-    var apiClient = anApiClient(ADMIN1_TOKEN);
+    var apiClient = anApiClient(adminToken);
     var api = new UsersApi(apiClient);
     var actual =
         api.getStudentsResultOverviewsByStatus(promotionJ.getId(), IN_PROGRESS, null, null);
@@ -265,7 +266,7 @@ public class StudentResultOverviewIT extends FacadeITMockedThirdParties {
 
   @Test
   void get_student_result_overviews_OK() throws ApiException {
-    var apiClient = anApiClient(ADMIN1_TOKEN);
+    var apiClient = anApiClient(adminToken);
     var api = new UsersApi(apiClient);
 
     var studentsResultOverviews =

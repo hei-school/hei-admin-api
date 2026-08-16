@@ -17,11 +17,10 @@ import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.PAID;
 import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.PENDING;
 import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.UNPAID;
 import static school.hei.haapi.endpoint.rest.model.FeeTypeEnum.TUITION;
-import static school.hei.haapi.integration.StudentIT.student1;
-import static school.hei.haapi.integration.conf.TestUtils.MANAGER1_TOKEN;
-import static school.hei.haapi.integration.conf.TestUtils.setUpCasdoor;
-import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
-import static school.hei.haapi.integration.conf.TestUtils.setUpS3Service;
+import static school.hei.haapi.integration.conf.TestAuth.tokenFor;
+import static school.hei.haapi.integration.conf.TestMocks.setUpS3Service;
+import static school.hei.haapi.integration.testData.ManagerTestData.hasina;
+import static school.hei.haapi.integration.testData.StudentTestData.axel;
 import static school.hei.haapi.model.statistics.AdvancedFeeStats.AdvancedFeeStatsCountType.RECEIPT;
 import static school.hei.haapi.model.statistics.AdvancedFeeStats.AdvancedFeeStatsType.PENDING_COUNT;
 import static school.hei.haapi.model.statistics.AdvancedFeeStats.AdvancedFeeStatsType.UNPAID_COUNT;
@@ -35,6 +34,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,9 +50,11 @@ import school.hei.haapi.integration.conf.FacadeITMockedThirdParties;
 import school.hei.haapi.integration.conf.TestUtils;
 import school.hei.haapi.model.Fee;
 import school.hei.haapi.model.FeeStatusHistory;
+import school.hei.haapi.model.User;
 import school.hei.haapi.model.statistics.AdvancedFeeStats;
 import school.hei.haapi.repository.AdvancedFeeStatsRepository;
 import school.hei.haapi.repository.FeeRepository;
+import school.hei.haapi.repository.UserRepository;
 import school.hei.haapi.repository.dao.FeeDao;
 
 @Slf4j
@@ -64,6 +66,10 @@ class AdvancedFeeStatsServiceTest extends FacadeITMockedThirdParties {
   @Autowired private AdvancedFeeStatsMapper advancedFeeStatsMapper;
   private FeeRepository feeRepository;
   @MockBean private BucketComponent bucketComponent;
+  @Autowired private UserRepository userRepository;
+
+  private User manager;
+  private String managerToken;
 
   private ApiClient anApiClient(String token) {
     return TestUtils.anApiClient(token, localPort);
@@ -75,10 +81,10 @@ class AdvancedFeeStatsServiceTest extends FacadeITMockedThirdParties {
     repository = mock(AdvancedFeeStatsRepository.class);
     feeRepository = mock(FeeRepository.class);
     eventProducer = mock(EventProducer.class);
+    setUpS3Service(fileService, axel());
 
-    setUpCasdoor(casdoorAuthServiceMock, certificateLoaderMock);
-    setUpCognito(cognitoComponentMock);
-    setUpS3Service(fileService, student1());
+    manager = userRepository.save(hasina());
+    managerToken = tokenFor(casdoorAuthServiceMock, manager);
 
     subject =
         new AdvancedFeeStatsService(
@@ -88,6 +94,11 @@ class AdvancedFeeStatsServiceTest extends FacadeITMockedThirdParties {
             feeRepository,
             eventProducer,
             bucketComponent);
+  }
+
+  @AfterEach
+  void tearDown() {
+    userRepository.deleteById(manager.getId());
   }
 
   @Test
@@ -119,7 +130,7 @@ class AdvancedFeeStatsServiceTest extends FacadeITMockedThirdParties {
   @Test
   void advanced_fee_statistics_count_ok() {
     var rangeDate = Instant.now();
-    Map<AdvancedFeeStats.AdvancedFeeStatsType, AdvancedFeeStats> daoResult =
+    var daoResult =
         Map.of(
             UNPAID_COUNT,
             AdvancedFeeStats.builder()
@@ -160,7 +171,7 @@ class AdvancedFeeStatsServiceTest extends FacadeITMockedThirdParties {
                   stat.setStatEndDate(null);
                 })
             .collect(toSet());
-    AdvancedFeeStats unpaidStat =
+    var unpaidStat =
         actualStats.stream()
             .filter(s -> s.getStatType() == UNPAID_COUNT)
             .findFirst()
@@ -179,7 +190,7 @@ class AdvancedFeeStatsServiceTest extends FacadeITMockedThirdParties {
     when(bucketComponent.presign(any(), any()))
         .thenAnswer(invocation -> new URL("https://example.com/file.xlsx"));
     when(bucketComponent.upload(any(), any())).thenReturn(mock());
-    var apiClient = anApiClient(MANAGER1_TOKEN);
+    var apiClient = anApiClient(managerToken);
     var api = new PayingApi(apiClient);
     var presignedUrl =
         api.exportAdvancedFeesStats(AdvancedFeeStatisticsType.RECEIPT, null, null, UNPAID);

@@ -23,7 +23,7 @@ class FeeTest {
 
   @Test
   void copy_fee_correct() {
-    User student = new User();
+    var student = new User();
     var fee = fakeDataProvider.someFee(student);
     var feeCopy = new Fee(fee);
     fee.setCreationDatetime(MIN);

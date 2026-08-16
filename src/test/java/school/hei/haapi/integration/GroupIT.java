@@ -5,136 +5,113 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static school.hei.haapi.integration.StudentIT.student1;
+import static school.hei.haapi.integration.conf.ApiAssertions.assertThrowsForbiddenException;
+import static school.hei.haapi.integration.conf.ApiAssertions.cloneGroupNoTimestamp;
+import static school.hei.haapi.integration.conf.ApiAssertions.isValidUUID;
+import static school.hei.haapi.integration.conf.TestAuth.tokenFor;
+import static school.hei.haapi.integration.conf.TestMocks.setUpS3Service;
 import static school.hei.haapi.integration.conf.TestUtils.BAD_TOKEN;
-import static school.hei.haapi.integration.conf.TestUtils.MANAGER1_TOKEN;
-import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_ID;
-import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_TOKEN;
-import static school.hei.haapi.integration.conf.TestUtils.STUDENT2_ID;
-import static school.hei.haapi.integration.conf.TestUtils.TEACHER1_TOKEN;
-import static school.hei.haapi.integration.conf.TestUtils.assertThrowsForbiddenException;
-import static school.hei.haapi.integration.conf.TestUtils.cloneGroupNoTimestamp;
-import static school.hei.haapi.integration.conf.TestUtils.group3;
-import static school.hei.haapi.integration.conf.TestUtils.group5;
-import static school.hei.haapi.integration.conf.TestUtils.isValidUUID;
-import static school.hei.haapi.integration.conf.TestUtils.setUpCasdoor;
-import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
-import static school.hei.haapi.integration.conf.TestUtils.setUpS3Service;
-import static school.hei.haapi.integration.test_data.GroupTestData.createGroupFlow;
-import static school.hei.haapi.integration.test_data.GroupTestData.g1;
-import static school.hei.haapi.integration.test_data.GroupTestData.g2;
-import static school.hei.haapi.integration.test_data.StudentTestData.axel;
+import static school.hei.haapi.integration.testData.GroupTestData.createGroupFlow;
+import static school.hei.haapi.integration.testData.GroupTestData.g1;
+import static school.hei.haapi.integration.testData.GroupTestData.g2;
+import static school.hei.haapi.integration.testData.ManagerTestData.hasina;
+import static school.hei.haapi.integration.testData.StudentTestData.axel;
+import static school.hei.haapi.integration.testData.StudentTestData.freddy;
+import static school.hei.haapi.integration.testData.TeacherTestData.toky;
 
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.testcontainers.junit.jupiter.Testcontainers;
 import school.hei.haapi.endpoint.rest.api.GroupsApi;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
 import school.hei.haapi.endpoint.rest.mapper.GroupMapper;
 import school.hei.haapi.endpoint.rest.model.CreateGroup;
-import school.hei.haapi.endpoint.rest.model.Group;
-import school.hei.haapi.endpoint.rest.model.Student;
+import school.hei.haapi.integration.conf.ApiAssertions;
 import school.hei.haapi.integration.conf.FacadeITMockedThirdParties;
 import school.hei.haapi.integration.conf.TestUtils;
+import school.hei.haapi.model.Group;
 import school.hei.haapi.model.GroupFlow;
 import school.hei.haapi.model.User;
 import school.hei.haapi.repository.GroupFlowRepository;
 import school.hei.haapi.repository.GroupRepository;
 import school.hei.haapi.repository.UserRepository;
 
-// TODO: isolate this test's data (please!) and add an @AfterEach when soft delete is added to all
-// entities
-@Testcontainers
-@AutoConfigureMockMvc
 class GroupIT extends FacadeITMockedThirdParties {
-  private List<String> groupIds = new ArrayList<>();
-  private school.hei.haapi.model.Group groupG1;
-  private school.hei.haapi.model.Group groupG2;
-  private User studentAxel;
-  private GroupFlow groupFlowsAxel;
-  private List<String> studentIds = new ArrayList<>();
-  private List<String> grooupFlowIds = new ArrayList<>();
-
   @Autowired private GroupRepository groupRepository;
   @Autowired private GroupMapper groupMapper;
   @Autowired private UserRepository userRepository;
   @Autowired private GroupFlowRepository groupFlowRepository;
 
+  private Group groupG1;
+  private Group groupG2;
+  private User studentAxel;
+  private User studentFreddy;
+  private User managerHasina;
+  private User teacherToky;
+  private GroupFlow axelJoinsG1;
+
+  /** Groups the tests create through the API, swept in tearDown. */
+  private final List<String> createdGroupIds = new ArrayList<>();
+
+  private String studentToken;
+  private String managerToken;
+  private String teacherToken;
+
   private void setUpTestData() {
-    studentAxel = axel();
-    groupG1 = g1();
-    groupG2 = g2();
-    groupFlowsAxel = createGroupFlow(studentAxel, groupG1);
+    studentAxel = userRepository.save(axel());
+    studentFreddy = userRepository.save(freddy());
+    managerHasina = userRepository.save(hasina());
+    teacherToky = userRepository.save(toky());
 
-    userRepository.save(studentAxel);
-    groupRepository.saveAll(List.of(groupG1, groupG2));
-    groupFlowRepository.save(groupFlowsAxel);
+    groupG1 = groupRepository.save(g1());
+    groupG2 = groupRepository.save(g2());
+    axelJoinsG1 = groupFlowRepository.save(createGroupFlow(studentAxel, groupG1));
+  }
 
-    studentIds.add(studentAxel.getId());
-    groupIds.addAll(List.of(groupG1.getId(), groupG2.getId()));
-    grooupFlowIds.add(groupFlowsAxel.getId());
+  @BeforeEach
+  public void setUp() {
+    setUpTestData();
+    setUpS3Service(fileService, studentAxel);
+
+    studentToken = tokenFor(casdoorAuthServiceMock, studentAxel);
+    managerToken = tokenFor(casdoorAuthServiceMock, managerHasina);
+    teacherToken = tokenFor(casdoorAuthServiceMock, teacherToky);
+  }
+
+  @AfterEach
+  void tearDown() {
+    List<String> ownedGroupIds = new ArrayList<>(createdGroupIds);
+    ownedGroupIds.addAll(List.of(groupG1.getId(), groupG2.getId()));
+
+    groupFlowRepository.deleteAll(
+        groupFlowRepository.findAll().stream()
+            .filter(f -> ownedGroupIds.contains(f.getGroup().getId()))
+            .toList());
+    groupRepository.deleteAllById(ownedGroupIds);
+    createdGroupIds.clear();
+    userRepository.deleteAll(List.of(studentAxel, studentFreddy, managerHasina, teacherToky));
+  }
+
+  private GroupsApi apiAs(String token) {
+    return new GroupsApi(anApiClient(token));
   }
 
   private ApiClient anApiClient(String token) {
     return TestUtils.anApiClient(token, localPort);
   }
 
-  public static Group group1() {
-    Group group = new Group();
-    group.setId("group1_id");
-    group.setRef("G1");
-    group.setName("GRP21001");
-    group.setCreationDatetime(Instant.parse("2021-11-08T08:25:24.00Z"));
-    group.setSize(2);
-    return group;
+  private static CreateGroup someCreatableGroup(List<String> students) {
+    return new CreateGroup().name("Some name").ref("GRP21-" + randomUUID()).students(students);
   }
 
-  public static Group group2() {
-    Group group = new Group();
-    group.setId("group2_id");
-    group.setRef("G2");
-    group.setName("GRP21002");
-    group.setCreationDatetime(Instant.parse("2021-11-08T08:30:24.00Z"));
-    group.setSize(0);
-    return group;
-  }
-
-  public static Group updatedGroup3() {
-    Group copyGroup3 = new Group();
-    copyGroup3.setId(group3().getId());
-    copyGroup3.setRef(group3().getRef());
-    copyGroup3.setCreationDatetime(group3().getCreationDatetime());
-    copyGroup3.setName(group3().getName());
-    copyGroup3.setSize(1);
-    return copyGroup3;
-  }
-
-  public static Group updatedGroup5() {
-    Group copyGroup5 = new Group();
-    copyGroup5.setId(group5().getId());
-    copyGroup5.setRef(group5().getRef());
-    copyGroup5.setCreationDatetime(group5().getCreationDatetime());
-    copyGroup5.setName(group5().getName());
-    copyGroup5.setSize(1);
-    return copyGroup5;
-  }
-
-  public static CreateGroup someCreatableGroup(List<String> students) {
-    CreateGroup createGroup = new CreateGroup();
-    createGroup.setName("Some name");
-    createGroup.setRef("GRP21-" + randomUUID());
-    createGroup.setStudents(students);
-    return createGroup;
-  }
-
-  public static Group createGroupToGroup(CreateGroup createGroup) {
-    return new Group()
+  private static school.hei.haapi.endpoint.rest.model.Group createGroupToGroup(
+      CreateGroup createGroup) {
+    return new school.hei.haapi.endpoint.rest.model.Group()
         .id(createGroup.getId())
         .name(createGroup.getName())
         .creationDatetime(createGroup.getCreationDatetime())
@@ -142,7 +119,7 @@ class GroupIT extends FacadeITMockedThirdParties {
         .size(createGroup.getSize() == null ? 0 : createGroup.getSize());
   }
 
-  public static CreateGroup groupToCreateGroup(Group group) {
+  private static CreateGroup groupToCreateGroup(school.hei.haapi.endpoint.rest.model.Group group) {
     return new CreateGroup()
         .id(group.getId())
         .name(group.getName())
@@ -151,149 +128,121 @@ class GroupIT extends FacadeITMockedThirdParties {
         .size(group.getSize());
   }
 
-  @BeforeEach
-  public void setUp() {
-    setUpCasdoor(casdoorAuthServiceMock, certificateLoaderMock);
-    setUpCognito(cognitoComponentMock);
-    setUpS3Service(fileService, student1());
-    setUpTestData();
-  }
-
   @Test
   void badtoken_read_ko() {
-    ApiClient anonymousClient = anApiClient(BAD_TOKEN);
-    GroupsApi api = new GroupsApi(anonymousClient);
+    var api = apiAs(BAD_TOKEN);
+
     assertThrowsForbiddenException(() -> api.getGroups(null, null, 1, 10));
   }
 
   @Test
   void badtoken_write_ko() {
-    ApiClient anonymousClient = anApiClient(BAD_TOKEN);
+    var api = apiAs(BAD_TOKEN);
 
-    GroupsApi api = new GroupsApi(anonymousClient);
     assertThrowsForbiddenException(() -> api.createOrUpdateGroups(List.of()));
   }
 
-  // TODO: fix potential interference due to pagination, for now pageSize 250 groups per page is
-  // more than enough
   @Test
   void student_read_ok() throws ApiException {
-    ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
-    GroupsApi api = new GroupsApi(student1Client);
-    Group actualG1 = api.getGroupById(groupG1.getId());
-    List<Group> actualGroups = api.getGroups(null, null, 1, 250);
+    var api = apiAs(studentToken);
 
-    // TODO: should be way cleaner if we could deal with @CreationTimestamp using PrePersist to
-    // avoid the auto-now
-    var restGroupG1 = groupMapper.toRest(groupG1);
-    var restGroupG2 = groupMapper.toRest(groupG2);
-    var actualG1NoTimestamp = cloneGroupNoTimestamp(actualG1);
-    var actualGroupsWithoutCreationTimestamp =
-        actualGroups.stream().map(TestUtils::cloneGroupNoTimestamp).toList();
-    var restGroupG1NoTimestamp = cloneGroupNoTimestamp(restGroupG1);
-    var restGroupG2NoTimestamp = cloneGroupNoTimestamp(restGroupG2);
+    var actualG1 = api.getGroupById(groupG1.getId());
+    var actualGroups = api.getGroups(null, null, 1, 250);
 
-    assertEquals(actualG1NoTimestamp, restGroupG1NoTimestamp);
-    assertEquals(restGroupG1NoTimestamp, actualG1NoTimestamp);
-    assertTrue(actualGroupsWithoutCreationTimestamp.contains(restGroupG1NoTimestamp));
-    assertTrue(actualGroupsWithoutCreationTimestamp.contains(restGroupG2NoTimestamp));
+    // creationDatetime is a @CreationTimestamp, so it is compared out
+    var restGroupG1NoTimestamp = cloneGroupNoTimestamp(groupMapper.toRest(groupG1));
+    var restGroupG2NoTimestamp = cloneGroupNoTimestamp(groupMapper.toRest(groupG2));
+    var actualGroupsNoTimestamp =
+        actualGroups.stream().map(ApiAssertions::cloneGroupNoTimestamp).toList();
+
+    assertEquals(restGroupG1NoTimestamp, cloneGroupNoTimestamp(actualG1));
+    assertTrue(actualGroupsNoTimestamp.contains(restGroupG1NoTimestamp));
+    assertTrue(actualGroupsNoTimestamp.contains(restGroupG2NoTimestamp));
   }
 
   @Test
   void student_write_ko() {
-    ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
+    var api = apiAs(studentToken);
 
-    GroupsApi api = new GroupsApi(student1Client);
     assertThrowsForbiddenException(() -> api.createOrUpdateGroups(List.of()));
   }
 
   @Test
   void teacher_write_ko() {
-    ApiClient teacher1Client = anApiClient(TEACHER1_TOKEN);
+    var api = apiAs(teacherToken);
 
-    GroupsApi api = new GroupsApi(teacher1Client);
     assertThrowsForbiddenException(() -> api.createOrUpdateGroups(List.of()));
   }
 
-  // TODO: fix potential interference with pagination, for now pageSize 250 groups per page is more
-  // than enough
   @Test
   void manager_read_ok() throws ApiException {
-    ApiClient client = anApiClient(MANAGER1_TOKEN);
-    GroupsApi api = new GroupsApi(client);
-    var restGroupG1 = groupMapper.toRest(groupG1);
-    var restGroupG2 = groupMapper.toRest(groupG2);
+    var api = apiAs(managerToken);
+    var restGroupG1NoTimestamp = cloneGroupNoTimestamp(groupMapper.toRest(groupG1));
+    var restGroupG2NoTimestamp = cloneGroupNoTimestamp(groupMapper.toRest(groupG2));
 
-    // TODO: make it much cleaner once you deal with @CreationTimestamp in the model
-    List<Group> actualGroups = api.getGroups(null, null, 1, 250);
-    var actualGroupsWithoutTimestamp =
-        actualGroups.stream().map(TestUtils::cloneGroupNoTimestamp).toList();
-    var restGroupG1WithoutTimestamp = cloneGroupNoTimestamp(restGroupG1);
-    var restGroupG2WithoutTimestamp = cloneGroupNoTimestamp(restGroupG2);
+    var actualGroups = api.getGroups(null, null, 1, 250);
+    var actualGroupsNoTimestamp =
+        actualGroups.stream().map(ApiAssertions::cloneGroupNoTimestamp).toList();
     assertTrue(
-        actualGroupsWithoutTimestamp.contains(restGroupG1WithoutTimestamp),
-        "Expected " + actualGroupsWithoutTimestamp + " to contain " + restGroupG1WithoutTimestamp);
-    assertTrue(actualGroupsWithoutTimestamp.contains(restGroupG2WithoutTimestamp));
+        actualGroupsNoTimestamp.contains(restGroupG1NoTimestamp),
+        "Expected " + actualGroupsNoTimestamp + " to contain " + restGroupG1NoTimestamp);
+    assertTrue(actualGroupsNoTimestamp.contains(restGroupG2NoTimestamp));
 
-    List<Group> groupsFilteredByRef = api.getGroups(groupG1.getRef(), null, 1, 250);
-    var groupsFilteredByRefWithoutTimestamp =
-        groupsFilteredByRef.stream().map(TestUtils::cloneGroupNoTimestamp).toList();
-    assertTrue(groupsFilteredByRefWithoutTimestamp.contains(restGroupG1WithoutTimestamp));
-    assertFalse(groupsFilteredByRefWithoutTimestamp.contains(restGroupG2WithoutTimestamp));
-    assertEquals(1, groupsFilteredByRef.size());
+    var byRef = api.getGroups(groupG1.getRef(), null, 1, 250);
+    var byRefNoTimestamp = byRef.stream().map(ApiAssertions::cloneGroupNoTimestamp).toList();
+    assertEquals(1, byRef.size());
+    assertTrue(byRefNoTimestamp.contains(restGroupG1NoTimestamp));
+    assertFalse(byRefNoTimestamp.contains(restGroupG2NoTimestamp));
 
-    List<Group> groupsFilteredByStudentRef = api.getGroups(null, studentAxel.getRef(), 1, 250);
-    var groupsFilteredByStudentRefWithoutTimestamp =
-        groupsFilteredByStudentRef.stream().map(TestUtils::cloneGroupNoTimestamp).toList();
-    assertTrue(groupsFilteredByStudentRefWithoutTimestamp.contains(restGroupG1WithoutTimestamp));
-    assertFalse(groupsFilteredByStudentRefWithoutTimestamp.contains(restGroupG2WithoutTimestamp));
+    var byStudentRef = api.getGroups(null, studentAxel.getRef(), 1, 250);
+    var byStudentRefNoTimestamp =
+        byStudentRef.stream().map(ApiAssertions::cloneGroupNoTimestamp).toList();
+    assertTrue(byStudentRefNoTimestamp.contains(restGroupG1NoTimestamp));
+    assertFalse(byStudentRefNoTimestamp.contains(restGroupG2NoTimestamp));
   }
 
   @Test
   void manager_write_create_ok() throws ApiException {
-    ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
-    CreateGroup toCreate3 = someCreatableGroup(new ArrayList<>());
-    CreateGroup toCreate4 = someCreatableGroup(new ArrayList<>());
-    CreateGroup toCreate5 = someCreatableGroup(List.of(STUDENT1_ID, STUDENT2_ID));
+    var api = apiAs(managerToken);
+    CreateGroup emptyOne = someCreatableGroup(new ArrayList<>());
+    CreateGroup emptyTwo = someCreatableGroup(new ArrayList<>());
+    var withStudents = someCreatableGroup(List.of(studentAxel.getId(), studentFreddy.getId()));
 
-    GroupsApi api = new GroupsApi(manager1Client);
-    List<Group> created = api.createOrUpdateGroups(List.of(toCreate3, toCreate4));
-    List<Group> createdWithStudent = api.createOrUpdateGroups(List.of(toCreate5));
-    List<Student> students =
-        api.getStudentsByGroupId(createdWithStudent.getFirst().getId(), 1, 10, null);
+    var created = api.createOrUpdateGroups(List.of(emptyOne, emptyTwo));
+    var createdWithStudents = api.createOrUpdateGroups(List.of(withStudents));
+    created.forEach(g -> createdGroupIds.add(g.getId()));
+    createdWithStudents.forEach(g -> createdGroupIds.add(g.getId()));
+
+    var students = api.getStudentsByGroupId(createdWithStudents.getFirst().getId(), 1, 10, null);
 
     assertEquals(2, created.size());
-    Group created3 = created.getFirst();
-    assertTrue(isValidUUID(created3.getId()));
-    toCreate3.setId(created3.getId());
-    assertNotNull(created3.getCreationDatetime());
-    toCreate3.setCreationDatetime(created3.getCreationDatetime());
-
-    assertEquals(created3, createGroupToGroup(toCreate3));
-    Group created4 = created.getFirst();
-    assertTrue(isValidUUID(created4.getId()));
-    toCreate4.setId(created4.getId());
-    assertNotNull(created4.getCreationDatetime());
-    toCreate4.setCreationDatetime(created4.getCreationDatetime());
-    assertEquals(created4, createGroupToGroup(toCreate3));
+    var createdOne = created.getFirst();
+    assertTrue(isValidUUID(createdOne.getId()));
+    assertNotNull(createdOne.getCreationDatetime());
+    emptyOne.setId(createdOne.getId());
+    emptyOne.setCreationDatetime(createdOne.getCreationDatetime());
+    assertEquals(createGroupToGroup(emptyOne), createdOne);
 
     assertEquals(2, students.size());
   }
 
   @Test
   void manager_write_update_ok() throws ApiException {
-    ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
-    GroupsApi api = new GroupsApi(manager1Client);
+    var api = apiAs(managerToken);
 
-    Group group =
+    var group =
         api.createOrUpdateGroups(
-                List.of(new CreateGroup().name("name").ref("ref").creationDatetime(Instant.now())))
+                List.of(
+                    new CreateGroup()
+                        .name("name")
+                        .ref("ref-" + randomUUID())
+                        .creationDatetime(Instant.now())))
             .getFirst();
+    createdGroupIds.add(group.getId());
 
-    List<CreateGroup> ModifyGroups = List.of(groupToCreateGroup(group).name("A new name zero"));
+    var toUpdate = List.of(groupToCreateGroup(group).name("A new name zero"));
+    var updated = api.createOrUpdateGroups(toUpdate);
 
-    List<Group> updated = api.createOrUpdateGroups(ModifyGroups);
-
-    assertTrue(updated.contains(createGroupToGroup(ModifyGroups.getFirst())));
+    assertTrue(updated.contains(createGroupToGroup(toUpdate.getFirst())));
   }
 }

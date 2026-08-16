@@ -3,37 +3,44 @@ package school.hei.haapi.endpoint.event;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
-import static school.hei.haapi.integration.conf.TestUtils.anAvailableRandomPort;
+import static school.hei.haapi.integration.testData.StudentTestData.axel;
 
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.test.context.ContextConfiguration;
-import org.testcontainers.junit.jupiter.Testcontainers;
 import school.hei.haapi.endpoint.event.model.SendLetterEmail;
 import school.hei.haapi.endpoint.event.model.UpdateLetterEmail;
-import school.hei.haapi.integration.conf.AbstractContextInitializer;
-import school.hei.haapi.integration.conf.MockedThirdParties;
+import school.hei.haapi.integration.conf.FacadeITMockedThirdParties;
 import school.hei.haapi.mail.Mailer;
+import school.hei.haapi.model.User;
+import school.hei.haapi.repository.UserRepository;
 import school.hei.haapi.service.event.SendLetterEmailService;
 import school.hei.haapi.service.event.UpdateLetterEmailService;
 import school.hei.haapi.service.utils.Base64Converter;
 import school.hei.haapi.service.utils.ClassPathResourceResolver;
 
-@SpringBootTest(webEnvironment = RANDOM_PORT)
-@Testcontainers
-@ContextConfiguration(initializers = LetterEventIT.ContextInitializer.class)
-@AutoConfigureMockMvc
-public class LetterEventIT extends MockedThirdParties {
+public class LetterEventIT extends FacadeITMockedThirdParties {
 
   @Autowired UpdateLetterEmailService updateLetterEmailService;
   @Autowired SendLetterEmailService sendLetterEmailService;
+  @Autowired UserRepository userRepository;
   @MockBean Mailer mailerMock;
   @MockBean Base64Converter base64Converter;
   @MockBean ClassPathResourceResolver classPathResourceResolver;
+
+  private User student;
+
+  @BeforeEach
+  void setUp() {
+    student = userRepository.save(axel());
+  }
+
+  @AfterEach
+  void tearDown() {
+    userRepository.deleteById(student.getId());
+  }
 
   static SendLetterEmail send() {
     return SendLetterEmail.builder()
@@ -45,10 +52,11 @@ public class LetterEventIT extends MockedThirdParties {
         .build();
   }
 
-  static UpdateLetterEmail letter1() {
+  /** The service resolves the student by email, so it has to be one that actually exists. */
+  private UpdateLetterEmail letterFor(User student) {
     return UpdateLetterEmail.builder()
         .id("letter1_id")
-        .email("test+ryan@hei.school")
+        .email(student.getEmail())
         .description("Certificat de residence")
         .ref("letter1_ref")
         .build();
@@ -63,17 +71,8 @@ public class LetterEventIT extends MockedThirdParties {
 
   @Test
   void should_invoke_event_producer_when_pinging_student() {
-    updateLetterEmailService.accept(letter1());
+    updateLetterEmailService.accept(letterFor(student));
 
     verify(mailerMock, times(1)).accept(any());
-  }
-
-  static class ContextInitializer extends AbstractContextInitializer {
-    public static final int SERVER_PORT = anAvailableRandomPort();
-
-    @Override
-    public int getServerPort() {
-      return SERVER_PORT;
-    }
   }
 }

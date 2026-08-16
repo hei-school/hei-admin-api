@@ -30,14 +30,14 @@ class CognitoComponentTest {
 
   @Test
   void new_user_is_created() {
-    String newEmail = "test+" + randomUUID() + "@hei.school";
+    var newEmail = "test+" + randomUUID() + "@hei.school";
     when(cognitoClient.adminCreateUser((AdminCreateUserRequest) any()))
         .thenReturn(
             AdminCreateUserResponse.builder()
                 .user(UserType.builder().username("username").build())
                 .build());
 
-    String cognitoUsername = cognitoComponent.createUser(newEmail);
+    var cognitoUsername = cognitoComponent.createUser(newEmail);
 
     assertEquals("username", cognitoUsername);
   }

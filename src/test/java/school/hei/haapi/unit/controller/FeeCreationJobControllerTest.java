@@ -17,11 +17,11 @@ import org.junit.jupiter.api.Test;
 import school.hei.haapi.endpoint.rest.controller.FeeCreationJobController;
 import school.hei.haapi.endpoint.rest.mapper.FeeCreationJobMapper;
 import school.hei.haapi.endpoint.rest.model.CrupdateFeeCreationJob;
-import school.hei.haapi.endpoint.rest.model.FeeCreationJob;
 import school.hei.haapi.endpoint.rest.model.FeeStudentCreation;
 import school.hei.haapi.endpoint.rest.model.UserIdentifier;
 import school.hei.haapi.endpoint.rest.validator.FeeCreationJobValidator;
 import school.hei.haapi.model.BoundedPageSize;
+import school.hei.haapi.model.FeeCreationJob;
 import school.hei.haapi.model.FeeCreationTask;
 import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.model.User;
@@ -62,9 +62,9 @@ class FeeCreationJobControllerTest {
   void crupdate_validates_maps_and_delegates() {
     var payload = aPayload();
     var feeTemplate = V2FeeTemplate.builder().id("template_id").build();
-    var domain = school.hei.haapi.model.FeeCreationJob.builder().id("job_1").build();
-    var saved = school.hei.haapi.model.FeeCreationJob.builder().id("job_1").build();
-    var rest = new FeeCreationJob().id("job_1");
+    var domain = FeeCreationJob.builder().id("job_1").build();
+    var saved = FeeCreationJob.builder().id("job_1").build();
+    var rest = new school.hei.haapi.endpoint.rest.model.FeeCreationJob().id("job_1");
     when(feeCreationJobService.getFeeTemplateById("template_id")).thenReturn(feeTemplate);
     when(feeCreationJobMapper.toDomain(payload, feeTemplate)).thenReturn(domain);
     when(feeCreationJobService.crupdateAll(List.of(domain))).thenReturn(List.of(saved));
@@ -92,8 +92,8 @@ class FeeCreationJobControllerTest {
 
   @Test
   void getFeeCreationJobs_delegates_paging_and_maps_to_rest() {
-    var domain = school.hei.haapi.model.FeeCreationJob.builder().id("job_1").build();
-    var rest = new FeeCreationJob().id("job_1");
+    var domain = FeeCreationJob.builder().id("job_1").build();
+    var rest = new school.hei.haapi.endpoint.rest.model.FeeCreationJob().id("job_1");
     var page = new PageFromOne(1);
     var pageSize = new BoundedPageSize(10);
     when(feeCreationJobService.getAll(page, pageSize)).thenReturn(List.of(domain));
@@ -106,8 +106,8 @@ class FeeCreationJobControllerTest {
 
   @Test
   void getFeeCreationJobById_delegates_and_maps_to_rest() {
-    var domain = school.hei.haapi.model.FeeCreationJob.builder().id("job_1").build();
-    var rest = new FeeCreationJob().id("job_1");
+    var domain = FeeCreationJob.builder().id("job_1").build();
+    var rest = new school.hei.haapi.endpoint.rest.model.FeeCreationJob().id("job_1");
     when(feeCreationJobService.getById("job_1")).thenReturn(domain);
     when(feeCreationJobMapper.toRest(domain)).thenReturn(rest);
 
