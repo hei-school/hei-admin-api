@@ -43,12 +43,12 @@ class ScholarshipCertificateDataProviderTest extends FacadeITMockedThirdParties 
     var masterFirstYear = instantOf(actualYear, 11, 1);
     var masterSecondYear = instantOf(actualYear - 1, 11, 1);
     var invalidYear = instantOf(actualYear - 5, 11, 1);
-    User studentFirstYear = randomUser(licenseFirstYear, COMMON_CORE);
-    User studentSecondYear = randomUser(licenseSecondYear, TN);
-    User studentThirdYear = randomUser(licenseThirdYear, COMMON_CORE);
-    User studentFourthYear = randomUser(masterFirstYear, COMMON_CORE);
-    User studentFifthYear = randomUser(masterSecondYear, EL);
-    User invalidStudentYear = randomUser(invalidYear, COMMON_CORE);
+    var studentFirstYear = randomUser(licenseFirstYear, COMMON_CORE);
+    var studentSecondYear = randomUser(licenseSecondYear, TN);
+    var studentThirdYear = randomUser(licenseThirdYear, COMMON_CORE);
+    var studentFourthYear = randomUser(masterFirstYear, COMMON_CORE);
+    var studentFifthYear = randomUser(masterSecondYear, EL);
+    var invalidStudentYear = randomUser(invalidYear, COMMON_CORE);
     when(promotionService.getAllStudentPromotions(studentFirstYear.getId()))
         .thenReturn(linkedHashSetOf(licensePromotionWithStartDateTime(licenseFirstYear)));
     when(promotionService.getAllStudentPromotions(studentSecondYear.getId()))

@@ -8,10 +8,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import school.hei.haapi.PojaGenerated;
 import school.hei.haapi.endpoint.rest.controller.health.HealthDbController;
 import school.hei.haapi.endpoint.rest.controller.health.PingController;
+import school.hei.haapi.integration.conf.FacadeITMockedThirdParties;
 
 @PojaGenerated
 @SuppressWarnings("all")
-class HealthControllerIT extends school.hei.haapi.integration.conf.FacadeITMockedThirdParties {
+class HealthControllerIT extends FacadeITMockedThirdParties {
 
   @Autowired PingController pingController;
   @Autowired HealthDbController healthDbController;

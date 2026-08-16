@@ -6,10 +6,8 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
-import org.springframework.web.multipart.MultipartFile;
 import school.hei.haapi.service.utils.FileUtils;
 
 class FileUtilsTest {
@@ -17,11 +15,11 @@ class FileUtilsTest {
 
   @Test
   void shouldConvertFileToMultipartFileSuccessfully() throws IOException {
-    String content = "Test file content";
-    String fileName = "test.txt";
-    File testFile = createTestFile(fileName, content);
+    var content = "Test file content";
+    var fileName = "test.txt";
+    var testFile = createTestFile(fileName, content);
 
-    MultipartFile multipartFile = FileUtils.multipartFileFromFile(testFile);
+    var multipartFile = FileUtils.multipartFileFromFile(testFile);
 
     assertNotNull(multipartFile);
     assertEquals(fileName, multipartFile.getOriginalFilename());
@@ -31,43 +29,42 @@ class FileUtilsTest {
 
   @Test
   void shouldHandleDifferentContentTypes() throws IOException {
-    String content = "{\"key\":\"value\"}";
-    String fileName = "test.json";
-    File testFile = createTestFile(fileName, content);
+    var content = "{\"key\":\"value\"}";
+    var fileName = "test.json";
+    var testFile = createTestFile(fileName, content);
 
-    MultipartFile multipartFile = FileUtils.multipartFileFromFile(testFile);
+    var multipartFile = FileUtils.multipartFileFromFile(testFile);
 
     assertEquals("application/json", multipartFile.getContentType());
   }
 
   @Test
   void shouldThrowExceptionWhenFileDoesNotExist() {
-    File nonExistentFile = new File(tempDir.toFile(), "nonexistent.txt");
+    var nonExistentFile = new File(tempDir.toFile(), "nonexistent.txt");
 
     assertThrows(RuntimeException.class, () -> FileUtils.multipartFileFromFile(nonExistentFile));
   }
 
   @Test
-  @Disabled("TODO: flaky test ?")
   void shouldHandleBinaryFiles() throws IOException {
-    String fileName = "test.bin";
+    var fileName = "test.bin";
     byte[] binaryContent = new byte[] {0x01, 0x02, 0x03, 0x04};
-    File testFile = createBinaryTestFile(fileName, binaryContent);
+    var testFile = createBinaryTestFile(fileName, binaryContent);
 
-    MultipartFile multipartFile = FileUtils.multipartFileFromFile(testFile);
+    var multipartFile = FileUtils.multipartFileFromFile(testFile);
 
     assertArrayEquals(binaryContent, multipartFile.getBytes());
     assertTrue(multipartFile.getContentType().startsWith("application/octet-stream"));
   }
 
   private File createTestFile(String fileName, String content) throws IOException {
-    Path filePath = tempDir.resolve(fileName);
+    var filePath = tempDir.resolve(fileName);
     Files.writeString(filePath, content);
     return filePath.toFile();
   }
 
   private File createBinaryTestFile(String fileName, byte[] content) throws IOException {
-    Path filePath = tempDir.resolve(fileName);
+    var filePath = tempDir.resolve(fileName);
     Files.write(filePath, content);
     return filePath.toFile();
   }

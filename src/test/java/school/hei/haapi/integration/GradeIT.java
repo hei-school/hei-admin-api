@@ -4,41 +4,30 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.when;
 import static school.hei.haapi.endpoint.rest.model.StudentLevel.L1;
-import static school.hei.haapi.integration.StudentIT.student1;
-import static school.hei.haapi.integration.conf.TestUtils.ADMIN1_TOKEN;
-import static school.hei.haapi.integration.conf.TestUtils.AXEL_MONITOR_TOKEN;
-import static school.hei.haapi.integration.conf.TestUtils.EXAM1_ID;
-import static school.hei.haapi.integration.conf.TestUtils.EXAM3_ID;
-import static school.hei.haapi.integration.conf.TestUtils.GROUP1_ID;
-import static school.hei.haapi.integration.conf.TestUtils.MANAGER1_TOKEN;
-import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_ID;
-import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_TOKEN;
-import static school.hei.haapi.integration.conf.TestUtils.STUDENT2_ID;
-import static school.hei.haapi.integration.conf.TestUtils.STUDENT3_ID;
-import static school.hei.haapi.integration.conf.TestUtils.TEACHER1_TOKEN;
-import static school.hei.haapi.integration.conf.TestUtils.assertBadRequestException;
-import static school.hei.haapi.integration.conf.TestUtils.assertThrowsApiException;
-import static school.hei.haapi.integration.conf.TestUtils.assertThrowsForbiddenException;
-import static school.hei.haapi.integration.conf.TestUtils.setUpCasdoor;
-import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
-import static school.hei.haapi.integration.conf.TestUtils.setUpS3Service;
-import static school.hei.haapi.integration.test_data.CourseAssignmentTestData.createCourseAssignment;
-import static school.hei.haapi.integration.test_data.CourseTestData.prog1;
-import static school.hei.haapi.integration.test_data.CourseTestData.prog2;
-import static school.hei.haapi.integration.test_data.ExamTestData.createExam;
-import static school.hei.haapi.integration.test_data.GradeTestData.createRandomGrades;
-import static school.hei.haapi.integration.test_data.GroupTestData.createGroupFlow;
-import static school.hei.haapi.integration.test_data.GroupTestData.g1;
-import static school.hei.haapi.integration.test_data.GroupTestData.g2;
-import static school.hei.haapi.integration.test_data.MonitorTestData.monitorOfAxel;
-import static school.hei.haapi.integration.test_data.MonitorTestData.monitorOfTolojanahary;
-import static school.hei.haapi.integration.test_data.StudentResultOverviewTestData.promotionH;
-import static school.hei.haapi.integration.test_data.StudentTestData.axel;
-import static school.hei.haapi.integration.test_data.StudentTestData.tolojanahary;
-import static school.hei.haapi.integration.test_data.TeacherTestData.toky;
+import static school.hei.haapi.integration.conf.ApiAssertions.assertBadRequestException;
+import static school.hei.haapi.integration.conf.ApiAssertions.assertThrowsApiException;
+import static school.hei.haapi.integration.conf.ApiAssertions.assertThrowsForbiddenException;
+import static school.hei.haapi.integration.conf.TestAuth.tokenFor;
+import static school.hei.haapi.integration.conf.TestMocks.setUpS3Service;
+import static school.hei.haapi.integration.testData.CourseAssignmentTestData.createCourseAssignment;
+import static school.hei.haapi.integration.testData.CourseTestData.prog1;
+import static school.hei.haapi.integration.testData.CourseTestData.prog2;
+import static school.hei.haapi.integration.testData.ExamTestData.createExam;
+import static school.hei.haapi.integration.testData.GradeTestData.createRandomGrades;
+import static school.hei.haapi.integration.testData.GroupTestData.createGroupFlow;
+import static school.hei.haapi.integration.testData.GroupTestData.g1;
+import static school.hei.haapi.integration.testData.GroupTestData.g2;
+import static school.hei.haapi.integration.testData.ManagerTestData.hasina;
+import static school.hei.haapi.integration.testData.MonitorTestData.monitorOfAxel;
+import static school.hei.haapi.integration.testData.MonitorTestData.monitorOfTolojanahary;
+import static school.hei.haapi.integration.testData.StaffTestData.adminMialy;
+import static school.hei.haapi.integration.testData.StudentResultOverviewTestData.promotionH;
+import static school.hei.haapi.integration.testData.StudentTestData.axel;
+import static school.hei.haapi.integration.testData.StudentTestData.freddy;
+import static school.hei.haapi.integration.testData.StudentTestData.tolojanahary;
+import static school.hei.haapi.integration.testData.TeacherTestData.toky;
 import static school.hei.haapi.model.dto.MonitorStudentLinkDto.Status.LINKED;
 
 import com.github.javafaker.Faker;
@@ -46,32 +35,24 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
-import org.casbin.casdoor.entity.CasdoorRole;
-import org.casbin.casdoor.entity.CasdoorUser;
-import org.casbin.casdoor.service.CasdoorAuthService;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.testcontainers.junit.jupiter.Testcontainers;
 import school.hei.haapi.endpoint.event.EventProducer;
 import school.hei.haapi.endpoint.rest.api.GradesApi;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
 import school.hei.haapi.endpoint.rest.mapper.GradeMapper;
 import school.hei.haapi.endpoint.rest.model.CreateGrade;
-import school.hei.haapi.endpoint.rest.model.Grade;
-import school.hei.haapi.endpoint.rest.model.GradeHistory;
-import school.hei.haapi.endpoint.rest.model.StudentGrade;
 import school.hei.haapi.endpoint.rest.model.UpdateGrade;
-import school.hei.haapi.endpoint.rest.security.casdoorAuthentication.config.CertificateLoader;
 import school.hei.haapi.integration.conf.FacadeITMockedThirdParties;
 import school.hei.haapi.integration.conf.TestUtils;
 import school.hei.haapi.model.Course;
 import school.hei.haapi.model.CourseAssignment;
 import school.hei.haapi.model.Exam;
+import school.hei.haapi.model.Grade;
 import school.hei.haapi.model.Group;
 import school.hei.haapi.model.GroupFlow;
 import school.hei.haapi.model.User;
@@ -85,8 +66,6 @@ import school.hei.haapi.repository.MonitoringStudentRepository;
 import school.hei.haapi.repository.UserRepository;
 import school.hei.haapi.service.PromotionService;
 
-@Testcontainers
-@AutoConfigureMockMvc
 class GradeIT extends FacadeITMockedThirdParties {
   @Autowired UserRepository userRepository;
   @Autowired GradeRepository gradeRepository;
@@ -99,35 +78,50 @@ class GradeIT extends FacadeITMockedThirdParties {
   @Autowired GradeMapper gradeMapper;
   @MockBean private EventProducer eventProducer;
   @MockBean private PromotionService promotionService;
+
   private final Faker faker = new Faker();
+
   private User studentAxel;
   private User studentTolojanahary;
+
+  /** In G2, which carries no exam: reaches the "student is not in exam" check. */
+  private User studentInOtherGroup;
+
   private User monitorOfAxel;
   private User monitorOfTolojanahary;
+  private User teacherToky;
+  private User managerHasina;
+  private User adminUser;
+
   private Course courseProg1;
   private Course courseProg2;
-  private User teacherToky;
-  private Exam exam1Prog1;
-  private Exam exam2Prog1;
-  private CourseAssignment assign_prog1_toToky_forGroup1;
-  private CourseAssignment assign_prog2_toToky_forGroup2;
   private Group groupG1;
   private Group groupG2;
-  private List<school.hei.haapi.model.Grade> gradesExam1Prog1;
-  private List<school.hei.haapi.model.Grade> gradesExam2Prog1;
-  private school.hei.haapi.model.Grade studentAxelGradeExam1Prog1;
-  private school.hei.haapi.model.Grade studentTolojanaharyGradeExam1Prog1;
-  private school.hei.haapi.model.Grade studentAxelGradeExam2Prog1;
-  private GroupFlow groupFlowsAxel;
-  private GroupFlow groupFlowsTolojanahary;
-  private List<String> studentIds = new ArrayList<>();
-  private List<String> teacherIds = new ArrayList<>();
-  private List<String> groupIds = new ArrayList<>();
-  private List<String> courseIds = new ArrayList<>();
-  private List<String> courseAssignmentIds = new ArrayList<>();
-  private List<String> examIds = new ArrayList<>();
-  private List<String> gradeIds = new ArrayList<>();
-  private List<String> groupFlowIds = new ArrayList<>();
+  private CourseAssignment assignProg1ToTokyForG1;
+  private CourseAssignment assignProg2ToTokyForG2;
+  private Exam exam1Prog1;
+  private Exam exam2Prog1;
+  private List<Grade> gradesExam1Prog1;
+  private List<Grade> gradesExam2Prog1;
+  private Grade axelGradeExam1Prog1;
+  private Grade axelGradeExam2Prog1;
+  private GroupFlow groupFlowAxel;
+  private GroupFlow groupFlowTolojanahary;
+  private GroupFlow groupFlowOtherGroup;
+
+  private final List<String> studentIds = new ArrayList<>();
+  private final List<String> teacherIds = new ArrayList<>();
+  private final List<String> groupIds = new ArrayList<>();
+  private final List<String> courseIds = new ArrayList<>();
+  private final List<String> courseAssignmentIds = new ArrayList<>();
+  private final List<String> examIds = new ArrayList<>();
+  private final List<String> groupFlowIds = new ArrayList<>();
+
+  private String axelToken;
+  private String managerToken;
+  private String adminToken;
+  private String teacherToken;
+  private String axelMonitorToken;
 
   private ApiClient anApiClient(String token) {
     return TestUtils.anApiClient(token, localPort);
@@ -138,41 +132,40 @@ class GradeIT extends FacadeITMockedThirdParties {
     groupG2 = g2();
     studentAxel = axel();
     studentTolojanahary = tolojanahary();
+    studentInOtherGroup = freddy();
     courseProg1 = prog1();
     courseProg2 = prog2();
     teacherToky = toky();
-    assign_prog1_toToky_forGroup1 =
-        createCourseAssignment(courseProg1, teacherToky, List.of(groupG1));
-    assign_prog2_toToky_forGroup2 =
-        createCourseAssignment(courseProg2, teacherToky, List.of(groupG2));
-
     monitorOfAxel = monitorOfAxel();
     monitorOfTolojanahary = monitorOfTolojanahary();
-    studentAxel.setMonitors(List.of(monitorOfAxel));
-    studentTolojanahary.setMonitors(List.of(monitorOfTolojanahary));
-    groupFlowsAxel = createGroupFlow(studentAxel, groupG1);
-    groupFlowsTolojanahary = createGroupFlow(studentTolojanahary, groupG1);
 
-    exam1Prog1 = createExam(Instant.parse("2025-07-22T10:15:30Z"), assign_prog1_toToky_forGroup1);
-    exam2Prog1 = createExam(Instant.parse("2025-09-22T10:15:30Z"), assign_prog1_toToky_forGroup1);
+    assignProg1ToTokyForG1 = createCourseAssignment(courseProg1, teacherToky, List.of(groupG1));
+    assignProg2ToTokyForG2 = createCourseAssignment(courseProg2, teacherToky, List.of(groupG2));
+
+    groupFlowAxel = createGroupFlow(studentAxel, groupG1);
+    groupFlowTolojanahary = createGroupFlow(studentTolojanahary, groupG1);
+    groupFlowOtherGroup = createGroupFlow(studentInOtherGroup, groupG2);
+
+    exam1Prog1 = createExam(Instant.parse("2025-07-22T10:15:30Z"), assignProg1ToTokyForG1);
+    exam2Prog1 = createExam(Instant.parse("2025-09-22T10:15:30Z"), assignProg1ToTokyForG1);
     gradesExam1Prog1 = createRandomGrades(List.of(studentAxel, studentTolojanahary), exam1Prog1);
     gradesExam2Prog1 = createRandomGrades(List.of(studentAxel), exam2Prog1);
-    studentAxelGradeExam1Prog1 = gradesExam1Prog1.get(0);
-    studentTolojanaharyGradeExam1Prog1 = gradesExam1Prog1.get(1);
-    studentAxelGradeExam2Prog1 = gradesExam2Prog1.getFirst();
+    axelGradeExam1Prog1 = gradesExam1Prog1.getFirst();
+    axelGradeExam2Prog1 = gradesExam2Prog1.getFirst();
 
     groupRepository.saveAll(List.of(groupG1, groupG2));
     userRepository.saveAll(List.of(monitorOfAxel, monitorOfTolojanahary));
-    userRepository.saveAll(List.of(studentAxel, studentTolojanahary));
+    userRepository.saveAll(List.of(studentAxel, studentTolojanahary, studentInOtherGroup));
     monitoringStudentRepository.saveMonitorFollowingStudents(
         monitorOfAxel.getId(), List.of(studentAxel.getId()), LINKED.toString());
     monitoringStudentRepository.saveMonitorFollowingStudents(
         monitorOfTolojanahary.getId(), List.of(studentTolojanahary.getId()), LINKED.toString());
+    managerHasina = userRepository.save(hasina());
+    adminUser = userRepository.save(adminMialy());
     userRepository.saveAll(List.of(teacherToky));
     courseRepository.saveAll(List.of(courseProg1, courseProg2));
-    groupFlowRepository.saveAll(List.of(groupFlowsAxel, groupFlowsTolojanahary));
-    courseAssignmentRepository.saveAll(
-        List.of(assign_prog1_toToky_forGroup1, assign_prog2_toToky_forGroup2));
+    groupFlowRepository.saveAll(List.of(groupFlowAxel, groupFlowTolojanahary, groupFlowOtherGroup));
+    courseAssignmentRepository.saveAll(List.of(assignProg1ToTokyForG1, assignProg2ToTokyForG2));
     examRepository.save(exam1Prog1);
     examRepository.save(exam2Prog1);
     exam1Prog1.setGrades(gradesExam1Prog1);
@@ -181,137 +174,179 @@ class GradeIT extends FacadeITMockedThirdParties {
     gradeRepository.saveAll(gradesExam2Prog1);
 
     groupIds.addAll(List.of(groupG1.getId(), groupG2.getId()));
-    studentIds.addAll(List.of(studentAxel.getId(), studentTolojanahary.getId()));
-    groupFlowIds.addAll(List.of(groupFlowsAxel.getId(), groupFlowsTolojanahary.getId()));
+    studentIds.addAll(
+        List.of(
+            studentAxel.getId(),
+            studentTolojanahary.getId(),
+            studentInOtherGroup.getId(),
+            monitorOfAxel.getId(),
+            monitorOfTolojanahary.getId(),
+            managerHasina.getId(),
+            adminUser.getId()));
+    groupFlowIds.addAll(
+        List.of(groupFlowAxel.getId(), groupFlowTolojanahary.getId(), groupFlowOtherGroup.getId()));
     teacherIds.add(teacherToky.getId());
     courseIds.addAll(List.of(courseProg1.getId(), courseProg2.getId()));
-    courseAssignmentIds.add(assign_prog1_toToky_forGroup1.getId());
-    examIds.add(exam1Prog1.getId());
-    gradeIds.addAll(List.of(gradesExam1Prog1.get(0).getId(), gradesExam1Prog1.get(1).getId()));
-    gradeIds.add(gradesExam2Prog1.getFirst().getId());
+    courseAssignmentIds.addAll(
+        List.of(assignProg1ToTokyForG1.getId(), assignProg2ToTokyForG2.getId()));
+    examIds.addAll(List.of(exam1Prog1.getId(), exam2Prog1.getId()));
   }
 
   @BeforeEach
   void setUp() {
-    setUpCasdoor(casdoorAuthServiceMock, certificateLoaderMock);
-    setUpCognito(cognitoComponentMock);
-    setUpS3Service(fileService, student1());
     setUpTestData();
+    setUpS3Service(fileService, studentAxel);
+
+    axelToken = tokenFor(casdoorAuthServiceMock, studentAxel);
+    managerToken = tokenFor(casdoorAuthServiceMock, managerHasina);
+    adminToken = tokenFor(casdoorAuthServiceMock, adminUser);
+    teacherToken = tokenFor(casdoorAuthServiceMock, teacherToky);
+    // a monitor authenticates as a student, per the casdoor role mapping
+    axelMonitorToken =
+        tokenFor(casdoorAuthServiceMock, monitorOfAxel.getEmail(), User.Role.STUDENT);
+  }
+
+  @AfterEach
+  void tearDown() {
+    gradeRepository.deleteAll(
+        gradeRepository.findAll().stream()
+            .filter(g -> g.getExam() != null && examIds.contains(g.getExam().getId()))
+            .toList());
+    examRepository.deleteAllById(examIds);
+    courseAssignmentRepository.deleteAllById(courseAssignmentIds);
+    groupFlowRepository.deleteAllById(groupFlowIds);
+    courseRepository.deleteAllById(courseIds);
+    groupRepository.deleteAllById(groupIds);
+    // the monitor owns the join rows (joinColumns = monitor_id), so clearing its collection drops
+    // them before the users they point at
+    clearFollowedStudents(monitorOfAxel.getId());
+    clearFollowedStudents(monitorOfTolojanahary.getId());
+    userRepository.deleteAllById(studentIds);
+    userRepository.deleteAllById(teacherIds);
+
+    studentIds.clear();
+    teacherIds.clear();
+    groupIds.clear();
+    courseIds.clear();
+    courseAssignmentIds.clear();
+    examIds.clear();
+    groupFlowIds.clear();
   }
 
   @Test
   void student_read_other_grade_ko() {
-    ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
-    GradesApi api = new GradesApi(student1Client);
-    assertThrowsForbiddenException(() -> api.getGradesByStudentId(STUDENT2_ID, 1, 10));
-    assertThrowsForbiddenException(() -> api.getParticipantGrade(GROUP1_ID, EXAM1_ID));
+    var api = new GradesApi(anApiClient(axelToken));
+
+    assertThrowsForbiddenException(
+        () -> api.getGradesByStudentId(studentTolojanahary.getId(), 1, 10));
+    assertThrowsForbiddenException(
+        () -> api.getParticipantGrade(groupG1.getId(), exam1Prog1.getId()));
   }
 
   @Test
   void manager_crupdate_invalid_grade_ko() {
-    ApiClient managerClient = anApiClient(MANAGER1_TOKEN);
-    GradesApi api = new GradesApi(managerClient);
-    CreateGrade newGrade = new CreateGrade();
-    newGrade.setScore(28.2);
+    var api = new GradesApi(anApiClient(managerToken));
+    var newGrade = new CreateGrade().score(28.2);
 
     assertThrowsApiException(
         "{\"type\":\"400 BAD_REQUEST\",\"message\":\"score must be between 0 and 20\"}",
-        () -> api.createParticipantGrade(EXAM1_ID, STUDENT3_ID, newGrade));
+        () ->
+            api.createParticipantGrade(exam1Prog1.getId(), studentInOtherGroup.getId(), newGrade));
   }
 
   @Test
   void manager_crupdate_grade_invalid_student_ko() {
     when(promotionService.getAllStudentPromotions(any()))
         .thenReturn(new LinkedHashSet<>(List.of(promotionH())));
-    GradesApi api = new GradesApi(anApiClient(MANAGER1_TOKEN));
-    CreateGrade newGrade = new CreateGrade();
-    newGrade.setScore(18.2);
+    var api = new GradesApi(anApiClient(managerToken));
+    var newGrade = new CreateGrade().score(18.2);
 
     assertThrowsApiException(
         "{\"type\":\"400 BAD_REQUEST\",\"message\":\"Student with id "
-            + STUDENT3_ID
+            + studentInOtherGroup.getId()
             + " is not in exam "
-            + EXAM3_ID
+            + exam2Prog1.getId()
             + "\"}",
-        () -> api.createParticipantGrade(EXAM3_ID, STUDENT3_ID, newGrade));
+        () ->
+            api.createParticipantGrade(exam2Prog1.getId(), studentInOtherGroup.getId(), newGrade));
   }
 
   @Test
   void student_crupdate_grade_forbidden() {
-    ApiClient studentClient = anApiClient(STUDENT1_TOKEN);
-    GradesApi api = new GradesApi(studentClient);
-
-    UpdateGrade updateGrade = new UpdateGrade();
-    updateGrade.setComment("Rectification");
-    updateGrade.setStudentRef(student1().getRef());
-    updateGrade.setGrade(new CreateGrade().score(90.0));
+    var api = new GradesApi(anApiClient(axelToken));
+    var updateGrade =
+        new UpdateGrade()
+            .comment("Rectification")
+            .studentRef(studentAxel.getRef())
+            .grade(new CreateGrade().score(90.0));
 
     assertThrowsForbiddenException(
-        () -> api.correctParticipantGrade(EXAM1_ID, STUDENT1_ID, updateGrade));
+        () -> api.correctParticipantGrade(exam1Prog1.getId(), studentAxel.getId(), updateGrade));
   }
 
   @Test
   void student_get_all_grade_ko() {
-    GradesApi studentApi = new GradesApi(anApiClient(STUDENT1_TOKEN));
-    assertThrowsForbiddenException(() -> studentApi.getStudentGradesForExam(EXAM1_ID, 1, 10, null));
+    var api = new GradesApi(anApiClient(axelToken));
+
+    assertThrowsForbiddenException(
+        () -> api.getStudentGradesForExam(exam1Prog1.getId(), 1, 10, null));
   }
 
   @Test
   void teacher_or_manager_or_admin_get_course_grades_ok() throws ApiException {
-    GradesApi managerApi = new GradesApi(anApiClient(MANAGER1_TOKEN));
-    GradesApi adminApi = new GradesApi(anApiClient(ADMIN1_TOKEN));
-    GradesApi teacherApi = new GradesApi(anApiClient(TEACHER1_TOKEN));
+    var managerApi = new GradesApi(anApiClient(managerToken));
+    var adminApi = new GradesApi(anApiClient(adminToken));
+    var teacherApi = new GradesApi(anApiClient(teacherToken));
 
-    List<Grade> adminAxelGrades =
+    var adminAxelGrades =
         adminApi.getCourseGrades(studentAxel.getId(), courseProg1.getId(), null, null, null);
-    List<Grade> managerAxelGrades =
+    var managerAxelGrades =
         managerApi.getCourseGrades(studentAxel.getId(), courseProg1.getId(), null, null, null);
-    List<Grade> teacherAxelGrades =
+    var teacherAxelGrades =
         teacherApi.getCourseGrades(studentAxel.getId(), courseProg1.getId(), null, null, null);
 
-    assertGradeExists(adminAxelGrades, studentAxelGradeExam1Prog1);
-    assertGradeExists(adminAxelGrades, studentAxelGradeExam2Prog1);
-    assertGradeExists(managerAxelGrades, studentAxelGradeExam1Prog1);
-    assertGradeExists(managerAxelGrades, studentAxelGradeExam2Prog1);
-    assertGradeExists(teacherAxelGrades, studentAxelGradeExam1Prog1);
-    assertGradeExists(teacherAxelGrades, studentAxelGradeExam2Prog1);
+    assertGradeExists(adminAxelGrades, axelGradeExam1Prog1);
+    assertGradeExists(adminAxelGrades, axelGradeExam2Prog1);
+    assertGradeExists(managerAxelGrades, axelGradeExam1Prog1);
+    assertGradeExists(managerAxelGrades, axelGradeExam2Prog1);
+    assertGradeExists(teacherAxelGrades, axelGradeExam1Prog1);
+    assertGradeExists(teacherAxelGrades, axelGradeExam2Prog1);
   }
 
   @Test
   void manager_read_by_student_id_ok() throws ApiException {
-    ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
-    GradesApi api = new GradesApi(manager1Client);
-    List<Grade> axelGrades = api.getGradesByStudentId(studentAxel.getId(), 1, 10);
+    var api = new GradesApi(anApiClient(managerToken));
 
-    assertGradeExists(axelGrades, studentAxelGradeExam1Prog1);
-    assertGradeExists(axelGrades, studentAxelGradeExam2Prog1);
+    var axelGrades = api.getGradesByStudentId(studentAxel.getId(), 1, 10);
+
+    assertGradeExists(axelGrades, axelGradeExam1Prog1);
+    assertGradeExists(axelGrades, axelGradeExam2Prog1);
   }
 
   @Test
   void student_get_course_grades_ko() {
-    GradesApi studentApi = new GradesApi(anApiClient(STUDENT1_TOKEN));
+    var api = new GradesApi(anApiClient(axelToken));
+
     assertThrowsApiException(
         "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
-        () ->
-            studentApi.getCourseGrades(studentAxel.getId(), courseProg1.getId(), null, null, null));
+        () -> api.getCourseGrades(studentAxel.getId(), courseProg1.getId(), null, null, null));
   }
 
   @Test
   void get_grades_for_student_with_unassigned_course_ko() {
-    setUpCasdoorMonitor(casdoorAuthServiceMock, certificateLoaderMock, monitorOfAxel);
-    GradesApi monitorApi = new GradesApi(anApiClient(AXEL_MONITOR_TOKEN));
+    var monitorApi = new GradesApi(anApiClient(axelMonitorToken));
 
     assertThrowsApiException(
-        "{\"type\":\"400 BAD_REQUEST\",\"message\":\"Student's current group is not assigned to course with id: %s\"}"
-            .formatted(courseProg2.getId()),
+        "{\"type\":\"400 BAD_REQUEST\",\"message\":\"Student's current group is not assigned to"
+            + " course with id: %s\"}".formatted(courseProg2.getId()),
         () ->
             monitorApi.getCourseGrades(studentAxel.getId(), courseProg2.getId(), null, null, null));
   }
 
   @Test
   void monitor_get_grades_of_other_student_ko() {
-    setUpCasdoorMonitor(casdoorAuthServiceMock, certificateLoaderMock, monitorOfAxel);
-    GradesApi monitorApi = new GradesApi(anApiClient(AXEL_MONITOR_TOKEN));
+    var monitorApi = new GradesApi(anApiClient(axelMonitorToken));
+
     assertThrowsApiException(
         "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
         () ->
@@ -321,34 +356,33 @@ class GradeIT extends FacadeITMockedThirdParties {
 
   @Test
   void monitor_get_own_grades_ok() throws ApiException {
-    setUpCasdoorMonitor(casdoorAuthServiceMock, certificateLoaderMock, monitorOfAxel);
-    GradesApi monitorApi = new GradesApi(anApiClient(AXEL_MONITOR_TOKEN));
-    List<Grade> axelGrades =
+    var monitorApi = new GradesApi(anApiClient(axelMonitorToken));
+
+    var axelGrades =
         monitorApi.getCourseGrades(studentAxel.getId(), courseProg1.getId(), null, null, null);
 
-    assertGradeExists(axelGrades, studentAxelGradeExam1Prog1);
-    assertGradeExists(axelGrades, studentAxelGradeExam2Prog1);
+    assertGradeExists(axelGrades, axelGradeExam1Prog1);
+    assertGradeExists(axelGrades, axelGradeExam2Prog1);
   }
 
   @Test
-  @Disabled
   void monitor_get_own_yearly_result_ok() {
-    setUpCasdoorMonitor(casdoorAuthServiceMock, certificateLoaderMock, monitorOfAxel);
-    GradesApi monitorApi = new GradesApi(anApiClient(AXEL_MONITOR_TOKEN));
+    var monitorApi = new GradesApi(anApiClient(axelMonitorToken));
+
     assertDoesNotThrow(() -> monitorApi.getYearlyResult(studentAxel.getId(), L1));
   }
 
   @Test
   void monitor_get_own_result_summary_ok() {
-    setUpCasdoorMonitor(casdoorAuthServiceMock, certificateLoaderMock, monitorOfAxel);
-    GradesApi monitorApi = new GradesApi(anApiClient(AXEL_MONITOR_TOKEN));
+    var monitorApi = new GradesApi(anApiClient(axelMonitorToken));
+
     assertDoesNotThrow(() -> monitorApi.getResultsSummary(studentAxel.getId()));
   }
 
   @Test
   void monitor_get_other_yearly_result_ko() {
-    setUpCasdoorMonitor(casdoorAuthServiceMock, certificateLoaderMock, monitorOfAxel);
-    GradesApi monitorApi = new GradesApi(anApiClient(AXEL_MONITOR_TOKEN));
+    var monitorApi = new GradesApi(anApiClient(axelMonitorToken));
+
     assertThrowsApiException(
         "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
         () -> monitorApi.getYearlyResult(studentTolojanahary.getId(), L1));
@@ -356,8 +390,7 @@ class GradeIT extends FacadeITMockedThirdParties {
 
   @Test
   void monitor_get_else_yearly_result_transcript_ko() {
-    setUpCasdoorMonitor(casdoorAuthServiceMock, certificateLoaderMock, monitorOfAxel);
-    GradesApi monitorApi = new GradesApi(anApiClient(AXEL_MONITOR_TOKEN));
+    var monitorApi = new GradesApi(anApiClient(axelMonitorToken));
 
     assertThrowsApiException(
         "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
@@ -366,37 +399,24 @@ class GradeIT extends FacadeITMockedThirdParties {
 
   @Test
   void monitor_get_exam_own_grades_ok() throws ApiException {
-    setUpCasdoorMonitor(casdoorAuthServiceMock, certificateLoaderMock, monitorOfAxel);
-    GradesApi monitorApi = new GradesApi(anApiClient(AXEL_MONITOR_TOKEN));
-    Grade axelGrades = monitorApi.getParticipantGrade(exam1Prog1.getId(), studentAxel.getId());
+    var monitorApi = new GradesApi(anApiClient(axelMonitorToken));
 
-    Grade actual = gradeMapper.toRest(studentAxelGradeExam1Prog1);
+    var actual = monitorApi.getParticipantGrade(exam1Prog1.getId(), studentAxel.getId());
+    var expected = gradeMapper.toRest(axelGradeExam1Prog1);
 
-    axelGrades
-        .createdAt(null)
-        .updateDate(null)
-        .getExam()
-        .getCourseAssignment()
-        .getGroups()
-        .forEach(group -> group.setCreationDatetime(null));
-    actual
-        .createdAt(null)
-        .updateDate(null)
-        .getExam()
-        .getCourseAssignment()
-        .getGroups()
-        .forEach(group -> group.setCreationDatetime(null));
-    assertEquals(axelGrades, actual);
+    clearTimestamps(actual);
+    clearTimestamps(expected);
+    assertEquals(expected, actual);
   }
 
   @Test
   void create_existing_grade_ko() {
-    GradesApi gradesApi = new GradesApi(anApiClient(MANAGER1_TOKEN));
-    String axelId = studentAxel.getId();
-    String examId = exam1Prog1.getId();
+    var gradesApi = new GradesApi(anApiClient(managerToken));
+    var axelId = studentAxel.getId();
+    var examId = exam1Prog1.getId();
     when(promotionService.getAllStudentPromotions(axelId))
         .thenReturn(new LinkedHashSet<>(List.of(promotionH())));
-    List<CreateGrade> createGrades = List.of(new CreateGrade().score(10.).studentId(axelId));
+    var createGrades = List.of(new CreateGrade().score(10.).studentId(axelId));
 
     assertBadRequestException(
         "Grade for the student %s for the exam %s already exist".formatted(axelId, examId),
@@ -405,109 +425,77 @@ class GradeIT extends FacadeITMockedThirdParties {
 
   @Test
   void create_grade_ok() throws ApiException {
-    var groupRandomG3 = g1();
-    var studentRandomAxel = axel();
-    var courseRandomProg3 = prog1();
-    var teacherRandomToky = toky();
     when(promotionService.getAllStudentPromotions(any()))
         .thenReturn(new LinkedHashSet<>(List.of(promotionH())));
-    var assign_prog3_toTeacherRandom_forGroup3 =
-        createCourseAssignment(courseRandomProg3, teacherRandomToky, List.of(groupRandomG3));
 
-    var monitorOfRandomStudent = monitorOfAxel();
-    studentRandomAxel.setMonitors(List.of(monitorOfRandomStudent));
-    var groupFlowsRandomAxel = createGroupFlow(studentRandomAxel, groupRandomG3);
+    // tolojanahary is in G1 and so in exam2, but has no grade there yet
+    var examId = exam2Prog1.getId();
+    var studentId = studentTolojanahary.getId();
+    var createGrade = new CreateGrade().score(10.).studentId(studentId);
 
-    var exam1RandomProg3 =
-        createExam(Instant.parse("2025-07-22T10:15:30Z"), assign_prog3_toTeacherRandom_forGroup3);
-
-    groupRepository.saveAll(List.of(groupRandomG3));
-    userRepository.saveAll(List.of(monitorOfRandomStudent));
-    userRepository.saveAll(List.of(studentRandomAxel));
-    monitoringStudentRepository.saveMonitorFollowingStudents(
-        monitorOfRandomStudent.getId(), List.of(studentRandomAxel.getId()), LINKED.toString());
-    userRepository.saveAll(List.of(teacherRandomToky));
-    courseRepository.saveAll(List.of(courseRandomProg3));
-    groupFlowRepository.saveAll(List.of(groupFlowsRandomAxel));
-    courseAssignmentRepository.saveAll(List.of(assign_prog3_toTeacherRandom_forGroup3));
-    examRepository.save(exam1RandomProg3);
-
-    groupIds.add(groupRandomG3.getId());
-    studentIds.add(studentRandomAxel.getId());
-    groupFlowIds.add(groupFlowsRandomAxel.getId());
-    teacherIds.add(teacherRandomToky.getId());
-    courseIds.add(courseRandomProg3.getId());
-    courseAssignmentIds.add(assign_prog3_toTeacherRandom_forGroup3.getId());
-    examIds.add(exam1RandomProg3.getId());
-
-    GradesApi gradesApi = new GradesApi(anApiClient(MANAGER1_TOKEN));
-    String axelId = studentRandomAxel.getId();
-    String examId = exam1RandomProg3.getId();
-    CreateGrade createGrade = new CreateGrade().score(10.).studentId(axelId);
-    List<CreateGrade> createGrades = List.of(createGrade);
-
-    List<StudentGrade> createdGrades =
-        gradesApi.createParticipantsGradeForExam(examId, createGrades);
+    var createdGrades =
+        new GradesApi(anApiClient(managerToken))
+            .createParticipantsGradeForExam(examId, List.of(createGrade));
 
     assertEquals(1, createdGrades.size());
-    StudentGrade createdGrade = createdGrades.getFirst();
-    assertEquals(axelId, createdGrade.getStudent().getId());
+    var createdGrade = createdGrades.getFirst();
+    assertEquals(studentId, createdGrade.getStudent().getId());
     assertEquals(examId, createdGrade.getGrade().getExam().getId());
     assertEquals(createGrade.getScore(), createdGrade.getGrade().getScore());
   }
 
   @Test
   void monitor_get_grade_history_ok() throws ApiException {
-    GradesApi gradesApi = new GradesApi(anApiClient(MANAGER1_TOKEN));
-    var initialGradesAxelExam1Prog1 = gradeRepository.save(gradesExam1Prog1.getFirst());
-    var firstModificationGrade = faker.number().randomDouble(0, 20, 2);
-    var firstModification = initialGradesAxelExam1Prog1.toBuilder().build();
-    firstModification.setScore(firstModificationGrade, faker.lorem().paragraph(2));
+    var gradesApi = new GradesApi(anApiClient(managerToken));
+    var initialGrade = gradeRepository.save(axelGradeExam1Prog1);
+
+    var firstScore = faker.number().randomDouble(0, 20, 2);
+    var firstModification = initialGrade.toBuilder().build();
+    firstModification.setScore(firstScore, faker.lorem().paragraph(2));
     firstModification = gradeRepository.save(firstModification);
-    var secondModificationGrade = faker.number().randomDouble(0, 20, 2);
+
+    var secondScore = faker.number().randomDouble(0, 20, 2);
     var secondModification = firstModification.toBuilder().build();
-    secondModification.setScore(secondModificationGrade, faker.lorem().paragraph(2));
+    secondModification.setScore(secondScore, faker.lorem().paragraph(2));
     gradeRepository.save(secondModification);
 
-    List<GradeHistory> gradeHistory =
-        gradesApi.getOrderedGradeHistory(
-            initialGradesAxelExam1Prog1.getId(), null, null, null, null, null);
+    var gradeHistory =
+        gradesApi.getOrderedGradeHistory(initialGrade.getId(), null, null, null, null, null);
 
     assertEquals(2, gradeHistory.size());
-    assertEquals(firstModificationGrade, gradeHistory.getFirst().getScore());
-    assertEquals(secondModificationGrade, gradeHistory.get(1).getScore());
+    assertEquals(firstScore, gradeHistory.getFirst().getScore());
+    assertEquals(secondScore, gradeHistory.get(1).getScore());
   }
 
-  private void setUpCasdoorMonitor(
-      CasdoorAuthService casdoorAuthService, CertificateLoader certificateLoader, User monitor) {
-    given(certificateLoader.getCertificate()).willReturn("mocked-certificate");
-    when(casdoorAuthService.parseJwtToken(AXEL_MONITOR_TOKEN))
-        .thenReturn(getCasdoorUserFromMonitor(monitor));
+  private void clearFollowedStudents(String monitorId) {
+    userRepository
+        .findById(monitorId)
+        .ifPresent(
+            monitor -> {
+              monitor.setMonitors(new ArrayList<>());
+              userRepository.save(monitor);
+            });
   }
 
-  private CasdoorUser getCasdoorUserFromMonitor(User monitor) {
-    CasdoorUser user = new CasdoorUser();
-    user.setEmail(monitor.getEmail());
-    CasdoorRole casdoorRole = new CasdoorRole();
-    casdoorRole.setOwner("dummy");
-    casdoorRole.setName("student");
-    String[] roleUsers = List.of("dummy/user").toArray(new String[0]);
-    casdoorRole.setUsers(roleUsers);
-    user.setRoles(List.of(casdoorRole));
-
-    return user;
+  private static void clearTimestamps(school.hei.haapi.endpoint.rest.model.Grade grade) {
+    grade
+        .createdAt(null)
+        .updateDate(null)
+        .getExam()
+        .getCourseAssignment()
+        .getGroups()
+        .forEach(group -> group.setCreationDatetime(null));
   }
 
-  private void assertGradeExists(List<Grade> grades, school.hei.haapi.model.Grade expectedEntity) {
-    Grade expected = gradeMapper.toRest(expectedEntity);
+  private void assertGradeExists(
+      List<school.hei.haapi.endpoint.rest.model.Grade> grades, Grade expectedEntity) {
+    var expected = gradeMapper.toRest(expectedEntity);
     assertTrue(
         grades.stream()
             .anyMatch(
-                grade -> {
-                  if (!expected.getId().equals(grade.getId())) return false;
-
-                  return expected.getExam().getId().equals(grade.getExam().getId())
-                      && grade.getScore().equals(expected.getScore());
-                }));
+                grade ->
+                    expected.getId().equals(grade.getId())
+                        && expected.getExam().getId().equals(grade.getExam().getId())
+                        && grade.getScore().equals(expected.getScore())));
   }
 }

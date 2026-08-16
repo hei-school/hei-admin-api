@@ -39,15 +39,15 @@ public class GenClassesDeserializerTest extends FacadeIT {
             typeName -> {
               assertDoesNotThrow(
                   () -> {
-                    Map<String, Object> body = emptyDetailedMapFrom(typeName);
+                    var body = emptyDetailedMapFrom(typeName);
                     subject.convertValue(body.get("detail"), Class.forName(typeName));
                   });
             });
 
     assertDoesNotThrow(
         () -> {
-          String typeName = ClassWithAllArgsConstructorAnnotationAndBuilder.class.getTypeName();
-          Map<String, Object> body = emptyDetailedMapFrom(typeName);
+          var typeName = ClassWithAllArgsConstructorAnnotationAndBuilder.class.getTypeName();
+          var body = emptyDetailedMapFrom(typeName);
           subject.convertValue(body.get("detail"), Class.forName(typeName));
         });
   }
@@ -64,7 +64,7 @@ public class GenClassesDeserializerTest extends FacadeIT {
     assertThrows(
         IllegalAccessError.class,
         () -> {
-          Map<String, Object> body =
+          var body =
               emptyDetailedMapFrom(AllArgsConstructorLessClassWithBuilder.class.getTypeName());
           subject.convertValue(body.get("detail"), AllArgsConstructorLessClassWithBuilder.class);
         });

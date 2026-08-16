@@ -20,7 +20,7 @@ public class PaymentSequenceTest extends FacadeITMockedThirdParties {
 
   @Test
   void generated_sequence_is_sequential() {
-    LocalDate date = LocalDate.now();
+    var date = LocalDate.now();
     List<PaymentNumberSequence> result = new ArrayList<>();
 
     for (int i = 0; i < 10; i++) {
@@ -28,7 +28,7 @@ public class PaymentSequenceTest extends FacadeITMockedThirdParties {
     }
 
     for (int i = 0; i < 10; i++) {
-      String expected = String.format("%s-%s-%04d", date.getYear(), date.getMonthValue(), i + 1);
+      var expected = String.format("%s-%s-%04d", date.getYear(), date.getMonthValue(), i + 1);
       assertEquals(expected, result.get(i).getStringSequence());
     }
   }

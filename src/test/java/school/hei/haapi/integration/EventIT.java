@@ -1,434 +1,545 @@
 package school.hei.haapi.integration;
 
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static java.util.UUID.randomUUID;
+import static org.junit.jupiter.api.Assertions.*;
 import static school.hei.haapi.endpoint.rest.model.AttendanceStatus.MISSING;
 import static school.hei.haapi.endpoint.rest.model.AttendanceStatus.PRESENT;
 import static school.hei.haapi.endpoint.rest.model.EventType.COURSE;
 import static school.hei.haapi.endpoint.rest.model.EventType.INTEGRATION;
+import static school.hei.haapi.endpoint.rest.model.EventType.SEMINAR;
 import static school.hei.haapi.endpoint.rest.model.FrequencyScopeDay.MONDAY;
-import static school.hei.haapi.integration.StudentIT.student1;
-import static school.hei.haapi.integration.StudentIT.student2;
-import static school.hei.haapi.integration.StudentIT.student3;
-import static school.hei.haapi.integration.conf.FakeDataProvider.someCreatableEventByManager1;
-import static school.hei.haapi.integration.conf.TestUtils.ADMIN1_TOKEN;
-import static school.hei.haapi.integration.conf.TestUtils.EVENT1_ID;
-import static school.hei.haapi.integration.conf.TestUtils.EVENT2_ID;
-import static school.hei.haapi.integration.conf.TestUtils.EVENT3_ID;
-import static school.hei.haapi.integration.conf.TestUtils.MANAGER1_TOKEN;
-import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_ID;
-import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_TOKEN;
-import static school.hei.haapi.integration.conf.TestUtils.assertThrowsApiException;
-import static school.hei.haapi.integration.conf.TestUtils.assertThrowsForbiddenException;
-import static school.hei.haapi.integration.conf.TestUtils.createEventCourse1;
-import static school.hei.haapi.integration.conf.TestUtils.createIntegrationEvent;
-import static school.hei.haapi.integration.conf.TestUtils.event1;
-import static school.hei.haapi.integration.conf.TestUtils.event2;
-import static school.hei.haapi.integration.conf.TestUtils.event3;
-import static school.hei.haapi.integration.conf.TestUtils.event4;
-import static school.hei.haapi.integration.conf.TestUtils.event5;
-import static school.hei.haapi.integration.conf.TestUtils.group1;
-import static school.hei.haapi.integration.conf.TestUtils.setUpCasdoor;
-import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
-import static school.hei.haapi.integration.conf.TestUtils.setUpS3Service;
-import static school.hei.haapi.integration.conf.TestUtils.student1AttendEvent2;
-import static school.hei.haapi.integration.conf.TestUtils.student1MissEvent1;
-import static school.hei.haapi.integration.conf.TestUtils.student2AttendEvent2;
-import static school.hei.haapi.integration.conf.TestUtils.student3AttendEvent1;
-import static school.hei.haapi.integration.conf.TestUtils.student3MissEvent2;
-import static school.hei.haapi.integration.conf.TestUtils.teacher2;
+import static school.hei.haapi.integration.conf.ApiAssertions.assertThrowsApiException;
+import static school.hei.haapi.integration.conf.ApiAssertions.assertThrowsForbiddenException;
+import static school.hei.haapi.integration.conf.TestAuth.tokenFor;
+import static school.hei.haapi.integration.conf.TestMocks.setUpS3Service;
+import static school.hei.haapi.integration.testData.CourseAssignmentTestData.createCourseAssignment;
+import static school.hei.haapi.integration.testData.CourseTestData.prog1;
+import static school.hei.haapi.integration.testData.EventTestData.aParticipant;
+import static school.hei.haapi.integration.testData.EventTestData.anEvent;
+import static school.hei.haapi.integration.testData.GroupTestData.createGroupFlow;
+import static school.hei.haapi.integration.testData.GroupTestData.g1;
+import static school.hei.haapi.integration.testData.GroupTestData.g2;
+import static school.hei.haapi.integration.testData.ManagerTestData.hasina;
+import static school.hei.haapi.integration.testData.StaffTestData.adminMialy;
+import static school.hei.haapi.integration.testData.StudentTestData.axel;
+import static school.hei.haapi.integration.testData.StudentTestData.freddy;
+import static school.hei.haapi.integration.testData.StudentTestData.tolojanahary;
+import static school.hei.haapi.integration.testData.TeacherTestData.toky;
 
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
-import lombok.extern.slf4j.Slf4j;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.testcontainers.junit.jupiter.Testcontainers;
+import org.springframework.beans.factory.annotation.Autowired;
 import school.hei.haapi.endpoint.rest.api.EventsApi;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
 import school.hei.haapi.endpoint.rest.model.CreateEvent;
-import school.hei.haapi.endpoint.rest.model.Event;
-import school.hei.haapi.endpoint.rest.model.EventAttendance;
-import school.hei.haapi.endpoint.rest.model.EventParticipant;
-import school.hei.haapi.endpoint.rest.model.EventParticipantStats;
+import school.hei.haapi.endpoint.rest.model.EventLocation;
+import school.hei.haapi.endpoint.rest.model.EventType;
+import school.hei.haapi.endpoint.rest.model.GroupIdentifier;
+import school.hei.haapi.endpoint.rest.model.PlaceEnum;
+import school.hei.haapi.endpoint.rest.model.RoomEnum;
 import school.hei.haapi.endpoint.rest.model.UpdateEventParticipant;
 import school.hei.haapi.integration.conf.FacadeITMockedThirdParties;
 import school.hei.haapi.integration.conf.TestUtils;
+import school.hei.haapi.model.Course;
+import school.hei.haapi.model.CourseAssignment;
+import school.hei.haapi.model.Event;
+import school.hei.haapi.model.EventParticipant;
+import school.hei.haapi.model.Group;
+import school.hei.haapi.model.GroupFlow;
+import school.hei.haapi.model.User;
+import school.hei.haapi.repository.CourseAssignmentRepository;
+import school.hei.haapi.repository.CourseRepository;
+import school.hei.haapi.repository.EventParticipantRepository;
+import school.hei.haapi.repository.EventRepository;
+import school.hei.haapi.repository.GroupFlowRepository;
+import school.hei.haapi.repository.GroupRepository;
+import school.hei.haapi.repository.UserRepository;
 
-@Slf4j
-@Testcontainers
-@AutoConfigureMockMvc
 public class EventIT extends FacadeITMockedThirdParties {
+  /** Every event of this test begins inside this window, so date filters can isolate them. */
+  private static final Instant COURSE_EVENT_BEGIN = Instant.parse("2026-06-20T08:00:00.00Z");
+
+  private static final Instant INTEGRATION_EVENT_BEGIN = Instant.parse("2026-06-08T08:00:00.00Z");
+  private static final Instant SEMINAR_EVENT_BEGIN = Instant.parse("2026-06-09T08:00:00.00Z");
+
+  @Autowired private UserRepository userRepository;
+  @Autowired private GroupRepository groupRepository;
+  @Autowired private GroupFlowRepository groupFlowRepository;
+  @Autowired private CourseRepository courseRepository;
+  @Autowired private CourseAssignmentRepository courseAssignmentRepository;
+  @Autowired private EventRepository eventRepository;
+  @Autowired private EventParticipantRepository eventParticipantRepository;
+
+  private User studentAxel;
+  private User studentFreddy;
+  private User studentTolojanahary;
+  private User teacherToky;
+  private User managerHasina;
+  private User adminUser;
+  private Group groupOne;
+  private Group groupTwo;
+  private Course courseProg1;
+  private CourseAssignment assignment;
+  private GroupFlow axelJoinsOne;
+  private GroupFlow tolojanaharyJoinsOne;
+  private GroupFlow freddyJoinsTwo;
+
+  private Event courseEvent;
+  private Event integrationEvent;
+  private Event seminarEvent;
+
+  private EventParticipant axelMissesCourseEvent;
+  private EventParticipant tolojanaharyAttendsCourseEvent;
+  private EventParticipant axelAttendsIntegration;
+  private EventParticipant freddyAttendsIntegration;
+  private EventParticipant tolojanaharyMissesIntegration;
+
+  /** Events the tests create through the API, swept in tearDown. */
+  private final List<String> createdEventIds = new ArrayList<>();
+
+  private String axelToken;
+  private String managerToken;
+  private String adminToken;
 
   private ApiClient anApiClient(String token) {
     return TestUtils.anApiClient(token, localPort);
   }
 
+  private void setUpTestData() {
+    studentAxel = userRepository.save(axel());
+    studentFreddy = userRepository.save(freddy());
+    studentTolojanahary = userRepository.save(tolojanahary());
+    teacherToky = userRepository.save(toky());
+    managerHasina = userRepository.save(hasina());
+    adminUser = userRepository.save(adminMialy());
+
+    groupOne = groupRepository.save(g1());
+    groupTwo = groupRepository.save(g2());
+    axelJoinsOne = groupFlowRepository.save(createGroupFlow(studentAxel, groupOne));
+    tolojanaharyJoinsOne = groupFlowRepository.save(createGroupFlow(studentTolojanahary, groupOne));
+    freddyJoinsTwo = groupFlowRepository.save(createGroupFlow(studentFreddy, groupTwo));
+
+    courseProg1 = courseRepository.save(prog1());
+    assignment =
+        courseAssignmentRepository.save(
+            createCourseAssignment(courseProg1, teacherToky, List.of(groupOne, groupTwo)));
+
+    var course =
+        anEvent(
+            managerHasina,
+            COURSE,
+            "PROG1",
+            COURSE_EVENT_BEGIN,
+            COURSE_EVENT_BEGIN.plusSeconds(7200));
+    course.setCourse(courseProg1);
+    course.setGroups(new ArrayList<>(List.of(groupOne)));
+    courseEvent = eventRepository.save(course);
+
+    var integration =
+        anEvent(
+            managerHasina,
+            INTEGRATION,
+            "Integration Day",
+            INTEGRATION_EVENT_BEGIN,
+            INTEGRATION_EVENT_BEGIN.plusSeconds(14400));
+    integration.setGroups(new ArrayList<>(List.of(groupOne, groupTwo)));
+    integrationEvent = eventRepository.save(integration);
+
+    var seminar =
+        anEvent(
+            teacherToky,
+            SEMINAR,
+            "December Seminar",
+            SEMINAR_EVENT_BEGIN,
+            SEMINAR_EVENT_BEGIN.plusSeconds(14400));
+    seminar.setGroups(new ArrayList<>(List.of(groupOne)));
+    seminarEvent = eventRepository.save(seminar);
+
+    axelMissesCourseEvent =
+        eventParticipantRepository.save(aParticipant(courseEvent, studentAxel, groupOne, MISSING));
+    tolojanaharyAttendsCourseEvent =
+        eventParticipantRepository.save(
+            aParticipant(courseEvent, studentTolojanahary, groupOne, PRESENT));
+    axelAttendsIntegration =
+        eventParticipantRepository.save(
+            aParticipant(integrationEvent, studentAxel, groupOne, PRESENT));
+    freddyAttendsIntegration =
+        eventParticipantRepository.save(
+            aParticipant(integrationEvent, studentFreddy, groupTwo, PRESENT));
+    tolojanaharyMissesIntegration =
+        eventParticipantRepository.save(
+            aParticipant(integrationEvent, studentTolojanahary, groupOne, MISSING));
+  }
+
   @BeforeEach
   void setUp() {
-    setUpCasdoor(casdoorAuthServiceMock, certificateLoaderMock);
-    setUpCognito(cognitoComponentMock);
-    setUpS3Service(fileService, student1());
+    setUpTestData();
+    setUpS3Service(fileService, studentAxel);
+
+    axelToken = tokenFor(casdoorAuthServiceMock, studentAxel);
+    managerToken = tokenFor(casdoorAuthServiceMock, managerHasina);
+    adminToken = tokenFor(casdoorAuthServiceMock, adminUser);
+  }
+
+  @AfterEach
+  void tearDown() {
+    eventParticipantRepository.deleteAll(
+        List.of(
+            axelMissesCourseEvent,
+            tolojanaharyAttendsCourseEvent,
+            axelAttendsIntegration,
+            freddyAttendsIntegration,
+            tolojanaharyMissesIntegration));
+    eventRepository.deleteAllById(createdEventIds);
+    createdEventIds.clear();
+    eventRepository.deleteAll(List.of(courseEvent, integrationEvent, seminarEvent));
+    courseAssignmentRepository.deleteById(assignment.getId());
+    courseRepository.deleteById(courseProg1.getId());
+    groupFlowRepository.deleteAll(List.of(axelJoinsOne, tolojanaharyJoinsOne, freddyJoinsTwo));
+    groupRepository.deleteAll(List.of(groupOne, groupTwo));
+    userRepository.deleteAll(
+        List.of(
+            studentAxel,
+            studentFreddy,
+            studentTolojanahary,
+            teacherToky,
+            managerHasina,
+            adminUser));
+  }
+
+  private EventsApi apiAs(String token) {
+    return new EventsApi(anApiClient(token));
+  }
+
+  private CreateEvent aCreatableEvent(EventType type) {
+    return new CreateEvent()
+        .id("event" + randomUUID() + "_id")
+        .courseId(courseProg1.getId())
+        .beginDatetime(Instant.parse("2026-07-08T08:00:00.00Z"))
+        .endDatetime(Instant.parse("2026-07-08T10:00:00.00Z"))
+        .description("Another event")
+        .eventType(type)
+        .plannerId(managerHasina.getId())
+        .location(new EventLocation().place(PlaceEnum.IVANDRY).room(RoomEnum.UNKNOWN))
+        .groups(List.of(new GroupIdentifier().id(groupOne.getId()).ref(groupOne.getRef())));
+  }
+
+  private static List<String> eventIdsOf(List<school.hei.haapi.endpoint.rest.model.Event> events) {
+    return events.stream().map(event -> event.getId()).toList();
+  }
+
+  private static List<String> participantIdsOf(
+      List<school.hei.haapi.endpoint.rest.model.EventParticipant> participants) {
+    return participants.stream().map(participant -> participant.getId()).toList();
   }
 
   @Test
   void attempt_to_create_a_frequency_with_missing_data_ko() {
-    ApiClient apiClient = anApiClient(MANAGER1_TOKEN);
-    EventsApi api = new EventsApi(apiClient);
+    var api = apiAs(managerToken);
+    var events = List.of(aCreatableEvent(COURSE), aCreatableEvent(INTEGRATION));
 
     assertThrowsApiException(
         "{\"type\":\"400 BAD_REQUEST\",\"message\":\"Frequency cannot be created without number"
             + " of\"}",
-        () ->
-            api.crupdateEvents(
-                List.of(createEventCourse1(), createIntegrationEvent()),
-                MONDAY,
-                null,
-                "09:00",
-                "12:00"));
+        () -> api.crupdateEvents(events, MONDAY, null, "09:00", "12:00"));
   }
 
   @Test
   void attempt_to_create_a_frequency_with_invalid_hour_ko() {
-    ApiClient apiClient = anApiClient(MANAGER1_TOKEN);
-    EventsApi api = new EventsApi(apiClient);
+    var api = apiAs(managerToken);
+    var events = List.of(aCreatableEvent(COURSE), aCreatableEvent(INTEGRATION));
 
     assertThrowsApiException(
         "{\"type\":\"400 BAD_REQUEST\",\"message\":\"Hour must be of format HH:MM\"}",
-        () ->
-            api.crupdateEvents(
-                List.of(createEventCourse1(), createIntegrationEvent()),
-                MONDAY,
-                2,
-                "9:00",
-                "12:00"));
+        () -> api.crupdateEvents(events, MONDAY, 2, "9:00", "12:00"));
   }
 
   @Test
   void manager_read_event_ok() throws ApiException {
-    ApiClient apiClient = anApiClient(MANAGER1_TOKEN);
-    EventsApi api = new EventsApi(apiClient);
+    var api = apiAs(managerToken);
 
-    var actual = api.getEvents(1, 500, null, null, null, null, null, null, null);
+    var all = api.getEvents(1, 500, null, null, null, null, null, null, null);
+    assertTrue(
+        eventIdsOf(all)
+            .containsAll(
+                List.of(courseEvent.getId(), integrationEvent.getId(), seminarEvent.getId())));
 
-    System.out.println(actual);
-    assertTrue(actual.containsAll(List.of(event1(), event2(), event3())));
-
-    var eventsBeginAfterAnInstant =
+    var beginningAfter =
         api.getEvents(
-            1, 15, Instant.parse("2022-12-15T10:00:00.00Z"), null, null, null, null, null, null);
+            1, 500, COURSE_EVENT_BEGIN.minusSeconds(1), null, null, null, null, null, null);
+    assertTrue(eventIdsOf(beginningAfter).contains(courseEvent.getId()));
+    assertFalse(eventIdsOf(beginningAfter).contains(integrationEvent.getId()));
 
-    assertTrue(eventsBeginAfterAnInstant.contains(event1()));
-    assertFalse(eventsBeginAfterAnInstant.contains(event2()));
-
-    List<Event> eventsBeginBetweenTwoInstant =
+    var beginningBetween =
         api.getEvents(
             1,
-            15,
-            Instant.parse("2022-12-07T08:00:00.00Z"),
-            Instant.parse("2022-12-10T08:00:00.00Z"),
+            500,
+            INTEGRATION_EVENT_BEGIN.minusSeconds(1),
+            SEMINAR_EVENT_BEGIN.plusSeconds(1),
             null,
             null,
             null,
             null,
             null);
+    assertTrue(
+        eventIdsOf(beginningBetween)
+            .containsAll(List.of(integrationEvent.getId(), seminarEvent.getId())));
+    assertFalse(eventIdsOf(beginningBetween).contains(courseEvent.getId()));
 
-    assertTrue(eventsBeginBetweenTwoInstant.containsAll(List.of(event2(), event3())));
-    assertFalse(eventsBeginBetweenTwoInstant.contains(event1()));
+    var byType = api.getEvents(1, 500, null, null, COURSE, null, null, null, null);
+    assertTrue(eventIdsOf(byType).contains(courseEvent.getId()));
+    assertFalse(eventIdsOf(byType).contains(integrationEvent.getId()));
 
-    var eventsBeginBeforeAnInstant =
-        api.getEvents(
-            1, 15, null, Instant.parse("2022-12-08T08:00:00.00Z"), null, null, null, null, null);
-
-    assertTrue(eventsBeginBeforeAnInstant.contains(event2()));
-    assertFalse(eventsBeginBeforeAnInstant.containsAll(List.of(event1(), event3())));
-
-    var eventsFilterByType = api.getEvents(1, 15, null, null, COURSE, null, null, null, null);
-    assertTrue(eventsFilterByType.contains(event1()));
-    assertFalse(eventsFilterByType.contains(event3()));
-    assertFalse(eventsFilterByType.contains(event2()));
-
-    var eventsFilterByTitle = api.getEvents(1, 15, null, null, null, "PROG1", null, null, null);
-    assertTrue(eventsFilterByTitle.contains(event1()));
-    assertFalse(eventsFilterByTitle.contains(event3()));
-    assertFalse(eventsFilterByTitle.contains(event2()));
+    var byTitle = api.getEvents(1, 500, null, null, null, courseEvent.getTitle(), null, null, null);
+    assertTrue(eventIdsOf(byTitle).contains(courseEvent.getId()));
+    assertFalse(eventIdsOf(byTitle).contains(integrationEvent.getId()));
   }
 
   @Test
   void manager_read_event_by_id_ok() throws ApiException {
-    ApiClient apiClient = anApiClient(MANAGER1_TOKEN);
-    EventsApi api = new EventsApi(apiClient);
+    var actual = apiAs(managerToken).getEventById(courseEvent.getId());
 
-    Event actual = api.getEventById(EVENT1_ID);
-
-    assertEquals(event1(), actual);
+    assertEquals(courseEvent.getId(), actual.getId());
+    assertEquals(courseEvent.getTitle(), actual.getTitle());
   }
 
   @Test
   void manager_read_event_participant_ok() throws ApiException {
+    var api = apiAs(managerToken);
 
-    ApiClient apiClient = anApiClient(MANAGER1_TOKEN);
-    EventsApi api = new EventsApi(apiClient);
+    var courseEventParticipants =
+        api.getEventParticipants(courseEvent.getId(), 1, 50, null, null, null, null);
+    assertTrue(participantIdsOf(courseEventParticipants).contains(axelMissesCourseEvent.getId()));
+    assertTrue(
+        participantIdsOf(courseEventParticipants).contains(tolojanaharyAttendsCourseEvent.getId()));
+    assertFalse(participantIdsOf(courseEventParticipants).contains(axelAttendsIntegration.getId()));
 
-    List<EventParticipant> actual =
-        api.getEventParticipants(EVENT1_ID, 1, 15, null, null, null, null);
-
-    assertTrue(actual.contains(student1MissEvent1()));
-    assertTrue(actual.contains(student3AttendEvent1()));
-    assertFalse(actual.contains(student1AttendEvent2()));
-
-    List<EventParticipant> participantsFilteredByGroupRef =
-        api.getEventParticipants(EVENT2_ID, 1, 15, "G2", null, null, null);
-
-    // Notice :
-    // Student 1 and Student 3 are in GROUP 1
-    // Student 2 is in GROUP 2
-
-    assertTrue(participantsFilteredByGroupRef.contains(student2AttendEvent2()));
-    assertFalse(participantsFilteredByGroupRef.contains(student1AttendEvent2()));
-    assertFalse(participantsFilteredByGroupRef.contains(student3MissEvent2()));
+    var byGroupRef =
+        api.getEventParticipants(
+            integrationEvent.getId(), 1, 50, groupTwo.getRef(), null, null, null);
+    assertTrue(participantIdsOf(byGroupRef).contains(freddyAttendsIntegration.getId()));
+    assertFalse(participantIdsOf(byGroupRef).contains(axelAttendsIntegration.getId()));
   }
 
   @Test
   void manager_read_event_participant_with_criteria_ok() throws ApiException {
-    ApiClient apiClient = anApiClient(MANAGER1_TOKEN);
-    EventsApi api = new EventsApi(apiClient);
+    var api = apiAs(managerToken);
 
-    // Notice :
-    // Student 1 and Student 3 are in GROUP 1
-    // Student 2 is in GROUP 2
+    var byRef =
+        api.getEventParticipants(
+            integrationEvent.getId(), 1, 50, null, studentFreddy.getRef(), null, null);
+    assertEquals(List.of(freddyAttendsIntegration.getId()), participantIdsOf(byRef));
 
-    // Test the ref filter
+    var byName =
+        api.getEventParticipants(
+            integrationEvent.getId(), 1, 50, null, null, studentFreddy.getLastName(), null);
+    assertTrue(participantIdsOf(byName).contains(freddyAttendsIntegration.getId()));
 
-    List<EventParticipant> participantsFilteredByRef =
-        api.getEventParticipants(EVENT2_ID, 1, 15, null, student2().getRef(), null, null);
-
-    assertEquals(participantsFilteredByRef.getFirst(), student2AttendEvent2());
-
-    // Test the name filter
-
-    List<EventParticipant> participantsFilteredByName =
-        api.getEventParticipants(EVENT2_ID, 1, 15, null, null, student2().getLastName(), null);
-
-    assertTrue(participantsFilteredByName.contains(student2AttendEvent2()));
-
-    // Test the status filter
-
-    List<EventParticipant> participantsFilteredByStatus =
-        api.getEventParticipants(EVENT2_ID, 1, 15, null, null, null, MISSING);
-
-    assertEquals(student3MissEvent2().getId(), participantsFilteredByStatus.getFirst().getId());
+    var byStatus =
+        api.getEventParticipants(integrationEvent.getId(), 1, 50, null, null, null, MISSING);
+    assertEquals(List.of(tolojanaharyMissesIntegration.getId()), participantIdsOf(byStatus));
   }
 
   @Test
   void student_create_or_update_event_or_event_participant_ko() {
-    ApiClient apiClient = anApiClient(STUDENT1_TOKEN);
-    EventsApi api = new EventsApi(apiClient);
+    var api = apiAs(axelToken);
+    var event = aCreatableEvent(COURSE);
 
     assertThrowsForbiddenException(
-        () -> api.crupdateEvents(List.of(createEventCourse1()), null, null, null, null));
+        () -> api.crupdateEvents(List.of(event), null, null, null, null));
     assertThrowsForbiddenException(
-        () -> api.updateEventParticipantsStatus(EVENT1_ID, List.of(new UpdateEventParticipant())));
+        () ->
+            api.updateEventParticipantsStatus(
+                courseEvent.getId(), List.of(new UpdateEventParticipant())));
   }
 
   @Test
   void student_delete_event_ko() {
-    EventsApi api = new EventsApi(anApiClient(STUDENT1_TOKEN));
-    assertThrowsForbiddenException(() -> api.deleteEventById(EVENT1_ID));
+    var api = apiAs(axelToken);
+
+    assertThrowsForbiddenException(() -> api.deleteEventById(courseEvent.getId()));
   }
 
   @Test
   void manager_delete_event_ok() throws ApiException {
-    EventsApi api = new EventsApi(anApiClient(MANAGER1_TOKEN));
-    List<Event> events =
-        api.crupdateEvents(
-            List.of(someCreatableEventByManager1(INTEGRATION)), null, null, null, null);
-    Event deletedEvent = api.deleteEventById(events.getFirst().getId());
+    var api = apiAs(managerToken);
+
+    var events = api.crupdateEvents(List.of(aCreatableEvent(INTEGRATION)), null, null, null, null);
+    var deletedEvent = api.deleteEventById(events.getFirst().getId());
+
     assertEquals(events.getFirst().getId(), deletedEvent.getId());
   }
 
   @Test
   void student_get_event_stats_ko() {
-    EventsApi studentApi = new EventsApi(anApiClient(STUDENT1_TOKEN));
-    assertThrowsForbiddenException(() -> studentApi.getEventStats(null, null, null));
+    var api = apiAs(axelToken);
+
+    assertThrowsForbiddenException(() -> api.getEventStats(null, null, null));
   }
 
   @Test
   void manager_get_overall_stats_ok() {
-    EventsApi managerApi = new EventsApi(anApiClient(MANAGER1_TOKEN));
-    assertDoesNotThrow(() -> managerApi.getEventStats(null, null, null));
+    var api = apiAs(managerToken);
+
+    assertDoesNotThrow(() -> api.getEventStats(null, null, null));
   }
 
   @Test
   void admin_get_overall_stats_ok() {
-    EventsApi managerApi = new EventsApi(anApiClient(ADMIN1_TOKEN));
-    assertDoesNotThrow(() -> managerApi.getEventStats(null, null, null));
+    var api = apiAs(adminToken);
+
+    assertDoesNotThrow(() -> api.getEventStats(null, null, null));
   }
 
   @Test
   void student_get_stats_ko() {
-    EventsApi studentApi = new EventsApi(anApiClient(STUDENT1_TOKEN));
+    var api = apiAs(axelToken);
 
     assertThrowsForbiddenException(
-        () -> studentApi.getEventParticipantStats(STUDENT1_ID, null, null));
+        () -> api.getEventParticipantStats(studentAxel.getId(), null, null));
   }
 
   @Test
   void get_stats_ok() throws ApiException {
-    EventsApi managerApi = new EventsApi(anApiClient(MANAGER1_TOKEN));
-    // TODO: create dynamically some events during test and apply filters to get stats for these
-    // events
-    EventParticipantStats eventParticipantStats =
-        managerApi.getEventParticipantStats(STUDENT1_ID, null, null);
-    assertEquals(3, eventParticipantStats.getTotalEvents());
+    var stats = apiAs(managerToken).getEventParticipantStats(studentAxel.getId(), null, null);
+    assertEquals(2, stats.getTotalEvents());
   }
 
   @Test
   void event_as_public_link() throws ApiException {
-    EventsApi api = new EventsApi(anApiClient(null));
-    var actual = api.getEvents(1, 15, null, null, null, null, null, null, null);
-    var baseEvents =
+    var api = new EventsApi(anApiClient(null));
+
+    var actual = api.getEvents(1, 500, null, null, null, null, null, null, null);
+    var ownEvents =
         actual.stream()
-            .filter(e -> List.of(EVENT1_ID, EVENT2_ID, EVENT3_ID).contains(e.getId()))
-            .sorted(Comparator.comparing(Event::getBeginDatetime).reversed())
+            .filter(
+                e ->
+                    List.of(courseEvent.getId(), integrationEvent.getId(), seminarEvent.getId())
+                        .contains(e.getId()))
+            .sorted(
+                Comparator.comparing(school.hei.haapi.endpoint.rest.model.Event::getBeginDatetime)
+                    .reversed())
             .toList();
 
-    assertEquals(event1(), baseEvents.get(0));
-    assertEquals(event3(), baseEvents.get(1));
-    assertEquals(event2(), baseEvents.get(2));
+    assertEquals(
+        List.of(courseEvent.getId(), seminarEvent.getId(), integrationEvent.getId()),
+        eventIdsOf(ownEvents));
   }
 
   @Test
   void event_as_public_link_filter_by_groupRef() throws ApiException {
-    EventsApi api = new EventsApi(anApiClient(null));
-    List<String> groupRef = List.of("J1", "J2");
-    var actual = api.getEvents(1, 15, null, null, null, null, null, null, groupRef);
+    var api = new EventsApi(anApiClient(null));
 
-    assertEquals(2, actual.size());
-    assertEquals(event5(), actual.get(0));
-    assertEquals(event4(), actual.get(1));
+    var actual =
+        api.getEvents(1, 500, null, null, null, null, null, null, List.of(groupTwo.getRef()));
+
+    assertTrue(eventIdsOf(actual).contains(integrationEvent.getId()));
+    assertFalse(eventIdsOf(actual).contains(seminarEvent.getId()));
   }
 
   @Test
   void event_as_private_link_filter_by_groupRef() throws ApiException {
-    EventsApi api = new EventsApi(anApiClient(MANAGER1_TOKEN));
-    List<String> groupRef = List.of("J1", "J2");
-    var actual = api.getEvents(1, 15, null, null, null, null, null, null, groupRef);
+    var api = apiAs(managerToken);
 
-    assertEquals(2, actual.size());
-    assertEquals(event5(), actual.get(0));
-    assertEquals(event4(), actual.get(1));
+    var actual =
+        api.getEvents(1, 500, null, null, null, null, null, null, List.of(groupTwo.getRef()));
+
+    assertTrue(eventIdsOf(actual).contains(integrationEvent.getId()));
+    assertFalse(eventIdsOf(actual).contains(seminarEvent.getId()));
   }
 
   @Test
   void filter_events_by_teacher_id_OK() throws ApiException {
-    var api = new EventsApi(anApiClient(MANAGER1_TOKEN));
-    var groupRef = List.of("J1", "J2");
-    var actual = api.getEvents(1, 15, null, null, null, null, null, teacher2().getId(), groupRef);
-    assertEquals(1, actual.size());
+    var api = apiAs(managerToken);
+
+    var actual =
+        api.getEvents(
+            1, 500, null, null, null, null, null, teacherToky.getId(), List.of(groupOne.getRef()));
+
+    // the filter matches the teacher assigned to the event's course, not the event planner: the
+    // seminar is planned by toky but carries no course, so it is excluded
+    assertEquals(List.of(courseEvent.getId()), eventIdsOf(actual));
   }
 
   @Test
   void get_event_attendance() throws ApiException {
-    EventsApi api = new EventsApi(anApiClient(MANAGER1_TOKEN));
+    var api = apiAs(managerToken);
 
-    List<EventAttendance> eventParticipants =
-        api.getAllEventParticipants(null, 1, 10, null, null, null, null, null, null);
-    List<EventAttendance> eventParticipantsWithAllFilter =
+    var inEventDateRange =
         api.getAllEventParticipants(
             null,
             null,
             null,
-            Instant.parse("2022-12-08T07:59:59.00Z"),
-            Instant.parse("2022-12-08T08:00:01.00Z"),
-            PRESENT,
-            List.of(StudentIT.student1().getGroups().getFirst().getRef()),
-            student1().getRef(),
-            student1().getFirstName());
-    List<EventAttendance> eventParticipantsInEventDateRange =
-        api.getAllEventParticipants(
-            null,
-            null,
-            null,
-            Instant.parse("2022-12-08T07:59:59.00Z"),
-            Instant.parse("2022-12-08T08:00:01.00Z"),
+            INTEGRATION_EVENT_BEGIN.minusSeconds(1),
+            INTEGRATION_EVENT_BEGIN.plusSeconds(1),
             null,
             null,
             null,
             null);
-    List<EventAttendance> statusFilteredEventParticipants =
-        api.getAllEventParticipants(null, null, null, null, null, MISSING, null, null, null);
-    List<EventAttendance> groupFilteredEventParticipants =
-        api.getAllEventParticipants(
-            null, null, null, null, null, null, List.of(group1().getRef()), null, null);
-    List<EventAttendance> studentRefFilteredEventParticipants =
-        api.getAllEventParticipants(
-            null, null, null, null, null, null, null, student3().getRef(), null);
-    List<EventAttendance> studentNameFilteredEventParticipants =
-        api.getAllEventParticipants(
-            null, null, null, null, null, null, null, null, student3().getFirstName());
-
     assertTrue(
-        eventParticipants.contains(
-            new EventAttendance().event(event2()).eventParticipant(student3MissEvent2())));
+        inEventDateRange.stream()
+            .anyMatch(a -> axelAttendsIntegration.getId().equals(a.getEventParticipant().getId())));
+
+    var withAllFilters =
+        api.getAllEventParticipants(
+            null,
+            null,
+            null,
+            INTEGRATION_EVENT_BEGIN.minusSeconds(1),
+            INTEGRATION_EVENT_BEGIN.plusSeconds(1),
+            PRESENT,
+            List.of(groupOne.getRef()),
+            studentAxel.getRef(),
+            studentAxel.getFirstName());
     assertEquals(
-        student1AttendEvent2(), eventParticipantsWithAllFilter.getFirst().getEventParticipant());
+        axelAttendsIntegration.getId(), withAllFilters.getFirst().getEventParticipant().getId());
+
+    var byStudentRef =
+        api.getAllEventParticipants(
+            null, null, null, null, null, null, null, studentFreddy.getRef(), null);
     assertEquals(
-        student1AttendEvent2(), eventParticipantsInEventDateRange.getFirst().getEventParticipant());
-    assertEquals(
-        student1MissEvent1(), statusFilteredEventParticipants.getFirst().getEventParticipant());
-    assertEquals(
-        student1MissEvent1(), groupFilteredEventParticipants.getFirst().getEventParticipant());
-    assertEquals(
-        student3AttendEvent1(),
-        studentRefFilteredEventParticipants.getFirst().getEventParticipant());
-    assertEquals(
-        student3AttendEvent1(),
-        studentNameFilteredEventParticipants.getFirst().getEventParticipant());
+        List.of(freddyAttendsIntegration.getId()),
+        byStudentRef.stream().map(a -> a.getEventParticipant().getId()).toList());
   }
 
   @Test
   void manager_create_event_with_is_online_ok() throws ApiException {
-    ApiClient apiClient = anApiClient(MANAGER1_TOKEN);
-    EventsApi api = new EventsApi(apiClient);
+    var api = apiAs(managerToken);
 
-    CreateEvent onlineEvent = someCreatableEventByManager1(INTEGRATION).isOnline(true);
-    List<Event> createdOnlineEvents =
-        api.crupdateEvents(List.of(onlineEvent), null, null, null, null);
-    Event createdOnline = createdOnlineEvents.getFirst();
+    var createdOnline =
+        api.crupdateEvents(
+                List.of(aCreatableEvent(INTEGRATION).isOnline(true)), null, null, null, null)
+            .getFirst();
+    createdEventIds.add(createdOnline.getId());
 
-    CreateEvent offlineEvent = someCreatableEventByManager1(INTEGRATION).isOnline(false);
-    List<Event> createdOfflineEvents =
-        api.crupdateEvents(List.of(offlineEvent), null, null, null, null);
-    Event createdOffline = createdOfflineEvents.getFirst();
+    var createdOffline =
+        api.crupdateEvents(
+                List.of(aCreatableEvent(INTEGRATION).isOnline(false)), null, null, null, null)
+            .getFirst();
+    createdEventIds.add(createdOffline.getId());
 
-    Event actualOnline = api.getEventById(createdOnline.getId());
-    assertTrue(actualOnline.getIsOnline(), "Event should be marked as online");
-    assertEquals(createdOnline.getId(), actualOnline.getId());
-
-    Event actualOffline = api.getEventById(createdOffline.getId());
-    assertFalse(actualOffline.getIsOnline(), "Event should be marked as offline");
-    assertEquals(createdOffline, actualOffline);
+    assertEquals(Boolean.TRUE, api.getEventById(createdOnline.getId()).getIsOnline());
+    assertNotEquals(Boolean.TRUE, api.getEventById(createdOffline.getId()).getIsOnline());
   }
 
   @Test
   void manager_create_event_with_is_online_null_defaults_to_false() throws ApiException {
-    ApiClient apiClient = anApiClient(MANAGER1_TOKEN);
-    EventsApi api = new EventsApi(apiClient);
+    var api = apiAs(managerToken);
 
-    CreateEvent eventWithNullIsOnline = someCreatableEventByManager1(INTEGRATION);
+    var created =
+        api.crupdateEvents(List.of(aCreatableEvent(INTEGRATION)), null, null, null, null)
+            .getFirst();
+    createdEventIds.add(created.getId());
 
-    List<Event> createdEvents =
-        api.crupdateEvents(List.of(eventWithNullIsOnline), null, null, null, null);
-    Event created = createdEvents.getFirst();
-
-    Event actual = api.getEventById(created.getId());
-    assertFalse(actual.getIsOnline(), "Event should default to offline when isOnline is null");
-    assertEquals(created, actual);
+    assertNotEquals(
+        Boolean.TRUE,
+        api.getEventById(created.getId()).getIsOnline(),
+        "Event should default to offline when isOnline is" + " null");
   }
 }

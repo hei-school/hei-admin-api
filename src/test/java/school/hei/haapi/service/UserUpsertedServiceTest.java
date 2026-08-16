@@ -25,8 +25,8 @@ class UserUpsertedServiceTest {
 
   @Test
   void newUser_triggers_cognitoUser_creation() {
-    String email = "test+" + randomUUID() + "@hei.school";
-    UserUpserted userUpserted = new UserUpserted().email(email);
+    var email = "test+" + randomUUID() + "@hei.school";
+    var userUpserted = new UserUpserted().email(email);
     when(cognitoComponent.createUser(email)).thenReturn(("newCognitoUsername"));
 
     userUpsertedService.accept(userUpserted);
@@ -36,8 +36,8 @@ class UserUpsertedServiceTest {
 
   @Test
   void existingCognitoUser_is_ignored() {
-    String email = "test+" + randomUUID() + "@hei.school";
-    UserUpserted userUpserted = new UserUpserted().email(email);
+    var email = "test+" + randomUUID() + "@hei.school";
+    var userUpserted = new UserUpserted().email(email);
     when(cognitoComponent.createUser(email)).thenThrow((UsernameExistsException.class));
 
     userUpsertedService.accept(userUpserted); // does not rethrow UsernameExistsException

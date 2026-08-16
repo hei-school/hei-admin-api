@@ -24,8 +24,8 @@ class ComputeVerifiedMobilePaymentTest {
 
   @Test
   void cannot_pay_already_paid_fee() {
-    Mpbs mpbs = Mpbs.builder().fee(Fee.builder().remainingAmount(0).build()).build();
-    TransactionDetails transaction =
+    var mpbs = Mpbs.builder().fee(Fee.builder().remainingAmount(0).build()).build();
+    var transaction =
         TransactionDetails.builder().pspTransactionAmount(200).status(SUCCESS).build();
     when(mpbsServiceMock.save(mpbs)).thenReturn(mpbs);
 

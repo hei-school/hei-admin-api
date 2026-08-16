@@ -1,213 +1,269 @@
 package school.hei.haapi.integration;
 
+import static java.util.UUID.randomUUID;
 import static org.hibernate.validator.internal.util.Contracts.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static school.hei.haapi.endpoint.rest.model.CycleEnum.BACHELOR;
-import static school.hei.haapi.integration.StudentIT.student1;
-import static school.hei.haapi.integration.conf.TestUtils.MANAGER1_TOKEN;
-import static school.hei.haapi.integration.conf.TestUtils.PROMOTION1_ID;
-import static school.hei.haapi.integration.conf.TestUtils.PROMOTION3_ID;
-import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_TOKEN;
-import static school.hei.haapi.integration.conf.TestUtils.TEACHER1_TOKEN;
-import static school.hei.haapi.integration.conf.TestUtils.addGroupToPromotion3;
-import static school.hei.haapi.integration.conf.TestUtils.assertThrowsForbiddenException;
-import static school.hei.haapi.integration.conf.TestUtils.createGroupIdentifier;
-import static school.hei.haapi.integration.conf.TestUtils.createPromotion4;
-import static school.hei.haapi.integration.conf.TestUtils.group5;
-import static school.hei.haapi.integration.conf.TestUtils.promotion21;
-import static school.hei.haapi.integration.conf.TestUtils.promotion22;
-import static school.hei.haapi.integration.conf.TestUtils.promotion23;
-import static school.hei.haapi.integration.conf.TestUtils.removeGroupToPromotion3;
-import static school.hei.haapi.integration.conf.TestUtils.setUpCasdoor;
-import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
-import static school.hei.haapi.integration.conf.TestUtils.setUpS3Service;
+import static school.hei.haapi.endpoint.rest.model.UpdatePromotionSGroup.TypeEnum.ADD;
+import static school.hei.haapi.endpoint.rest.model.UpdatePromotionSGroup.TypeEnum.REMOVE;
+import static school.hei.haapi.integration.conf.ApiAssertions.assertThrowsForbiddenException;
+import static school.hei.haapi.integration.conf.TestAuth.tokenFor;
+import static school.hei.haapi.integration.conf.TestMocks.setUpS3Service;
+import static school.hei.haapi.integration.testData.GroupTestData.g1;
+import static school.hei.haapi.integration.testData.GroupTestData.g2;
+import static school.hei.haapi.integration.testData.ManagerTestData.hasina;
+import static school.hei.haapi.integration.testData.PromotionTestData.aCrupdatePromotion;
+import static school.hei.haapi.integration.testData.PromotionTestData.aPromotion;
+import static school.hei.haapi.integration.testData.StudentTestData.axel;
+import static school.hei.haapi.integration.testData.TeacherTestData.toky;
 
 import java.io.IOException;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.util.ArrayList;
 import java.util.List;
-import lombok.extern.slf4j.Slf4j;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.testcontainers.junit.jupiter.Testcontainers;
 import school.hei.haapi.endpoint.rest.api.PromotionsApi;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
 import school.hei.haapi.endpoint.rest.model.CrupdatePromotion;
 import school.hei.haapi.endpoint.rest.model.Promotion;
+import school.hei.haapi.endpoint.rest.model.UpdatePromotionSGroup;
 import school.hei.haapi.integration.conf.FacadeITMockedThirdParties;
 import school.hei.haapi.integration.conf.TestUtils;
+import school.hei.haapi.model.Group;
+import school.hei.haapi.model.User;
+import school.hei.haapi.repository.GroupRepository;
+import school.hei.haapi.repository.PromotionRepository;
+import school.hei.haapi.repository.UserRepository;
 
-@Slf4j
-@Testcontainers
-@AutoConfigureMockMvc
 public class PromotionIT extends FacadeITMockedThirdParties {
+  @Autowired private UserRepository userRepository;
+  @Autowired private GroupRepository groupRepository;
+  @Autowired private PromotionRepository promotionRepository;
+
+  private User studentAxel;
+  private User teacherToky;
+  private User managerHasina;
+
+  private school.hei.haapi.model.Promotion promotionWithGroup;
+  private school.hei.haapi.model.Promotion promotionWithoutGroup;
+  private school.hei.haapi.model.Promotion promotionForGroupMoves;
+  private Group groupInPromotion;
+  private Group movableGroup;
+
+  /** Promotions the tests create through the API, swept in tearDown. */
+  private final List<String> createdPromotionIds = new ArrayList<>();
+
+  private String studentToken;
+  private String teacherToken;
+  private String managerToken;
+
+  private void setUpTestData() {
+    studentAxel = userRepository.save(axel());
+    teacherToky = userRepository.save(toky());
+    managerHasina = userRepository.save(hasina());
+
+    promotionWithGroup =
+        promotionRepository.save(aPromotion("Promotion 2021-2022", "PROM" + randomUUID()));
+    promotionWithoutGroup =
+        promotionRepository.save(aPromotion("Promotion 2022-2023", "PROM" + randomUUID()));
+    promotionForGroupMoves =
+        promotionRepository.save(aPromotion("Promotion 2023-2024", "PROM" + randomUUID()));
+
+    groupInPromotion = g1();
+    groupInPromotion.setPromotion(promotionWithGroup);
+    groupInPromotion = groupRepository.save(groupInPromotion);
+
+    movableGroup = groupRepository.save(g2());
+  }
+
+  @BeforeEach
+  void setUp() {
+    setUpTestData();
+    setUpS3Service(fileService, studentAxel);
+
+    studentToken = tokenFor(casdoorAuthServiceMock, studentAxel);
+    teacherToken = tokenFor(casdoorAuthServiceMock, teacherToky);
+    managerToken = tokenFor(casdoorAuthServiceMock, managerHasina);
+  }
+
+  @AfterEach
+  void tearDown() {
+    // groups point at promotions, so they go first
+    groupInPromotion.setPromotion(null);
+    movableGroup.setPromotion(null);
+    groupRepository.saveAll(List.of(groupInPromotion, movableGroup));
+    groupRepository.deleteAll(List.of(groupInPromotion, movableGroup));
+
+    promotionRepository.deleteAllById(createdPromotionIds);
+    createdPromotionIds.clear();
+    promotionRepository.deleteAll(
+        List.of(promotionWithGroup, promotionWithoutGroup, promotionForGroupMoves));
+    userRepository.deleteAll(List.of(studentAxel, teacherToky, managerHasina));
+  }
+
+  private PromotionsApi apiAs(String token) {
+    return new PromotionsApi(anApiClient(token));
+  }
 
   private ApiClient anApiClient(String token) {
     return TestUtils.anApiClient(token, localPort);
   }
 
-  @BeforeEach
-  void setUp() {
-    setUpCasdoor(casdoorAuthServiceMock, certificateLoaderMock);
-    setUpCognito(cognitoComponentMock);
-    setUpS3Service(fileService, student1());
+  private static List<String> idsOf(List<Promotion> promotions) {
+    return promotions.stream().map(Promotion::getId).toList();
+  }
+
+  private UpdatePromotionSGroup groupMove(Group group, UpdatePromotionSGroup.TypeEnum type) {
+    return new UpdatePromotionSGroup().type(type).groupIds(List.of(group.getId()));
   }
 
   @Test
   void manager_generate_promotion_students_ok() throws IOException, InterruptedException {
-    String STUDENTS_PROMOTION_PATH = "/promotions/" + PROMOTION1_ID + "/students";
-    HttpClient httpClient = HttpClient.newBuilder().build();
-    String basePath = "http://localhost:" + localPort;
-
-    HttpResponse<byte[]> response =
-        httpClient.send(
-            HttpRequest.newBuilder()
-                .uri(URI.create(basePath + STUDENTS_PROMOTION_PATH))
-                .GET()
-                .header("Authorization", "Bearer " + MANAGER1_TOKEN)
-                .build(),
-            HttpResponse.BodyHandlers.ofByteArray());
+    var response =
+        HttpClient.newBuilder()
+            .build()
+            .send(
+                HttpRequest.newBuilder()
+                    .uri(
+                        URI.create(
+                            "http://localhost:"
+                                + localPort
+                                + "/promotions/"
+                                + promotionWithGroup.getId()
+                                + "/students"))
+                    .GET()
+                    .header("Authorization", "Bearer " + managerToken)
+                    .build(),
+                HttpResponse.BodyHandlers.ofByteArray());
 
     assertEquals(HttpStatus.OK.value(), response.statusCode());
     assertNotNull(response.body());
-    assertNotNull(response);
   }
 
   @Test
   void manager_read_promotion_ok() throws ApiException {
-    ApiClient apiClient = anApiClient(MANAGER1_TOKEN);
-    PromotionsApi api = new PromotionsApi(apiClient);
+    var api = apiAs(managerToken);
 
-    List<Promotion> allPromotions = api.getPromotions(1, 15, null, null, null);
-    assertTrue(allPromotions.contains(promotion21()));
-    assertTrue(allPromotions.contains(promotion22()));
-    assertTrue(allPromotions.contains(promotion23()));
+    var allPromotions = api.getPromotions(1, 250, null, null, null);
+    assertTrue(idsOf(allPromotions).contains(promotionWithGroup.getId()));
+    assertTrue(idsOf(allPromotions).contains(promotionWithoutGroup.getId()));
 
-    List<Promotion> promotionsFilteredByName =
-        api.getPromotions(1, 15, "Promotion 2021-2022", null, null);
-    assertTrue(promotionsFilteredByName.contains(promotion21()));
-    assertFalse(promotionsFilteredByName.contains(promotion22()));
-    assertFalse(promotionsFilteredByName.contains(promotion23()));
+    var byName = api.getPromotions(1, 250, promotionWithGroup.getName(), null, null);
+    assertTrue(idsOf(byName).contains(promotionWithGroup.getId()));
+    assertFalse(idsOf(byName).contains(promotionWithoutGroup.getId()));
 
-    List<Promotion> promotionsFilteredByRef = api.getPromotions(1, 15, null, "PROM22", null);
-    assertTrue(promotionsFilteredByRef.contains(promotion22()));
-    assertFalse(promotionsFilteredByRef.contains(promotion21()));
-    assertFalse(promotionsFilteredByRef.contains(promotion23()));
+    var byRef = api.getPromotions(1, 250, null, promotionWithoutGroup.getRef(), null);
+    assertTrue(idsOf(byRef).contains(promotionWithoutGroup.getId()));
+    assertFalse(idsOf(byRef).contains(promotionWithGroup.getId()));
 
-    List<Promotion> promotionsFilteredByGroupRef = api.getPromotions(1, 15, null, null, "G1");
-    assertTrue(promotionsFilteredByGroupRef.contains(promotion21()));
-    assertFalse(promotionsFilteredByGroupRef.contains(promotion22()));
-    assertFalse(promotionsFilteredByGroupRef.contains(promotion23()));
+    var byGroupRef = api.getPromotions(1, 250, null, null, groupInPromotion.getRef());
+    assertTrue(idsOf(byGroupRef).contains(promotionWithGroup.getId()));
+    assertFalse(idsOf(byGroupRef).contains(promotionWithoutGroup.getId()));
   }
 
   @Test
   void teacher_read_promotion_ok() throws ApiException {
-    ApiClient apiClient = anApiClient(TEACHER1_TOKEN);
-    PromotionsApi api = new PromotionsApi(apiClient);
+    var allPromotions = apiAs(teacherToken).getPromotions(1, 250, null, null, null);
 
-    List<Promotion> allPromotions = api.getPromotions(1, 15, null, null, null);
-    assertTrue(allPromotions.contains(promotion21()));
-    assertTrue(allPromotions.contains(promotion22()));
-    assertTrue(allPromotions.contains(promotion23()));
+    assertTrue(idsOf(allPromotions).contains(promotionWithGroup.getId()));
+    assertTrue(idsOf(allPromotions).contains(promotionWithoutGroup.getId()));
   }
 
   @Test
   void student_read_promotion_ok() throws ApiException {
-    ApiClient apiClient = anApiClient(STUDENT1_TOKEN);
-    PromotionsApi api = new PromotionsApi(apiClient);
+    var allPromotions = apiAs(studentToken).getPromotions(1, 250, null, null, null);
 
-    List<Promotion> allPromotions = api.getPromotions(1, 15, null, null, null);
-    assertTrue(allPromotions.contains(promotion21()));
-    assertTrue(allPromotions.contains(promotion23()));
+    assertTrue(idsOf(allPromotions).contains(promotionWithGroup.getId()));
+    assertTrue(idsOf(allPromotions).contains(promotionWithoutGroup.getId()));
   }
 
   @Test
   void manager_create_or_update_promotion_ok() throws ApiException {
-    ApiClient apiClient = anApiClient(MANAGER1_TOKEN);
-    PromotionsApi api = new PromotionsApi(apiClient);
+    var api = apiAs(managerToken);
+    var toCreate = aCrupdatePromotion("Promotion 2024-2025", "PROM" + randomUUID());
 
-    Promotion promotion4Created = api.crupdatePromotion(createPromotion4());
-    assertEquals(promotion4Created.getRef(), createPromotion4().getRef());
-    assertEquals(promotion4Created.getName(), createPromotion4().getName());
+    var created = api.crupdatePromotion(toCreate);
+    createdPromotionIds.add(created.getId());
+    assertEquals(toCreate.getRef(), created.getRef());
+    assertEquals(toCreate.getName(), created.getName());
 
-    CrupdatePromotion updatePromotion4 =
+    var toUpdate =
         new CrupdatePromotion()
-            .id(promotion4Created.getId())
-            .ref(promotion4Created.getRef())
+            .id(created.getId())
+            .ref(created.getRef())
             .name("Nom de la promotion modifiée")
             .cycleLevel(BACHELOR);
 
-    Promotion promotion4Updated = api.crupdatePromotion(updatePromotion4);
-    assertEquals(updatePromotion4.getId(), promotion4Updated.getId());
-    assertEquals(updatePromotion4.getRef(), promotion4Updated.getRef());
-    assertEquals(updatePromotion4.getName(), promotion4Updated.getName());
-    assertEquals(promotion4Created.getCreationDatetime(), promotion4Updated.getCreationDatetime());
+    var updated = api.crupdatePromotion(toUpdate);
+    assertEquals(toUpdate.getId(), updated.getId());
+    assertEquals(toUpdate.getRef(), updated.getRef());
+    assertEquals(toUpdate.getName(), updated.getName());
+    assertEquals(created.getCreationDatetime(), updated.getCreationDatetime());
   }
 
   @Test
   void manager_read_promotion_by_id_ok() throws ApiException {
-    ApiClient apiClient = anApiClient(MANAGER1_TOKEN);
-    PromotionsApi api = new PromotionsApi(apiClient);
+    var actual = apiAs(managerToken).getPromotionById(promotionWithGroup.getId());
 
-    Promotion actual = api.getPromotionById(PROMOTION1_ID);
-    assertEquals(promotion21(), actual);
+    assertEquals(promotionWithGroup.getId(), actual.getId());
+    assertEquals(promotionWithGroup.getRef(), actual.getRef());
+    assertEquals(promotionWithGroup.getName(), actual.getName());
   }
 
   @Test
   void teacher_read_promotion_by_id_ok() throws ApiException {
-    ApiClient apiClient = anApiClient(TEACHER1_TOKEN);
-    PromotionsApi api = new PromotionsApi(apiClient);
+    var actual = apiAs(teacherToken).getPromotionById(promotionWithGroup.getId());
 
-    Promotion actual = api.getPromotionById(PROMOTION1_ID);
-    assertEquals(promotion21(), actual);
+    assertEquals(promotionWithGroup.getId(), actual.getId());
   }
 
   @Test
   void student_read_promotion_by_id_ok() throws ApiException {
-    ApiClient apiClient = anApiClient(STUDENT1_TOKEN);
-    PromotionsApi api = new PromotionsApi(apiClient);
+    var actual = apiAs(studentToken).getPromotionById(promotionWithGroup.getId());
 
-    Promotion actual = api.getPromotionById(PROMOTION1_ID);
-    assertEquals(promotion21(), actual);
+    assertEquals(promotionWithGroup.getId(), actual.getId());
   }
 
   @Test
   void manager_add_or_remove_groups_ok() throws ApiException {
-    ApiClient apiClient = anApiClient(MANAGER1_TOKEN);
-    PromotionsApi api = new PromotionsApi(apiClient);
+    var api = apiAs(managerToken);
 
-    Promotion promotion3withAddedGroup =
-        api.updatePromotionGroups(PROMOTION3_ID, addGroupToPromotion3());
-    assertEquals(1, promotion3withAddedGroup.getGroups().size());
-    assertTrue(promotion3withAddedGroup.getGroups().contains(createGroupIdentifier(group5())));
+    var withAddedGroup =
+        api.updatePromotionGroups(promotionForGroupMoves.getId(), groupMove(movableGroup, ADD));
+    assertEquals(1, withAddedGroup.getGroups().size());
+    assertEquals(movableGroup.getId(), withAddedGroup.getGroups().getFirst().getId());
 
-    Promotion promotion3withRemovedGroup =
-        api.updatePromotionGroups(PROMOTION3_ID, removeGroupToPromotion3());
-    assertEquals(0, promotion3withRemovedGroup.getGroups().size());
-    assertFalse(promotion3withRemovedGroup.getGroups().contains(createGroupIdentifier(group5())));
+    var withRemovedGroup =
+        api.updatePromotionGroups(promotionForGroupMoves.getId(), groupMove(movableGroup, REMOVE));
+    assertEquals(0, withRemovedGroup.getGroups().size());
   }
 
   @Test
   void update_promotion_forbidden_ok() {
-    ApiClient studentApiClient = anApiClient(STUDENT1_TOKEN);
-    PromotionsApi studentCallAPi = new PromotionsApi(studentApiClient);
+    var studentApi = apiAs(studentToken);
+    var teacherApi = apiAs(teacherToken);
+    var toCreate = aCrupdatePromotion("Promotion X", "PROM" + randomUUID());
 
-    ApiClient teacherApiClient = anApiClient(STUDENT1_TOKEN);
-    PromotionsApi teacherCallAPi = new PromotionsApi(teacherApiClient);
-
-    assertThrowsForbiddenException(() -> studentCallAPi.crupdatePromotion(createPromotion4()));
+    assertThrowsForbiddenException(() -> studentApi.crupdatePromotion(toCreate));
     assertThrowsForbiddenException(
-        () -> studentCallAPi.updatePromotionGroups(PROMOTION3_ID, addGroupToPromotion3()));
+        () ->
+            studentApi.updatePromotionGroups(
+                promotionForGroupMoves.getId(), groupMove(movableGroup, ADD)));
 
-    assertThrowsForbiddenException(() -> teacherCallAPi.crupdatePromotion(createPromotion4()));
+    assertThrowsForbiddenException(() -> teacherApi.crupdatePromotion(toCreate));
     assertThrowsForbiddenException(
-        () -> teacherCallAPi.updatePromotionGroups(PROMOTION3_ID, addGroupToPromotion3()));
+        () ->
+            teacherApi.updatePromotionGroups(
+                promotionForGroupMoves.getId(), groupMove(movableGroup, ADD)));
   }
 }

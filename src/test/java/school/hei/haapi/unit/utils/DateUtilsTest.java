@@ -2,8 +2,7 @@ package school.hei.haapi.unit.utils;
 
 import static java.util.Optional.empty;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
-import static school.hei.haapi.integration.conf.TestUtils.setUpEventBridge;
+import static school.hei.haapi.integration.conf.TestMocks.setUpEventBridge;
 
 import java.time.LocalDate;
 import java.time.ZoneOffset;
@@ -25,26 +24,25 @@ public class DateUtilsTest extends FacadeITMockedThirdParties {
 
   @BeforeEach
   void setUp() {
-    setUpCognito(cognitoComponentMock);
     setUpEventBridge(eventBridgeClientMock);
   }
 
   @Test
   void get_recovery_date_ok() {
-    String dueDateString1 = "31 mai 2024";
-    String dueDateString2 = "9 mai 2024";
-    String recoveryDate1 = dateUtils.getRecoveryDate(dueDateString1);
-    String recoveryDate2 = dateUtils.getRecoveryDate(dueDateString2);
-    String expectedRecoveryDate1 = "15 juin 2024";
-    String expectedRecoveryDate2 = "24 mai 2024";
+    var dueDateString1 = "31 mai 2024";
+    var dueDateString2 = "9 mai 2024";
+    var recoveryDate1 = dateUtils.getRecoveryDate(dueDateString1);
+    var recoveryDate2 = dateUtils.getRecoveryDate(dueDateString2);
+    var expectedRecoveryDate1 = "15 juin 2024";
+    var expectedRecoveryDate2 = "24 mai 2024";
     assertEquals(expectedRecoveryDate1, recoveryDate1);
     assertEquals(expectedRecoveryDate2, recoveryDate2);
   }
 
   @Test
   public void get_default_month_range_ok() {
-    LocalDate firstDayOfMonth = LocalDate.now().withDayOfMonth(1);
-    LocalDate lastDayOfMonth = firstDayOfMonth.withDayOfMonth(firstDayOfMonth.lengthOfMonth());
+    var firstDayOfMonth = LocalDate.now().withDayOfMonth(1);
+    var lastDayOfMonth = firstDayOfMonth.withDayOfMonth(firstDayOfMonth.lengthOfMonth());
 
     DateUtils.TimeRange defaultRange = dateUtils.getDefaultMonthRange(empty(), empty());
 

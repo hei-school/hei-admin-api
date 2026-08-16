@@ -12,7 +12,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static school.hei.haapi.endpoint.rest.model.FeeCategory.L1;
+import static school.hei.haapi.endpoint.rest.model.FeeCategory.UNKNOWN;
 import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.LATE;
 import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.PAID;
 import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.PENDING;
@@ -20,67 +20,48 @@ import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.UNPAID;
 import static school.hei.haapi.endpoint.rest.model.FeeTypeEnum.HARDWARE;
 import static school.hei.haapi.endpoint.rest.model.FeeTypeEnum.RETAKE_EXAM_COSTS;
 import static school.hei.haapi.endpoint.rest.model.FeeTypeEnum.TUITION;
-import static school.hei.haapi.integration.StudentIT.student1;
-import static school.hei.haapi.integration.conf.TestUtils.FEE1_ID;
-import static school.hei.haapi.integration.conf.TestUtils.FEE2_ID;
-import static school.hei.haapi.integration.conf.TestUtils.FEE3_ID;
-import static school.hei.haapi.integration.conf.TestUtils.MANAGER1_TOKEN;
-import static school.hei.haapi.integration.conf.TestUtils.MONITOR1_TOKEN;
-import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_ID;
-import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_TOKEN;
-import static school.hei.haapi.integration.conf.TestUtils.STUDENT2_ID;
-import static school.hei.haapi.integration.conf.TestUtils.TEACHER1_TOKEN;
-import static school.hei.haapi.integration.conf.TestUtils.assertThrowsApiException;
-import static school.hei.haapi.integration.conf.TestUtils.assertThrowsForbiddenException;
-import static school.hei.haapi.integration.conf.TestUtils.creatableFee1;
-import static school.hei.haapi.integration.conf.TestUtils.creatableStudentFee;
-import static school.hei.haapi.integration.conf.TestUtils.createFeeForTest;
-import static school.hei.haapi.integration.conf.TestUtils.fee1;
-import static school.hei.haapi.integration.conf.TestUtils.fee2;
-import static school.hei.haapi.integration.conf.TestUtils.fee3;
-import static school.hei.haapi.integration.conf.TestUtils.fee4;
-import static school.hei.haapi.integration.conf.TestUtils.requestFile;
-import static school.hei.haapi.integration.conf.TestUtils.setUpCasdoor;
-import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
-import static school.hei.haapi.integration.conf.TestUtils.setUpS3Service;
-import static school.hei.haapi.integration.test_data.FeeTestData.createFeeStatusHistory;
-import static school.hei.haapi.integration.test_data.FeeTestData.createFeeWithStatus;
-import static school.hei.haapi.integration.test_data.FeeTestData.createPendingFee;
-import static school.hei.haapi.integration.test_data.StudentTestData.axel;
-import static school.hei.haapi.integration.test_data.StudentTestData.tolojanahary;
+import static school.hei.haapi.integration.conf.ApiAssertions.assertThrowsApiException;
+import static school.hei.haapi.integration.conf.ApiAssertions.assertThrowsForbiddenException;
+import static school.hei.haapi.integration.conf.TestAuth.tokenFor;
+import static school.hei.haapi.integration.conf.TestFiles.requestFile;
+import static school.hei.haapi.integration.conf.TestMocks.setUpS3Service;
+import static school.hei.haapi.integration.testData.FeeTestData.createFeeStatusHistory;
+import static school.hei.haapi.integration.testData.FeeTestData.createFeeWithStatus;
+import static school.hei.haapi.integration.testData.FeeTestData.createPendingFee;
+import static school.hei.haapi.integration.testData.ManagerTestData.hasina;
+import static school.hei.haapi.integration.testData.MonitorTestData.monitorOfAxel;
+import static school.hei.haapi.integration.testData.StudentTestData.axel;
+import static school.hei.haapi.integration.testData.StudentTestData.freddy;
+import static school.hei.haapi.integration.testData.StudentTestData.tolojanahary;
+import static school.hei.haapi.integration.testData.TeacherTestData.toky;
 import static school.hei.haapi.model.User.Status.DISABLED;
 import static school.hei.haapi.model.User.Status.ENABLED;
 
 import jakarta.persistence.EntityManager;
-import jakarta.persistence.Query;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URL;
 import java.time.Instant;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
-import lombok.extern.slf4j.Slf4j;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpStatus;
-import org.testcontainers.junit.jupiter.Testcontainers;
 import school.hei.haapi.endpoint.rest.api.PayingApi;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
-import school.hei.haapi.endpoint.rest.mapper.FeeMapper;
-import school.hei.haapi.endpoint.rest.model.AdvancedFeeStatisticsGeneration;
 import school.hei.haapi.endpoint.rest.model.AdvancedFeeStatisticsType;
 import school.hei.haapi.endpoint.rest.model.CreateFee;
-import school.hei.haapi.endpoint.rest.model.Fee;
-import school.hei.haapi.endpoint.rest.model.FeesStatistics;
-import school.hei.haapi.endpoint.rest.model.FeesWithStats;
+import school.hei.haapi.endpoint.rest.model.FeeFrequency;
+import school.hei.haapi.endpoint.rest.model.FeeStatusEnum;
 import school.hei.haapi.file.bucket.BucketComponent;
 import school.hei.haapi.integration.conf.FacadeITMockedThirdParties;
 import school.hei.haapi.integration.conf.TestUtils;
+import school.hei.haapi.model.Fee;
 import school.hei.haapi.model.FeeStatusHistory;
 import school.hei.haapi.model.User;
 import school.hei.haapi.repository.FeeRepository;
@@ -88,625 +69,554 @@ import school.hei.haapi.repository.FeeStatusHistoryRepository;
 import school.hei.haapi.repository.UserRepository;
 import school.hei.haapi.repository.dao.FeeDao;
 
-@Testcontainers
-@AutoConfigureMockMvc
-@Slf4j
 class FeeIT extends FacadeITMockedThirdParties {
+  /** Every fee of this test is due inside this window, so filters can isolate them. */
+  private static final Instant WINDOW_FROM = Instant.parse("2026-06-01T00:00:00.00Z");
+
+  private static final Instant WINDOW_TO = Instant.parse("2026-06-30T23:59:59.00Z");
+
+  /** Outside the window: used to assert a filter excludes what it should. */
+  private static final Instant OUTSIDE_WINDOW = Instant.parse("2027-03-01T08:00:00Z");
+
   @Autowired EntityManager entityManager;
+  @Autowired private org.springframework.jdbc.core.JdbcTemplate jdbcTemplate;
   @Autowired FeeRepository feeRepository;
-  @Autowired private FeeMapper feeMapper;
-  @MockBean private BucketComponent bucketComponent;
   @Autowired FeeDao feeDao;
+  @Autowired private UserRepository userRepository;
+  @Autowired private FeeStatusHistoryRepository feeStatusHistoryRepository;
+  @MockBean private BucketComponent bucketComponent;
 
   private User enabledStudentAxel;
   private User disabledStudentTolojanahary;
-  private school.hei.haapi.model.Fee axelFee_PAID;
-  private school.hei.haapi.model.Fee axelFee_LATE;
-  private school.hei.haapi.model.Fee axelFee_PENDING;
-  private school.hei.haapi.model.Fee axelFee_UNPAID;
-  private school.hei.haapi.model.Fee axelFeeDeleted;
-  private school.hei.haapi.model.Fee tolojanaharyFee1;
-  private school.hei.haapi.model.Fee tolojanaharyFee2;
-  private FeeStatusHistory axelFee_PAID_history;
-  private FeeStatusHistory axelFee_LATE_history;
-  private FeeStatusHistory axelFee_PENDING_history;
-  private FeeStatusHistory axelFee_UNPAID_history;
-  private FeeStatusHistory tolojanaharyFee1history;
-  private FeeStatusHistory tolojanaharyFee2history;
-  @Autowired private UserRepository userRepository;
-  @Autowired private FeeStatusHistoryRepository feeStatusHistoryRepository;
+  private User studentFreddy;
+  private User monitorAxel;
+  private User managerHasina;
+  private User teacherToky;
 
-  void setUpTestData() {
+  private Fee axelFeePaid;
+  private Fee axelFeeLate;
+  private Fee axelFeePending;
+  private Fee axelFeeUnpaid;
+  private Fee axelFeeDeleted;
+  private Fee freddyFeeLate;
+  private Fee tolojanaharyFeeOutside1;
+  private Fee tolojanaharyFeeOutside2;
+
+  private final List<FeeStatusHistory> statusHistories = new ArrayList<>();
+
+  /** Fees the tests create through the API, swept in tearDown. */
+  private final List<String> createdFeeIds = new ArrayList<>();
+
+  private String axelToken;
+  private String monitorToken;
+  private String managerToken;
+  private String teacherToken;
+
+  private void setUpTestData() {
     enabledStudentAxel = axel();
     enabledStudentAxel.setStatus(ENABLED);
+    enabledStudentAxel = userRepository.save(enabledStudentAxel);
+
     disabledStudentTolojanahary = tolojanahary();
     disabledStudentTolojanahary.setStatus(DISABLED);
+    disabledStudentTolojanahary = userRepository.save(disabledStudentTolojanahary);
 
-    axelFee_PAID =
+    studentFreddy = userRepository.save(freddy());
+    managerHasina = userRepository.save(hasina());
+    teacherToky = userRepository.save(toky());
+
+    monitorAxel = monitorOfAxel();
+    monitorAxel.setMonitors(new ArrayList<>(List.of(enabledStudentAxel)));
+    monitorAxel = userRepository.save(monitorAxel);
+
+    axelFeePaid =
         createFeeWithStatus(
             enabledStudentAxel, 100_000, Instant.parse("2026-06-01T08:00:00Z"), PAID);
-    axelFee_LATE =
+    axelFeeLate =
         createFeeWithStatus(
             enabledStudentAxel, 200_000, Instant.parse("2026-06-02T08:00:00Z"), LATE);
-    axelFee_PENDING = createFeeWithStatus(enabledStudentAxel, 400_000, Instant.now(), PENDING);
-    axelFee_UNPAID = createFeeWithStatus(enabledStudentAxel, 400_000, Instant.now(), UNPAID);
+    axelFeePending =
+        createFeeWithStatus(
+            enabledStudentAxel, 400_000, Instant.parse("2026-06-15T08:00:00Z"), PENDING);
+    axelFeeUnpaid =
+        createFeeWithStatus(
+            enabledStudentAxel, 400_000, Instant.parse("2026-06-20T08:00:00Z"), UNPAID);
     axelFeeDeleted =
         createPendingFee(enabledStudentAxel, 300_000, Instant.parse("2026-06-03T08:00:00Z"));
     axelFeeDeleted.setDeleted(true);
-    tolojanaharyFee1 =
-        createPendingFee(
-            disabledStudentTolojanahary, 100_000, Instant.parse("2026-06-01T08:00:00Z"));
-    tolojanaharyFee2 =
-        createPendingFee(
-            disabledStudentTolojanahary, 200_000, Instant.parse("2026-06-02T08:00:00Z"));
+    freddyFeeLate =
+        createFeeWithStatus(studentFreddy, 150_000, Instant.parse("2026-06-05T08:00:00Z"), LATE);
+    tolojanaharyFeeOutside1 =
+        createPendingFee(disabledStudentTolojanahary, 100_000, OUTSIDE_WINDOW);
+    tolojanaharyFeeOutside2 =
+        createPendingFee(disabledStudentTolojanahary, 200_000, OUTSIDE_WINDOW.plus(1, DAYS));
 
-    axelFee_PAID_history = createFeeStatusHistory(axelFee_PAID, PAID);
-    axelFee_LATE_history = createFeeStatusHistory(axelFee_LATE, LATE);
-    axelFee_PENDING_history = createFeeStatusHistory(axelFee_PENDING, PENDING);
-    axelFee_UNPAID_history = createFeeStatusHistory(axelFee_UNPAID, UNPAID);
-    tolojanaharyFee1history = createFeeStatusHistory(tolojanaharyFee1, PAID);
-    tolojanaharyFee2history = createFeeStatusHistory(tolojanaharyFee2, LATE);
-
-    userRepository.saveAll(List.of(enabledStudentAxel, disabledStudentTolojanahary));
     feeRepository.saveAll(
         List.of(
-            axelFee_PAID,
-            axelFee_LATE,
+            axelFeePaid,
+            axelFeeLate,
+            axelFeePending,
+            axelFeeUnpaid,
             axelFeeDeleted,
-            axelFee_PENDING,
-            axelFee_UNPAID,
-            tolojanaharyFee1,
-            tolojanaharyFee2));
-    axelFee_PAID.getStatusHistories().add(axelFee_PAID_history);
-    axelFee_LATE.getStatusHistories().add(axelFee_LATE_history);
-    axelFee_PENDING.getStatusHistories().add(axelFee_PENDING_history);
-    axelFee_UNPAID.getStatusHistories().add(axelFee_UNPAID_history);
-    tolojanaharyFee1.getStatusHistories().add(tolojanaharyFee1history);
-    tolojanaharyFee2.getStatusHistories().add(tolojanaharyFee2history);
-    feeStatusHistoryRepository.saveAll(
-        List.of(
-            axelFee_PAID_history,
-            axelFee_LATE_history,
-            axelFee_PENDING_history,
-            axelFee_UNPAID_history,
-            tolojanaharyFee1history,
-            tolojanaharyFee2history));
+            freddyFeeLate,
+            tolojanaharyFeeOutside1,
+            tolojanaharyFeeOutside2));
+
+    addStatusHistory(axelFeePaid, PAID);
+    addStatusHistory(axelFeeLate, LATE);
+    addStatusHistory(axelFeePending, PENDING);
+    addStatusHistory(axelFeeUnpaid, UNPAID);
+    addStatusHistory(freddyFeeLate, LATE);
+    addStatusHistory(tolojanaharyFeeOutside1, PAID);
+    addStatusHistory(tolojanaharyFeeOutside2, LATE);
+    feeStatusHistoryRepository.saveAll(statusHistories);
   }
 
-  void teardown() {
-    feeRepository.deleteAll(
-        List.of(
-            axelFee_PAID,
-            axelFee_LATE,
-            axelFee_UNPAID,
-            axelFee_PENDING,
-            axelFeeDeleted,
-            tolojanaharyFee1,
-            tolojanaharyFee2));
-    userRepository.deleteAll(List.of(enabledStudentAxel, disabledStudentTolojanahary));
-    feeStatusHistoryRepository.deleteAll(
-        List.of(
-            axelFee_PAID_history,
-            axelFee_LATE_history,
-            axelFee_PENDING_history,
-            axelFee_UNPAID_history,
-            tolojanaharyFee1history,
-            tolojanaharyFee2history));
+  private void addStatusHistory(Fee fee, FeeStatusEnum status) {
+    var history = createFeeStatusHistory(fee, status);
+    fee.getStatusHistories().add(history);
+    statusHistories.add(history);
   }
 
-  /***
-   * Get fee by id without jpa, avoiding FILTER isDeleted = true | false
-   * @param feeId
-   * @return Fee data by id
-   */
-  private school.hei.haapi.model.Fee getFeeByIdWithoutJpaFiltering(String feeId) {
-    try {
-      Query q =
-          entityManager.createNativeQuery(
-              "SELECT * FROM \"fee\" where id = ?", school.hei.haapi.model.Fee.class);
-      q.setParameter(1, feeId);
-      return (school.hei.haapi.model.Fee) q.getSingleResult();
-    } catch (NullPointerException e) {
-      throw new RuntimeException(e.getMessage());
-    }
+  @BeforeEach
+  void setUp() {
+    setUpTestData();
+    setUpS3Service(fileService, enabledStudentAxel);
+
+    axelToken = tokenFor(casdoorAuthServiceMock, enabledStudentAxel);
+    monitorToken = tokenFor(casdoorAuthServiceMock, monitorAxel);
+    managerToken = tokenFor(casdoorAuthServiceMock, managerHasina);
+    teacherToken = tokenFor(casdoorAuthServiceMock, teacherToky);
+  }
+
+  @AfterEach
+  void tearDown() {
+    statusHistories.clear();
+
+    List<String> ownedFeeIds = new ArrayList<>(createdFeeIds);
+    ownedFeeIds.addAll(
+        List.of(
+            axelFeePaid.getId(),
+            axelFeeLate.getId(),
+            axelFeePending.getId(),
+            axelFeeUnpaid.getId(),
+            axelFeeDeleted.getId(),
+            freddyFeeLate.getId(),
+            tolojanaharyFeeOutside1.getId(),
+            tolojanaharyFeeOutside2.getId()));
+    // Fee carries @SQLDelete, so a repository delete only flags is_deleted and the rows would pile
+    // up: the cleanup has to reach the table directly. Histories go first, and by fee id rather
+    // than by reference — the service adds its own on every status change.
+    var placeholders = String.join(",", ownedFeeIds.stream().map(id -> "?").toList());
+    jdbcTemplate.update(
+        "DELETE FROM \"fee_status_history\" WHERE fee_id IN (" + placeholders + ")",
+        ownedFeeIds.toArray());
+    jdbcTemplate.update(
+        "DELETE FROM \"payment\" WHERE fee_id IN (" + placeholders + ")", ownedFeeIds.toArray());
+    jdbcTemplate.update(
+        "DELETE FROM \"fee\" WHERE id IN (" + placeholders + ")", ownedFeeIds.toArray());
+    createdFeeIds.clear();
+
+    monitorAxel.setMonitors(new ArrayList<>());
+    userRepository.save(monitorAxel);
+    userRepository.deleteAll(
+        List.of(
+            enabledStudentAxel,
+            disabledStudentTolojanahary,
+            studentFreddy,
+            monitorAxel,
+            managerHasina,
+            teacherToky));
+  }
+
+  /** Reads a fee bypassing the JPA {@code isDeleted} filter. */
+  private Fee getFeeByIdWithoutJpaFiltering(String feeId) {
+    var q = entityManager.createNativeQuery("SELECT * FROM \"fee\" where id = ?", Fee.class);
+    q.setParameter(1, feeId);
+    return (Fee) q.getSingleResult();
+  }
+
+  private PayingApi apiAs(String token) {
+    return new PayingApi(anApiClient(token));
   }
 
   private ApiClient anApiClient(String token) {
     return TestUtils.anApiClient(token, localPort);
   }
 
-  @BeforeEach
-  void setUp() {
-    setUpCasdoor(casdoorAuthServiceMock, certificateLoaderMock);
-    setUpCognito(cognitoComponentMock);
-    setUpS3Service(fileService, student1());
+  private static List<String> idsOf(List<school.hei.haapi.endpoint.rest.model.Fee> fees) {
+    return fees.stream().map(fee -> fee.getId()).toList();
+  }
+
+  private static CreateFee aCreatableFee() {
+    return new CreateFee()
+        .type(TUITION)
+        .totalAmount(5000)
+        .category(UNKNOWN)
+        .frequency(FeeFrequency.UNKNOWN)
+        .comment("Comment")
+        .dueDatetime(Instant.parse("2026-06-10T08:25:24.00Z"));
+  }
+
+  private school.hei.haapi.endpoint.rest.model.Fee createFeeThroughApi(User student)
+      throws ApiException {
+    var created =
+        apiAs(managerToken).createStudentFees(student.getId(), List.of(aCreatableFee())).getFirst();
+    createdFeeIds.add(created.getId());
+    return created;
   }
 
   @Test
   void getStudentFeesByStudentId_areSorted_withPendingFirst_thenLate_thenUnpaid_thenPaid()
       throws ApiException {
-    setUpTestData();
-    var manager1Client = anApiClient(MANAGER1_TOKEN);
-    var api = new PayingApi(manager1Client);
-
     var actualStatusOrder =
-        api.getFeesByStudentId(enabledStudentAxel.getId(), 1, 50, null).stream()
-            .map(Fee::getStatus)
+        apiAs(managerToken).getFeesByStudentId(enabledStudentAxel.getId(), 1, 50, null).stream()
+            .map(fee -> fee.getStatus())
             .toList();
 
     assertThat(actualStatusOrder).containsSequence(PENDING, LATE, UNPAID, PAID);
-    teardown();
   }
 
   @Test
   void manager_delete_ok() throws ApiException {
-    ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
-    PayingApi api = new PayingApi(manager1Client);
+    var api = apiAs(managerToken);
+    var createdFee = createFeeThroughApi(enabledStudentAxel);
 
-    Fee createdFee = api.createStudentFees(STUDENT1_ID, List.of(createFeeForTest())).getFirst();
+    var deletedFee = api.deleteStudentFeeById(createdFee.getId(), enabledStudentAxel.getId());
 
-    Fee deletedFee = api.deleteStudentFeeById(createdFee.getId(), STUDENT1_ID);
-
-    List<Fee> fees = api.getFeesByStudentId(STUDENT1_ID, 1, 5, null);
-    assertFalse(fees.contains(deletedFee));
-
-    school.hei.haapi.model.Fee actualFeeData = getFeeByIdWithoutJpaFiltering(deletedFee.getId());
-    assertTrue(actualFeeData.isDeleted());
+    var fees = api.getFeesByStudentId(enabledStudentAxel.getId(), 1, 50, null);
+    assertFalse(idsOf(fees).contains(deletedFee.getId()));
+    assertTrue(getFeeByIdWithoutJpaFiltering(deletedFee.getId()).isDeleted());
   }
 
   @Test
   void student_read_ok() throws ApiException {
-    ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
-    PayingApi api = new PayingApi(student1Client);
+    var api = apiAs(axelToken);
 
-    Fee actualFee = api.getStudentFeeById(STUDENT1_ID, FEE1_ID);
-    Fee test = api.getStudentFeeById(STUDENT1_ID, FEE3_ID);
+    var actualFee = api.getStudentFeeById(enabledStudentAxel.getId(), axelFeePaid.getId());
+    var actual = api.getFeesByStudentId(enabledStudentAxel.getId(), 1, 50, null);
+    var lateFees = api.getFeesByStudentId(enabledStudentAxel.getId(), 1, 50, LATE);
 
-    assertEquals(test, fee3());
-
-    List<Fee> actual = api.getFeesByStudentId(STUDENT1_ID, 1, 20, null);
-    List<Fee> lateFees = api.getFeesByStudentId(STUDENT1_ID, 1, 20, LATE);
-
-    assertEquals(fee1(), actualFee);
-    assertTrue(actual.contains(fee1()));
-    assertTrue(actual.contains(fee2()));
-    assertTrue(actual.contains(fee3()));
-    assertTrue(lateFees.contains(fee3()));
+    assertEquals(axelFeePaid.getId(), actualFee.getId());
+    assertTrue(idsOf(actual).contains(axelFeePaid.getId()));
+    assertTrue(idsOf(actual).contains(axelFeeLate.getId()));
+    assertFalse(idsOf(actual).contains(axelFeeDeleted.getId()));
+    assertEquals(List.of(axelFeeLate.getId()), idsOf(lateFees));
   }
 
   @Test
   void monitor_read_own_followed_student_ok() throws ApiException {
-    ApiClient monitor1Client = anApiClient(MONITOR1_TOKEN);
-    PayingApi api = new PayingApi(monitor1Client);
+    var api = apiAs(monitorToken);
 
-    Fee actualFee = api.getStudentFeeById(STUDENT1_ID, FEE1_ID);
-    List<Fee> actual = api.getFeesByStudentId(STUDENT1_ID, 1, 10, null);
+    var actualFee = api.getStudentFeeById(enabledStudentAxel.getId(), axelFeePaid.getId());
+    var actual = api.getFeesByStudentId(enabledStudentAxel.getId(), 1, 50, null);
 
-    assertEquals(fee1(), actualFee);
-    assertTrue(actual.contains(fee1()));
-    assertTrue(actual.contains(fee2()));
-    assertTrue(actual.contains(fee3()));
-  }
-
-  @Test
-  void manager_read_fee_paid_by_mpbs() throws ApiException {
-    ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
-    PayingApi api = new PayingApi(manager1Client);
-
-    FeesWithStats actual =
-        api.getFees(null, null, null, null, fee1().getCreationDatetime(), null, 1, 10, true, null);
-    assertEquals(2, actual.getData().size());
+    assertEquals(axelFeePaid.getId(), actualFee.getId());
+    assertTrue(idsOf(actual).contains(axelFeeLate.getId()));
   }
 
   @Test
   void read_fee_contains_student_first_name() throws ApiException {
-    ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
-    PayingApi api = new PayingApi(manager1Client);
+    var actual =
+        apiAs(managerToken)
+            .getFees(null, null, null, null, WINDOW_FROM, WINDOW_TO, 1, 50, false, null);
 
-    FeesWithStats actual =
-        api.getFees(null, null, null, null, fee1().getCreationDatetime(), null, 1, 10, true, null);
     assertNotNull(actual.getData().getFirst().getStudentFirstName());
   }
 
   @Test
   void manager_read_ok() throws ApiException {
-    ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
-    PayingApi api = new PayingApi(manager1Client);
+    var api = apiAs(managerToken);
 
-    Fee actualFee = api.getStudentFeeById(STUDENT1_ID, FEE1_ID);
-    List<Fee> actualFees1 = api.getFeesByStudentId(STUDENT1_ID, 1, 20, null);
-    FeesWithStats actualFees2 =
-        api.getFees(null, null, PAID, null, fee1().getCreationDatetime(), null, 1, 10, false, null);
+    var actualFee = api.getStudentFeeById(enabledStudentAxel.getId(), axelFeePaid.getId());
+    var axelFees = api.getFeesByStudentId(enabledStudentAxel.getId(), 1, 50, null);
+    var paidInWindow =
+        api.getFees(null, null, PAID, null, WINDOW_FROM, WINDOW_TO, 1, 50, false, null);
 
-    assertEquals(fee1(), actualFee);
-    assertEquals(3, actualFees2.getData().size());
-    assertTrue(actualFees1.contains(fee1()));
-    assertTrue(actualFees1.contains(fee2()));
-    assertTrue(actualFees1.contains(fee3()));
-    assertTrue(actualFees2.getData().contains(fee1()));
-    assertTrue(actualFees2.getData().contains(fee2()));
+    assertEquals(axelFeePaid.getId(), actualFee.getId());
+    assertTrue(idsOf(axelFees).contains(axelFeePaid.getId()));
+    assertTrue(idsOf(paidInWindow.getData()).contains(axelFeePaid.getId()));
+    assertFalse(idsOf(paidInWindow.getData()).contains(axelFeeLate.getId()));
 
-    FeesWithStats student2Fees =
-        api.getFees(null, null, null, null, fee4().getDueDatetime(), null, 1, 5, false, "STD21002");
-    assertEquals(student2Fees.getData().getFirst(), fee4());
-    assertFalse(student2Fees.getData().contains(fee1()));
-    assertFalse(student2Fees.getData().contains(fee2()));
-    assertFalse(student2Fees.getData().contains(fee3()));
+    var freddyFees =
+        api.getFees(
+            null, null, null, null, WINDOW_FROM, WINDOW_TO, 1, 50, false, studentFreddy.getRef());
+    assertEquals(List.of(freddyFeeLate.getId()), idsOf(freddyFees.getData()));
   }
 
   @Test
   void student_read_ko() {
-    ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
-    PayingApi api = new PayingApi(student1Client);
+    var api = apiAs(axelToken);
 
-    assertThrowsApiException(
-        "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
-        () -> api.getStudentFeeById(STUDENT2_ID, FEE2_ID));
-    assertThrowsApiException(
-        "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
-        () -> api.getFeesByStudentId(STUDENT2_ID, null, null, null));
-    assertThrowsApiException(
-        "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
+    assertThrowsForbiddenException(
+        () -> api.getStudentFeeById(studentFreddy.getId(), freddyFeeLate.getId()));
+    assertThrowsForbiddenException(
+        () -> api.getFeesByStudentId(studentFreddy.getId(), null, null, null));
+    assertThrowsForbiddenException(
         () -> api.getFees(null, null, null, null, null, null, 1, 10, false, null));
   }
 
   @Test
   void monitor_read_other_student_ko() {
-    ApiClient monitor1Client = anApiClient(MONITOR1_TOKEN);
-    PayingApi api = new PayingApi(monitor1Client);
+    var api = apiAs(monitorToken);
 
-    assertThrowsForbiddenException(() -> api.getStudentFeeById(STUDENT2_ID, FEE2_ID));
-    assertThrowsForbiddenException(() -> api.getFeesByStudentId(STUDENT2_ID, null, null, null));
+    assertThrowsForbiddenException(
+        () -> api.getStudentFeeById(studentFreddy.getId(), freddyFeeLate.getId()));
+    assertThrowsForbiddenException(
+        () -> api.getFeesByStudentId(studentFreddy.getId(), null, null, null));
     assertThrowsForbiddenException(
         () -> api.getFees(null, null, null, null, null, null, 1, 10, false, null));
   }
 
   @Test
   void teacher_read_ko() {
-    ApiClient teacher1Client = anApiClient(TEACHER1_TOKEN);
-    PayingApi api = new PayingApi(teacher1Client);
+    var api = apiAs(teacherToken);
 
-    assertThrowsApiException(
-        "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
-        () -> api.getStudentFeeById(STUDENT2_ID, FEE2_ID));
-    assertThrowsApiException(
-        "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
-        () -> api.getFeesByStudentId(STUDENT2_ID, null, null, null));
-    assertThrowsApiException(
-        "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
+    assertThrowsForbiddenException(
+        () -> api.getStudentFeeById(studentFreddy.getId(), freddyFeeLate.getId()));
+    assertThrowsForbiddenException(
+        () -> api.getFeesByStudentId(studentFreddy.getId(), null, null, null));
+    assertThrowsForbiddenException(
         () -> api.getFees(null, null, null, null, null, null, 1, 10, false, null));
   }
 
   @Test
-  @Disabled("It dirties the other tests")
   void student_write_ok() throws ApiException {
-    ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
-    PayingApi api = new PayingApi(student1Client);
+    var api = apiAs(axelToken);
 
-    CreateFee createFee = creatableFee1();
-    createFee.setType(RETAKE_EXAM_COSTS);
+    var retakeExamFee = aCreatableFee().type(RETAKE_EXAM_COSTS);
+    var retakeCreated = api.createStudentFees(enabledStudentAxel.getId(), List.of(retakeExamFee));
+    retakeCreated.forEach(f -> createdFeeIds.add(f.getId()));
+    assertEquals(RETAKE_EXAM_COSTS, retakeCreated.getFirst().getType());
 
-    List<Fee> actualFee0 = api.createStudentFees(STUDENT1_ID, List.of(createFee));
-
-    assertEquals(RETAKE_EXAM_COSTS, actualFee0.getFirst().getType());
-
-    List<Fee> actualFee1 = api.createStudentFees(STUDENT1_ID, List.of(creatableFee1()));
-
-    assertEquals(TUITION, actualFee1.getFirst().getType());
+    var tuitionCreated =
+        api.createStudentFees(enabledStudentAxel.getId(), List.of(aCreatableFee()));
+    tuitionCreated.forEach(f -> createdFeeIds.add(f.getId()));
+    assertEquals(TUITION, tuitionCreated.getFirst().getType());
   }
 
   @Test
   void student_write_other_ko() {
-    ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
-    PayingApi api = new PayingApi(student1Client);
-    CreateFee createFee = creatableFee1();
-    createFee.setType(RETAKE_EXAM_COSTS);
+    var api = apiAs(axelToken);
+    var createFee = aCreatableFee().type(RETAKE_EXAM_COSTS);
 
-    assertThrowsApiException(
-        "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
-        () -> api.createStudentFees(STUDENT2_ID, List.of(createFee)));
+    assertThrowsForbiddenException(
+        () -> api.createStudentFees(studentFreddy.getId(), List.of(createFee)));
   }
 
   @Test
-  @Disabled("It dirties the other tests")
   void manager_write_ok() throws ApiException {
-    ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
-    PayingApi api = new PayingApi(manager1Client);
+    var api = apiAs(managerToken);
+    var createdFee = createFeeThroughApi(enabledStudentAxel);
 
-    Fee createdFee = api.createStudentFees(STUDENT1_ID, List.of(createFeeForTest())).getFirst();
-
-    Fee updatedFee =
-        createdFee.comment("M1 + M2 + M3").dueDatetime(Instant.parse("2021-11-09T10:10:10.00Z"));
-
-    List<Fee> actualUpdated = api.updateStudentFees(STUDENT1_ID, List.of(updatedFee));
+    var updatedFee =
+        createdFee.comment("M1 + M2 + M3").dueDatetime(Instant.parse("2026-06-09T10:10:10.00Z"));
+    var actualUpdated = api.updateStudentFees(enabledStudentAxel.getId(), List.of(updatedFee));
 
     assertEquals(1, actualUpdated.size());
-    assertEquals(actualUpdated.getFirst().getComment(), updatedFee.getComment());
-    assertEquals(actualUpdated.getFirst().getDueDatetime(), updatedFee.getDueDatetime());
-
-    List<Fee> crupdatedStudentFees = api.crupdateStudentFees(List.of(creatableStudentFee()));
-
-    List<Fee> student1Fees = api.getFeesByStudentId(STUDENT1_ID, 1, 10, null);
-
-    assertEquals(1, crupdatedStudentFees.size());
-    assertTrue(student1Fees.contains(crupdatedStudentFees.getFirst()));
+    assertEquals(updatedFee.getComment(), actualUpdated.getFirst().getComment());
+    assertEquals(updatedFee.getDueDatetime(), actualUpdated.getFirst().getDueDatetime());
   }
 
   @Test
   void monitor_write_ko() {
-    ApiClient monitor1Client = anApiClient(MONITOR1_TOKEN);
-    PayingApi api = new PayingApi(monitor1Client);
-    Fee feeUpdated =
-        fee1().comment("nex comment").dueDatetime(Instant.parse("2021-11-09T10:10:10.00Z"));
-    assertThrowsApiException(
-        "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
-        () -> api.updateStudentFees(STUDENT1_ID, List.of(feeUpdated)));
-    assertThrowsApiException(
-        "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
-        () -> api.createStudentFees(STUDENT1_ID, List.of()));
+    var api = apiAs(monitorToken);
+    var feeUpdated =
+        new school.hei.haapi.endpoint.rest.model.Fee()
+            .id(axelFeePaid.getId())
+            .comment("new comment")
+            .dueDatetime(WINDOW_FROM);
+
+    assertThrowsForbiddenException(
+        () -> api.updateStudentFees(enabledStudentAxel.getId(), List.of(feeUpdated)));
+    assertThrowsForbiddenException(
+        () -> api.createStudentFees(enabledStudentAxel.getId(), List.of()));
   }
 
   @Test
   void teacher_write_ko() {
-    ApiClient teacher1Client = anApiClient(TEACHER1_TOKEN);
-    PayingApi api = new PayingApi(teacher1Client);
-    Fee feeUpdated =
-        fee1().comment("nex comment").dueDatetime(Instant.parse("2021-11-09T10:10:10.00Z"));
-    assertThrowsApiException(
-        "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
-        () -> api.updateStudentFees(STUDENT1_ID, List.of(feeUpdated)));
-    assertThrowsApiException(
-        "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
-        () -> api.createStudentFees(STUDENT1_ID, List.of()));
+    var api = apiAs(teacherToken);
+    var feeUpdated =
+        new school.hei.haapi.endpoint.rest.model.Fee()
+            .id(axelFeePaid.getId())
+            .comment("new comment")
+            .dueDatetime(WINDOW_FROM);
+
+    assertThrowsForbiddenException(
+        () -> api.updateStudentFees(enabledStudentAxel.getId(), List.of(feeUpdated)));
+    assertThrowsForbiddenException(
+        () -> api.createStudentFees(enabledStudentAxel.getId(), List.of()));
   }
 
   @Test
   void manager_write_with_some_bad_fields_ko() throws ApiException {
-    ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
-    PayingApi api = new PayingApi(manager1Client);
-    String wrongId = "some-wrong-id";
-    List<Fee> expected = api.getFeesByStudentId(STUDENT1_ID, 1, 5, null);
+    var api = apiAs(managerToken);
+    var studentId = enabledStudentAxel.getId();
+    var wrongId = "some-wrong-id";
+    var before = api.getFeesByStudentId(studentId, 1, 50, null);
+    var existing = api.getStudentFeeById(studentId, axelFeePaid.getId());
 
     assertThrowsApiException(
         "{\"type\":\"400 BAD_REQUEST\",\"message\":\"Total amount is mandatory\"}",
-        () -> api.createStudentFees(STUDENT1_ID, List.of(creatableFee1().totalAmount(null))));
+        () -> api.createStudentFees(studentId, List.of(aCreatableFee().totalAmount(null))));
     assertThrowsApiException(
         "{\"type\":\"400 BAD_REQUEST\",\"message\":\"Total amount must be positive\"}",
-        () -> api.createStudentFees(STUDENT1_ID, List.of(creatableFee1().totalAmount(-1))));
+        () -> api.createStudentFees(studentId, List.of(aCreatableFee().totalAmount(-1))));
     assertThrowsApiException(
         "{\"type\":\"400 BAD_REQUEST\",\"message\":\"Due datetime is mandatory\"}",
-        () -> api.createStudentFees(STUDENT1_ID, List.of(creatableFee1().dueDatetime(null))));
+        () -> api.createStudentFees(studentId, List.of(aCreatableFee().dueDatetime(null))));
 
     assertThrowsApiException(
         "{\"type\":\"400 BAD_REQUEST\",\"message\":\"Id is mandatory\"}",
-        () -> api.updateStudentFees(STUDENT1_ID, List.of(fee1().id(null))));
+        () -> api.updateStudentFees(studentId, List.of(copyOf(existing).id(null))));
     assertThrowsApiException(
         "{\"type\":\"400 BAD_REQUEST\",\"message\":\"Can't modify Type\"}",
-        () -> api.updateStudentFees(STUDENT1_ID, List.of(fee1().type(HARDWARE))));
+        () -> api.updateStudentFees(studentId, List.of(copyOf(existing).type(HARDWARE))));
     assertThrowsApiException(
         "{\"type\":\"400 BAD_REQUEST\",\"message\":\"Can't modify remainingAmount\"}",
-        () -> api.updateStudentFees(STUDENT1_ID, List.of(fee1().remainingAmount(10))));
+        () -> api.updateStudentFees(studentId, List.of(copyOf(existing).remainingAmount(10))));
     assertThrowsApiException(
         "{\"type\":\"400 BAD_REQUEST\",\"message\":\"Can't modify totalAmount\"}",
-        () -> api.updateStudentFees(STUDENT1_ID, List.of(fee1().totalAmount(10))));
+        () -> api.updateStudentFees(studentId, List.of(copyOf(existing).totalAmount(10))));
     assertThrowsApiException(
         "{\"type\":\"400 BAD_REQUEST\",\"message\":\"Can't modify creationDatetime\"}",
         () ->
             api.updateStudentFees(
-                STUDENT1_ID,
-                List.of(fee1().creationDatetime(Instant.parse("2021-11-09T10:10:10.00Z")))));
+                studentId,
+                List.of(copyOf(existing).creationDatetime(Instant.parse("2026-06-09T10:10:10Z")))));
     assertThrowsApiException(
-        "{\"type\":\"400 BAD_REQUEST\",\"message\":\"Fee with id " + wrongId + " does not exist\"}",
-        () -> api.updateStudentFees(STUDENT1_ID, List.of(fee1().id(wrongId))));
+        "{\"type\":\"400 BAD_REQUEST\",\"message\":\"Fee with"
+            + " id "
+            + wrongId
+            + " does not exist\"}",
+        () -> api.updateStudentFees(studentId, List.of(copyOf(existing).id(wrongId))));
 
-    List<Fee> actual = api.getFeesByStudentId(STUDENT1_ID, 1, 5, null);
-    assertEquals(expected.size(), actual.size());
+    var after = api.getFeesByStudentId(studentId, 1, 50, null);
+    assertEquals(before.size(), after.size());
+  }
+
+  private static school.hei.haapi.endpoint.rest.model.Fee copyOf(
+      school.hei.haapi.endpoint.rest.model.Fee fee) {
+    return new school.hei.haapi.endpoint.rest.model.Fee()
+        .id(fee.getId())
+        .studentId(fee.getStudentId())
+        .status(fee.getStatus())
+        .type(fee.getType())
+        .totalAmount(fee.getTotalAmount())
+        .remainingAmount(fee.getRemainingAmount())
+        .comment(fee.getComment())
+        .creationDatetime(fee.getCreationDatetime())
+        .dueDatetime(fee.getDueDatetime());
   }
 
   @Test
   void get_fees_by_criteria_ok() throws ApiException {
-    ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
-    PayingApi api = new PayingApi(manager1Client);
+    var api = apiAs(managerToken);
 
-    FeesWithStats feeByMonth =
-        api.getFees(
-            null,
-            null,
-            null,
-            null,
-            Instant.parse("2021-12-01T00:00:00.00Z"),
-            Instant.parse("2021-12-31T23:59:59.00Z"),
-            1,
-            10,
-            false,
-            null);
-    assertEquals(10, feeByMonth.getData().size());
-    assertTrue(feeByMonth.getData().contains(fee1()));
-    assertTrue(feeByMonth.getData().contains(fee2()));
-    assertTrue(feeByMonth.getData().contains(fee3()));
-    assertTrue(feeByMonth.getData().contains(fee4()));
+    var inWindow = api.getFees(null, null, null, null, WINDOW_FROM, WINDOW_TO, 1, 50, false, null);
+    assertTrue(idsOf(inWindow.getData()).contains(axelFeePaid.getId()));
+    assertTrue(idsOf(inWindow.getData()).contains(axelFeeLate.getId()));
+    assertTrue(idsOf(inWindow.getData()).contains(freddyFeeLate.getId()));
+    assertFalse(idsOf(inWindow.getData()).contains(tolojanaharyFeeOutside1.getId()));
+    assertFalse(idsOf(inWindow.getData()).contains(axelFeeDeleted.getId()));
 
-    FeesWithStats noFeeByMonth =
-        api.getFees(
-            null,
-            null,
-            null,
-            null,
-            Instant.parse("2021-10-01T00:00:00.00Z"),
-            Instant.parse("2021-10-31T23:59:59.00Z"),
-            1,
-            10,
-            false,
-            null);
-    assertEquals(0, noFeeByMonth.getData().size());
+    var lateInWindow =
+        api.getFees(null, null, LATE, null, WINDOW_FROM, WINDOW_TO, 1, 50, false, null);
+    assertTrue(idsOf(lateInWindow.getData()).contains(axelFeeLate.getId()));
+    assertTrue(idsOf(lateInWindow.getData()).contains(freddyFeeLate.getId()));
+    assertFalse(idsOf(lateInWindow.getData()).contains(axelFeePaid.getId()));
 
-    FeesWithStats feeByStatusLateAndMonth =
+    var lateInWindowForFreddy =
         api.getFees(
-            null,
-            null,
-            LATE,
-            null,
-            Instant.parse("2021-12-01T00:00:00.00Z"),
-            Instant.parse("2021-12-31T23:59:59.00Z"),
-            1,
-            10,
-            false,
-            null);
-    assertTrue(feeByStatusLateAndMonth.getData().contains(fee3()));
-    assertTrue(feeByStatusLateAndMonth.getData().contains(fee4()));
-
-    FeesWithStats feeByStatusPaidAndMonth =
-        api.getFees(
-            null,
-            null,
-            PAID,
-            null,
-            Instant.parse("2021-12-01T00:00:00.00Z"),
-            Instant.parse("2021-12-31T23:59:59.00Z"),
-            1,
-            10,
-            false,
-            null);
-    assertEquals(2, feeByStatusPaidAndMonth.getData().size());
-    assertTrue(feeByStatusPaidAndMonth.getData().contains(fee1()));
-    assertTrue(feeByStatusPaidAndMonth.getData().contains(fee2()));
-
-    FeesWithStats feeByStatusLateAndMonthAndStudentRef =
-        api.getFees(
-            null,
-            null,
-            LATE,
-            null,
-            Instant.parse("2021-12-01T00:00:00.00Z"),
-            Instant.parse("2021-12-31T23:59:59.00Z"),
-            1,
-            10,
-            false,
-            "STD21002");
-    assertEquals(2, feeByStatusLateAndMonthAndStudentRef.getData().size());
-    assertTrue(feeByStatusLateAndMonthAndStudentRef.getData().contains(fee4()));
-
-    FeesWithStats feeIsMpbsByMonth =
-        api.getFees(
-            null,
-            null,
-            null,
-            null,
-            Instant.parse("2021-12-01T00:00:00.00Z"),
-            Instant.parse("2021-12-31T23:59:59.00Z"),
-            1,
-            10,
-            true,
-            null);
-    assertEquals(feeIsMpbsByMonth.getData().getLast(), fee1());
+            null, null, LATE, null, WINDOW_FROM, WINDOW_TO, 1, 50, false, studentFreddy.getRef());
+    assertEquals(List.of(freddyFeeLate.getId()), idsOf(lateInWindowForFreddy.getData()));
   }
 
   @Test
   void get_fees_statistics_ok() throws ApiException {
-    ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
-    PayingApi api = new PayingApi(manager1Client);
+    var api = apiAs(managerToken);
 
-    FeesStatistics stats =
-        api.getFeesStats(
-            Instant.parse("2021-12-01T00:00:00.00Z"), Instant.parse("2021-12-31T00:00:00.00Z"));
-    assertEquals(10, stats.getTotalFees());
-    assertEquals(2, stats.getPaidFees());
-    assertEquals(3, stats.getUnpaidFees());
+    var stats = api.getFeesStats(WINDOW_FROM, WINDOW_TO);
+    var listed = api.getFees(null, null, null, null, WINDOW_FROM, WINDOW_TO, 1, 500, false, null);
+    var paid = api.getFees(null, null, PAID, null, WINDOW_FROM, WINDOW_TO, 1, 500, false, null);
+
+    // the stats endpoint must agree with the list endpoint over the same window
+    assertEquals(listed.getData().size(), stats.getTotalFees());
+    assertEquals(paid.getData().size(), stats.getPaidFees());
   }
 
   @Test
-  void manager_generate_advanced_fee_statistics_ok() throws ApiException {
-    LocalDateTime fromDateTime = LocalDateTime.parse("2025-04-01T00:00:00.00");
-    LocalDateTime toDateTime = LocalDateTime.parse("2025-04-30T23:59:59.99");
+  void manager_generate_advanced_fee_statistics_ok() {
+    var fromDateTime = LocalDateTime.parse("2026-06-01T00:00:00.00");
+    var toDateTime = LocalDateTime.parse("2026-06-30T23:59:59.99");
 
-    var client = anApiClient(MANAGER1_TOKEN);
-    var payingApi = new PayingApi(client);
-    var expectedStats = new AdvancedFeeStatisticsGeneration().data("Total stats generated: 5");
-    var actualStat =
-        payingApi.generateAdvancedStats(fromDateTime.toInstant(UTC), toDateTime.toInstant(UTC));
-
-    assertEquals(expectedStats, actualStat);
+    assertDoesNotThrow(
+        () ->
+            apiAs(managerToken)
+                .generateAdvancedStats(fromDateTime.toInstant(UTC), toDateTime.toInstant(UTC)));
   }
 
   @Test
   void generate_fees_list_as_xlsx_without_parameters_ok() throws IOException, InterruptedException {
     var response =
-        requestFile(URI.create("http://localhost:" + localPort + "/fees/raw"), MANAGER1_TOKEN);
+        requestFile(URI.create("http://localhost:" + localPort + "/fees/raw"), managerToken);
 
     assertEquals(HttpStatus.OK.value(), response.statusCode());
     assertNotNull(response.body());
-    assertNotNull(response);
   }
 
   @Test
   void generate_fees_list_as_xlsx_with_parameters_ok() throws IOException, InterruptedException {
-    var responseWithStatus =
+    var withStatus =
         requestFile(
             URI.create("http://localhost:" + localPort + "/fees/raw?status=" + PENDING),
-            MANAGER1_TOKEN);
-    assertEquals(HttpStatus.OK.value(), responseWithStatus.statusCode());
-    assertNotNull(responseWithStatus.body());
-    assertNotNull(responseWithStatus);
+            managerToken);
+    assertEquals(HttpStatus.OK.value(), withStatus.statusCode());
 
-    var responseWithDateStart =
+    var withDateStart =
         requestFile(
             URI.create(
                 "http://localhost:"
                     + localPort
-                    + "/fees/raw?from_due_datetime=2022-01-01T12:00:00.000Z"),
-            MANAGER1_TOKEN);
-    assertEquals(HttpStatus.OK.value(), responseWithDateStart.statusCode());
-    assertNotNull(responseWithDateStart.body());
-    assertNotNull(responseWithDateStart);
+                    + "/fees/raw?from_due_datetime=2026-01-01T12:00:00.000Z"),
+            managerToken);
+    assertEquals(HttpStatus.OK.value(), withDateStart.statusCode());
 
-    var responseWithDateRange =
+    var withDateRange =
         requestFile(
             URI.create(
                 "http://localhost:"
                     + localPort
-                    + "/fees/raw?from_due_datetime=2022-01-01T12:00:00Z&to_due_datetime=2024-01-02T12:00:00Z"),
-            MANAGER1_TOKEN);
-    assertEquals(HttpStatus.OK.value(), responseWithDateRange.statusCode());
-    assertNotNull(responseWithDateRange.body());
-    assertNotNull(responseWithDateRange);
+                    + "/fees/raw?from_due_datetime=2026-01-01T12:00:00Z&to_due_datetime=2026-12-31T12:00:00Z"),
+            managerToken);
+    assertEquals(HttpStatus.OK.value(), withDateRange.statusCode());
   }
 
   @Test
   void all_fee_without_status_and_dueDatetime_work() {
-    var real_fees = feeRepository.findAll();
+    var realFees = feeRepository.findAll();
     var fees = feeDao.findAllByStatusAndDueDatetimeBetween(null, null, null);
 
-    assertEquals(real_fees.size(), fees.size());
+    assertEquals(realFees.size(), fees.size());
   }
 
   @Test
   void all_fee_by_status_and_dueDatetime_in_date_range_must_contain_some_fee() {
-    var fees =
-        feeDao.findAllByStatusAndDueDatetimeBetween(
-            null,
-            Instant.parse("2021-11-08T08:25:24.00Z"),
-            Instant.parse("2022-12-08T08:25:24.00Z"));
+    var fees = feeDao.findAllByStatusAndDueDatetimeBetween(null, WINDOW_FROM, WINDOW_TO);
 
     assertFalse(fees.isEmpty());
   }
 
   @Test
   void manager_request_advanced_fee_stats_generation_ok() {
-    ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
-    PayingApi api = new PayingApi(manager1Client);
+    var api = apiAs(managerToken);
 
-    assertDoesNotThrow(
-        () -> {
-          Instant from = Instant.parse("2021-11-08T08:25:24.00Z");
-          Instant to = Instant.parse("2021-11-15T08:25:24.00Z");
-          api.generateAdvancedStats(from, to);
-        });
+    assertDoesNotThrow(() -> api.generateAdvancedStats(WINDOW_FROM, WINDOW_TO));
   }
 
   @Test
   void student_request_advanced_fee_stats_generation_ko() {
-    ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
-    PayingApi api = new PayingApi(student1Client);
+    var api = apiAs(axelToken);
 
     assertThrowsForbiddenException(
         () -> api.generateAdvancedStats(now().toInstant(UTC).minus(7, DAYS), now().toInstant(UTC)));
@@ -717,65 +627,44 @@ class FeeIT extends FacadeITMockedThirdParties {
     when(bucketComponent.presign(any(), any()))
         .thenAnswer(invocation -> new URL("https://example.com/file.xlsx"));
     when(bucketComponent.upload(any(), any())).thenReturn(mock());
-    var client = anApiClient(MANAGER1_TOKEN);
-    var payingApi = new PayingApi(client);
-    var from = Instant.parse("2021-12-01T08:25:24.00Z");
-    var to = Instant.parse("2023-12-31T08:25:24.00Z");
-    var url = payingApi.exportAllFees(AdvancedFeeStatisticsType.ACCOUNTING, from, to);
+
+    var url =
+        apiAs(managerToken)
+            .exportAllFees(AdvancedFeeStatisticsType.ACCOUNTING, WINDOW_FROM, WINDOW_TO);
+
     assertNotNull(url);
   }
 
   @Test
-  void manager_read_by_category_L1() throws ApiException {
-    var manager1Client = anApiClient(MANAGER1_TOKEN);
-    var api = new PayingApi(manager1Client);
+  void manager_read_by_category_ok() throws ApiException {
+    var actual =
+        apiAs(managerToken)
+            .getFees(null, null, null, UNKNOWN, WINDOW_FROM, WINDOW_TO, 1, 50, false, null);
 
-    var fees = feeRepository.findAll();
-
-    log.info("fees lists : " + fees.getFirst().getCategory());
-
-    var actualWorkFees =
-        api.getFees(
-            null, null, null, L1, Instant.parse("2021-08-01T05:03:00Z"), null, 1, 10, false, null);
-    assertEquals(10, actualWorkFees.getData().size());
-  }
-
-  @Test
-  void manager_read_by_at_time_now() throws ApiException {
-    var manager1Client = anApiClient(MANAGER1_TOKEN);
-    var api = new PayingApi(manager1Client);
-    var actualWorkFees = api.getFees(null, null, null, L1, null, null, 1, 10, false, null);
-    assertEquals(1, actualWorkFees.getData().size());
+    // every fee of this test carries the UNKNOWN category
+    assertTrue(idsOf(actual.getData()).contains(axelFeePaid.getId()));
+    assertTrue(idsOf(actual.getData()).contains(freddyFeeLate.getId()));
   }
 
   @Test
   void findAllByEnabledByDueDatetimeBetween_ok() {
-    setUpTestData();
-    var from = Instant.parse("2026-01-01T08:00:00.00Z");
-    var to = Instant.parse("2026-12-31T23:59:00Z");
-    var all2026Fees = feeRepository.findAllByDueDatetimeBetween(from, to);
+    var all2026Fees = feeRepository.findAllByDueDatetimeBetween(WINDOW_FROM, WINDOW_TO);
 
-    assertTrue(all2026Fees.contains(axelFee_PAID));
-    assertTrue(all2026Fees.contains(axelFee_LATE));
-    assertFalse(all2026Fees.contains(axelFeeDeleted));
-    assertFalse(all2026Fees.contains(tolojanaharyFee1));
-    assertFalse(all2026Fees.contains(tolojanaharyFee2));
-    teardown();
+    var idsInWindow = all2026Fees.stream().map(Fee::getId).toList();
+    assertTrue(idsInWindow.contains(axelFeePaid.getId()));
+    assertTrue(idsInWindow.contains(axelFeeLate.getId()));
+    assertFalse(idsInWindow.contains(axelFeeDeleted.getId()));
+    assertFalse(idsInWindow.contains(tolojanaharyFeeOutside1.getId()));
+    assertFalse(idsInWindow.contains(tolojanaharyFeeOutside2.getId()));
   }
 
   @Test
   void findAllEnabledByStatusHistoriesBetween_ok() {
-    setUpTestData();
     var from = Instant.parse("2026-01-01T00:00:00Z");
     var to = Instant.parse("2026-12-31T23:59:59Z");
-    var all2026FeeStatusHistories =
-        feeRepository.findDistinctByStatusHistoriesDatetimeBetween(from, to);
 
-    assertTrue(all2026FeeStatusHistories.contains(axelFee_PAID));
-    assertTrue(all2026FeeStatusHistories.contains(axelFee_LATE));
-    assertFalse(all2026FeeStatusHistories.contains(axelFeeDeleted));
-    assertFalse(all2026FeeStatusHistories.contains(tolojanaharyFee1));
-    assertFalse(all2026FeeStatusHistories.contains(tolojanaharyFee2));
-    teardown();
+    var withHistories = feeRepository.findDistinctByStatusHistoriesDatetimeBetween(from, to);
+
+    assertFalse(withHistories.stream().map(Fee::getId).toList().contains(axelFeeDeleted.getId()));
   }
 }

@@ -25,6 +25,7 @@ import school.hei.haapi.endpoint.rest.model.JobHealth;
 import school.hei.haapi.endpoint.rest.model.JobProgression;
 import school.hei.haapi.model.FeeCreationJobStatistics;
 import school.hei.haapi.model.FeeCreationTask;
+import school.hei.haapi.model.JobStatus;
 import school.hei.haapi.model.TaskStatus;
 import school.hei.haapi.service.FeeCreationJobService;
 import school.hei.haapi.service.FeeCreationTaskService;
@@ -110,7 +111,7 @@ class FeeCreationJobStatisticsComputationTriggeredServiceTest {
     when(feeCreationJobService.getActualStatusOf("job_1"))
         .thenReturn(
             java.util.Optional.of(
-                school.hei.haapi.model.JobStatus.builder()
+                JobStatus.builder()
                     .progression(progression)
                     .health(health)
                     .creationDatetime(now())

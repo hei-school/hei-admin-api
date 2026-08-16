@@ -8,8 +8,9 @@ import com.fasterxml.jackson.databind.exc.InvalidDefinitionException;
 import java.time.Instant;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import school.hei.haapi.integration.conf.FacadeITMockedThirdParties;
 
-public class ObjectMapperTest extends school.hei.haapi.integration.conf.FacadeITMockedThirdParties {
+public class ObjectMapperTest extends FacadeITMockedThirdParties {
   @Autowired ObjectMapper injectedBean;
   ObjectMapper newInstance = new ObjectMapper();
 
@@ -18,7 +19,7 @@ public class ObjectMapperTest extends school.hei.haapi.integration.conf.FacadeIT
 
   @Test
   void new_instance_throws_on_java_datetime_module() {
-    String jsonString = someClassWithDatetimeField.toJsonString();
+    var jsonString = someClassWithDatetimeField.toJsonString();
     assertThrows(
         InvalidDefinitionException.class,
         () -> newInstance.readValue(jsonString, SomeClassWithDatetimeField.class));

@@ -101,8 +101,12 @@ public class UserManagerDao {
               predicate,
               builder.lessThanOrEqualTo(
                   workDocumentJoin.get("commitmentBegin"), commitmentComparison),
-              builder.isNull(workDocumentJoin.get("commitmentEnd")),
-              builder.greaterThan(workDocumentJoin.get("commitmentEnd"), commitmentComparison));
+              // the engagement has begun and has not ended: either it is open-ended, or its end is
+              // still ahead. ANDing those two made the filter unsatisfiable.
+              builder.or(
+                  builder.isNull(workDocumentJoin.get("commitmentEnd")),
+                  builder.greaterThan(
+                      workDocumentJoin.get("commitmentEnd"), commitmentComparison)));
     }
     if (HAVE_BEEN_WORKING.equals(workStatus)) {
       workDocumentJoin = root.join("workDocuments", LEFT);

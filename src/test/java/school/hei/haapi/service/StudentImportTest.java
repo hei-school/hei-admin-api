@@ -11,11 +11,18 @@ import static school.hei.haapi.endpoint.rest.model.PaymentFrequency.MONTHLY;
 import static school.hei.haapi.endpoint.rest.model.PaymentFrequency.YEARLY;
 import static school.hei.haapi.endpoint.rest.model.Sex.F;
 import static school.hei.haapi.endpoint.rest.model.Sex.M;
-import static school.hei.haapi.integration.conf.TestUtils.getMockedFile;
+import static school.hei.haapi.integration.conf.TestFiles.getMockedFile;
+import static school.hei.haapi.integration.testData.FeeTemplateTestData.aFeeTemplate;
+import static school.hei.haapi.integration.testData.ManagerTestData.hasina;
+import static school.hei.haapi.integration.testData.StudentTestData.axel;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Stream;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -28,9 +35,12 @@ import school.hei.haapi.endpoint.rest.security.model.Principal;
 import school.hei.haapi.file.bucket.BucketComponent;
 import school.hei.haapi.integration.conf.FacadeITMockedThirdParties;
 import school.hei.haapi.mail.Mailer;
+import school.hei.haapi.model.FeeTemplate;
 import school.hei.haapi.model.User;
 import school.hei.haapi.model.dto.StudentImportDto;
 import school.hei.haapi.model.exception.BadRequestException;
+import school.hei.haapi.repository.FeeTemplateRepository;
+import school.hei.haapi.repository.UserRepository;
 import school.hei.haapi.service.event.StudentImportEventService;
 
 @Testcontainers
@@ -41,10 +51,39 @@ public class StudentImportTest extends FacadeITMockedThirdParties {
   @MockBean BucketComponent bucketComponent;
   @MockBean private EventProducer eventProducer;
 
+  @Autowired private UserRepository userRepository;
+  @Autowired private FeeTemplateRepository feeTemplateRepository;
+
+  private User coordinator;
+  private User alreadyRegistered;
+  private FeeTemplate monthlyTemplate;
+  private FeeTemplate yearlyTemplate;
+
   @BeforeAll
   static void setUp() {
     mockStatic(AuthProvider.class);
     when(AuthProvider.getPrincipal()).thenReturn(mockPrincipal());
+  }
+
+  @BeforeEach
+  void setUpTestData() {
+    coordinator = userRepository.save(hasina());
+    alreadyRegistered = userRepository.save(axel());
+    // importing a student with a payment frequency bills them off a template looked up by name
+    monthlyTemplate = feeTemplateRepository.save(aFeeTemplate("Frais mensuel L1", 200_000, 9));
+    yearlyTemplate = feeTemplateRepository.save(aFeeTemplate("Frais annuel L1", 1_200_000, 1));
+  }
+
+  @AfterEach
+  void tearDown() {
+    var imported =
+        Stream.of("example@mail.com", "example.2@mail.com")
+            .map(userRepository::findByEmail)
+            .flatMap(Optional::stream)
+            .toList();
+    userRepository.deleteAll(imported);
+    feeTemplateRepository.deleteAll(List.of(monthlyTemplate, yearlyTemplate));
+    userRepository.deleteAll(List.of(alreadyRegistered, coordinator));
   }
 
   @Test
@@ -88,7 +127,7 @@ public class StudentImportTest extends FacadeITMockedThirdParties {
 
   private StudentImportEvent studentImportEventMock() {
     return StudentImportEvent.builder()
-        .coordinatorEmail("test+manager1@hei.school")
+        .coordinatorEmail(coordinator.getEmail())
         .dueDatetime(now())
         .students(
             List.of(
@@ -119,7 +158,7 @@ public class StudentImportTest extends FacadeITMockedThirdParties {
 
   private StudentImportEvent importEventAlreadyExistingEmail() {
     return StudentImportEvent.builder()
-        .coordinatorEmail("test+manager1@hei.school")
+        .coordinatorEmail(coordinator.getEmail())
         .dueDatetime(now())
         .students(
             List.of(
@@ -130,7 +169,7 @@ public class StudentImportTest extends FacadeITMockedThirdParties {
                     .lastName("LastName")
                     .firstName("FirstName")
                     .sex(M)
-                    .email("test+ryan@hei.school")
+                    .email(alreadyRegistered.getEmail())
                     .entranceDatetime(now())
                     .paymentFrequency(MONTHLY)
                     .birthDate(LocalDate.of(2004, 2, 1))
@@ -140,7 +179,7 @@ public class StudentImportTest extends FacadeITMockedThirdParties {
 
   private StudentImportEvent badImportEvent() {
     return StudentImportEvent.builder()
-        .coordinatorEmail("test+manager1@hei.school")
+        .coordinatorEmail(coordinator.getEmail())
         .dueDatetime(now())
         .students(
             List.of(
@@ -151,7 +190,7 @@ public class StudentImportTest extends FacadeITMockedThirdParties {
                     .lastName("LastName")
                     .firstName("FirstName")
                     .sex(M)
-                    .email("test+ryan@hei.school")
+                    .email(alreadyRegistered.getEmail())
                     .entranceDatetime(now())
                     .paymentFrequency(MONTHLY)
                     .birthDate(LocalDate.of(2004, 2, 1))

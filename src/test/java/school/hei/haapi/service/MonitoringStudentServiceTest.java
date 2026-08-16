@@ -24,7 +24,7 @@ public class MonitoringStudentServiceTest {
   void getStudentByIdAndMonitorId_with_unexistingStudentId_ko() {
     when(userRepository.findById("non-existing-student-id")).thenReturn(Optional.empty());
 
-    NotFoundException notFoundException =
+    var notFoundException =
         assertThrows(
             NotFoundException.class,
             () -> subject.getStudentByIdAndMonitorId("non-existing-student-id", "good-monitor-id"));
@@ -45,7 +45,7 @@ public class MonitoringStudentServiceTest {
                     .role(User.Role.TEACHER)
                     .build()));
 
-    NotFoundException notFoundException =
+    var notFoundException =
         assertThrows(
             NotFoundException.class,
             () -> subject.getStudentByIdAndMonitorId(teacherId, "good-monitor-id"));
@@ -68,7 +68,7 @@ public class MonitoringStudentServiceTest {
                     .build()));
     when(monitoringStudentRepository.getAllMonitorsIdsByStudentId(studentId)).thenReturn(List.of());
 
-    NotFoundException notFoundException =
+    var notFoundException =
         assertThrows(
             NotFoundException.class,
             () -> subject.getStudentByIdAndMonitorId(studentId, monitorId));

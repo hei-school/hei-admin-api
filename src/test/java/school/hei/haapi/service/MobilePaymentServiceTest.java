@@ -3,7 +3,7 @@ package school.hei.haapi.service;
 import static java.util.UUID.randomUUID;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static school.hei.haapi.integration.conf.TestUtils.asserThrowsDomainNotFoundException;
+import static school.hei.haapi.integration.conf.ApiAssertions.asserThrowsDomainNotFoundException;
 
 import com.github.javafaker.Faker;
 import java.util.List;

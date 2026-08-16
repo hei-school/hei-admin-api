@@ -11,14 +11,14 @@ public abstract class AbstractContextInitializer
 
   @Override
   public void initialize(ConfigurableApplicationContext applicationContext) {
-    PostgreSQLContainer<?> postgresContainer =
+    var postgresContainer =
         new PostgreSQLContainer<>("postgres:13.9")
             .withDatabaseName("it-db")
             .withUsername("sa")
             .withPassword("sa");
     postgresContainer.start();
 
-    String flywayTestdataPath = "classpath:/db/testdata";
+    var flywayTestdataPath = "classpath:/db/testdata";
     TestPropertySourceUtils.addInlinedPropertiesToEnvironment(
         applicationContext,
         "sentry.dsn=" + SENTRY_MOCK_DSN,

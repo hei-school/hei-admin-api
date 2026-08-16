@@ -20,13 +20,13 @@ import school.hei.haapi.endpoint.event.consumer.model.ConsumableEvent;
 import school.hei.haapi.endpoint.event.consumer.model.ConsumableEventTyper;
 import school.hei.haapi.endpoint.event.consumer.model.TypedEvent;
 import school.hei.haapi.endpoint.event.model.UuidCreated;
+import school.hei.haapi.integration.conf.FacadeITMockedThirdParties;
 import software.amazon.awssdk.services.sqs.SqsClient;
 import software.amazon.awssdk.services.sqs.model.DeleteMessageRequest;
 
 @PojaGenerated
 @SuppressWarnings("all")
-public class ConsumableEventTyperTest
-    extends school.hei.haapi.integration.conf.FacadeITMockedThirdParties {
+public class ConsumableEventTyperTest extends FacadeITMockedThirdParties {
   public static final String UNKNOWN_TYPENAME = "unknown_typename";
   @Autowired ConsumableEventTyper subject;
   @Autowired ObjectMapper om;

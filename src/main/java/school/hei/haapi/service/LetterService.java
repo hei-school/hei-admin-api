@@ -9,6 +9,7 @@ import static school.hei.haapi.endpoint.rest.model.LetterStatus.RECEIVED;
 import static school.hei.haapi.endpoint.rest.model.LetterStatus.REJECTED;
 import static school.hei.haapi.endpoint.rest.model.Payment.TypeEnum.BANK_TRANSFER;
 import static school.hei.haapi.endpoint.rest.security.AuthProvider.getPrincipal;
+import static school.hei.haapi.model.PaymentStatus.CREATED;
 
 import java.io.File;
 import java.time.Instant;
@@ -200,6 +201,7 @@ public class LetterService {
                 Payment payment =
                     Payment.builder()
                         .type(BANK_TRANSFER)
+                        .status(CREATED)
                         .comment(letterToUpdate.getFee().getComment())
                         .isDeleted(false)
                         .amount(letterToUpdate.getAmount())

@@ -1,5 +1,6 @@
 package school.hei.haapi.integration;
 
+import static java.util.UUID.randomUUID;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -11,19 +12,22 @@ import static school.hei.haapi.endpoint.rest.model.JobHealth.SUCCEEDED;
 import static school.hei.haapi.endpoint.rest.model.JobHealth.UNKNOWN;
 import static school.hei.haapi.endpoint.rest.model.JobProgression.FINISHED;
 import static school.hei.haapi.endpoint.rest.model.JobProgression.PENDING;
-import static school.hei.haapi.integration.StudentIT.student1;
-import static school.hei.haapi.integration.conf.TestUtils.MANAGER1_TOKEN;
-import static school.hei.haapi.integration.conf.TestUtils.setUpCasdoor;
-import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
-import static school.hei.haapi.integration.conf.TestUtils.setUpS3Service;
+import static school.hei.haapi.integration.conf.TestAuth.tokenFor;
+import static school.hei.haapi.integration.conf.TestMocks.setUpS3Service;
+import static school.hei.haapi.integration.testData.ManagerTestData.hasina;
+import static school.hei.haapi.integration.testData.StudentTestData.axel;
+import static school.hei.haapi.integration.testData.V2FeeTemplateTestData.aTwoMonthsTemplate;
 
 import java.util.List;
+import java.util.stream.IntStream;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import school.hei.haapi.endpoint.event.EventProducer;
 import school.hei.haapi.endpoint.event.model.FeeCreationJobStatisticsComputationTriggered;
@@ -37,7 +41,11 @@ import school.hei.haapi.endpoint.rest.model.FeeCreationJob;
 import school.hei.haapi.endpoint.rest.model.FeeStudentCreation;
 import school.hei.haapi.integration.conf.FacadeITMockedThirdParties;
 import school.hei.haapi.integration.conf.TestUtils;
+import school.hei.haapi.model.User;
+import school.hei.haapi.model.V2FeeTemplate;
 import school.hei.haapi.repository.FeeRepository;
+import school.hei.haapi.repository.UserRepository;
+import school.hei.haapi.repository.V2FeeTemplateRepository;
 import school.hei.haapi.service.UserService;
 import school.hei.haapi.service.event.FeeCreationJobStatisticsComputationTriggeredService;
 import school.hei.haapi.service.event.FeeCreationJobStatusComputationTriggeredService;
@@ -46,8 +54,8 @@ import school.hei.haapi.service.event.FeeCreationTaskTriggeredService;
 @Testcontainers
 @AutoConfigureMockMvc
 public class FeeCreationJobIT extends FacadeITMockedThirdParties {
-  private static final String FEE_TEMPLATE_ID = "v2_fee_template1_id";
-  private static final String UNKNOWN_STUDENT_REF = "STD26999";
+  private static final int STUDENT_COUNT = 6;
+  private static final String UNKNOWN_STUDENT_REF = "STD-unknown-" + randomUUID();
 
   @MockBean private EventProducer eventProducer;
 
@@ -56,6 +64,14 @@ public class FeeCreationJobIT extends FacadeITMockedThirdParties {
   @Autowired private FeeCreationJobStatisticsComputationTriggeredService statisticsConsumer;
   @Autowired private FeeRepository feeRepository;
   @Autowired private UserService userService;
+  @Autowired private UserRepository userRepository;
+  @Autowired private V2FeeTemplateRepository v2FeeTemplateRepository;
+  @Autowired private JdbcTemplate jdbcTemplate;
+
+  private User managerHasina;
+  private V2FeeTemplate feeTemplate;
+  private List<User> students;
+  private String managerToken;
 
   private ApiClient anApiClient(String token) {
     return TestUtils.anApiClient(token, localPort);
@@ -63,13 +79,63 @@ public class FeeCreationJobIT extends FacadeITMockedThirdParties {
 
   @BeforeEach
   void setUp() {
-    setUpCasdoor(casdoorAuthServiceMock, certificateLoaderMock);
-    setUpCognito(cognitoComponentMock);
-    setUpS3Service(fileService, student1());
+    setUpS3Service(fileService, axel());
+    managerHasina = userRepository.save(hasina());
+    managerToken = tokenFor(casdoorAuthServiceMock, managerHasina);
+
+    feeTemplate = v2FeeTemplateRepository.save(aTwoMonthsTemplate());
+    // the jobs address students by ref: the tests submit these students own refs
+    students =
+        userRepository.saveAll(IntStream.range(0, STUDENT_COUNT).mapToObj(i -> axel()).toList());
+  }
+
+  @AfterEach
+  void tearDown() {
+    var studentIds = students.stream().map(User::getId).toList();
+    var placeholders = String.join(",", studentIds.stream().map(id -> "?").toList());
+    // Fee carries @SQLDelete, so a repository delete would only flag is_deleted
+    jdbcTemplate.update(
+        "DELETE FROM \"fee_status_history\" WHERE fee_id IN (SELECT id FROM \"fee\" WHERE"
+            + " user_id IN ("
+            + placeholders
+            + "))",
+        studentIds.toArray());
+    jdbcTemplate.update(
+        "DELETE FROM \"fee\" WHERE user_id IN (" + placeholders + ")", studentIds.toArray());
+    userRepository.deleteAllById(studentIds);
+
+    // the jobs reference the template, and everything hangs off them, so they go first
+    var jobsOfTemplate =
+        "SELECT id FROM \"fee_creation_job\" WHERE id_fee_template = '" + feeTemplate.getId() + "'";
+    jdbcTemplate.update(
+        "DELETE FROM \"fee_creation_task_status\" WHERE id_fee_creation_task IN (SELECT id FROM"
+            + " \"fee_creation_task\" WHERE id_fee_creation_job IN ("
+            + jobsOfTemplate
+            + "))");
+    jdbcTemplate.update(
+        "DELETE FROM \"fee_creation_task\" WHERE id_fee_creation_job IN (" + jobsOfTemplate + ")");
+    jdbcTemplate.update(
+        "DELETE FROM \"fee_creation_job_status\" WHERE id_fee_creation_job IN ("
+            + jobsOfTemplate
+            + ")");
+    jdbcTemplate.update(
+        "DELETE FROM \"fee_creation_job_statistics\" WHERE id_fee_creation_job IN ("
+            + jobsOfTemplate
+            + ")");
+    jdbcTemplate.update(
+        "DELETE FROM \"fee_creation_job\" WHERE id_fee_template = ?", feeTemplate.getId());
+
+    v2FeeTemplateRepository.deleteById(feeTemplate.getId());
+    userRepository.deleteById(managerHasina.getId());
+  }
+
+  /** The ref of one of this test's own students, so no fixed value is ever reused. */
+  private String refOf(int index) {
+    return students.get(index).getRef();
   }
 
   private PayingApi managerApi() {
-    return new PayingApi(anApiClient(MANAGER1_TOKEN));
+    return new PayingApi(anApiClient(managerToken));
   }
 
   private FeeCreationJob submitJob(String jobId, List<String> studentRefs) throws ApiException {
@@ -79,7 +145,7 @@ public class FeeCreationJobIT extends FacadeITMockedThirdParties {
                 List.of(
                     new CrupdateFeeCreationJob()
                         .id(jobId)
-                        .feeTemplateId(FEE_TEMPLATE_ID)
+                        .feeTemplateId(feeTemplate.getId())
                         .studentRefs(studentRefs)));
     assertEquals(1, submitted.size());
     return submitted.getFirst();
@@ -134,12 +200,12 @@ public class FeeCreationJobIT extends FacadeITMockedThirdParties {
 
   @Test
   void submitted_job_is_pending_until_its_tasks_run() throws ApiException {
-    var submitted = submitJob("job_pending_id", List.of("STD26010"));
+    var submitted = submitJob("job_pending_id", List.of(refOf(0)));
 
     assertEquals("job_pending_id", submitted.getId());
     assertEquals(PENDING, submitted.getStatus().getProgression());
     assertEquals(UNKNOWN, submitted.getStatus().getHealth());
-    assertEquals(FEE_TEMPLATE_ID, submitted.getFeeTemplate().getId());
+    assertEquals(feeTemplate.getId(), submitted.getFeeTemplate().getId());
     assertEquals(2, submitted.getFeeTemplate().getContents().size());
     assertEquals(1, submitted.getStatistics().getTotalCount());
     assertNull(submitted.getEndDatetime());
@@ -156,7 +222,7 @@ public class FeeCreationJobIT extends FacadeITMockedThirdParties {
 
   @Test
   void a_fully_processed_job_succeeds_and_creates_one_fee_per_content() throws ApiException {
-    var studentRef = "STD26002";
+    var studentRef = refOf(1);
     submitJob("job_succeeded_id", List.of(studentRef));
 
     drainTasksOf("job_succeeded_id", 1);
@@ -184,7 +250,7 @@ public class FeeCreationJobIT extends FacadeITMockedThirdParties {
                 fee ->
                     studentId.equals(fee.getStudent().getId())
                         && fee.getFeeTemplate() != null
-                        && FEE_TEMPLATE_ID.equals(fee.getFeeTemplate().getId()))
+                        && feeTemplate.getId().equals(fee.getFeeTemplate().getId()))
             .toList();
     assertEquals(2, createdFees.size());
     assertTrue(createdFees.stream().anyMatch(fee -> fee.getTotalAmount() == 5000));
@@ -218,7 +284,7 @@ public class FeeCreationJobIT extends FacadeITMockedThirdParties {
 
   @Test
   void a_partly_failed_job_reports_each_task_on_its_own() throws ApiException {
-    var succeedingRef = "STD26003";
+    var succeedingRef = refOf(2);
     submitJob("job_mixed_id", List.of(succeedingRef, UNKNOWN_STUDENT_REF));
 
     drainTasksOf("job_mixed_id", 2);
@@ -243,7 +309,7 @@ public class FeeCreationJobIT extends FacadeITMockedThirdParties {
 
   @Test
   void charging_twice_the_same_template_to_a_student_is_refused() throws ApiException {
-    var studentRef = "STD26004";
+    var studentRef = refOf(3);
     submitJob("job_first_charge_id", List.of(studentRef));
     drainTasksOf("job_first_charge_id", 1);
     assertEquals(
@@ -265,7 +331,7 @@ public class FeeCreationJobIT extends FacadeITMockedThirdParties {
                 fee ->
                     studentId.equals(fee.getStudent().getId())
                         && fee.getFeeTemplate() != null
-                        && FEE_TEMPLATE_ID.equals(fee.getFeeTemplate().getId()))
+                        && feeTemplate.getId().equals(fee.getFeeTemplate().getId()))
             .count();
     // the second job did not add a single fee on top of the first one
     assertEquals(2, feeCount);
@@ -274,10 +340,10 @@ public class FeeCreationJobIT extends FacadeITMockedThirdParties {
   @Test
   void submitting_a_known_job_again_neither_duplicates_tasks_nor_redispatches()
       throws ApiException {
-    submitJob("job_idempotent_id", List.of("STD26005"));
+    submitJob("job_idempotent_id", List.of(refOf(4)));
     drainTasksOf("job_idempotent_id", 1);
 
-    var resubmitted = submitJob("job_idempotent_id", List.of("STD26005", "STD26002"));
+    var resubmitted = submitJob("job_idempotent_id", List.of(refOf(4), refOf(1)));
 
     // the second submission returns the job as it stands, the extra reference is ignored
     assertEquals(FINISHED, resubmitted.getStatus().getProgression());
@@ -293,7 +359,7 @@ public class FeeCreationJobIT extends FacadeITMockedThirdParties {
 
   @Test
   void jobs_are_listed_most_recent_first() throws ApiException {
-    submitJob("job_listed_id", List.of("STD26005"));
+    submitJob("job_listed_id", List.of(refOf(4)));
 
     var listed = managerApi().getFeeCreationJobs(1, 10);
 

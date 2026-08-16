@@ -3,11 +3,10 @@ package school.hei.haapi.integration;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static school.hei.haapi.integration.conf.TestUtils.ADMIN1_TOKEN;
-import static school.hei.haapi.integration.conf.TestUtils.MANAGER1_TOKEN;
-import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_TOKEN;
-import static school.hei.haapi.integration.conf.TestUtils.assertThrowsForbiddenException;
-import static school.hei.haapi.integration.conf.TestUtils.setUpCasdoor;
+import static school.hei.haapi.integration.conf.ApiAssertions.assertThrowsForbiddenException;
+import static school.hei.haapi.integration.conf.TestAuth.tokenFor;
+import static school.hei.haapi.integration.testData.StaffTestData.adminMialy;
+import static school.hei.haapi.integration.testData.StudentTestData.axel;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,6 +20,7 @@ import school.hei.haapi.endpoint.rest.client.ApiException;
 import school.hei.haapi.integration.conf.FacadeITMockedThirdParties;
 import school.hei.haapi.integration.conf.FakeDataProvider;
 import school.hei.haapi.integration.conf.TestUtils;
+import school.hei.haapi.integration.testData.ManagerTestData;
 import school.hei.haapi.model.User;
 import school.hei.haapi.repository.UserRepository;
 
@@ -29,6 +29,9 @@ class SearchIT extends FacadeITMockedThirdParties {
   @Autowired private UserRepository userRepository;
 
   private List<String> userIds = new ArrayList<>();
+  private String adminToken;
+  private String managerToken;
+  private String studentToken;
 
   private ApiClient anApiClient(String token) {
     return TestUtils.anApiClient(token, localPort);
@@ -36,7 +39,6 @@ class SearchIT extends FacadeITMockedThirdParties {
 
   @BeforeEach
   void setUp() {
-    setUpCasdoor(casdoorAuthServiceMock, certificateLoaderMock);
     setUpSearchTestData();
   }
 
@@ -53,6 +55,16 @@ class SearchIT extends FacadeITMockedThirdParties {
     save(FakeDataProvider.someUser("Ryo", User.Role.TEACHER));
     save(FakeDataProvider.someUser("Ryna", User.Role.STUDENT));
     save(FakeDataProvider.someUser("Bryan", User.Role.STUDENT));
+
+    var admin = adminMialy();
+    var manager = ManagerTestData.hasina();
+    var student = axel();
+    save(admin);
+    save(manager);
+    save(student);
+    adminToken = tokenFor(casdoorAuthServiceMock, admin);
+    managerToken = tokenFor(casdoorAuthServiceMock, manager);
+    studentToken = tokenFor(casdoorAuthServiceMock, student);
   }
 
   private void save(User user) {
@@ -62,7 +74,7 @@ class SearchIT extends FacadeITMockedThirdParties {
 
   @Test
   void admin_can_global_search() throws ApiException {
-    var api = new SearchApi(anApiClient(ADMIN1_TOKEN));
+    var api = new SearchApi(anApiClient(adminToken));
     var results = api.globalSearchUserGet(null);
 
     assertNotNull(results, "Search results should not be null");
@@ -70,7 +82,7 @@ class SearchIT extends FacadeITMockedThirdParties {
 
   @Test
   void manager_can_global_search() throws ApiException {
-    var api = new SearchApi(anApiClient(MANAGER1_TOKEN));
+    var api = new SearchApi(anApiClient(managerToken));
     var results = api.globalSearchUserGet(null);
 
     assertNotNull(results, "Search results should not be null");
@@ -78,7 +90,7 @@ class SearchIT extends FacadeITMockedThirdParties {
 
   @Test
   void filter_global_search_by_query_ok() throws ApiException {
-    var api = new SearchApi(anApiClient(ADMIN1_TOKEN));
+    var api = new SearchApi(anApiClient(adminToken));
 
     var filteredResults = api.globalSearchUserGet("Ry");
 
@@ -92,14 +104,14 @@ class SearchIT extends FacadeITMockedThirdParties {
 
   @Test
   void student_cannot_global_search() {
-    var api = new SearchApi(anApiClient(STUDENT1_TOKEN));
+    var api = new SearchApi(anApiClient(studentToken));
 
     assertThrowsForbiddenException(() -> api.globalSearchUserGet(null));
   }
 
   @Test
   void should_return_0_results_when_global_search_is_filtered() throws ApiException {
-    var result = new SearchApi(anApiClient(MANAGER1_TOKEN)).globalSearchUserGet("mahefa");
+    var result = new SearchApi(anApiClient(managerToken)).globalSearchUserGet("mahefa");
     var expected = 0;
 
     int totalResults =
@@ -113,7 +125,7 @@ class SearchIT extends FacadeITMockedThirdParties {
 
   @Test
   void should_return_1_managers_when_searching_ryan() throws ApiException {
-    var result = new SearchApi(anApiClient(MANAGER1_TOKEN)).globalSearchUserGet("Ryan");
+    var result = new SearchApi(anApiClient(managerToken)).globalSearchUserGet("Ryan");
     var expected = 1;
 
     assertEquals(expected, result.getManagers().size());

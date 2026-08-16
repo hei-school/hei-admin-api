@@ -1,6 +1,7 @@
 package school.hei.haapi.unit;
 
 import static java.time.Instant.now;
+import static java.time.ZoneOffset.UTC;
 import static java.time.temporal.ChronoUnit.DAYS;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -13,6 +14,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static school.hei.haapi.endpoint.rest.model.MpbsStatus.FAILED;
 import static school.hei.haapi.endpoint.rest.model.MpbsStatus.PENDING;
 import static school.hei.haapi.endpoint.rest.model.MpbsStatus.SUCCESS;
 import static school.hei.haapi.model.psp.vola.api.gen.client.model.Payment.VerificationStatusEnum.SUCCEEDED;
@@ -28,14 +30,14 @@ import school.hei.haapi.endpoint.rest.mapper.MpbsMapper;
 import school.hei.haapi.endpoint.rest.mapper.VolaMapper;
 import school.hei.haapi.endpoint.rest.model.MobileMoneyType;
 import school.hei.haapi.http.mapper.TransactionDetailsMapper;
-import school.hei.haapi.http.model.TransactionDetails;
 import school.hei.haapi.model.Fee;
 import school.hei.haapi.model.MobileTransactionDetails;
-import school.hei.haapi.model.Payment;
 import school.hei.haapi.model.User;
 import school.hei.haapi.model.mpbs.Mpbs;
 import school.hei.haapi.model.mpbs.MpbsVerification;
 import school.hei.haapi.model.psp.vola.api.VolaClient;
+import school.hei.haapi.model.psp.vola.api.gen.client.model.Payment;
+import school.hei.haapi.model.psp.vola.api.gen.client.model.Payment.VerificationStatusEnum;
 import school.hei.haapi.model.psp.vola.api.gen.client.model.PspPayment;
 import school.hei.haapi.service.ComputeVerifiedMobilePayment;
 import school.hei.haapi.service.FailedMobilePaymentNotification;
@@ -95,26 +97,25 @@ class MpbsVerificationTest {
             .pspTransactionAmount(0)
             .status(SUCCESS)
             .build();
-    MpbsVerification fakeComputedVerifiedMpbs = new MpbsVerification();
+    var fakeComputedVerifiedMpbs = new MpbsVerification();
     when(mobilePaymentServiceMock.findAllTransactionByMpbs(anyList()))
         .thenReturn(List.of(correspondingMockTransactionsFromVerifiedMpbs));
-    TransactionDetails transactionsFromVerifiedMpbs =
+    var transactionsFromVerifiedMpbs =
         transactionDetailsMapper.toRestMobileTransactionDetails(
             correspondingMockTransactionsFromVerifiedMpbs);
     when(computeVerifiedMobilePaymentMock.saveTheVerifiedMpbs(
             mpbsVerified, transactionsFromVerifiedMpbs))
         .thenReturn(fakeComputedVerifiedMpbs);
 
-    List<MpbsVerification> verifiedMpbs =
-        subject.verifyMobilePaymentAndSaveResult(List.of(mbpsPending, mpbsVerified));
+    var verifiedMpbs = subject.verifyMobilePaymentAndSaveResult(List.of(mbpsPending, mpbsVerified));
 
     ArgumentCaptor<List<Mpbs>> argumentCaptor = ArgumentCaptor.forClass(List.class);
     verify(unverifiedMobilePaymentHandlerMock, times(1)).accept(argumentCaptor.capture());
-    List<Mpbs> mobilePaymentUnverified = argumentCaptor.getAllValues().getFirst();
+    var mobilePaymentUnverified = argumentCaptor.getAllValues().getFirst();
     var saveVerifiedMpbsCaptor = ArgumentCaptor.forClass(Mpbs.class);
     verify(computeVerifiedMobilePaymentMock, times(1))
         .saveTheVerifiedMpbs(saveVerifiedMpbsCaptor.capture(), any());
-    List<Mpbs> savedMpbs = saveVerifiedMpbsCaptor.getAllValues();
+    var savedMpbs = saveVerifiedMpbsCaptor.getAllValues();
     assertEquals(1, savedMpbs.size());
     assertEquals(mpbsVerified, savedMpbs.getFirst());
     assertEquals(1, mobilePaymentUnverified.size());
@@ -125,7 +126,7 @@ class MpbsVerificationTest {
 
   @Test
   void verification_skip_bad_mobile_payment() {
-    MpbsVerificationService subjectWithRealHandler =
+    var subjectWithRealHandler =
         initMpbsVerificationService(
             new UnverifiedMobilePaymentHandler(
                 mock(), new FailedMobilePaymentNotification(eventProducerMock)),
@@ -155,7 +156,7 @@ class MpbsVerificationTest {
                 correspondingMockTransactionsFromVerifiedMpbs)))
         .thenReturn(fakeComputedVerifiedMpbs);
 
-    List<MpbsVerification> verifiedMpbs =
+    var verifiedMpbs =
         subjectWithRealHandler.verifyMobilePaymentAndSaveResult(
             List.of(badMpbs, mpbsVerified, mpbsFailed));
 
@@ -166,12 +167,14 @@ class MpbsVerificationTest {
     ArgumentCaptor<List<PaidFeeByMpbsFailedNotificationBody>> argumentCaptor =
         ArgumentCaptor.forClass(List.class);
     verify(eventProducerMock, times(1)).accept(argumentCaptor.capture());
-    List<PaidFeeByMpbsFailedNotificationBody> notificationsRequestSend =
-        argumentCaptor.getAllValues().getLast();
+    var notificationsRequestSend = argumentCaptor.getAllValues().getLast();
     assertEquals(1, notificationsRequestSend.size());
     assertEquals(
         PaidFeeByMpbsFailedNotificationBody.from(
-            Payment.builder().fee(fee).amount(mpbsFailed.getAmount()).build()),
+            school.hei.haapi.model.Payment.builder()
+                .fee(fee)
+                .amount(mpbsFailed.getAmount())
+                .build()),
         notificationsRequestSend.getFirst());
   }
 
@@ -190,7 +193,7 @@ class MpbsVerificationTest {
             .statusHistory(List.of())
             .build();
     var confirmedVolaPayment =
-        school.hei.haapi.model.psp.vola.api.gen.client.model.Payment.builder()
+        Payment.builder()
             .pspPayment(
                 PspPayment.builder()
                     .pspType(ORANGE_MONEY)
@@ -198,8 +201,8 @@ class MpbsVerificationTest {
                     .amount(10000)
                     .build())
             .verificationStatus(SUCCEEDED)
-            .lastPspVerificationInstant(now().atOffset(java.time.ZoneOffset.UTC))
-            .creationInstant(now().minus(1, DAYS).atOffset(java.time.ZoneOffset.UTC))
+            .lastPspVerificationInstant(now().atOffset(UTC))
+            .creationInstant(now().minus(1, DAYS).atOffset(UTC))
             .build();
     var savedMpbs =
         Mpbs.builder()
@@ -215,12 +218,12 @@ class MpbsVerificationTest {
         .thenReturn(confirmedVolaPayment);
     when(mpbsServiceMock.save(any(Mpbs.class))).thenReturn(savedMpbs);
 
-    Mpbs result = subject.verifyMpbsFromVola(mpbsToVerify);
+    var result = subject.verifyMpbsFromVola(mpbsToVerify);
 
     verify(volaClientMock, times(1)).get(ORANGE_MONEY, "MP260101.0000.B00000", "dummy@gmail.com");
     var mpbsSaveCaptor = ArgumentCaptor.forClass(Mpbs.class);
     verify(mpbsServiceMock, times(1)).save(mpbsSaveCaptor.capture());
-    Mpbs mpbsPassedToSave = mpbsSaveCaptor.getValue();
+    var mpbsPassedToSave = mpbsSaveCaptor.getValue();
     assertEquals(10000, mpbsPassedToSave.getAmount());
     assertEquals(SUCCESS, mpbsPassedToSave.getStatus());
     assertNotNull(mpbsPassedToSave.getSuccessfullyVerifiedOn());
@@ -243,23 +246,21 @@ class MpbsVerificationTest {
             .statusHistory(List.of())
             .build();
     var verifyingVolaPayment =
-        school.hei.haapi.model.psp.vola.api.gen.client.model.Payment.builder()
+        Payment.builder()
             .pspPayment(
                 PspPayment.builder()
                     .pspType(ORANGE_MONEY)
                     .id("MP260101.0000.B00000")
                     .amount(null)
                     .build())
-            .verificationStatus(
-                school.hei.haapi.model.psp.vola.api.gen.client.model.Payment.VerificationStatusEnum
-                    .VERIFYING)
-            .lastPspVerificationInstant(now().atOffset(java.time.ZoneOffset.UTC))
+            .verificationStatus(VerificationStatusEnum.VERIFYING)
+            .lastPspVerificationInstant(now().atOffset(UTC))
             .creationInstant(null)
             .build();
     when(volaClientMock.get(ORANGE_MONEY, "MP260101.0000.B00000", "dummy@gmail.com"))
         .thenReturn(verifyingVolaPayment);
 
-    Mpbs result = subject.verifyMpbsFromVola(mpbsToVerify);
+    var result = subject.verifyMpbsFromVola(mpbsToVerify);
 
     verify(mpbsServiceMock, never()).save(any(Mpbs.class));
     assertEquals(mpbsToVerify, result);
@@ -280,7 +281,7 @@ class MpbsVerificationTest {
             .statusHistory(List.of())
             .build();
     var volaPaymentResponse =
-        school.hei.haapi.model.psp.vola.api.gen.client.model.Payment.builder()
+        Payment.builder()
             .pspPayment(
                 PspPayment.builder()
                     .pspType(ORANGE_MONEY)
@@ -288,8 +289,8 @@ class MpbsVerificationTest {
                     .amount(15000)
                     .build())
             .verificationStatus(SUCCEEDED)
-            .lastPspVerificationInstant(now().atOffset(java.time.ZoneOffset.UTC))
-            .creationInstant(now().minus(1, DAYS).atOffset(java.time.ZoneOffset.UTC))
+            .lastPspVerificationInstant(now().atOffset(UTC))
+            .creationInstant(now().minus(1, DAYS).atOffset(UTC))
             .build();
     var savedMpbs =
         Mpbs.builder()
@@ -331,24 +332,22 @@ class MpbsVerificationTest {
             .statusHistory(List.of())
             .build();
     var refusedVolaPayment =
-        school.hei.haapi.model.psp.vola.api.gen.client.model.Payment.builder()
+        Payment.builder()
             .pspPayment(
                 PspPayment.builder()
                     .pspType(ORANGE_MONEY)
                     .id("MP260101.0000.B00000")
                     .amount(5000)
                     .build())
-            .verificationStatus(
-                school.hei.haapi.model.psp.vola.api.gen.client.model.Payment.VerificationStatusEnum
-                    .FAILED)
-            .lastPspVerificationInstant(now().atOffset(java.time.ZoneOffset.UTC))
-            .creationInstant(now().minus(1, DAYS).atOffset(java.time.ZoneOffset.UTC))
+            .verificationStatus(VerificationStatusEnum.FAILED)
+            .lastPspVerificationInstant(now().atOffset(UTC))
+            .creationInstant(now().minus(1, DAYS).atOffset(UTC))
             .build();
     var savedMpbs =
         Mpbs.builder()
             .id("mpbs1")
             .amount(5000)
-            .status(school.hei.haapi.endpoint.rest.model.MpbsStatus.FAILED)
+            .status(FAILED)
             .student(student)
             .fee(fee)
             .statusHistory(List.of())
@@ -357,15 +356,14 @@ class MpbsVerificationTest {
         .thenReturn(refusedVolaPayment);
     when(mpbsServiceMock.save(any(Mpbs.class))).thenReturn(savedMpbs);
 
-    Mpbs result = subject.verifyMpbsFromVola(mpbsToVerify);
+    var result = subject.verifyMpbsFromVola(mpbsToVerify);
 
     var mpbsSaveCaptor = ArgumentCaptor.forClass(Mpbs.class);
     verify(mpbsServiceMock, times(1)).save(mpbsSaveCaptor.capture());
-    Mpbs mpbsPassedToSave = mpbsSaveCaptor.getValue();
-    assertEquals(
-        school.hei.haapi.endpoint.rest.model.MpbsStatus.FAILED, mpbsPassedToSave.getStatus());
+    var mpbsPassedToSave = mpbsSaveCaptor.getValue();
+    assertEquals(FAILED, mpbsPassedToSave.getStatus());
     assertEquals(5000, mpbsPassedToSave.getAmount());
-    assertEquals(school.hei.haapi.endpoint.rest.model.MpbsStatus.FAILED, result.getStatus());
+    assertEquals(FAILED, result.getStatus());
   }
 
   @Test
