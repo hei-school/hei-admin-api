@@ -2,6 +2,7 @@ package school.hei.haapi.integration;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static school.hei.haapi.endpoint.rest.model.Payment.TypeEnum.CASH;
 import static school.hei.haapi.integration.conf.ApiAssertions.assertThrowsApiException;
 import static school.hei.haapi.integration.conf.TestAuth.tokenFor;
 import static school.hei.haapi.integration.conf.TestMocks.setUpEventBridge;
@@ -44,10 +45,8 @@ class PaginationIT extends FacadeITMockedThirdParties {
   private User managerHasina;
   private User teacherToky;
 
-  /** Six fees with strictly decreasing due dates, so the ordering is assertable. */
+  private final List<User> students = new ArrayList<>();
   private final List<Fee> axelFees = new ArrayList<>();
-
-  /** Three payments on the first fee, strictly increasing creation datetimes. */
   private final List<Payment> axelPayments = new ArrayList<>();
 
   private String studentToken;
@@ -56,6 +55,10 @@ class PaginationIT extends FacadeITMockedThirdParties {
 
   private void setUpTestData() {
     studentAxel = userRepository.save(axel());
+    students.add(studentAxel);
+    for (int i = 0; i < 7; i++) {
+      students.add(userRepository.save(axel()));
+    }
     managerHasina = userRepository.save(hasina());
     teacherToky = userRepository.save(toky());
 
@@ -74,7 +77,7 @@ class PaginationIT extends FacadeITMockedThirdParties {
           paymentRepository.save(
               aPayment(
                   firstFee,
-                  school.hei.haapi.endpoint.rest.model.Payment.TypeEnum.CASH,
+                  CASH,
                   100,
                   "Comment",
                   Instant.parse("2022-11-08T08:25:24.00Z").plusSeconds(i * 3600L))));
@@ -100,7 +103,9 @@ class PaginationIT extends FacadeITMockedThirdParties {
     feeRepository.deleteAll(axelFees);
     axelPayments.clear();
     axelFees.clear();
-    userRepository.deleteAll(List.of(studentAxel, managerHasina, teacherToky));
+    userRepository.deleteAll(students);
+    students.clear();
+    userRepository.deleteAll(List.of(managerHasina, teacherToky));
   }
 
   private ApiClient anApiClient(String token) {
@@ -120,7 +125,6 @@ class PaginationIT extends FacadeITMockedThirdParties {
     assertEquals(pageSize, page1.size());
     assertEquals(pageSize, page2.size());
     assertEquals(0, page10000.size());
-    // students are ordered by ref, within a page and across pages
     assertTrue(isBefore(page1.getFirst().getRef(), page1.get(1).getRef()));
     assertTrue(isBefore(page1.getLast().getRef(), page2.getFirst().getRef()));
   }
