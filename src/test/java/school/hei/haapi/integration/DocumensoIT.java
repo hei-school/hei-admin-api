@@ -8,14 +8,16 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static school.hei.haapi.integration.conf.FakeDataProvider.someUser;
-import static school.hei.haapi.integration.conf.TestUtils.ADMIN1_TOKEN;
-import static school.hei.haapi.integration.conf.TestUtils.MONITOR1_TOKEN;
-import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_TOKEN;
-import static school.hei.haapi.integration.conf.TestUtils.assertThrowsForbiddenException;
-import static school.hei.haapi.integration.conf.TestUtils.setUpCasdoor;
-import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
+import static school.hei.haapi.integration.conf.ApiAssertions.assertThrowsForbiddenException;
+import static school.hei.haapi.integration.conf.TestAuth.tokenFor;
+import static school.hei.haapi.integration.testData.MonitorTestData.monitorOfAxel;
+import static school.hei.haapi.integration.testData.StaffTestData.adminMialy;
+import static school.hei.haapi.integration.testData.StudentTestData.axel;
 import static school.hei.haapi.model.User.Role.STUDENT;
+import static school.hei.haapi.model.dto.MonitorStudentLinkDto.Status.LINKED;
+import static school.hei.haapi.service.documenso.gen.model.TemplateCreateDocumentFromTemplate200Response.StatusEnum.PENDING;
+import static school.hei.haapi.service.documenso.gen.model.TemplateFindTemplates200ResponseDataInner.TypeEnum.PRIVATE;
+import static school.hei.haapi.service.documenso.gen.model.TemplateGetTemplateById200ResponseRecipientsInner.RoleEnum.SIGNER;
 
 import java.io.File;
 import java.math.BigDecimal;
@@ -23,11 +25,15 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.stream.Collectors;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import school.hei.haapi.endpoint.rest.api.DocumensoApi;
@@ -41,6 +47,7 @@ import school.hei.haapi.file.hash.FileHashAlgorithm;
 import school.hei.haapi.integration.conf.FacadeITMockedThirdParties;
 import school.hei.haapi.integration.conf.TestUtils;
 import school.hei.haapi.model.DocumensoDocument;
+import school.hei.haapi.model.TemplateDocumenso;
 import school.hei.haapi.model.User;
 import school.hei.haapi.repository.DocumensoDocumentRecipientRepository;
 import school.hei.haapi.repository.DocumensoDocumentRepository;
@@ -48,13 +55,7 @@ import school.hei.haapi.repository.MonitoringStudentRepository;
 import school.hei.haapi.repository.TemplateDocumensoRepository;
 import school.hei.haapi.repository.UserRepository;
 import school.hei.haapi.service.documenso.DocumensoClient;
-import school.hei.haapi.service.documenso.gen.model.TemplateCreateDocumentFromTemplate200Response;
-import school.hei.haapi.service.documenso.gen.model.TemplateCreateDocumentFromTemplate200ResponseRecipientsInner;
-import school.hei.haapi.service.documenso.gen.model.TemplateFindTemplates200Response;
-import school.hei.haapi.service.documenso.gen.model.TemplateFindTemplates200ResponseDataInner;
-import school.hei.haapi.service.documenso.gen.model.TemplateGetTemplateById200Response;
-import school.hei.haapi.service.documenso.gen.model.TemplateGetTemplateById200ResponseFieldsInner;
-import school.hei.haapi.service.documenso.gen.model.TemplateGetTemplateById200ResponseRecipientsInner;
+import school.hei.haapi.service.documenso.gen.model.*;
 
 class DocumensoIT extends FacadeITMockedThirdParties {
   @Autowired private UserRepository userRepository;
@@ -68,37 +69,62 @@ class DocumensoIT extends FacadeITMockedThirdParties {
   private User admin;
   private User monitor;
   private User student;
-  private school.hei.haapi.model.TemplateDocumenso template;
+  private TemplateDocumenso template;
   private long templateExternalId;
+  private long adminDocumensoUserId;
   private String templateTitle;
 
-  @BeforeEach
-  void setUp() {
-    setUpCasdoor(casdoorAuthServiceMock, certificateLoaderMock);
-    setUpCognito(cognitoComponentMock);
-    admin = userRepository.findById("admin1_id").orElseThrow();
-    admin.setDocumensoUserId(111L);
-    admin = userRepository.save(admin);
-    monitor = userRepository.findById("monitor1_id").orElseThrow();
-    student =
+  private String adminToken;
+  private String monitorToken;
+  private String studentToken;
+
+  private void setUpTestData() {
+    adminDocumensoUserId = ThreadLocalRandom.current().nextLong(1_000, 1_000_000_000);
+    admin =
+        userRepository.save(adminMialy().toBuilder().documensoUserId(adminDocumensoUserId).build());
+    monitor =
         userRepository.save(
-            someUser("Fanja", STUDENT).toBuilder()
-                .nic("101234567890")
-                .address("Lot II A 12 Antananarivo")
-                .phone("0341234567")
-                .build());
+            monitorOfAxel().toBuilder().address("Lot II A 12 Antananarivo").build());
+    student = userRepository.save(axel());
     monitoringStudentRepository.saveMonitorFollowingStudents(
-        monitor.getId(), List.of(student.getId()), "LINKED");
+        monitor.getId(), List.of(student.getId()), LINKED.toString());
 
     templateExternalId = ThreadLocalRandom.current().nextLong(1_000, 1_000_000_000);
     templateTitle = "Fiche d'engagement L1 " + UUID.randomUUID();
     template =
         templateDocumensoRepository.save(
-            school.hei.haapi.model.TemplateDocumenso.builder()
+            TemplateDocumenso.builder()
                 .documensoTemplateId(templateExternalId)
                 .title(templateTitle)
                 .type("PRIVATE")
                 .build());
+  }
+
+  @BeforeEach
+  void setUp() {
+    setUpTestData();
+    adminToken = tokenFor(casdoorAuthServiceMock, admin);
+    monitorToken = tokenFor(casdoorAuthServiceMock, monitor.getEmail(), STUDENT);
+    studentToken = tokenFor(casdoorAuthServiceMock, student);
+  }
+
+  @AfterEach
+  void tearDown() {
+    documensoDocumentRecipientRepository.deleteAll();
+    documensoDocumentRepository.deleteAll();
+    templateDocumensoRepository.deleteAll();
+    clearFollowedStudents(monitor.getId());
+    userRepository.deleteAll(List.of(admin, monitor, student));
+  }
+
+  private void clearFollowedStudents(String monitorId) {
+    userRepository
+        .findById(monitorId)
+        .ifPresent(
+            followingMonitor -> {
+              followingMonitor.setMonitors(new ArrayList<>());
+              userRepository.save(followingMonitor);
+            });
   }
 
   private DocumensoApi anApi(String token) {
@@ -118,10 +144,10 @@ class DocumensoIT extends FacadeITMockedThirdParties {
                     new TemplateFindTemplates200ResponseDataInner()
                         .id(BigDecimal.valueOf(777))
                         .title("Certificat")
-                        .type(TemplateFindTemplates200ResponseDataInner.TypeEnum.PRIVATE)
-                        .userId(BigDecimal.valueOf(111))));
+                        .type(PRIVATE)
+                        .userId(BigDecimal.valueOf(adminDocumensoUserId))));
 
-    var result = anApi(ADMIN1_TOKEN).syncDocumensoTemplates();
+    var result = anApi(adminToken).syncDocumensoTemplates();
 
     assertEquals(1, result.size());
     var synced = result.get(0);
@@ -136,7 +162,7 @@ class DocumensoIT extends FacadeITMockedThirdParties {
 
   @Test
   void student_sync_templates_ko() {
-    assertThrowsForbiddenException(() -> anApi(STUDENT1_TOKEN).syncDocumensoTemplates());
+    assertThrowsForbiddenException(() -> anApi(studentToken).syncDocumensoTemplates());
   }
 
   @Test
@@ -149,7 +175,7 @@ class DocumensoIT extends FacadeITMockedThirdParties {
                 .addRecipientsItem(
                     new TemplateGetTemplateById200ResponseRecipientsInner()
                         .id(BigDecimal.valueOf(1))
-                        .role(TemplateGetTemplateById200ResponseRecipientsInner.RoleEnum.SIGNER))
+                        .role(SIGNER))
                 .addFieldsItem(
                     new TemplateGetTemplateById200ResponseFieldsInner()
                         .id(BigDecimal.valueOf(10))
@@ -164,7 +190,7 @@ class DocumensoIT extends FacadeITMockedThirdParties {
         .thenReturn(
             new TemplateCreateDocumentFromTemplate200Response()
                 .id(BigDecimal.valueOf(999))
-                .status(TemplateCreateDocumentFromTemplate200Response.StatusEnum.PENDING)
+                .status(PENDING)
                 .title(templateTitle)
                 .addRecipientsItem(
                     new TemplateCreateDocumentFromTemplate200ResponseRecipientsInner()
@@ -175,30 +201,26 @@ class DocumensoIT extends FacadeITMockedThirdParties {
 
     var toCreate =
         new CrupdateDocumensoDocument().studentId(student.getId()).templateName(templateTitle);
-
-    var created = anApi(ADMIN1_TOKEN).generateDocumensoDocument(toCreate);
+    var created = anApi(adminToken).generateDocumensoDocument(toCreate);
 
     assertEquals(DocumensoDocumentStatus.PENDING, created.getStatus());
     assertEquals(999L, created.getDocumensoDocumentId());
     assertEquals(student.getId(), created.getStudentId());
 
     var useTemplateCaptor =
-        org.mockito.ArgumentCaptor.forClass(
-            school.hei.haapi.service.documenso.gen.model.TemplateCreateDocumentFromTemplateRequest
-                .class);
+        ArgumentCaptor.forClass(TemplateCreateDocumentFromTemplateRequest.class);
     verify(documensoClientMock).useTemplate(useTemplateCaptor.capture());
     var sentRequest = useTemplateCaptor.getValue();
     assertEquals(1, sentRequest.getRecipients().size());
     assertEquals(monitor.getEmail(), sentRequest.getRecipients().get(0).getEmail());
     var prefillByFieldId =
         sentRequest.getPrefillFields().stream()
-            .collect(
-                java.util.stream.Collectors.toMap(f -> f.getId().longValue(), f -> f.getValue()));
+            .collect(Collectors.toMap(f -> f.getId().longValue(), f -> f.getValue()));
     assertEquals(student.getFirstName() + " " + student.getLastName(), prefillByFieldId.get(10L));
     assertEquals(student.getAddress(), prefillByFieldId.get(11L));
 
-    var monitorToken = anApi(MONITOR1_TOKEN).getDocumensoDocumentSigningToken(created.getId());
-    assertEquals("monitor-token", monitorToken.getToken());
+    var signingToken = anApi(monitorToken).getDocumensoDocumentSigningToken(created.getId());
+    assertEquals("monitor-token", signingToken.getToken());
   }
 
   @Test
@@ -211,7 +233,7 @@ class DocumensoIT extends FacadeITMockedThirdParties {
                 .addRecipientsItem(
                     new TemplateGetTemplateById200ResponseRecipientsInner()
                         .id(BigDecimal.valueOf(1))
-                        .role(TemplateGetTemplateById200ResponseRecipientsInner.RoleEnum.SIGNER))
+                        .role(SIGNER))
                 .addFieldsItem(
                     new TemplateGetTemplateById200ResponseFieldsInner()
                         .id(BigDecimal.valueOf(20))
@@ -258,7 +280,7 @@ class DocumensoIT extends FacadeITMockedThirdParties {
         .thenReturn(
             new TemplateCreateDocumentFromTemplate200Response()
                 .id(BigDecimal.valueOf(998))
-                .status(TemplateCreateDocumentFromTemplate200Response.StatusEnum.PENDING)
+                .status(PENDING)
                 .title(templateTitle)
                 .addRecipientsItem(
                     new TemplateCreateDocumentFromTemplate200ResponseRecipientsInner()
@@ -269,18 +291,16 @@ class DocumensoIT extends FacadeITMockedThirdParties {
 
     var toCreate =
         new CrupdateDocumensoDocument().studentId(student.getId()).templateName(templateTitle);
-
-    anApi(ADMIN1_TOKEN).generateDocumensoDocument(toCreate);
-
+    anApi(adminToken).generateDocumensoDocument(toCreate);
     var useTemplateCaptor =
-        org.mockito.ArgumentCaptor.forClass(
-            school.hei.haapi.service.documenso.gen.model.TemplateCreateDocumentFromTemplateRequest
-                .class);
+        ArgumentCaptor.forClass(TemplateCreateDocumentFromTemplateRequest.class);
     verify(documensoClientMock).useTemplate(useTemplateCaptor.capture());
     var prefillByFieldId =
         useTemplateCaptor.getValue().getPrefillFields().stream()
             .collect(
-                java.util.stream.Collectors.toMap(f -> f.getId().longValue(), f -> f.getValue()));
+                Collectors.toMap(
+                    f -> f.getId().longValue(),
+                    TemplateCreateDocumentFromTemplateRequestPrefillFieldsInner::getValue));
 
     assertEquals(monitor.getFirstName() + " " + monitor.getLastName(), prefillByFieldId.get(20L));
     assertEquals(monitor.getAddress(), prefillByFieldId.get(21L));
@@ -294,8 +314,7 @@ class DocumensoIT extends FacadeITMockedThirdParties {
   void student_generate_document_ko() {
     var toCreate =
         new CrupdateDocumensoDocument().studentId(student.getId()).templateName(templateTitle);
-
-    assertThrowsForbiddenException(() -> anApi(STUDENT1_TOKEN).generateDocumensoDocument(toCreate));
+    assertThrowsForbiddenException(() -> anApi(studentToken).generateDocumensoDocument(toCreate));
   }
 
   @Test
@@ -314,7 +333,6 @@ class DocumensoIT extends FacadeITMockedThirdParties {
     when(documensoClientMock.downloadSignedDocument(4242L)).thenReturn(signedFile);
     when(bucketComponentMock.upload(any(), any()))
         .thenReturn(new FileHash(FileHashAlgorithm.NONE, "dummy"));
-
     var response =
         sendWebhook("{\"event\":\"DOCUMENT_COMPLETED\",\"payload\":{\"id\":4242}}", "dummy-secret");
 
@@ -329,7 +347,6 @@ class DocumensoIT extends FacadeITMockedThirdParties {
   void webhook_with_wrong_secret_is_rejected() throws Exception {
     var response =
         sendWebhook("{\"event\":\"DOCUMENT_COMPLETED\",\"payload\":{\"id\":1}}", "wrong-secret");
-
     assertEquals(401, response.statusCode());
   }
 
