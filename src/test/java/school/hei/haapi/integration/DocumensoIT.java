@@ -1,21 +1,31 @@
 package school.hei.haapi.integration;
 
+import static java.util.UUID.randomUUID;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isNull;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 import static school.hei.haapi.integration.conf.ApiAssertions.assertThrowsForbiddenException;
 import static school.hei.haapi.integration.conf.TestAuth.tokenFor;
+import static school.hei.haapi.integration.testData.GroupTestData.createGroupFlow;
+import static school.hei.haapi.integration.testData.GroupTestData.g1;
 import static school.hei.haapi.integration.testData.MonitorTestData.monitorOfAxel;
+import static school.hei.haapi.integration.testData.PromotionTestData.aPromotion;
 import static school.hei.haapi.integration.testData.StaffTestData.adminMialy;
 import static school.hei.haapi.integration.testData.StudentTestData.axel;
+import static school.hei.haapi.model.DocumensoDocumentStatus.COMPLETED;
+import static school.hei.haapi.model.DocumensoDocumentStatus.PENDING;
 import static school.hei.haapi.model.User.Role.STUDENT;
 import static school.hei.haapi.model.dto.MonitorStudentLinkDto.Status.LINKED;
-import static school.hei.haapi.service.documenso.gen.model.TemplateCreateDocumentFromTemplate200Response.StatusEnum.PENDING;
 import static school.hei.haapi.service.documenso.gen.model.TemplateFindTemplates200ResponseDataInner.TypeEnum.PRIVATE;
 import static school.hei.haapi.service.documenso.gen.model.TemplateGetTemplateById200ResponseRecipientsInner.RoleEnum.SIGNER;
 
@@ -26,6 +36,7 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
@@ -36,22 +47,30 @@ import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import school.hei.haapi.endpoint.event.EventProducer;
+import school.hei.haapi.endpoint.event.model.DocumensoDocumentGenerationTriggered;
 import school.hei.haapi.endpoint.rest.api.DocumensoApi;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
+import school.hei.haapi.endpoint.rest.client.ApiException;
 import school.hei.haapi.endpoint.rest.model.CrupdateDocumensoDocument;
+import school.hei.haapi.endpoint.rest.model.DocumensoDocument;
 import school.hei.haapi.endpoint.rest.model.DocumensoDocumentStatus;
+import school.hei.haapi.endpoint.rest.model.GenerateDocumensoDocuments;
 import school.hei.haapi.endpoint.rest.model.StudentLevel;
 import school.hei.haapi.file.bucket.BucketComponent;
 import school.hei.haapi.file.hash.FileHash;
 import school.hei.haapi.file.hash.FileHashAlgorithm;
 import school.hei.haapi.integration.conf.FacadeITMockedThirdParties;
 import school.hei.haapi.integration.conf.TestUtils;
-import school.hei.haapi.model.DocumensoDocument;
+import school.hei.haapi.model.Promotion;
 import school.hei.haapi.model.TemplateDocumenso;
 import school.hei.haapi.model.User;
 import school.hei.haapi.repository.DocumensoDocumentRecipientRepository;
 import school.hei.haapi.repository.DocumensoDocumentRepository;
+import school.hei.haapi.repository.GroupFlowRepository;
+import school.hei.haapi.repository.GroupRepository;
 import school.hei.haapi.repository.MonitoringStudentRepository;
+import school.hei.haapi.repository.PromotionRepository;
 import school.hei.haapi.repository.TemplateDocumensoRepository;
 import school.hei.haapi.repository.UserRepository;
 import school.hei.haapi.service.documenso.DocumensoClient;
@@ -63,8 +82,12 @@ class DocumensoIT extends FacadeITMockedThirdParties {
   @Autowired private DocumensoDocumentRepository documensoDocumentRepository;
   @Autowired private DocumensoDocumentRecipientRepository documensoDocumentRecipientRepository;
   @Autowired private MonitoringStudentRepository monitoringStudentRepository;
+  @Autowired private PromotionRepository promotionRepository;
+  @Autowired private GroupRepository groupRepository;
+  @Autowired private GroupFlowRepository groupFlowRepository;
   @MockBean private DocumensoClient documensoClientMock;
   @MockBean private BucketComponent bucketComponentMock;
+  @MockBean private EventProducer eventProducerMock;
 
   private User admin;
   private User monitor;
@@ -77,6 +100,8 @@ class DocumensoIT extends FacadeITMockedThirdParties {
   private String adminToken;
   private String monitorToken;
   private String studentToken;
+
+  private final List<User> strangers = new ArrayList<>();
 
   private void setUpTestData() {
     adminDocumensoUserId = ThreadLocalRandom.current().nextLong(1_000, 1_000_000_000);
@@ -114,6 +139,9 @@ class DocumensoIT extends FacadeITMockedThirdParties {
     documensoDocumentRepository.deleteAll();
     templateDocumensoRepository.deleteAll();
     clearFollowedStudents(monitor.getId());
+    strangers.forEach(stranger -> clearFollowedStudents(stranger.getId()));
+    userRepository.deleteAll(strangers);
+    strangers.clear();
     userRepository.deleteAll(List.of(admin, monitor, student));
   }
 
@@ -190,7 +218,7 @@ class DocumensoIT extends FacadeITMockedThirdParties {
         .thenReturn(
             new TemplateCreateDocumentFromTemplate200Response()
                 .id(BigDecimal.valueOf(999))
-                .status(PENDING)
+                .status(TemplateCreateDocumentFromTemplate200Response.StatusEnum.PENDING)
                 .title(templateTitle)
                 .addRecipientsItem(
                     new TemplateCreateDocumentFromTemplate200ResponseRecipientsInner()
@@ -280,7 +308,7 @@ class DocumensoIT extends FacadeITMockedThirdParties {
         .thenReturn(
             new TemplateCreateDocumentFromTemplate200Response()
                 .id(BigDecimal.valueOf(998))
-                .status(PENDING)
+                .status(TemplateCreateDocumentFromTemplate200Response.StatusEnum.PENDING)
                 .title(templateTitle)
                 .addRecipientsItem(
                     new TemplateCreateDocumentFromTemplate200ResponseRecipientsInner()
@@ -318,15 +346,247 @@ class DocumensoIT extends FacadeITMockedThirdParties {
   }
 
   @Test
+  void monitor_reads_the_documents_of_the_students_it_follows() throws Exception {
+    var generated = generateOneDocumentFor(student, 4243L);
+    var mine = anApi(monitorToken).getMonitorDocumensoDocuments(monitor.getId(), 1, 15);
+
+    assertEquals(1, mine.size());
+    var read = mine.getFirst();
+    assertEquals(generated.getId(), read.getId());
+    assertEquals(student.getId(), read.getStudentId());
+    assertEquals(DocumensoDocumentStatus.PENDING, read.getStatus());
+    assertEquals(admin.getId(), read.getGeneratedById());
+    // the table must render a name without one extra call per row
+    assertEquals(student.getId(), read.getStudent().getId());
+    assertEquals(student.getFirstName(), read.getStudent().getFirstName());
+    assertEquals(student.getLastName(), read.getStudent().getLastName());
+    assertEquals(student.getRef(), read.getStudent().getRef());
+    assertEquals(templateTitle, read.getTemplateTitle());
+    assertNull(read.getCompletedDatetime(), "nothing is signed yet");
+  }
+
+  @Test
+  void a_monitor_cannot_read_another_monitor_documents() throws Exception {
+    generateOneDocumentFor(student, 4244L);
+    var otherMonitor = userRepository.save(monitorOfAxel());
+
+    assertThrowsForbiddenException(
+        () -> anApi(monitorToken).getMonitorDocumensoDocuments(otherMonitor.getId(), 1, 15));
+  }
+
+  @Test
+  void a_monitor_only_sees_the_documents_of_its_own_students() throws Exception {
+    var mineDocument = generateOneDocumentFor(student, 4245L);
+    var otherMonitor = userRepository.save(monitorOfAxel());
+    var otherStudent = userRepository.save(axel());
+    monitoringStudentRepository.saveMonitorFollowingStudents(
+        otherMonitor.getId(), List.of(otherStudent.getId()), LINKED.toString());
+    strangers.addAll(List.of(otherMonitor, otherStudent));
+    var otherDocument = generateOneDocumentFor(otherStudent, 4246L);
+
+    var mine = anApi(monitorToken).getMonitorDocumensoDocuments(monitor.getId(), 1, 15);
+
+    assertEquals(1, mine.size(), "the other monitor's document must not leak in");
+    assertEquals(mineDocument.getId(), mine.getFirst().getId());
+    assertNotEquals(otherDocument.getId(), mine.getFirst().getId());
+  }
+
+  @Test
+  void an_admin_reads_any_monitor_documents() throws Exception {
+    var generated = generateOneDocumentFor(student, 4247L);
+    var read = anApi(adminToken).getMonitorDocumensoDocuments(monitor.getId(), 1, 15);
+
+    assertEquals(1, read.size());
+    assertEquals(generated.getId(), read.getFirst().getId());
+  }
+
+  @Test
+  void a_monitor_without_any_student_reads_an_empty_list() throws Exception {
+    generateOneDocumentFor(student, 4248L);
+    var lonelyMonitor = userRepository.save(monitorOfAxel());
+    strangers.add(lonelyMonitor);
+    var lonelyToken = tokenFor(casdoorAuthServiceMock, lonelyMonitor.getEmail(), User.Role.STUDENT);
+    var read = anApi(lonelyToken).getMonitorDocumensoDocuments(lonelyMonitor.getId(), 1, 15);
+
+    assertTrue(read.isEmpty());
+  }
+
+  @Test
+  void documents_are_paged_and_most_recent_first() throws Exception {
+    var older = generateOneDocumentFor(student, 4249L);
+    var secondStudent = userRepository.save(axel());
+    monitoringStudentRepository.saveMonitorFollowingStudents(
+        monitor.getId(), List.of(secondStudent.getId()), LINKED.toString());
+    strangers.add(secondStudent);
+    var newer = generateOneDocumentFor(secondStudent, 4250L);
+    var firstPage = anApi(monitorToken).getMonitorDocumensoDocuments(monitor.getId(), 1, 1);
+    var secondPage = anApi(monitorToken).getMonitorDocumensoDocuments(monitor.getId(), 2, 1);
+
+    assertEquals(1, firstPage.size(), "a page size of one must return one document");
+    assertEquals(1, secondPage.size());
+    assertEquals(newer.getId(), firstPage.getFirst().getId(), "most recent comes first");
+    assertEquals(older.getId(), secondPage.getFirst().getId());
+  }
+
+  @Test
+  void admin_launches_a_bulk_generation_for_a_promotion() throws Exception {
+    var promotion = aPromotionOfTwoStudents();
+    var launched =
+        anApi(adminToken)
+            .generateDocumensoDocumentsForPromotion(
+                promotion.getId(), new GenerateDocumensoDocuments().templateName(templateTitle));
+
+    assertEquals(promotion.getId(), launched.getPromotionId());
+    assertEquals(templateTitle, launched.getTemplateName());
+    assertEquals(2, launched.getStudentCount(), "one per student of the promotion");
+
+    var fired = ArgumentCaptor.forClass(Collection.class);
+    verify(eventProducerMock, times(2)).accept(fired.capture());
+    var events =
+        fired.getAllValues().stream()
+            .flatMap(collection -> ((Collection<?>) collection).stream())
+            .map(DocumensoDocumentGenerationTriggered.class::cast)
+            .toList();
+    assertTrue(
+        events.stream().allMatch(e -> admin.getId().equals(e.getGeneratedById())),
+        "the asking admin must ride along every event");
+    assertTrue(events.stream().allMatch(e -> templateTitle.equals(e.getTemplateName())));
+  }
+
+  @Test
+  void bulk_generation_on_an_unknown_promotion_is_not_found() {
+    var body = new GenerateDocumensoDocuments().templateName(templateTitle);
+
+    assertThrows(
+        ApiException.class,
+        () -> anApi(adminToken).generateDocumensoDocumentsForPromotion("not-a-promotion", body));
+    verifyNoInteractions(eventProducerMock);
+  }
+
+  @Test
+  void student_cannot_launch_a_bulk_generation() throws Exception {
+    var promotion = aPromotionOfTwoStudents();
+    var body = new GenerateDocumensoDocuments().templateName(templateTitle);
+
+    assertThrowsForbiddenException(
+        () -> anApi(studentToken).generateDocumensoDocumentsForPromotion(promotion.getId(), body));
+    verifyNoInteractions(eventProducerMock);
+  }
+
+  @Test
+  void admin_lists_only_the_documents_of_that_promotion() throws Exception {
+    var promotion = aPromotionOfTwoStudents();
+    var enrolled = userRepository.findAllStudentsByPromotionId(promotion.getId());
+    var inside = generateOneDocumentFor(enrolled.getFirst(), 4251L);
+    var outside = generateOneDocumentFor(student, 4252L);
+
+    var listed =
+        anApi(adminToken).getPromotionDocumensoDocuments(promotion.getId(), null, null, 1, 15);
+
+    assertEquals(1, listed.size(), "a document outside the promotion must not leak in");
+    assertEquals(inside.getId(), listed.getFirst().getId());
+    assertNotEquals(outside.getId(), listed.getFirst().getId());
+  }
+
+  @Test
+  void promotion_documents_can_be_filtered_by_status() throws Exception {
+    var promotion = aPromotionOfTwoStudents();
+    var enrolled = userRepository.findAllStudentsByPromotionId(promotion.getId());
+    generateOneDocumentFor(enrolled.getFirst(), 4253L);
+
+    var pending =
+        anApi(adminToken)
+            .getPromotionDocumensoDocuments(
+                promotion.getId(), null, DocumensoDocumentStatus.PENDING, 1, 15);
+    var completed =
+        anApi(adminToken)
+            .getPromotionDocumensoDocuments(
+                promotion.getId(), null, DocumensoDocumentStatus.COMPLETED, 1, 15);
+
+    assertEquals(1, pending.size());
+    assertTrue(completed.isEmpty(), "nothing is signed yet, so the filter must exclude it");
+  }
+
+  @Test
+  void a_promotion_without_documents_lists_nothing() throws Exception {
+    var promotion = aPromotionOfTwoStudents();
+
+    var listed =
+        anApi(adminToken).getPromotionDocumensoDocuments(promotion.getId(), null, null, 1, 15);
+
+    assertTrue(listed.isEmpty());
+  }
+
+  @Test
+  void student_cannot_list_promotion_documents() {
+    var promotion = aPromotionOfTwoStudents();
+
+    assertThrowsForbiddenException(
+        () ->
+            anApi(studentToken)
+                .getPromotionDocumensoDocuments(promotion.getId(), null, null, 1, 15));
+  }
+
+  private Promotion aPromotionOfTwoStudents() {
+    var promotion =
+        promotionRepository.save(aPromotion("Promo " + randomUUID(), "P" + randomUUID()));
+    var newGroup = g1();
+    newGroup.setPromotion(promotion);
+    var group = groupRepository.save(newGroup);
+    var firstStudent = userRepository.save(axel());
+    var secondStudent = userRepository.save(axel());
+    var theirMonitor = userRepository.save(monitorOfAxel());
+    monitoringStudentRepository.saveMonitorFollowingStudents(
+        theirMonitor.getId(),
+        List.of(firstStudent.getId(), secondStudent.getId()),
+        LINKED.toString());
+    strangers.addAll(List.of(firstStudent, secondStudent, theirMonitor));
+    groupFlowRepository.saveAll(
+        List.of(createGroupFlow(firstStudent, group), createGroupFlow(secondStudent, group)));
+    return promotion;
+  }
+
+  private DocumensoDocument generateOneDocumentFor(User forStudent, long documensoDocumentId)
+      throws Exception {
+    when(documensoClientMock.getTemplate(templateExternalId))
+        .thenReturn(
+            new TemplateGetTemplateById200Response()
+                .id(BigDecimal.valueOf(templateExternalId))
+                .title(templateTitle)
+                .addRecipientsItem(
+                    new TemplateGetTemplateById200ResponseRecipientsInner()
+                        .id(BigDecimal.valueOf(1))
+                        .role(TemplateGetTemplateById200ResponseRecipientsInner.RoleEnum.SIGNER)));
+    when(documensoClientMock.useTemplate(any()))
+        .thenReturn(
+            new TemplateCreateDocumentFromTemplate200Response()
+                .id(BigDecimal.valueOf(documensoDocumentId))
+                .status(TemplateCreateDocumentFromTemplate200Response.StatusEnum.PENDING)
+                .title(templateTitle)
+                .addRecipientsItem(
+                    new TemplateCreateDocumentFromTemplate200ResponseRecipientsInner()
+                        .id(BigDecimal.valueOf(1))
+                        .email(monitor.getEmail())
+                        .name("Monitor")
+                        .token("monitor-token")));
+
+    return anApi(adminToken)
+        .generateDocumensoDocument(
+            new CrupdateDocumensoDocument()
+                .studentId(forStudent.getId())
+                .templateName(templateTitle));
+  }
+
+  @Test
   void webhook_completes_document_and_uploads_signed_pdf_to_s3() throws Exception {
     var pendingDocument =
         documensoDocumentRepository.save(
-            DocumensoDocument.builder()
+            school.hei.haapi.model.DocumensoDocument.builder()
                 .documensoDocumentId(4242L)
                 .template(template)
                 .student(student)
                 .level(StudentLevel.L1)
-                .status(school.hei.haapi.model.DocumensoDocumentStatus.PENDING)
+                .status(PENDING)
                 .build());
 
     var signedFile = File.createTempFile("signed", ".pdf");
@@ -338,9 +598,16 @@ class DocumensoIT extends FacadeITMockedThirdParties {
 
     assertEquals(200, response.statusCode());
     var updated = documensoDocumentRepository.findById(pendingDocument.getId()).orElseThrow();
-    assertEquals(school.hei.haapi.model.DocumensoDocumentStatus.COMPLETED, updated.getStatus());
+    assertEquals(COMPLETED, updated.getStatus());
     assertNotNull(updated.getFileInfo());
     verify(bucketComponentMock).upload(eq(signedFile), any());
+
+    // the signature date must reach the front, otherwise no "signed on" column is possible
+    var asRead =
+        anApi(monitorToken).getMonitorDocumensoDocuments(monitor.getId(), 1, 15).getFirst();
+    assertEquals(DocumensoDocumentStatus.COMPLETED, asRead.getStatus());
+    assertNotNull(asRead.getCompletedDatetime());
+    assertEquals(student.getRef(), asRead.getStudent().getRef());
   }
 
   @Test

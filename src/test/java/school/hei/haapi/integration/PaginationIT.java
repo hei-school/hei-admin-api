@@ -1,5 +1,6 @@
 package school.hei.haapi.integration;
 
+import static java.util.UUID.randomUUID;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static school.hei.haapi.endpoint.rest.model.Payment.TypeEnum.CASH;
@@ -49,15 +50,32 @@ class PaginationIT extends FacadeITMockedThirdParties {
   private final List<Fee> axelFees = new ArrayList<>();
   private final List<Payment> axelPayments = new ArrayList<>();
 
+  /**
+   * Refs of this test's own students: a hyphen-free prefix shared by the eight of them, then a
+   * single rank digit.
+   *
+   * <p>Both halves earn their place. The prefix lets the query return these eight only, so students
+   * left behind by other tests cannot land on the pages being asserted. And having the rank as the
+   * sole difference keeps the order identical whether Postgres collates it or {@code
+   * String.compareTo} does — a ref built from a random UUID is full of hyphens, and those two
+   * disagree on where a hyphen sorts.
+   */
+  private final String refPrefix =
+      "PAG" + randomUUID().toString().replace("-", "").substring(0, 10);
+
+  private String pageableRef(int rank) {
+    return refPrefix + rank;
+  }
+
   private String studentToken;
   private String managerToken;
   private String teacherToken;
 
   private void setUpTestData() {
-    studentAxel = userRepository.save(axel());
+    studentAxel = userRepository.save(axel().toBuilder().ref(pageableRef(1)).build());
     students.add(studentAxel);
-    for (int i = 0; i < 7; i++) {
-      students.add(userRepository.save(axel()));
+    for (int i = 2; i <= 8; i++) {
+      students.add(userRepository.save(axel().toBuilder().ref(pageableRef(i)).build()));
     }
     managerHasina = userRepository.save(hasina());
     teacherToky = userRepository.save(toky());
@@ -117,10 +135,13 @@ class PaginationIT extends FacadeITMockedThirdParties {
     var api = new UsersApi(anApiClient(teacherToken));
     int pageSize = 4;
 
-    var page1 = api.getStudents(1, pageSize, null, null, null, null, null, null, null, null, null);
-    var page2 = api.getStudents(2, pageSize, null, null, null, null, null, null, null, null, null);
+    var page1 =
+        api.getStudents(1, pageSize, refPrefix, null, null, null, null, null, null, null, null);
+    var page2 =
+        api.getStudents(2, pageSize, refPrefix, null, null, null, null, null, null, null, null);
     var page10000 =
-        api.getStudents(10000, pageSize, null, null, null, null, null, null, null, null, null);
+        api.getStudents(
+            10000, pageSize, refPrefix, null, null, null, null, null, null, null, null);
 
     assertEquals(pageSize, page1.size());
     assertEquals(pageSize, page2.size());

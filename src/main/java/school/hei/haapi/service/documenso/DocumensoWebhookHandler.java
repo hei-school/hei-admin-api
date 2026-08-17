@@ -38,8 +38,13 @@ public class DocumensoWebhookHandler {
             .findByDocumensoDocumentId(documensoDocumentId)
             .orElseThrow(() -> new NotFoundException("Documenso document " + documensoDocumentId));
 
+    archiveSignedDocument(document);
+  }
+
+  @Transactional
+  public void archiveSignedDocument(DocumensoDocument document) {
     try {
-      downloadAndSaveSignedDocument(document, documensoDocumentId);
+      downloadAndSaveSignedDocument(document, document.getDocumensoDocumentId());
       markDocumentCompleted(document);
     } catch (RestClientException e) {
       throw new ApiException(ExceptionType.SERVER_EXCEPTION, e);
