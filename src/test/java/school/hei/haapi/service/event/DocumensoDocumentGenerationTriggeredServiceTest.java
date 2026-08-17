@@ -45,7 +45,6 @@ class DocumensoDocumentGenerationTriggeredServiceTest {
     when(documensoDocumentService.generateDocument(STUDENT_ID, "Fiche d'engagement", ADMIN_ID))
         .thenThrow(new NotFoundException("No monitor linked to student " + STUDENT_ID));
 
-    // rethrowing would send the event round the SQS retry loop for a cause no retry can fix
     assertDoesNotThrow(() -> subject.accept(anEvent()));
   }
 

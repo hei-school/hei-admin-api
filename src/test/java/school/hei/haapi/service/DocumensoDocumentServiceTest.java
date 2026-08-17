@@ -108,7 +108,6 @@ class DocumensoDocumentServiceTest {
     givenStudentWithMonitor(student);
     when(documensoClient.getTemplate(anyLong())).thenThrow(new RestClientException("stop here"));
 
-    // the call is stopped right after the idempotence gate, which is all this test cares about
     assertThrows(
         ApiException.class, () -> subject.generateDocument(student.getId(), "Fiche", ADMIN_ID));
 

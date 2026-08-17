@@ -12,13 +12,6 @@ import school.hei.haapi.repository.DocumensoDocumentRepository;
 import school.hei.haapi.service.documenso.DocumensoClient;
 import school.hei.haapi.service.documenso.DocumensoWebhookHandler;
 
-/**
- * Reconciles documents still pending with what Documenso actually holds.
- *
- * <p>The webhook is a single delivery over the network: one missed call and a signed document stays
- * pending forever, invisible to the monitor and blocking any new request for it. This sweep asks
- * Documenso directly, so that state repairs itself on the next run.
- */
 @Slf4j
 @Service
 @AllArgsConstructor
@@ -52,7 +45,6 @@ public class PendingDocumensoDocumentsCheckTriggeredService
     log.info("Documenso sweep: {} of {} pending documents were behind", repaired, pending.size());
   }
 
-  /** Returns true when the document was behind and has just been brought up to date. */
   private boolean reconcile(DocumensoDocument document) {
     var remote = documensoClient.getDocument(document.getDocumensoDocumentId());
     if (remote.getStatus() == null) {
@@ -63,8 +55,6 @@ public class PendingDocumensoDocumentsCheckTriggeredService
         webhookHandler.archiveSignedDocument(document);
         yield true;
       }
-      // a rejection never reaches us by webhook, and leaving it pending would bar the student
-      // from ever being asked again
       case REJECTED -> {
         markRejected(document);
         yield true;
