@@ -175,21 +175,12 @@ public class DocumensoDocumentService {
         .orElse(null);
   }
 
-  /**
-   * Documents of the students this monitor follows. Access is settled by SecurityConf, which lets a
-   * monitor through only for their own id.
-   */
   public List<DocumensoDocument> getByMonitorId(
       String monitorId, PageFromOne page, BoundedPageSize pageSize) {
     var pageable = PageRequest.of(page.getValue() - 1, pageSize.getValue());
     return documensoDocumentRepository.findAllByMonitorId(monitorId, pageable);
   }
 
-  /**
-   * Documents of a promotion's students, optionally narrowed by level or status. The students come
-   * from the same query the bulk generation uses, so both screens agree on who belongs to a
-   * promotion.
-   */
   public List<DocumensoDocument> getByPromotionId(
       String promotionId,
       StudentLevel level,
