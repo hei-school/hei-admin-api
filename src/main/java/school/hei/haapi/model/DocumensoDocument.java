@@ -59,6 +59,10 @@ public class DocumensoDocument implements Serializable {
   @JoinColumn(name = "file_info_id")
   private FileInfo fileInfo;
 
+  @ManyToOne
+  @JoinColumn(name = "generated_by")
+  private User generatedBy;
+
   @CreationTimestamp private Instant creationDatetime;
 
   private Instant completedDatetime;

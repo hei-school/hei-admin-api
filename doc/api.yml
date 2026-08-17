@@ -382,6 +382,10 @@ paths:
     $ref: './operations/documenso-api.yml#/operations/syncDocumensoTemplates'
   /documenso-documents:
     $ref: './operations/documenso-api.yml#/operations/generateDocumensoDocument'
+  '/promotions/{id}/documenso-documents':
+    $ref: './operations/documenso-api.yml#/operations/promotionDocumensoDocuments'
+  '/monitors/{id}/documenso-documents':
+    $ref: './operations/documenso-api.yml#/operations/getMonitorDocumensoDocuments'
   '/documenso-documents/{id}/signing-token':
     $ref: './operations/documenso-api.yml#/operations/getDocumensoDocumentSigningToken'
 

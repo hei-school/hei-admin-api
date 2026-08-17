@@ -7,12 +7,16 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestClientException;
 import school.hei.haapi.endpoint.rest.model.StudentLevel;
+import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.DocumensoDocument;
 import school.hei.haapi.model.DocumensoDocumentRecipient;
+import school.hei.haapi.model.DocumensoDocumentStatus;
+import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.model.PersonSnapshot;
 import school.hei.haapi.model.TemplateDocumenso;
 import school.hei.haapi.model.User;
@@ -23,6 +27,7 @@ import school.hei.haapi.repository.DocumensoDocumentRecipientRepository;
 import school.hei.haapi.repository.DocumensoDocumentRepository;
 import school.hei.haapi.repository.MonitoringStudentRepository;
 import school.hei.haapi.repository.UserRepository;
+import school.hei.haapi.repository.dao.DocumensoDocumentDao;
 import school.hei.haapi.service.documenso.DocumensoClient;
 import school.hei.haapi.service.documenso.DocumensoTemplateResolver;
 import school.hei.haapi.service.documenso.DocumensoWebhookHandler;
@@ -38,6 +43,7 @@ import school.hei.haapi.service.documenso.gen.model.TemplateGetTemplateById200Re
 public class DocumensoDocumentService {
   private final DocumensoClient documensoClient;
   private final DocumensoDocumentRepository documensoDocumentRepository;
+  private final DocumensoDocumentDao documensoDocumentDao;
   private final DocumensoDocumentRecipientRepository documensoDocumentRecipientRepository;
   private final UserRepository userRepository;
   private final MonitoringStudentRepository monitoringStudentRepository;
@@ -45,18 +51,33 @@ public class DocumensoDocumentService {
   private final PrefillFieldsFactory prefillFieldsFactory;
   private final DocumensoWebhookHandler webhookHandler;
 
+  private static final List<DocumensoDocumentStatus> STILL_STANDING =
+      List.of(DocumensoDocumentStatus.PENDING, DocumensoDocumentStatus.COMPLETED);
+
   @Transactional
-  public DocumensoDocument generateDocument(String studentId, String templateName) {
+  public DocumensoDocument generateDocument(
+      String studentId, String templateName, String generatedById) {
     var student =
         userRepository
             .findById(studentId)
             .orElseThrow(() -> new NotFoundException("User with id: " + studentId));
+    var generatedBy =
+        userRepository
+            .findById(generatedById)
+            .orElseThrow(() -> new NotFoundException("User with id: " + generatedById));
     var monitor =
         monitoringStudentRepository.findAllMonitorsByStudentId(studentId).stream()
             .findFirst()
             .orElseThrow(() -> new NotFoundException("No monitor linked to student " + studentId));
     var level = safeLevelAt(student);
     var template = templateResolver.resolveByName(templateName, level);
+
+    var stillStanding =
+        documensoDocumentRepository.findFirstByStudent_IdAndTemplate_IdAndStatusIn(
+            student.getId(), template.getId(), STILL_STANDING);
+    if (stillStanding.isPresent()) {
+      return stillStanding.get();
+    }
 
     try {
       var remoteTemplate = documensoClient.getTemplate(template.getDocumensoTemplateId());
@@ -65,7 +86,7 @@ public class DocumensoDocumentService {
       var request = buildDocumentRequest(remoteTemplate, template, student, monitor, level);
       var response = documensoClient.useTemplate(request);
 
-      return persistDocument(template, student, level, monitor, response);
+      return persistDocument(template, student, level, monitor, generatedBy, response);
     } catch (RestClientException e) {
       throw new ApiException(SERVER_EXCEPTION, e);
     }
@@ -106,6 +127,7 @@ public class DocumensoDocumentService {
       User student,
       StudentLevel level,
       User monitor,
+      User generatedBy,
       TemplateCreateDocumentFromTemplate200Response response) {
     var document =
         documensoDocumentRepository.save(
@@ -114,7 +136,8 @@ public class DocumensoDocumentService {
                 .template(template)
                 .student(student)
                 .level(level)
-                .status(school.hei.haapi.model.DocumensoDocumentStatus.PENDING)
+                .status(DocumensoDocumentStatus.PENDING)
+                .generatedBy(generatedBy)
                 .build());
 
     for (var recipient : response.getRecipients()) {
@@ -150,6 +173,33 @@ public class DocumensoDocumentService {
               }
             })
         .orElse(null);
+  }
+
+  /**
+   * Documents of the students this monitor follows. Access is settled by SecurityConf, which lets a
+   * monitor through only for their own id.
+   */
+  public List<DocumensoDocument> getByMonitorId(
+      String monitorId, PageFromOne page, BoundedPageSize pageSize) {
+    var pageable = PageRequest.of(page.getValue() - 1, pageSize.getValue());
+    return documensoDocumentRepository.findAllByMonitorId(monitorId, pageable);
+  }
+
+  /**
+   * Documents of a promotion's students, optionally narrowed by level or status. The students come
+   * from the same query the bulk generation uses, so both screens agree on who belongs to a
+   * promotion.
+   */
+  public List<DocumensoDocument> getByPromotionId(
+      String promotionId,
+      StudentLevel level,
+      DocumensoDocumentStatus status,
+      PageFromOne page,
+      BoundedPageSize pageSize) {
+    var studentIds =
+        userRepository.findAllStudentsByPromotionId(promotionId).stream().map(User::getId).toList();
+    var pageable = PageRequest.of(page.getValue() - 1, pageSize.getValue());
+    return documensoDocumentDao.filterByCriteria(studentIds, level, status, pageable);
   }
 
   public String getSigningToken(String documentId, String requestingUserId) {

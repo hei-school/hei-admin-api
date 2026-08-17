@@ -1,5 +1,7 @@
 package school.hei.haapi.service.documenso;
 
+import static school.hei.haapi.model.Promotion.getLevelString;
+
 import java.math.BigDecimal;
 import java.text.Normalizer;
 import java.util.ArrayList;
@@ -7,7 +9,6 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
-import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 import school.hei.haapi.endpoint.rest.model.StudentLevel;
 import school.hei.haapi.model.DocumensoTemplateFieldLabels;
@@ -17,9 +18,7 @@ import school.hei.haapi.service.documenso.gen.model.TemplateCreateDocumentFromTe
 import school.hei.haapi.service.documenso.gen.model.TemplateGetTemplateById200ResponseFieldsInner;
 
 @Component
-@AllArgsConstructor
 public class PrefillFieldsFactory {
-  private final DocumensoTemplateResolver templateResolver;
 
   public List<TemplateCreateDocumentFromTemplateRequestPrefillFieldsInner> buildPrefillFields(
       TemplateDocumenso template,
@@ -172,9 +171,5 @@ public class PrefillFieldsFactory {
     field.setType(TemplateCreateDocumentFromTemplateRequestPrefillFieldsInner.TypeEnum.TEXT);
     field.setValue(value);
     return field;
-  }
-
-  private String getLevelString(StudentLevel level) {
-    return school.hei.haapi.model.Promotion.getLevelString(level);
   }
 }

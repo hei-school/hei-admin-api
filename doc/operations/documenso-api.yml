@@ -45,6 +45,124 @@ operations:
           $ref: '../components.yml#/components/responses/404'
         '500':
           $ref: '../components.yml#/components/responses/500'
+  promotionDocumensoDocuments:
+    post:
+      tags:
+        - Documenso
+      summary: Ask for a document for every student of a promotion
+      description: >
+        Fans the work out to one background task per student, then returns straight away: no
+        document exists yet when the response arrives. Students already holding a pending or signed
+        document for this template are skipped, so the same promotion may safely be fired twice.
+      operationId: generateDocumensoDocumentsForPromotion
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '../components.yml#/components/schemas/GenerateDocumensoDocuments'
+      responses:
+        '202':
+          description: Generation accepted and running in the background
+          content:
+            application/json:
+              schema:
+                $ref: '../components.yml#/components/schemas/DocumensoGenerationLaunched'
+        '403':
+          $ref: '../components.yml#/components/responses/403'
+        '404':
+          $ref: '../components.yml#/components/responses/404'
+        '500':
+          $ref: '../components.yml#/components/responses/500'
+    get:
+      tags:
+        - Documenso
+      summary: List the documents of a promotion's students
+      description: >
+        Students are resolved the same way the bulk generation resolves them, so both agree on who
+        belongs to the promotion. Ordered by creation date, most recent first.
+      operationId: getPromotionDocumensoDocuments
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: level
+          in: query
+          schema:
+            $ref: '../components.yml#/components/schemas/StudentLevel'
+        - name: status
+          in: query
+          schema:
+            $ref: '../components.yml#/components/schemas/DocumensoDocumentStatus'
+        - name: page
+          in: query
+          schema:
+            $ref: '../components.yml#/components/schemas/Page'
+        - name: page_size
+          in: query
+          schema:
+            $ref: '../components.yml#/components/schemas/PageSize'
+      responses:
+        '200':
+          description: The promotion's documents
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '../components.yml#/components/schemas/DocumensoDocument'
+        '403':
+          $ref: '../components.yml#/components/responses/403'
+        '404':
+          $ref: '../components.yml#/components/responses/404'
+        '500':
+          $ref: '../components.yml#/components/responses/500'
+  getMonitorDocumensoDocuments:
+    get:
+      tags:
+        - Documenso
+      summary: List the documents of the students a monitor follows
+      description: >
+        A monitor may only read their own list; managers and admins may read any monitor's.
+        Ordered by creation date, most recent first.
+      operationId: getMonitorDocumensoDocuments
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: page
+          in: query
+          schema:
+            $ref: '../components.yml#/components/schemas/Page'
+        - name: page_size
+          in: query
+          schema:
+            $ref: '../components.yml#/components/schemas/PageSize'
+      responses:
+        '200':
+          description: The monitor's documents
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '../components.yml#/components/schemas/DocumensoDocument'
+        '403':
+          $ref: '../components.yml#/components/responses/403'
+        '404':
+          $ref: '../components.yml#/components/responses/404'
+        '500':
+          $ref: '../components.yml#/components/responses/500'
   getDocumensoDocumentSigningToken:
     get:
       tags:
