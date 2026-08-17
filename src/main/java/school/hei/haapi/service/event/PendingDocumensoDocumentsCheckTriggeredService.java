@@ -35,7 +35,6 @@ public class PendingDocumensoDocumentsCheckTriggeredService
           repaired++;
         }
       } catch (Exception e) {
-        // one unreachable document must not end the sweep for the others
         log.warn(
             "Could not reconcile Documenso document id={}: {}",
             document.getDocumensoDocumentId(),
@@ -47,9 +46,6 @@ public class PendingDocumensoDocumentsCheckTriggeredService
 
   private boolean reconcile(DocumensoDocument document) {
     var remote = documensoClient.getDocument(document.getDocumensoDocumentId());
-    if (remote.getStatus() == null) {
-      return false;
-    }
     return switch (remote.getStatus()) {
       case COMPLETED -> {
         webhookHandler.archiveSignedDocument(document);
