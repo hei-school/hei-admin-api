@@ -1022,6 +1022,8 @@ components:
           type: string
         is_archived:
           type: boolean
+        archive_status:
+          $ref: '#/components/schemas/ArchiveStatusEnum'
     FeeCategory:
       type: string
       enum:
@@ -1460,6 +1462,22 @@ components:
         - PAID
         - LATE
         - PENDING
+    ArchiveStatusEnum:
+      type: string
+      description: >
+        Lifecycle of a fee archiving request: TO_ARCHIVE once requested by a manager,
+        then ARCHIVED or REJECTED once a validator has reviewed it.
+      enum:
+        - TO_ARCHIVE
+        - ARCHIVED
+        - REJECTED
+    UpdateFeeArchiveStatus:
+      type: object
+      properties:
+        status:
+          $ref: '#/components/schemas/ArchiveStatusEnum'
+      required:
+        - status
     FeeTypeEnum:
       type: string
       enum:
@@ -2298,8 +2316,8 @@ components:
     CreditMovement:
       type: string
       enum:
-        - WITHDRAWAL
-        - DEPOSIT
+        - DEBIT
+        - CREDIT
     Credit:
       type: object
       properties:

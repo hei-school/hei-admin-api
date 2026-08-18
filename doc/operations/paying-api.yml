@@ -194,7 +194,11 @@ operations:
     patch:
       tags:
         - Paying
-      summary: Archive student fee.
+      summary: Request archiving of a student fee.
+      description: >
+        Sets the fee's archive_status to TO_ARCHIVE and notifies the archive validators by
+        email. The fee is not archived yet: it still needs to be validated or rejected through
+        studentsFeesByIdArchiveStatus.
       operationId: archiveStudentFee
       parameters:
         - name: student_id
@@ -209,7 +213,48 @@ operations:
             type: string
       responses:
         '200':
-          description: student fee archived.
+          description: student fee archive requested.
+          content:
+            application/json:
+              schema:
+                $ref: '../components.yml#/components/schemas/Fee'
+        '400':
+          $ref: '../components.yml#/components/responses/400'
+        '403':
+          $ref: '../components.yml#/components/responses/403'
+        '404':
+          $ref: '../components.yml#/components/responses/404'
+        '429':
+          $ref: '../components.yml#/components/responses/429'
+        '500':
+          $ref: '../components.yml#/components/responses/500'
+  studentsFeesByIdArchiveStatus:
+    patch:
+      tags:
+        - Paying
+      summary: Validate or reject a pending fee archiving request.
+      operationId: updateFeeArchiveStatus
+      parameters:
+        - name: student_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: fee_id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: The archive status to apply to the fee, either ARCHIVED or REJECTED.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '../components.yml#/components/schemas/UpdateFeeArchiveStatus'
+      responses:
+        '200':
+          description: student fee archive status updated.
           content:
             application/json:
               schema:
@@ -1541,7 +1586,7 @@ operations:
               schema:
                 type: array
                 items:
-                  $ref: '../components.yml#/components/schemas/Payment'
+                  $ref: '../components.yml#/components/schemas/CreditPayment'
         '400':
           $ref: '../components.yml#/components/responses/400'
         '403':
@@ -1575,7 +1620,7 @@ operations:
               schema:
                 type: array
                 items:
-                  $ref: '../components.yml#/components/schemas/Payment'
+                  $ref: '../components.yml#/components/schemas/CreditPayment'
         '400':
           $ref: '../components.yml#/components/responses/400'
         '403':
@@ -1609,7 +1654,7 @@ operations:
               schema:
                 type: array
                 items:
-                  $ref: '../components.yml#/components/schemas/Payment'
+                  $ref: '../components.yml#/components/schemas/CreditPayment'
         '400':
           $ref: '../components.yml#/components/responses/400'
         '403':

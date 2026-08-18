@@ -31,12 +31,14 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import school.hei.haapi.endpoint.event.EventProducer;
+import school.hei.haapi.endpoint.event.model.FeeArchiveRequested;
 import school.hei.haapi.endpoint.event.model.LateFeeVerified;
 import school.hei.haapi.endpoint.event.model.PojaEvent;
 import school.hei.haapi.endpoint.event.model.StudentsWithOverdueFeesReminder;
 import school.hei.haapi.endpoint.event.model.SuspensionEndedEmailBody;
 import school.hei.haapi.endpoint.event.model.UnpaidFeesReminder;
 import school.hei.haapi.endpoint.rest.model.AdvancedFeeStatisticsType;
+import school.hei.haapi.endpoint.rest.model.ArchiveStatusEnum;
 import school.hei.haapi.endpoint.rest.model.FeeCategory;
 import school.hei.haapi.endpoint.rest.model.FeeStatusEnum;
 import school.hei.haapi.endpoint.rest.model.FeeTypeEnum;
@@ -52,6 +54,7 @@ import school.hei.haapi.model.Payment;
 import school.hei.haapi.model.User;
 import school.hei.haapi.model.dto.FeeDetailsDto;
 import school.hei.haapi.model.exception.ApiException;
+import school.hei.haapi.model.exception.BadRequestException;
 import school.hei.haapi.model.exception.NoRemainingAmountFee;
 import school.hei.haapi.model.exception.NotFoundException;
 import school.hei.haapi.model.mpbs.Mpbs;
@@ -177,11 +180,46 @@ public class FeeService {
     return feeRepository.saveAll(fees);
   }
 
-  public Fee archiveFee(Fee fee) {
+  public Fee requestArchiveFee(Fee fee) {
     updateFeeValidator.accept(fee);
+    fee.requestArchive();
+    var saved = feeRepository.save(fee);
+    eventProducer.accept(List.of(toFeeArchiveRequested(saved)));
+    return saved;
+  }
+
+  public Fee updateArchiveStatus(Fee fee, ArchiveStatusEnum newStatus) {
+    return switch (newStatus) {
+      case ARCHIVED -> validateArchiveFee(fee);
+      case REJECTED -> rejectArchiveFee(fee);
+      case TO_ARCHIVE ->
+          throw new BadRequestException(
+              "Fee archive status can only be set to ARCHIVED or REJECTED");
+    };
+  }
+
+  private Fee validateArchiveFee(Fee fee) {
     creditService.depositArchivedFee(fee);
-    fee.setArchived(true);
+    fee.validateArchive();
     return feeRepository.save(fee);
+  }
+
+  private Fee rejectArchiveFee(Fee fee) {
+    fee.rejectArchive();
+    return feeRepository.save(fee);
+  }
+
+  private static FeeArchiveRequested toFeeArchiveRequested(Fee fee) {
+    var student = fee.getStudent();
+    return FeeArchiveRequested.builder()
+        .feeId(fee.getId())
+        .studentRef(student.getRef())
+        .studentFirstName(student.getFirstName())
+        .studentLastName(student.getLastName())
+        .totalAmount(fee.getTotalAmount())
+        .dueDatetime(fee.getDueDatetime())
+        .comment(fee.getComment())
+        .build();
   }
 
   public FeesStats getFeesStats(

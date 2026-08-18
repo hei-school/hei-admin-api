@@ -166,6 +166,7 @@ public class SecurityConf {
                     antMatcher(GET, "/students/*/fees/*/payments/*/receipt/raw"),
                     antMatcher(DELETE, "/students/*/fees/*"),
                     antMatcher(PATCH, "/students/*/fees/*"),
+                    antMatcher(PATCH, "/students/*/fees/*/archive-status"),
                     antMatcher(GET, "/students/*/fees/*/payments"),
                     antMatcher(POST, "/students/*/fees/*/payments"),
                     antMatcher(DELETE, "/students/*/fees/*/payments/*"),
@@ -587,6 +588,8 @@ public class SecurityConf {
                     .requestMatchers(DELETE, "/students/*/fees/*")
                     .hasAnyRole(MANAGER.getRole(), ADMIN.getRole())
                     .requestMatchers(PATCH, "/students/*/fees/*")
+                    .hasAnyRole(MANAGER.getRole(), ADMIN.getRole())
+                    .requestMatchers(PATCH, "/students/*/fees/*/archive-status")
                     .hasAnyRole(MANAGER.getRole(), ADMIN.getRole())
                     .requestMatchers(GET, "/students/*/fees/*")
                     .hasAnyRole(MANAGER.getRole(), ADMIN.getRole())

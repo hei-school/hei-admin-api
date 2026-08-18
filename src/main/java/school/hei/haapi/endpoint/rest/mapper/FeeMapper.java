@@ -61,6 +61,7 @@ public class FeeMapper {
         .dueDatetime(fee.getDueDatetime())
         .studentFirstName(fee.getStudent().getFirstName())
         .isArchived(fee.isArchived())
+        .archiveStatus(fee.getArchiveStatus())
         .letter(letter == null ? null : toLetterFee(letter));
   }
 
@@ -95,6 +96,7 @@ public class FeeMapper {
         .creationDatetime(fee.getCreationDatetime())
         .dueDatetime(fee.getDueDatetime())
         .isArchived(TRUE.equals(fee.getIsArchived()))
+        .archiveStatus(fee.getArchiveStatus())
         .build();
   }
 

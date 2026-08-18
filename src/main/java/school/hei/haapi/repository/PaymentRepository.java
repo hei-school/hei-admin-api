@@ -36,8 +36,12 @@ select p from Payment p where p.id in :ids
 """)
   List<Payment> findByIds(@Param("ids") List<String> ids);
 
+  @Query(
+      value =
+          "select p from Payment p where (:status is null or p.status = :status) and p.type ="
+              + " :type")
   List<Payment> findPaymentsByStatusAndType(
-      PaymentStatus status,
-      school.hei.haapi.endpoint.rest.model.Payment.TypeEnum type,
+      @Param("status") PaymentStatus status,
+      @Param("type") school.hei.haapi.endpoint.rest.model.Payment.TypeEnum type,
       Pageable pageable);
 }

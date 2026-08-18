@@ -9,8 +9,13 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static school.hei.haapi.endpoint.rest.model.ArchiveStatusEnum.ARCHIVED;
+import static school.hei.haapi.endpoint.rest.model.ArchiveStatusEnum.REJECTED;
+import static school.hei.haapi.endpoint.rest.model.ArchiveStatusEnum.TO_ARCHIVE;
 import static school.hei.haapi.endpoint.rest.model.FeeCategory.L1;
 import static school.hei.haapi.endpoint.rest.model.FeeFrequency.YEARLY;
 import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.LATE;
@@ -310,6 +315,71 @@ class FeeServiceTest {
     assertFalse(actualPaidPage1.contains(fee1(!isMocked)));
     assertFalse(actualPaidPage1.contains(fee2(!isMocked)));
     assertFalse(actualLatePage1.contains(fee3(!isMocked)));
+  }
+
+  @Test
+  void request_archive_fee_sets_to_archive_and_notifies_validators() {
+    var initial = fee(0);
+    when(feeRepository.save(any(Fee.class)))
+        .thenAnswer(invocationOnMock -> invocationOnMock.getArgument(0));
+
+    var actual = subject.requestArchiveFee(initial);
+
+    assertEquals(TO_ARCHIVE, actual.getArchiveStatus());
+    assertFalse(actual.isArchived());
+    // eventProducer is shared across this class' tests, so other tests may have already
+    // triggered it: only assert that requesting an archive triggers it too.
+    verify(eventProducer, atLeastOnce()).accept(any());
+  }
+
+  @Test
+  void request_archive_fee_twice_ko() {
+    var initial = fee(0);
+    initial.requestArchive();
+
+    assertThrows(BadRequestException.class, () -> subject.requestArchiveFee(initial));
+  }
+
+  @Test
+  void validate_archive_fee_ok() {
+    var initial = fee(0);
+    initial.requestArchive();
+    when(feeRepository.save(any(Fee.class)))
+        .thenAnswer(invocationOnMock -> invocationOnMock.getArgument(0));
+
+    var actual = subject.updateArchiveStatus(initial, ARCHIVED);
+
+    assertEquals(ARCHIVED, actual.getArchiveStatus());
+    assertTrue(actual.isArchived());
+    verify(creditService).depositArchivedFee(initial);
+  }
+
+  @Test
+  void reject_archive_fee_ok() {
+    var initial = fee(0);
+    initial.requestArchive();
+    when(feeRepository.save(any(Fee.class)))
+        .thenAnswer(invocationOnMock -> invocationOnMock.getArgument(0));
+
+    var actual = subject.updateArchiveStatus(initial, REJECTED);
+
+    assertEquals(REJECTED, actual.getArchiveStatus());
+    assertFalse(actual.isArchived());
+  }
+
+  @Test
+  void update_archive_status_to_to_archive_ko() {
+    var initial = fee(0);
+    initial.requestArchive();
+
+    assertThrows(BadRequestException.class, () -> subject.updateArchiveStatus(initial, TO_ARCHIVE));
+  }
+
+  @Test
+  void validate_archive_without_prior_request_ko() {
+    var initial = fee(0);
+
+    assertThrows(BadRequestException.class, () -> subject.updateArchiveStatus(initial, ARCHIVED));
   }
 
   private static User mockUser() {

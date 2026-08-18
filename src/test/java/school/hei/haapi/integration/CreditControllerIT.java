@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static school.hei.haapi.endpoint.rest.model.FeeFrequency.MONTHLY;
 import static school.hei.haapi.integration.conf.TestAuth.tokenFor;
+import static school.hei.haapi.integration.conf.TestMocks.setUpEventBridge;
 import static school.hei.haapi.integration.testData.ManagerTestData.hasina;
 import static school.hei.haapi.model.User.Role.STUDENT;
 
@@ -18,14 +19,17 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import school.hei.haapi.endpoint.rest.api.PayingApi;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
+import school.hei.haapi.endpoint.rest.model.ArchiveStatusEnum;
 import school.hei.haapi.endpoint.rest.model.CreatePayment;
 import school.hei.haapi.endpoint.rest.model.FeeStatusEnum;
 import school.hei.haapi.endpoint.rest.model.FeeTypeEnum;
 import school.hei.haapi.endpoint.rest.model.PaymentStatus;
+import school.hei.haapi.endpoint.rest.model.UpdateFeeArchiveStatus;
 import school.hei.haapi.integration.conf.FacadeITMockedThirdParties;
 import school.hei.haapi.integration.conf.TestUtils;
 import school.hei.haapi.model.Fee;
@@ -36,6 +40,7 @@ import school.hei.haapi.repository.FeeStatusHistoryRepository;
 import school.hei.haapi.repository.PaymentRepository;
 import school.hei.haapi.repository.TransactionRepository;
 import school.hei.haapi.repository.UserRepository;
+import software.amazon.awssdk.services.eventbridge.EventBridgeClient;
 
 @Testcontainers
 @AutoConfigureMockMvc
@@ -53,13 +58,22 @@ class CreditControllerIT extends FacadeITMockedThirdParties {
   @Autowired private TransactionRepository transactionRepository;
   @Autowired private PaymentRepository paymentRepository;
   @Autowired private FeeStatusHistoryRepository feeStatusHistoryRepository;
+  @MockBean private EventBridgeClient eventBridgeClientMock;
 
   private ApiClient anApiClient(String token) {
     return TestUtils.anApiClient(token, localPort);
   }
 
+  private static school.hei.haapi.endpoint.rest.model.Fee requestAndValidateArchive(
+      PayingApi managerPayingApi, String feeId) throws ApiException {
+    managerPayingApi.archiveStudentFee(student.getId(), feeId);
+    return managerPayingApi.updateFeeArchiveStatus(
+        student.getId(), feeId, new UpdateFeeArchiveStatus().status(ArchiveStatusEnum.ARCHIVED));
+  }
+
   @BeforeEach
   void setUp() {
+    setUpEventBridge(eventBridgeClientMock);
     setUpTestData();
   }
 
@@ -85,13 +99,41 @@ class CreditControllerIT extends FacadeITMockedThirdParties {
   }
 
   @Test
-  void manager_archive_fee_OK() throws ApiException {
+  void manager_request_archive_fee_OK() throws ApiException {
     setUpTestData();
     var anApiClient = anApiClient(managerToken);
     var payingApi = new PayingApi(anApiClient);
-    var archivedFee = payingApi.archiveStudentFee(student.getId(), feeToArchive.getId());
+    var requestedFee = payingApi.archiveStudentFee(student.getId(), feeToArchive.getId());
+    assertNotNull(requestedFee);
+    assertEquals(ArchiveStatusEnum.TO_ARCHIVE, requestedFee.getArchiveStatus());
+    assertEquals(false, requestedFee.getIsArchived());
+  }
+
+  @Test
+  void manager_validate_archive_fee_OK() throws ApiException {
+    setUpTestData();
+    var anApiClient = anApiClient(managerToken);
+    var payingApi = new PayingApi(anApiClient);
+    var archivedFee = requestAndValidateArchive(payingApi, feeToArchive.getId());
     assertNotNull(archivedFee);
+    assertEquals(ArchiveStatusEnum.ARCHIVED, archivedFee.getArchiveStatus());
     assertEquals(true, archivedFee.getIsArchived());
+  }
+
+  @Test
+  void manager_reject_archive_fee_OK() throws ApiException {
+    setUpTestData();
+    var anApiClient = anApiClient(managerToken);
+    var payingApi = new PayingApi(anApiClient);
+    payingApi.archiveStudentFee(student.getId(), feeToArchive.getId());
+    var rejectedFee =
+        payingApi.updateFeeArchiveStatus(
+            student.getId(),
+            feeToArchive.getId(),
+            new UpdateFeeArchiveStatus().status(ArchiveStatusEnum.REJECTED));
+    assertNotNull(rejectedFee);
+    assertEquals(ArchiveStatusEnum.REJECTED, rejectedFee.getArchiveStatus());
+    assertEquals(false, rejectedFee.getIsArchived());
   }
 
   @Test
@@ -100,7 +142,7 @@ class CreditControllerIT extends FacadeITMockedThirdParties {
     var payingApi = new PayingApi(anApiClient);
     var managerApiClient = anApiClient(managerToken);
     var managerPayingApi = new PayingApi(managerApiClient);
-    managerPayingApi.archiveStudentFee(student.getId(), feeToArchive.getId());
+    requestAndValidateArchive(managerPayingApi, feeToArchive.getId());
     var credit = payingApi.getCreditByStudentId(student.getId());
     assertNotNull(credit);
     assertEquals(200000, credit.getAmount());
@@ -114,7 +156,7 @@ class CreditControllerIT extends FacadeITMockedThirdParties {
     var payingApi = new PayingApi(anApiClient);
     var managerApiClient = anApiClient(managerToken);
     var managerPayingApi = new PayingApi(managerApiClient);
-    managerPayingApi.archiveStudentFee(student.getId(), feeToArchive.getId());
+    requestAndValidateArchive(managerPayingApi, feeToArchive.getId());
     var payments =
         payingApi.createStudentPayments(
             student.getId(), currentFee.getId(), List.of(bankPayment(), creditPaymentCreated()));
@@ -127,7 +169,7 @@ class CreditControllerIT extends FacadeITMockedThirdParties {
     var managerApiClient = anApiClient(managerToken);
     var studentPayingApi = new PayingApi(studentApiClient);
     var managerPayingApi = new PayingApi(managerApiClient);
-    managerPayingApi.archiveStudentFee(student.getId(), feeToArchive.getId());
+    requestAndValidateArchive(managerPayingApi, feeToArchive.getId());
     var payments =
         studentPayingApi.createStudentPayments(
             student.getId(), currentFee.getId(), List.of(bankPayment(), creditPaymentCreated()));
@@ -151,7 +193,7 @@ class CreditControllerIT extends FacadeITMockedThirdParties {
     var managerApiClient = anApiClient(managerToken);
     var studentPayingApi = new PayingApi(studentApiClient);
     var managerPayingApi = new PayingApi(managerApiClient);
-    managerPayingApi.archiveStudentFee(student.getId(), feeToArchive.getId());
+    requestAndValidateArchive(managerPayingApi, feeToArchive.getId());
     var payments =
         studentPayingApi.createStudentPayments(
             student.getId(), currentFee.getId(), List.of(bankPayment(), creditPaymentCreated()));

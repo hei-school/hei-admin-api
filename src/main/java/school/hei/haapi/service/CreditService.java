@@ -2,9 +2,10 @@ package school.hei.haapi.service;
 
 import static java.time.Instant.now;
 import static org.springframework.data.domain.Sort.Direction.DESC;
+// Not statically imported: CreditMovement.CREDIT would collide with Payment.TypeEnum.CREDIT
+// below. The two are unrelated: a payment of type CREDIT (paid out of the credit balance)
+// causes a CreditMovement.DEBIT (the balance decreasing), not a CreditMovement.CREDIT.
 import static school.hei.haapi.endpoint.rest.model.Payment.TypeEnum.CREDIT;
-import static school.hei.haapi.model.CreditMovement.DEPOSIT;
-import static school.hei.haapi.model.CreditMovement.WITHDRAWAL;
 
 import java.util.List;
 import java.util.Optional;
@@ -58,7 +59,8 @@ public class CreditService {
       throw new BadRequestException("Fee can't archived two times");
     }
 
-    applyTransaction(getOrCreateCredit(fee.getStudent()), fee, fee.getTotalAmount(), DEPOSIT);
+    applyTransaction(
+        getOrCreateCredit(fee.getStudent()), fee, fee.getTotalAmount(), CreditMovement.CREDIT);
   }
 
   public void subtractStudentCreditByPayment(Payment payment) {
@@ -69,7 +71,7 @@ public class CreditService {
         getCreditByStudentId(payment.getFee().getStudent().getId()).orElseThrow(),
         payment.getFee(),
         payment.getAmount(),
-        WITHDRAWAL);
+        CreditMovement.DEBIT);
   }
 
   public void transferFeeOverpaymentToCredit(Fee fee, User student) {
@@ -77,7 +79,7 @@ public class CreditService {
     if (overpayment <= 0) {
       return;
     }
-    applyTransaction(getOrCreateCredit(student), fee, overpayment, DEPOSIT);
+    applyTransaction(getOrCreateCredit(student), fee, overpayment, CreditMovement.CREDIT);
     fee.setRemainingAmount(0);
   }
 
@@ -92,7 +94,7 @@ public class CreditService {
   }
 
   private void applyTransaction(Credit credit, Fee fee, int amount, CreditMovement movement) {
-    if (DEPOSIT.equals(movement)) {
+    if (CreditMovement.CREDIT.equals(movement)) {
       credit.setAmount(credit.getAmount() + amount);
     } else {
       credit.setAmount(credit.getAmount() - amount);
