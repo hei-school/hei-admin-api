@@ -1,7 +1,9 @@
 package school.hei.haapi.integration;
 
+import static java.util.UUID.randomUUID;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static school.hei.haapi.endpoint.rest.model.Payment.TypeEnum.CASH;
 import static school.hei.haapi.integration.conf.ApiAssertions.assertThrowsApiException;
 import static school.hei.haapi.integration.conf.TestAuth.tokenFor;
 import static school.hei.haapi.integration.conf.TestMocks.setUpEventBridge;
@@ -44,20 +46,32 @@ class PaginationIT extends FacadeITMockedThirdParties {
   private User managerHasina;
   private User teacherToky;
 
-  /** Six fees with strictly decreasing due dates, so the ordering is assertable. */
+  private final List<User> students = new ArrayList<>();
   private final List<Fee> axelFees = new ArrayList<>();
-
-  /** Three payments on the first fee, strictly increasing creation datetimes. */
   private final List<Payment> axelPayments = new ArrayList<>();
+  private final List<User> staff = new ArrayList<>();
+
+  private final String refPrefix =
+      "PAG" + randomUUID().toString().replace("-", "").substring(0, 10);
+
+  private String pageableRef(int rank) {
+    return refPrefix + rank;
+  }
 
   private String studentToken;
   private String managerToken;
   private String teacherToken;
 
   private void setUpTestData() {
-    studentAxel = userRepository.save(axel());
+    studentAxel = userRepository.save(axel().toBuilder().ref(pageableRef(1)).build());
+    students.add(studentAxel);
+    for (int i = 2; i <= 8; i++) {
+      students.add(userRepository.save(axel().toBuilder().ref(pageableRef(i)).build()));
+    }
     managerHasina = userRepository.save(hasina());
+    staff.add(managerHasina);
     teacherToky = userRepository.save(toky());
+    staff.add(teacherToky);
 
     for (int i = 0; i < 6; i++) {
       axelFees.add(
@@ -74,7 +88,7 @@ class PaginationIT extends FacadeITMockedThirdParties {
           paymentRepository.save(
               aPayment(
                   firstFee,
-                  school.hei.haapi.endpoint.rest.model.Payment.TypeEnum.CASH,
+                  CASH,
                   100,
                   "Comment",
                   Instant.parse("2022-11-08T08:25:24.00Z").plusSeconds(i * 3600L))));
@@ -100,7 +114,10 @@ class PaginationIT extends FacadeITMockedThirdParties {
     feeRepository.deleteAll(axelFees);
     axelPayments.clear();
     axelFees.clear();
-    userRepository.deleteAll(List.of(studentAxel, managerHasina, teacherToky));
+    userRepository.deleteAll(students);
+    students.clear();
+    userRepository.deleteAll(staff);
+    staff.clear();
   }
 
   private ApiClient anApiClient(String token) {
@@ -112,15 +129,16 @@ class PaginationIT extends FacadeITMockedThirdParties {
     var api = new UsersApi(anApiClient(teacherToken));
     int pageSize = 4;
 
-    var page1 = api.getStudents(1, pageSize, null, null, null, null, null, null, null, null, null);
-    var page2 = api.getStudents(2, pageSize, null, null, null, null, null, null, null, null, null);
+    var page1 =
+        api.getStudents(1, pageSize, refPrefix, null, null, null, null, null, null, null, null);
+    var page2 =
+        api.getStudents(2, pageSize, refPrefix, null, null, null, null, null, null, null, null);
     var page10000 =
-        api.getStudents(10000, pageSize, null, null, null, null, null, null, null, null, null);
+        api.getStudents(10000, pageSize, refPrefix, null, null, null, null, null, null, null, null);
 
     assertEquals(pageSize, page1.size());
     assertEquals(pageSize, page2.size());
     assertEquals(0, page10000.size());
-    // students are ordered by ref, within a page and across pages
     assertTrue(isBefore(page1.getFirst().getRef(), page1.get(1).getRef()));
     assertTrue(isBefore(page1.getLast().getRef(), page2.getFirst().getRef()));
   }

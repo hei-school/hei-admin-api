@@ -2325,15 +2325,108 @@ components:
            type: integer
          movement:
            $ref: '#/components/schemas/CreditMovement'
-    CreditPayment:
-      allOf:
-        - $ref: '#/components/schemas/CreatePayment'
+    TemplateDocumenso:
       type: object
       properties:
         id:
           type: string
-        fee:
-          $ref: '#/components/schemas/Fee'
-        creation_date:
+        documensoTemplateId:
+          type: integer
+          format: int64
+        title:
           type: string
-          format: date
+        type:
+          type: string
+        adminId:
+          type: string
+    DocumensoDocumentStatus:
+      type: string
+      enum:
+        - PENDING
+        - COMPLETED
+        - REJECTED
+    DocumensoDocument:
+      type: object
+      properties:
+        id:
+          type: string
+        documensoDocumentId:
+          type: integer
+          format: int64
+        status:
+          $ref: '#/components/schemas/DocumensoDocumentStatus'
+        subjectId:
+          type: string
+          description: >-
+            Id of the person this document is about, kept flat beside subject for callers that only
+            need the reference.
+        subject:
+          $ref: '#/components/schemas/UserIdentifier'
+        level:
+          $ref: '#/components/schemas/StudentLevel'
+        templateId:
+          type: string
+        templateTitle:
+          type: string
+          description: Title of the Documenso template this document was generated from.
+        completedDatetime:
+          type: string
+          format: date-time
+          description: >-
+            When the monitor signed. Null while the document is pending, and set by whichever of the
+            webhook or the reconciliation sweep learns of the signature first.
+        generatedById:
+          type: string
+          description: >-
+            Id of the staff member who asked for this document. The admin signature is carried by
+            the template and leaves no per-document trail, so this is what attributes the document.
+    CrupdateDocumensoDocument:
+      type: object
+      properties:
+        subjectId:
+          type: string
+          description: Id of the person this document is about.
+        templateName:
+          type: string
+          description: >-
+            Name of the Documenso template to use (e.g. "Fiche d'engagement"), matched against the
+            template's title as synced from the Documenso interface.
+      required:
+        - subjectId
+        - templateName
+    GenerateDocumensoDocuments:
+      type: object
+      properties:
+        templateName:
+          type: string
+          description: >-
+            Name of the Documenso template to use, matched against the template's title as synced
+            from the Documenso interface.
+      required:
+        - templateName
+    DocumensoGenerationLaunched:
+      type: object
+      description: >-
+        Acknowledges a bulk generation. Documents are produced one student at a time, in the
+        background, so none of them exists yet when this is returned.
+      properties:
+        promotionId:
+          type: string
+        templateName:
+          type: string
+        studentCount:
+          type: integer
+          description: Number of students the generation was asked for.
+    DocumensoFileUrl:
+      type: object
+      description: >-
+        A short-lived link to the archived signed PDF. It carries its own authority, so it is minted
+        on request rather than shipped inside document lists, and it expires within minutes.
+      properties:
+        fileUrl:
+          type: string
+    DocumensoSigningToken:
+      type: object
+      properties:
+        token:
+          type: string

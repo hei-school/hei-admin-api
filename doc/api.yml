@@ -377,6 +377,21 @@ paths:
     $ref: './operations/cor-api.yml#/operations/commentCorById'
   '/students/{student_id}/cors':
     $ref: './operations/cor-api.yml#/operations/studentsCors'
+  # Documenso
+  /documenso-templates:
+    $ref: './operations/documenso-api.yml#/operations/documensoTemplates'
+  /documenso-templates/sync:
+    $ref: './operations/documenso-api.yml#/operations/syncDocumensoTemplates'
+  /documenso-documents:
+    $ref: './operations/documenso-api.yml#/operations/generateDocumensoDocument'
+  '/promotions/{id}/documenso-documents':
+    $ref: './operations/documenso-api.yml#/operations/promotionDocumensoDocuments'
+  '/monitors/{id}/documenso-documents':
+    $ref: './operations/documenso-api.yml#/operations/getMonitorDocumensoDocuments'
+  '/documenso-documents/{id}/file-url':
+    $ref: './operations/documenso-api.yml#/operations/getDocumensoDocumentFileUrl'
+  '/documenso-documents/{id}/signing-token':
+    $ref: './operations/documenso-api.yml#/operations/getDocumensoDocumentSigningToken'
 
 components:
   securitySchemes:
