@@ -1,0 +1,83 @@
+name: POJA Ping Test
+
+on:
+  push:
+    branches:
+      - import-c0e9b7a7-bd9a-4264-aef2-37e6d9f11f4b-ping-test
+
+env:
+  ORG_ID: 67963e32-e54f-4785-93e8-4b4c8d56eced
+  IMPORT_ID: c0e9b7a7-bd9a-4264-aef2-37e6d9f11f4b
+
+jobs:
+  ping-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      CASDOOR_ORGANIZATION_NAME: ${{ secrets.TEST_CASDOOR_ORGANIZATION_NAME }}
+      SPRING_DATASOURCE_PASSWORD: ${{ secrets.TEST_SPRING_DATASOURCE_PASSWORD }}
+      OWNCLOUD_USERNAME: ${{ secrets.TEST_OWNCLOUD_USERNAME }}
+      VOLA_API_KEY: ${{ secrets.TEST_VOLA_API_KEY }}
+      ORANGE_SCRAPPER_BASEURL: ${{ secrets.TEST_ORANGE_SCRAPPER_BASEURL }}
+      CASDOOR_FRONTEND_URL: ${{ secrets.TEST_CASDOOR_FRONTEND_URL }}
+      SPRING_DATASOURCE_USERNAME: ${{ secrets.TEST_SPRING_DATASOURCE_USERNAME }}
+      SONAR_PJ_KEY: ${{ secrets.TEST_SONAR_PJ_KEY }}
+      CASDOOR_REDIRECT_URL: ${{ secrets.TEST_CASDOOR_REDIRECT_URL }}
+      CASDOOR_APPLICATION_NAME: ${{ secrets.TEST_CASDOOR_APPLICATION_NAME }}
+      CASDOOR_CLIENT_SECRET: ${{ secrets.TEST_CASDOOR_CLIENT_SECRET }}
+      CASDOOR_ENDPOINT: ${{ secrets.TEST_CASDOOR_ENDPOINT }}
+      CASDOOR_CERTIFICATE: ${{ secrets.TEST_CASDOOR_CERTIFICATE }}
+      SENTRY_ENVIRONMENT: ${{ secrets.TEST_SENTRY_ENVIRONMENT }}
+      AWS_COGNITO_USERPOOL_ID: ${{ secrets.TEST_AWS_COGNITO_USERPOOL_ID }}
+      SENTRY_DSN: ${{ secrets.TEST_SENTRY_DSN }}
+      OWNCLOUD_PASSWORD: ${{ secrets.TEST_OWNCLOUD_PASSWORD }}
+      VOLA_API_URL: ${{ secrets.TEST_VOLA_API_URL }}
+      SONAR_ORG: ${{ secrets.TEST_SONAR_ORG }}
+      SPRING_DATASOURCE_URL: ${{ secrets.TEST_SPRING_DATASOURCE_URL }}
+      CASDOOR_CLIENT_ID: ${{ secrets.TEST_CASDOOR_CLIENT_ID }}
+      SONAR_PJ_NAME: ${{ secrets.TEST_SONAR_PJ_NAME }}
+      FEES_ONLY: ${{ secrets.TEST_FEES_ONLY }}
+      OWNCLOUD_BASE_URL: ${{ secrets.TEST_OWNCLOUD_BASE_URL }}
+
+    steps:
+      - uses: actions/checkout@v4.1.6
+
+      - uses: actions/setup-java@v4.2.1
+        with:
+          java-version: '21'
+          distribution: 'corretto'
+
+      - name: Run ping test
+        id: test
+        continue-on-error: true
+        run: |
+          set -o pipefail
+          set +e
+
+          chmod +x gradlew
+          ./gradlew test --tests PingIT -x jacocoTestCoverageVerification
+
+          EXIT_CODE=$?
+          set -e
+
+          if [ $EXIT_CODE -eq 0 ]; then
+            echo "outcome=SUCCESS" >> $GITHUB_OUTPUT
+          else
+            echo "outcome=FAILURE" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Update import state
+        run: |
+          REPO_NAME=$(basename "${GITHUB_REPOSITORY}")
+
+          curl --fail -X POST "https://2x55tqa4adzyc7hnb6njpw2nyu0kedtk.lambda-url.eu-west-3.on.aws/orgs/${{ env.ORG_ID }}/imports/${{ env.IMPORT_ID }}/states" \
+            -H "Authorization: AppImportBearer ${{ secrets.GITHUB_TOKEN }}" \
+            -H "Content-Type: application/json" \
+            -d "$(jq -n \
+                  --arg job_name "POST_TRANSFORMATION_PING_TEST" \
+                  --arg job_status "${{ steps.test.outputs.outcome }}" \
+                  --arg run_id "${{ github.run_id }}" \
+                  --arg attempt_nb "${{ github.run_attempt }}" \
+                  --arg repo_owner "${{ github.repository_owner }}" \
+                  --arg repo_name "$REPO_NAME" \
+                  '{ job_name: $job_name, job_status: $job_status, run_id: $run_id, attempt_nb: $attempt_nb, repo_owner: $repo_owner, repo_name: $repo_name }')"

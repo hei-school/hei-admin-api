@@ -40,14 +40,6 @@ public class FacadeIT {
     registry.add("sentry.dsn", () -> "https://public@sentry.example.com/1");
     registry.add("sentry.environment", () -> "dummy");
 
-    try {
-      var envConfClazz = Class.forName("school.hei.haapi.conf.EnvConf");
-      var envConfConfigureProperties =
-          envConfClazz.getDeclaredMethod("configureProperties", DynamicPropertyRegistry.class);
-      var envConf = envConfClazz.getConstructor().newInstance();
-      envConfConfigureProperties.invoke(envConf, registry);
-    } catch (ClassNotFoundException e) {
-      log.warn("EnvConf missing: no project-specific test env vars will be set");
-    }
+    // No EnvConf → real env vars from CI are used
   }
 }
