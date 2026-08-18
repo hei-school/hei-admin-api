@@ -6,6 +6,7 @@ import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -21,6 +22,7 @@ import school.hei.haapi.model.PersonSnapshot;
 import school.hei.haapi.model.TemplateDocumenso;
 import school.hei.haapi.model.User;
 import school.hei.haapi.model.exception.ApiException;
+import school.hei.haapi.model.exception.ForbiddenException;
 import school.hei.haapi.model.exception.NotFoundException;
 import school.hei.haapi.model.promotion.PromotionLevelOutOfRangeException;
 import school.hei.haapi.repository.DocumensoDocumentRecipientRepository;
@@ -28,6 +30,7 @@ import school.hei.haapi.repository.DocumensoDocumentRepository;
 import school.hei.haapi.repository.MonitoringStudentRepository;
 import school.hei.haapi.repository.UserRepository;
 import school.hei.haapi.repository.dao.DocumensoDocumentDao;
+import school.hei.haapi.service.aws.FileService;
 import school.hei.haapi.service.documenso.DocumensoClient;
 import school.hei.haapi.service.documenso.DocumensoTemplateResolver;
 import school.hei.haapi.service.documenso.DocumensoWebhookHandler;
@@ -50,6 +53,9 @@ public class DocumensoDocumentService {
   private final DocumensoTemplateResolver templateResolver;
   private final PrefillFieldsFactory prefillFieldsFactory;
   private final DocumensoWebhookHandler webhookHandler;
+  private final FileService fileService;
+  private static final Set<User.Role> STAFF_ROLES = Set.of(User.Role.ADMIN, User.Role.MANAGER);
+  private static final long SIGNED_FILE_LINK_LIFETIME_SECONDS = 300L;
 
   private static final List<DocumensoDocumentStatus> STILL_STANDING =
       List.of(DocumensoDocumentStatus.PENDING, DocumensoDocumentStatus.COMPLETED);
@@ -191,6 +197,60 @@ public class DocumensoDocumentService {
         userRepository.findAllStudentsByPromotionId(promotionId).stream().map(User::getId).toList();
     var pageable = PageRequest.of(page.getValue() - 1, pageSize.getValue());
     return documensoDocumentDao.filterByCriteria(studentIds, level, status, pageable);
+  }
+
+  /**
+   * A short-lived link to the signed PDF we archived.
+   *
+   * <p>Presigning on demand rather than inside the document payload keeps a list of sixty documents
+   * from handing out sixty live credentials, most of which nobody would ever open. The link carries
+   * its own authority, so the shorter it lives the better.
+   */
+  public String getSignedFileUrl(String documentId, String requestingUserId) {
+    var document =
+        documensoDocumentRepository
+            .findById(documentId)
+            .orElseThrow(() -> new NotFoundException("Documenso document " + documentId));
+    assertMayOpen(document, requestingUserId);
+
+    var fileInfo = document.getFileInfo();
+    if (fileInfo == null) {
+      throw new NotFoundException(
+          "Documenso document "
+              + documentId
+              + " holds no signed file yet: it is "
+              + document.getStatus());
+    }
+    return fileService.getPresignedUrl(fileInfo.getFilePath(), SIGNED_FILE_LINK_LIFETIME_SECONDS);
+  }
+
+  /**
+   * Staff may open any document; a monitor only those of the students it follows.
+   *
+   * <p>Role alone would not do here: every monitor would then reach any document by guessing an id,
+   * and these PDFs carry a student's national id, address and phone.
+   */
+  private void assertMayOpen(DocumensoDocument document, String requestingUserId) {
+    var requester =
+        userRepository
+            .findById(requestingUserId)
+            .orElseThrow(() -> new NotFoundException("User with id: " + requestingUserId));
+    if (STAFF_ROLES.contains(requester.getRole())) {
+      return;
+    }
+    var followsSubject =
+        monitoringStudentRepository
+            .findAllMonitorsByStudentId(document.getSubject().getId())
+            .stream()
+            .anyMatch(monitor -> monitor.getId().equals(requestingUserId));
+    if (followsSubject) {
+      return;
+    }
+    throw new ForbiddenException(
+        "User "
+            + requestingUserId
+            + " does not follow the subject of document "
+            + document.getId());
   }
 
   public String getSigningToken(String documentId, String requestingUserId) {
