@@ -49,6 +49,7 @@ class PaginationIT extends FacadeITMockedThirdParties {
   private final List<User> students = new ArrayList<>();
   private final List<Fee> axelFees = new ArrayList<>();
   private final List<Payment> axelPayments = new ArrayList<>();
+  private final List<User> staff = new ArrayList<>();
 
   private final String refPrefix =
       "PAG" + randomUUID().toString().replace("-", "").substring(0, 10);
@@ -68,7 +69,9 @@ class PaginationIT extends FacadeITMockedThirdParties {
       students.add(userRepository.save(axel().toBuilder().ref(pageableRef(i)).build()));
     }
     managerHasina = userRepository.save(hasina());
+    staff.add(managerHasina);
     teacherToky = userRepository.save(toky());
+    staff.add(teacherToky);
 
     for (int i = 0; i < 6; i++) {
       axelFees.add(
@@ -113,7 +116,8 @@ class PaginationIT extends FacadeITMockedThirdParties {
     axelFees.clear();
     userRepository.deleteAll(students);
     students.clear();
-    userRepository.deleteAll(List.of(managerHasina, teacherToky));
+    userRepository.deleteAll(staff);
+    staff.clear();
   }
 
   private ApiClient anApiClient(String token) {
