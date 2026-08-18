@@ -44,7 +44,6 @@ public class DocumensoDocument implements Serializable {
   @JoinColumn(name = "documenso_template_id")
   private TemplateDocumenso template;
 
-  /** The person this document is about: not the one who asked for it, nor the one who signs it. */
   @ManyToOne
   @JoinColumn(name = "subject_id")
   private User subject;
