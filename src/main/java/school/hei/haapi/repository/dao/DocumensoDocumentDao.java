@@ -18,11 +18,11 @@ public class DocumensoDocumentDao {
   private final EntityManager entityManager;
 
   public List<DocumensoDocument> filterByCriteria(
-      Collection<String> studentIds,
+      Collection<String> subjectIds,
       StudentLevel level,
       DocumensoDocumentStatus status,
       Pageable pageable) {
-    if (studentIds == null || studentIds.isEmpty()) {
+    if (subjectIds == null || subjectIds.isEmpty()) {
       return List.of();
     }
     var builder = entityManager.getCriteriaBuilder();
@@ -30,7 +30,7 @@ public class DocumensoDocumentDao {
     var root = query.from(DocumensoDocument.class);
 
     List<Predicate> predicates = new ArrayList<>();
-    predicates.add(root.get("student").get("id").in(studentIds));
+    predicates.add(root.get("subject").get("id").in(subjectIds));
 
     if (level != null) {
       predicates.add(builder.equal(root.get("level"), level));

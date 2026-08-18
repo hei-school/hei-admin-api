@@ -73,7 +73,7 @@ public class DocumensoDocumentService {
     var template = templateResolver.resolveByName(templateName, level);
 
     var stillStanding =
-        documensoDocumentRepository.findFirstByStudent_IdAndTemplate_IdAndStatusIn(
+        documensoDocumentRepository.findFirstBySubject_IdAndTemplate_IdAndStatusIn(
             student.getId(), template.getId(), STILL_STANDING);
     if (stillStanding.isPresent()) {
       return stillStanding.get();
@@ -134,7 +134,7 @@ public class DocumensoDocumentService {
             DocumensoDocument.builder()
                 .documensoDocumentId(response.getId().longValue())
                 .template(template)
-                .student(student)
+                .subject(student)
                 .level(level)
                 .status(DocumensoDocumentStatus.PENDING)
                 .generatedBy(generatedBy)
