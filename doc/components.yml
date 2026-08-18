@@ -2383,15 +2383,16 @@ components:
     CrupdateDocumensoDocument:
       type: object
       properties:
-        studentId:
+        subjectId:
           type: string
+          description: Id of the person this document is about.
         templateName:
           type: string
           description: >-
             Name of the Documenso template to use (e.g. "Fiche d'engagement"), matched against the
             template's title as synced from the Documenso interface.
       required:
-        - studentId
+        - subjectId
         - templateName
     GenerateDocumensoDocuments:
       type: object

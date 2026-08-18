@@ -273,7 +273,7 @@ class DocumensoIT extends FacadeITMockedThirdParties {
                         .token("monitor-token")));
 
     var toCreate =
-        new CrupdateDocumensoDocument().studentId(student.getId()).templateName(templateTitle);
+        new CrupdateDocumensoDocument().subjectId(student.getId()).templateName(templateTitle);
     var created = anApi(adminToken).generateDocumensoDocument(toCreate);
 
     assertEquals(DocumensoDocumentStatus.PENDING, created.getStatus());
@@ -363,7 +363,7 @@ class DocumensoIT extends FacadeITMockedThirdParties {
                         .token("monitor-token")));
 
     var toCreate =
-        new CrupdateDocumensoDocument().studentId(student.getId()).templateName(templateTitle);
+        new CrupdateDocumensoDocument().subjectId(student.getId()).templateName(templateTitle);
     anApi(adminToken).generateDocumensoDocument(toCreate);
     var useTemplateCaptor =
         ArgumentCaptor.forClass(TemplateCreateDocumentFromTemplateRequest.class);
@@ -386,7 +386,7 @@ class DocumensoIT extends FacadeITMockedThirdParties {
   @Test
   void student_generate_document_ko() {
     var toCreate =
-        new CrupdateDocumensoDocument().studentId(student.getId()).templateName(templateTitle);
+        new CrupdateDocumensoDocument().subjectId(student.getId()).templateName(templateTitle);
     assertThrowsForbiddenException(() -> anApi(studentToken).generateDocumensoDocument(toCreate));
   }
 
@@ -618,7 +618,7 @@ class DocumensoIT extends FacadeITMockedThirdParties {
     return anApi(adminToken)
         .generateDocumensoDocument(
             new CrupdateDocumensoDocument()
-                .studentId(forStudent.getId())
+                .subjectId(forStudent.getId())
                 .templateName(templateTitle));
   }
 
