@@ -45,6 +45,7 @@ import school.hei.haapi.endpoint.rest.model.FeeTypeEnum;
 import school.hei.haapi.endpoint.rest.model.FeesStatistics;
 import school.hei.haapi.endpoint.rest.model.MpbsStatus;
 import school.hei.haapi.endpoint.rest.model.PaymentFrequency;
+import school.hei.haapi.endpoint.rest.security.AuthProvider;
 import school.hei.haapi.file.bucket.BucketComponent;
 import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.Fee;
@@ -201,6 +202,7 @@ public class FeeService {
   private Fee validateArchiveFee(Fee fee) {
     creditService.depositArchivedFee(fee);
     fee.validateArchive();
+    fee.setArchivedBy(AuthProvider.getPrincipal().getUser());
     return feeRepository.save(fee);
   }
 

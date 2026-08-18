@@ -1024,6 +1024,12 @@ components:
           type: boolean
         archive_status:
           $ref: '#/components/schemas/ArchiveStatusEnum'
+        archived_by_ref:
+          type: string
+        archived_by_first_name:
+          type: string
+        archived_by_last_name:
+          type: string
     FeeCategory:
       type: string
       enum:
@@ -2343,6 +2349,12 @@ components:
            type: integer
          movement:
            $ref: '#/components/schemas/CreditMovement'
+         validated_by_ref:
+           type: string
+         validated_by_first_name:
+           type: string
+         validated_by_last_name:
+           type: string
     CreditPayment:
       allOf:
         - $ref: '#/components/schemas/CreatePayment'
@@ -2355,6 +2367,12 @@ components:
         creation_date:
           type: string
           format: date
+        validated_by_ref:
+          type: string
+        validated_by_first_name:
+          type: string
+        validated_by_last_name:
+          type: string
     TemplateDocumenso:
       type: object
       properties:

@@ -11,6 +11,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static school.hei.haapi.endpoint.rest.model.ArchiveStatusEnum.ARCHIVED;
@@ -33,6 +34,8 @@ import java.util.stream.IntStream;
 import org.junit.jupiter.api.Test;
 import school.hei.haapi.endpoint.event.EventProducer;
 import school.hei.haapi.endpoint.rest.model.FeeStatusEnum;
+import school.hei.haapi.endpoint.rest.security.AuthProvider;
+import school.hei.haapi.endpoint.rest.security.model.Principal;
 import school.hei.haapi.file.bucket.BucketComponent;
 import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.Fee;
@@ -327,8 +330,6 @@ class FeeServiceTest {
 
     assertEquals(TO_ARCHIVE, actual.getArchiveStatus());
     assertFalse(actual.isArchived());
-    // eventProducer is shared across this class' tests, so other tests may have already
-    // triggered it: only assert that requesting an archive triggers it too.
     verify(eventProducer, atLeastOnce()).accept(any());
   }
 
@@ -344,13 +345,21 @@ class FeeServiceTest {
   void validate_archive_fee_ok() {
     var initial = fee(0);
     initial.requestArchive();
+    var validator = mockUser();
     when(feeRepository.save(any(Fee.class)))
         .thenAnswer(invocationOnMock -> invocationOnMock.getArgument(0));
 
-    var actual = subject.updateArchiveStatus(initial, ARCHIVED);
+    Fee actual;
+    try (var mockedAuthProvider = mockStatic(AuthProvider.class)) {
+      mockedAuthProvider
+          .when(AuthProvider::getPrincipal)
+          .thenReturn(new Principal(validator, "dummy"));
+      actual = subject.updateArchiveStatus(initial, ARCHIVED);
+    }
 
     assertEquals(ARCHIVED, actual.getArchiveStatus());
     assertTrue(actual.isArchived());
+    assertEquals(validator, actual.getArchivedBy());
     verify(creditService).depositArchivedFee(initial);
   }
 

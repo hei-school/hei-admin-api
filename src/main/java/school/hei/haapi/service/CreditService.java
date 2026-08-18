@@ -60,7 +60,11 @@ public class CreditService {
     }
 
     applyTransaction(
-        getOrCreateCredit(fee.getStudent()), fee, fee.getTotalAmount(), CreditMovement.CREDIT);
+        getOrCreateCredit(fee.getStudent()),
+        fee,
+        null,
+        fee.getTotalAmount(),
+        CreditMovement.CREDIT);
   }
 
   public void subtractStudentCreditByPayment(Payment payment) {
@@ -70,6 +74,7 @@ public class CreditService {
     applyTransaction(
         getCreditByStudentId(payment.getFee().getStudent().getId()).orElseThrow(),
         payment.getFee(),
+        payment,
         payment.getAmount(),
         CreditMovement.DEBIT);
   }
@@ -79,7 +84,7 @@ public class CreditService {
     if (overpayment <= 0) {
       return;
     }
-    applyTransaction(getOrCreateCredit(student), fee, overpayment, CreditMovement.CREDIT);
+    applyTransaction(getOrCreateCredit(student), fee, null, overpayment, CreditMovement.CREDIT);
     fee.setRemainingAmount(0);
   }
 
@@ -93,7 +98,8 @@ public class CreditService {
             () -> Credit.builder().student(student).amount(0).creationDatetime(now()).build());
   }
 
-  private void applyTransaction(Credit credit, Fee fee, int amount, CreditMovement movement) {
+  private void applyTransaction(
+      Credit credit, Fee fee, Payment payment, int amount, CreditMovement movement) {
     if (CreditMovement.CREDIT.equals(movement)) {
       credit.setAmount(credit.getAmount() + amount);
     } else {
@@ -104,6 +110,7 @@ public class CreditService {
         CreditTransaction.builder()
             .credit(savedCredit)
             .fee(fee)
+            .payment(payment)
             .amount(amount)
             .creditMovement(movement)
             .creationDatetime(now())

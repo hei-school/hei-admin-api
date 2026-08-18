@@ -40,6 +40,7 @@ public class PaymentMapper {
   }
 
   public CreditPayment toRestCreditPayment(school.hei.haapi.model.Payment payment) {
+    var validatedBy = payment.getValidatedBy();
     return new CreditPayment()
         .id(payment.getId())
         .fee(feeMapper.toRestFee(payment.getFee()))
@@ -49,7 +50,10 @@ public class PaymentMapper {
         .status(
             school.hei.haapi.endpoint.rest.model.PaymentStatus.valueOf(
                 payment.getStatus().toString()))
-        .creationDatetime(payment.getCreationDatetime());
+        .creationDatetime(payment.getCreationDatetime())
+        .validatedByRef(validatedBy == null ? null : validatedBy.getRef())
+        .validatedByFirstName(validatedBy == null ? null : validatedBy.getFirstName())
+        .validatedByLastName(validatedBy == null ? null : validatedBy.getLastName());
   }
 
   public List<CreditPayment> toRestCreditPayment(List<school.hei.haapi.model.Payment> payments) {

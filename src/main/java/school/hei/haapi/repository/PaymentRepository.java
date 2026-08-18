@@ -36,12 +36,17 @@ select p from Payment p where p.id in :ids
 """)
   List<Payment> findByIds(@Param("ids") List<String> ids);
 
+  List<Payment> findPaymentsByStatusAndType(
+      PaymentStatus status,
+      school.hei.haapi.endpoint.rest.model.Payment.TypeEnum type,
+      Pageable pageable);
+
+  List<Payment> findPaymentsByType(
+      school.hei.haapi.endpoint.rest.model.Payment.TypeEnum type, Pageable pageable);
+
   @Query(
       value =
-          "select p from Payment p where (:status is null or p.status = :status) and p.type ="
-              + " :type")
-  List<Payment> findPaymentsByStatusAndType(
-      @Param("status") PaymentStatus status,
-      @Param("type") school.hei.haapi.endpoint.rest.model.Payment.TypeEnum type,
-      Pageable pageable);
+          "select coalesce(sum(p.amount), 0) from Payment p join Fee f on f.id = p.fee.id"
+              + " where f.student.id = :student_id and p.type = 'CREDIT' and p.status = 'CREATED'")
+  int sumPendingCreditPaymentsAmountByStudentId(@Param("student_id") String studentId);
 }

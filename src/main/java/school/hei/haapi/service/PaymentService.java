@@ -150,6 +150,8 @@ public class PaymentService {
       PaymentStatus status, PageFromOne page, BoundedPageSize pageSize) {
     var pageable =
         PageRequest.of(page.getValue() - 1, pageSize.getValue(), Sort.by(DESC, "creationDatetime"));
-    return paymentRepository.findPaymentsByStatusAndType(status, CREDIT, pageable);
+    return status == null
+        ? paymentRepository.findPaymentsByType(CREDIT, pageable)
+        : paymentRepository.findPaymentsByStatusAndType(status, CREDIT, pageable);
   }
 }

@@ -69,6 +69,10 @@ public class Payment implements Serializable {
   @Column(name = "status")
   private PaymentStatus status;
 
+  @ManyToOne
+  @JoinColumn(name = "validated_by_id")
+  private User validatedBy;
+
   public Instant getCreationDatetime() {
     return creationDatetime.truncatedTo(SECONDS);
   }

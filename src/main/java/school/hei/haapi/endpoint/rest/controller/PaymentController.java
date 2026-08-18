@@ -18,6 +18,7 @@ import school.hei.haapi.endpoint.rest.model.CreatePayment;
 import school.hei.haapi.endpoint.rest.model.CreditPayment;
 import school.hei.haapi.endpoint.rest.model.Payment;
 import school.hei.haapi.endpoint.rest.model.PaymentStatus;
+import school.hei.haapi.endpoint.rest.security.AuthProvider;
 import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.service.PaymentService;
@@ -41,7 +42,12 @@ public class PaymentController {
   @PatchMapping("/students/payments/validate")
   public List<CreditPayment> validatePayments(@RequestBody List<String> paymentIds) {
     var payments = paymentService.getByIds(paymentIds);
-    payments.forEach(payment -> payment.setStatus(VALIDATE));
+    var validator = AuthProvider.getPrincipal().getUser();
+    payments.forEach(
+        payment -> {
+          payment.setStatus(VALIDATE);
+          payment.setValidatedBy(validator);
+        });
     return paymentMapper.toRestCreditPayment(paymentService.saveAll(payments));
   }
 

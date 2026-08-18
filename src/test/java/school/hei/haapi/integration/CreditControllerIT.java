@@ -179,6 +179,7 @@ class CreditControllerIT extends FacadeITMockedThirdParties {
     var creditPaymentsValidated =
         managerPayingApi.validateCreditPayments(List.of(paymentsToValidate.getFirst().getId()));
     assertNotNull(creditPaymentsValidated);
+    assertEquals(managerHasina.getRef(), creditPaymentsValidated.getFirst().getValidatedByRef());
     var feePaid = managerPayingApi.getStudentFeeById(student.getId(), currentFee.getId());
     assertNotNull(feePaid);
     assertEquals(0, feePaid.getRemainingAmount());
@@ -209,6 +210,38 @@ class CreditControllerIT extends FacadeITMockedThirdParties {
     var actualCredit = managerPayingApi.getCreditByStudentId(student.getId());
     assertNotNull(actualCredit);
     assertEquals(200000, actualCredit.getAmount());
+  }
+
+  @Test
+  void get_credit_transactions_shows_archived_by_and_validated_by_OK() throws ApiException {
+    var studentApiClient = anApiClient(studentToken);
+    var managerApiClient = anApiClient(managerToken);
+    var studentPayingApi = new PayingApi(studentApiClient);
+    var managerPayingApi = new PayingApi(managerApiClient);
+    requestAndValidateArchive(managerPayingApi, feeToArchive.getId());
+    var payments =
+        studentPayingApi.createStudentPayments(
+            student.getId(), currentFee.getId(), List.of(bankPayment(), creditPaymentCreated()));
+    var paymentToValidate =
+        managerPayingApi.getCreditPaymentsByStatus(PaymentStatus.CREATED, 1, 10).getFirst();
+    managerPayingApi.validateCreditPayments(List.of(paymentToValidate.getId()));
+
+    var transactions =
+        managerPayingApi.getCreditTransactionsByStudentId(student.getId(), null, 1, 10);
+
+    assertEquals(2, transactions.size());
+    var creditFromArchive =
+        transactions.stream()
+            .filter(t -> t.getFee().getId().equals(feeToArchive.getId()))
+            .findFirst()
+            .orElseThrow();
+    assertEquals(managerHasina.getRef(), creditFromArchive.getFee().getArchivedByRef());
+    var debitFromPayment =
+        transactions.stream()
+            .filter(t -> t.getFee().getId().equals(currentFee.getId()))
+            .findFirst()
+            .orElseThrow();
+    assertEquals(managerHasina.getRef(), debitFromPayment.getValidatedByRef());
   }
 
   private static User student() {

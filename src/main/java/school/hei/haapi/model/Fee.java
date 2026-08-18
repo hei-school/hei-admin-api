@@ -138,6 +138,11 @@ public class Fee implements Serializable {
   @Setter(AccessLevel.NONE)
   private ArchiveStatusEnum archiveStatus;
 
+  @ManyToOne
+  @JoinColumn(name = "archived_by_id")
+  @EqualsAndHashCode.Exclude
+  private User archivedBy;
+
   public Instant getCreationDatetime() {
     return creationDatetime.truncatedTo(ChronoUnit.MILLIS);
   }
