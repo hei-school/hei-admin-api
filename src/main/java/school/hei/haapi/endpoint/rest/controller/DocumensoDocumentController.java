@@ -40,7 +40,7 @@ public class DocumensoDocumentController {
       @AuthenticationPrincipal Principal principal) {
     var document =
         documensoDocumentService.generateDocument(
-            toCreate.getStudentId(), toCreate.getTemplateName(), principal.getUserId());
+            toCreate.getSubjectId(), toCreate.getTemplateName(), principal.getUserId());
     return documensoMapper.toRest(document);
   }
 
