@@ -1,0 +1,67 @@
+name: POJA Import CI
+
+on:
+  push:
+    branches:
+      - import-c0e9b7a7-bd9a-4264-aef2-37e6d9f11f4b-pre-transformation
+env:
+  ORG_ID: 67963e32-e54f-4785-93e8-4b4c8d56eced
+  IMPORT_ID: c0e9b7a7-bd9a-4264-aef2-37e6d9f11f4b
+
+jobs:
+  pre-transformation-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    
+
+    steps:
+      - uses: actions/checkout@v4.1.6
+
+      - uses: actions/setup-java@v4.2.1
+        with:
+          java-version: '21'
+          distribution: 'corretto'
+
+      - name: Run tests and capture outcome
+        id: test
+        continue-on-error: true
+        run: |
+          set -o pipefail
+          set +e
+
+          if [ -f "build.gradle" ]; then
+            chmod +x gradlew
+            ./gradlew test
+          elif [ -f "pom.xml" ]; then
+            chmod +x mvnw
+            ./mvnw test
+          else
+            echo "No build tool detected!" >&2
+            echo "outcome=FAILURE" >> $GITHUB_OUTPUT
+            exit 1
+          fi
+
+          EXIT_CODE=$?
+          set -e
+
+          if [ $EXIT_CODE -eq 0 ]; then
+            echo "outcome=SUCCESS" >> $GITHUB_OUTPUT
+          else
+            echo "outcome=FAILURE" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Update import state
+        run: |
+          REPO_NAME=$(basename "${GITHUB_REPOSITORY}")
+
+          curl --fail -X POST "https://2x55tqa4adzyc7hnb6njpw2nyu0kedtk.lambda-url.eu-west-3.on.aws/orgs/${{ env.ORG_ID }}/imports/${{ env.IMPORT_ID }}/states" \
+            -H "Authorization: AppImportBearer ${{ secrets.GITHUB_TOKEN }}" \
+            -H "Content-Type: application/json" \
+            -d "$(jq -n \
+                  --arg job_name "PRE_TRANSFORMATION_TEST" \
+                  --arg job_status "${{ steps.test.outputs.outcome }}" \
+                  --arg run_id "${{ github.run_id }}" \
+                  --arg attempt_nb "${{ github.run_attempt }}" \
+                  --arg repo_owner "${{ github.repository_owner }}" \
+                  --arg repo_name "$REPO_NAME" \
+                  '{ job_name: $job_name, job_status: $job_status, run_id: $run_id, attempt_nb: $attempt_nb, repo_owner: $repo_owner, repo_name: $repo_name }')"
