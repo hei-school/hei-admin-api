@@ -16,6 +16,7 @@ import school.hei.haapi.endpoint.rest.mapper.DocumensoMapper;
 import school.hei.haapi.endpoint.rest.model.CrupdateDocumensoDocument;
 import school.hei.haapi.endpoint.rest.model.DocumensoDocument;
 import school.hei.haapi.endpoint.rest.model.DocumensoDocumentStatus;
+import school.hei.haapi.endpoint.rest.model.DocumensoFileUrl;
 import school.hei.haapi.endpoint.rest.model.DocumensoGenerationLaunched;
 import school.hei.haapi.endpoint.rest.model.DocumensoSigningToken;
 import school.hei.haapi.endpoint.rest.model.GenerateDocumensoDocuments;
@@ -80,6 +81,13 @@ public class DocumensoDocumentController {
     return documensoDocumentService.getByMonitorId(monitorId, page, pageSize).stream()
         .map(documensoMapper::toRest)
         .toList();
+  }
+
+  @GetMapping("/documenso-documents/{id}/file-url")
+  public DocumensoFileUrl getDocumensoDocumentFileUrl(
+      @PathVariable("id") String id, @AuthenticationPrincipal Principal principal) {
+    return new DocumensoFileUrl()
+        .fileUrl(documensoDocumentService.getSignedFileUrl(id, principal.getUserId()));
   }
 
   @GetMapping("/documenso-documents/{id}/signing-token")

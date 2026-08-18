@@ -31,6 +31,7 @@ import school.hei.haapi.repository.DocumensoDocumentRepository;
 import school.hei.haapi.repository.MonitoringStudentRepository;
 import school.hei.haapi.repository.UserRepository;
 import school.hei.haapi.repository.dao.DocumensoDocumentDao;
+import school.hei.haapi.service.aws.FileService;
 import school.hei.haapi.service.documenso.DocumensoClient;
 import school.hei.haapi.service.documenso.DocumensoTemplateResolver;
 import school.hei.haapi.service.documenso.DocumensoWebhookHandler;
@@ -50,6 +51,7 @@ class DocumensoDocumentServiceTest {
   private final DocumensoTemplateResolver templateResolver = mock(DocumensoTemplateResolver.class);
   private final PrefillFieldsFactory prefillFieldsFactory = mock(PrefillFieldsFactory.class);
   private final DocumensoWebhookHandler webhookHandler = mock(DocumensoWebhookHandler.class);
+  private final FileService fileService = mock(FileService.class);
 
   private final DocumensoDocumentService subject =
       new DocumensoDocumentService(
@@ -61,7 +63,8 @@ class DocumensoDocumentServiceTest {
           monitoringStudentRepository,
           templateResolver,
           prefillFieldsFactory,
-          webhookHandler);
+          webhookHandler,
+          fileService);
 
   private static final String ADMIN_ID = randomUUID().toString();
 

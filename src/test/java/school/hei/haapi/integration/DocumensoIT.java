@@ -14,6 +14,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
+import static school.hei.haapi.integration.conf.ApiAssertions.assertThrowsApiException;
 import static school.hei.haapi.integration.conf.ApiAssertions.assertThrowsForbiddenException;
 import static school.hei.haapi.integration.conf.TestAuth.tokenFor;
 import static school.hei.haapi.integration.testData.GroupTestData.createGroupFlow;
@@ -161,6 +162,50 @@ class DocumensoIT extends FacadeITMockedThirdParties {
 
   private ApiClient anApiClient(String token) {
     return TestUtils.anApiClient(token, localPort);
+  }
+
+  @Test
+  void a_monitor_cannot_ask_for_a_link_on_someone_else_student() throws Exception {
+    var otherMonitor = userRepository.save(monitorOfAxel());
+    var otherStudent = userRepository.save(axel());
+    monitoringStudentRepository.saveMonitorFollowingStudents(
+        otherMonitor.getId(), List.of(otherStudent.getId()), LINKED.toString());
+    strangers.addAll(List.of(otherMonitor, otherStudent));
+    var notMine = generateOneDocumentFor(otherStudent, 4272L);
+    assertThrowsApiException(
+        "{\"type\":\"403 FORBIDDEN\",\"message\":\"User %s does not follow the subject of document %s\"}"
+            .formatted(monitor.getId(), notMine.getId()),
+        () -> anApi(monitorToken).getDocumensoDocumentFileUrl(notMine.getId()));
+  }
+
+  @Test
+  void a_pending_document_has_no_signed_file_to_open() throws Exception {
+    var created = generateOneDocumentFor(student, 4270L);
+    assertThrows(
+        ApiException.class, () -> anApi(monitorToken).getDocumensoDocumentFileUrl(created.getId()));
+  }
+
+  @Test
+  void student_cannot_ask_for_a_file_link() throws Exception {
+    var created = generateOneDocumentFor(student, 4271L);
+    assertThrowsForbiddenException(
+        () -> anApi(studentToken).getDocumensoDocumentFileUrl(created.getId()));
+  }
+
+  @Test
+  void admin_lists_the_synced_templates() throws Exception {
+    var listed = anApi(adminToken).getDocumensoTemplates(1, 15);
+
+    assertEquals(1, listed.size());
+    assertEquals(template.getId(), listed.getFirst().getId());
+    assertEquals(templateTitle, listed.getFirst().getTitle());
+    assertEquals(templateExternalId, listed.getFirst().getDocumensoTemplateId());
+    verifyNoInteractions(documensoClientMock);
+  }
+
+  @Test
+  void student_cannot_list_the_templates() {
+    assertThrowsForbiddenException(() -> anApi(studentToken).getDocumensoTemplates(1, 15));
   }
 
   @Test

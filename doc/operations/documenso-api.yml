@@ -1,4 +1,35 @@
 operations:
+  documensoTemplates:
+    get:
+      tags:
+        - Documenso
+      summary: List the Documenso templates already synced
+      description: >
+        Reads the local catalog, filled by the sync. Nothing is asked of Documenso here, so this may
+        safely back a template picker.
+      operationId: getDocumensoTemplates
+      parameters:
+        - name: page
+          in: query
+          schema:
+            $ref: '../components.yml#/components/schemas/Page'
+        - name: page_size
+          in: query
+          schema:
+            $ref: '../components.yml#/components/schemas/PageSize'
+      responses:
+        '200':
+          description: The synced templates, most recent first
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '../components.yml#/components/schemas/TemplateDocumenso'
+        '403':
+          $ref: '../components.yml#/components/responses/403'
+        '500':
+          $ref: '../components.yml#/components/responses/500'
   syncDocumensoTemplates:
     post:
       tags:
@@ -157,6 +188,34 @@ operations:
                 type: array
                 items:
                   $ref: '../components.yml#/components/schemas/DocumensoDocument'
+        '403':
+          $ref: '../components.yml#/components/responses/403'
+        '404':
+          $ref: '../components.yml#/components/responses/404'
+        '500':
+          $ref: '../components.yml#/components/responses/500'
+  getDocumensoDocumentFileUrl:
+    get:
+      tags:
+        - Documenso
+      summary: Get a short-lived link to the signed PDF of a document
+      description: >
+        Minted on request, valid a few minutes. Returns 404 while the document is still pending,
+        since nothing has been archived yet.
+      operationId: getDocumensoDocumentFileUrl
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: The link
+          content:
+            application/json:
+              schema:
+                $ref: '../components.yml#/components/schemas/DocumensoFileUrl'
         '403':
           $ref: '../components.yml#/components/responses/403'
         '404':

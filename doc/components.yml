@@ -2416,6 +2416,14 @@ components:
         studentCount:
           type: integer
           description: Number of students the generation was asked for.
+    DocumensoFileUrl:
+      type: object
+      description: >-
+        A short-lived link to the archived signed PDF. It carries its own authority, so it is minted
+        on request rather than shipped inside document lists, and it expires within minutes.
+      properties:
+        fileUrl:
+          type: string
     DocumensoSigningToken:
       type: object
       properties:
