@@ -6,7 +6,6 @@ import java.util.List;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 import school.hei.haapi.endpoint.rest.model.CreatePayment;
-import school.hei.haapi.endpoint.rest.model.CreditPayment;
 import school.hei.haapi.endpoint.rest.model.Payment;
 import school.hei.haapi.endpoint.rest.validator.CreatePaymentValidator;
 import school.hei.haapi.model.Fee;
@@ -19,7 +18,6 @@ import school.hei.haapi.service.FeeService;
 @AllArgsConstructor
 public class PaymentMapper {
   private final FeeService feeService;
-  private final FeeMapper feeMapper;
   private final CreatePaymentValidator createPaymentValidator;
 
   public Payment toRestPayment(school.hei.haapi.model.Payment payment) {
@@ -35,21 +33,8 @@ public class PaymentMapper {
         .creationDatetime(payment.getCreationDatetime());
   }
 
-  public CreditPayment toRestCreditPayment(school.hei.haapi.model.Payment payment) {
-    return new CreditPayment()
-        .id(payment.getId())
-        .fee(feeMapper.toRestFee(payment.getFee()))
-        .type(CreditPayment.TypeEnum.valueOf(payment.getType().toString()))
-        .amount(payment.getAmount())
-        .comment(payment.getComment())
-        .status(
-            school.hei.haapi.endpoint.rest.model.PaymentStatus.valueOf(
-                payment.getStatus().toString()))
-        .creationDatetime(payment.getCreationDatetime());
-  }
-
-  public List<CreditPayment> toRestCreditPayment(List<school.hei.haapi.model.Payment> payments) {
-    return payments.stream().map(this::toRestCreditPayment).toList();
+  public List<Payment> toRestPayment(List<school.hei.haapi.model.Payment> payments) {
+    return payments.stream().map(this::toRestPayment).toList();
   }
 
   private school.hei.haapi.model.Payment toDomainPayment(

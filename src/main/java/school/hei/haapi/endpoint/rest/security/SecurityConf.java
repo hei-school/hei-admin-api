@@ -51,7 +51,6 @@ public class SecurityConf {
 
   public SecurityConf(
       CasdoorAuthProvider authProvider,
-      // InternalToExternalErrorHandler behind
       @Qualifier("handlerExceptionResolver") HandlerExceptionResolver exceptionResolver,
       CourseAssignmentService courseAssignmentService,
       MonitoringStudentService monitoringStudentService,
