@@ -2355,11 +2355,12 @@ components:
           format: int64
         status:
           $ref: '#/components/schemas/DocumensoDocumentStatus'
-        studentId:
+        subjectId:
           type: string
-          deprecated: true
-          description: Redundant with student.id, kept so existing callers keep working.
-        student:
+          description: >-
+            Id of the person this document is about, kept flat beside subject for callers that only
+            need the reference.
+        subject:
           $ref: '#/components/schemas/UserIdentifier'
         level:
           $ref: '#/components/schemas/StudentLevel'

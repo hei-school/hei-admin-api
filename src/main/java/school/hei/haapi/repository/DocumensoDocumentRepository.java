@@ -17,13 +17,13 @@ public interface DocumensoDocumentRepository extends JpaRepository<DocumensoDocu
 
   List<DocumensoDocument> findAllByStatus(DocumensoDocumentStatus status);
 
-  Optional<DocumensoDocument> findFirstByStudent_IdAndTemplate_IdAndStatusIn(
-      String studentId, String templateId, Collection<DocumensoDocumentStatus> statuses);
+  Optional<DocumensoDocument> findFirstBySubject_IdAndTemplate_IdAndStatusIn(
+      String subjectId, String templateId, Collection<DocumensoDocumentStatus> statuses);
 
   @Query(
       """
       SELECT d FROM DocumensoDocument d
-      WHERE d.student IN (SELECT s FROM User m JOIN m.monitors s WHERE m.id = :monitorId)
+      WHERE d.subject IN (SELECT s FROM User m JOIN m.monitors s WHERE m.id = :monitorId)
       ORDER BY d.creationDatetime DESC
       """)
   List<DocumensoDocument> findAllByMonitorId(

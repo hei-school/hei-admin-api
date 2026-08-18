@@ -93,7 +93,7 @@ class DocumensoDocumentServiceTest {
     var student = aStudent();
     givenStudentWithMonitor(student);
     var alreadyThere = DocumensoDocument.builder().documensoDocumentId(999L).build();
-    when(documentRepository.findFirstByStudent_IdAndTemplate_IdAndStatusIn(any(), any(), any()))
+    when(documentRepository.findFirstBySubject_IdAndTemplate_IdAndStatusIn(any(), any(), any()))
         .thenReturn(Optional.of(alreadyThere));
 
     assertEquals(alreadyThere, subject.generateDocument(student.getId(), "Fiche", ADMIN_ID));
@@ -113,7 +113,7 @@ class DocumensoDocumentServiceTest {
 
     var statuses = ArgumentCaptor.forClass(Collection.class);
     verify(documentRepository)
-        .findFirstByStudent_IdAndTemplate_IdAndStatusIn(any(), any(), statuses.capture());
+        .findFirstBySubject_IdAndTemplate_IdAndStatusIn(any(), any(), statuses.capture());
     assertEquals(
         List.of(DocumensoDocumentStatus.PENDING, DocumensoDocumentStatus.COMPLETED),
         List.copyOf(statuses.getValue()),
@@ -124,7 +124,7 @@ class DocumensoDocumentServiceTest {
   void a_document_never_asked_for_reaches_documenso() {
     var student = aStudent();
     givenStudentWithMonitor(student);
-    when(documentRepository.findFirstByStudent_IdAndTemplate_IdAndStatusIn(any(), any(), any()))
+    when(documentRepository.findFirstBySubject_IdAndTemplate_IdAndStatusIn(any(), any(), any()))
         .thenReturn(Optional.empty());
     when(documensoClient.getTemplate(anyLong())).thenThrow(new RestClientException("stop here"));
 

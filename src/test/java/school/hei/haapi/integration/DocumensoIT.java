@@ -233,7 +233,7 @@ class DocumensoIT extends FacadeITMockedThirdParties {
 
     assertEquals(DocumensoDocumentStatus.PENDING, created.getStatus());
     assertEquals(999L, created.getDocumensoDocumentId());
-    assertEquals(student.getId(), created.getStudentId());
+    assertEquals(student.getId(), created.getSubjectId());
 
     var useTemplateCaptor =
         ArgumentCaptor.forClass(TemplateCreateDocumentFromTemplateRequest.class);
@@ -353,14 +353,14 @@ class DocumensoIT extends FacadeITMockedThirdParties {
     assertEquals(1, mine.size());
     var read = mine.getFirst();
     assertEquals(generated.getId(), read.getId());
-    assertEquals(student.getId(), read.getStudentId());
+    assertEquals(student.getId(), read.getSubjectId());
     assertEquals(DocumensoDocumentStatus.PENDING, read.getStatus());
     assertEquals(admin.getId(), read.getGeneratedById());
     // the table must render a name without one extra call per row
-    assertEquals(student.getId(), read.getStudent().getId());
-    assertEquals(student.getFirstName(), read.getStudent().getFirstName());
-    assertEquals(student.getLastName(), read.getStudent().getLastName());
-    assertEquals(student.getRef(), read.getStudent().getRef());
+    assertEquals(student.getId(), read.getSubject().getId());
+    assertEquals(student.getFirstName(), read.getSubject().getFirstName());
+    assertEquals(student.getLastName(), read.getSubject().getLastName());
+    assertEquals(student.getRef(), read.getSubject().getRef());
     assertEquals(templateTitle, read.getTemplateTitle());
     assertNull(read.getCompletedDatetime(), "nothing is signed yet");
   }
@@ -584,7 +584,7 @@ class DocumensoIT extends FacadeITMockedThirdParties {
             school.hei.haapi.model.DocumensoDocument.builder()
                 .documensoDocumentId(4242L)
                 .template(template)
-                .student(student)
+                .subject(student)
                 .level(StudentLevel.L1)
                 .status(PENDING)
                 .build());
@@ -607,7 +607,7 @@ class DocumensoIT extends FacadeITMockedThirdParties {
         anApi(monitorToken).getMonitorDocumensoDocuments(monitor.getId(), 1, 15).getFirst();
     assertEquals(DocumensoDocumentStatus.COMPLETED, asRead.getStatus());
     assertNotNull(asRead.getCompletedDatetime());
-    assertEquals(student.getRef(), asRead.getStudent().getRef());
+    assertEquals(student.getRef(), asRead.getSubject().getRef());
   }
 
   @Test
