@@ -1170,6 +1170,12 @@ components:
         creation_datetime:
           type: string
           format: date-time
+        validated_by_ref:
+          type: string
+        validated_by_first_name:
+          type: string
+        validated_by_last_name:
+          type: string
     CrupdateMpbs:
       type: object
       properties:
@@ -2342,6 +2348,8 @@ components:
            $ref: '#/components/schemas/Credit'
          fee:
            $ref: '#/components/schemas/Fee'
+         payment:
+           $ref: '#/components/schemas/Payment'
          date_time:
            type: string
            format: date-time
@@ -2349,12 +2357,6 @@ components:
            type: integer
          movement:
            $ref: '#/components/schemas/CreditMovement'
-         validated_by_ref:
-           type: string
-         validated_by_first_name:
-           type: string
-         validated_by_last_name:
-           type: string
     CreditPayment:
       allOf:
         - $ref: '#/components/schemas/CreatePayment'

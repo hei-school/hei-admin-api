@@ -236,12 +236,16 @@ class CreditControllerIT extends FacadeITMockedThirdParties {
             .findFirst()
             .orElseThrow();
     assertEquals(managerHasina.getRef(), creditFromArchive.getFee().getArchivedByRef());
+    assertEquals(null, creditFromArchive.getPayment());
     var debitFromPayment =
         transactions.stream()
             .filter(t -> t.getFee().getId().equals(currentFee.getId()))
             .findFirst()
             .orElseThrow();
-    assertEquals(managerHasina.getRef(), debitFromPayment.getValidatedByRef());
+    assertNotNull(debitFromPayment.getPayment());
+    assertEquals(paymentToValidate.getId(), debitFromPayment.getPayment().getId());
+    assertEquals(currentFee.getId(), debitFromPayment.getPayment().getFeeId());
+    assertEquals(managerHasina.getRef(), debitFromPayment.getPayment().getValidatedByRef());
   }
 
   private static User student() {
