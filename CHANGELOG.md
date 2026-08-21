@@ -1,3 +1,12 @@
+# [1.169.0](https://github.com/hei-school/hei-admin-api/compare/v1.166.1...v1.169.0) (2026-08-21)
+
+
+### Features
+
+* documenso integration ([e5ad697](https://github.com/hei-school/hei-admin-api/commit/e5ad6972f73514bd163b9858fdb614a403edfffb))
+
+
+
 ## [1.166.1](https://github.com/hei-school/hei-admin-api/compare/v1.166.0...v1.166.1) (2026-08-12)
 
 
@@ -139,15 +148,6 @@
 * (doc) add new attribut for globaleAttendance ([31ff579](https://github.com/hei-school/hei-admin-api/commit/31ff57908f77b6b5cd8fd6e22530ce74f716b2b3))
 * (doc) add new endpoint to get all student licence ([b30c3f7](https://github.com/hei-school/hei-admin-api/commit/b30c3f7b809f52173d7202184bbe4a517ff17be5))
 * vola migration ([1e61f6a](https://github.com/hei-school/hei-admin-api/commit/1e61f6a331468dd45797fdc1359a06f68d10b2e2))
-
-
-
-# [1.155.0](https://github.com/hei-school/hei-admin-api/compare/v1.154.1...v1.155.0) (2026-03-26)
-
-
-### Features
-
-* add status-checks to flag potential withdrawing students ([821726d](https://github.com/hei-school/hei-admin-api/commit/821726d68c1a36120ffc5ed10d7bd9a57b4b03a4))
 
 
 
