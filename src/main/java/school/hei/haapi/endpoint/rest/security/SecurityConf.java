@@ -152,6 +152,14 @@ public class SecurityConf {
                     antMatcher(POST, "/cors/*/comment"),
                     antMatcher(GET, "/students/*/cors"),
                     antMatcher(PUT, "/students/*/cors"),
+                    antMatcher(POST, "/documenso-templates/sync"),
+                    antMatcher(GET, "/documenso-templates"),
+                    antMatcher(POST, "/documenso-documents"),
+                    antMatcher(POST, "/promotions/*/documenso-documents"),
+                    antMatcher(GET, "/promotions/*/documenso-documents"),
+                    antMatcher(GET, "/monitors/*/documenso-documents"),
+                    antMatcher(GET, "/documenso-documents/*/signing-token"),
+                    antMatcher(GET, "/documenso-documents/*/file-url"),
                     antMatcher(PUT, "/students/*/fees/*/mpbs"),
                     antMatcher(GET, "/students/*/fees/*/mpbs"),
                     antMatcher(GET, "/students/*/fees/*/mpbs/verifications"),
@@ -350,6 +358,7 @@ public class SecurityConf {
                             // casdoor
                             new AntPathRequestMatcher("/authentication/signin", POST.name()),
                             new AntPathRequestMatcher("/authentication/login-url", GET.name()),
+                            new AntPathRequestMatcher("/documenso/webhook", POST.name()),
                             new AntPathRequestMatcher("/**", OPTIONS.toString())))
                     .permitAll()
                     .requestMatchers(GET, "/whoami")
@@ -1093,6 +1102,25 @@ public class SecurityConf {
                     .hasAnyRole(TEACHER.getRole(), MANAGER.getRole(), ADMIN.getRole())
                     .requestMatchers(PUT, "/students/*/cors")
                     .hasAnyRole(MANAGER.getRole(), ADMIN.getRole())
+                    .requestMatchers(POST, "/documenso-templates/sync")
+                    .hasAnyRole(ADMIN.getRole())
+                    .requestMatchers(GET, "/documenso-templates")
+                    .hasAnyRole(ADMIN.getRole(), MANAGER.getRole())
+                    .requestMatchers(POST, "/documenso-documents")
+                    .hasAnyRole(ADMIN.getRole(), MANAGER.getRole())
+                    .requestMatchers(POST, "/promotions/*/documenso-documents")
+                    .hasAnyRole(ADMIN.getRole(), MANAGER.getRole())
+                    .requestMatchers(GET, "/promotions/*/documenso-documents")
+                    .hasAnyRole(ADMIN.getRole(), MANAGER.getRole())
+                    .requestMatchers(
+                        new SelfMatcher(GET, "/monitors/*/documenso-documents", "monitors"))
+                    .hasAnyRole(MONITOR.getRole(), ADMIN.getRole())
+                    .requestMatchers(GET, "/monitors/*/documenso-documents")
+                    .hasAnyRole(MANAGER.getRole(), ADMIN.getRole())
+                    .requestMatchers(GET, "/documenso-documents/*/signing-token")
+                    .hasAnyRole(ADMIN.getRole(), MANAGER.getRole(), MONITOR.getRole())
+                    .requestMatchers(GET, "/documenso-documents/*/file-url")
+                    .hasAnyRole(ADMIN.getRole(), MANAGER.getRole(), MONITOR.getRole())
                     //
                     // Attendances resources
                     //

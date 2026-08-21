@@ -1,0 +1,249 @@
+operations:
+  documensoTemplates:
+    get:
+      tags:
+        - Documenso
+      summary: List the Documenso templates already synced
+      description: >
+        Reads the local catalog, filled by the sync. Nothing is asked of Documenso here, so this may
+        safely back a template picker.
+      operationId: getDocumensoTemplates
+      parameters:
+        - name: page
+          in: query
+          schema:
+            $ref: '../components.yml#/components/schemas/Page'
+        - name: page_size
+          in: query
+          schema:
+            $ref: '../components.yml#/components/schemas/PageSize'
+      responses:
+        '200':
+          description: The synced templates, most recent first
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '../components.yml#/components/schemas/TemplateDocumenso'
+        '403':
+          $ref: '../components.yml#/components/responses/403'
+        '500':
+          $ref: '../components.yml#/components/responses/500'
+  syncDocumensoTemplates:
+    post:
+      tags:
+        - Documenso
+      summary: Sync the local template catalog from the templates created in the Documenso interface
+      operationId: syncDocumensoTemplates
+      responses:
+        '200':
+          description: The synced templates
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '../components.yml#/components/schemas/TemplateDocumenso'
+        '403':
+          $ref: '../components.yml#/components/responses/403'
+        '500':
+          $ref: '../components.yml#/components/responses/500'
+  generateDocumensoDocument:
+    post:
+      tags:
+        - Documenso
+      summary: Generate a document from a Documenso template for a promotion level, to be signed by the admin and the monitor
+      operationId: generateDocumensoDocument
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '../components.yml#/components/schemas/CrupdateDocumensoDocument'
+      responses:
+        '200':
+          description: The pending Documenso document
+          content:
+            application/json:
+              schema:
+                $ref: '../components.yml#/components/schemas/DocumensoDocument'
+        '400':
+          $ref: '../components.yml#/components/responses/400'
+        '403':
+          $ref: '../components.yml#/components/responses/403'
+        '404':
+          $ref: '../components.yml#/components/responses/404'
+        '500':
+          $ref: '../components.yml#/components/responses/500'
+  promotionDocumensoDocuments:
+    post:
+      tags:
+        - Documenso
+      summary: Ask for a document for every student of a promotion
+      description: >
+        Fans the work out to one background task per student, then returns straight away: no
+        document exists yet when the response arrives. Students already holding a pending or signed
+        document for this template are skipped, so the same promotion may safely be fired twice.
+      operationId: generateDocumensoDocumentsForPromotion
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '../components.yml#/components/schemas/GenerateDocumensoDocuments'
+      responses:
+        '202':
+          description: Generation accepted and running in the background
+          content:
+            application/json:
+              schema:
+                $ref: '../components.yml#/components/schemas/DocumensoGenerationLaunched'
+        '403':
+          $ref: '../components.yml#/components/responses/403'
+        '404':
+          $ref: '../components.yml#/components/responses/404'
+        '500':
+          $ref: '../components.yml#/components/responses/500'
+    get:
+      tags:
+        - Documenso
+      summary: List the documents of a promotion's students
+      description: >
+        Students are resolved the same way the bulk generation resolves them, so both agree on who
+        belongs to the promotion. Ordered by creation date, most recent first.
+      operationId: getPromotionDocumensoDocuments
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: level
+          in: query
+          schema:
+            $ref: '../components.yml#/components/schemas/StudentLevel'
+        - name: status
+          in: query
+          schema:
+            $ref: '../components.yml#/components/schemas/DocumensoDocumentStatus'
+        - name: page
+          in: query
+          schema:
+            $ref: '../components.yml#/components/schemas/Page'
+        - name: page_size
+          in: query
+          schema:
+            $ref: '../components.yml#/components/schemas/PageSize'
+      responses:
+        '200':
+          description: The promotion's documents
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '../components.yml#/components/schemas/DocumensoDocument'
+        '403':
+          $ref: '../components.yml#/components/responses/403'
+        '404':
+          $ref: '../components.yml#/components/responses/404'
+        '500':
+          $ref: '../components.yml#/components/responses/500'
+  getMonitorDocumensoDocuments:
+    get:
+      tags:
+        - Documenso
+      summary: List the documents of the students a monitor follows
+      description: >
+        A monitor may only read their own list; managers and admins may read any monitor's.
+        Ordered by creation date, most recent first.
+      operationId: getMonitorDocumensoDocuments
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: page
+          in: query
+          schema:
+            $ref: '../components.yml#/components/schemas/Page'
+        - name: page_size
+          in: query
+          schema:
+            $ref: '../components.yml#/components/schemas/PageSize'
+      responses:
+        '200':
+          description: The monitor's documents
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '../components.yml#/components/schemas/DocumensoDocument'
+        '403':
+          $ref: '../components.yml#/components/responses/403'
+        '404':
+          $ref: '../components.yml#/components/responses/404'
+        '500':
+          $ref: '../components.yml#/components/responses/500'
+  getDocumensoDocumentFileUrl:
+    get:
+      tags:
+        - Documenso
+      summary: Get a short-lived link to the signed PDF of a document
+      description: >
+        Minted on request, valid a few minutes. Returns 404 while the document is still pending,
+        since nothing has been archived yet.
+      operationId: getDocumensoDocumentFileUrl
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: The link
+          content:
+            application/json:
+              schema:
+                $ref: '../components.yml#/components/schemas/DocumensoFileUrl'
+        '403':
+          $ref: '../components.yml#/components/responses/403'
+        '404':
+          $ref: '../components.yml#/components/responses/404'
+        '500':
+          $ref: '../components.yml#/components/responses/500'
+  getDocumensoDocumentSigningToken:
+    get:
+      tags:
+        - Documenso
+      summary: Get the Documenso signing token for the authenticated user's recipient slot on a document
+      operationId: getDocumensoDocumentSigningToken
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: The signing token
+          content:
+            application/json:
+              schema:
+                $ref: '../components.yml#/components/schemas/DocumensoSigningToken'
+        '403':
+          $ref: '../components.yml#/components/responses/403'
+        '404':
+          $ref: '../components.yml#/components/responses/404'
+        '500':
+          $ref: '../components.yml#/components/responses/500'

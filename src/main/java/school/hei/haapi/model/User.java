@@ -119,6 +119,8 @@ public class User implements Serializable {
 
   private String profilePictureKey;
 
+  private Long documensoUserId;
+
   // RELATION (TEACHER): Course Assignment
   @OneToMany(fetch = FetchType.LAZY, mappedBy = "mainTeacher")
   @ToString.Exclude
