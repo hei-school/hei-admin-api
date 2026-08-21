@@ -2325,6 +2325,18 @@ components:
            type: integer
          movement:
            $ref: '#/components/schemas/CreditMovement'
+    CreditPayment:
+      allOf:
+        - $ref: '#/components/schemas/CreatePayment'
+      type: object
+      properties:
+        id:
+          type: string
+        fee:
+          $ref: '#/components/schemas/Fee'
+        creation_date:
+          type: string
+          format: date
     TemplateDocumenso:
       type: object
       properties:
