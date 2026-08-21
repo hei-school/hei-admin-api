@@ -2325,6 +2325,9 @@ components:
            type: integer
          movement:
            $ref: '#/components/schemas/CreditMovement'
+    CreditPayment:
+      allOf:
+        - $ref: '#/components/schemas/CreatePayment'
     TemplateDocumenso:
       type: object
       properties:
