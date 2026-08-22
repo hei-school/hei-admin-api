@@ -21,13 +21,7 @@ jobs:
 
     env:
       AWS_REGION: eu-west-3
-      VOLA_API_URL: ${{
-              (github.event_name == 'pull_request' && github.base_ref == 'prod') && secrets.PROD_VOLA_API_URL ||
-              (github.event_name == 'pull_request' && github.base_ref == 'preprod') && secrets.PREPROD_VOLA_API_URL ||
-              (github.ref == 'refs/heads/prod') && secrets.PROD_VOLA_API_URL ||
-              (github.ref == 'refs/heads/preprod') && secrets.PREPROD_VOLA_API_URL
-              }}
-
+      
 
     steps:
       - uses: actions/checkout@v4.1.6
@@ -39,8 +33,7 @@ jobs:
       - run: chmod +x gradlew
       - run: chmod +x .shell/publish_gen_to_maven_local.sh
       - run: |
-          ./gradlew test \
-            -Dvola.api.url="$VOLA_API_URL"
+          ./gradlew test
 
       - name: Cache SonarCloud packages
         uses: actions/cache@v4.2.2
