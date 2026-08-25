@@ -242,6 +242,8 @@ paths:
     $ref: './operations/paying-api.yml#/operations/generateFeeReceipts'
   '/students/{student_id}/fees/{fee_id}':
     $ref: './operations/paying-api.yml#/operations/studentsFeesById'
+  '/students/{student_id}/fees/{fee_id}/archive-status':
+    $ref: './operations/paying-api.yml#/operations/studentsFeesByIdArchiveStatus'
   '/students/{student_id}/fees':
     $ref: './operations/paying-api.yml#/operations/studentsFees'
   /fees/raw:

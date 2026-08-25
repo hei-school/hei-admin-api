@@ -13,6 +13,7 @@ import school.hei.haapi.model.exception.NotFoundException;
 public class CreditMapper {
   private final UserMapper userMapper;
   private final FeeMapper feeMapper;
+  private final PaymentMapper paymentMapper;
 
   public Credit toRest(school.hei.haapi.model.Credit credit) {
     if (credit == null) {
@@ -25,10 +26,12 @@ public class CreditMapper {
   }
 
   public CreditTransaction toRest(school.hei.haapi.model.CreditTransaction creditTransaction) {
+    var payment = creditTransaction.getPayment();
     return new CreditTransaction()
         .transactionId(creditTransaction.getId())
         .amount(creditTransaction.getAmount())
         .fee(feeMapper.toRestFee(creditTransaction.getFee()))
+        .payment(payment == null ? null : paymentMapper.toRestPayment(payment))
         .credit(toRest(creditTransaction.getCredit()))
         .movement(CreditMovement.valueOf(creditTransaction.getCreditMovement().toString()));
   }

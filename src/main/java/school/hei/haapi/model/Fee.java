@@ -7,6 +7,9 @@ import static jakarta.persistence.GenerationType.IDENTITY;
 import static java.util.Comparator.comparing;
 import static java.util.function.Predicate.isEqual;
 import static org.hibernate.type.SqlTypes.NAMED_ENUM;
+import static school.hei.haapi.endpoint.rest.model.ArchiveStatusEnum.ARCHIVED;
+import static school.hei.haapi.endpoint.rest.model.ArchiveStatusEnum.REJECTED;
+import static school.hei.haapi.endpoint.rest.model.ArchiveStatusEnum.TO_ARCHIVE;
 import static school.hei.haapi.endpoint.rest.model.FeeCategory.UNKNOWN;
 import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.PAID;
 import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.PENDING;
@@ -39,11 +42,13 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.SQLRestriction;
+import school.hei.haapi.endpoint.rest.model.ArchiveStatusEnum;
 import school.hei.haapi.endpoint.rest.model.FeeCategory;
 import school.hei.haapi.endpoint.rest.model.FeeFrequency;
 import school.hei.haapi.endpoint.rest.model.FeeStatusEnum;
 import school.hei.haapi.endpoint.rest.model.FeeTypeEnum;
 import school.hei.haapi.endpoint.rest.model.MpbsStatus;
+import school.hei.haapi.model.exception.BadRequestException;
 import school.hei.haapi.model.fee.PaymentType;
 import school.hei.haapi.model.mpbs.Mpbs;
 
@@ -128,6 +133,16 @@ public class Fee implements Serializable {
 
   private boolean isArchived;
 
+  @JdbcTypeCode(NAMED_ENUM)
+  @Enumerated(STRING)
+  @Setter(AccessLevel.NONE)
+  private ArchiveStatusEnum archiveStatus;
+
+  @ManyToOne
+  @JoinColumn(name = "archived_by_id")
+  @EqualsAndHashCode.Exclude
+  private User archivedBy;
+
   public Instant getCreationDatetime() {
     return creationDatetime.truncatedTo(ChronoUnit.MILLIS);
   }
@@ -209,6 +224,34 @@ Fee : {"id" : "%s", "remainingAmount" : "%s", "totalAmount" : "%s", "dueDatetime
       case PAID -> List.of(PENDING, PAID).contains(newStatus);
       case UNPAID, PENDING, LATE -> true;
     };
+  }
+
+  public void requestArchive() {
+    if (archiveStatus == TO_ARCHIVE || archiveStatus == ARCHIVED) {
+      throw new BadRequestException(
+          "Fee archive is already " + archiveStatus + ", it can't be requested again");
+    }
+    this.archiveStatus = TO_ARCHIVE;
+  }
+
+  public void validateArchive() {
+    requireToArchive();
+    this.archiveStatus = ARCHIVED;
+    this.isArchived = true;
+  }
+
+  public Fee rejectArchive() {
+    requireToArchive();
+    this.archiveStatus = REJECTED;
+    return this;
+  }
+
+  private void requireToArchive() {
+    if (archiveStatus != TO_ARCHIVE) {
+      throw new BadRequestException(
+          "Fee archive status must be TO_ARCHIVE to be validated or rejected, but was "
+              + archiveStatus);
+    }
   }
 
   public Optional<FeeStatusEnum> getStatusAt(Instant instant) {

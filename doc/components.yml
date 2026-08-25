@@ -1022,6 +1022,14 @@ components:
           type: string
         is_archived:
           type: boolean
+        archive_status:
+          $ref: '#/components/schemas/ArchiveStatusEnum'
+        archived_by_ref:
+          type: string
+        archived_by_first_name:
+          type: string
+        archived_by_last_name:
+          type: string
     FeeCategory:
       type: string
       enum:
@@ -1162,6 +1170,12 @@ components:
         creation_datetime:
           type: string
           format: date-time
+        validated_by_ref:
+          type: string
+        validated_by_first_name:
+          type: string
+        validated_by_last_name:
+          type: string
     CrupdateMpbs:
       type: object
       properties:
@@ -1460,6 +1474,22 @@ components:
         - PAID
         - LATE
         - PENDING
+    ArchiveStatusEnum:
+      type: string
+      description: >
+        Lifecycle of a fee archiving request: TO_ARCHIVE once requested by a manager,
+        then ARCHIVED or REJECTED once a validator has reviewed it.
+      enum:
+        - TO_ARCHIVE
+        - ARCHIVED
+        - REJECTED
+    UpdateFeeArchiveStatus:
+      type: object
+      properties:
+        status:
+          $ref: '#/components/schemas/ArchiveStatusEnum'
+      required:
+        - status
     FeeTypeEnum:
       type: string
       enum:
@@ -2298,8 +2328,8 @@ components:
     CreditMovement:
       type: string
       enum:
-        - WITHDRAWAL
-        - DEPOSIT
+        - DEBIT
+        - CREDIT
     Credit:
       type: object
       properties:
@@ -2318,6 +2348,8 @@ components:
            $ref: '#/components/schemas/Credit'
          fee:
            $ref: '#/components/schemas/Fee'
+         payment:
+           $ref: '#/components/schemas/Payment'
          date_time:
            type: string
            format: date-time
@@ -2337,6 +2369,12 @@ components:
         creation_date:
           type: string
           format: date
+        validated_by_ref:
+          type: string
+        validated_by_first_name:
+          type: string
+        validated_by_last_name:
+          type: string
     TemplateDocumenso:
       type: object
       properties:

@@ -2,9 +2,10 @@ package school.hei.haapi.service;
 
 import static java.time.Instant.now;
 import static org.springframework.data.domain.Sort.Direction.DESC;
+// Not statically imported: CreditMovement.CREDIT would collide with Payment.TypeEnum.CREDIT
+// below. The two are unrelated: a payment of type CREDIT (paid out of the credit balance)
+// causes a CreditMovement.DEBIT (the balance decreasing), not a CreditMovement.CREDIT.
 import static school.hei.haapi.endpoint.rest.model.Payment.TypeEnum.CREDIT;
-import static school.hei.haapi.model.CreditMovement.DEPOSIT;
-import static school.hei.haapi.model.CreditMovement.WITHDRAWAL;
 
 import java.util.List;
 import java.util.Optional;
@@ -22,7 +23,6 @@ import school.hei.haapi.model.Payment;
 import school.hei.haapi.model.User;
 import school.hei.haapi.model.exception.BadRequestException;
 import school.hei.haapi.repository.CreditRepository;
-import school.hei.haapi.repository.PaymentRepository;
 import school.hei.haapi.repository.TransactionRepository;
 
 @Service
@@ -30,19 +30,9 @@ import school.hei.haapi.repository.TransactionRepository;
 public class CreditService {
   private final CreditRepository creditRepository;
   private final TransactionRepository transactionRepository;
-  private final PaymentRepository paymentRepository;
 
   public Optional<Credit> getCreditByStudentId(String studentId) {
-    var credit = creditRepository.findCreditByStudent_Id(studentId);
-    credit.ifPresent(
-        value ->
-            value.setAmount(
-                value.getAmount() - getPendingCreditPaymentsAmountByStudentId(studentId)));
-    return credit;
-  }
-
-  private int getPendingCreditPaymentsAmountByStudentId(String studentId) {
-    return paymentRepository.sumPendingCreditPaymentsAmountByStudentId(studentId);
+    return creditRepository.findCreditByStudent_Id(studentId);
   }
 
   public List<CreditTransaction> getCreditTransactionsByStudentId(
@@ -69,7 +59,12 @@ public class CreditService {
       throw new BadRequestException("Fee can't archived two times");
     }
 
-    applyTransaction(getOrCreateCredit(fee.getStudent()), fee, fee.getTotalAmount(), DEPOSIT);
+    applyTransaction(
+        getOrCreateCredit(fee.getStudent()),
+        fee,
+        null,
+        fee.getTotalAmount(),
+        CreditMovement.CREDIT);
   }
 
   public void subtractStudentCreditByPayment(Payment payment) {
@@ -79,8 +74,9 @@ public class CreditService {
     applyTransaction(
         getCreditByStudentId(payment.getFee().getStudent().getId()).orElseThrow(),
         payment.getFee(),
+        payment,
         payment.getAmount(),
-        WITHDRAWAL);
+        CreditMovement.DEBIT);
   }
 
   public void transferFeeOverpaymentToCredit(Fee fee, User student) {
@@ -88,7 +84,7 @@ public class CreditService {
     if (overpayment <= 0) {
       return;
     }
-    applyTransaction(getOrCreateCredit(student), fee, overpayment, DEPOSIT);
+    applyTransaction(getOrCreateCredit(student), fee, null, overpayment, CreditMovement.CREDIT);
     fee.setRemainingAmount(0);
   }
 
@@ -102,8 +98,9 @@ public class CreditService {
             () -> Credit.builder().student(student).amount(0).creationDatetime(now()).build());
   }
 
-  private void applyTransaction(Credit credit, Fee fee, int amount, CreditMovement movement) {
-    if (DEPOSIT.equals(movement)) {
+  private void applyTransaction(
+      Credit credit, Fee fee, Payment payment, int amount, CreditMovement movement) {
+    if (CreditMovement.CREDIT.equals(movement)) {
       credit.setAmount(credit.getAmount() + amount);
     } else {
       credit.setAmount(credit.getAmount() - amount);
@@ -113,6 +110,7 @@ public class CreditService {
         CreditTransaction.builder()
             .credit(savedCredit)
             .fee(fee)
+            .payment(payment)
             .amount(amount)
             .creditMovement(movement)
             .creationDatetime(now())
