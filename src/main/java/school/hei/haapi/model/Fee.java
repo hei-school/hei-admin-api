@@ -1,5 +1,22 @@
 package school.hei.haapi.model;
 
+import static jakarta.persistence.CascadeType.REMOVE;
+import static jakarta.persistence.EnumType.STRING;
+import static jakarta.persistence.FetchType.EAGER;
+import static jakarta.persistence.GenerationType.IDENTITY;
+import static java.util.Comparator.comparing;
+import static java.util.function.Predicate.isEqual;
+import static org.hibernate.type.SqlTypes.NAMED_ENUM;
+import static school.hei.haapi.endpoint.rest.model.ArchiveStatusEnum.ARCHIVED;
+import static school.hei.haapi.endpoint.rest.model.ArchiveStatusEnum.REJECTED;
+import static school.hei.haapi.endpoint.rest.model.ArchiveStatusEnum.TO_ARCHIVE;
+import static school.hei.haapi.endpoint.rest.model.FeeCategory.UNKNOWN;
+import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.PAID;
+import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.PENDING;
+import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.UNPAID;
+import static school.hei.haapi.model.fee.PaymentType.BANK;
+import static school.hei.haapi.model.fee.PaymentType.MPBS;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Enumerated;
@@ -9,6 +26,11 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import java.io.Serializable;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
+import java.util.List;
+import java.util.Optional;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -29,29 +51,6 @@ import school.hei.haapi.endpoint.rest.model.MpbsStatus;
 import school.hei.haapi.model.exception.BadRequestException;
 import school.hei.haapi.model.fee.PaymentType;
 import school.hei.haapi.model.mpbs.Mpbs;
-
-import java.io.Serializable;
-import java.time.Instant;
-import java.time.temporal.ChronoUnit;
-import java.util.List;
-import java.util.Optional;
-
-import static jakarta.persistence.CascadeType.REMOVE;
-import static jakarta.persistence.EnumType.STRING;
-import static jakarta.persistence.FetchType.EAGER;
-import static jakarta.persistence.GenerationType.IDENTITY;
-import static java.util.Comparator.comparing;
-import static java.util.function.Predicate.isEqual;
-import static org.hibernate.type.SqlTypes.NAMED_ENUM;
-import static school.hei.haapi.endpoint.rest.model.ArchiveStatusEnum.ARCHIVED;
-import static school.hei.haapi.endpoint.rest.model.ArchiveStatusEnum.REJECTED;
-import static school.hei.haapi.endpoint.rest.model.ArchiveStatusEnum.TO_ARCHIVE;
-import static school.hei.haapi.endpoint.rest.model.FeeCategory.UNKNOWN;
-import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.PAID;
-import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.PENDING;
-import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.UNPAID;
-import static school.hei.haapi.model.fee.PaymentType.BANK;
-import static school.hei.haapi.model.fee.PaymentType.MPBS;
 
 @Entity
 @Table(name = "\"fee\"")

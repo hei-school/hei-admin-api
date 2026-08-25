@@ -1,5 +1,18 @@
 package school.hei.haapi.integration;
 
+import static java.time.Instant.now;
+import static java.time.temporal.ChronoUnit.DAYS;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static school.hei.haapi.endpoint.rest.model.FeeFrequency.MONTHLY;
+import static school.hei.haapi.integration.conf.TestAuth.tokenFor;
+import static school.hei.haapi.integration.conf.TestMocks.setUpEventBridge;
+import static school.hei.haapi.integration.testData.ManagerTestData.hasina;
+import static school.hei.haapi.model.User.Role.STUDENT;
+
+import java.time.Instant;
+import java.util.List;
+import java.util.UUID;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -28,20 +41,6 @@ import school.hei.haapi.repository.PaymentRepository;
 import school.hei.haapi.repository.TransactionRepository;
 import school.hei.haapi.repository.UserRepository;
 import software.amazon.awssdk.services.eventbridge.EventBridgeClient;
-
-import java.time.Instant;
-import java.util.List;
-import java.util.UUID;
-
-import static java.time.Instant.now;
-import static java.time.temporal.ChronoUnit.DAYS;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static school.hei.haapi.endpoint.rest.model.FeeFrequency.MONTHLY;
-import static school.hei.haapi.integration.conf.TestAuth.tokenFor;
-import static school.hei.haapi.integration.conf.TestMocks.setUpEventBridge;
-import static school.hei.haapi.integration.testData.ManagerTestData.hasina;
-import static school.hei.haapi.model.User.Role.STUDENT;
 
 @Testcontainers
 @AutoConfigureMockMvc
