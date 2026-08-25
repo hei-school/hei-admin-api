@@ -221,9 +221,7 @@ dependencies {
     testImplementation 'org.testcontainers:testcontainers-junit-jupiter:2.0.2'
     testImplementation 'org.junit-pioneer:junit-pioneer:2.2.0'
 
-    implementation 'io.sentry:sentry-logback:7.6.0'
-    implementation 'io.sentry:sentry-spring-boot-starter-jakarta:7.4.0'
-    implementation 'org.springframework.boot:spring-boot-starter-data-jpa:3.2.2'
+implementation 'org.springframework.boot:spring-boot-starter-data-jpa:3.2.2'
 implementation 'org.flywaydb:flyway-core:9.22.3'
 implementation 'org.postgresql:postgresql:42.6.0'
 implementation 'org.hibernate.orm:hibernate-community-dialects:6.4.3.Final'
@@ -251,6 +249,5 @@ testImplementation 'com.github.javafaker:javafaker:0.13'
 testImplementation 'org.mockito:mockito-core:5.3.1'
 implementation 'school.hei:haapi-3d601c85-gen:latest'
 
-    
 
 }
