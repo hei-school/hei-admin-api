@@ -33,7 +33,8 @@ public class CreditMapper {
         .fee(feeMapper.toRestFee(creditTransaction.getFee()))
         .payment(payment == null ? null : paymentMapper.toRestPayment(payment))
         .credit(toRest(creditTransaction.getCredit()))
-        .movement(CreditMovement.valueOf(creditTransaction.getCreditMovement().toString()));
+        .movement(CreditMovement.valueOf(creditTransaction.getCreditMovement().toString()))
+        .dateTime(creditTransaction.getCreationDatetime());
   }
 
   public List<CreditTransaction> toCreditTransactionRest(
