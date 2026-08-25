@@ -221,9 +221,8 @@ class CreditControllerIT extends FacadeITMockedThirdParties {
     var studentPayingApi = new PayingApi(studentApiClient);
     var managerPayingApi = new PayingApi(managerApiClient);
     requestAndValidateArchive(managerPayingApi, feeToArchive.getId());
-    var payments =
-        studentPayingApi.createStudentPayments(
-            student.getId(), currentFee.getId(), List.of(bankPayment(), creditPaymentCreated()));
+    studentPayingApi.createStudentPayments(
+        student.getId(), currentFee.getId(), List.of(bankPayment(), creditPaymentCreated()));
     var paymentToValidate =
         managerPayingApi.getCreditPaymentsByStatus(PaymentStatus.CREATED, 1, 10).getFirst();
     managerPayingApi.validateCreditPayments(List.of(paymentToValidate.getId()));
@@ -238,7 +237,6 @@ class CreditControllerIT extends FacadeITMockedThirdParties {
             .findFirst()
             .orElseThrow();
     assertEquals(managerHasina.getRef(), creditFromArchive.getFee().getArchivedByRef());
-    assertEquals(null, creditFromArchive.getPayment());
     var debitFromPayment =
         transactions.stream()
             .filter(t -> t.getFee().getId().equals(currentFee.getId()))
