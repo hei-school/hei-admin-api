@@ -1,3 +1,12 @@
+## [1.169.1](https://github.com/hei-school/hei-admin-api/compare/v1.169.0...v1.169.1) (2026-08-25)
+
+
+### Bug Fixes
+
+* **test:** scope global search test to its own marker ([4621402](https://github.com/hei-school/hei-admin-api/commit/4621402d3365482981b160702cc4550ecf5cb38a))
+
+
+
 # [1.169.0](https://github.com/hei-school/hei-admin-api/compare/v1.166.1...v1.169.0) (2026-08-21)
 
 
@@ -123,31 +132,6 @@
 
 * add students/result_overviews endpoint spec ([d7c6efe](https://github.com/hei-school/hei-admin-api/commit/d7c6efe9b90e4bcbaff6dc3c83609e7a46dfbba9))
 * student retake exams list ([#1232](https://github.com/hei-school/hei-admin-api/issues/1232)) ([e2c6dce](https://github.com/hei-school/hei-admin-api/commit/e2c6dce5f154439742136b541a9dd928afe72895))
-
-
-
-# [1.158.0](https://github.com/hei-school/hei-admin-api/compare/v1.155.0...v1.158.0) (2026-05-15)
-
-
-### Bug Fixes
-
-* accounting fees duplicate due to status histories ([5822865](https://github.com/hei-school/hei-admin-api/commit/5822865bc55fa996f606599b51b493d39c3d25cf))
-* add @Builder.Default to RoomName and FeeCategory field to preserve default value ([91f00e6](https://github.com/hei-school/hei-admin-api/commit/91f00e65ebd930658ad803d45d9c3d4ffc63d220))
-* advanced fees stat, unknown feeCategory mapper ([71dfeb1](https://github.com/hei-school/hei-admin-api/commit/71dfeb1d350866099cb81f3ad111ee73289d3f35))
-* change vola verification endpoint target  ([86f5121](https://github.com/hei-school/hei-admin-api/commit/86f51217ad5dc6b7092e595e511724478e271c8a))
-* extract method and remove duplication ([6d178e3](https://github.com/hei-school/hei-admin-api/commit/6d178e3ecf1b313d067f0988f099bdc37c125d99))
-* Fee status not updated when Vola verifies an Mpbs ([6694307](https://github.com/hei-school/hei-admin-api/commit/66943070adea95e8a5dbcfa16e85ba4028191e6f))
-* get fees of non-disabled students only in fee export ([12169fa](https://github.com/hei-school/hei-admin-api/commit/12169fa29f4989f3280ed7659cecaa4caedc52f3))
-* migrate from REMEDIAL_COSTS to RETAKE_EXAM_COSTS ([c76d530](https://github.com/hei-school/hei-admin-api/commit/c76d5300921a9f53719bc7ae73ed212d0901400a))
-* unpaid fees null in advanced fee stats ([283cf98](https://github.com/hei-school/hei-admin-api/commit/283cf989d2ed578ccfdd6eff619549b4711b4532))
-
-
-### Features
-
-*  (doc) add new query params when getting letter ([e33d660](https://github.com/hei-school/hei-admin-api/commit/e33d66049727322da4d4b68b2f4d44bf323d89f7))
-* (doc) add new attribut for globaleAttendance ([31ff579](https://github.com/hei-school/hei-admin-api/commit/31ff57908f77b6b5cd8fd6e22530ce74f716b2b3))
-* (doc) add new endpoint to get all student licence ([b30c3f7](https://github.com/hei-school/hei-admin-api/commit/b30c3f7b809f52173d7202184bbe4a517ff17be5))
-* vola migration ([1e61f6a](https://github.com/hei-school/hei-admin-api/commit/1e61f6a331468dd45797fdc1359a06f68d10b2e2))
 
 
 
