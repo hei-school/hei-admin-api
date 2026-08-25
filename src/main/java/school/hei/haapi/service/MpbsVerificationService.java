@@ -49,7 +49,6 @@ public class MpbsVerificationService {
   private final VolaMapper volaMapper;
   private final MpbsService mpbsService;
   private final MpbsMapper mapper;
-  private final FeeService feeService;
 
   public List<MpbsVerification> findAllByStudentIdAndFeeId(String studentId, String feeId) {
     return repository.findAllByStudentIdAndFeeId(studentId, feeId);
@@ -57,6 +56,15 @@ public class MpbsVerificationService {
 
   public Mpbs verifyMpbsFromVola(Mpbs mpbs) {
     try {
+      var currentMpbs = mpbsRepository.findById(mpbs.getId()).orElse(mpbs);
+      if (!PENDING.equals(currentMpbs.getStatus())) {
+        log.info(
+            "Mpbs {} is no longer PENDING (status={}), skipping re-verification",
+            mpbs.getId(),
+            currentMpbs.getStatus());
+        return currentMpbs;
+      }
+
       var studentEmail = mpbs.getStudent().getEmail();
       var volaPayment =
           volaClient.get(
@@ -67,10 +75,16 @@ public class MpbsVerificationService {
       if (verifiedMpbs.getAmount() == null) {
         return mpbs;
       }
+      if (!SUCCESS.equals(verifiedMpbs.getStatus())) {
+        log.info(
+            "Mpbs {} from Vola is not successful yet (status={}), skipping fee update",
+            mpbs.getId(),
+            verifiedMpbs.getStatus());
+        return mpbsService.save(verifiedMpbs);
+      }
       log.info(
           "Verifying Mpbs {} from Vola, result amount: {}", mpbs.getId(), verifiedMpbs.getAmount());
-      feeService.computeRemainingAmount(mpbs.getFee().getId(), verifiedMpbs.getAmount());
-      return mpbsService.save(verifiedMpbs);
+      return mpbsService.saveVerifiedSuccessfulPayment(verifiedMpbs);
     } catch (Exception e) {
       log.error("Failed to verify Mpbs {} from Vola", mpbs.getId(), e);
       return mpbs;

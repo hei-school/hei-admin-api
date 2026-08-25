@@ -1,5 +1,6 @@
 package school.hei.haapi.service;
 
+import jakarta.transaction.Transactional;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -17,23 +18,28 @@ public class MpbsService {
   private final MpbsRepository mpbsRepository;
   private final FeeService feeService;
 
-  /**
-   * Use MpbsService.saveAll to update mpbs status history
-   *
-   * @param toSave the mpbs to save
-   * @return the saved mpbs
-   */
+  @Transactional
+  public Mpbs saveVerifiedSuccessfulPayment(Mpbs verifiedMpbs) {
+    var lockedMpbs =
+        mpbsRepository
+            .findByIdForUpdate(verifiedMpbs.getId())
+            .orElseThrow(() -> new NotFoundException("Mpbs not found #" + verifiedMpbs.getId()));
+    if (!MpbsStatus.PENDING.equals(lockedMpbs.getStatus())) {
+      log.info(
+          "Mpbs {} was already resolved to {} while waiting for the lock, skipping",
+          verifiedMpbs.getId(),
+          lockedMpbs.getStatus());
+      return lockedMpbs;
+    }
+    feeService.computeRemainingAmount(verifiedMpbs.getFee().getId(), verifiedMpbs.getAmount());
+    return save(verifiedMpbs);
+  }
+
   public List<Mpbs> saveAll(List<Mpbs> toSave) {
     toSave.parallelStream().forEach(MpbsService::updateStatusHistory);
     return mpbsRepository.saveAll(toSave);
   }
 
-  /**
-   * Use MpbsService.save to update mpbs status history
-   *
-   * @param toSave the mpbs to save
-   * @return the saved mpbs
-   */
   public Mpbs save(Mpbs toSave) {
     return saveAll(List.of(toSave)).getFirst();
   }

@@ -2,14 +2,12 @@ package school.hei.haapi.service;
 
 import static java.time.Instant.now;
 import static org.springframework.data.domain.Sort.Direction.DESC;
-// Not statically imported: CreditMovement.CREDIT would collide with Payment.TypeEnum.CREDIT
-// below. The two are unrelated: a payment of type CREDIT (paid out of the credit balance)
-// causes a CreditMovement.DEBIT (the balance decreasing), not a CreditMovement.CREDIT.
 import static school.hei.haapi.endpoint.rest.model.Payment.TypeEnum.CREDIT;
 
 import java.util.List;
 import java.util.Optional;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
@@ -25,8 +23,13 @@ import school.hei.haapi.model.exception.BadRequestException;
 import school.hei.haapi.repository.CreditRepository;
 import school.hei.haapi.repository.TransactionRepository;
 
+// Not statically imported: CreditMovement.CREDIT would collide with Payment.TypeEnum.CREDIT
+// below. The two are unrelated: a payment of type CREDIT (paid out of the credit balance)
+// causes a CreditMovement.DEBIT (the balance decreasing), not a CreditMovement.CREDIT.
+
 @Service
 @AllArgsConstructor
+@Slf4j
 public class CreditService {
   private final CreditRepository creditRepository;
   private final TransactionRepository transactionRepository;
@@ -82,6 +85,15 @@ public class CreditService {
   public void transferFeeOverpaymentToCredit(Fee fee, User student) {
     var overpayment = -fee.getRemainingAmount();
     if (overpayment <= 0) {
+      return;
+    }
+    if (transactionRepository.existsByFee_IdAndCreditMovement(fee.getId(), CreditMovement.CREDIT)) {
+      log.warn(
+          "A credit transaction already exists for fee {}, skipping duplicate overpayment"
+              + " transfer of {}",
+          fee.getId(),
+          overpayment);
+      fee.setRemainingAmount(0);
       return;
     }
     applyTransaction(getOrCreateCredit(student), fee, null, overpayment, CreditMovement.CREDIT);
