@@ -87,7 +87,7 @@ public class DocumensoDocumentService {
 
     try {
       var remoteTemplate = documensoClient.getTemplate(template.getDocumensoTemplateId());
-      validateRemoteTemplate(remoteTemplate, template.getDocumensoTemplateId());
+      validateRemoteTemplate(remoteTemplate, template);
 
       var request = buildDocumentRequest(remoteTemplate, template, student, monitor, level);
       var response = documensoClient.useTemplate(request);
@@ -120,12 +120,16 @@ public class DocumensoDocumentService {
   }
 
   private void validateRemoteTemplate(
-      TemplateGetTemplateById200Response remoteTemplate, Long documensoTemplateId) {
+      TemplateGetTemplateById200Response remoteTemplate, TemplateDocumenso template) {
     var placeholders = remoteTemplate.getRecipients();
-    if (placeholders == null || placeholders.isEmpty()) {
+    if (placeholders == null || placeholders.size() != 1) {
       throw new ApiException(
           SERVER_EXCEPTION,
-          "Documenso template " + documensoTemplateId + " must define a recipient placeholder");
+          "Documenso template "
+              + template.getDocumensoTemplateId()
+              + " must define exactly one signer, the monitor, the admin's signature belonging to"
+              + " the template's PDF: found "
+              + (placeholders == null ? 0 : placeholders.size()));
     }
   }
 
