@@ -1,3 +1,20 @@
+# [1.170.0](https://github.com/hei-school/hei-admin-api/compare/v1.169.1...v1.170.0) (2026-08-26)
+
+
+### Bug Fixes
+
+* create credit transaction ([f78c6f9](https://github.com/hei-school/hei-admin-api/commit/f78c6f9bb4e0fac40cc046bef55a74cf30604fd1))
+* trigger CD ([132d622](https://github.com/hei-school/hei-admin-api/commit/132d622f5d98b976cce2885a5d3fd177a23d5282))
+* trigger CD ([328341f](https://github.com/hei-school/hei-admin-api/commit/328341f8e7f237b32ac803a5b9b4a339252e8b9c))
+
+
+### Features
+
+* add Documenso document distribution ([b952b82](https://github.com/hei-school/hei-admin-api/commit/b952b8244da97d9a1a28cede7b31f6562988b910))
+* expose credit transaction creation datetime ([491e827](https://github.com/hei-school/hei-admin-api/commit/491e827dcbec988da306ad7918f8e1beeb810eb0))
+
+
+
 ## [1.169.1](https://github.com/hei-school/hei-admin-api/compare/v1.169.0...v1.169.1) (2026-08-25)
 
 
@@ -122,16 +139,6 @@
 * implemente student retake exams list ([29e86ba](https://github.com/hei-school/hei-admin-api/commit/29e86ba5a9f15e0017f838f5451a0d9815404564))
 * move endpoint getStudentRetakeExams in RetakeExamController ([80ccb0b](https://github.com/hei-school/hei-admin-api/commit/80ccb0b0c9e70d273fd46e7f78dbc8a28f5a6660))
 * update tags grades in doc ([8d9cac5](https://github.com/hei-school/hei-admin-api/commit/8d9cac53d72d4cf7f31c1588050d3541cacf65b4))
-
-
-
-# [1.159.0](https://github.com/hei-school/hei-admin-api/compare/v1.158.0...v1.159.0) (2026-05-20)
-
-
-### Features
-
-* add students/result_overviews endpoint spec ([d7c6efe](https://github.com/hei-school/hei-admin-api/commit/d7c6efe9b90e4bcbaff6dc3c83609e7a46dfbba9))
-* student retake exams list ([#1232](https://github.com/hei-school/hei-admin-api/issues/1232)) ([e2c6dce](https://github.com/hei-school/hei-admin-api/commit/e2c6dce5f154439742136b541a9dd928afe72895))
 
 
 
