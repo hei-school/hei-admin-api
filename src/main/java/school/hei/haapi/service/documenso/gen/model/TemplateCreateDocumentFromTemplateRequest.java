@@ -26,6 +26,7 @@ import java.util.Objects;
 @JsonPropertyOrder({
   TemplateCreateDocumentFromTemplateRequest.JSON_PROPERTY_TEMPLATE_ID,
   TemplateCreateDocumentFromTemplateRequest.JSON_PROPERTY_RECIPIENTS,
+  TemplateCreateDocumentFromTemplateRequest.JSON_PROPERTY_DISTRIBUTE_DOCUMENT,
   TemplateCreateDocumentFromTemplateRequest.JSON_PROPERTY_PREFILL_FIELDS
 })
 @JsonTypeName("template_createDocumentFromTemplate_request")
@@ -42,6 +43,9 @@ public class TemplateCreateDocumentFromTemplateRequest implements Serializable {
   public static final String JSON_PROPERTY_RECIPIENTS = "recipients";
   private List<TemplateCreateDocumentFromTemplateRequestRecipientsInner> recipients =
       new ArrayList<>();
+
+  public static final String JSON_PROPERTY_DISTRIBUTE_DOCUMENT = "distributeDocument";
+  private Boolean distributeDocument;
 
   public static final String JSON_PROPERTY_PREFILL_FIELDS = "prefillFields";
   private List<TemplateCreateDocumentFromTemplateRequestPrefillFieldsInner> prefillFields =
@@ -108,6 +112,30 @@ public class TemplateCreateDocumentFromTemplateRequest implements Serializable {
     this.recipients = recipients;
   }
 
+  public TemplateCreateDocumentFromTemplateRequest distributeDocument(Boolean distributeDocument) {
+
+    this.distributeDocument = distributeDocument;
+    return this;
+  }
+
+  /**
+   * Get distributeDocument
+   *
+   * @return distributeDocument
+   */
+  @jakarta.annotation.Nullable
+  @JsonProperty(JSON_PROPERTY_DISTRIBUTE_DOCUMENT)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public Boolean getDistributeDocument() {
+    return distributeDocument;
+  }
+
+  @JsonProperty(JSON_PROPERTY_DISTRIBUTE_DOCUMENT)
+  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  public void setDistributeDocument(Boolean distributeDocument) {
+    this.distributeDocument = distributeDocument;
+  }
+
   public TemplateCreateDocumentFromTemplateRequest prefillFields(
       List<TemplateCreateDocumentFromTemplateRequestPrefillFieldsInner> prefillFields) {
 
@@ -156,12 +184,14 @@ public class TemplateCreateDocumentFromTemplateRequest implements Serializable {
     return Objects.equals(this.templateId, templateCreateDocumentFromTemplateRequest.templateId)
         && Objects.equals(this.recipients, templateCreateDocumentFromTemplateRequest.recipients)
         && Objects.equals(
+            this.distributeDocument, templateCreateDocumentFromTemplateRequest.distributeDocument)
+        && Objects.equals(
             this.prefillFields, templateCreateDocumentFromTemplateRequest.prefillFields);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(templateId, recipients, prefillFields);
+    return Objects.hash(templateId, recipients, distributeDocument, prefillFields);
   }
 
   @Override
@@ -170,6 +200,7 @@ public class TemplateCreateDocumentFromTemplateRequest implements Serializable {
     sb.append("class TemplateCreateDocumentFromTemplateRequest {\n");
     sb.append("    templateId: ").append(toIndentedString(templateId)).append("\n");
     sb.append("    recipients: ").append(toIndentedString(recipients)).append("\n");
+    sb.append("    distributeDocument: ").append(toIndentedString(distributeDocument)).append("\n");
     sb.append("    prefillFields: ").append(toIndentedString(prefillFields)).append("\n");
     sb.append("}");
     return sb.toString();

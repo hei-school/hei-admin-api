@@ -106,6 +106,7 @@ public class DocumensoDocumentService {
       StudentLevel level) {
     var request = new TemplateCreateDocumentFromTemplateRequest();
     request.setTemplateId(BigDecimal.valueOf(remoteTemplate.getId().longValue()));
+    request.setDistributeDocument(true);
     request.setRecipients(
         List.of(toRecipient(remoteTemplate.getRecipients().getFirst().getId(), monitor)));
     request.setPrefillFields(

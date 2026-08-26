@@ -172,6 +172,11 @@ paths:
                     required:
                       - id
                       - email
+                distributeDocument:
+                  type: boolean
+                  description: >-
+                    When true, Documenso sends the document to its recipients right away. Left
+                    out, the document stays a draft nobody is ever asked to sign.
                 prefillFields:
                   type: array
                   items:
