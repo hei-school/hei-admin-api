@@ -39,9 +39,9 @@ import school.hei.haapi.model.psp.vola.api.VolaClient;
 import school.hei.haapi.model.psp.vola.api.gen.client.model.Payment;
 import school.hei.haapi.model.psp.vola.api.gen.client.model.Payment.VerificationStatusEnum;
 import school.hei.haapi.model.psp.vola.api.gen.client.model.PspPayment;
+import school.hei.haapi.repository.MpbsRepository;
 import school.hei.haapi.service.ComputeVerifiedMobilePayment;
 import school.hei.haapi.service.FailedMobilePaymentNotification;
-import school.hei.haapi.service.FeeService;
 import school.hei.haapi.service.MobilePaymentService;
 import school.hei.haapi.service.MpbsService;
 import school.hei.haapi.service.MpbsVerificationService;
@@ -56,8 +56,8 @@ class MpbsVerificationTest {
   EventProducer<PaidFeeByMpbsFailedNotificationBody> eventProducerMock = mock();
   VolaClient volaClientMock = mock();
   MpbsService mpbsServiceMock = mock();
-  FeeService feeServiceMock = mock();
   MpbsMapper mpbsMapperMock = mock();
+  MpbsRepository mpbsRepositoryMock = mock();
   MpbsVerificationService subject =
       initMpbsVerificationService(
           unverifiedMobilePaymentHandlerMock,
@@ -72,7 +72,7 @@ class MpbsVerificationTest {
       ComputeVerifiedMobilePayment computeVerifiedMobilePayment) {
     return new MpbsVerificationService(
         mock(),
-        mock(),
+        mpbsRepositoryMock,
         mobilePaymentService,
         transactionDetailsMapper,
         mock(),
@@ -83,8 +83,7 @@ class MpbsVerificationTest {
         volaClientMock,
         new VolaMapper(),
         mpbsServiceMock,
-        mpbsMapperMock,
-        feeServiceMock);
+        mpbsMapperMock);
   }
 
   @Test
@@ -216,13 +215,14 @@ class MpbsVerificationTest {
             .build();
     when(volaClientMock.get(ORANGE_MONEY, "MP260101.0000.B00000", "dummy@gmail.com"))
         .thenReturn(confirmedVolaPayment);
-    when(mpbsServiceMock.save(any(Mpbs.class))).thenReturn(savedMpbs);
+    when(mpbsServiceMock.saveVerifiedSuccessfulPayment(any(Mpbs.class))).thenReturn(savedMpbs);
 
     var result = subject.verifyMpbsFromVola(mpbsToVerify);
 
     verify(volaClientMock, times(1)).get(ORANGE_MONEY, "MP260101.0000.B00000", "dummy@gmail.com");
     var mpbsSaveCaptor = ArgumentCaptor.forClass(Mpbs.class);
-    verify(mpbsServiceMock, times(1)).save(mpbsSaveCaptor.capture());
+    verify(mpbsServiceMock, times(1)).saveVerifiedSuccessfulPayment(mpbsSaveCaptor.capture());
+    verify(mpbsServiceMock, never()).save(any(Mpbs.class));
     var mpbsPassedToSave = mpbsSaveCaptor.getValue();
     assertEquals(10000, mpbsPassedToSave.getAmount());
     assertEquals(SUCCESS, mpbsPassedToSave.getStatus());
@@ -264,6 +264,32 @@ class MpbsVerificationTest {
 
     verify(mpbsServiceMock, never()).save(any(Mpbs.class));
     assertEquals(mpbsToVerify, result);
+  }
+
+  @Test
+  void verify_mpbs_from_vola_skips_already_processed_mpbs() {
+    var student = User.builder().email("dummy@gmail.com").build();
+    var fee = Fee.builder().id("feeId").student(student).build();
+    var mpbsToVerify =
+        Mpbs.builder()
+            .id("mpbs1")
+            .pspId("MP260101.0000.B00000")
+            .mobileMoneyType(MobileMoneyType.ORANGE_MONEY)
+            .student(student)
+            .fee(fee)
+            .status(PENDING)
+            .statusHistory(List.of())
+            .build();
+    var alreadySuccessMpbs =
+        Mpbs.builder().id("mpbs1").amount(10000).status(SUCCESS).student(student).fee(fee).build();
+    when(mpbsRepositoryMock.findById("mpbs1"))
+        .thenReturn(java.util.Optional.of(alreadySuccessMpbs));
+
+    var result = subject.verifyMpbsFromVola(mpbsToVerify);
+
+    verify(volaClientMock, never()).get(any(), any(), any());
+    verify(mpbsServiceMock, never()).saveVerifiedSuccessfulPayment(any());
+    assertEquals(alreadySuccessMpbs, result);
   }
 
   @Test
