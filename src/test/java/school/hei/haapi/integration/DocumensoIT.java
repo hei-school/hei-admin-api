@@ -2,6 +2,7 @@ package school.hei.haapi.integration;
 
 import static java.util.UUID.randomUUID;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -297,7 +298,7 @@ class DocumensoIT extends FacadeITMockedThirdParties {
   }
 
   @Test
-  void admin_generate_document_fills_topmost_guardian_block_with_monitor_data() throws Exception {
+  void admin_generate_document_leaves_the_guardian_block_to_the_monitor() throws Exception {
     when(documensoClientMock.getTemplate(templateExternalId))
         .thenReturn(
             new TemplateGetTemplateById200Response()
@@ -375,9 +376,10 @@ class DocumensoIT extends FacadeITMockedThirdParties {
                     f -> f.getId().longValue(),
                     TemplateCreateDocumentFromTemplateRequestPrefillFieldsInner::getValue));
 
-    assertEquals(monitor.getFirstName() + " " + monitor.getLastName(), prefillByFieldId.get(20L));
-    assertEquals(monitor.getAddress(), prefillByFieldId.get(21L));
-    assertEquals(monitor.getPhone(), prefillByFieldId.get(22L));
+    assertFalse(prefillByFieldId.containsKey(20L), "the guardian's name is the monitor's to fill");
+    assertFalse(
+        prefillByFieldId.containsKey(21L), "the guardian's address is the monitor's to fill");
+    assertFalse(prefillByFieldId.containsKey(22L), "the guardian's phone is the monitor's to fill");
     assertEquals(student.getFirstName() + " " + student.getLastName(), prefillByFieldId.get(30L));
     assertEquals(student.getAddress(), prefillByFieldId.get(31L));
     assertEquals(student.getPhone(), prefillByFieldId.get(32L));
