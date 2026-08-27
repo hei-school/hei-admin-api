@@ -59,7 +59,7 @@ task generateJavaClient(type: GenerateTask) {
     library = "native"
 
     groupId = 'school.hei'
-    id = 'haapi-3d601c85-gen'
+    id = 'haapi-1b5480f6-gen'
     skipValidateSpec = false
     logToStderr = true
     generateAliasAsModel = false
@@ -75,7 +75,7 @@ task generateTsClient(type: org.openapitools.generator.gradle.plugin.tasks.Gener
     ]
     additionalProperties = [
             enumPropertyNaming: "original",
-            npmName           : "@haapi-3d601c85/typescript-client",
+            npmName           : "@haapi-1b5480f6/typescript-client",
             npmVersion        : project.properties["args"] ?: "latest"
     ]
 }
@@ -243,7 +243,7 @@ testImplementation 'org.testcontainers:testcontainers-postgresql:2.0.2'
 testImplementation 'org.springframework.security:spring-security-test'
 testImplementation 'com.github.javafaker:javafaker:0.13'
 testImplementation 'org.mockito:mockito-core:5.3.1'
-implementation 'school.hei:haapi-3d601c85-gen:latest'
+implementation 'school.hei:haapi-1b5480f6-gen:latest'
 
     
 
