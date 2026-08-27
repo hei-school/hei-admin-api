@@ -1,5 +1,6 @@
 package school.hei.haapi.repository;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -11,4 +12,6 @@ public interface TemplateDocumensoRepository extends JpaRepository<TemplateDocum
   Optional<TemplateDocumenso> findByDocumensoTemplateId(Long documensoTemplateId);
 
   List<TemplateDocumenso> findAllByTitleContainingIgnoreCase(String title);
+
+  List<TemplateDocumenso> findAllByDocumensoTemplateIdNotIn(Collection<Long> documensoTemplateIds);
 }

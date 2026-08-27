@@ -15,6 +15,8 @@ import school.hei.haapi.model.DocumensoDocumentStatus;
 public interface DocumensoDocumentRepository extends JpaRepository<DocumensoDocument, String> {
   Optional<DocumensoDocument> findByDocumensoDocumentId(Long documensoDocumentId);
 
+  boolean existsByTemplate_Id(String templateId);
+
   List<DocumensoDocument> findAllByStatus(DocumensoDocumentStatus status);
 
   Optional<DocumensoDocument> findFirstBySubject_IdAndTemplate_IdAndStatusIn(

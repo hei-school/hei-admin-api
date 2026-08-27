@@ -235,6 +235,44 @@ class DocumensoIT extends FacadeITMockedThirdParties {
   }
 
   @Test
+  void admin_sync_templates_drops_the_ones_documenso_no_longer_has() throws Exception {
+    when(documensoClientMock.findTemplates(isNull(), eq(1), eq(100)))
+        .thenReturn(
+            new TemplateFindTemplates200Response()
+                .addDataItem(
+                    new TemplateFindTemplates200ResponseDataInner()
+                        .id(BigDecimal.valueOf(778))
+                        .title("Certificat")
+                        .type(PRIVATE)));
+
+    anApi(adminToken).syncDocumensoTemplates();
+
+    assertTrue(
+        templateDocumensoRepository.findByDocumensoTemplateId(templateExternalId).isEmpty(),
+        "a rebuilt template must not keep competing with the one it replaced");
+    assertTrue(templateDocumensoRepository.findByDocumensoTemplateId(778L).isPresent());
+  }
+
+  @Test
+  void admin_sync_templates_keeps_a_gone_template_that_still_bears_documents() throws Exception {
+    generateOneDocumentFor(student, 4280L);
+    when(documensoClientMock.findTemplates(isNull(), eq(1), eq(100)))
+        .thenReturn(
+            new TemplateFindTemplates200Response()
+                .addDataItem(
+                    new TemplateFindTemplates200ResponseDataInner()
+                        .id(BigDecimal.valueOf(779))
+                        .title("Certificat")
+                        .type(PRIVATE)));
+
+    anApi(adminToken).syncDocumensoTemplates();
+
+    assertTrue(
+        templateDocumensoRepository.findByDocumensoTemplateId(templateExternalId).isPresent(),
+        "dropping it would take its documents down with it");
+  }
+
+  @Test
   void student_sync_templates_ko() {
     assertThrowsForbiddenException(() -> anApi(studentToken).syncDocumensoTemplates());
   }
@@ -649,7 +687,6 @@ class DocumensoIT extends FacadeITMockedThirdParties {
     assertNotNull(updated.getFileInfo());
     verify(bucketComponentMock).upload(eq(signedFile), any());
 
-    // the signature date must reach the front, otherwise no "signed on" column is possible
     var asRead =
         anApi(monitorToken).getMonitorDocumensoDocuments(monitor.getId(), 1, 15).getFirst();
     assertEquals(DocumensoDocumentStatus.COMPLETED, asRead.getStatus());
