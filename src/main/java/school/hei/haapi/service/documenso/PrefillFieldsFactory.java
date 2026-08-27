@@ -8,12 +8,10 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
-import java.util.Optional;
 import org.springframework.stereotype.Component;
 import school.hei.haapi.endpoint.rest.model.StudentLevel;
 import school.hei.haapi.model.DocumensoTemplateFieldLabels;
 import school.hei.haapi.model.PersonSnapshot;
-import school.hei.haapi.model.TemplateDocumenso;
 import school.hei.haapi.service.documenso.gen.model.TemplateCreateDocumentFromTemplateRequestPrefillFieldsInner;
 import school.hei.haapi.service.documenso.gen.model.TemplateGetTemplateById200ResponseFieldsInner;
 
@@ -21,113 +19,44 @@ import school.hei.haapi.service.documenso.gen.model.TemplateGetTemplateById200Re
 public class PrefillFieldsFactory {
 
   public List<TemplateCreateDocumentFromTemplateRequestPrefillFieldsInner> buildPrefillFields(
-      TemplateDocumenso template,
       List<TemplateGetTemplateById200ResponseFieldsInner> fields,
       PersonSnapshot student,
-      PersonSnapshot monitor,
       StudentLevel level) {
     if (fields == null || fields.isEmpty()) {
       return List.of();
     }
-    var textFields = fields.stream().filter(f -> "TEXT".equalsIgnoreCase(f.getType())).toList();
-    if (normalize(template.getTitle()).contains("engagement")) {
-      return buildFicheEngagementFields(textFields, student, monitor, level);
-    }
-    return buildDefaultFields(textFields, student, level);
-  }
-
-  private List<TemplateCreateDocumentFromTemplateRequestPrefillFieldsInner>
-      buildFicheEngagementFields(
-          List<TemplateGetTemplateById200ResponseFieldsInner> textFields,
-          PersonSnapshot student,
-          PersonSnapshot monitor,
-          StudentLevel level) {
+    var textFields = fields.stream().filter(field -> isText(field)).toList();
     var prefillFields =
         new ArrayList<TemplateCreateDocumentFromTemplateRequestPrefillFieldsInner>();
 
-    matchOnly(textFields, DocumensoTemplateFieldLabels.FULL_NAME, student.fullName())
-        .ifPresent(prefillFields::add);
-    matchOnly(
-            textFields,
-            DocumensoTemplateFieldLabels.LEVEL,
-            level == null ? null : getLevelString(level))
-        .ifPresent(prefillFields::add);
-    matchByPosition(
-            textFields, DocumensoTemplateFieldLabels.PARENT_INDICATOR, monitor.fullName(), true)
-        .ifPresent(prefillFields::add);
+    addStudentField(
+        textFields, prefillFields, DocumensoTemplateFieldLabels.FULL_NAME, student.fullName());
+    addStudentField(
+        textFields,
+        prefillFields,
+        DocumensoTemplateFieldLabels.LEVEL,
+        level == null ? null : getLevelString(level));
+    addStudentField(
+        textFields, prefillFields, DocumensoTemplateFieldLabels.ADDRESS, student.address());
+    addStudentField(textFields, prefillFields, DocumensoTemplateFieldLabels.PHONE, student.phone());
+    addStudentField(textFields, prefillFields, DocumensoTemplateFieldLabels.NIC, student.nic());
 
-    for (var label :
-        List.of(
-            DocumensoTemplateFieldLabels.ADDRESS,
-            DocumensoTemplateFieldLabels.PHONE,
-            DocumensoTemplateFieldLabels.NIC)) {
-      addFieldPairIfFound(textFields, prefillFields, label, monitor, student);
-    }
     return prefillFields;
   }
 
-  private List<TemplateCreateDocumentFromTemplateRequestPrefillFieldsInner> buildDefaultFields(
+  private void addStudentField(
       List<TemplateGetTemplateById200ResponseFieldsInner> textFields,
-      PersonSnapshot student,
-      StudentLevel level) {
-    var prefillFields =
-        new ArrayList<TemplateCreateDocumentFromTemplateRequestPrefillFieldsInner>();
-    matchOnly(textFields, DocumensoTemplateFieldLabels.FULL_NAME, student.fullName())
-        .ifPresent(prefillFields::add);
-    matchOnly(
-            textFields,
-            DocumensoTemplateFieldLabels.LEVEL,
-            level == null ? null : getLevelString(level))
-        .ifPresent(prefillFields::add);
-    matchOnly(textFields, DocumensoTemplateFieldLabels.NIC, student.nic())
-        .ifPresent(prefillFields::add);
-    matchOnly(textFields, DocumensoTemplateFieldLabels.ADDRESS, student.address())
-        .ifPresent(prefillFields::add);
-    matchOnly(textFields, DocumensoTemplateFieldLabels.PHONE, student.phone())
-        .ifPresent(prefillFields::add);
-    return prefillFields;
-  }
-
-  private void addFieldPairIfFound(
-      List<TemplateGetTemplateById200ResponseFieldsInner> textFields,
-      ArrayList<TemplateCreateDocumentFromTemplateRequestPrefillFieldsInner> prefillFields,
+      List<TemplateCreateDocumentFromTemplateRequestPrefillFieldsInner> prefillFields,
       String label,
-      PersonSnapshot monitor,
-      PersonSnapshot student) {
-    var candidates = fieldsMatching(textFields, label);
-    if (candidates.size() >= 2) {
-      matchAt(candidates.getFirst(), monitor.field(label)).ifPresent(prefillFields::add);
-      matchAt(candidates.get(candidates.size() - 1), student.field(label))
-          .ifPresent(prefillFields::add);
-    } else if (candidates.size() == 1) {
-      matchAt(candidates.getFirst(), student.field(label)).ifPresent(prefillFields::add);
-    }
-  }
-
-  private Optional<TemplateCreateDocumentFromTemplateRequestPrefillFieldsInner> matchOnly(
-      List<TemplateGetTemplateById200ResponseFieldsInner> fields,
-      String labelKeyword,
       String value) {
     if (value == null || value.isBlank()) {
-      return Optional.empty();
+      return;
     }
-    return fields.stream()
-        .filter(field -> labelContains(field, labelKeyword))
-        .findFirst()
-        .map(field -> toPrefillField(field.getId(), value));
-  }
-
-  private Optional<TemplateCreateDocumentFromTemplateRequestPrefillFieldsInner> matchByPosition(
-      List<TemplateGetTemplateById200ResponseFieldsInner> fields,
-      String labelKeyword,
-      String value,
-      boolean topmost) {
-    var candidates = fieldsMatching(fields, labelKeyword);
+    var candidates = fieldsMatching(textFields, label);
     if (candidates.isEmpty()) {
-      return Optional.empty();
+      return;
     }
-    var chosen = topmost ? candidates.getFirst() : candidates.get(candidates.size() - 1);
-    return matchAt(chosen, value);
+    prefillFields.add(toPrefillField(candidates.getLast().getId(), value));
   }
 
   private List<TemplateGetTemplateById200ResponseFieldsInner> fieldsMatching(
@@ -136,17 +65,14 @@ public class PrefillFieldsFactory {
         .filter(field -> labelContains(field, labelKeyword))
         .sorted(
             Comparator.comparing(
-                    (TemplateGetTemplateById200ResponseFieldsInner f) -> orZero(f.getPage()))
-                .thenComparing(f -> orZero(f.getPositionY())))
+                    (TemplateGetTemplateById200ResponseFieldsInner field) ->
+                        orZero(field.getPage()))
+                .thenComparing(field -> orZero(field.getPositionY())))
         .toList();
   }
 
-  private Optional<TemplateCreateDocumentFromTemplateRequestPrefillFieldsInner> matchAt(
-      TemplateGetTemplateById200ResponseFieldsInner field, String value) {
-    if (value == null || value.isBlank()) {
-      return Optional.empty();
-    }
-    return Optional.of(toPrefillField(field.getId(), value));
+  private static boolean isText(TemplateGetTemplateById200ResponseFieldsInner field) {
+    return "TEXT".equalsIgnoreCase(field.getType());
   }
 
   private static boolean labelContains(

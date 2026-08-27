@@ -111,11 +111,7 @@ public class DocumensoDocumentService {
         List.of(toRecipient(remoteTemplate.getRecipients().getFirst().getId(), monitor)));
     request.setPrefillFields(
         prefillFieldsFactory.buildPrefillFields(
-            template,
-            remoteTemplate.getFields(),
-            new PersonSnapshot(student),
-            new PersonSnapshot(monitor),
-            level));
+            remoteTemplate.getFields(), new PersonSnapshot(student), level));
     return request;
   }
 
@@ -204,13 +200,6 @@ public class DocumensoDocumentService {
     return documensoDocumentDao.filterByCriteria(studentIds, level, status, pageable);
   }
 
-  /**
-   * A short-lived link to the signed PDF we archived.
-   *
-   * <p>Presigning on demand rather than inside the document payload keeps a list of sixty documents
-   * from handing out sixty live credentials, most of which nobody would ever open. The link carries
-   * its own authority, so the shorter it lives the better.
-   */
   public String getSignedFileUrl(String documentId, String requestingUserId) {
     var document =
         documensoDocumentRepository
@@ -229,12 +218,6 @@ public class DocumensoDocumentService {
     return fileService.getPresignedUrl(fileInfo.getFilePath(), SIGNED_FILE_LINK_LIFETIME_SECONDS);
   }
 
-  /**
-   * Staff may open any document; a monitor only those of the students it follows.
-   *
-   * <p>Role alone would not do here: every monitor would then reach any document by guessing an id,
-   * and these PDFs carry a student's national id, address and phone.
-   */
   private void assertMayOpen(DocumensoDocument document, String requestingUserId) {
     var requester =
         userRepository

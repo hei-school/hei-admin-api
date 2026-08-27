@@ -1,6 +1,5 @@
 package school.hei.haapi.service.documenso;
 
-import static java.util.UUID.randomUUID;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -13,7 +12,6 @@ import java.util.stream.Collectors;
 import org.junit.jupiter.api.Test;
 import school.hei.haapi.endpoint.rest.model.StudentLevel;
 import school.hei.haapi.model.PersonSnapshot;
-import school.hei.haapi.model.TemplateDocumenso;
 import school.hei.haapi.service.documenso.gen.model.TemplateGetTemplateById200ResponseFieldsInner;
 
 class PrefillFieldsFactoryTest {
@@ -21,12 +19,6 @@ class PrefillFieldsFactoryTest {
 
   private static final PersonSnapshot STUDENT =
       new PersonSnapshot("Axel HEI", "101234567890", "Lot II A Antananarivo", "0341234567");
-  private static final PersonSnapshot MONITOR =
-      new PersonSnapshot("Mialy Monitor", "201234567890", "Lot III B Antsirabe", "0349876543");
-
-  private static TemplateDocumenso template(String title) {
-    return TemplateDocumenso.builder().id(randomUUID().toString()).title(title).build();
-  }
 
   private static TemplateGetTemplateById200ResponseFieldsInner field(
       long id, String label, double positionY) {
@@ -39,21 +31,15 @@ class PrefillFieldsFactoryTest {
   }
 
   private Map<Long, String> prefill(
-      TemplateDocumenso template,
-      List<TemplateGetTemplateById200ResponseFieldsInner> fields,
-      StudentLevel level) {
-    return subject.buildPrefillFields(template, fields, STUDENT, MONITOR, level).stream()
+      List<TemplateGetTemplateById200ResponseFieldsInner> fields, StudentLevel level) {
+    return subject.buildPrefillFields(fields, STUDENT, level).stream()
         .collect(Collectors.toMap(f -> f.getId().longValue(), f -> f.getValue()));
   }
 
   @Test
   void no_field_yields_no_prefill() {
-    assertTrue(
-        subject.buildPrefillFields(template("Attestation"), null, STUDENT, MONITOR, L1).isEmpty());
-    assertTrue(
-        subject
-            .buildPrefillFields(template("Attestation"), List.of(), STUDENT, MONITOR, L1)
-            .isEmpty());
+    assertTrue(subject.buildPrefillFields(null, STUDENT, L1).isEmpty());
+    assertTrue(subject.buildPrefillFields(List.of(), STUDENT, L1).isEmpty());
   }
 
   @Test
@@ -64,14 +50,11 @@ class PrefillFieldsFactoryTest {
             .type("SIGNATURE")
             .label("Nom et prénoms");
 
-    assertTrue(
-        subject
-            .buildPrefillFields(template("Attestation"), List.of(signature), STUDENT, MONITOR, L1)
-            .isEmpty());
+    assertTrue(subject.buildPrefillFields(List.of(signature), STUDENT, L1).isEmpty());
   }
 
   @Test
-  void default_template_fills_the_student_only() {
+  void every_student_field_is_filled() {
     var fields =
         List.of(
             field(10, "Nom et prénoms", 100),
@@ -80,7 +63,7 @@ class PrefillFieldsFactoryTest {
             field(13, "Adresse personnelle", 130),
             field(14, "Téléphones", 140));
 
-    var byId = prefill(template("Attestation de scolarité"), fields, L1);
+    var byId = prefill(fields, L1);
 
     assertEquals(STUDENT.fullName(), byId.get(10L));
     assertEquals("Première année de Licence", byId.get(11L));
@@ -93,42 +76,36 @@ class PrefillFieldsFactoryTest {
   void a_null_level_leaves_the_level_field_empty() {
     var fields = List.of(field(10, "Nom et prénoms", 100), field(11, "Niveau", 110));
 
-    var byId = prefill(template("Attestation de scolarité"), fields, null);
+    var byId = prefill(fields, null);
 
     assertEquals(STUDENT.fullName(), byId.get(10L));
     assertFalse(byId.containsKey(11L), "the level field must stay untouched");
   }
 
   @Test
-  void engagement_template_gives_the_topmost_block_to_the_monitor() {
+  void the_guardian_block_above_is_left_to_the_monitor() {
     var fields =
         List.of(
-            field(20, "PERE/ MERE/ TUTEUR", 100),
-            field(21, "Adresse personnelle", 110),
-            field(22, "Téléphones", 120),
-            field(30, "Nom et prénoms", 400),
-            field(31, "Adresse personnelle", 410),
-            field(32, "Téléphones", 420));
+            field(20, "Adresse personnelle", 110),
+            field(21, "Téléphones", 120),
+            field(30, "Adresse personnelle", 410),
+            field(31, "Téléphones", 420));
 
-    var byId = prefill(template("Fiche d'engagement L1"), fields, L1);
+    var byId = prefill(fields, L1);
 
-    assertEquals(MONITOR.fullName(), byId.get(20L));
-    assertEquals(MONITOR.address(), byId.get(21L));
-    assertEquals(MONITOR.phone(), byId.get(22L));
-    assertEquals(STUDENT.fullName(), byId.get(30L));
-    assertEquals(STUDENT.address(), byId.get(31L));
-    assertEquals(STUDENT.phone(), byId.get(32L));
+    assertFalse(byId.containsKey(20L), "the guardian's address belongs to the monitor to fill");
+    assertFalse(byId.containsKey(21L), "the guardian's phone belongs to the monitor to fill");
+    assertEquals(STUDENT.address(), byId.get(30L));
+    assertEquals(STUDENT.phone(), byId.get(31L));
   }
 
   @Test
-  void a_lone_paired_field_goes_to_the_student_not_the_monitor() {
-    var fields =
-        List.of(field(20, "PERE/ MERE/ TUTEUR", 100), field(21, "Adresse personnelle", 110));
+  void a_lone_field_describes_the_student() {
+    var fields = List.of(field(21, "Adresse personnelle", 110));
 
-    var byId = prefill(template("Fiche d'engagement"), fields, L1);
+    var byId = prefill(fields, L1);
 
-    assertEquals(MONITOR.fullName(), byId.get(20L));
-    assertEquals(STUDENT.address(), byId.get(21L), "a single address field describes the student");
+    assertEquals(STUDENT.address(), byId.get(21L));
   }
 
   @Test
@@ -137,19 +114,25 @@ class PrefillFieldsFactoryTest {
     var fields =
         List.of(field(12, "Titulaire de la CIN", 120), field(13, "Adresse personnelle", 130));
 
-    var prefillFields =
-        subject.buildPrefillFields(template("Attestation"), fields, studentWithoutNic, MONITOR, L1);
+    var prefillFields = subject.buildPrefillFields(fields, studentWithoutNic, L1);
 
     assertTrue(prefillFields.isEmpty(), "blank and null values must be skipped");
   }
 
   @Test
-  void a_missing_parent_block_is_skipped() {
-    var fields = List.of(field(30, "Nom et prénoms", 400));
+  void the_lowest_occurrence_wins_across_pages() {
+    var onPageOne = field(40, "Nom et prénoms", 900);
+    var onPageTwo =
+        new TemplateGetTemplateById200ResponseFieldsInner()
+            .id(BigDecimal.valueOf(41))
+            .type("TEXT")
+            .label("Nom et prénoms")
+            .page(BigDecimal.TWO)
+            .positionY(BigDecimal.valueOf(10));
 
-    var byId = prefill(template("Fiche d'engagement"), fields, L1);
+    var byId = prefill(List.of(onPageOne, onPageTwo), L1);
 
-    assertEquals(STUDENT.fullName(), byId.get(30L));
-    assertEquals(1, byId.size());
+    assertEquals(STUDENT.fullName(), byId.get(41L), "page ranks before the vertical position");
+    assertFalse(byId.containsKey(40L));
   }
 }

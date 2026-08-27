@@ -8,25 +8,4 @@ public record PersonSnapshot(String fullName, String nic, String address, String
         user.getAddress(),
         user.getPhone());
   }
-
-  public String getAddressField() {
-    return address;
-  }
-
-  public String getPhoneField() {
-    return phone;
-  }
-
-  public String getNicField() {
-    return nic;
-  }
-
-  public String field(String labelKeyword) {
-    return switch (labelKeyword) {
-      case "adresse personnelle" -> address;
-      case "telephone" -> phone;
-      case "titulaire de la cin" -> nic;
-      default -> null;
-    };
-  }
 }
