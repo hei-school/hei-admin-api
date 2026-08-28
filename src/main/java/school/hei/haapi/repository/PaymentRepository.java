@@ -41,6 +41,9 @@ select p from Payment p where p.id in :ids
       school.hei.haapi.endpoint.rest.model.Payment.TypeEnum type,
       Pageable pageable);
 
+  List<Payment> findPaymentsByType(
+      school.hei.haapi.endpoint.rest.model.Payment.TypeEnum type, Pageable pageable);
+
   @Query(
       value =
           "select coalesce(sum(p.amount), 0) from Payment p join Fee f on f.id = p.fee.id"

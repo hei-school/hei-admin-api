@@ -3,7 +3,7 @@ package school.hei.haapi.unit.validator;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static school.hei.haapi.endpoint.rest.model.FeeCategory.WORK_FEES;
 import static school.hei.haapi.endpoint.rest.model.FeeTypeEnum.TUITION;
-import static school.hei.haapi.integration.conf.TestUtils.assertThrowsDomainBadRequestException;
+import static school.hei.haapi.integration.conf.ApiAssertions.assertThrowsDomainBadRequestException;
 
 import java.time.LocalDate;
 import java.util.Arrays;

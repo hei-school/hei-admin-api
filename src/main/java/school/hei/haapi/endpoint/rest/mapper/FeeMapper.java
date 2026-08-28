@@ -43,6 +43,7 @@ public class FeeMapper {
             : List.of();
     var studentFee = fee.getStudent();
     var letter = letterService.getByFeeId(fee.getId());
+    var archivedBy = fee.getArchivedBy();
 
     return new Fee()
         .id(fee.getId())
@@ -61,6 +62,10 @@ public class FeeMapper {
         .dueDatetime(fee.getDueDatetime())
         .studentFirstName(fee.getStudent().getFirstName())
         .isArchived(fee.isArchived())
+        .archiveStatus(fee.getArchiveStatus())
+        .archivedByRef(archivedBy == null ? null : archivedBy.getRef())
+        .archivedByFirstName(archivedBy == null ? null : archivedBy.getFirstName())
+        .archivedByLastName(archivedBy == null ? null : archivedBy.getLastName())
         .letter(letter == null ? null : toLetterFee(letter));
   }
 
@@ -95,6 +100,7 @@ public class FeeMapper {
         .creationDatetime(fee.getCreationDatetime())
         .dueDatetime(fee.getDueDatetime())
         .isArchived(TRUE.equals(fee.getIsArchived()))
+        .archiveStatus(fee.getArchiveStatus())
         .build();
   }
 

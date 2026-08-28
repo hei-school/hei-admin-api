@@ -6,6 +6,7 @@ import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.LATE;
 import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.UNPAID;
 import static school.hei.haapi.endpoint.rest.model.Payment.TypeEnum.CREDIT;
 import static school.hei.haapi.endpoint.rest.model.Payment.TypeEnum.MOBILE_MONEY;
+import static school.hei.haapi.model.PaymentStatus.CREATED;
 import static school.hei.haapi.model.PaymentStatus.VALIDATE;
 import static school.hei.haapi.service.utils.InstantUtils.UTC3;
 
@@ -102,6 +103,7 @@ public class PaymentService {
     Payment paymentFromMpbs =
         Payment.builder()
             .type(MOBILE_MONEY)
+            .status(CREATED)
             .fee(correspondingFee)
             .amount(amount)
             .creationDatetime(now())
@@ -148,6 +150,8 @@ public class PaymentService {
       PaymentStatus status, PageFromOne page, BoundedPageSize pageSize) {
     var pageable =
         PageRequest.of(page.getValue() - 1, pageSize.getValue(), Sort.by(DESC, "creationDatetime"));
-    return paymentRepository.findPaymentsByStatusAndType(status, CREDIT, pageable);
+    return status == null
+        ? paymentRepository.findPaymentsByType(CREDIT, pageable)
+        : paymentRepository.findPaymentsByStatusAndType(status, CREDIT, pageable);
   }
 }

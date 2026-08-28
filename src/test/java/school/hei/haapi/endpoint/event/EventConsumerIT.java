@@ -13,11 +13,12 @@ import school.hei.haapi.endpoint.event.consumer.EventConsumer;
 import school.hei.haapi.endpoint.event.consumer.model.ConsumableEvent;
 import school.hei.haapi.endpoint.event.consumer.model.TypedEvent;
 import school.hei.haapi.endpoint.event.model.UuidCreated;
+import school.hei.haapi.integration.conf.FacadeITMockedThirdParties;
 import school.hei.haapi.repository.DummyUuidRepository;
 
 @PojaGenerated
 @SuppressWarnings("all")
-class EventConsumerIT extends school.hei.haapi.integration.conf.FacadeITMockedThirdParties {
+class EventConsumerIT extends FacadeITMockedThirdParties {
 
   @Autowired EventConsumer subject;
   @Autowired DummyUuidRepository dummyUuidRepository;

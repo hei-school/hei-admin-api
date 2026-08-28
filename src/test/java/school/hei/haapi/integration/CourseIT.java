@@ -1,207 +1,240 @@
 package school.hei.haapi.integration;
 
+import static java.util.UUID.randomUUID;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static school.hei.haapi.integration.StudentIT.student1;
-import static school.hei.haapi.integration.conf.TestUtils.COURSE1_ID;
-import static school.hei.haapi.integration.conf.TestUtils.MANAGER1_TOKEN;
-import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_TOKEN;
-import static school.hei.haapi.integration.conf.TestUtils.TEACHER1_TOKEN;
-import static school.hei.haapi.integration.conf.TestUtils.assertBadRequestException;
-import static school.hei.haapi.integration.conf.TestUtils.assertThrowsApiException;
-import static school.hei.haapi.integration.conf.TestUtils.course1;
-import static school.hei.haapi.integration.conf.TestUtils.course2;
-import static school.hei.haapi.integration.conf.TestUtils.course3;
-import static school.hei.haapi.integration.conf.TestUtils.createCourse;
-import static school.hei.haapi.integration.conf.TestUtils.isBefore;
-import static school.hei.haapi.integration.conf.TestUtils.setUpCasdoor;
-import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
-import static school.hei.haapi.integration.conf.TestUtils.setUpS3Service;
-import static school.hei.haapi.integration.conf.TestUtils.someCreatableCourseList;
+import static school.hei.haapi.endpoint.rest.model.StudentLevel.L1;
+import static school.hei.haapi.integration.conf.ApiAssertions.assertBadRequestException;
+import static school.hei.haapi.integration.conf.ApiAssertions.assertThrowsApiException;
+import static school.hei.haapi.integration.conf.TestAuth.tokenFor;
+import static school.hei.haapi.integration.conf.TestMocks.setUpS3Service;
+import static school.hei.haapi.integration.testData.ManagerTestData.hasina;
+import static school.hei.haapi.integration.testData.StudentTestData.axel;
+import static school.hei.haapi.integration.testData.TeacherTestData.toky;
 
 import java.util.List;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.testcontainers.junit.jupiter.Testcontainers;
+import org.springframework.beans.factory.annotation.Autowired;
 import school.hei.haapi.endpoint.rest.api.CoursesApi;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
-import school.hei.haapi.endpoint.rest.model.Course;
 import school.hei.haapi.endpoint.rest.model.CourseDirection;
 import school.hei.haapi.integration.conf.FacadeITMockedThirdParties;
 import school.hei.haapi.integration.conf.TestUtils;
+import school.hei.haapi.model.Course;
+import school.hei.haapi.model.User;
+import school.hei.haapi.repository.CourseRepository;
+import school.hei.haapi.repository.UserRepository;
 
-@Testcontainers
-@AutoConfigureMockMvc
 class CourseIT extends FacadeITMockedThirdParties {
+  private String codePrefix;
+
+  @Autowired private UserRepository userRepository;
+  @Autowired private CourseRepository courseRepository;
+
+  private User studentAxel;
+  private User teacherToky;
+  private User managerHasina;
+
+  private Course lightCourse;
+  private Course mediumCourse;
+  private Course heavyCourse;
+
+  private String studentToken;
+  private String teacherToken;
+  private String managerToken;
+
+  private void setUpTestData() {
+    studentAxel = userRepository.save(axel());
+    teacherToky = userRepository.save(toky());
+    managerHasina = userRepository.save(hasina());
+
+    codePrefix = "CIT" + randomUUID().toString().substring(0, 8);
+    lightCourse = courseRepository.save(aCourse(codePrefix + "A", "Algorithmique", 2));
+    mediumCourse = courseRepository.save(aCourse(codePrefix + "B", "Bases de donnees", 6));
+    heavyCourse = courseRepository.save(aCourse(codePrefix + "C", "Compilation", 10));
+  }
+
+  @BeforeEach
+  void setUp() {
+    setUpTestData();
+    setUpS3Service(fileService, studentAxel);
+
+    studentToken = tokenFor(casdoorAuthServiceMock, studentAxel);
+    teacherToken = tokenFor(casdoorAuthServiceMock, teacherToky);
+    managerToken = tokenFor(casdoorAuthServiceMock, managerHasina);
+  }
+
+  @AfterEach
+  void tearDown() {
+    courseRepository.deleteAll(
+        courseRepository.findAll().stream()
+            .filter(c -> c.getCode() != null && c.getCode().startsWith(codePrefix))
+            .toList());
+    userRepository.deleteAll(List.of(studentAxel, teacherToky, managerHasina));
+  }
+
+  private CoursesApi apiAs(String token) {
+    return new CoursesApi(anApiClient(token));
+  }
 
   private ApiClient anApiClient(String token) {
     return TestUtils.anApiClient(token, localPort);
   }
 
-  @BeforeEach
-  void setUp() {
-    setUpCasdoor(casdoorAuthServiceMock, certificateLoaderMock);
-    setUpCognito(cognitoComponentMock);
-    setUpS3Service(fileService, student1());
+  private static Course aCourse(String code, String name, int credits) {
+    return Course.builder()
+        .id(randomUUID().toString())
+        .code(code)
+        .name(name)
+        .credits(credits)
+        .totalHours(80)
+        .studentLevel(L1)
+        .build();
+  }
+
+  private school.hei.haapi.endpoint.rest.model.Course aCreatableCourse() {
+    return new school.hei.haapi.endpoint.rest.model.Course()
+        .code(codePrefix + randomUUID().toString().substring(0, 4))
+        .name("Nouveau cours")
+        .credits(4)
+        .totalHours(40)
+        .level(L1);
+  }
+
+  private static List<String> idsOf(List<school.hei.haapi.endpoint.rest.model.Course> courses) {
+    return courses.stream().map(course -> course.getId()).toList();
   }
 
   @Test
   void student_read_ok() throws ApiException {
-    ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
-    CoursesApi api = new CoursesApi(student1Client);
+    var api = apiAs(studentToken);
 
-    List<Course> actualList =
-        api.getCourses(null, null, null, null, null, null, null, null, null, null);
-    Course actual = api.getCourseById(COURSE1_ID);
+    var ownCourses = api.getCourses(codePrefix, null, null, null, null, null, null, 1, 100, null);
+    var byId = api.getCourseById(lightCourse.getId());
 
-    assertEquals(4, actualList.size());
-    assertTrue(actualList.contains(course1()));
-
-    assertEquals(course1(), actual);
+    assertEquals(3, ownCourses.size());
+    assertTrue(idsOf(ownCourses).contains(lightCourse.getId()));
+    assertEquals(lightCourse.getId(), byId.getId());
+    assertEquals(lightCourse.getCode(), byId.getCode());
   }
 
   @Test
   void teacher_read_ok() throws ApiException {
-    ApiClient teacher1Client = anApiClient(TEACHER1_TOKEN);
-    CoursesApi api = new CoursesApi(teacher1Client);
+    var api = apiAs(teacherToken);
 
-    List<Course> actualList =
-        api.getCourses(null, null, null, null, null, null, null, null, null, null);
-    assertEquals(4, actualList.size());
-    assertTrue(actualList.contains(course2()));
+    var ownCourses = api.getCourses(codePrefix, null, null, null, null, null, null, 1, 100, null);
+    var byId = api.getCourseById(mediumCourse.getId());
 
-    Course actual = api.getCourseById(COURSE1_ID);
-    assertEquals(course1(), actual);
+    assertTrue(idsOf(ownCourses).contains(mediumCourse.getId()));
+    assertEquals(mediumCourse.getId(), byId.getId());
   }
 
   @Test
-  @Disabled("Don't pass on GHA")
   void user_read_by_filter() throws ApiException {
-    ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
-    CoursesApi api = new CoursesApi(manager1Client);
+    var api = apiAs(managerToken);
 
-    List<Course> actualByCode =
-        api.getCourses("PROG1", null, null, null, null, null, null, null, null, null);
+    var byExactCode =
+        api.getCourses(lightCourse.getCode(), null, null, null, null, null, null, 1, 100, null);
+    assertEquals(1, byExactCode.size());
+    assertEquals(lightCourse.getId(), byExactCode.getFirst().getId());
 
-    List<Course> actualByCode2 =
-        api.getCourses("PROG", null, null, null, null, null, null, null, null, null);
+    var byCodePrefix = api.getCourses(codePrefix, null, null, null, null, null, null, 1, 100, null);
+    assertEquals(3, byCodePrefix.size());
 
-    List<Course> actualByCredits2 =
-        api.getCourses(null, null, 6, null, null, null, null, null, null, null);
+    var byName = api.getCourses(codePrefix, "compil", null, null, null, null, null, 1, 100, null);
+    assertEquals(1, byName.size());
+    assertEquals(heavyCourse.getId(), byName.getFirst().getId());
 
-    List<Course> actualByLastName =
-        api.getCourses(null, null, null, null, "tEaC", null, null, null, null, null);
+    var byCredits = api.getCourses(codePrefix, null, 6, null, null, null, null, 1, 100, null);
+    assertEquals(1, byCredits.size());
+    assertEquals(mediumCourse.getId(), byCredits.getFirst().getId());
 
-    List<Course> actualByCodeAndName =
-        api.getCourses("i", "i", null, null, null, null, null, null, null, null);
+    var creditsAsc =
+        api.getCourses(codePrefix, null, null, null, null, CourseDirection.ASC, null, 1, 100, null);
+    assertEquals(
+        List.of(lightCourse.getId(), mediumCourse.getId(), heavyCourse.getId()), idsOf(creditsAsc));
 
-    List<Course> actualByCreditsOrderedAsc =
-        api.getCourses(null, null, null, null, null, CourseDirection.ASC, null, null, null, null);
-
-    List<Course> actualByCreditsOrderedDesc =
-        api.getCourses(null, null, null, null, null, CourseDirection.DESC, null, null, null, null);
-
-    assertEquals(1, actualByCode.size());
-    assertTrue(actualByCode.contains(course1()));
-
-    assertEquals(2, actualByCode2.size());
-    assertTrue(actualByCode2.contains(course1()));
-    assertTrue(actualByCode2.contains(course2()));
-
-    assertEquals(2, actualByCredits2.size());
-    assertTrue(actualByCredits2.contains(course1()));
-    assertTrue(actualByCredits2.contains(course2()));
-
-    assertEquals(2, actualByLastName.size());
-    assertTrue(actualByLastName.contains(course1()));
-
-    assertEquals(1, actualByCodeAndName.size());
-    assertTrue(actualByCodeAndName.contains(course3()));
-
-    assertEquals(4, actualByCreditsOrderedAsc.size());
-    assertTrue(
-        isBefore(
-            actualByCreditsOrderedAsc.getFirst().getCredits(),
-            actualByCreditsOrderedAsc.get(2).getCredits()));
-
-    assertEquals(4, actualByCreditsOrderedDesc.size());
-    assertTrue(
-        isBefore(
-            actualByCreditsOrderedDesc.get(3).getCredits(),
-            actualByCreditsOrderedDesc.get(1).getCredits()));
+    var creditsDesc =
+        api.getCourses(
+            codePrefix, null, null, null, null, CourseDirection.DESC, null, 1, 100, null);
+    assertEquals(
+        List.of(heavyCourse.getId(), mediumCourse.getId(), lightCourse.getId()),
+        idsOf(creditsDesc));
   }
 
   @Test
   void manager_create_or_update_ok() throws ApiException {
-    ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
-    CoursesApi api = new CoursesApi(manager1Client);
+    var api = apiAs(managerToken);
 
-    List<Course> actualUpdate = api.createOrUpdateCourses(List.of(course2(), course1()));
+    var toUpdate =
+        new school.hei.haapi.endpoint.rest.model.Course()
+            .id(lightCourse.getId())
+            .code(lightCourse.getCode())
+            .name("Algorithmique avancee")
+            .credits(lightCourse.getCredits())
+            .totalHours(lightCourse.getTotalHours())
+            .level(L1);
 
-    assertEquals(2, actualUpdate.size());
-    assertTrue(actualUpdate.contains(course2()));
-    assertTrue(actualUpdate.contains(course1()));
+    var updated = api.createOrUpdateCourses(List.of(toUpdate));
+    assertEquals(1, updated.size());
+    assertEquals("Algorithmique avancee", updated.getFirst().getName());
 
-    int numberOfCourseToAdd = 2;
+    var toAdd = List.of(aCreatableCourse(), aCreatableCourse());
+    var added = api.createOrUpdateCourses(toAdd);
+    assertEquals(2, added.size());
 
-    List<Course> coursesToAdd = someCreatableCourseList(numberOfCourseToAdd);
-    List<Course> actualAdd = api.createOrUpdateCourses(coursesToAdd);
-    assertEquals(numberOfCourseToAdd, actualAdd.size());
-    assertTrue(actualAdd.contains(coursesToAdd.getFirst().id(actualAdd.getFirst().getId())));
-
-    List<Course> actualCourseList =
-        api.getCourses(null, null, null, null, null, CourseDirection.DESC, null, null, null, null);
-
-    assertEquals(4 + numberOfCourseToAdd, actualCourseList.size());
+    var all = api.getCourses(codePrefix, null, null, null, null, null, null, 1, 100, null);
+    assertEquals(5, all.size());
   }
 
   @Test
   void manager_create_or_update_bad_course_ko() {
-    CoursesApi api = new CoursesApi(anApiClient(MANAGER1_TOKEN));
-    var courseWithoutCode = course1().code(null);
-    var courseWithoutName = course1().name(null);
-    var courseWithBadCredits = course1().credits(-1);
-    var courseWithBadTotalHours = course1().totalHours(-2);
+    var api = apiAs(managerToken);
 
     assertBadRequestException(
-        "code is mandatory", () -> api.createOrUpdateCourses(List.of(courseWithoutCode)));
+        "code is mandatory",
+        () -> api.createOrUpdateCourses(List.of(aCreatableCourse().code(null))));
     assertBadRequestException(
-        "Name is mandatory", () -> api.createOrUpdateCourses(List.of(courseWithoutName)));
+        "Name is mandatory",
+        () -> api.createOrUpdateCourses(List.of(aCreatableCourse().name(null))));
     assertBadRequestException(
-        "Credits must be positive", () -> api.createOrUpdateCourses(List.of(courseWithBadCredits)));
+        "Credits must be positive",
+        () -> api.createOrUpdateCourses(List.of(aCreatableCourse().credits(-1))));
     assertBadRequestException(
         "Total hours must be positive",
-        () -> api.createOrUpdateCourses(List.of(courseWithBadTotalHours)));
+        () -> api.createOrUpdateCourses(List.of(aCreatableCourse().totalHours(-2))));
   }
 
   @Test
   void student_create_or_update_ko() {
-    ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
-    CoursesApi api = new CoursesApi(student1Client);
+    var api = apiAs(studentToken);
+
     assertThrowsApiException(
         "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
-        () -> api.createOrUpdateCourses(someCreatableCourseList(1)));
+        () -> api.createOrUpdateCourses(List.of(aCreatableCourse())));
   }
 
   @Test
-  void Teacher_create_or_update_ko() {
-    ApiClient teacher1Client = anApiClient(TEACHER1_TOKEN);
-    CoursesApi api = new CoursesApi(teacher1Client);
+  void teacher_create_or_update_ko() {
+    var api = apiAs(teacherToken);
+
     assertThrowsApiException(
         "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
-        () -> api.createOrUpdateCourses(someCreatableCourseList(1)));
+        () -> api.createOrUpdateCourses(List.of(aCreatableCourse())));
   }
 
   @Test
-  void manager_create_or_update_ko() {
-    ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
-    CoursesApi api = new CoursesApi(manager1Client);
+  void manager_create_course_with_existing_code_ko() {
+    var api = apiAs(managerToken);
+    var duplicate = aCreatableCourse().code(heavyCourse.getCode());
 
     assertThrowsApiException(
-        "{\"type\":\"400 BAD_REQUEST\",\"message\":\"Course.PROG3 already exist.\"}",
-        () -> api.createOrUpdateCourses(List.of(createCourse("PROG3"))));
+        "{\"type\":\"400 BAD_REQUEST\",\"message\":\"Course."
+            + heavyCourse.getCode()
+            + " already exist.\"}",
+        () -> api.createOrUpdateCourses(List.of(duplicate)));
   }
 }

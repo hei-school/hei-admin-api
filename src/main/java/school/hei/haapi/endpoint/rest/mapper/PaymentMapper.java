@@ -23,6 +23,7 @@ public class PaymentMapper {
   private final CreatePaymentValidator createPaymentValidator;
 
   public Payment toRestPayment(school.hei.haapi.model.Payment payment) {
+    var validatedBy = payment.getValidatedBy();
     return new Payment()
         .id(payment.getId())
         .feeId(payment.getFee().getId())
@@ -32,10 +33,18 @@ public class PaymentMapper {
         .status(
             school.hei.haapi.endpoint.rest.model.PaymentStatus.valueOf(
                 payment.getStatus().toString()))
-        .creationDatetime(payment.getCreationDatetime());
+        .creationDatetime(payment.getCreationDatetime())
+        .validatedByRef(validatedBy == null ? null : validatedBy.getRef())
+        .validatedByFirstName(validatedBy == null ? null : validatedBy.getFirstName())
+        .validatedByLastName(validatedBy == null ? null : validatedBy.getLastName());
+  }
+
+  public List<Payment> toRestPayment(List<school.hei.haapi.model.Payment> payments) {
+    return payments.stream().map(this::toRestPayment).toList();
   }
 
   public CreditPayment toRestCreditPayment(school.hei.haapi.model.Payment payment) {
+    var validatedBy = payment.getValidatedBy();
     return new CreditPayment()
         .id(payment.getId())
         .fee(feeMapper.toRestFee(payment.getFee()))
@@ -45,7 +54,10 @@ public class PaymentMapper {
         .status(
             school.hei.haapi.endpoint.rest.model.PaymentStatus.valueOf(
                 payment.getStatus().toString()))
-        .creationDatetime(payment.getCreationDatetime());
+        .creationDatetime(payment.getCreationDatetime())
+        .validatedByRef(validatedBy == null ? null : validatedBy.getRef())
+        .validatedByFirstName(validatedBy == null ? null : validatedBy.getFirstName())
+        .validatedByLastName(validatedBy == null ? null : validatedBy.getLastName());
   }
 
   public List<CreditPayment> toRestCreditPayment(List<school.hei.haapi.model.Payment> payments) {

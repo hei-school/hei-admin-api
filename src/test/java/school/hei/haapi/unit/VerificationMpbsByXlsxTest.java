@@ -11,13 +11,14 @@ import static org.mockito.Mockito.when;
 import static school.hei.haapi.endpoint.rest.model.MpbsStatus.FAILED;
 import static school.hei.haapi.endpoint.rest.model.MpbsStatus.PENDING;
 import static school.hei.haapi.endpoint.rest.model.MpbsStatus.SUCCESS;
-import static school.hei.haapi.integration.conf.TestUtils.getMockedFile;
+import static school.hei.haapi.integration.conf.TestFiles.getMockedFile;
 
 import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import school.hei.haapi.endpoint.rest.mapper.VolaMapper;
 import school.hei.haapi.model.MobileTransactionDetails;
+import school.hei.haapi.model.mpbs.Mpbs;
 import school.hei.haapi.repository.MpbsRepository;
 import school.hei.haapi.service.MobilePaymentService;
 import school.hei.haapi.service.MpbsVerificationService;
@@ -39,7 +40,6 @@ class VerificationMpbsByXlsxTest {
           new CollectionUtils(),
           mock(),
           new VolaMapper(),
-          mock(),
           mock(),
           mock());
 
@@ -142,12 +142,7 @@ class VerificationMpbsByXlsxTest {
 
     var fakePendingSavedMpbs =
         excelTransactionDetails().stream()
-            .map(
-                t ->
-                    (school.hei.haapi.model.mpbs.Mpbs)
-                        school.hei.haapi.model.mpbs.Mpbs.builder()
-                            .pspId(t.getPspTransactionRef())
-                            .build())
+            .map(t -> (Mpbs) Mpbs.builder().pspId(t.getPspTransactionRef()).build())
             .toList();
     when(mockedMpbsRepository.findByPspIdIn(anyList())).thenReturn(List.of());
     when(mockedMpbsRepository.findAllByStatus(PENDING)).thenReturn(fakePendingSavedMpbs);

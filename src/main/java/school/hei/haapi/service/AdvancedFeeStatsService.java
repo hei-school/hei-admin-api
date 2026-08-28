@@ -38,6 +38,7 @@ import java.math.BigDecimal;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -81,6 +82,9 @@ import school.hei.haapi.service.utils.DateUtils;
 @RequiredArgsConstructor
 @Slf4j
 public class AdvancedFeeStatsService {
+  private static final DateTimeFormatter FILE_STAMP =
+      DateTimeFormatter.ofPattern("yyyyMMdd'T'HHmmss'Z'").withZone(UTC);
+
   private final FeeDao feeDao;
   private final AdvancedFeeStatsRepository repository;
   private final AdvancedFeeStatsMapper advancedFeeStatsMapper;
@@ -175,7 +179,8 @@ public class AdvancedFeeStatsService {
         sheet.autoSizeColumn(i);
       }
       workbook.write(bytes);
-      var now = Instant.now().truncatedTo(SECONDS);
+      // an Instant renders as 2026-08-15T19:46:19Z, and ':' is not allowed in a Windows filename
+      var now = FILE_STAMP.format(Instant.now().truncatedTo(SECONDS));
       var file = createFileFromBytes(bytes.toByteArray(), "advanced-fees-stats-" + now, ".xlsx");
       var bucketKey = "advanced-fees-stats-" + now + ".xlsx";
       bucketComponent.upload(file, bucketKey);

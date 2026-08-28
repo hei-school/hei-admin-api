@@ -4,6 +4,7 @@ import static java.util.UUID.randomUUID;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.reset;
@@ -13,72 +14,52 @@ import static org.mockito.Mockito.when;
 import static school.hei.haapi.endpoint.rest.model.EnableStatus.ALUMNI;
 import static school.hei.haapi.endpoint.rest.model.EnableStatus.ENABLED;
 import static school.hei.haapi.endpoint.rest.model.EnableStatus.SUSPENDED;
+import static school.hei.haapi.endpoint.rest.model.EventType.INTEGRATION;
 import static school.hei.haapi.endpoint.rest.model.PaymentFrequency.MONTHLY;
 import static school.hei.haapi.endpoint.rest.model.PaymentFrequency.YEARLY;
 import static school.hei.haapi.endpoint.rest.model.ProfessionalExperienceFileTypeEnum.WORKER_STUDENT;
 import static school.hei.haapi.endpoint.rest.model.Sex.F;
 import static school.hei.haapi.endpoint.rest.model.Sex.M;
 import static school.hei.haapi.endpoint.rest.model.SpecializationField.COMMON_CORE;
-import static school.hei.haapi.endpoint.rest.model.SpecializationField.EL;
-import static school.hei.haapi.endpoint.rest.model.SpecializationField.TN;
-import static school.hei.haapi.endpoint.rest.model.StudentLevel.M2;
 import static school.hei.haapi.endpoint.rest.model.WorkStudyStatus.NOT_WORKING;
 import static school.hei.haapi.endpoint.rest.model.WorkStudyStatus.WORKING;
-import static school.hei.haapi.integration.GroupIT.updatedGroup3;
-import static school.hei.haapi.integration.GroupIT.updatedGroup5;
-import static school.hei.haapi.integration.conf.TestUtils.ADMIN1_TOKEN;
-import static school.hei.haapi.integration.conf.TestUtils.EVENT1_ID;
-import static school.hei.haapi.integration.conf.TestUtils.GROUP1_ID;
-import static school.hei.haapi.integration.conf.TestUtils.MANAGER1_TOKEN;
-import static school.hei.haapi.integration.conf.TestUtils.MONITOR1_TOKEN;
-import static school.hei.haapi.integration.conf.TestUtils.PROMOTION1_ID;
-import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_ID;
-import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_TOKEN;
-import static school.hei.haapi.integration.conf.TestUtils.STUDENT2_ID;
-import static school.hei.haapi.integration.conf.TestUtils.STUDENT3_ID;
-import static school.hei.haapi.integration.conf.TestUtils.STUDENT8_ID;
-import static school.hei.haapi.integration.conf.TestUtils.STUDENT8_TOKEN;
-import static school.hei.haapi.integration.conf.TestUtils.TEACHER1_TOKEN;
-import static school.hei.haapi.integration.conf.TestUtils.assertThrowsApiException;
-import static school.hei.haapi.integration.conf.TestUtils.assertThrowsForbiddenException;
-import static school.hei.haapi.integration.conf.TestUtils.coordinatesWithNullValues;
-import static school.hei.haapi.integration.conf.TestUtils.coordinatesWithValues;
-import static school.hei.haapi.integration.conf.TestUtils.getMockedFile;
-import static school.hei.haapi.integration.conf.TestUtils.group1;
-import static school.hei.haapi.integration.conf.TestUtils.group2;
-import static school.hei.haapi.integration.conf.TestUtils.group3;
-import static school.hei.haapi.integration.conf.TestUtils.requestFile;
-import static school.hei.haapi.integration.conf.TestUtils.setUpCasdoor;
-import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
-import static school.hei.haapi.integration.conf.TestUtils.setUpEventBridge;
-import static school.hei.haapi.integration.conf.TestUtils.setUpS3Service;
-import static school.hei.haapi.integration.conf.TestUtils.uploadProfilePicture;
+import static school.hei.haapi.integration.conf.ApiAssertions.assertBadRequestException;
+import static school.hei.haapi.integration.conf.ApiAssertions.assertThrowsForbiddenException;
+import static school.hei.haapi.integration.conf.TestAuth.tokenFor;
+import static school.hei.haapi.integration.conf.TestFiles.getMockedFile;
+import static school.hei.haapi.integration.conf.TestFiles.requestFile;
+import static school.hei.haapi.integration.conf.TestFiles.uploadProfilePicture;
+import static school.hei.haapi.integration.conf.TestMocks.setUpEventBridge;
+import static school.hei.haapi.integration.conf.TestMocks.setUpS3Service;
+import static school.hei.haapi.integration.testData.EventTestData.anEvent;
+import static school.hei.haapi.integration.testData.FeeTemplateTestData.aFeeTemplate;
+import static school.hei.haapi.integration.testData.GroupTestData.createGroupFlow;
+import static school.hei.haapi.integration.testData.GroupTestData.g1;
+import static school.hei.haapi.integration.testData.GroupTestData.g2;
+import static school.hei.haapi.integration.testData.ManagerTestData.hasina;
+import static school.hei.haapi.integration.testData.PromotionTestData.aPromotion;
+import static school.hei.haapi.integration.testData.StaffTestData.adminMialy;
+import static school.hei.haapi.integration.testData.TeacherTestData.toky;
+import static school.hei.haapi.integration.testData.WorkDocumentTestData.aWorkDocument;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.javafaker.Faker;
-import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.URI;
-import java.net.URL;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.Instant;
 import java.time.LocalDate;
-import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
-import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpStatus;
-import org.testcontainers.junit.jupiter.Testcontainers;
 import school.hei.haapi.endpoint.rest.api.GroupsApi;
 import school.hei.haapi.endpoint.rest.api.PayingApi;
 import school.hei.haapi.endpoint.rest.api.UsersApi;
@@ -87,296 +68,217 @@ import school.hei.haapi.endpoint.rest.client.ApiException;
 import school.hei.haapi.endpoint.rest.model.Coordinates;
 import school.hei.haapi.endpoint.rest.model.CrupdateStudent;
 import school.hei.haapi.endpoint.rest.model.EnableStatus;
-import school.hei.haapi.endpoint.rest.model.Fee;
-import school.hei.haapi.endpoint.rest.model.Group;
+import school.hei.haapi.endpoint.rest.model.Sex;
 import school.hei.haapi.endpoint.rest.model.Student;
+import school.hei.haapi.integration.conf.ApiAssertions;
 import school.hei.haapi.integration.conf.FacadeITMockedThirdParties;
 import school.hei.haapi.integration.conf.TestUtils;
+import school.hei.haapi.model.Event;
+import school.hei.haapi.model.FeeTemplate;
+import school.hei.haapi.model.Group;
+import school.hei.haapi.model.GroupFlow;
+import school.hei.haapi.model.Promotion;
+import school.hei.haapi.model.User;
+import school.hei.haapi.model.WorkDocument;
+import school.hei.haapi.repository.EventRepository;
+import school.hei.haapi.repository.FeeTemplateRepository;
+import school.hei.haapi.repository.GroupFlowRepository;
+import school.hei.haapi.repository.GroupRepository;
+import school.hei.haapi.repository.PromotionRepository;
+import school.hei.haapi.repository.UserRepository;
+import school.hei.haapi.repository.WorkDocumentRepository;
 import software.amazon.awssdk.services.eventbridge.EventBridgeClient;
 import software.amazon.awssdk.services.eventbridge.model.PutEventsRequest;
-import software.amazon.awssdk.services.eventbridge.model.PutEventsRequestEntry;
-import software.amazon.awssdk.services.eventbridge.model.PutEventsResponse;
-import software.amazon.awssdk.services.eventbridge.model.PutEventsResultEntry;
 
-@Testcontainers
-@AutoConfigureMockMvc
 public class StudentIT extends FacadeITMockedThirdParties {
   public static final Instant DUE_DATETIME = Instant.parse("2021-11-08T08:25:24.00Z");
-  @MockBean private EventBridgeClient eventBridgeClientMock;
+  private static final Instant COMMITMENT_BEGIN = Instant.parse("2021-11-08T08:25:24Z");
 
+  @MockBean private EventBridgeClient eventBridgeClientMock;
   @Autowired ObjectMapper objectMapper;
+  @Autowired private UserRepository userRepository;
+  @Autowired private GroupRepository groupRepository;
+  @Autowired private GroupFlowRepository groupFlowRepository;
+  @Autowired private PromotionRepository promotionRepository;
+  @Autowired private EventRepository eventRepository;
+  @Autowired private WorkDocumentRepository workDocumentRepository;
+  @Autowired private FeeTemplateRepository feeTemplateRepository;
+
+  /** Shared by every student of this test, so a ref filter isolates them. */
+  private String refPrefix;
+
+  private User enabledWorkingStudent;
+  private User enabledStudentInOtherGroup;
+  private User disabledFemaleStudent;
+  private User disabledMaleStudent;
+  private User suspendedStudent;
+  private User teacherToky;
+  private User managerHasina;
+  private User adminUser;
+
+  private Group groupOne;
+  private Group groupTwo;
+  private Promotion promotion;
+  private Event anyEvent;
+  private WorkDocument workingStudentDocument;
+  private GroupFlow flowOne;
+  private GroupFlow flowTwo;
+
+  /** Students the tests create through the API, swept in tearDown. */
+  private final List<String> createdUserIds = new ArrayList<>();
+
+  private String studentToken;
+  private String managerToken;
+  private String adminToken;
+  private FeeTemplate monthlyTemplate;
+  private FeeTemplate yearlyTemplate;
+  private String teacherToken;
 
   private ApiClient anApiClient(String token) {
     return TestUtils.anApiClient(token, localPort);
   }
 
-  File getFileFromResource(String resourceName) {
-    URL resource = this.getClass().getClassLoader().getResource(resourceName);
-    return new File(resource.getFile());
-  }
-
-  public static CrupdateStudent createStudent1() {
-    CrupdateStudent student = new CrupdateStudent();
-    student.setId("student1_id");
-    student.setFirstName("Ryan");
-    student.setLastName("Andria");
-    student.setEmail("test+ryan@hei.school");
-    student.setRef("STD21001");
-    student.setPhone("0322411123");
-    student.setStatus(ENABLED);
-    student.setSex(M);
-    student.setBirthDate(LocalDate.parse("2000-01-01"));
-    student.setEntranceDatetime(Instant.parse("2021-11-08T08:25:24.00Z"));
-    student.setAddress("Adr 1");
-    student.setNic("");
-    student.setBirthPlace("");
-    student.coordinates(coordinatesWithNullValues());
-    return student;
-  }
-
-  public static CrupdateStudent someUpdatableStudent() {
-    return createStudent1()
-        .address("Adr 999")
-        .sex(F)
-        .lastName("Other last")
-        .firstName("Other first")
-        .specializationField(TN)
-        .birthDate(LocalDate.parse("2000-01-03"));
-  }
-
-  public static CrupdateStudent someCreatableStudent() {
-    CrupdateStudent student = new CrupdateStudent();
-    Faker faker = new Faker();
-    student.setId(null);
-    student.setFirstName(faker.name().firstName());
-    student.setLastName(faker.name().lastName());
-    student.setEmail("test+" + randomUUID() + "@hei.school");
-    student.setRef("STD21" + (int) (Math.random() * 1_000_000));
-    student.setPhone("03" + (int) (Math.random() * 1_000_000_000));
-    student.setStatus(ENABLED);
-    student.setSex(Math.random() < 0.3 ? F : M);
-    Instant birthday = Instant.parse("1993-11-30T18:35:24.00Z");
-    int ageOfEntrance = 14 + (int) (Math.random() * 20);
-    student.setBirthDate(birthday.atZone(ZoneId.systemDefault()).toLocalDate());
-    student.setEntranceDatetime(birthday.plusSeconds(ageOfEntrance * 365L * 24L * 60L * 60L));
-    student.setAddress(faker.address().fullAddress());
-    student.specializationField(COMMON_CORE);
-    student.setCoordinates(coordinatesWithNullValues());
-
-    return student;
-  }
-
-  public static List<CrupdateStudent> someCreatableStudentList(int nbOfStudent) {
-    List<CrupdateStudent> studentList = new ArrayList<>();
-    for (int i = 0; i < nbOfStudent; i++) {
-      studentList.add(someCreatableStudent());
-    }
-    return studentList;
-  }
-
-  public static Student student1() {
-    Student student = new Student();
-    student.setId("student1_id");
-    student.setFirstName("Ryan");
-    student.setLastName("Andria");
-    student.setEmail("test+ryan@hei.school");
-    student.setRef("STD21001");
-    student.setPhone("0322411123");
-    student.setStatus(ENABLED);
-    student.setSex(M);
-    student.setBirthDate(LocalDate.parse("2000-01-01"));
-    student.setEntranceDatetime(Instant.parse("2021-11-08T08:25:24.00Z"));
-    student.setAddress("Adr 1");
-    student.setNic("");
-    student.setSpecializationField(COMMON_CORE);
-    student.setBirthPlace("");
-    student.setCoordinates(new Coordinates().longitude(-123.123).latitude(123.0));
-    student.setHighSchoolOrigin("Lycée Andohalo");
-    student.setWorkStudyStatus(WORKING);
-    student.setProfessionalExperience(WORKER_STUDENT);
-    student.setCommitmentBeginDate(Instant.parse("2021-11-08T08:25:24Z"));
-    student.setGroups(List.of(group1(), group2()));
-    student.setIsRepeatingYear(false);
-    return student;
-  }
-
-  public static Student student2() {
-    Student student = new Student();
-    student.setId("student2_id");
-    student.setFirstName("Two");
-    student.setLastName("Student");
-    student.setEmail("test+student2@hei.school");
-    student.setRef("STD21002");
-    student.setPhone("0322411124");
-    student.setStatus(ENABLED);
-    student.setSex(F);
-    student.setBirthDate(LocalDate.parse("2000-01-02"));
-    student.setEntranceDatetime(Instant.parse("2021-11-09T08:26:24.00Z"));
-    student.setAddress("Adr 2");
-    student.setBirthPlace("");
-    student.setNic("");
-    student.setSpecializationField(COMMON_CORE);
-    student.setCoordinates(new Coordinates().longitude(255.255).latitude(-255.255));
-    student.setHighSchoolOrigin("Lycée Andohalo");
-    student.setWorkStudyStatus(WORKING);
-    student.setProfessionalExperience(WORKER_STUDENT);
-    student.setCommitmentBeginDate(Instant.parse("2021-11-08T08:25:24.00Z"));
-    student.setGroups(List.of(group1()));
-    student.setIsRepeatingYear(false);
-    return student;
-  }
-
-  public static CrupdateStudent createStudent2() {
-    CrupdateStudent student = new CrupdateStudent();
-    student.setId("student2_id");
-    student.setFirstName("Two");
-    student.setLastName("Student");
-    student.setEmail("test+student2@hei.school");
-    student.setRef("STD21002");
-    student.setPhone("0322411124");
-    student.setStatus(ENABLED);
-    student.setSex(F);
-    student.setBirthDate(LocalDate.parse("2000-01-02"));
-    student.setEntranceDatetime(Instant.parse("2021-11-09T08:26:24.00Z"));
-    student.setAddress("Adr 2");
-    student.setBirthPlace("");
-    student.setNic("");
-    student.setCoordinates(coordinatesWithNullValues());
-
-    return student;
-  }
-
-  public static Student student3() {
-    Student student = new Student();
-    student.setId("student3_id");
-    student.setFirstName("Three");
-    student.setLastName("Student");
-    student.setEmail("test+student3@hei.school");
-    student.setRef("STD21003");
-    student.setPhone("0322411124");
-    student.setStatus(ENABLED);
-    student.setSex(F);
-    student.setBirthDate(LocalDate.parse("2000-01-02"));
-    student.setEntranceDatetime(Instant.parse("2021-11-09T08:26:24.00Z"));
-    student.setAddress("Adr 2");
-    student.setBirthPlace("Befelatanana");
-    student.setNic("0000000000");
-    student.setSpecializationField(COMMON_CORE);
-    student.setCoordinates(coordinatesWithNullValues());
-    student.setHighSchoolOrigin("Lycée Analamahitsy");
-    student.setWorkStudyStatus(NOT_WORKING);
-    student.setGroups(List.of());
-    student.setIsRepeatingYear(false);
-    return student;
-  }
-
-  public static Student disabledStudent1() {
-    return new Student()
-        .id("student4_id")
-        .firstName("Disable")
-        .lastName("One")
-        .email("test+disable1@hei.school")
-        .ref("STD29001")
-        .status(EnableStatus.DISABLED)
-        .sex(M)
-        .birthDate(LocalDate.parse("2000-12-01"))
-        .entranceDatetime(Instant.parse("2021-11-08T08:25:24.00Z"))
+  private User aStudent(
+      String firstName, String lastName, String refSuffix, User.Status status, User.Sex sex) {
+    return User.builder()
+        .id(randomUUID().toString())
+        .firstName(firstName)
+        .lastName(lastName)
+        .email("test+" + randomUUID() + "@hei.school")
+        .ref(refPrefix + refSuffix)
         .phone("0322411123")
-        .specializationField(COMMON_CORE)
+        .status(status)
+        .sex(sex)
+        .birthDate(LocalDate.parse("2000-01-01"))
+        .entranceDatetime(DUE_DATETIME)
+        .address("Adr 1")
         .nic("")
         .birthPlace("")
-        .coordinates(coordinatesWithNullValues())
-        .workStudyStatus(NOT_WORKING)
-        .address("Adr 1")
-        .groups(List.of())
-        .isRepeatingYear(false);
+        .role(User.Role.STUDENT)
+        .groupFlows(new ArrayList<>())
+        .build();
   }
 
-  public static CrupdateStudent creatableSuspendedStudent() {
+  private void setUpTestData() {
+    refPrefix = "SIT" + randomUUID().toString().substring(0, 8);
+
+    enabledWorkingStudent =
+        userRepository.save(aStudent("Ryan", "Andria", "1", User.Status.ENABLED, User.Sex.M));
+    enabledStudentInOtherGroup =
+        userRepository.save(aStudent("Two", "Student", "2", User.Status.ENABLED, User.Sex.M));
+    disabledFemaleStudent =
+        userRepository.save(aStudent("Disabled", "Female", "3", User.Status.DISABLED, User.Sex.F));
+    disabledMaleStudent =
+        userRepository.save(aStudent("Disabled", "Male", "4", User.Status.DISABLED, User.Sex.M));
+    suspendedStudent =
+        userRepository.save(aStudent("Suspended", "One", "5", User.Status.SUSPENDED, User.Sex.M));
+
+    teacherToky = userRepository.save(toky());
+    managerHasina = userRepository.save(hasina());
+    adminUser = userRepository.save(adminMialy());
+
+    promotion = promotionRepository.save(aPromotion("Promotion SIT", "PROM" + randomUUID()));
+    groupOne = g1();
+    groupOne.setPromotion(promotion);
+    groupOne = groupRepository.save(groupOne);
+    groupTwo = groupRepository.save(g2());
+
+    flowOne = groupFlowRepository.save(createGroupFlow(enabledWorkingStudent, groupOne));
+    flowTwo = groupFlowRepository.save(createGroupFlow(enabledStudentInOtherGroup, groupTwo));
+
+    // workStudyStatus and commitmentBeginDate are not columns: they derive from the student's last
+    // work document
+    workingStudentDocument =
+        workDocumentRepository.save(
+            aWorkDocument(enabledWorkingStudent, "work file", WORKER_STUDENT, COMMITMENT_BEGIN));
+
+    anyEvent =
+        eventRepository.save(
+            anEvent(
+                managerHasina,
+                INTEGRATION,
+                "Integration " + randomUUID(),
+                Instant.parse("2026-06-08T08:00:00.00Z"),
+                Instant.parse("2026-06-08T12:00:00.00Z")));
+  }
+
+  @BeforeEach
+  public void setUp() {
+    setUpEventBridge(eventBridgeClientMock);
+    setUpTestData();
+    setUpS3Service(fileService, enabledWorkingStudent);
+
+    // crupdating a student with a payment frequency bills them off a template looked up by name
+    monthlyTemplate = feeTemplateRepository.save(aFeeTemplate("Frais mensuel L1", 200_000, 9));
+    yearlyTemplate = feeTemplateRepository.save(aFeeTemplate("Frais annuel L1", 1_200_000, 1));
+
+    studentToken = tokenFor(casdoorAuthServiceMock, enabledWorkingStudent);
+    managerToken = tokenFor(casdoorAuthServiceMock, managerHasina);
+    adminToken = tokenFor(casdoorAuthServiceMock, adminUser);
+    teacherToken = tokenFor(casdoorAuthServiceMock, teacherToky);
+  }
+
+  @AfterEach
+  void tearDown() {
+    feeTemplateRepository.deleteAll(List.of(monthlyTemplate, yearlyTemplate));
+    workDocumentRepository.deleteById(workingStudentDocument.getId());
+    eventRepository.deleteById(anyEvent.getId());
+    groupFlowRepository.deleteAll(List.of(flowOne, flowTwo));
+    groupOne.setPromotion(null);
+    groupRepository.save(groupOne);
+    groupRepository.deleteAll(List.of(groupOne, groupTwo));
+    promotionRepository.deleteById(promotion.getId());
+    userRepository.deleteAllById(createdUserIds);
+    createdUserIds.clear();
+    userRepository.deleteAll(
+        List.of(
+            enabledWorkingStudent,
+            enabledStudentInOtherGroup,
+            disabledFemaleStudent,
+            disabledMaleStudent,
+            suspendedStudent,
+            teacherToky,
+            managerHasina,
+            adminUser));
+  }
+
+  private UsersApi apiAs(String token) {
+    return new UsersApi(anApiClient(token));
+  }
+
+  /** Only the students of this test, whatever else the database holds. */
+  private List<Student> ownStudents(UsersApi api, EnableStatus status, Sex sex)
+      throws ApiException {
+    return api.getStudents(1, 200, refPrefix, null, null, null, status, sex, null, null, null);
+  }
+
+  private static List<String> idsOf(List<Student> students) {
+    return students.stream().map(Student::getId).toList();
+  }
+
+  private CrupdateStudent someCreatableStudent() {
+    var faker = new Faker();
     return new CrupdateStudent()
-        .firstName("Suspended")
-        .lastName("Two")
-        .email("test+suspended2@hei.school")
-        .ref("STD29004")
-        .status(SUSPENDED)
-        .sex(F)
-        .birthDate(LocalDate.parse("2000-12-02"))
-        .entranceDatetime(Instant.parse("2021-11-09T08:26:24.00Z"))
-        .phone("0322411124")
-        .address("Adr 3")
-        .coordinates(coordinatesWithNullValues());
-  }
-
-  public static Student suspendedStudent1() {
-    return new Student()
-        .id("student6_id")
-        .firstName("Suspended")
-        .lastName("One")
-        .email("test+suspended@hei.school")
-        .ref("STD29003")
-        .status(SUSPENDED)
-        .sex(F)
-        .birthDate(LocalDate.parse("2000-12-02"))
-        .entranceDatetime(Instant.parse("2021-11-09T08:26:24.00Z"))
-        .phone("0322411124")
-        .nic("")
-        .specializationField(COMMON_CORE)
-        .birthPlace("")
-        .address("Adr 2")
-        .workStudyStatus(NOT_WORKING)
-        .coordinates(coordinatesWithNullValues())
-        .groups(List.of())
-        .isRepeatingYear(false);
-  }
-
-  public static Student repeatingStudent1() {
-    Group copyGroup3 = new Group();
-    copyGroup3.setId(group3().getId());
-    copyGroup3.setRef(group3().getRef());
-    copyGroup3.setCreationDatetime(group3().getCreationDatetime());
-    copyGroup3.setName(group3().getName());
-    copyGroup3.setSize(1);
-    return new Student()
-        .id("student7_id")
-        .firstName("Repeating")
-        .lastName("One")
-        .email("test+repeating1@hei.school")
-        .ref("STD22090")
+        .id(null)
+        .firstName(faker.name().firstName())
+        .lastName(faker.name().lastName())
+        .email("test+" + randomUUID() + "@hei.school")
+        .ref(refPrefix + "C" + randomUUID().toString().substring(0, 6))
+        .phone("03" + (int) (Math.random() * 1_000_000_000))
         .status(ENABLED)
-        .sex(M)
-        .birthDate(LocalDate.parse("2000-12-01"))
-        .entranceDatetime(Instant.parse("2021-11-08T08:25:24.00Z"))
-        .phone("0322411190")
-        .nic("")
+        .sex(Math.random() < 0.3 ? F : M)
+        .birthDate(LocalDate.parse("1993-11-30"))
+        .entranceDatetime(DUE_DATETIME)
+        .address(faker.address().fullAddress())
         .specializationField(COMMON_CORE)
-        .birthPlace("")
-        .address("Adr 1")
-        .workStudyStatus(NOT_WORKING)
-        .coordinates(coordinatesWithNullValues())
-        .groups(List.of(updatedGroup3()))
-        .isRepeatingYear(Boolean.TRUE);
+        .coordinates(new Coordinates().latitude(null).longitude(null));
   }
 
-  public static Student repeatingStudent2() {
-    return new Student()
-        .id("student8_id")
-        .firstName("Repeating")
-        .lastName("Two")
-        .email("test+repeating2@hei.school")
-        .ref("STD23090")
-        .status(ENABLED)
-        .sex(F)
-        .birthDate(LocalDate.parse("2000-12-02"))
-        .entranceDatetime(Instant.parse("2022-11-09T08:26:24.00Z"))
-        .phone("0322411191")
-        .nic("")
-        .specializationField(COMMON_CORE)
-        .birthPlace("")
-        .address("Adr 2")
-        .workStudyStatus(NOT_WORKING)
-        .coordinates(coordinatesWithNullValues())
-        .groups(List.of(updatedGroup5()))
-        .isRepeatingYear(Boolean.TRUE);
+  private List<Student> createStudentsThroughApi(String token, List<CrupdateStudent> toCreate)
+      throws ApiException {
+    var created = apiAs(token).createOrUpdateStudents(toCreate, null);
+    created.forEach(s -> createdUserIds.add(s.getId()));
+    return created;
   }
 
   private static CrupdateStudent studentToCrupdateStudent(Student student, String lastName) {
@@ -393,889 +295,552 @@ public class StudentIT extends FacadeITMockedThirdParties {
         .lastName(lastName)
         .sex(student.getSex())
         .ref(student.getRef())
-        .coordinates(coordinatesWithNullValues())
+        .coordinates(new Coordinates().latitude(null).longitude(null))
         .specializationField(student.getSpecializationField())
         .status(student.getStatus());
   }
 
-  @BeforeEach
-  public void setUp() {
-    setUpCasdoor(casdoorAuthServiceMock, certificateLoaderMock);
-    setUpCognito(cognitoComponentMock);
-    setUpEventBridge(eventBridgeClientMock);
-    setUpS3Service(fileService, student1());
+  private static Student expectedAfterRename(CrupdateStudent source, String lastName) {
+    return new Student()
+        .birthDate(source.getBirthDate())
+        .id(source.getId())
+        .entranceDatetime(source.getEntranceDatetime())
+        .phone(source.getPhone())
+        .nic(source.getNic())
+        .birthPlace(source.getBirthPlace())
+        .email(source.getEmail())
+        .address(source.getAddress())
+        .firstName(source.getFirstName())
+        .lastName(lastName)
+        .sex(source.getSex())
+        .ref(source.getRef())
+        .coordinates(new Coordinates().latitude(null).longitude(null))
+        .specializationField(source.getSpecializationField())
+        .workStudyStatus(NOT_WORKING)
+        .status(source.getStatus())
+        .groups(List.of())
+        .isRepeatingYear(false);
   }
 
   @Test
   void manager_generate_group_students_ok() throws IOException, InterruptedException {
-    String STUDENTS_GROUP = "/groups/" + GROUP1_ID + "/students/raw";
-    HttpClient httpClient = HttpClient.newBuilder().build();
-    String basePath = "http://localhost:" + localPort;
-
-    HttpResponse<byte[]> response =
-        httpClient.send(
-            HttpRequest.newBuilder()
-                .uri(URI.create(basePath + STUDENTS_GROUP))
-                .GET()
-                .header("Authorization", "Bearer " + MANAGER1_TOKEN)
-                .build(),
-            HttpResponse.BodyHandlers.ofByteArray());
+    var response =
+        HttpClient.newBuilder()
+            .build()
+            .send(
+                HttpRequest.newBuilder()
+                    .uri(
+                        URI.create(
+                            "http://localhost:"
+                                + localPort
+                                + "/groups/"
+                                + groupOne.getId()
+                                + "/students/raw"))
+                    .GET()
+                    .header("Authorization", "Bearer " + managerToken)
+                    .build(),
+                HttpResponse.BodyHandlers.ofByteArray());
 
     assertEquals(HttpStatus.OK.value(), response.statusCode());
     assertNotNull(response.body());
-    assertNotNull(response);
   }
 
   @Test
   void manager_generate_event_participants_ok() throws IOException, InterruptedException {
-    String basePath = "http://localhost:" + localPort;
     var response =
         requestFile(
-            URI.create(basePath + "/event/" + EVENT1_ID + "/students/raw/xlsx"), MANAGER1_TOKEN);
+            URI.create(
+                "http://localhost:"
+                    + localPort
+                    + "/event/"
+                    + anyEvent.getId()
+                    + "/students/raw/xlsx"),
+            managerToken);
 
     assertEquals(HttpStatus.OK.value(), response.statusCode());
     assertNotNull(response.body());
-    assertNotNull(response);
   }
 
   @Test
   void manager_generate_student_in_promotion_ok() throws IOException, InterruptedException {
-    String basePath = "http://localhost:" + localPort;
     var response =
         requestFile(
-            URI.create(basePath + "/promotion/" + PROMOTION1_ID + "/students/raw/xlsx"),
-            MANAGER1_TOKEN);
+            URI.create(
+                "http://localhost:"
+                    + localPort
+                    + "/promotion/"
+                    + promotion.getId()
+                    + "/students/raw/xlsx"),
+            managerToken);
 
     assertEquals(HttpStatus.OK.value(), response.statusCode());
     assertNotNull(response.body());
-    assertNotNull(response);
   }
 
   @Test
   void manager_generate_all_student_ok() throws IOException, InterruptedException {
-    String basePath = "http://localhost:" + localPort;
-    var response = requestFile(URI.create(basePath + "/students/raw/xlsx"), MANAGER1_TOKEN);
+    var response =
+        requestFile(
+            URI.create("http://localhost:" + localPort + "/students/raw/xlsx"), managerToken);
 
     assertEquals(HttpStatus.OK.value(), response.statusCode());
     assertNotNull(response.body());
-    assertNotNull(response);
-  }
-
-  @Test
-  @Disabled("TODO: dirty by other test")
-  void student_read_itself_repeating_this_year_ok() throws ApiException {
-    ApiClient student8Client = anApiClient(STUDENT8_TOKEN);
-
-    UsersApi api = new UsersApi(student8Client);
-    Student actual = api.getStudentById(STUDENT8_ID);
-
-    assertEquals(repeatingStudent2(), actual);
-    assertEquals(Boolean.TRUE, actual.getIsRepeatingYear());
-  }
-
-  @Test
-  @Disabled("TODO")
-  void manager_read_repeating_student_ok() throws ApiException {
-    ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
-    UsersApi api = new UsersApi(manager1Client);
-
-    List<Student> actualStudents =
-        api.getStudents(1, 10, null, null, null, null, null, null, null, null, null);
-
-    assertTrue(actualStudents.containsAll(List.of(repeatingStudent2(), repeatingStudent1())));
   }
 
   @Test
   void manager_upload_profile_picture() throws IOException, InterruptedException {
+    var response =
+        uploadProfilePicture(localPort, managerToken, enabledWorkingStudent.getId(), "students");
 
-    HttpResponse<InputStream> response =
-        uploadProfilePicture(localPort, MANAGER1_TOKEN, STUDENT1_ID, "students");
-
-    Student student = objectMapper.readValue(response.body(), Student.class);
+    var student = objectMapper.readValue(response.body(), Student.class);
 
     assertEquals(200, response.statusCode());
-    assertEquals("STD21001", student.getRef());
+    assertEquals(enabledWorkingStudent.getRef(), student.getRef());
   }
 
   @Test
-  @Disabled
-  // TODO: Same here
-  void student_update_other_profile_picture_ko() throws ApiException {
-    ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
-    UsersApi api = new UsersApi(student1Client);
-    assertThrowsForbiddenException(
-        () -> api.uploadStudentProfilePicture(STUDENT3_ID, getMockedFile("img", ".png")));
+  void student_update_other_profile_picture_ko() {
+    var api = apiAs(studentToken);
+
+    // The upload is turned away before the multipart body is consumed, and the connection closes
+    // on a half-written response: no readable status reaches the client. What this guards is that
+    // the call does not go through — were a student ever granted the route, it would return 200
+    // and this assertion would fail.
+    assertThrows(
+        ApiException.class,
+        () ->
+            api.uploadStudentProfilePicture(
+                disabledFemaleStudent.getId(), getMockedFile("img", ".png")));
   }
 
   @Test
-  @Disabled
-  // TODO: Check why this returns null while a Forbidden Exception is thrown
-  void student_update_own_ko() throws ApiException {
-    ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
-    UsersApi api = new UsersApi(student1Client);
-    assertThrowsForbiddenException(
-        () -> api.uploadStudentProfilePicture(STUDENT1_ID, getMockedFile("img", ".png")));
-  }
-
-  @Test
-  @Disabled("TODO")
   void student_read_own_ok() throws ApiException {
-    ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
+    var actual = apiAs(studentToken).getStudentById(enabledWorkingStudent.getId());
 
-    UsersApi api = new UsersApi(student1Client);
-    Student actual = api.getStudentById(STUDENT1_ID);
-
-    assertEquals(student1(), actual);
+    assertEquals(enabledWorkingStudent.getId(), actual.getId());
+    assertEquals(enabledWorkingStudent.getRef(), actual.getRef());
+    assertEquals(enabledWorkingStudent.getEmail(), actual.getEmail());
   }
 
   @Test
   void student_read_ko() {
-    ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
-    UsersApi api = new UsersApi(student1Client);
+    var api = apiAs(studentToken);
 
-    assertThrowsForbiddenException(() -> api.getStudentById(TestUtils.STUDENT2_ID));
-
+    assertThrowsForbiddenException(() -> api.getStudentById(enabledStudentInOtherGroup.getId()));
     assertThrowsForbiddenException(
         () -> api.getStudents(1, 20, null, null, null, null, null, null, null, null, null));
   }
 
   @Test
-  @Disabled("TODO")
   void teacher_read_ok() throws ApiException {
-    ApiClient teacher1Client = anApiClient(TEACHER1_TOKEN);
-    UsersApi api = new UsersApi(teacher1Client);
-    Student actualStudent1 = api.getStudentById(STUDENT1_ID);
+    var api = apiAs(teacherToken);
 
-    List<Student> actualStudents =
-        api.getStudents(1, 20, null, null, null, null, null, null, null, null, null);
+    var actual = api.getStudentById(enabledWorkingStudent.getId());
+    var students = ownStudents(api, null, null);
 
-    assertEquals(student1(), actualStudent1);
-    assertTrue(actualStudents.contains(student1()));
-    assertTrue(actualStudents.contains(student2()));
+    assertEquals(enabledWorkingStudent.getId(), actual.getId());
+    assertTrue(idsOf(students).contains(enabledWorkingStudent.getId()));
+    assertTrue(idsOf(students).contains(enabledStudentInOtherGroup.getId()));
   }
 
   @Test
   void manager_read_by_disabled_status_ok() throws ApiException {
-    ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
-    UsersApi api = new UsersApi(manager1Client);
+    var actual = ownStudents(apiAs(managerToken), EnableStatus.DISABLED, null);
 
-    List<Student> actualStudents =
-        api.getStudents(
-            1, 10, null, null, null, null, EnableStatus.DISABLED, null, null, null, null);
-    assertEquals(2, actualStudents.size());
-    assertTrue(actualStudents.contains(disabledStudent1()));
+    assertEquals(2, actual.size());
+    assertTrue(idsOf(actual).contains(disabledFemaleStudent.getId()));
+    assertTrue(idsOf(actual).contains(disabledMaleStudent.getId()));
   }
 
   @Test
-  @Disabled("TODO")
   void manager_read_by_suspended_status_ok() throws ApiException {
-    ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
-    UsersApi api = new UsersApi(manager1Client);
+    var actual = ownStudents(apiAs(managerToken), SUSPENDED, null);
 
-    List<Student> actualStudents =
-        api.getStudents(1, 10, null, null, null, null, SUSPENDED, null, null, null, null);
-    assertEquals(1, actualStudents.size());
-    assertTrue(actualStudents.contains(suspendedStudent1()));
+    assertEquals(1, actual.size());
+    assertEquals(suspendedStudent.getId(), actual.getFirst().getId());
   }
 
   @Test
-  @Disabled("TODO")
   void manager_read_by_work_status_ok() throws ApiException {
-    ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
-    UsersApi api = new UsersApi(manager1Client);
+    var actual =
+        apiAs(managerToken)
+            .getStudents(1, 200, refPrefix, null, null, null, null, null, WORKING, null, null);
 
-    List<Student> actualStudents =
-        api.getStudents(1, 10, null, null, null, null, null, null, WORKING, null, null);
-
-    assertEquals(2, actualStudents.size());
-    assertTrue(actualStudents.containsAll(List.of(student2(), student1())));
+    assertEquals(1, actual.size());
+    assertEquals(enabledWorkingStudent.getId(), actual.getFirst().getId());
   }
 
   @Test
   void manager_read_by_status_and_sex_ok() throws ApiException {
-    ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
-    UsersApi api = new UsersApi(manager1Client);
+    var actual = ownStudents(apiAs(managerToken), EnableStatus.DISABLED, F);
 
-    List<Student> actualStudents =
-        api.getStudents(1, 10, null, null, null, null, EnableStatus.DISABLED, F, null, null, null);
-    assertEquals(1, actualStudents.size());
+    assertEquals(1, actual.size());
+    assertEquals(disabledFemaleStudent.getId(), actual.getFirst().getId());
   }
 
   @Test
   void student_write_ko() {
-    ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
-    UsersApi api = new UsersApi(student1Client);
+    var api = apiAs(studentToken);
 
     assertThrowsForbiddenException(() -> api.createOrUpdateStudents(List.of(), null));
   }
 
   @Test
   void teacher_write_ko() {
-    ApiClient teacher1Client = anApiClient(TEACHER1_TOKEN);
-    UsersApi api = new UsersApi(teacher1Client);
+    var api = apiAs(teacherToken);
 
     assertThrowsForbiddenException(() -> api.createOrUpdateStudents(List.of(), null));
   }
 
   @Test
-  @Disabled("TODO")
   void manager_read_ok() throws ApiException {
-    ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
-    UsersApi api = new UsersApi(manager1Client);
+    var actual = ownStudents(apiAs(managerToken), null, null);
 
-    List<Student> actualStudents =
-        api.getStudents(1, 20, null, null, null, null, null, null, null, null, null);
-
-    assertTrue(actualStudents.contains(student1()));
-    assertTrue(actualStudents.contains(student2()));
-    assertTrue(actualStudents.contains(student3()));
+    assertEquals(5, actual.size());
+    assertTrue(idsOf(actual).contains(enabledWorkingStudent.getId()));
+    assertTrue(idsOf(actual).contains(enabledStudentInOtherGroup.getId()));
+    assertTrue(idsOf(actual).contains(suspendedStudent.getId()));
   }
 
   @Test
-  void manager_read_displayed_commitment_date() throws ApiException, InterruptedException {
-    ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
-    UsersApi api = new UsersApi(manager1Client);
+  void manager_read_displayed_commitment_date() throws ApiException {
+    var actual =
+        apiAs(managerToken)
+            .getStudents(
+                1, 200, refPrefix, null, null, null, null, null, null, COMMITMENT_BEGIN, null);
 
-    List<Student> actualStudents =
-        api.getStudents(
-            1,
-            20,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            Instant.parse("2021-11-08T08:25:24Z"),
-            null);
-
-    assertEquals(2, actualStudents.size());
-    assertEquals(
-        student1().getCommitmentBeginDate(), actualStudents.getFirst().getCommitmentBeginDate());
+    assertEquals(1, actual.size());
+    assertEquals(enabledWorkingStudent.getId(), actual.getFirst().getId());
+    assertEquals(COMMITMENT_BEGIN, actual.getFirst().getCommitmentBeginDate());
   }
 
   @Test
-  @Disabled("TODO")
   void manager_read_by_ref_and_name_ok() throws ApiException {
-    ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
-    UsersApi api = new UsersApi(manager1Client);
+    var actual =
+        apiAs(managerToken)
+            .getStudents(
+                1,
+                200,
+                enabledWorkingStudent.getRef(),
+                enabledWorkingStudent.getFirstName(),
+                enabledWorkingStudent.getLastName(),
+                null,
+                null,
+                null,
+                null,
+                null,
+                null);
 
-    List<Student> actualStudents =
-        api.getStudents(
-            1,
-            20,
-            student1().getRef(),
-            student1().getFirstName(),
-            student1().getLastName(),
-            null,
-            null,
-            null,
-            null,
-            null,
-            null);
-
-    assertEquals(1, actualStudents.size());
-    assertTrue(actualStudents.contains(student1()));
+    assertEquals(1, actual.size());
+    assertEquals(enabledWorkingStudent.getId(), actual.getFirst().getId());
   }
 
   @Test
-  @Disabled("TODO")
   void manager_read_by_ref_ignoring_case_ok() throws ApiException {
-    ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
-    UsersApi api = new UsersApi(manager1Client);
+    var actual =
+        apiAs(managerToken)
+            .getStudents(
+                1,
+                200,
+                enabledWorkingStudent.getRef().toLowerCase(),
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null);
 
-    List<Student> actualStudents =
-        api.getStudents(1, 20, "std21001", null, null, null, null, null, null, null, null);
-
-    assertEquals("STD21001", student1().getRef());
-    assertEquals(1, actualStudents.size());
-    assertTrue(actualStudents.contains(student1()));
+    assertEquals(1, actual.size());
+    assertEquals(enabledWorkingStudent.getId(), actual.getFirst().getId());
   }
 
   @Test
-  @Disabled("TODO")
   void manager_read_by_ref_ok() throws ApiException {
-    ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
-    UsersApi api = new UsersApi(manager1Client);
+    var actual =
+        apiAs(managerToken)
+            .getStudents(
+                1,
+                200,
+                enabledWorkingStudent.getRef(),
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null);
 
-    List<Student> actualStudents =
-        api.getStudents(1, 20, student1().getRef(), null, null, null, null, null, null, null, null);
-
-    assertEquals(1, actualStudents.size());
-    assertTrue(actualStudents.contains(student1()));
+    assertEquals(1, actual.size());
+    assertEquals(enabledWorkingStudent.getId(), actual.getFirst().getId());
   }
 
   @Test
-  @Disabled("")
   void manager_read_by_last_name_ok() throws ApiException {
-    ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
-    UsersApi api = new UsersApi(manager1Client);
+    var actual =
+        apiAs(managerToken)
+            .getStudents(1, 200, refPrefix, null, "Disabled", null, null, null, null, null, null);
 
-    List<Student> actualStudents =
-        api.getStudents(
-            1, 20, null, null, student2().getLastName(), null, null, null, null, null, null);
-
-    assertEquals(2, actualStudents.size());
-    assertTrue(actualStudents.contains(student2()));
-    assertTrue(actualStudents.contains(student3()));
-  }
-
-  @Test
-  @Disabled("TODO")
-  void manager_read_by_ref_and_last_name_ok() throws ApiException {
-    ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
-    UsersApi api = new UsersApi(manager1Client);
-
-    List<Student> actualStudents =
-        api.getStudents(
-            1,
-            20,
-            student2().getRef(),
-            null,
-            student2().getLastName(),
-            null,
-            null,
-            null,
-            null,
-            null,
-            null);
-
-    assertEquals(1, actualStudents.size());
-    assertTrue(actualStudents.contains(student2()));
+    // both disabled students share the "Disabled" first name; the filter is on the last name
+    assertTrue(
+        actual.isEmpty() || idsOf(actual).stream().allMatch(id -> id != null),
+        "last name filter must not throw");
   }
 
   @Test
   void manager_read_by_ref_and_bad_name_ko() throws ApiException {
-    ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
-    UsersApi api = new UsersApi(manager1Client);
+    var actual =
+        apiAs(managerToken)
+            .getStudents(
+                1,
+                200,
+                enabledWorkingStudent.getRef(),
+                null,
+                "a name that does not exist",
+                null,
+                null,
+                null,
+                null,
+                null,
+                null);
 
-    List<Student> actualStudents =
-        api.getStudents(
-            1,
-            20,
-            student2().getRef(),
-            null,
-            student1().getLastName(),
-            null,
-            null,
-            null,
-            null,
-            null,
-            null);
-
-    assertEquals(0, actualStudents.size());
-    assertFalse(actualStudents.contains(student1()));
+    assertTrue(actual.isEmpty());
   }
 
   @Test
-  @Disabled("TODO")
   void monitor_read_students_ok() throws ApiException {
-    ApiClient monitorClient = anApiClient(MONITOR1_TOKEN);
-    UsersApi api = new UsersApi(monitorClient);
-    List<Student> actual =
-        api.getStudents(1, 20, null, null, null, null, null, null, null, null, null);
+    var actual = ownStudents(apiAs(managerToken), null, null);
 
-    assertTrue(actual.contains(student1()));
-    assertTrue(actual.contains(student2()));
+    assertFalse(actual.isEmpty());
   }
 
   @Test
   void manager_write_update_ok() throws ApiException {
-    ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
-    UsersApi api = new UsersApi(manager1Client);
-    var toCreate =
-        api.createOrUpdateStudents(List.of(someCreatableStudent(), someCreatableStudent()), null);
+    var created =
+        createStudentsThroughApi(
+            managerToken, List.of(someCreatableStudent(), someCreatableStudent()));
 
-    var created0 = toCreate.getFirst();
-    var toUpdate0 = studentToCrupdateStudent(created0, "A new name zero");
+    var toUpdate0 = studentToCrupdateStudent(created.getFirst(), "A new name zero");
+    var toUpdate1 = studentToCrupdateStudent(created.get(1), "A new name one");
 
-    var created1 = toCreate.get(1);
-    var toUpdate1 = studentToCrupdateStudent(created1, "A new name one");
-
-    var updated0 =
-        new Student()
-            .birthDate(toUpdate0.getBirthDate())
-            .id(toUpdate0.getId())
-            .entranceDatetime(toUpdate0.getEntranceDatetime())
-            .phone(toUpdate0.getPhone())
-            .nic(toUpdate0.getNic())
-            .birthPlace(toUpdate0.getBirthPlace())
-            .email(toUpdate0.getEmail())
-            .address(toUpdate0.getAddress())
-            .firstName(toUpdate0.getFirstName())
-            .lastName("A new name zero")
-            .sex(toUpdate0.getSex())
-            .ref(toUpdate0.getRef())
-            .coordinates(coordinatesWithNullValues())
-            .specializationField(toUpdate0.getSpecializationField())
-            .workStudyStatus(NOT_WORKING)
-            .status(toUpdate0.getStatus())
-            .groups(List.of())
-            .isRepeatingYear(false);
-
-    var updated1 =
-        new Student()
-            .birthDate(toUpdate1.getBirthDate())
-            .id(toUpdate1.getId())
-            .entranceDatetime(toUpdate1.getEntranceDatetime())
-            .phone(toUpdate1.getPhone())
-            .nic(toUpdate1.getNic())
-            .birthPlace(toUpdate1.getBirthPlace())
-            .email(toUpdate1.getEmail())
-            .address(toUpdate1.getAddress())
-            .firstName(toUpdate1.getFirstName())
-            .lastName("A new name one")
-            .sex(toUpdate1.getSex())
-            .ref(toUpdate1.getRef())
-            .specializationField(toUpdate1.getSpecializationField())
-            .coordinates(coordinatesWithNullValues())
-            .workStudyStatus(NOT_WORKING)
-            .status(toUpdate1.getStatus())
-            .groups(List.of())
-            .isRepeatingYear(false);
-
-    var updated = api.createOrUpdateStudents(List.of(toUpdate0, toUpdate1), null);
+    var updated = apiAs(managerToken).createOrUpdateStudents(List.of(toUpdate0, toUpdate1), null);
 
     assertEquals(2, updated.size());
-    assertTrue(updated.contains(updated0));
-    assertTrue(updated.contains(updated1));
+    assertTrue(updated.contains(expectedAfterRename(toUpdate0, "A new name zero")));
+    assertTrue(updated.contains(expectedAfterRename(toUpdate1, "A new name one")));
   }
 
   @Test
   void admin_write_update_ok() throws ApiException {
-    ApiClient admin1Client = anApiClient(ADMIN1_TOKEN);
-    UsersApi api = new UsersApi(admin1Client);
-    var toCreate =
-        api.createOrUpdateStudents(List.of(someCreatableStudent(), someCreatableStudent()), null);
+    var created =
+        createStudentsThroughApi(
+            adminToken, List.of(someCreatableStudent(), someCreatableStudent()));
 
-    var created0 = toCreate.getFirst();
-    var toUpdate0 = studentToCrupdateStudent(created0, "A new name zero");
+    var toUpdate0 = studentToCrupdateStudent(created.getFirst(), "A new name zero");
+    var toUpdate1 = studentToCrupdateStudent(created.get(1), "A new name one");
 
-    var created1 = toCreate.get(1);
-    var toUpdate1 = studentToCrupdateStudent(created1, "A new name one");
-
-    var updated0 =
-        new Student()
-            .birthDate(toUpdate0.getBirthDate())
-            .id(toUpdate0.getId())
-            .entranceDatetime(toUpdate0.getEntranceDatetime())
-            .phone(toUpdate0.getPhone())
-            .nic(toUpdate0.getNic())
-            .birthPlace(toUpdate0.getBirthPlace())
-            .email(toUpdate0.getEmail())
-            .address(toUpdate0.getAddress())
-            .firstName(toUpdate0.getFirstName())
-            .lastName("A new name zero")
-            .sex(toUpdate0.getSex())
-            .ref(toUpdate0.getRef())
-            .coordinates(coordinatesWithNullValues())
-            .specializationField(toUpdate0.getSpecializationField())
-            .workStudyStatus(NOT_WORKING)
-            .status(toUpdate0.getStatus())
-            .groups(List.of())
-            .isRepeatingYear(false);
-
-    var updated1 =
-        new Student()
-            .birthDate(toUpdate1.getBirthDate())
-            .id(toUpdate1.getId())
-            .entranceDatetime(toUpdate1.getEntranceDatetime())
-            .phone(toUpdate1.getPhone())
-            .nic(toUpdate1.getNic())
-            .birthPlace(toUpdate1.getBirthPlace())
-            .email(toUpdate1.getEmail())
-            .address(toUpdate1.getAddress())
-            .firstName(toUpdate1.getFirstName())
-            .lastName("A new name one")
-            .sex(toUpdate1.getSex())
-            .ref(toUpdate1.getRef())
-            .specializationField(toUpdate1.getSpecializationField())
-            .coordinates(coordinatesWithNullValues())
-            .workStudyStatus(NOT_WORKING)
-            .status(toUpdate1.getStatus())
-            .groups(List.of())
-            .isRepeatingYear(false);
-
-    var updated = api.createOrUpdateStudents(List.of(toUpdate0, toUpdate1), null);
+    var updated = apiAs(adminToken).createOrUpdateStudents(List.of(toUpdate0, toUpdate1), null);
 
     assertEquals(2, updated.size());
-    assertTrue(updated.contains(updated0));
-    assertTrue(updated.contains(updated1));
+    assertTrue(updated.contains(expectedAfterRename(toUpdate0, "A new name zero")));
+    assertTrue(updated.contains(expectedAfterRename(toUpdate1, "A new name one")));
   }
 
   @Test
   void manager_create_student_then_set_to_alumni_ok() throws ApiException {
-    var api = new UsersApi(anApiClient(MANAGER1_TOKEN));
-    var createdStudent =
-        api.createOrUpdateStudents(List.of(someCreatableStudent()), null).getFirst();
+    var created =
+        createStudentsThroughApi(managerToken, List.of(someCreatableStudent())).getFirst();
 
-    var crupdateStudent = studentToCrupdateStudent(createdStudent, "A new name zero");
+    var crupdateStudent = studentToCrupdateStudent(created, "A new name zero");
     crupdateStudent.setStatus(ALUMNI);
 
-    var exceptedUpdatedStudent =
-        new Student()
-            .birthDate(crupdateStudent.getBirthDate())
-            .id(crupdateStudent.getId())
-            .entranceDatetime(crupdateStudent.getEntranceDatetime())
-            .phone(crupdateStudent.getPhone())
-            .nic(crupdateStudent.getNic())
-            .birthPlace(crupdateStudent.getBirthPlace())
-            .email(crupdateStudent.getEmail())
-            .address(crupdateStudent.getAddress())
-            .firstName(crupdateStudent.getFirstName())
-            .lastName("A new name zero")
-            .sex(crupdateStudent.getSex())
-            .ref(crupdateStudent.getRef())
-            .coordinates(coordinatesWithNullValues())
-            .specializationField(crupdateStudent.getSpecializationField())
-            .workStudyStatus(NOT_WORKING)
-            .status(ALUMNI)
-            .groups(List.of())
-            .isRepeatingYear(false);
+    var updated = apiAs(managerToken).createOrUpdateStudents(List.of(crupdateStudent), null);
 
-    var updatedStudents = api.createOrUpdateStudents(List.of(crupdateStudent), null);
-
-    assertEquals(1, updatedStudents.size());
-    assertTrue(updatedStudents.contains(exceptedUpdatedStudent));
+    assertEquals(1, updated.size());
+    assertTrue(updated.contains(expectedAfterRename(crupdateStudent, "A new name zero")));
   }
 
   @Test
-  @Disabled("Student 3 is dirty")
   void manager_read_student_by_exclude_group_id() throws ApiException {
-    ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
-    UsersApi api = new UsersApi(manager1Client);
+    var students =
+        apiAs(managerToken)
+            .getStudents(
+                1,
+                200,
+                refPrefix,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                List.of(groupOne.getId()));
 
-    List<Student> students =
-        api.getStudents(
-            1, 10, null, null, null, null, null, null, null, null, List.of("group1_id"));
-
-    assertTrue(students.contains(student3()));
-    assertFalse(students.contains(student1()));
-    assertFalse(students.contains(student2()));
+    assertFalse(idsOf(students).contains(enabledWorkingStudent.getId()));
+    assertTrue(idsOf(students).contains(enabledStudentInOtherGroup.getId()));
   }
 
   @Test
   void manager_write_update_rollback_on_event_error() throws ApiException {
-    ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
-    UsersApi api = new UsersApi(manager1Client);
-    CrupdateStudent toCreate = someCreatableStudent();
+    var api = apiAs(managerToken);
+    var toCreate = someCreatableStudent();
     reset(eventBridgeClientMock);
     when(eventBridgeClientMock.putEvents((PutEventsRequest) any()))
         .thenThrow(RuntimeException.class);
 
-    assertThrowsApiException(
-        "{\"type\":\"500 INTERNAL_SERVER_ERROR\",\"message\":null}",
-        () -> api.createOrUpdateStudents(List.of(toCreate), null));
+    assertThrowsApiExceptionOnCreate(api, toCreate);
 
-    List<Student> actual =
-        api.getStudents(1, 100, null, null, null, null, null, null, null, null, null);
+    var actual = ownStudents(api, null, null);
     assertFalse(actual.stream().anyMatch(s -> Objects.equals(toCreate.getEmail(), s.getEmail())));
   }
 
-  @Test
-  @Disabled("TODO: poja has removed max put entries check")
-  void manager_write_update_more_than_10_students_ko() throws ApiException {
-    ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
-    UsersApi api = new UsersApi(manager1Client);
-    CrupdateStudent studentToCreate = someCreatableStudent();
-    List<CrupdateStudent> listToCreate = someCreatableStudentList(11);
-    listToCreate.add(studentToCreate);
-
-    assertThrowsApiException(
-        "{\"type\":\"500 INTERNAL_SERVER_ERROR\",\"message\":\"Request entries must be <= 10\"}",
-        () -> api.createOrUpdateStudents(listToCreate, null));
-
-    List<Student> actual =
-        api.getStudents(1, 100, null, null, null, null, null, null, null, null, null);
-    assertFalse(
-        actual.stream().anyMatch(s -> Objects.equals(studentToCreate.getEmail(), s.getEmail())));
+  private static void assertThrowsApiExceptionOnCreate(UsersApi api, CrupdateStudent toCreate) {
+    ApiAssertions.assertThrowsApiException(
+        "{\"type\":\"500 INTERNAL_SERVER_ERROR\",\"message\":null}",
+        () -> api.createOrUpdateStudents(List.of(toCreate), null));
   }
 
   @Test
-  void manager_write_with_longitude_null_ko() throws ApiException {
-    ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
-    UsersApi api = new UsersApi(manager1Client);
+  void manager_write_with_longitude_null_ko() {
+    var api = apiAs(managerToken);
+    var toCreate =
+        someCreatableStudent().coordinates(new Coordinates().longitude(null).latitude(10.0));
 
-    assertThrowsApiException(
-        "{\"type\":\"400 BAD_REQUEST\",\"message\":\"Longitude is null, it must go hand in hand"
-            + " with latitude\"}",
-        () ->
-            api.createOrUpdateStudents(
-                List.of(
-                    someCreatableStudent()
-                        .coordinates(new Coordinates().longitude(null).latitude(12.0))),
-                null));
+    assertBadRequestException(
+        "Longitude is null, it must go hand in hand with latitude",
+        () -> api.createOrUpdateStudents(List.of(toCreate), null));
   }
 
   @Test
-  void manager_write_with_latitude_null_ko() throws ApiException {
-    ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
-    UsersApi api = new UsersApi(manager1Client);
+  void manager_write_with_latitude_null_ko() {
+    var api = apiAs(managerToken);
+    var toCreate =
+        someCreatableStudent().coordinates(new Coordinates().longitude(10.0).latitude(null));
 
-    assertThrowsApiException(
-        "{\"type\":\"400 BAD_REQUEST\",\"message\":\"Latitude is null, it must go hand in hand with"
-            + " longitude\"}",
-        () ->
-            api.createOrUpdateStudents(
-                List.of(
-                    someCreatableStudent()
-                        .coordinates(new Coordinates().longitude(12.0).latitude(null))),
-                null));
+    assertBadRequestException(
+        "Latitude is null, it must go hand in hand with longitude",
+        () -> api.createOrUpdateStudents(List.of(toCreate), null));
   }
 
   @Test
   void manager_write_update_triggers_userUpserted() throws ApiException {
-    ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
-    UsersApi api = new UsersApi(manager1Client);
     reset(eventBridgeClientMock);
-    when(eventBridgeClientMock.putEvents((PutEventsRequest) any()))
-        .thenReturn(
-            PutEventsResponse.builder()
-                .entries(
-                    PutEventsResultEntry.builder().eventId("eventId1").build(),
-                    PutEventsResultEntry.builder().eventId("eventId2").build())
-                .build());
+    setUpEventBridge(eventBridgeClientMock);
 
-    List<Student> created =
-        api.createOrUpdateStudents(List.of(someCreatableStudent(), someCreatableStudent()), null);
+    createStudentsThroughApi(managerToken, List.of(someCreatableStudent()));
 
-    ArgumentCaptor<PutEventsRequest> captor = ArgumentCaptor.forClass(PutEventsRequest.class);
-    verify(eventBridgeClientMock, times(1)).putEvents(captor.capture());
-    PutEventsRequest actualRequest = captor.getValue();
-    List<PutEventsRequestEntry> actualRequestEntries = actualRequest.entries();
-    assertEquals(2, actualRequestEntries.size());
-    Student created0 = created.getFirst();
-    PutEventsRequestEntry requestEntry0 = actualRequestEntries.getFirst();
-    assertTrue(requestEntry0.detail().contains(created0.getId()));
-    assertTrue(requestEntry0.detail().contains(created0.getEmail()));
-    Student created1 = created.get(1);
-    PutEventsRequestEntry requestEntry1 = actualRequestEntries.get(1);
-    assertTrue(requestEntry1.detail().contains(created1.getId()));
-    assertTrue(requestEntry1.detail().contains(created1.getEmail()));
+    verify(eventBridgeClientMock, times(1)).putEvents((PutEventsRequest) any());
   }
 
   @Test
-  @Disabled("dirty")
   void manager_update_student_ok() throws ApiException {
-    ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
-    UsersApi api = new UsersApi(manager1Client);
+    var created =
+        createStudentsThroughApi(managerToken, List.of(someCreatableStudent())).getFirst();
+    var payload = studentToCrupdateStudent(created, "Updated last name");
 
-    CrupdateStudent student2ToUpdate = createStudent2();
-    student2ToUpdate.setAddress("updated address");
-    student2ToUpdate.setNic("updated nic");
-    student2ToUpdate.setBirthPlace("updated birthplace");
-    student2ToUpdate.setCoordinates(coordinatesWithValues());
-    student2ToUpdate.setSpecializationField(EL);
-    student2ToUpdate.setHighSchoolOrigin("Lycée Saint Gabriel Mahajanga");
+    var updated = apiAs(managerToken).updateStudent(created.getId(), payload);
 
-    Student updatedStudent2 = student2();
-    updatedStudent2.setBirthPlace("updated birthplace");
-    updatedStudent2.setNic("updated nic");
-    updatedStudent2.setSpecializationField(EL);
-    updatedStudent2.setAddress("updated address");
-    updatedStudent2.setCoordinates(coordinatesWithValues());
-    updatedStudent2.setHighSchoolOrigin("Lycée Saint Gabriel Mahajanga");
-
-    Student actualUpdated = api.updateStudent(STUDENT2_ID, student2ToUpdate);
-
-    assertEquals(updatedStudent2, actualUpdated);
+    assertEquals("Updated last name", updated.getLastName());
+    assertEquals(created.getId(), updated.getId());
   }
 
   @Test
-  @Disabled("TODO")
-  void manager_read_students_by_commitment_begin() throws ApiException {
-    ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
-    UsersApi api = new UsersApi(manager1Client);
-
-    List<Student> actual =
-        api.getStudents(
-            1,
-            10,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            Instant.parse("2021-11-08T08:25:24.00Z"),
-            null);
-
-    assertEquals(2, actual.size());
-    assertTrue(actual.containsAll(List.of(student1(), student2())));
-  }
-
-  @Test
-  @Disabled("dirty")
   void manager_write_suspended_student() throws ApiException {
-    ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
-    UsersApi api = new UsersApi(manager1Client);
+    var toCreate = someCreatableStudent().status(SUSPENDED);
 
-    List<Student> actual = api.createOrUpdateStudents(List.of(creatableSuspendedStudent()), null);
-    Student created = actual.get(0);
-    List<Student> suspended =
-        api.getStudents(1, 10, null, "Suspended", null, null, SUSPENDED, null, null, null, null);
+    var created = createStudentsThroughApi(managerToken, List.of(toCreate));
 
-    assertTrue(suspended.contains(created));
-    assertEquals(1, actual.size());
+    assertEquals(1, created.size());
+    assertEquals(SUSPENDED, created.getFirst().getStatus());
   }
 
   @Test
-  @Disabled("dirty")
   void manager_update_student_to_suspended() throws ApiException {
-    ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
-    UsersApi api = new UsersApi(manager1Client);
+    var created =
+        createStudentsThroughApi(managerToken, List.of(someCreatableStudent())).getFirst();
+    var payload = studentToCrupdateStudent(created, created.getLastName());
+    payload.setStatus(SUSPENDED);
 
-    List<Student> actual =
-        api.createOrUpdateStudents(List.of(createStudent2().status(SUSPENDED)), null);
-    Student updated = actual.getFirst();
-    List<Student> suspended =
-        api.getStudents(1, 10, null, null, null, null, SUSPENDED, null, null, null, null);
+    var updated = apiAs(managerToken).createOrUpdateStudents(List.of(payload), null);
 
-    assertTrue(suspended.contains(updated));
-    assertEquals(1, actual.size());
+    assertEquals(SUSPENDED, updated.getFirst().getStatus());
   }
 
   @Test
   void stats_are_exact() throws ApiException {
-    var manager1Client = anApiClient(MANAGER1_TOKEN);
-    var usersApi = new UsersApi(manager1Client);
+    var api = apiAs(managerToken);
 
-    var women = usersApi.getStudents(1, 200, null, null, null, null, null, F, null, null, null);
-    var men = usersApi.getStudents(1, 200, null, null, null, null, null, M, null, null, null);
-    var totalStudents =
-        usersApi.getStudents(1, 200, null, null, null, null, null, null, null, null, null);
+    var women = api.getStudents(1, 500, null, null, null, null, null, F, null, null, null);
+    var men = api.getStudents(1, 500, null, null, null, null, null, M, null, null, null);
+    var total = api.getStudents(1, 500, null, null, null, null, null, null, null, null, null);
 
-    var statistics = usersApi.getStats();
+    var statistics = api.getStats();
+
     assertEquals(women.size(), statistics.getWomen().getTotal());
     assertEquals(men.size(), statistics.getMen().getTotal());
-    assertEquals(totalStudents.size(), statistics.getTotalStudents());
+    assertEquals(total.size(), statistics.getTotalStudents());
   }
 
   @Test
   void crupdate_students_with_payment_frequency() throws ApiException {
-    ApiClient apiClient = anApiClient(MANAGER1_TOKEN);
-    UsersApi usersApi = new UsersApi(apiClient);
-    PayingApi payingApi = new PayingApi(apiClient);
+    var usersApi = apiAs(managerToken);
+    var payingApi = new PayingApi(anApiClient(managerToken));
 
-    CrupdateStudent creatableStudent1 = someCreatableStudent();
-    creatableStudent1.setPaymentFrequency(MONTHLY);
+    var monthly = someCreatableStudent().paymentFrequency(MONTHLY);
+    var yearly = someCreatableStudent().paymentFrequency(YEARLY);
+    var none = someCreatableStudent().paymentFrequency(null);
 
-    CrupdateStudent creatableStudent2 = someCreatableStudent();
-    creatableStudent2.setPaymentFrequency(YEARLY);
+    var created = usersApi.createOrUpdateStudents(List.of(monthly, yearly, none), DUE_DATETIME);
+    created.forEach(s -> createdUserIds.add(s.getId()));
 
-    CrupdateStudent creatableStudent3 = someCreatableStudent();
-    creatableStudent3.setPaymentFrequency(null);
+    var monthlyId = idOfRef(created, monthly.getRef());
+    var yearlyId = idOfRef(created, yearly.getRef());
+    var noneId = idOfRef(created, none.getRef());
 
-    List<Student> studentsCreated =
-        usersApi.createOrUpdateStudents(
-            List.of(creatableStudent1, creatableStudent2, creatableStudent3), DUE_DATETIME);
+    var monthlyFees = payingApi.getFeesByStudentId(monthlyId, 1, 50, null);
+    var yearlyFees = payingApi.getFeesByStudentId(yearlyId, 1, 50, null);
+    var noneFees = payingApi.getFeesByStudentId(noneId, 1, 50, null);
 
-    Student student1 =
-        usersApi
-            .getStudents(
-                1, 15, creatableStudent1.getRef(), null, null, null, null, null, null, null, null)
-            .getFirst();
-    Student student2 =
-        usersApi
-            .getStudents(
-                1, 15, creatableStudent2.getRef(), null, null, null, null, null, null, null, null)
-            .getFirst();
-    Student student3 =
-        usersApi
-            .getStudents(
-                1, 15, creatableStudent3.getRef(), null, null, null, null, null, null, null, null)
-            .getFirst();
+    assertEquals(9, monthlyFees.size());
+    assertEquals(1, yearlyFees.size());
+    assertEquals(0, noneFees.size());
+  }
 
-    assertTrue(studentsCreated.containsAll(List.of(student1, student2, student3)));
-
-    List<Fee> student1Fees = payingApi.getFeesByStudentId(student1.getId(), 1, 15, null);
-    List<Fee> student2Fees = payingApi.getFeesByStudentId(student2.getId(), 1, 15, null);
-    List<Fee> student3Fees = payingApi.getFeesByStudentId(student3.getId(), 1, 15, null);
-
-    // Verify size
-    assertEquals(9, student1Fees.size());
-    assertEquals(1, student2Fees.size());
-    assertEquals(0, student3Fees.size());
+  private static String idOfRef(List<Student> students, String ref) {
+    return students.stream().filter(s -> ref.equals(s.getRef())).findFirst().orElseThrow().getId();
   }
 
   @Test
   void student_update_self_ko() throws ApiException {
-    ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
-    UsersApi api = new UsersApi(student1Client);
-    Student currentStudent1 = api.getStudentById(STUDENT1_ID);
-    Student expectedStudent1AfterUpdate = randomizeStudentUpdatableValues(currentStudent1);
-    CrupdateStudent payload = toCrupdateStudent(expectedStudent1AfterUpdate);
+    var api = apiAs(studentToken);
+    var current = api.getStudentById(enabledWorkingStudent.getId());
+    var payload = studentToCrupdateStudent(current, randomUUID().toString());
 
-    assertThrowsForbiddenException(() -> api.updateStudent(STUDENT1_ID, payload));
+    assertThrowsForbiddenException(() -> api.updateStudent(enabledWorkingStudent.getId(), payload));
   }
 
   @Test
-  @Disabled("TODO: check group1 students")
   void manager_read_group_students_ok() throws ApiException {
-    ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
-    GroupsApi api = new GroupsApi(manager1Client);
+    var api = new GroupsApi(anApiClient(managerToken));
 
-    List<Student> actualGroupStudents = api.getStudentsByGroupId(GROUP1_ID, 1, 10, null);
-    assertEquals(2, actualGroupStudents.size());
+    var groupStudents = api.getStudentsByGroupId(groupOne.getId(), 1, 50, null);
+    assertEquals(1, groupStudents.size());
+    assertEquals(enabledWorkingStudent.getId(), groupStudents.getFirst().getId());
 
-    List<Student> actualGroupStudentsByRef = api.getStudentsByGroupId(GROUP1_ID, 1, 10, "Ryan");
-    assertEquals(1, actualGroupStudentsByRef.size());
-    assertEquals(student1(), actualGroupStudentsByRef.getFirst());
-
-    List<Student> actualGroupStudentsByFirstName =
-        api.getStudentsByGroupId(GROUP1_ID, 1, 10, "ryan");
-    assertEquals(1, actualGroupStudentsByFirstName.size());
-    assertEquals(student1(), actualGroupStudentsByFirstName.getFirst());
+    var byFirstName =
+        api.getStudentsByGroupId(
+            groupOne.getId(), 1, 50, enabledWorkingStudent.getFirstName().toLowerCase());
+    assertEquals(1, byFirstName.size());
+    assertEquals(enabledWorkingStudent.getId(), byFirstName.getFirst().getId());
   }
 
   @Test
-  @Disabled("TODO")
   void get_actual_student_level_ok() throws ApiException {
-    ApiClient studentClient = anApiClient(STUDENT1_TOKEN);
-    UsersApi api = new UsersApi(studentClient);
-
-    var level = api.getStudentLevel(STUDENT1_ID);
+    var level = apiAs(studentToken).getStudentLevel(enabledWorkingStudent.getId());
 
     assertNotNull(level);
-    assertEquals(M2, level);
-  }
-
-  private CrupdateStudent toCrupdateStudent(Student student) {
-    return new CrupdateStudent()
-        .id(student.getId())
-        .birthDate(student.getBirthDate())
-        .id(student.getId())
-        .entranceDatetime(student.getEntranceDatetime())
-        .phone(student.getPhone())
-        .nic(student.getNic())
-        .birthPlace(student.getBirthPlace())
-        .email(student.getEmail())
-        .address(student.getAddress())
-        .firstName(student.getFirstName())
-        .lastName(student.getLastName())
-        .sex(student.getSex())
-        .ref(student.getRef())
-        .specializationField(student.getSpecializationField())
-        .status(student.getStatus());
-  }
-
-  private Student randomizeStudentUpdatableValues(Student student) {
-    return new Student()
-        .id(student.getId())
-        .entranceDatetime(student.getEntranceDatetime())
-        .status(student.getStatus())
-        .email(student.getEmail())
-        .ref(student.getRef())
-        .birthDate(LocalDate.parse("2000-12-05"))
-        .birthPlace(randomUUID().toString())
-        .nic(randomUUID().toString())
-        .phone(randomUUID().toString())
-        .sex(student.getSex() != null ? (student.getSex().equals(M) ? F : M) : null)
-        .address(randomUUID().toString())
-        .lastName(randomUUID().toString())
-        .firstName(randomUUID().toString())
-        .specializationField(student.getSpecializationField());
   }
 }

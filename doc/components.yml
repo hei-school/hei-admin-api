@@ -1022,6 +1022,14 @@ components:
           type: string
         is_archived:
           type: boolean
+        archive_status:
+          $ref: '#/components/schemas/ArchiveStatusEnum'
+        archived_by_ref:
+          type: string
+        archived_by_first_name:
+          type: string
+        archived_by_last_name:
+          type: string
     FeeCategory:
       type: string
       enum:
@@ -1162,6 +1170,12 @@ components:
         creation_datetime:
           type: string
           format: date-time
+        validated_by_ref:
+          type: string
+        validated_by_first_name:
+          type: string
+        validated_by_last_name:
+          type: string
     CrupdateMpbs:
       type: object
       properties:
@@ -1460,6 +1474,22 @@ components:
         - PAID
         - LATE
         - PENDING
+    ArchiveStatusEnum:
+      type: string
+      description: >
+        Lifecycle of a fee archiving request: TO_ARCHIVE once requested by a manager,
+        then ARCHIVED or REJECTED once a validator has reviewed it.
+      enum:
+        - TO_ARCHIVE
+        - ARCHIVED
+        - REJECTED
+    UpdateFeeArchiveStatus:
+      type: object
+      properties:
+        status:
+          $ref: '#/components/schemas/ArchiveStatusEnum'
+      required:
+        - status
     FeeTypeEnum:
       type: string
       enum:
@@ -2298,8 +2328,8 @@ components:
     CreditMovement:
       type: string
       enum:
-        - WITHDRAWAL
-        - DEPOSIT
+        - DEBIT
+        - CREDIT
     Credit:
       type: object
       properties:
@@ -2318,6 +2348,8 @@ components:
            $ref: '#/components/schemas/Credit'
          fee:
            $ref: '#/components/schemas/Fee'
+         payment:
+           $ref: '#/components/schemas/Payment'
          date_time:
            type: string
            format: date-time
@@ -2337,3 +2369,114 @@ components:
         creation_date:
           type: string
           format: date
+        validated_by_ref:
+          type: string
+        validated_by_first_name:
+          type: string
+        validated_by_last_name:
+          type: string
+    TemplateDocumenso:
+      type: object
+      properties:
+        id:
+          type: string
+        documensoTemplateId:
+          type: integer
+          format: int64
+        title:
+          type: string
+        type:
+          type: string
+        adminId:
+          type: string
+    DocumensoDocumentStatus:
+      type: string
+      enum:
+        - PENDING
+        - COMPLETED
+        - REJECTED
+    DocumensoDocument:
+      type: object
+      properties:
+        id:
+          type: string
+        documensoDocumentId:
+          type: integer
+          format: int64
+        status:
+          $ref: '#/components/schemas/DocumensoDocumentStatus'
+        subjectId:
+          type: string
+          description: >-
+            Id of the person this document is about, kept flat beside subject for callers that only
+            need the reference.
+        subject:
+          $ref: '#/components/schemas/UserIdentifier'
+        level:
+          $ref: '#/components/schemas/StudentLevel'
+        templateId:
+          type: string
+        templateTitle:
+          type: string
+          description: Title of the Documenso template this document was generated from.
+        completedDatetime:
+          type: string
+          format: date-time
+          description: >-
+            When the monitor signed. Null while the document is pending, and set by whichever of the
+            webhook or the reconciliation sweep learns of the signature first.
+        generatedById:
+          type: string
+          description: >-
+            Id of the staff member who asked for this document. The admin signature is carried by
+            the template and leaves no per-document trail, so this is what attributes the document.
+    CrupdateDocumensoDocument:
+      type: object
+      properties:
+        subjectId:
+          type: string
+          description: Id of the person this document is about.
+        templateName:
+          type: string
+          description: >-
+            Name of the Documenso template to use (e.g. "Fiche d'engagement"), matched against the
+            template's title as synced from the Documenso interface.
+      required:
+        - subjectId
+        - templateName
+    GenerateDocumensoDocuments:
+      type: object
+      properties:
+        templateName:
+          type: string
+          description: >-
+            Name of the Documenso template to use, matched against the template's title as synced
+            from the Documenso interface.
+      required:
+        - templateName
+    DocumensoGenerationLaunched:
+      type: object
+      description: >-
+        Acknowledges a bulk generation. Documents are produced one student at a time, in the
+        background, so none of them exists yet when this is returned.
+      properties:
+        promotionId:
+          type: string
+        templateName:
+          type: string
+        studentCount:
+          type: integer
+          description: Number of students the generation was asked for.
+    DocumensoFileUrl:
+      type: object
+      description: >-
+        A short-lived link to the archived signed PDF. It carries its own authority, so it is minted
+        on request rather than shipped inside document lists, and it expires within minutes.
+      properties:
+        fileUrl:
+          type: string
+    DocumensoSigningToken:
+      type: object
+      properties:
+        token:
+          type: string

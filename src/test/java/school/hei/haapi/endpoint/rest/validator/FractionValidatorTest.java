@@ -2,7 +2,7 @@ package school.hei.haapi.endpoint.rest.validator;
 
 import static java.lang.Integer.MAX_VALUE;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static school.hei.haapi.integration.conf.TestUtils.assertThrowsDomainBadRequestException;
+import static school.hei.haapi.integration.conf.ApiAssertions.assertThrowsDomainBadRequestException;
 
 import org.junit.jupiter.api.Test;
 import school.hei.haapi.endpoint.rest.model.Fraction;

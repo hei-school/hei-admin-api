@@ -24,11 +24,11 @@ class SchoolYearSupplierTest {
 
   @Test
   void getSchoolYear_shouldReturnCurrentAndNextYear_whenCurrentMonthIsOctober() {
-    LocalDate octoberDate = LocalDate.of(2023, OCTOBER, 15);
+    var octoberDate = LocalDate.of(2023, OCTOBER, 15);
     try (MockedStatic<LocalDate> mockedLocalDate = mockStatic(LocalDate.class)) {
       mockedLocalDate.when(LocalDate::now).thenReturn(octoberDate);
 
-      String result = subject.get();
+      var result = subject.get();
 
       assertEquals("2023 - 2024", result);
     }
@@ -36,11 +36,11 @@ class SchoolYearSupplierTest {
 
   @Test
   void getSchoolYear_shouldReturnCurrentAndNextYear_whenCurrentMonthIsNovember() {
-    LocalDate novemberDate = LocalDate.of(2023, NOVEMBER, 15);
+    var novemberDate = LocalDate.of(2023, NOVEMBER, 15);
     try (MockedStatic<LocalDate> mockedLocalDate = mockStatic(LocalDate.class)) {
       mockedLocalDate.when(LocalDate::now).thenReturn(novemberDate);
 
-      String result = subject.get();
+      var result = subject.get();
 
       assertEquals("2023 - 2024", result);
     }
@@ -48,11 +48,11 @@ class SchoolYearSupplierTest {
 
   @Test
   void getSchoolYear_shouldReturnCurrentAndNextYear_whenCurrentMonthIsDecember() {
-    LocalDate decemberDate = LocalDate.of(2023, DECEMBER, 15);
+    var decemberDate = LocalDate.of(2023, DECEMBER, 15);
     try (MockedStatic<LocalDate> mockedLocalDate = mockStatic(LocalDate.class)) {
       mockedLocalDate.when(LocalDate::now).thenReturn(decemberDate);
 
-      String result = subject.get();
+      var result = subject.get();
 
       assertEquals("2023 - 2024", result);
     }
@@ -60,11 +60,11 @@ class SchoolYearSupplierTest {
 
   @Test
   void getSchoolYear_shouldReturnPreviousAndCurrentYear_whenCurrentMonthIsJanuary() {
-    LocalDate januaryDate = LocalDate.of(2024, JANUARY, 15);
+    var januaryDate = LocalDate.of(2024, JANUARY, 15);
     try (MockedStatic<LocalDate> mockedLocalDate = mockStatic(LocalDate.class)) {
       mockedLocalDate.when(LocalDate::now).thenReturn(januaryDate);
 
-      String result = subject.get();
+      var result = subject.get();
 
       assertEquals("2023 - 2024", result);
     }
@@ -72,11 +72,11 @@ class SchoolYearSupplierTest {
 
   @Test
   void getSchoolYear_shouldReturnPreviousAndCurrentYear_whenCurrentMonthIsSeptember() {
-    LocalDate septemberDate = LocalDate.of(2023, SEPTEMBER, 15);
+    var septemberDate = LocalDate.of(2023, SEPTEMBER, 15);
     try (MockedStatic<LocalDate> mockedLocalDate = mockStatic(LocalDate.class)) {
       mockedLocalDate.when(LocalDate::now).thenReturn(septemberDate);
 
-      String result = subject.get();
+      var result = subject.get();
 
       assertEquals("2022 - 2023", result);
     }
@@ -84,20 +84,20 @@ class SchoolYearSupplierTest {
 
   @Test
   void getSchoolYear_shouldHandleYearBoundaryCorrectly() {
-    LocalDate dec31 = LocalDate.of(2023, DECEMBER, 31);
+    var dec31 = LocalDate.of(2023, DECEMBER, 31);
     try (MockedStatic<LocalDate> mockedLocalDate = mockStatic(LocalDate.class)) {
       mockedLocalDate.when(LocalDate::now).thenReturn(dec31);
 
-      String result = subject.get();
+      var result = subject.get();
 
       assertEquals("2023 - 2024", result);
     }
 
-    LocalDate jan1 = LocalDate.of(2024, JANUARY, 1);
+    var jan1 = LocalDate.of(2024, JANUARY, 1);
     try (MockedStatic<LocalDate> mockedLocalDate = mockStatic(LocalDate.class)) {
       mockedLocalDate.when(LocalDate::now).thenReturn(jan1);
 
-      String result = subject.get();
+      var result = subject.get();
 
       assertEquals("2023 - 2024", result);
     }
@@ -105,11 +105,11 @@ class SchoolYearSupplierTest {
 
   @Test
   void get_shouldCallGetSchoolYear() {
-    LocalDate testDate = LocalDate.of(2023, JUNE, 15);
+    var testDate = LocalDate.of(2023, JUNE, 15);
     try (MockedStatic<LocalDate> mockedLocalDate = mockStatic(LocalDate.class)) {
       mockedLocalDate.when(LocalDate::now).thenReturn(testDate);
 
-      String result = subject.get();
+      var result = subject.get();
 
       assertEquals("2022 - 2023", result);
     }

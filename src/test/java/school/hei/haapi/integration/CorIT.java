@@ -8,24 +8,19 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static school.hei.haapi.endpoint.rest.model.CorStatus.LEAVE;
+import static school.hei.haapi.integration.conf.ApiAssertions.assertBadRequestException;
+import static school.hei.haapi.integration.conf.ApiAssertions.assertThrowsForbiddenException;
 import static school.hei.haapi.integration.conf.FakeDataProvider.*;
 import static school.hei.haapi.integration.conf.FakeDataProvider.someCor;
 import static school.hei.haapi.integration.conf.FakeDataProvider.someCorComment;
 import static school.hei.haapi.integration.conf.FakeDataProvider.someCorCommentInfo;
 import static school.hei.haapi.integration.conf.FakeDataProvider.someStudent;
-import static school.hei.haapi.integration.conf.TestUtils.MANAGER1_TOKEN;
-import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_TOKEN;
-import static school.hei.haapi.integration.conf.TestUtils.assertBadRequestException;
-import static school.hei.haapi.integration.conf.TestUtils.assertThrowsForbiddenException;
-import static school.hei.haapi.integration.conf.TestUtils.setUpCasdoor;
-import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
+import static school.hei.haapi.integration.conf.TestAuth.tokenFor;
 import static school.hei.haapi.model.User.Role.MANAGER;
 
 import com.github.javafaker.Faker;
 import java.time.Instant;
 import java.util.List;
-import org.casbin.casdoor.entity.CasdoorRole;
-import org.casbin.casdoor.entity.CasdoorUser;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
@@ -60,7 +55,9 @@ class CorIT extends FacadeITMockedThirdParties {
   private User tolotraWithoutCor;
   private User manager;
   private Cor corAxel;
-  private final String axelToken = "AXEL_TOKEN";
+  private String axelToken;
+  private String tolotraToken;
+  private String managerToken;
 
   @BeforeEach
   void setUp() {
@@ -76,10 +73,10 @@ class CorIT extends FacadeITMockedThirdParties {
         .forEach(c -> corCommentService.addCommentByCorId(corAxel.getId(), c));
     corAxel = corRepository.findById(corAxel.getId()).get();
 
-    setUpCasdoor(casdoorAuthServiceMock, certificateLoaderMock);
-    setUpCognito(cognitoComponentMock);
+    axelToken = tokenFor(casdoorAuthServiceMock, axelWithCor);
+    tolotraToken = tokenFor(casdoorAuthServiceMock, tolotraWithoutCor);
+    managerToken = tokenFor(casdoorAuthServiceMock, manager);
     when(cognitoComponentMock.getEmailByIdToken(axelToken)).thenReturn(axelWithCor.getEmail());
-    when(casdoorAuthServiceMock.parseJwtToken(axelToken)).thenReturn(getCasdoorAxel());
   }
 
   @Test
@@ -104,7 +101,7 @@ class CorIT extends FacadeITMockedThirdParties {
 
   @Test
   void student_get_other_cor_ko() {
-    var api = new CorApi(anApiClient(STUDENT1_TOKEN));
+    var api = new CorApi(anApiClient(tolotraToken));
 
     assertThrowsForbiddenException(() -> api.getStudentCors(axelWithCor.getId(), null, null));
   }
@@ -119,7 +116,7 @@ class CorIT extends FacadeITMockedThirdParties {
 
   @Test
   void manager_create_cor_and_notify_student_ok() throws ApiException {
-    var api = new CorApi(anApiClient(MANAGER1_TOKEN));
+    var api = new CorApi(anApiClient(managerToken));
     var cor =
         someCreatableCor(
             tolotraWithoutCor.getId(),
@@ -149,7 +146,7 @@ class CorIT extends FacadeITMockedThirdParties {
 
   @Test
   void manager_update_cor_ok() throws ApiException {
-    var api = new CorApi(anApiClient(MANAGER1_TOKEN));
+    var api = new CorApi(anApiClient(managerToken));
     var updateCor = someCreatableCor(axelWithCor.getId(), LEAVE, List.of(manager.getId()));
     updateCor.setId(corAxel.getId());
     var expectedLengthOfInterviewers = 1;
@@ -169,7 +166,7 @@ class CorIT extends FacadeITMockedThirdParties {
 
   @Test
   void manager_create_cor_without_status_ko() {
-    var api = new CorApi(anApiClient(MANAGER1_TOKEN));
+    var api = new CorApi(anApiClient(managerToken));
     var cor = someCreatableCor(tolotraWithoutCor.getId(), null, List.of());
 
     assertBadRequestException(
@@ -178,7 +175,7 @@ class CorIT extends FacadeITMockedThirdParties {
 
   @Test
   void manager_filter_cor_ok() throws ApiException {
-    var api = new CorApi(anApiClient(MANAGER1_TOKEN));
+    var api = new CorApi(anApiClient(managerToken));
 
     var cors = api.getCors(null, null, null, null, null, null, null);
     assertTrue(cors.contains(corMapper.toRest(corAxel)));
@@ -198,7 +195,7 @@ class CorIT extends FacadeITMockedThirdParties {
 
   @Test
   void manager_comment_cor_ok() throws ApiException {
-    var api = new CorApi(anApiClient(MANAGER1_TOKEN));
+    var api = new CorApi(anApiClient(managerToken));
     var corId = corAxel.getId();
     var newCorComment = someCorCommentInfo();
     var initialCommentCount = corAxel.getComments().size();
@@ -216,7 +213,7 @@ class CorIT extends FacadeITMockedThirdParties {
 
   @Test
   void student_comment_cor_ko() {
-    var api = new CorApi(anApiClient(STUDENT1_TOKEN));
+    var api = new CorApi(anApiClient(tolotraToken));
     var corId = corAxel.getId();
 
     assertThrowsForbiddenException(() -> api.commentCorById(corId, someCorCommentInfo()));
@@ -224,8 +221,7 @@ class CorIT extends FacadeITMockedThirdParties {
 
   @Test
   void manager_get_cor_by_id_ok() throws ApiException {
-    var api = new CorApi(anApiClient(MANAGER1_TOKEN));
-
+    var api = new CorApi(anApiClient(managerToken));
     var cor = api.getCorById(corAxel.getId());
 
     assertEquals(corMapper.toRest(corAxel), cor);
@@ -233,19 +229,5 @@ class CorIT extends FacadeITMockedThirdParties {
 
   private ApiClient anApiClient(String token) {
     return TestUtils.anApiClient(token, localPort);
-  }
-
-  private CasdoorUser getCasdoorAxel() {
-    var user = new CasdoorUser();
-    user.setEmail(axelWithCor.getEmail());
-
-    var casdoorRole = new CasdoorRole();
-    casdoorRole.setOwner("dummy");
-    casdoorRole.setName("student");
-    var roleUsers = new String[] {"dummy/user"};
-    casdoorRole.setUsers(roleUsers);
-    user.setRoles(List.of(casdoorRole));
-
-    return user;
   }
 }

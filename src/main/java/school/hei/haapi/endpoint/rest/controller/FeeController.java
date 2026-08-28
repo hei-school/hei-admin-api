@@ -37,6 +37,7 @@ import school.hei.haapi.endpoint.rest.model.FeeTypeEnum;
 import school.hei.haapi.endpoint.rest.model.FeesStatistics;
 import school.hei.haapi.endpoint.rest.model.FeesWithStats;
 import school.hei.haapi.endpoint.rest.model.MpbsStatus;
+import school.hei.haapi.endpoint.rest.model.UpdateFeeArchiveStatus;
 import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.model.TrackActivity;
@@ -103,7 +104,16 @@ public class FeeController {
   @PatchMapping("/students/{studentId}/fees/{feeId}")
   public Fee archiveStudentFeeById(@PathVariable String studentId, @PathVariable String feeId) {
     var fee = feeService.getById(feeId);
-    return feeMapper.toRestFee(feeService.archiveFee(fee));
+    return feeMapper.toRestFee(feeService.requestArchiveFee(fee));
+  }
+
+  @PatchMapping("/students/{studentId}/fees/{feeId}/archive-status")
+  public Fee updateFeeArchiveStatus(
+      @PathVariable String studentId,
+      @PathVariable String feeId,
+      @RequestBody UpdateFeeArchiveStatus toUpdate) {
+    var fee = feeService.getByStudentIdAndFeeId(studentId, feeId);
+    return feeMapper.toRestFee(feeService.updateArchiveStatus(fee, toUpdate.getStatus()));
   }
 
   @GetMapping("/students/{studentId}/fees")

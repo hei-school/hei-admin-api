@@ -1,0 +1,326 @@
+openapi: 3.0.1
+info:
+  title: Documenso v2 API (client subset)
+  description: >-
+    Minimal subset of the Documenso v2 API (see "Documenso v2 API.yaml" for
+    the full upstream spec) covering only the operations used by
+    hei-admin-api's generated Documenso client: browsing templates, creating
+    a document from a template, and downloading the signed result.
+  version: 1.0.0
+servers:
+  - url: https://app.documenso.com/api/v2
+paths:
+  /template:
+    get:
+      operationId: template-findTemplates
+      summary: Find templates
+      tags:
+        - Template
+      security:
+        - apiKey: []
+      parameters:
+        - in: query
+          name: query
+          schema:
+            type: string
+        - in: query
+          name: page
+          schema:
+            type: number
+        - in: query
+          name: perPage
+          schema:
+            type: number
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: number
+                        title:
+                          type: string
+                        type:
+                          type: string
+                          enum:
+                            - PUBLIC
+                            - PRIVATE
+                            - ORGANISATION
+                        userId:
+                          type: number
+                        createdAt:
+                          type: string
+                        updatedAt:
+                          type: string
+                      required:
+                        - id
+                        - title
+                        - userId
+                required:
+                  - data
+  /template/{templateId}:
+    get:
+      operationId: template-getTemplateById
+      summary: Get template
+      tags:
+        - Template
+      security:
+        - apiKey: []
+      parameters:
+        - in: path
+          name: templateId
+          required: true
+          schema:
+            type: number
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: number
+                  title:
+                    type: string
+                  userId:
+                    type: number
+                  recipients:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: number
+                        role:
+                          type: string
+                          enum:
+                            - CC
+                            - SIGNER
+                            - VIEWER
+                            - APPROVER
+                            - ASSISTANT
+                        email:
+                          type: string
+                        name:
+                          type: string
+                      required:
+                        - id
+                        - role
+                  fields:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: number
+                        type:
+                          type: string
+                        label:
+                          type: string
+                        placeholder:
+                          type: string
+                        page:
+                          type: number
+                        positionY:
+                          type: number
+                      required:
+                        - id
+                        - type
+                required:
+                  - id
+                  - title
+                  - recipients
+  /template/use:
+    post:
+      operationId: template-createDocumentFromTemplate
+      summary: Use template
+      description: Use the template to create a document
+      tags:
+        - Template
+      security:
+        - apiKey: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                templateId:
+                  type: number
+                recipients:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      id:
+                        type: number
+                      email:
+                        type: string
+                      name:
+                        type: string
+                    required:
+                      - id
+                      - email
+                distributeDocument:
+                  type: boolean
+                  description: >-
+                    When true, Documenso sends the document to its recipients right away. Left
+                    out, the document stays a draft nobody is ever asked to sign.
+                prefillFields:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      id:
+                        type: number
+                      type:
+                        type: string
+                        enum:
+                          - text
+                      value:
+                        type: string
+                    required:
+                      - id
+                      - type
+                      - value
+              required:
+                - templateId
+                - recipients
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: number
+                  status:
+                    type: string
+                    enum:
+                      - DRAFT
+                      - PENDING
+                      - COMPLETED
+                      - REJECTED
+                  title:
+                    type: string
+                  createdAt:
+                    type: string
+                  recipients:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: number
+                        email:
+                          type: string
+                        name:
+                          type: string
+                        role:
+                          type: string
+                          enum:
+                            - CC
+                            - SIGNER
+                            - VIEWER
+                            - APPROVER
+                            - ASSISTANT
+                        token:
+                          type: string
+                required:
+                  - id
+                  - status
+                  - recipients
+  /document/{documentId}:
+    get:
+      operationId: document-get
+      summary: Get document
+      tags:
+        - Document
+      security:
+        - apiKey: []
+      parameters:
+        - in: path
+          name: documentId
+          required: true
+          schema:
+            type: number
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: number
+                  status:
+                    type: string
+                    enum:
+                      - DRAFT
+                      - PENDING
+                      - COMPLETED
+                      - REJECTED
+                  title:
+                    type: string
+                  createdAt:
+                    type: string
+                  completedAt:
+                    type: string
+                required:
+                  - id
+                  - status
+  /document/{documentId}/download:
+    get:
+      operationId: document-download
+      summary: Download document
+      description: >-
+        Downloads the document. "signed" returns the completed document with
+        signatures, "original" returns the original uploaded document.
+      tags:
+        - Document
+      security:
+        - apiKey: []
+      parameters:
+        - in: path
+          name: documentId
+          required: true
+          schema:
+            type: number
+        - in: query
+          name: version
+          schema:
+            type: string
+            enum:
+              - original
+              - signed
+            default: signed
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/pdf:
+              schema:
+                type: string
+                format: binary
+components:
+  securitySchemes:
+    apiKey:
+      type: apiKey
+      in: header
+      name: Authorization
+security:
+  - apiKey: []

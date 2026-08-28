@@ -132,6 +132,9 @@ public class GradeService {
 
   @Transactional
   public List<Grade> createParticipantGrade(List<Grade> grades) {
+    if (grades.isEmpty()) {
+      return List.of();
+    }
     String promotionId = null;
     var promotions =
         promotionService.getAllStudentPromotions(grades.getFirst().getStudent().getId());
@@ -144,6 +147,10 @@ public class GradeService {
 
   @Transactional
   public List<Grade> updateParticipantGrade(List<UpdateGrade> grades) {
+    if (grades.isEmpty()) {
+      // nothing to save, and no student to resolve a promotion from
+      return List.of();
+    }
     String promotionId = null;
     var promotions = promotionService.getAllStudentPromotions(grades.getFirst().student().getId());
     if (!promotions.isEmpty()) {

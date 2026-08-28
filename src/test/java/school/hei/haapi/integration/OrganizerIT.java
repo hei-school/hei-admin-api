@@ -4,155 +4,165 @@ import static java.time.temporal.ChronoUnit.HOURS;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static school.hei.haapi.endpoint.rest.model.EnableStatus.ENABLED;
-import static school.hei.haapi.endpoint.rest.model.Sex.F;
-import static school.hei.haapi.endpoint.rest.model.Sex.M;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static school.hei.haapi.endpoint.rest.model.AttendanceStatus.PRESENT;
+import static school.hei.haapi.integration.conf.ApiAssertions.assertThrowsForbiddenException;
 import static school.hei.haapi.integration.conf.FakeDataProvider.someCreatableEvent;
-import static school.hei.haapi.integration.conf.TestUtils.ADMIN1_TOKEN;
-import static school.hei.haapi.integration.conf.TestUtils.EVENT1_ID;
-import static school.hei.haapi.integration.conf.TestUtils.ORGANIZER1_ID;
-import static school.hei.haapi.integration.conf.TestUtils.ORGANIZER1_TOKEN;
-import static school.hei.haapi.integration.conf.TestUtils.ORGANIZER2_TOKEN;
-import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_ID;
-import static school.hei.haapi.integration.conf.TestUtils.TEACHER1_ID;
-import static school.hei.haapi.integration.conf.TestUtils.assertThrowsForbiddenException;
-import static school.hei.haapi.integration.conf.TestUtils.setUpCasdoor;
-import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
-import static school.hei.haapi.integration.conf.TestUtils.setUpEventBridge;
-import static school.hei.haapi.integration.conf.TestUtils.uploadProfilePicture;
+import static school.hei.haapi.integration.conf.TestAuth.tokenFor;
+import static school.hei.haapi.integration.conf.TestFiles.uploadProfilePicture;
+import static school.hei.haapi.integration.conf.TestMocks.setUpEventBridge;
+import static school.hei.haapi.integration.testData.EventTestData.aParticipant;
+import static school.hei.haapi.integration.testData.EventTestData.anEvent;
+import static school.hei.haapi.integration.testData.GroupTestData.g1;
+import static school.hei.haapi.integration.testData.OrganizerTestData.organizerDoe;
+import static school.hei.haapi.integration.testData.OrganizerTestData.organizerSmith;
+import static school.hei.haapi.integration.testData.StaffTestData.adminMialy;
+import static school.hei.haapi.integration.testData.StudentTestData.axel;
+import static school.hei.haapi.integration.testData.TeacherTestData.toky;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
-import java.io.InputStream;
-import java.net.http.HttpResponse;
 import java.time.Instant;
-import java.time.LocalDate;
 import java.util.List;
-import lombok.extern.slf4j.Slf4j;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.testcontainers.junit.jupiter.Testcontainers;
 import school.hei.haapi.endpoint.rest.api.EventsApi;
 import school.hei.haapi.endpoint.rest.api.UsersApi;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
-import school.hei.haapi.endpoint.rest.model.Coordinates;
-import school.hei.haapi.endpoint.rest.model.CreateEvent;
-import school.hei.haapi.endpoint.rest.model.Event;
-import school.hei.haapi.endpoint.rest.model.EventParticipant;
 import school.hei.haapi.endpoint.rest.model.EventType;
 import school.hei.haapi.endpoint.rest.model.Organizer;
 import school.hei.haapi.integration.conf.FacadeITMockedThirdParties;
 import school.hei.haapi.integration.conf.TestUtils;
+import school.hei.haapi.model.Event;
+import school.hei.haapi.model.EventParticipant;
+import school.hei.haapi.model.Group;
+import school.hei.haapi.model.User;
+import school.hei.haapi.repository.EventParticipantRepository;
+import school.hei.haapi.repository.EventRepository;
+import school.hei.haapi.repository.GroupRepository;
+import school.hei.haapi.repository.UserRepository;
 import software.amazon.awssdk.services.eventbridge.EventBridgeClient;
 
-@Slf4j
-@Testcontainers
-@AutoConfigureMockMvc
 public class OrganizerIT extends FacadeITMockedThirdParties {
   @MockBean private EventBridgeClient eventBridgeClientMock;
   @Autowired ObjectMapper objectMapper;
+  @Autowired private UserRepository userRepository;
+  @Autowired private EventRepository eventRepository;
+  @Autowired private EventParticipantRepository eventParticipantRepository;
+  @Autowired private GroupRepository groupRepository;
 
-  private ApiClient anApiClient(String token) {
-    return TestUtils.anApiClient(token, localPort);
-  }
+  private User organizerOne;
+  private User organizerTwo;
+  private User adminUser;
+  private User studentAxel;
+  private User teacherToky;
+  private Group groupG1;
+  private Event integrationDay;
+  private EventParticipant axelParticipation;
 
-  public static Organizer organizer1() {
-    Organizer organizer = new Organizer();
-    organizer.setId("organizer1_id");
-    organizer.setFirstName("Organizer 1");
-    organizer.setLastName("Smith");
-    organizer.setEmail("test+organizer@hei.school");
-    organizer.setRef("ORG22001");
-    organizer.setPhone("0322400028");
-    organizer.setStatus(ENABLED);
-    organizer.setSex(M);
-    organizer.setBirthDate(LocalDate.parse("1980-10-10"));
-    organizer.setEntranceDatetime(Instant.parse("2022-09-08T08:25:29.00Z"));
-    organizer.setAddress("Adr 10");
-    organizer.setBirthPlace("");
-    organizer.setNic("");
-    organizer.setCoordinates(new Coordinates().longitude(55.555).latitude(-55.555));
-    return organizer;
-  }
+  private String organizerOneToken;
+  private String organizerTwoToken;
+  private String adminToken;
 
-  public static Organizer organizer2() {
-    Organizer organizer = new Organizer();
-    organizer.setId("organizer2_id");
-    organizer.setFirstName("Organizer 2");
-    organizer.setLastName("Doe");
-    organizer.setEmail("test+organizer+2@hei.school");
-    organizer.setRef("ORG22002");
-    organizer.setPhone("0322411113");
-    organizer.setStatus(ENABLED);
-    organizer.setSex(F);
-    organizer.setBirthDate(LocalDate.parse("1890-01-01"));
-    organizer.setEntranceDatetime(Instant.parse("2022-09-08T08:25:29.00Z"));
-    organizer.setAddress("Adr 12");
-    organizer.setBirthPlace("");
-    organizer.setNic("");
-    organizer.setCoordinates(new Coordinates().longitude(55.555).latitude(-55.555));
-    return organizer;
+  private void setUpTestData() {
+    organizerOne = userRepository.save(organizerSmith());
+    organizerTwo = userRepository.save(organizerDoe());
+    adminUser = userRepository.save(adminMialy());
+    studentAxel = userRepository.save(axel());
+    teacherToky = userRepository.save(toky());
+    groupG1 = groupRepository.save(g1());
+
+    integrationDay =
+        eventRepository.save(
+            anEvent(
+                organizerOne,
+                EventType.INTEGRATION,
+                "Integration Day",
+                Instant.parse("2022-12-08T08:00:00.00Z"),
+                Instant.parse("2022-12-08T12:00:00.00Z")));
+    axelParticipation =
+        eventParticipantRepository.save(
+            aParticipant(integrationDay, studentAxel, groupG1, PRESENT));
   }
 
   @BeforeEach
   public void setUp() {
     setUpEventBridge(eventBridgeClientMock);
-    setUpCasdoor(casdoorAuthServiceMock, certificateLoaderMock);
-    setUpCognito(cognitoComponentMock);
+    setUpTestData();
+
+    organizerOneToken = tokenFor(casdoorAuthServiceMock, organizerOne);
+    organizerTwoToken = tokenFor(casdoorAuthServiceMock, organizerTwo);
+    adminToken = tokenFor(casdoorAuthServiceMock, adminUser);
+  }
+
+  @AfterEach
+  void tearDown() {
+    eventParticipantRepository.deleteById(axelParticipation.getId());
+    eventRepository.deleteById(integrationDay.getId());
+    groupRepository.deleteById(groupG1.getId());
+    userRepository.deleteAll(
+        List.of(organizerOne, organizerTwo, adminUser, studentAxel, teacherToky));
+  }
+
+  private UsersApi usersApiAs(String token) {
+    return new UsersApi(anApiClient(token));
+  }
+
+  private ApiClient anApiClient(String token) {
+    return TestUtils.anApiClient(token, localPort);
   }
 
   @Test
   void organizer_update_own_profile_picture() throws IOException, InterruptedException {
-    HttpResponse<InputStream> response =
-        uploadProfilePicture(localPort, ORGANIZER1_TOKEN, ORGANIZER1_ID, "organizers");
+    var response =
+        uploadProfilePicture(localPort, organizerOneToken, organizerOne.getId(), "organizers");
 
-    Organizer organizer = objectMapper.readValue(response.body(), Organizer.class);
+    var organizer = objectMapper.readValue(response.body(), Organizer.class);
 
     assertEquals(200, response.statusCode());
-    assertEquals(organizer1().getRef(), organizer.getRef());
+    assertEquals(organizerOne.getRef(), organizer.getRef());
   }
 
   @Test
   void read_student_ko() {
-    ApiClient student1Client = anApiClient(ORGANIZER2_TOKEN);
-    UsersApi api = new UsersApi(student1Client);
-    assertThrowsForbiddenException(() -> api.getStudentById(STUDENT1_ID));
+    var api = usersApiAs(organizerTwoToken);
+
+    assertThrowsForbiddenException(() -> api.getStudentById(studentAxel.getId()));
     assertThrowsForbiddenException(
         () -> api.getStudents(1, 20, null, null, null, null, null, null, null, null, null));
   }
 
   @Test
   void read_teacher_ko() {
-    ApiClient teacher1Client = anApiClient(ORGANIZER1_TOKEN);
-    UsersApi api = new UsersApi(teacher1Client);
-    assertThrowsForbiddenException(() -> api.getTeacherById(TEACHER1_ID));
+    var api = usersApiAs(organizerOneToken);
+
+    assertThrowsForbiddenException(() -> api.getTeacherById(teacherToky.getId()));
     assertThrowsForbiddenException(() -> api.getTeachers(1, 20, null, null, null, null, null));
   }
 
   @Test
   void read_events_ok() throws ApiException {
-    ApiClient organizerClient = anApiClient(ORGANIZER1_TOKEN);
-    EventsApi api = new EventsApi(organizerClient);
-    var events = api.getEvents(1, 10, null, null, null, null, null, null, null);
+    var api = new EventsApi(anApiClient(organizerOneToken));
+
+    var events = api.getEvents(1, 100, null, null, null, null, null, null, null);
 
     assertFalse(events.isEmpty());
+    assertTrue(events.stream().anyMatch(e -> integrationDay.getId().equals(e.getId())));
   }
 
   @Test
   void manipulate_events_ok() throws ApiException {
-    ApiClient organizerClient = anApiClient(ORGANIZER1_TOKEN);
-    EventsApi api = new EventsApi(organizerClient);
-
-    CreateEvent createEvent =
+    var api = new EventsApi(anApiClient(organizerOneToken));
+    var createEvent =
         someCreatableEvent(
-            EventType.EXAM, ORGANIZER1_ID, Instant.now(), Instant.now().plus(1, HOURS));
+            EventType.EXAM, organizerOne.getId(), Instant.now(), Instant.now().plus(1, HOURS));
 
-    List<Event> events = api.crupdateEvents(List.of(createEvent), null, null, null, null);
-    Event newEvent = events.getFirst();
+    var events = api.crupdateEvents(List.of(createEvent), null, null, null, null);
+    var newEvent = events.getFirst();
     assertEquals(createEvent.getTitle(), newEvent.getTitle());
 
     api.deleteEventById(newEvent.getId());
@@ -161,53 +171,49 @@ public class OrganizerIT extends FacadeITMockedThirdParties {
 
   @Test
   void admin_all_organizers_ok() throws ApiException {
-    ApiClient adminClient = anApiClient(ADMIN1_TOKEN);
-    UsersApi api = new UsersApi(adminClient);
+    var organizers = usersApiAs(adminToken).getOrganizers(1, 100, null, null, null, null, null);
 
-    List<Organizer> organizers = api.getOrganizers(1, 10, null, null, null, null, null);
-
-    assertEquals(organizer1(), organizers.getFirst());
-    assertEquals(organizer2(), organizers.get(1));
+    assertTrue(organizers.stream().anyMatch(o -> organizerOne.getId().equals(o.getId())));
+    assertTrue(organizers.stream().anyMatch(o -> organizerTwo.getId().equals(o.getId())));
   }
 
   @Test
   void admin_organizer_by_id_ok() throws ApiException {
-    ApiClient adminClient = anApiClient(ADMIN1_TOKEN);
-    UsersApi api = new UsersApi(adminClient);
-    Organizer organizer = api.getOrganizerById(organizer1().getId());
-    assertEquals(organizer1(), organizer);
+    var organizer = usersApiAs(adminToken).getOrganizerById(organizerOne.getId());
+
+    assertEquals(organizerOne.getId(), organizer.getId());
+    assertEquals(organizerOne.getRef(), organizer.getRef());
   }
 
   @Test
   void organizer_access_to_its_own_account_ok() throws ApiException {
-    ApiClient organizerClient = anApiClient(ORGANIZER1_TOKEN);
-    UsersApi api = new UsersApi(organizerClient);
-    Organizer organizer = api.getOrganizerById(organizer1().getId());
-    assertEquals(organizer1(), organizer);
+    var organizer = usersApiAs(organizerOneToken).getOrganizerById(organizerOne.getId());
+
+    assertEquals(organizerOne.getId(), organizer.getId());
   }
 
   @Test
   void admin_modify_organizers_ok() throws ApiException {
-    ApiClient adminClient = anApiClient(ADMIN1_TOKEN);
-    UsersApi api = new UsersApi(adminClient);
+    var api = usersApiAs(adminToken);
+    var organizer = api.getOrganizerById(organizerOne.getId());
+    var originalFirstName = organizer.getFirstName();
 
-    String modifiedFirstName = "firstName()";
-    Organizer organizer = organizer1().firstName(modifiedFirstName);
+    var renamed = api.crupdateOrganizers(List.of(organizer.firstName("firstName()")));
+    assertEquals("firstName()", renamed.getFirst().getFirstName());
 
-    List<Organizer> crupdatedOrganizers = api.crupdateOrganizers(List.of(organizer));
-    assertEquals(modifiedFirstName, crupdatedOrganizers.getFirst().getFirstName());
-
-    organizer.firstName(organizer1().getFirstName());
-    List<Organizer> crupdatedOrganizersToNormal = api.crupdateOrganizers(List.of(organizer));
-    assertEquals(
-        organizer1().getFirstName(), crupdatedOrganizersToNormal.getFirst().getFirstName());
+    var restored = api.crupdateOrganizers(List.of(organizer.firstName(originalFirstName)));
+    assertEquals(originalFirstName, restored.getFirst().getFirstName());
   }
 
   @Test
   void get_eventParticipants_ok() throws ApiException {
-    EventsApi api = new EventsApi(anApiClient(ORGANIZER1_TOKEN));
-    List<EventParticipant> eventParticipants =
-        api.getEventParticipants(EVENT1_ID, 1, 10, null, null, null, null);
+    var api = new EventsApi(anApiClient(organizerOneToken));
+
+    var eventParticipants =
+        api.getEventParticipants(integrationDay.getId(), 1, 10, null, null, null, null);
+
     assertFalse(eventParticipants.isEmpty());
+    assertTrue(
+        eventParticipants.stream().anyMatch(p -> axelParticipation.getId().equals(p.getId())));
   }
 }

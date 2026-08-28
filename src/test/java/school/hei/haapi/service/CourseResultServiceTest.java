@@ -6,17 +6,16 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static school.hei.haapi.endpoint.rest.model.CourseResultStatus.VALIDATED;
 import static school.hei.haapi.endpoint.rest.model.StudentLevel.L1;
-import static school.hei.haapi.integration.conf.TestUtils.setUpCasdoor;
-import static school.hei.haapi.integration.test_data.CourseTestData.prog1;
-import static school.hei.haapi.integration.test_data.CourseTestData.prog3;
-import static school.hei.haapi.integration.test_data.CourseTestData.secu1;
-import static school.hei.haapi.integration.test_data.ExamTestData.createExam;
-import static school.hei.haapi.integration.test_data.GroupTestData.g1;
-import static school.hei.haapi.integration.test_data.GroupTestData.g2;
-import static school.hei.haapi.integration.test_data.GroupTestData.h1;
-import static school.hei.haapi.integration.test_data.StudentTestData.axel;
-import static school.hei.haapi.integration.test_data.StudentTestData.tolojanahary;
-import static school.hei.haapi.integration.test_data.TeacherTestData.ryan;
+import static school.hei.haapi.integration.testData.CourseTestData.prog1;
+import static school.hei.haapi.integration.testData.CourseTestData.prog3;
+import static school.hei.haapi.integration.testData.CourseTestData.secu1;
+import static school.hei.haapi.integration.testData.ExamTestData.createExam;
+import static school.hei.haapi.integration.testData.GroupTestData.g1;
+import static school.hei.haapi.integration.testData.GroupTestData.g2;
+import static school.hei.haapi.integration.testData.GroupTestData.h1;
+import static school.hei.haapi.integration.testData.StudentTestData.axel;
+import static school.hei.haapi.integration.testData.StudentTestData.tolojanahary;
+import static school.hei.haapi.integration.testData.TeacherTestData.ryan;
 import static school.hei.haapi.model.GroupFlow.GroupFlowType.JOIN;
 import static school.hei.haapi.model.GroupFlow.GroupFlowType.LEAVE;
 
@@ -78,7 +77,6 @@ class CourseResultServiceTest extends FacadeITMockedThirdParties {
 
   @BeforeEach
   void setUp() {
-    setUpCasdoor(casdoorAuthServiceMock, certificateLoaderMock);
     setUpTestData();
   }
 

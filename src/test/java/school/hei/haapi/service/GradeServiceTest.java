@@ -4,13 +4,13 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
-import static school.hei.haapi.integration.test_data.CourseAssignmentTestData.createCourseAssignment;
-import static school.hei.haapi.integration.test_data.CourseTestData.prog1;
-import static school.hei.haapi.integration.test_data.ExamTestData.createExam;
-import static school.hei.haapi.integration.test_data.GroupTestData.createGroupFlowAt;
-import static school.hei.haapi.integration.test_data.GroupTestData.g1;
-import static school.hei.haapi.integration.test_data.GroupTestData.g2;
-import static school.hei.haapi.integration.test_data.TeacherTestData.toky;
+import static school.hei.haapi.integration.testData.CourseAssignmentTestData.createCourseAssignment;
+import static school.hei.haapi.integration.testData.CourseTestData.prog1;
+import static school.hei.haapi.integration.testData.ExamTestData.createExam;
+import static school.hei.haapi.integration.testData.GroupTestData.createGroupFlowAt;
+import static school.hei.haapi.integration.testData.GroupTestData.g1;
+import static school.hei.haapi.integration.testData.GroupTestData.g2;
+import static school.hei.haapi.integration.testData.TeacherTestData.toky;
 
 import java.time.Instant;
 import java.util.List;
@@ -18,9 +18,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import school.hei.haapi.endpoint.rest.model.ExamGradeStats;
 import school.hei.haapi.integration.conf.FacadeITMockedThirdParties;
-import school.hei.haapi.integration.test_data.StudentTestData;
+import school.hei.haapi.integration.testData.StudentTestData;
 import school.hei.haapi.model.Course;
 import school.hei.haapi.model.Grade;
 import school.hei.haapi.model.Group;
@@ -53,16 +52,15 @@ class GradeServiceTest extends FacadeITMockedThirdParties {
     when(gradeDaoMock.getGradesByExamId(anyString()))
         .thenReturn(List.of(badGrade, goodGrade1, goodGrade2));
 
-    ExamGradeStats examGradeStats = subject.getExamGradeStats("random exam");
+    var examGradeStats = subject.getExamGradeStats("random exam");
 
     assertEquals(15.5, examGradeStats.getAverage());
   }
 
   @Test
   void exam_with_no_grades() {
-    String examId = "random exam";
-    Exception exception =
-        assertThrows(NotFoundException.class, () -> subject.getExamGradeStats(examId));
+    var examId = "random exam";
+    var exception = assertThrows(NotFoundException.class, () -> subject.getExamGradeStats(examId));
 
     assertEquals("Exam with id " + examId + " do not have a score", exception.getMessage());
   }

@@ -3,13 +3,20 @@ package school.hei.haapi.service;
 import static java.time.Instant.now;
 import static java.time.temporal.ChronoUnit.DAYS;
 import static java.util.Collections.emptyList;
+import static java.util.UUID.randomUUID;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.mockStatic;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static school.hei.haapi.endpoint.rest.model.ArchiveStatusEnum.ARCHIVED;
+import static school.hei.haapi.endpoint.rest.model.ArchiveStatusEnum.REJECTED;
+import static school.hei.haapi.endpoint.rest.model.ArchiveStatusEnum.TO_ARCHIVE;
 import static school.hei.haapi.endpoint.rest.model.FeeCategory.L1;
 import static school.hei.haapi.endpoint.rest.model.FeeFrequency.YEARLY;
 import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.LATE;
@@ -18,8 +25,6 @@ import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.UNPAID;
 import static school.hei.haapi.endpoint.rest.model.FeeTypeEnum.HARDWARE;
 import static school.hei.haapi.endpoint.rest.model.FeeTypeEnum.TUITION;
 import static school.hei.haapi.endpoint.rest.model.Payment.TypeEnum.CASH;
-import static school.hei.haapi.integration.conf.TestUtils.FEE1_ID;
-import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_ID;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
@@ -28,8 +33,10 @@ import java.util.Optional;
 import java.util.stream.IntStream;
 import org.junit.jupiter.api.Test;
 import school.hei.haapi.endpoint.event.EventProducer;
+import school.hei.haapi.endpoint.rest.model.FeeStatusEnum;
+import school.hei.haapi.endpoint.rest.security.AuthProvider;
+import school.hei.haapi.endpoint.rest.security.model.Principal;
 import school.hei.haapi.file.bucket.BucketComponent;
-import school.hei.haapi.integration.conf.TestUtils;
 import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.Fee;
 import school.hei.haapi.model.PageFromOne;
@@ -44,6 +51,13 @@ import school.hei.haapi.repository.dao.UserManagerDao;
 import school.hei.haapi.repository.model.FeesStats;
 
 class FeeServiceTest {
+  /** Nothing here reaches a database: these ids only have to be stable within the class. */
+  private static final String FEE1_ID = randomUUID().toString();
+
+  private static final String FEE2_ID = randomUUID().toString();
+  private static final String STUDENT1_ID = randomUUID().toString();
+  private static final String PAYMENT1_ID = randomUUID().toString();
+
   private static FeeRepository feeRepository = mock(FeeRepository.class);
   private static UserManagerDao userManagerDao = mock(UserManagerDao.class);
   private static FeeValidator feeValidator = new FeeValidator();
@@ -82,7 +96,7 @@ class FeeServiceTest {
   }
 
   static User student1() {
-    return User.builder().id(TestUtils.STUDENT1_ID).build();
+    return User.builder().id(STUDENT1_ID).build();
   }
 
   static int remainingAmount() {
@@ -92,7 +106,7 @@ class FeeServiceTest {
   static Fee createSomeFee(
       String feeId,
       int paymentAmount,
-      school.hei.haapi.endpoint.rest.model.FeeStatusEnum status,
+      FeeStatusEnum status,
       Instant dueDatetime,
       Instant creationDatetime) {
     return Fee.builder()
@@ -111,8 +125,8 @@ class FeeServiceTest {
   }
 
   static Fee fee(int paymentAmount) {
-    Instant today = Instant.now();
-    Instant tomorrow = today.plus(1, ChronoUnit.DAYS);
+    var today = Instant.now();
+    var tomorrow = today.plus(1, ChronoUnit.DAYS);
     return createSomeFee(FEE1_ID, paymentAmount, UNPAID, tomorrow, today);
   }
 
@@ -121,10 +135,10 @@ class FeeServiceTest {
       String feeId,
       int paymentAmount,
       int remainingAmount,
-      school.hei.haapi.endpoint.rest.model.FeeStatusEnum status) {
-    Instant dueDatetime = Instant.parse("2022-01-02T00:00:00.00Z");
-    Instant creationDatetime = Instant.parse("2022-01-01T00:00:00.00Z");
-    Fee fee = createSomeFee(feeId, paymentAmount, status, dueDatetime, creationDatetime);
+      FeeStatusEnum status) {
+    var dueDatetime = Instant.parse("2022-01-02T00:00:00.00Z");
+    var creationDatetime = Instant.parse("2022-01-01T00:00:00.00Z");
+    var fee = createSomeFee(feeId, paymentAmount, status, dueDatetime, creationDatetime);
     fee.setRemainingAmount(remainingAmount);
     if (isMocked) {
       fee = fee.toBuilder().status(UNPAID).build();
@@ -138,7 +152,7 @@ class FeeServiceTest {
   }
 
   static Fee fee2(boolean isMocked) {
-    return createMockedFee(isMocked, TestUtils.FEE2_ID, remainingAmount(), 0, PAID);
+    return createMockedFee(isMocked, FEE2_ID, remainingAmount(), 0, PAID);
   }
 
   static Fee fee3(boolean isMocked) {
@@ -148,7 +162,7 @@ class FeeServiceTest {
 
   static Payment payment1(int amount, Instant creationDatetime) {
     return Payment.builder()
-        .id(TestUtils.PAYMENT1_ID)
+        .id(PAYMENT1_ID)
         .type(CASH)
         .amount(amount)
         .comment(null)
@@ -158,11 +172,11 @@ class FeeServiceTest {
 
   @Test
   void fee_status_is_paid_with_overpaid_mpbs() {
-    Fee initial = fee(0);
+    var initial = fee(0);
     when(feeRepository.save(any(Fee.class)))
         .thenAnswer(invocationOnMock -> invocationOnMock.getArgument(0));
 
-    Fee actual = subject.debitAmountFromMpbs(initial, 5000);
+    var actual = subject.debitAmountFromMpbs(initial, 5000);
 
     assertEquals(PAID, actual.getStatus());
     assertEquals(0, actual.getRemainingAmount());
@@ -170,13 +184,13 @@ class FeeServiceTest {
 
   @Test
   void fee_status_is_paid() {
-    Fee initial = fee(remainingAmount());
+    var initial = fee(remainingAmount());
     when(feeRepository.save(any(Fee.class)))
         .thenAnswer(invocationOnMock -> invocationOnMock.getArgument(0));
     when(feeRepository.findById(FEE1_ID))
         .thenReturn(Optional.of(initial.toBuilder().remainingAmount(0).status(PAID).build()));
 
-    Fee actual = subject.getById(FEE1_ID);
+    var actual = subject.getById(FEE1_ID);
 
     assertEquals(UNPAID, initial.getStatus());
     assertEquals(remainingAmount(), initial.getRemainingAmount());
@@ -188,7 +202,7 @@ class FeeServiceTest {
   void fee_status_is_unpaid() {
     int rest = 1000;
     int paymentAmount = remainingAmount() - rest;
-    Fee initial = fee(paymentAmount);
+    var initial = fee(paymentAmount);
     when(feeRepository.save(any(Fee.class)))
         .thenAnswer(invocationOnMock -> invocationOnMock.getArgument(0));
     when(feeRepository.findById(FEE1_ID))
@@ -199,7 +213,7 @@ class FeeServiceTest {
                     .status(UNPAID)
                     .build()));
 
-    Fee actual = subject.getById(FEE1_ID);
+    var actual = subject.getById(FEE1_ID);
 
     assertEquals(UNPAID, actual.getStatus());
     assertEquals(rest, actual.getRemainingAmount());
@@ -210,8 +224,8 @@ class FeeServiceTest {
   void fee_status_is_late() {
     int rest = 1000;
     int paymentAmount = remainingAmount() - rest;
-    Fee initial = fee(paymentAmount);
-    Instant yesterday = Instant.now().minus(1L, ChronoUnit.DAYS);
+    var initial = fee(paymentAmount);
+    var yesterday = Instant.now().minus(1L, ChronoUnit.DAYS);
     initial.setDueDatetime(yesterday);
     when(feeRepository.save(any(Fee.class)))
         .thenAnswer(invocationOnMock -> invocationOnMock.getArgument(0));
@@ -223,7 +237,7 @@ class FeeServiceTest {
                     .status(LATE)
                     .build()));
 
-    Fee actual = subject.getById(FEE1_ID);
+    var actual = subject.getById(FEE1_ID);
 
     assertEquals(LATE, actual.getStatus());
     assertEquals(rest, actual.getRemainingAmount());
@@ -250,18 +264,18 @@ class FeeServiceTest {
 
   @Test
   void fees_by_status_with_exceeded_page() {
-    PageFromOne page1 = new PageFromOne(1);
-    PageFromOne page2 = new PageFromOne(2);
-    BoundedPageSize pageSize = new BoundedPageSize(10);
+    var page1 = new PageFromOne(1);
+    var page2 = new PageFromOne(2);
+    var pageSize = new BoundedPageSize(10);
     boolean isMocked = true;
     when(feeRepository.findAll())
         .thenReturn(List.of(fee1(isMocked), fee2(isMocked), fee3(isMocked)));
 
-    List<Fee> actualPaidPage1 =
+    var actualPaidPage1 =
         subject.getFees(page1, pageSize, null, null, PAID, null, null, null, false, null);
-    List<Fee> actualLatePage1 =
+    var actualLatePage1 =
         subject.getFees(page1, pageSize, null, null, LATE, null, null, null, false, null);
-    List<Fee> actualLatePage2 =
+    var actualLatePage2 =
         subject.getFees(page2, pageSize, null, null, LATE, null, null, null, false, null);
 
     assertEquals(0, actualPaidPage1.size());
@@ -284,18 +298,18 @@ class FeeServiceTest {
 
   @Test
   void fees_by_category_with_exceeded_page() {
-    PageFromOne page1 = new PageFromOne(1);
-    PageFromOne page2 = new PageFromOne(2);
-    BoundedPageSize pageSize = new BoundedPageSize(10);
+    var page1 = new PageFromOne(1);
+    var page2 = new PageFromOne(2);
+    var pageSize = new BoundedPageSize(10);
     boolean isMocked = true;
     when(feeRepository.findAll())
         .thenReturn(List.of(fee1(isMocked), fee2(isMocked), fee3(isMocked)));
 
-    List<Fee> actualPaidPage1 =
+    var actualPaidPage1 =
         subject.getFees(page1, pageSize, null, null, null, L1, null, null, false, null);
-    List<Fee> actualLatePage1 =
+    var actualLatePage1 =
         subject.getFees(page1, pageSize, null, null, null, L1, null, null, false, null);
-    List<Fee> actualLatePage2 =
+    var actualLatePage2 =
         subject.getFees(page2, pageSize, null, null, null, L1, null, null, false, null);
 
     assertEquals(0, actualPaidPage1.size());
@@ -304,6 +318,77 @@ class FeeServiceTest {
     assertFalse(actualPaidPage1.contains(fee1(!isMocked)));
     assertFalse(actualPaidPage1.contains(fee2(!isMocked)));
     assertFalse(actualLatePage1.contains(fee3(!isMocked)));
+  }
+
+  @Test
+  void request_archive_fee_sets_to_archive_and_notifies_validators() {
+    var initial = fee(0);
+    when(feeRepository.save(any(Fee.class)))
+        .thenAnswer(invocationOnMock -> invocationOnMock.getArgument(0));
+
+    var actual = subject.requestArchiveFee(initial);
+
+    assertEquals(TO_ARCHIVE, actual.getArchiveStatus());
+    assertFalse(actual.isArchived());
+    verify(eventProducer, atLeastOnce()).accept(any());
+  }
+
+  @Test
+  void request_archive_fee_twice_ko() {
+    var initial = fee(0);
+    initial.requestArchive();
+
+    assertThrows(BadRequestException.class, () -> subject.requestArchiveFee(initial));
+  }
+
+  @Test
+  void validate_archive_fee_ok() {
+    var initial = fee(0);
+    initial.requestArchive();
+    var validator = mockUser();
+    when(feeRepository.save(any(Fee.class)))
+        .thenAnswer(invocationOnMock -> invocationOnMock.getArgument(0));
+
+    Fee actual;
+    try (var mockedAuthProvider = mockStatic(AuthProvider.class)) {
+      mockedAuthProvider
+          .when(AuthProvider::getPrincipal)
+          .thenReturn(new Principal(validator, "dummy"));
+      actual = subject.updateArchiveStatus(initial, ARCHIVED);
+    }
+
+    assertEquals(ARCHIVED, actual.getArchiveStatus());
+    assertTrue(actual.isArchived());
+    assertEquals(validator, actual.getArchivedBy());
+    verify(creditService).depositArchivedFee(initial);
+  }
+
+  @Test
+  void reject_archive_fee_ok() {
+    var initial = fee(0);
+    initial.requestArchive();
+    when(feeRepository.save(any(Fee.class)))
+        .thenAnswer(invocationOnMock -> invocationOnMock.getArgument(0));
+
+    var actual = subject.updateArchiveStatus(initial, REJECTED);
+
+    assertEquals(REJECTED, actual.getArchiveStatus());
+    assertFalse(actual.isArchived());
+  }
+
+  @Test
+  void update_archive_status_to_to_archive_ko() {
+    var initial = fee(0);
+    initial.requestArchive();
+
+    assertThrows(BadRequestException.class, () -> subject.updateArchiveStatus(initial, TO_ARCHIVE));
+  }
+
+  @Test
+  void validate_archive_without_prior_request_ko() {
+    var initial = fee(0);
+
+    assertThrows(BadRequestException.class, () -> subject.updateArchiveStatus(initial, ARCHIVED));
   }
 
   private static User mockUser() {

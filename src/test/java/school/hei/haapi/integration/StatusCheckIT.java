@@ -6,21 +6,16 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static school.hei.haapi.endpoint.rest.model.StatusCheckResult.PENDING;
 import static school.hei.haapi.endpoint.rest.model.StatusCheckResult.WITHDRAWN;
-import static school.hei.haapi.integration.conf.TestUtils.ADMIN1_TOKEN;
-import static school.hei.haapi.integration.conf.TestUtils.MANAGER1_TOKEN;
-import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_TOKEN;
-import static school.hei.haapi.integration.conf.TestUtils.STUDENT2_TOKEN;
-import static school.hei.haapi.integration.conf.TestUtils.STUDENT_AXEL_TOKEN;
-import static school.hei.haapi.integration.conf.TestUtils.TEACHER1_TOKEN;
+import static school.hei.haapi.integration.conf.ApiAssertions.assertThrowsApiException;
+import static school.hei.haapi.integration.conf.TestAuth.tokenFor;
 import static school.hei.haapi.integration.conf.TestUtils.anApiClient;
-import static school.hei.haapi.integration.conf.TestUtils.assertThrowsApiException;
-import static school.hei.haapi.integration.conf.TestUtils.getCasdoorUserAxel;
-import static school.hei.haapi.integration.conf.TestUtils.setUpCasdoor;
-import static school.hei.haapi.integration.test_data.StudentTestData.axel;
-import static school.hei.haapi.integration.test_data.StudentTestData.freddy;
-import static school.hei.haapi.integration.test_data.StudentTestData.manitra;
-import static school.hei.haapi.integration.test_data.StudentTestData.tolojanahary;
-import static school.hei.haapi.integration.test_data.TeacherTestData.toky;
+import static school.hei.haapi.integration.testData.ManagerTestData.hasina;
+import static school.hei.haapi.integration.testData.StaffTestData.adminMialy;
+import static school.hei.haapi.integration.testData.StudentTestData.axel;
+import static school.hei.haapi.integration.testData.StudentTestData.freddy;
+import static school.hei.haapi.integration.testData.StudentTestData.manitra;
+import static school.hei.haapi.integration.testData.StudentTestData.tolojanahary;
+import static school.hei.haapi.integration.testData.TeacherTestData.toky;
 import static school.hei.haapi.model.User.Status.ALUMNI;
 import static school.hei.haapi.model.User.Status.DISABLED;
 
@@ -51,6 +46,14 @@ public class StatusCheckIT extends FacadeITMockedThirdParties {
   private StatusCheck tolojanaharyStatusCheck;
   private User disabledStudentFreddy;
   private User alumniStudentManitra;
+  private User managerHasina;
+  private User adminUser;
+
+  private String axelToken;
+  private String tolojanaharyToken;
+  private String tokyToken;
+  private String managerToken;
+  private String adminToken;
 
   void setUpTestData() {
     teacherToky = userRepository.save(toky());
@@ -65,6 +68,9 @@ public class StatusCheckIT extends FacadeITMockedThirdParties {
     alumniStudentManitra.setStatus(ALUMNI);
     alumniStudentManitra = userRepository.save(alumniStudentManitra);
 
+    managerHasina = userRepository.save(hasina());
+    adminUser = userRepository.save(adminMialy());
+
     axelStatusCheck = statusCheckRepository.save(aStatusCheck(enabledStudentAxel, teacherToky));
     tolojanaharyStatusCheck =
         statusCheckRepository.save(
@@ -73,8 +79,13 @@ public class StatusCheckIT extends FacadeITMockedThirdParties {
 
   @BeforeEach
   void setUp() {
-    setUpCasdoor(casdoorAuthServiceMock, certificateLoaderMock);
     setUpTestData();
+
+    axelToken = tokenFor(casdoorAuthServiceMock, enabledStudentAxel);
+    tolojanaharyToken = tokenFor(casdoorAuthServiceMock, enabledStudentTolojanahary);
+    tokyToken = tokenFor(casdoorAuthServiceMock, teacherToky);
+    managerToken = tokenFor(casdoorAuthServiceMock, managerHasina);
+    adminToken = tokenFor(casdoorAuthServiceMock, adminUser);
   }
 
   @AfterEach
@@ -86,7 +97,9 @@ public class StatusCheckIT extends FacadeITMockedThirdParties {
             enabledStudentAxel,
             enabledStudentTolojanahary,
             disabledStudentFreddy,
-            alumniStudentManitra));
+            alumniStudentManitra,
+            managerHasina,
+            adminUser));
   }
 
   @Test
@@ -102,8 +115,6 @@ public class StatusCheckIT extends FacadeITMockedThirdParties {
 
   @Test
   void getStudentStatusChecks_byConcernedStudent_ok() throws ApiException {
-    enabledStudentAxel.setEmail(getCasdoorUserAxel().getEmail());
-    userRepository.save(enabledStudentAxel);
     var response = studentApiAsAxel().getStudentStatusChecks(enabledStudentAxel.getId());
 
     assertEquals(axelStatusCheck.getId(), response.getFirst().getId());
@@ -112,7 +123,7 @@ public class StatusCheckIT extends FacadeITMockedThirdParties {
 
   @Test
   void getStudentStatusChecks_byOtherStudent_ko() throws ApiException {
-    StudentApi tolojanaharyApi = new StudentApi(anApiClient(STUDENT2_TOKEN, localPort));
+    var tolojanaharyApi = new StudentApi(anApiClient(tolojanaharyToken, localPort));
 
     assertThrowsApiException(
         "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
@@ -300,22 +311,22 @@ public class StatusCheckIT extends FacadeITMockedThirdParties {
   }
 
   private StudentApi studentApiAsManager() {
-    return new StudentApi(anApiClient(MANAGER1_TOKEN, localPort));
+    return new StudentApi(anApiClient(managerToken, localPort));
   }
 
   private StudentApi studentApiAsAdmin() {
-    return new StudentApi(anApiClient(ADMIN1_TOKEN, localPort));
+    return new StudentApi(anApiClient(adminToken, localPort));
   }
 
   private StudentApi studentApiAsTeacher() {
-    return new StudentApi(anApiClient(TEACHER1_TOKEN, localPort));
+    return new StudentApi(anApiClient(tokyToken, localPort));
   }
 
   private StudentApi studentApiAsStudent1() {
-    return new StudentApi(anApiClient(STUDENT1_TOKEN, localPort));
+    return new StudentApi(anApiClient(tolojanaharyToken, localPort));
   }
 
   private StudentApi studentApiAsAxel() {
-    return new StudentApi(anApiClient(STUDENT_AXEL_TOKEN, localPort));
+    return new StudentApi(anApiClient(axelToken, localPort));
   }
 }

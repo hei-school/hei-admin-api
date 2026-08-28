@@ -1,148 +1,115 @@
 package school.hei.haapi.integration;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static school.hei.haapi.endpoint.rest.model.EnableStatus.ENABLED;
-import static school.hei.haapi.integration.conf.TestUtils.MANAGER1_TOKEN;
-import static school.hei.haapi.integration.conf.TestUtils.MANAGER_ID;
-import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_TOKEN;
-import static school.hei.haapi.integration.conf.TestUtils.TEACHER1_TOKEN;
-import static school.hei.haapi.integration.conf.TestUtils.assertThrowsForbiddenException;
-import static school.hei.haapi.integration.conf.TestUtils.coordinatesWithValues;
-import static school.hei.haapi.integration.conf.TestUtils.setUpCasdoor;
-import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
-import static school.hei.haapi.integration.conf.TestUtils.setUpS3Service;
-import static school.hei.haapi.integration.conf.TestUtils.uploadProfilePicture;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static school.hei.haapi.integration.conf.ApiAssertions.assertThrowsForbiddenException;
+import static school.hei.haapi.integration.conf.TestAuth.tokenFor;
+import static school.hei.haapi.integration.conf.TestFiles.uploadProfilePicture;
+import static school.hei.haapi.integration.conf.TestMocks.setUpS3Service;
+import static school.hei.haapi.integration.testData.ManagerTestData.hasina;
+import static school.hei.haapi.integration.testData.ManagerTestData.njiva;
+import static school.hei.haapi.integration.testData.StudentTestData.axel;
+import static school.hei.haapi.integration.testData.TeacherTestData.toky;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
-import java.io.InputStream;
-import java.net.http.HttpResponse;
-import java.time.Instant;
-import java.time.LocalDate;
 import java.util.List;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.testcontainers.junit.jupiter.Testcontainers;
 import school.hei.haapi.endpoint.rest.api.UsersApi;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
-import school.hei.haapi.endpoint.rest.model.Coordinates;
-import school.hei.haapi.endpoint.rest.model.CrupdateManager;
 import school.hei.haapi.endpoint.rest.model.Manager;
-import school.hei.haapi.endpoint.rest.model.Sex;
 import school.hei.haapi.integration.conf.FacadeITMockedThirdParties;
 import school.hei.haapi.integration.conf.TestUtils;
+import school.hei.haapi.model.User;
+import school.hei.haapi.repository.UserRepository;
 
-@Testcontainers
-@AutoConfigureMockMvc
 public class ManagerIT extends FacadeITMockedThirdParties {
   @Autowired ObjectMapper objectMapper;
+  @Autowired private UserRepository userRepository;
+
+  private User managerHasina;
+  private User managerNjiva;
+  private User studentAxel;
+  private User teacherToky;
+
+  private String managerToken;
+  private String studentToken;
+  private String teacherToken;
+
+  private void setUpTestData() {
+    managerHasina = userRepository.save(hasina());
+    managerNjiva = userRepository.save(njiva());
+    studentAxel = userRepository.save(axel());
+    teacherToky = userRepository.save(toky());
+  }
+
+  @BeforeEach
+  public void setUp() {
+    setUpTestData();
+    setUpS3Service(fileService, managerHasina);
+
+    managerToken = tokenFor(casdoorAuthServiceMock, managerHasina);
+    studentToken = tokenFor(casdoorAuthServiceMock, studentAxel);
+    teacherToken = tokenFor(casdoorAuthServiceMock, teacherToky);
+  }
+
+  @AfterEach
+  void tearDown() {
+    userRepository.deleteAll(List.of(managerHasina, managerNjiva, studentAxel, teacherToky));
+  }
+
+  private UsersApi apiAs(String token) {
+    return new UsersApi(anApiClient(token));
+  }
 
   private ApiClient anApiClient(String token) {
     return TestUtils.anApiClient(token, localPort);
   }
 
-  public static Manager manager1() {
-    Manager manager = new Manager();
-    manager.setId("manager1_id");
-    manager.setFirstName("One");
-    manager.setLastName("Manager");
-    manager.setEmail("test+manager1@hei.school");
-    manager.setRef("MGR21001");
-    manager.setPhone("0322411127");
-    manager.setStatus(ENABLED);
-    manager.setSex(Sex.M);
-    manager.setBirthDate(LocalDate.parse("1890-01-01"));
-    manager.setEntranceDatetime(Instant.parse("2021-09-08T08:25:29Z"));
-    manager.setAddress("Adr 5");
-    manager.setBirthPlace("");
-    manager.setNic("");
-    manager.setCoordinates(new Coordinates().longitude(55.555).latitude(-55.555));
-    return manager;
-  }
-
-  public static CrupdateManager someUpdatableManager1() {
-    CrupdateManager manager = new CrupdateManager();
-    manager.setId("manager1_id");
-    manager.setFirstName("One");
-    manager.setLastName("Manager");
-    manager.setEmail("test+manager1@hei.school");
-    manager.setRef("MGR21001");
-    manager.setPhone("0322411127");
-    manager.setStatus(ENABLED);
-    manager.setSex(Sex.M);
-    manager.setBirthDate(LocalDate.parse("1890-01-01"));
-    manager.setEntranceDatetime(Instant.parse("2021-09-08T08:25:29Z"));
-    manager.setAddress("Adr 5");
-    manager.setBirthPlace("");
-    manager.setNic("");
-    return manager
-        .address("Adr 999")
-        .sex(Sex.F)
-        .lastName("Other last")
-        .firstName("Other first")
-        .coordinates(coordinatesWithValues())
-        .birthDate(LocalDate.parse("2000-01-03"));
-  }
-
-  @BeforeEach
-  public void setUp() {
-    setUpCasdoor(casdoorAuthServiceMock, certificateLoaderMock);
-    setUpCognito(cognitoComponentMock);
-    setUpS3Service(fileService, manager1());
-  }
-
   @Test
   void manager_update_own_profile_picture() throws IOException, InterruptedException {
-    HttpResponse<InputStream> response =
-        uploadProfilePicture(localPort, MANAGER1_TOKEN, MANAGER_ID, "managers");
+    var response = uploadProfilePicture(localPort, managerToken, managerHasina.getId(), "managers");
 
-    Manager manager = objectMapper.readValue(response.body(), Manager.class);
+    var manager = objectMapper.readValue(response.body(), Manager.class);
 
     assertEquals(200, response.statusCode());
-    assertEquals("MGR21001", manager.getRef());
+    assertEquals(managerHasina.getRef(), manager.getRef());
   }
 
   @Test
   void student_read_ko() {
-    ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
+    var api = apiAs(studentToken);
 
-    UsersApi api = new UsersApi(student1Client);
-    assertThrowsForbiddenException(() -> api.getManagerById(MANAGER_ID));
+    assertThrowsForbiddenException(() -> api.getManagerById(managerHasina.getId()));
     assertThrowsForbiddenException(() -> api.getManagers(1, 20, null, null));
   }
 
   @Test
   void teacher_read_ko() {
-    ApiClient teacher1Client = anApiClient(TEACHER1_TOKEN);
+    var api = apiAs(teacherToken);
 
-    UsersApi api = new UsersApi(teacher1Client);
-    assertThrowsForbiddenException(() -> api.getManagerById(MANAGER_ID));
+    assertThrowsForbiddenException(() -> api.getManagerById(managerHasina.getId()));
     assertThrowsForbiddenException(() -> api.getManagers(1, 20, null, null));
   }
 
   @Test
   void manager_read_own_ok() throws ApiException {
-    ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
+    var actual = apiAs(managerToken).getManagerById(managerHasina.getId());
 
-    UsersApi api = new UsersApi(manager1Client);
-    Manager actual = api.getManagerById(MANAGER_ID);
-
-    assertEquals(manager1(), actual);
+    assertEquals(managerHasina.getId(), actual.getId());
+    assertEquals(managerHasina.getRef(), actual.getRef());
+    assertEquals(managerHasina.getEmail(), actual.getEmail());
   }
 
   @Test
-  @Disabled("Don't pass on GHA")
   void manager_read_ok() throws ApiException {
-    ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
+    var managers = apiAs(managerToken).getManagers(1, 100, null, null);
 
-    UsersApi api = new UsersApi(manager1Client);
-    List<Manager> managers = api.getManagers(1, 20, null, null);
-
-    assertEquals(4, managers.size());
-    assertEquals(manager1(), managers.getFirst());
+    assertTrue(managers.stream().anyMatch(m -> managerHasina.getId().equals(m.getId())));
+    assertTrue(managers.stream().anyMatch(m -> managerNjiva.getId().equals(m.getId())));
   }
 }

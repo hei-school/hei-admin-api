@@ -32,7 +32,7 @@ public class LateFeeVerifiedServiceIT extends FacadeITMockedThirdParties {
   @MockBean private Mailer mailer;
 
   private static User domainUser() {
-    User user = new User();
+    var user = new User();
     user.setEmail("email@gmail.com");
     user.setNic("nic");
     user.setStatus(ENABLED);
@@ -54,11 +54,10 @@ public class LateFeeVerifiedServiceIT extends FacadeITMockedThirdParties {
 
   @Test
   void late_fee_sends_mail_and_suspend_student_ok() {
-    User storedUser = userRepository.save(domainUser());
-    // test: user saved is not flagged suspended
+    var storedUser = userRepository.save(domainUser());
     assertEquals(ENABLED, storedUser.getStatus());
 
-    LateFeeVerified subjectLateFeeVerified =
+    var subjectLateFeeVerified =
         LateFeeVerified.builder()
             .student(LateFeeVerified.FeeUser.from(storedUser))
             .remainingAmount(3000)
@@ -68,11 +67,9 @@ public class LateFeeVerifiedServiceIT extends FacadeITMockedThirdParties {
             .build();
 
     subject.accept(subjectLateFeeVerified);
-    // test: mail is correctly executed
     verify(mailer).accept(any(Email.class));
 
-    User actualStudent = userRepository.findById(storedUser.getId()).get();
-    // test: user is correctly flagged to suspended
+    var actualStudent = userRepository.findById(storedUser.getId()).get();
     assertEquals(SUSPENDED, actualStudent.getStatus());
   }
 }

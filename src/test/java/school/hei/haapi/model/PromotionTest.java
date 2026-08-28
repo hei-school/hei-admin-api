@@ -48,7 +48,7 @@ class PromotionTest {
 
   @Test
   void getPromotionYearString_shouldReturnCorrectYearRanges() {
-    Promotion bachelorPromotion =
+    var bachelorPromotion =
         Promotion.builder()
             .cycleLevel(BACHELOR)
             .startDatetime(Instant.parse("2023-11-08T00:00:00Z"))

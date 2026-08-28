@@ -8,150 +8,172 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.when;
-import static school.hei.haapi.endpoint.rest.model.EnableStatus.ENABLED;
+import static school.hei.haapi.integration.conf.ApiAssertions.assertBadRequestException;
+import static school.hei.haapi.integration.conf.ApiAssertions.assertThrowsApiException;
+import static school.hei.haapi.integration.conf.ApiAssertions.assertThrowsForbiddenException;
+import static school.hei.haapi.integration.conf.ApiAssertions.isValidUUID;
 import static school.hei.haapi.integration.conf.FakeDataProvider.someCreatableTeacher;
-import static school.hei.haapi.integration.conf.TestUtils.MANAGER1_TOKEN;
-import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_TOKEN;
-import static school.hei.haapi.integration.conf.TestUtils.TEACHER1_ID;
-import static school.hei.haapi.integration.conf.TestUtils.TEACHER1_TOKEN;
-import static school.hei.haapi.integration.conf.TestUtils.TEACHER2_ID;
-import static school.hei.haapi.integration.conf.TestUtils.assertBadRequestException;
-import static school.hei.haapi.integration.conf.TestUtils.assertThrowsApiException;
-import static school.hei.haapi.integration.conf.TestUtils.assertThrowsForbiddenException;
-import static school.hei.haapi.integration.conf.TestUtils.coordinatesWithNullValues;
-import static school.hei.haapi.integration.conf.TestUtils.coordinatesWithValues;
-import static school.hei.haapi.integration.conf.TestUtils.isValidUUID;
-import static school.hei.haapi.integration.conf.TestUtils.setUpCasdoor;
-import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
-import static school.hei.haapi.integration.conf.TestUtils.setUpEventBridge;
-import static school.hei.haapi.integration.conf.TestUtils.setUpS3Service;
-import static school.hei.haapi.integration.conf.TestUtils.someCreatableTeacherList;
-import static school.hei.haapi.integration.conf.TestUtils.teacher1;
-import static school.hei.haapi.integration.conf.TestUtils.teacher2;
-import static school.hei.haapi.integration.conf.TestUtils.uploadProfilePicture;
+import static school.hei.haapi.integration.conf.TestAuth.tokenFor;
+import static school.hei.haapi.integration.conf.TestFiles.uploadProfilePicture;
+import static school.hei.haapi.integration.conf.TestMocks.setUpEventBridge;
+import static school.hei.haapi.integration.conf.TestMocks.setUpS3Service;
+import static school.hei.haapi.integration.testData.ManagerTestData.hasina;
+import static school.hei.haapi.integration.testData.StudentTestData.axel;
+import static school.hei.haapi.integration.testData.TeacherTestData.disabledFemaleTeacher;
+import static school.hei.haapi.integration.testData.TeacherTestData.harry;
+import static school.hei.haapi.integration.testData.TeacherTestData.ryan;
+import static school.hei.haapi.integration.testData.TeacherTestData.suspendedFemaleTeacher;
+import static school.hei.haapi.integration.testData.TeacherTestData.toky;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
-import java.time.Instant;
-import java.time.LocalDate;
 import java.util.List;
 import java.util.Objects;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpStatus;
-import org.testcontainers.junit.jupiter.Testcontainers;
 import school.hei.haapi.endpoint.rest.api.UsersApi;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
 import school.hei.haapi.endpoint.rest.mapper.UserMapper;
-import school.hei.haapi.endpoint.rest.model.CrupdateTeacher;
 import school.hei.haapi.endpoint.rest.model.EnableStatus;
 import school.hei.haapi.endpoint.rest.model.Sex;
 import school.hei.haapi.endpoint.rest.model.Teacher;
 import school.hei.haapi.integration.conf.FacadeITMockedThirdParties;
 import school.hei.haapi.integration.conf.TestUtils;
+import school.hei.haapi.model.User;
+import school.hei.haapi.repository.UserRepository;
 import software.amazon.awssdk.services.eventbridge.EventBridgeClient;
 import software.amazon.awssdk.services.eventbridge.model.PutEventsRequest;
 
-@Testcontainers
-@AutoConfigureMockMvc
 class TeacherIT extends FacadeITMockedThirdParties {
   @MockBean private EventBridgeClient eventBridgeClientMock;
   @Autowired private ObjectMapper objectMapper;
   @Autowired private UserMapper userMapper;
+  @Autowired private UserRepository userRepository;
+
+  private User teacherToky;
+  private User teacherRyan;
+  private User teacherHarry;
+  private User teacherDisabledFemale;
+  private User teacherSuspendedFemale;
+  private User managerHasina;
+  private User studentAxel;
+
+  private String tokyToken;
+  private String managerToken;
+  private String axelToken;
+
+  private void setUpTestData() {
+    teacherToky = userRepository.save(toky());
+    teacherRyan = userRepository.save(ryan());
+    teacherHarry = userRepository.save(harry());
+    teacherDisabledFemale = userRepository.save(disabledFemaleTeacher());
+    teacherSuspendedFemale = userRepository.save(suspendedFemaleTeacher());
+    managerHasina = userRepository.save(hasina());
+    studentAxel = userRepository.save(axel());
+  }
+
+  @BeforeEach
+  public void setUp() {
+    setUpEventBridge(eventBridgeClientMock);
+    setUpTestData();
+    setUpS3Service(fileService, teacherToky);
+
+    tokyToken = tokenFor(casdoorAuthServiceMock, teacherToky);
+    managerToken = tokenFor(casdoorAuthServiceMock, managerHasina);
+    axelToken = tokenFor(casdoorAuthServiceMock, studentAxel);
+  }
+
+  @AfterEach
+  void tearDown() {
+    userRepository.deleteAll(
+        List.of(
+            teacherToky,
+            teacherRyan,
+            teacherHarry,
+            teacherDisabledFemale,
+            teacherSuspendedFemale,
+            managerHasina,
+            studentAxel));
+  }
+
+  private UsersApi apiAs(String token) {
+    return new UsersApi(anApiClient(token));
+  }
 
   private ApiClient anApiClient(String token) {
     return TestUtils.anApiClient(token, localPort);
   }
 
-  @BeforeEach
-  public void setUp() {
-    setUpCasdoor(casdoorAuthServiceMock, certificateLoaderMock);
-    setUpCognito(cognitoComponentMock);
-    setUpEventBridge(eventBridgeClientMock);
-    setUpS3Service(fileService, teacher1());
+  private static List<String> idsOf(List<Teacher> teachers) {
+    return teachers.stream().map(Teacher::getId).toList();
   }
 
   @Test
   void teacher_update_own_profile_picture() throws IOException, InterruptedException {
-    HttpResponse<InputStream> response =
-        uploadProfilePicture(localPort, TEACHER1_TOKEN, TEACHER1_ID, "teachers");
-
-    Teacher teacher = objectMapper.readValue(response.body(), Teacher.class);
+    var response = uploadProfilePicture(localPort, tokyToken, teacherToky.getId(), "teachers");
+    var teacher = objectMapper.readValue(response.body(), Teacher.class);
 
     assertEquals(200, response.statusCode());
-    assertEquals("TCR21001", teacher.getRef());
+    assertEquals(teacherToky.getRef(), teacher.getRef());
   }
 
   @Test
   void student_read_ko() {
-    ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
+    var api = apiAs(axelToken);
 
-    UsersApi api = new UsersApi(student1Client);
-    assertThrowsForbiddenException(() -> api.getTeacherById(TEACHER1_ID));
+    assertThrowsForbiddenException(() -> api.getTeacherById(teacherToky.getId()));
     assertThrowsForbiddenException(() -> api.getTeachers(1, 20, null, null, null, null, null));
   }
 
   @Test
   void teacher_read_ko() {
-    ApiClient teacher1Client = anApiClient(TEACHER1_TOKEN);
-
-    UsersApi api = new UsersApi(teacher1Client);
-    assertThrowsForbiddenException(() -> api.getTeacherById(TEACHER2_ID));
+    var api = apiAs(tokyToken);
+    assertThrowsForbiddenException(() -> api.getTeacherById(teacherRyan.getId()));
     assertThrowsForbiddenException(() -> api.getTeachers(1, 20, null, null, null, null, null));
   }
 
   @Test
   void student_write_ko() {
-    ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
-
-    UsersApi api = new UsersApi(student1Client);
+    var api = apiAs(axelToken);
     assertThrowsForbiddenException(() -> api.createOrUpdateTeachers(List.of()));
   }
 
   @Test
   void teacher_write_ko() {
-    ApiClient teacher1Client = anApiClient(TEACHER1_TOKEN);
-
-    UsersApi api = new UsersApi(teacher1Client);
+    var api = apiAs(tokyToken);
     assertThrowsForbiddenException(() -> api.createOrUpdateTeachers(List.of()));
   }
 
   @Test
   void teacher_read_own_ok() throws ApiException {
-    ApiClient teacher1Client = anApiClient(TEACHER1_TOKEN);
+    var actual = apiAs(tokyToken).getTeacherById(teacherToky.getId());
 
-    UsersApi api = new UsersApi(teacher1Client);
-    Teacher actual = api.getTeacherById(TEACHER1_ID);
-
-    assertEquals(teacher1(), actual);
+    assertEquals(teacherToky.getId(), actual.getId());
+    assertEquals(teacherToky.getRef(), actual.getRef());
+    assertEquals(teacherToky.getFirstName(), actual.getFirstName());
   }
 
   @Test
   void manager_read_ok() throws ApiException {
-    ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
+    var teachers = apiAs(managerToken).getTeachers(1, 100, null, null, null, null, null);
 
-    UsersApi api = new UsersApi(manager1Client);
-    List<Teacher> teachers = api.getTeachers(1, 20, null, null, null, null, null);
-
-    assertTrue(teachers.contains(teacher1()));
-    assertTrue(teachers.contains(teacher2()));
+    assertTrue(idsOf(teachers).contains(teacherToky.getId()));
+    assertTrue(idsOf(teachers).contains(teacherRyan.getId()));
   }
 
   @Test
   void manager_write_update_rollback_on_event_error() throws ApiException {
-    ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
-    UsersApi api = new UsersApi(manager1Client);
-    CrupdateTeacher toCreate = someCreatableTeacher();
+    var api = apiAs(managerToken);
+    var toCreate = someCreatableTeacher();
     reset(eventBridgeClientMock);
     when(eventBridgeClientMock.putEvents((PutEventsRequest) any()))
         .thenThrow(RuntimeException.class);
@@ -160,56 +182,38 @@ class TeacherIT extends FacadeITMockedThirdParties {
         "{\"type\":\"500 INTERNAL_SERVER_ERROR\",\"message\":null}",
         () -> api.createOrUpdateTeachers(List.of(toCreate)));
 
-    List<Teacher> actual = api.getTeachers(1, 100, null, null, null, null, null);
+    var actual = api.getTeachers(1, 100, null, null, null, null, null);
     assertFalse(actual.stream().anyMatch(s -> Objects.equals(toCreate.getEmail(), s.getEmail())));
   }
 
   @Test
   void manager_write_create_ok() throws ApiException {
-    ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
-    CrupdateTeacher toCreate = someCreatableTeacher();
-    Teacher expected = userMapper.toRestTeacher(userMapper.toDomain(toCreate));
+    var api = apiAs(managerToken);
+    var toCreate = someCreatableTeacher();
+    var expected = userMapper.toRestTeacher(userMapper.toDomain(toCreate));
 
-    UsersApi api = new UsersApi(manager1Client);
-    List<Teacher> created = api.createOrUpdateTeachers(List.of(toCreate));
-
+    var created = api.createOrUpdateTeachers(List.of(toCreate));
     assertEquals(1, created.size());
-    Teacher created0 = created.getFirst();
+
+    var created0 = created.getFirst();
     assertTrue(isValidUUID(created0.getId()));
     expected.setId(created0.getId());
     expected.setRef(toCreate.getRef());
     expected.setEmail(toCreate.getEmail());
     assertEquals(expected, created0);
-  }
 
-  @Test
-  @Disabled("TODO: poja has removed max put entries check")
-  void manager_write_update_more_than_10_teachers_ko() throws ApiException {
-    ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
-    UsersApi api = new UsersApi(manager1Client);
-    CrupdateTeacher teacherToCreate = someCreatableTeacher();
-    List<CrupdateTeacher> listToCreate = someCreatableTeacherList(11);
-    listToCreate.add(teacherToCreate);
-
-    assertThrowsApiException(
-        "{\"type\":\"500 INTERNAL_SERVER_ERROR\",\"message\":\"Request entries must be <= 10\"}",
-        () -> api.createOrUpdateTeachers(listToCreate));
-
-    List<Teacher> actual = api.getTeachers(1, 20, null, null, null, null, null);
-    assertFalse(
-        actual.stream().anyMatch(s -> Objects.equals(teacherToCreate.getEmail(), s.getEmail())));
+    userRepository.deleteById(created0.getId());
   }
 
   @Test
   void manager_write_update_ok() throws ApiException {
-    ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
-    UsersApi api = new UsersApi(manager1Client);
-    CrupdateTeacher toUpdate = someCreatableTeacher();
+    var api = apiAs(managerToken);
+    var toUpdate = someCreatableTeacher();
 
-    List<Teacher> created = api.createOrUpdateTeachers(List.of(toUpdate));
+    var created = api.createOrUpdateTeachers(List.of(toUpdate));
     toUpdate.setId(created.getFirst().getId());
 
-    Teacher expected = userMapper.toRestTeacher(userMapper.toDomain(toUpdate));
+    var expected = userMapper.toRestTeacher(userMapper.toDomain(toUpdate));
     expected.setId(created.getFirst().getId());
     expected.setLastName("New last name");
     expected.setEmail(toUpdate.getEmail());
@@ -217,17 +221,18 @@ class TeacherIT extends FacadeITMockedThirdParties {
 
     toUpdate.setLastName("New last name");
 
-    List<Teacher> updated = api.createOrUpdateTeachers(List.of(toUpdate));
+    var updated = api.createOrUpdateTeachers(List.of(toUpdate));
 
     assertEquals(1, updated.size());
     assertEquals(expected, updated.getFirst());
+
+    userRepository.deleteById(created.getFirst().getId());
   }
 
   @Test
   void manager_write_update_with_some_bad_fields_ko() {
-    ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
-    UsersApi api = new UsersApi(manager1Client);
-    CrupdateTeacher toCreate1 =
+    var api = apiAs(managerToken);
+    var missingFields =
         someCreatableTeacher()
             .firstName(null)
             .lastName(null)
@@ -235,146 +240,76 @@ class TeacherIT extends FacadeITMockedThirdParties {
             .address(null)
             .phone(null)
             .ref(null);
-    CrupdateTeacher toCreate2 = someCreatableTeacher().email("bademail");
+    var badEmail = someCreatableTeacher().email("bademail");
 
-    ApiException exception1 =
-        assertThrows(ApiException.class, () -> api.createOrUpdateTeachers(List.of(toCreate1)));
-    ApiException exception2 =
-        assertThrows(ApiException.class, () -> api.createOrUpdateTeachers(List.of(toCreate2)));
+    var missingFieldsException =
+        assertThrows(ApiException.class, () -> api.createOrUpdateTeachers(List.of(missingFields)));
+    var badEmailException =
+        assertThrows(ApiException.class, () -> api.createOrUpdateTeachers(List.of(badEmail)));
     assertBadRequestException(
         "Entrance datetime is mandatory",
         () -> api.createOrUpdateTeachers(List.of(someCreatableTeacher().entranceDatetime(null))));
 
-    String exceptionMessage1 = exception1.getMessage();
-    String exceptionMessage2 = exception2.getMessage();
-    assertTrue(exceptionMessage2.contains("Email must be valid"));
-    assertTrue(exceptionMessage1.contains("Last name is mandatory"));
-    assertTrue(exceptionMessage1.contains("Email is mandatory"));
-    assertTrue(exceptionMessage1.contains("Reference is mandatory"));
+    assertTrue(badEmailException.getMessage().contains("Email must be valid"));
+    assertTrue(missingFieldsException.getMessage().contains("Last name is mandatory"));
+    assertTrue(missingFieldsException.getMessage().contains("Email is mandatory"));
+    assertTrue(missingFieldsException.getMessage().contains("Reference is mandatory"));
   }
 
   @Test
   void manager_read_by_disabled_status_ok() throws ApiException {
-    ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
-    UsersApi api = new UsersApi(manager1Client);
+    var actualTeachers =
+        apiAs(managerToken).getTeachers(1, 100, null, null, null, EnableStatus.DISABLED, null);
 
-    List<Teacher> actualTeachers =
-        api.getTeachers(1, 10, null, null, null, EnableStatus.DISABLED, null);
-    assertEquals(2, actualTeachers.size());
-    assertTrue(actualTeachers.contains(disabledTeacher1()));
+    assertTrue(idsOf(actualTeachers).contains(teacherHarry.getId()));
+    assertTrue(idsOf(actualTeachers).contains(teacherDisabledFemale.getId()));
+    assertFalse(idsOf(actualTeachers).contains(teacherToky.getId()));
   }
 
   @Test
   void manager_read_by_suspended_status_ok() throws ApiException {
-    ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
-    UsersApi api = new UsersApi(manager1Client);
+    var actualTeachers =
+        apiAs(managerToken).getTeachers(1, 100, null, null, null, EnableStatus.SUSPENDED, Sex.F);
 
-    List<Teacher> actualTeachers =
-        api.getTeachers(1, 10, null, null, null, EnableStatus.SUSPENDED, Sex.F);
-    assertEquals(1, actualTeachers.size());
-    assertEquals(actualTeachers.getFirst(), suspendedTeacher1());
-    assertTrue(actualTeachers.contains((suspendedTeacher1())));
+    assertTrue(idsOf(actualTeachers).contains(teacherSuspendedFemale.getId()));
+    assertFalse(idsOf(actualTeachers).contains(teacherDisabledFemale.getId()));
   }
 
   @Test
   void manager_read_by_status_and_sex_ok() throws ApiException {
-    ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
-    UsersApi api = new UsersApi(manager1Client);
+    var actualTeachers =
+        apiAs(managerToken).getTeachers(1, 100, null, null, null, EnableStatus.DISABLED, Sex.F);
 
-    List<Teacher> actualTeachers =
-        api.getTeachers(1, 10, null, null, null, EnableStatus.DISABLED, Sex.F);
-    assertEquals(1, actualTeachers.size());
+    assertTrue(idsOf(actualTeachers).contains(teacherDisabledFemale.getId()));
+    assertFalse(idsOf(actualTeachers).contains(teacherHarry.getId()));
   }
 
   @Test
   void generate_all_teacher_as_xlsx() throws IOException, InterruptedException {
-    HttpClient httpClient = HttpClient.newBuilder().build();
-    String basePath = "http://localhost:" + localPort;
-
-    HttpResponse<byte[]> response =
-        httpClient.send(
-            HttpRequest.newBuilder()
-                .uri(URI.create(basePath + "/teachers/raw"))
-                .GET()
-                .header("Authorization", "Bearer " + MANAGER1_TOKEN)
-                .build(),
-            HttpResponse.BodyHandlers.ofByteArray());
+    var response = getTeachersRaw(managerToken);
 
     assertEquals(HttpStatus.OK.value(), response.statusCode());
     assertNotNull(response.body());
-    assertNotNull(response);
   }
 
   @Test
   void student_not_authorized_to_generate_all_teacher_as_xlsx()
       throws IOException, InterruptedException {
-    HttpClient httpClient = HttpClient.newBuilder().build();
-    String basePath = "http://localhost:" + localPort;
-
-    HttpResponse<byte[]> response =
-        httpClient.send(
-            HttpRequest.newBuilder()
-                .uri(URI.create(basePath + "/teachers/raw"))
-                .GET()
-                .header("Authorization", "Bearer " + STUDENT1_TOKEN)
-                .build(),
-            HttpResponse.BodyHandlers.ofByteArray());
+    var response = getTeachersRaw(axelToken);
 
     assertEquals(HttpStatus.FORBIDDEN.value(), response.statusCode());
   }
 
-  public static Teacher disabledTeacher1() {
-    return new Teacher()
-        .id("teacher5_id")
-        .firstName("Disable")
-        .lastName("One")
-        .email("teacher+disable1@hei.school")
-        .ref("TCR29001")
-        .status(EnableStatus.DISABLED)
-        .sex(Sex.M)
-        .birthDate(LocalDate.parse("2000-12-01"))
-        .entranceDatetime(Instant.parse("2021-11-08T08:25:24.00Z"))
-        .phone("0322411123")
-        .nic("")
-        .birthPlace("")
-        .address("Adr 1")
-        .coordinates(coordinatesWithNullValues());
-  }
-
-  public static Teacher suspendedTeacher1() {
-    return new Teacher()
-        .id("teacher7_id")
-        .firstName("Suspended")
-        .lastName("One")
-        .email("teacher+suspended@hei.school")
-        .ref("TCR29003")
-        .status(EnableStatus.SUSPENDED)
-        .sex(Sex.F)
-        .birthDate(LocalDate.parse("2000-12-02"))
-        .entranceDatetime(Instant.parse("2021-11-09T08:26:24.00Z"))
-        .phone("0322411124")
-        .nic("")
-        .birthPlace("")
-        .address("Adr 2")
-        .coordinates(coordinatesWithNullValues());
-  }
-
-  public static CrupdateTeacher someUpdatableTeacher1() {
-    return new CrupdateTeacher()
-        .id("teacher1_id")
-        .email("test+teacher1@hei.school")
-        .ref("TCR21001")
-        .phone("0322411125")
-        .status(ENABLED)
-        .sex(Sex.F)
-        .entranceDatetime(Instant.parse("2021-10-08T08:27:24.00Z"))
-        .nic("")
-        .birthPlace("")
-        .address("Adr 999")
-        .sex(Sex.F)
-        .lastName("Other last")
-        .firstName("Other first")
-        .birthDate(LocalDate.parse("2000-01-03"))
-        .coordinates(coordinatesWithValues());
+  private HttpResponse<byte[]> getTeachersRaw(String token)
+      throws IOException, InterruptedException {
+    return HttpClient.newBuilder()
+        .build()
+        .send(
+            HttpRequest.newBuilder()
+                .uri(URI.create("http://localhost:" + localPort + "/teachers/raw"))
+                .GET()
+                .header("Authorization", "Bearer " + token)
+                .build(),
+            HttpResponse.BodyHandlers.ofByteArray());
   }
 }

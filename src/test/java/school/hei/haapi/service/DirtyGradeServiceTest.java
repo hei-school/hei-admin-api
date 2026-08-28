@@ -7,15 +7,15 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.annotation.DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD;
-import static school.hei.haapi.integration.test_data.CourseAssignmentTestData.createCourseAssignment;
-import static school.hei.haapi.integration.test_data.CourseTestData.prog1;
-import static school.hei.haapi.integration.test_data.ExamTestData.createExam;
-import static school.hei.haapi.integration.test_data.GroupTestData.createGroupFlow;
-import static school.hei.haapi.integration.test_data.GroupTestData.g1;
-import static school.hei.haapi.integration.test_data.StudentResultOverviewTestData.promotionH;
-import static school.hei.haapi.integration.test_data.StudentTestData.axel;
-import static school.hei.haapi.integration.test_data.StudentTestData.tolojanahary;
-import static school.hei.haapi.integration.test_data.TeacherTestData.toky;
+import static school.hei.haapi.integration.testData.CourseAssignmentTestData.createCourseAssignment;
+import static school.hei.haapi.integration.testData.CourseTestData.prog1;
+import static school.hei.haapi.integration.testData.ExamTestData.createExam;
+import static school.hei.haapi.integration.testData.GroupTestData.createGroupFlow;
+import static school.hei.haapi.integration.testData.GroupTestData.g1;
+import static school.hei.haapi.integration.testData.StudentResultOverviewTestData.promotionH;
+import static school.hei.haapi.integration.testData.StudentTestData.axel;
+import static school.hei.haapi.integration.testData.StudentTestData.tolojanahary;
+import static school.hei.haapi.integration.testData.TeacherTestData.toky;
 
 import com.github.javafaker.Faker;
 import jakarta.transaction.Transactional;
@@ -32,7 +32,6 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import school.hei.haapi.endpoint.event.EventProducer;
 import school.hei.haapi.endpoint.rest.mapper.GradeMapper;
-import school.hei.haapi.endpoint.rest.model.StudentGrade;
 import school.hei.haapi.integration.conf.FacadeITMockedThirdParties;
 import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.Course;
@@ -135,10 +134,10 @@ class DirtyGradeServiceTest extends FacadeITMockedThirdParties {
   void crupdate_grade_ok() {
     when(promotionService.getAllStudentPromotions(any()))
         .thenReturn(new LinkedHashSet<>(Set.of(promotionH())));
-    PageFromOne page = new PageFromOne(1);
-    BoundedPageSize pageSize = new BoundedPageSize(100);
-    List<Grade> createdGrades = subject.createParticipantGrade(gradesExam1Prog1);
-    List<StudentGrade> restCreatedGrades =
+    var page = new PageFromOne(1);
+    var pageSize = new BoundedPageSize(100);
+    var createdGrades = subject.createParticipantGrade(gradesExam1Prog1);
+    var restCreatedGrades =
         createdGrades.stream().map(grade1 -> gradeMapper.toRestStudentGrade(grade1)).toList();
 
     assertEquals(2, createdGrades.size());
@@ -164,9 +163,8 @@ class DirtyGradeServiceTest extends FacadeITMockedThirdParties {
                 })
             .toList();
 
-    List<Grade> updatedGrades = subject.updateParticipantGrade(rectifiedGrades);
-    List<StudentGrade> restUpdatedGrades =
-        updatedGrades.stream().map(gradeMapper::toRestStudentGrade).toList();
+    var updatedGrades = subject.updateParticipantGrade(rectifiedGrades);
+    var restUpdatedGrades = updatedGrades.stream().map(gradeMapper::toRestStudentGrade).toList();
 
     assertEquals(2, updatedGrades.size());
     assertNotNull(updatedGrades.getFirst().getId());

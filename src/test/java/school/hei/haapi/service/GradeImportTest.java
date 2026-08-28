@@ -5,24 +5,21 @@ import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
-import static school.hei.haapi.integration.StudentIT.student1;
-import static school.hei.haapi.integration.conf.TestUtils.getMockedFile;
-import static school.hei.haapi.integration.conf.TestUtils.setUpCasdoor;
-import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
-import static school.hei.haapi.integration.conf.TestUtils.setUpS3Service;
-import static school.hei.haapi.integration.test_data.CourseAssignmentTestData.createCourseAssignment;
-import static school.hei.haapi.integration.test_data.CourseTestData.prog1;
-import static school.hei.haapi.integration.test_data.CourseTestData.prog2;
-import static school.hei.haapi.integration.test_data.ExamTestData.createExam;
-import static school.hei.haapi.integration.test_data.GroupTestData.createGroupFlow;
-import static school.hei.haapi.integration.test_data.GroupTestData.g1;
-import static school.hei.haapi.integration.test_data.GroupTestData.g2;
-import static school.hei.haapi.integration.test_data.MonitorTestData.monitorOfAxel;
-import static school.hei.haapi.integration.test_data.MonitorTestData.monitorOfTolojanahary;
-import static school.hei.haapi.integration.test_data.StudentResultOverviewTestData.promotionH;
-import static school.hei.haapi.integration.test_data.StudentTestData.axel;
-import static school.hei.haapi.integration.test_data.StudentTestData.tolojanahary;
-import static school.hei.haapi.integration.test_data.TeacherTestData.toky;
+import static school.hei.haapi.integration.conf.TestFiles.getMockedFile;
+import static school.hei.haapi.integration.conf.TestMocks.setUpS3Service;
+import static school.hei.haapi.integration.testData.CourseAssignmentTestData.createCourseAssignment;
+import static school.hei.haapi.integration.testData.CourseTestData.prog1;
+import static school.hei.haapi.integration.testData.CourseTestData.prog2;
+import static school.hei.haapi.integration.testData.ExamTestData.createExam;
+import static school.hei.haapi.integration.testData.GroupTestData.createGroupFlow;
+import static school.hei.haapi.integration.testData.GroupTestData.g1;
+import static school.hei.haapi.integration.testData.GroupTestData.g2;
+import static school.hei.haapi.integration.testData.MonitorTestData.monitorOfAxel;
+import static school.hei.haapi.integration.testData.MonitorTestData.monitorOfTolojanahary;
+import static school.hei.haapi.integration.testData.StudentResultOverviewTestData.promotionH;
+import static school.hei.haapi.integration.testData.StudentTestData.axel;
+import static school.hei.haapi.integration.testData.StudentTestData.tolojanahary;
+import static school.hei.haapi.integration.testData.TeacherTestData.toky;
 import static school.hei.haapi.model.dto.MonitorStudentLinkDto.Status.LINKED;
 
 import java.io.ByteArrayInputStream;
@@ -32,13 +29,10 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -132,9 +126,7 @@ public class GradeImportTest extends FacadeITMockedThirdParties {
 
   @BeforeEach
   void setUp() {
-    setUpCasdoor(casdoorAuthServiceMock, certificateLoaderMock);
-    setUpCognito(cognitoComponentMock);
-    setUpS3Service(fileService, student1());
+    setUpS3Service(fileService, studentAxel);
   }
 
   @Test
@@ -160,7 +152,6 @@ public class GradeImportTest extends FacadeITMockedThirdParties {
   }
 
   @Test
-  @Disabled
   void update_grade_via_excel_file_OK() throws IOException {
     when(promotionService.getAllStudentPromotions(any()))
         .thenReturn(new LinkedHashSet<>(Set.of(promotionH())));
@@ -189,8 +180,8 @@ public class GradeImportTest extends FacadeITMockedThirdParties {
     assertNotEquals(0, file.length);
 
     try (Workbook workbook = new XSSFWorkbook(new ByteArrayInputStream(file))) {
-      Sheet sheet = workbook.getSheetAt(0);
-      Row headerRow = sheet.getRow(0);
+      var sheet = workbook.getSheetAt(0);
+      var headerRow = sheet.getRow(0);
 
       assertEquals("ref", headerRow.getCell(0).getStringCellValue());
       assertEquals("score", headerRow.getCell(1).getStringCellValue());

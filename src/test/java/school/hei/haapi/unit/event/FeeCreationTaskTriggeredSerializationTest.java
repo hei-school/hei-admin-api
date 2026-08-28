@@ -3,8 +3,11 @@ package school.hei.haapi.unit.event;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static school.hei.haapi.endpoint.event.EventStack.EVENT_STACK_1;
 import static school.hei.haapi.endpoint.rest.model.FeeCategory.WORK_FEES;
 import static school.hei.haapi.endpoint.rest.model.FeeTypeEnum.TUITION;
+import static school.hei.haapi.endpoint.rest.model.JobHealth.SUCCEEDED;
+import static school.hei.haapi.endpoint.rest.model.JobProgression.FINISHED;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -100,8 +103,8 @@ class FeeCreationTaskTriggeredSerializationTest {
     var task = aTask();
     task.addStatus(
         TaskStatus.builder()
-            .progression(school.hei.haapi.endpoint.rest.model.JobProgression.FINISHED)
-            .health(school.hei.haapi.endpoint.rest.model.JobHealth.SUCCEEDED)
+            .progression(FINISHED)
+            .health(SUCCEEDED)
             .creationDatetime(java.time.Instant.now())
             .build());
 
@@ -113,7 +116,6 @@ class FeeCreationTaskTriggeredSerializationTest {
   @Test
   void event_is_dispatched_on_the_first_stack() {
     assertEquals(
-        school.hei.haapi.endpoint.event.EventStack.EVENT_STACK_1,
-        FeeCreationTaskTriggered.builder().task(aTask()).build().getEventStack());
+        EVENT_STACK_1, FeeCreationTaskTriggered.builder().task(aTask()).build().getEventStack());
   }
 }

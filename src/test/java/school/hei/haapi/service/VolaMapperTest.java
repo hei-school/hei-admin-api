@@ -6,6 +6,9 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static school.hei.haapi.endpoint.rest.model.MobileMoneyType.AIRTEL_MONEY;
 import static school.hei.haapi.endpoint.rest.model.MobileMoneyType.ORANGE_MONEY;
+import static school.hei.haapi.endpoint.rest.model.MpbsStatus.FAILED;
+import static school.hei.haapi.endpoint.rest.model.MpbsStatus.PENDING;
+import static school.hei.haapi.endpoint.rest.model.MpbsStatus.SUCCESS;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
@@ -14,10 +17,10 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import school.hei.haapi.endpoint.rest.mapper.VolaMapper;
-import school.hei.haapi.endpoint.rest.model.MobileMoneyType;
 import school.hei.haapi.model.Fee;
 import school.hei.haapi.model.User;
-import school.hei.haapi.model.mpbs.Mpbs;
+import school.hei.haapi.model.exception.UnsupportedPspTypeException;
+import school.hei.haapi.model.mpbs.MpbsStatusHistory;
 import school.hei.haapi.model.psp.vola.api.gen.client.model.Payment;
 import school.hei.haapi.model.psp.vola.api.gen.client.model.PspPayment;
 
@@ -32,23 +35,21 @@ class VolaMapperTest {
 
   @Test
   void toPspType_shouldReturnOrangeMoney_whenMobileMoneyTypeIsOrangeMoney() {
-    MobileMoneyType mobileMoneyType = ORANGE_MONEY;
+    var mobileMoneyType = ORANGE_MONEY;
     var result = volaMapper.toPspType(mobileMoneyType);
     assertEquals(PspPayment.PspTypeEnum.ORANGE_MONEY, result);
   }
 
   @Test
   void toPspType_shouldThrowRuntimeException_whenMobileMoneyTypeIsNotSupported() {
-    MobileMoneyType mobileMoneyType = AIRTEL_MONEY;
-    assertThrows(
-        school.hei.haapi.model.exception.UnsupportedPspTypeException.class,
-        () -> volaMapper.toPspType(mobileMoneyType));
+    var mobileMoneyType = AIRTEL_MONEY;
+    assertThrows(UnsupportedPspTypeException.class, () -> volaMapper.toPspType(mobileMoneyType));
   }
 
   @Test
   void toMobilePaymentType_shouldReturnOrangeMoney_whenPspTypeIsOrangeMoney() {
     var pspType = PspPayment.PspTypeEnum.ORANGE_MONEY;
-    MobileMoneyType result = volaMapper.toMobilePaymentType(pspType);
+    var result = volaMapper.toMobilePaymentType(pspType);
     assertEquals(ORANGE_MONEY, result);
   }
 
@@ -56,7 +57,7 @@ class VolaMapperTest {
   void toMpbs_shouldMapCorrectly_whenVolaPaymentIsConfirmed() {
     var student = Mockito.mock(User.class);
     var fee = Mockito.mock(Fee.class);
-    var statusHistory = List.of(new school.hei.haapi.model.mpbs.MpbsStatusHistory());
+    var statusHistory = List.of(new MpbsStatusHistory());
 
     var verificationInstant = Instant.now().truncatedTo(ChronoUnit.MILLIS);
     var pspPayment =
@@ -94,7 +95,7 @@ class VolaMapperTest {
         volaPayment.getLastPspVerificationInstant().toInstant(),
         result.getLastVerificationDatetime());
     assertEquals(ORANGE_MONEY, result.getMobileMoneyType());
-    assertEquals(school.hei.haapi.endpoint.rest.model.MpbsStatus.SUCCESS, result.getStatus());
+    assertEquals(SUCCESS, result.getStatus());
     assertEquals(volaPayment.getCreationInstant().toInstant(), result.getCreationDatetime());
     assertEquals(statusHistory, result.getStatusHistory());
   }
@@ -126,10 +127,10 @@ class VolaMapperTest {
             .verificationStatus(Payment.VerificationStatusEnum.FAILED)
             .build();
 
-    Mpbs result = volaMapper.toMpbs(volaPayment, "mpbsId", student, fee, List.of());
+    var result = volaMapper.toMpbs(volaPayment, "mpbsId", student, fee, List.of());
 
     assertNotNull(result);
-    assertEquals(school.hei.haapi.endpoint.rest.model.MpbsStatus.FAILED, result.getStatus());
+    assertEquals(FAILED, result.getStatus());
     assertNull(result.getSuccessfullyVerifiedOn());
     assertNull(result.getPspOwnDatetimeVerification());
   }
@@ -161,10 +162,10 @@ class VolaMapperTest {
             .verificationStatus(Payment.VerificationStatusEnum.VERIFYING)
             .build();
 
-    Mpbs result = volaMapper.toMpbs(volaPayment, "mpbsId", student, fee, List.of());
+    var result = volaMapper.toMpbs(volaPayment, "mpbsId", student, fee, List.of());
 
     assertNotNull(result);
-    assertEquals(school.hei.haapi.endpoint.rest.model.MpbsStatus.PENDING, result.getStatus());
+    assertEquals(PENDING, result.getStatus());
     assertNull(result.getSuccessfullyVerifiedOn());
     assertNull(result.getPspOwnDatetimeVerification());
   }

@@ -7,7 +7,7 @@ import java.io.IOException;
 import java.nio.file.Path;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
-import school.hei.haapi.integration.conf.TestUtils;
+import school.hei.haapi.integration.conf.TestFiles;
 import school.hei.haapi.service.utils.excel.ExcelParser;
 import school.hei.haapi.service.utils.excel.exceptions.ClassInstantiationException;
 import school.hei.haapi.service.utils.excel.exceptions.FieldNotFoundException;
@@ -17,7 +17,7 @@ public class ExcelParserTest {
 
   @Test()
   void instantiate_class_without_no_args_constructor_ko() throws IOException {
-    var dummyFile = TestUtils.getMockedFile("dummy-excel", ".xlsx");
+    var dummyFile = TestFiles.getMockedFile("dummy-excel", ".xlsx");
     var subject =
         new ExcelParser<>(
             ClassWithoutNoArgsConstructor.class, ClassWithoutNoArgsConstructor.getExcelCellMap());
