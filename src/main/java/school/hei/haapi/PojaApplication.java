@@ -5,7 +5,6 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
 @PojaGenerated
-@SuppressWarnings("all")
 public class PojaApplication {
 
   public static void main(String[] args) {

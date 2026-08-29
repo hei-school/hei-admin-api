@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.time.Duration;
+import school.hei.haapi.PojaApplication;
 import school.hei.haapi.PojaGenerated;
 
 @PojaGenerated
@@ -22,9 +23,7 @@ public class LambdaHandler implements RequestStreamHandler {
 
   static {
     try {
-      handler =
-          SpringBootLambdaContainerHandler.getHttpApiV2ProxyHandler(
-              school.hei.haapi.PojaApplication.class);
+      handler = SpringBootLambdaContainerHandler.getHttpApiV2ProxyHandler(PojaApplication.class);
     } catch (ContainerInitializationException e) {
       throw new RuntimeException("Initialization of Spring Boot Application failed", e);
     }
