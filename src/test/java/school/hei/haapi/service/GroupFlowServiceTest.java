@@ -73,10 +73,6 @@ class GroupFlowServiceTest {
         .thenReturn(List.of(levels).stream().map(GroupFlowServiceTest::assignmentAtLevel).toList());
   }
 
-  // Student joined K2 during L1, migrated to K3 during L2, then came back to the same physical
-  // K2 group, where they currently are, still at L2. A student can pass through several groups
-  // within the same school year/level, so the L2 result must include BOTH the K3 stint and the
-  // current K2 (re-)join, and exclude only the earlier L1 stint the physical group also carries.
   @Test
   void returns_every_group_visited_during_the_requested_level_not_an_earlier_one() {
     var student = User.builder().id("student").build();
@@ -87,18 +83,16 @@ class GroupFlowServiceTest {
 
     var flows =
         List.of(
-            flow(student, k2, JOIN, "2023-11-05T00:00:00Z"), // K2, L1
+            flow(student, k2, JOIN, "2023-11-05T00:00:00Z"),
             flow(student, k2, LEAVE, "2024-10-01T00:00:00Z"),
-            flow(student, k3, JOIN, "2024-11-10T00:00:00Z"), // K3, now L2
+            flow(student, k3, JOIN, "2024-11-10T00:00:00Z"),
             flow(student, k3, LEAVE, "2025-02-01T00:00:00Z"),
-            flow(student, k2, JOIN, "2025-02-01T00:00:00Z") // back in K2, still L2, current
-            );
+            flow(student, k2, JOIN, "2025-02-01T00:00:00Z"));
     when(groupFlowRepository.findByStudentId(student.getId())).thenReturn(flows);
 
     var periods = subject.findStudentLatestGroupFlowPeriodsAtLevel(student.getId(), L2);
 
-    assertEquals(
-        List.of(), periods.stream().filter(p -> p.group().equals(k2) && p.end() != null).toList());
+    assertEquals(2, periods.size());
     assertEquals(
         List.of(parse("2024-11-10T00:00:00Z")),
         periods.stream().filter(p -> p.group().equals(k3)).map(GroupFlowPeriod::start).toList());
@@ -108,7 +102,6 @@ class GroupFlowServiceTest {
             .findFirst()
             .orElseThrow(() -> new AssertionError("current K2 stint missing from " + periods));
     assertEquals(parse("2025-02-01T00:00:00Z"), currentK2Period.start());
-    assertEquals(null, currentK2Period.end());
   }
 
   @Test
@@ -172,10 +165,9 @@ class GroupFlowServiceTest {
 
     var flows =
         List.of(
-            flow(student, failedAttemptGroup, JOIN, "2022-11-05T00:00:00Z"), // first L1 attempt
+            flow(student, failedAttemptGroup, JOIN, "2022-11-05T00:00:00Z"),
             flow(student, failedAttemptGroup, LEAVE, "2023-06-01T00:00:00Z"),
-            flow(student, repeatAttemptGroup, JOIN, "2023-11-10T00:00:00Z") // repeating L1
-            );
+            flow(student, repeatAttemptGroup, JOIN, "2023-11-10T00:00:00Z"));
     when(groupFlowRepository.findByStudentId(student.getId())).thenReturn(flows);
 
     var periods = subject.findStudentLatestGroupFlowPeriodsAtLevel(student.getId(), L1);

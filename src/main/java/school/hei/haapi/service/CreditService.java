@@ -44,7 +44,7 @@ public class CreditService {
         PageRequest.of(page.getValue() - 1, pageSize.getValue(), Sort.by(DESC, "creationDatetime"));
     var credit = getCreditByStudentId(studentId);
     if (credit.isEmpty()) {
-      throw new BadRequestException("The student doesn't have a credit");
+      return List.of();
     }
     return transactionRepository.findTransactionsByCredit_Id(credit.get().getId(), pageable);
   }
