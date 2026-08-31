@@ -46,7 +46,7 @@ jobs:
             app_env_deployment_id_value="null"
           fi
 
-          response=$(curl --fail -X POST "https://2x55tqa4adzyc7hnb6njpw2nyu0kedtk.lambda-url.eu-west-3.on.aws/gh-repos/${{ github.repository }}/github-workflow-state" \
+          response=$(curl --fail -X POST "https://2egip6ihacjr6auyxa3gtmn4tu0pgaaj.lambda-url.eu-west-3.on.aws/gh-repos/${{ github.repository }}/github-workflow-state" \
             -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
             -H "Content-Type: application/json" \
             -d "$(jq -n \
@@ -80,7 +80,7 @@ jobs:
         run: |
           chmod +x ./gradlew
           chmod +x .shell/publish_gen_to_maven_local.sh
-          response=$(curl -X GET "https://2x55tqa4adzyc7hnb6njpw2nyu0kedtk.lambda-url.eu-west-3.on.aws/gh-repos/${{ github.repository }}/upload-build-uri?environment_type=$(echo "${{ github.ref_name }}" | tr '[:lower:]' '[:upper:]')" -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" -H "Accept: application/json")
+          response=$(curl -X GET "https://2egip6ihacjr6auyxa3gtmn4tu0pgaaj.lambda-url.eu-west-3.on.aws/gh-repos/${{ github.repository }}/upload-build-uri?environment_type=$(echo "${{ github.ref_name }}" | tr '[:lower:]' '[:upper:]')" -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" -H "Accept: application/json")
           echo "upload_build_file_uri=$(echo $response | jq -r '.uri')" >> $GITHUB_ENV
           echo "to_upload_filename=$(echo $response | jq -r '.filename')" >> $GITHUB_ENV
           curl -X GET -o template.yml "$(echo $response | jq -r '.build_template_file_uri')"
@@ -124,7 +124,7 @@ jobs:
           if [ -z "$input_conf_id" ]; then
             input_conf_id="null"
           fi
-          response=$(curl --fail -X PUT "https://2x55tqa4adzyc7hnb6njpw2nyu0kedtk.lambda-url.eu-west-3.on.aws/gh-repos/${{ github.repository }}/env-deploys?environment_type=$(echo "${{ github.ref_name }}" | tr '[:lower:]' '[:upper:]')" \
+          response=$(curl --fail -X PUT "https://2egip6ihacjr6auyxa3gtmn4tu0pgaaj.lambda-url.eu-west-3.on.aws/gh-repos/${{ github.repository }}/env-deploys?environment_type=$(echo "${{ github.ref_name }}" | tr '[:lower:]' '[:upper:]')" \
             -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
             -H "Content-Type: application/json" \
             -d "$(jq -n \
@@ -174,7 +174,7 @@ jobs:
             app_env_deployment_id_value=null
           fi
 
-          response=$(curl --fail -X POST "https://2x55tqa4adzyc7hnb6njpw2nyu0kedtk.lambda-url.eu-west-3.on.aws/gh-repos/${{ github.repository }}/github-workflow-state" \
+          response=$(curl --fail -X POST "https://2egip6ihacjr6auyxa3gtmn4tu0pgaaj.lambda-url.eu-west-3.on.aws/gh-repos/${{ github.repository }}/github-workflow-state" \
             -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
             -H "Content-Type: application/json" \
             -d "$(jq -n \

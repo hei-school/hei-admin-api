@@ -1,12 +1,12 @@
 package school.hei.haapi.endpoint.rest.mapper;
 
 import java.util.List;
+import java.util.Optional;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 import school.hei.haapi.endpoint.rest.model.Credit;
 import school.hei.haapi.endpoint.rest.model.CreditMovement;
 import school.hei.haapi.endpoint.rest.model.CreditTransaction;
-import school.hei.haapi.model.exception.NotFoundException;
 
 @Component
 @AllArgsConstructor
@@ -16,13 +16,14 @@ public class CreditMapper {
   private final PaymentMapper paymentMapper;
 
   public Credit toRest(school.hei.haapi.model.Credit credit) {
-    if (credit == null) {
-      throw new NotFoundException("Student doesn't have credit yet.");
-    }
-    return new Credit()
-        .id(credit.getId())
-        .student(userMapper.toIdentifier(credit.getStudent()))
-        .amount(credit.getAmount());
+    return Optional.ofNullable(credit)
+        .map(
+            creditToUse ->
+                new Credit()
+                    .id(creditToUse.getId())
+                    .student(userMapper.toIdentifier(creditToUse.getStudent()))
+                    .amount(creditToUse.getAmount()))
+        .orElseGet(Credit::new);
   }
 
   public CreditTransaction toRest(school.hei.haapi.model.CreditTransaction creditTransaction) {
