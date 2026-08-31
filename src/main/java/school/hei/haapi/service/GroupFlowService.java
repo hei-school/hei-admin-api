@@ -1,5 +1,6 @@
 package school.hei.haapi.service;
 
+import static java.time.Instant.now;
 import static java.util.Comparator.comparing;
 import static java.util.regex.Pattern.compile;
 import static school.hei.haapi.model.GroupFlow.GroupFlowType.JOIN;
@@ -84,7 +85,7 @@ public class GroupFlowService {
     return GroupFlow.builder()
         .student(findUserById(toMap.getStudentId()))
         .group(findGroupById(toMap.getGroupId()))
-        .flowDatetime(Instant.now())
+        .flowDatetime(now())
         .groupFlowType(GroupFlow.GroupFlowType.fromValue(toMap.getMoveType().getValue()))
         .build();
   }
@@ -131,7 +132,7 @@ public class GroupFlowService {
       }
     }
     if (currentStart != null) {
-      periods.add(new GroupFlowPeriod(group, currentStart, null));
+      periods.add(new GroupFlowPeriod(group, currentStart, now()));
     }
     return periods;
   }
