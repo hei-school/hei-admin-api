@@ -6,7 +6,6 @@ import static school.hei.haapi.model.GroupFlow.GroupFlowType.JOIN;
 import static school.hei.haapi.model.GroupFlow.GroupFlowType.LEAVE;
 
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -22,7 +21,6 @@ import school.hei.haapi.model.User;
 import school.hei.haapi.model.dto.GroupFlowPeriod;
 import school.hei.haapi.model.exception.NotFoundException;
 import school.hei.haapi.model.validator.GroupFlowValidator;
-import school.hei.haapi.repository.CourseAssignmentRepository;
 import school.hei.haapi.repository.GroupFlowRepository;
 import school.hei.haapi.repository.GroupRepository;
 import school.hei.haapi.repository.UserRepository;
@@ -35,7 +33,6 @@ public class GroupFlowService {
   private final GroupRepository groupRepository;
   private final UserRepository userRepository;
   private final GroupFlowValidator validator;
-  private final CourseAssignmentRepository courseAssignmentRepository;
   private static final Pattern GROUP_TRAILING_DIGITS = compile("\\d+$");
 
   private void logger(GroupFlow studentGroupFlow) {
@@ -91,49 +88,29 @@ public class GroupFlowService {
 
   public List<GroupFlowPeriod> findStudentLatestGroupFlowPeriodsAtLevel(
       String studentId, StudentLevel level) {
-    var groupFlows = repository.findByStudentId(studentId);
+    var groupFlows = repository.findByFlowTypeAndStudentAndLevel(studentId, level);
     var groupFlowsByGroup = groupFlows.stream().collect(Collectors.groupingBy(GroupFlow::getGroup));
     var groupFlowPeriods =
         groupFlowsByGroup.entrySet().stream()
-            .flatMap(entry -> toGroupFlowPeriods(entry.getKey(), entry.getValue()).stream())
-            .filter(groupFlowPeriod -> isAtLevel(groupFlowPeriod, level))
+            .map(entry -> toGroupFlowPeriod(entry.getKey(), entry.getValue()))
             .toList();
     return findLatestGroupFlowPeriods(groupFlowPeriods);
   }
 
-  private boolean isAtLevel(GroupFlowPeriod groupFlowPeriod, StudentLevel level) {
-    var group = groupFlowPeriod.group();
-    var hasAssignmentAtLevel =
-        courseAssignmentRepository.findAllByGroupId(group.getId()).stream()
-            .anyMatch(
-                courseAssignment -> level.equals(courseAssignment.getCourse().getStudentLevel()));
-    if (!hasAssignmentAtLevel) {
-      return false;
-    }
-
-    var promotion = group.getPromotion();
-    if (promotion == null) {
-      return true;
-    }
-    return promotion.findLevelAt(groupFlowPeriod.start()).map(level::equals).orElse(true);
-  }
-
-  private List<GroupFlowPeriod> toGroupFlowPeriods(Group group, List<GroupFlow> groupFlows) {
-    var sortedFlows = groupFlows.stream().sorted(comparing(GroupFlow::getFlowDatetime)).toList();
-    var periods = new ArrayList<GroupFlowPeriod>();
-    Instant currentStart = null;
-    for (var groupFlow : sortedFlows) {
-      if (JOIN.equals(groupFlow.getGroupFlowType())) {
-        currentStart = groupFlow.getFlowDatetime();
-      } else if (LEAVE.equals(groupFlow.getGroupFlowType()) && currentStart != null) {
-        periods.add(new GroupFlowPeriod(group, currentStart, groupFlow.getFlowDatetime()));
-        currentStart = null;
-      }
-    }
-    if (currentStart != null) {
-      periods.add(new GroupFlowPeriod(group, currentStart, null));
-    }
-    return periods;
+  private GroupFlowPeriod toGroupFlowPeriod(Group group, List<GroupFlow> groupFlows) {
+    var start =
+        groupFlows.stream()
+            .filter(groupFlow -> JOIN.equals(groupFlow.getGroupFlowType()))
+            .map(GroupFlow::getFlowDatetime)
+            .min(Instant::compareTo)
+            .orElse(null);
+    var end =
+        groupFlows.stream()
+            .filter(groupFlow -> LEAVE.equals(groupFlow.getGroupFlowType()))
+            .map(GroupFlow::getFlowDatetime)
+            .max(Instant::compareTo)
+            .orElse(null);
+    return new GroupFlowPeriod(group, start, end);
   }
 
   private List<GroupFlowPeriod> findLatestGroupFlowPeriods(List<GroupFlowPeriod> groupFlowPeriods) {
@@ -141,23 +118,22 @@ public class GroupFlowService {
       return List.of();
     }
 
-    var latestPeriod =
-        groupFlowPeriods.stream().max(comparing(GroupFlowPeriod::start)).orElseThrow();
+    var latestPromotion = latestPromotion(groupFlowPeriods);
 
     return groupFlowPeriods.stream()
-        .filter(groupFlowPeriod -> belongsToSameCohortRun(groupFlowPeriod, latestPeriod))
+        .filter(
+            groupFlowPeriod ->
+                extractGroupPromotion(groupFlowPeriod.group().getRef()).equals(latestPromotion))
         .toList();
   }
 
-  private boolean belongsToSameCohortRun(
-      GroupFlowPeriod groupFlowPeriod, GroupFlowPeriod latestPeriod) {
-    var promotion = groupFlowPeriod.group().getPromotion();
-    var latestPromotion = latestPeriod.group().getPromotion();
-    if (promotion != null && latestPromotion != null) {
-      return promotion.getId().equals(latestPromotion.getId());
-    }
-    return extractGroupPromotion(groupFlowPeriod.group().getRef())
-        .equals(extractGroupPromotion(latestPeriod.group().getRef()));
+  private String latestPromotion(List<GroupFlowPeriod> groupFlowPeriods) {
+    return extractGroupPromotion(
+        groupFlowPeriods.stream()
+            .max(comparing(GroupFlowPeriod::start))
+            .orElseThrow()
+            .group()
+            .getRef());
   }
 
   private String extractGroupPromotion(String groupRef) {
