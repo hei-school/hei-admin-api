@@ -104,19 +104,22 @@ public class GroupFlowService {
 
   private boolean isAtLevel(GroupFlowPeriod groupFlowPeriod, StudentLevel level) {
     var group = groupFlowPeriod.group();
-    var hasAssignmentAtLevel =
+    var assignedLevels =
         courseAssignmentRepository.findAllByGroupId(group.getId()).stream()
-            .anyMatch(
-                courseAssignment -> level.equals(courseAssignment.getCourse().getStudentLevel()));
-    if (!hasAssignmentAtLevel) {
+            .map(courseAssignment -> courseAssignment.getCourse().getStudentLevel())
+            .collect(Collectors.toSet());
+    if (!assignedLevels.contains(level)) {
       return false;
+    }
+    if (assignedLevels.size() == 1) {
+      return true;
     }
 
     var promotion = group.getPromotion();
     if (promotion == null) {
       return true;
     }
-    return promotion.findLevelAt(groupFlowPeriod.start()).map(level::equals).orElse(true);
+    return promotion.hasLevelDuring(level, groupFlowPeriod.start(), groupFlowPeriod.end());
   }
 
   private List<GroupFlowPeriod> toGroupFlowPeriods(Group group, List<GroupFlow> groupFlows) {

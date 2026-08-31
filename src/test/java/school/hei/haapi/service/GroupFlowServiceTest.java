@@ -7,6 +7,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static school.hei.haapi.endpoint.rest.model.StudentLevel.L1;
 import static school.hei.haapi.endpoint.rest.model.StudentLevel.L2;
+import static school.hei.haapi.endpoint.rest.model.StudentLevel.L3;
 import static school.hei.haapi.model.GroupFlow.GroupFlowType.JOIN;
 import static school.hei.haapi.model.GroupFlow.GroupFlowType.LEAVE;
 
@@ -197,6 +198,61 @@ class GroupFlowServiceTest {
     assertEquals(
         List.of(h1, k2),
         periods.stream().map(GroupFlowPeriod::group).sorted(comparing(Group::getRef)).toList());
+  }
+
+  @Test
+  void resolves_every_level_for_a_student_who_never_changed_group_across_the_whole_cycle() {
+    var student = User.builder().id("student").build();
+    var group = k2();
+    groupHasAssignmentsAtLevels(group, L1, L2, L3);
+
+    var flows =
+        List.of(
+            flow(student, group, JOIN, "2023-11-05T00:00:00Z"),
+            flow(student, group, LEAVE, "2026-11-01T00:00:00Z"));
+    when(groupFlowRepository.findByStudentId(student.getId())).thenReturn(flows);
+
+    for (var level : List.of(L1, L2, L3)) {
+      var periods = subject.findStudentLatestGroupFlowPeriodsAtLevel(student.getId(), level);
+      assertEquals(1, periods.size(), "expected a period for " + level);
+      assertEquals(group, periods.getFirst().group());
+    }
+  }
+
+  @Test
+  void
+      keeps_the_validated_repeat_stint_even_when_its_promotion_calendar_still_expects_an_earlier_level() {
+    var student = User.builder().id("student").build();
+    var failedAttemptPromotion =
+        Promotion.builder()
+            .id("promo-2022")
+            .startDatetime(parse("2022-11-01T00:00:00Z"))
+            .cycleLevel(CycleLevel.BACHELOR)
+            .build();
+    var repeatGroupPromotion =
+        Promotion.builder()
+            .id("promo-2024")
+            .startDatetime(parse("2024-11-01T00:00:00Z"))
+            .cycleLevel(CycleLevel.BACHELOR)
+            .build();
+    var failedAttemptGroup =
+        Group.builder().id("h").ref("H").promotion(failedAttemptPromotion).build();
+    var repeatGroup = Group.builder().id("j").ref("J").promotion(repeatGroupPromotion).build();
+    groupHasAssignmentsAtLevels(failedAttemptGroup, L2);
+    groupHasAssignmentsAtLevels(repeatGroup, L2);
+
+    var flows =
+        List.of(
+            flow(student, failedAttemptGroup, JOIN, "2023-11-05T00:00:00Z"),
+            flow(student, failedAttemptGroup, LEAVE, "2024-08-01T00:00:00Z"),
+            flow(student, repeatGroup, JOIN, "2024-11-10T00:00:00Z"));
+    when(groupFlowRepository.findByStudentId(student.getId())).thenReturn(flows);
+
+    var periods = subject.findStudentLatestGroupFlowPeriodsAtLevel(student.getId(), L2);
+
+    assertEquals(1, periods.size());
+    assertEquals(repeatGroup, periods.getFirst().group());
+    assertEquals(parse("2024-11-10T00:00:00Z"), periods.getFirst().start());
   }
 
   @Test
