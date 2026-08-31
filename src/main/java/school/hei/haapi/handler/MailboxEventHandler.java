@@ -17,6 +17,7 @@ import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.SpringApplication;
 import org.springframework.context.ConfigurableApplicationContext;
+import school.hei.haapi.PojaApplication;
 import school.hei.haapi.PojaGenerated;
 import school.hei.haapi.endpoint.EndpointConf;
 import school.hei.haapi.endpoint.event.EventConf;
@@ -79,7 +80,7 @@ public class MailboxEventHandler implements RequestHandler<SQSEvent, String> {
   }
 
   private ConfigurableApplicationContext applicationContext(String... args) {
-    SpringApplication application = new SpringApplication(school.hei.haapi.PojaApplication.class);
+    SpringApplication application = new SpringApplication(PojaApplication.class);
     application.setDefaultProperties(
         Map.of(
             "spring.flyway.enabled", "false", "server.port", SPRING_SERVER_PORT_FOR_RANDOM_VALUE));
