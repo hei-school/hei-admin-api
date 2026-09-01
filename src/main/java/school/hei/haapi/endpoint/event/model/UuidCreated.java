@@ -11,6 +11,7 @@ import lombok.ToString;
 import school.hei.haapi.PojaGenerated;
 
 @PojaGenerated
+@SuppressWarnings("all")
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder(toBuilder = true)
