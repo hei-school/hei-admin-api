@@ -11,11 +11,14 @@ import static school.hei.haapi.endpoint.rest.model.FeeCategory.L2;
 import static school.hei.haapi.endpoint.rest.model.FeeCategory.L3;
 import static school.hei.haapi.endpoint.rest.model.FeeCategory.WORK_FEES;
 import static school.hei.haapi.endpoint.rest.model.FeeFrequency.MONTHLY;
+import static school.hei.haapi.endpoint.rest.model.FeeFrequency.UNKNOWN;
 import static school.hei.haapi.endpoint.rest.model.FeeFrequency.YEARLY;
 import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.LATE;
 import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.PAID;
 import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.PENDING;
 import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.UNPAID;
+import static school.hei.haapi.endpoint.rest.model.FeeTypeEnum.RETAKE_EXAM_COSTS;
+import static school.hei.haapi.endpoint.rest.model.FeeTypeEnum.STUDENT_INSURANCE;
 import static school.hei.haapi.endpoint.rest.model.FeeTypeEnum.TUITION;
 import static school.hei.haapi.integration.conf.TestAuth.tokenFor;
 import static school.hei.haapi.integration.conf.TestMocks.setUpS3Service;
@@ -145,6 +148,9 @@ class AdvancedFeeStatsServiceTest extends FacadeITMockedThirdParties {
                 .retakeExamFirstGradeCount(0)
                 .retakeExamSecondGradeCount(0)
                 .retakeExamThirdGradeCount(0)
+                .studentInsuranceFirstGradeCount(0)
+                .studentInsuranceSecondGradeCount(0)
+                .studentInsuranceThirdGradeCount(0)
                 .workStudyCount(0)
                 .monthlyCount(2)
                 .yearlyCount(0)
@@ -376,6 +382,138 @@ class AdvancedFeeStatsServiceTest extends FacadeITMockedThirdParties {
             .frequency(MONTHLY)
             .type(TUITION)
             .statusHistories(unpaidStatusHistory)
+            .build(),
+        Fee.builder()
+            .id("16")
+            .creationDatetime(Instant.parse("2025-04-11T00:00:00.00Z"))
+            .category(L1)
+            .status(UNPAID)
+            .mobilePayments(List.of())
+            .dueDatetime(Instant.parse("2025-07-31T00:00:00.00Z"))
+            .frequency(UNKNOWN)
+            .type(RETAKE_EXAM_COSTS)
+            .statusHistories(unpaidStatusHistory)
+            .build(),
+        Fee.builder()
+            .id("17")
+            .creationDatetime(Instant.parse("2025-04-11T00:00:00.00Z"))
+            .category(L2)
+            .status(UNPAID)
+            .mobilePayments(List.of())
+            .dueDatetime(Instant.parse("2025-07-31T00:00:00.00Z"))
+            .frequency(UNKNOWN)
+            .type(RETAKE_EXAM_COSTS)
+            .statusHistories(unpaidStatusHistory)
+            .build(),
+        Fee.builder()
+            .id("18")
+            .creationDatetime(Instant.parse("2025-04-11T00:00:00.00Z"))
+            .category(L2)
+            .status(UNPAID)
+            .mobilePayments(List.of())
+            .dueDatetime(Instant.parse("2025-07-31T00:00:00.00Z"))
+            .frequency(UNKNOWN)
+            .type(RETAKE_EXAM_COSTS)
+            .statusHistories(unpaidStatusHistory)
+            .build(),
+        Fee.builder()
+            .id("19")
+            .creationDatetime(Instant.parse("2025-04-11T00:00:00.00Z"))
+            .category(L3)
+            .status(UNPAID)
+            .mobilePayments(List.of())
+            .dueDatetime(Instant.parse("2025-07-31T00:00:00.00Z"))
+            .frequency(UNKNOWN)
+            .type(RETAKE_EXAM_COSTS)
+            .statusHistories(unpaidStatusHistory)
+            .build(),
+        Fee.builder()
+            .id("20")
+            .creationDatetime(Instant.parse("2025-04-11T00:00:00.00Z"))
+            .category(L1)
+            .status(UNPAID)
+            .mobilePayments(List.of())
+            .dueDatetime(Instant.parse("2025-07-31T00:00:00.00Z"))
+            .frequency(MONTHLY)
+            .type(STUDENT_INSURANCE)
+            .statusHistories(unpaidStatusHistory)
+            .build(),
+        Fee.builder()
+            .id("21")
+            .creationDatetime(Instant.parse("2025-04-11T00:00:00.00Z"))
+            .category(L2)
+            .status(UNPAID)
+            .mobilePayments(List.of())
+            .dueDatetime(Instant.parse("2025-07-31T00:00:00.00Z"))
+            .frequency(MONTHLY)
+            .type(STUDENT_INSURANCE)
+            .statusHistories(unpaidStatusHistory)
+            .build(),
+        Fee.builder()
+            .id("22")
+            .creationDatetime(Instant.parse("2025-04-11T00:00:00.00Z"))
+            .category(L3)
+            .status(UNPAID)
+            .mobilePayments(List.of())
+            .dueDatetime(Instant.parse("2025-07-31T00:00:00.00Z"))
+            .frequency(YEARLY)
+            .type(STUDENT_INSURANCE)
+            .statusHistories(unpaidStatusHistory)
+            .build(),
+        Fee.builder()
+            .id("23")
+            .creationDatetime(Instant.parse("2025-04-11T00:00:00.00Z"))
+            .category(L3)
+            .status(UNPAID)
+            .mobilePayments(List.of())
+            .dueDatetime(Instant.parse("2025-07-31T00:00:00.00Z"))
+            .frequency(UNKNOWN)
+            .type(STUDENT_INSURANCE)
+            .statusHistories(unpaidStatusHistory)
+            .build(),
+        Fee.builder()
+            .id("24")
+            .creationDatetime(Instant.parse("2025-04-11T00:00:00.00Z"))
+            .category(L1)
+            .status(PAID)
+            .mobilePayments(List.of())
+            .dueDatetime(Instant.parse("2025-04-30T00:00:00.00Z"))
+            .frequency(UNKNOWN)
+            .type(STUDENT_INSURANCE)
+            .statusHistories(paidStatusHistory)
+            .build(),
+        Fee.builder()
+            .id("25")
+            .creationDatetime(Instant.parse("2025-04-11T00:00:00.00Z"))
+            .category(L3)
+            .status(PAID)
+            .mobilePayments(List.of())
+            .dueDatetime(Instant.parse("2025-04-30T00:00:00.00Z"))
+            .frequency(UNKNOWN)
+            .type(RETAKE_EXAM_COSTS)
+            .statusHistories(paidStatusHistory)
+            .build(),
+        Fee.builder()
+            .id("26")
+            .creationDatetime(Instant.parse("2025-04-11T00:00:00.00Z"))
+            .category(L2)
+            .status(LATE)
+            .mobilePayments(List.of())
+            .dueDatetime(Instant.parse("2025-05-31T00:00:00.00Z"))
+            .frequency(UNKNOWN)
+            .type(STUDENT_INSURANCE)
+            .statusHistories(lateStatusHistory)
+            .build(),
+        Fee.builder()
+            .id("27")
+            .creationDatetime(Instant.parse("2025-04-11T00:00:00.00Z"))
+            .category(L1)
+            .status(PENDING)
+            .mobilePayments(List.of())
+            .dueDatetime(Instant.parse("2025-06-30T00:00:00.00Z"))
+            .frequency(UNKNOWN)
+            .type(RETAKE_EXAM_COSTS)
+            .statusHistories(pendingStatusHistory)
             .build());
   }
 }
