@@ -1765,11 +1765,13 @@ components:
       allOf:
         - $ref: "#/components/schemas/BaseFeesStats"
         - $ref: "#/components/schemas/RetakeExamFeesCount"
+        - $ref: "#/components/schemas/StudentInsuranceFeeCount"
     PaidFeesStats:
       type: object
       allOf:
         - $ref: "#/components/schemas/BaseFeesStats"
         - $ref: "#/components/schemas/RetakeExamFeesCount"
+        - $ref: "#/components/schemas/StudentInsuranceFeeCount"
       properties:
         mobile_money:
           type: number
@@ -1782,16 +1784,19 @@ components:
       allOf:
         - $ref: "#/components/schemas/BaseFeesStats"
         - $ref: "#/components/schemas/RetakeExamFeesCount"
+        - $ref: "#/components/schemas/StudentInsuranceFeeCount"
     LateFeesStats:
       type: object
       allOf:
         - $ref: "#/components/schemas/BaseFeesStats"
         - $ref: "#/components/schemas/RetakeExamFeesCount"
+        - $ref: "#/components/schemas/StudentInsuranceFeeCount"
     UnpaidFeesStats:
       type: object
       allOf:
         - $ref: "#/components/schemas/BaseFeesStats"
         - $ref: "#/components/schemas/RetakeExamFeesCount"
+        - $ref: "#/components/schemas/StudentInsuranceFeeCount"
     RetakeExamFeesCount:
       type: object
       properties:
@@ -1802,6 +1807,18 @@ components:
           type: integer
           format: int64
         retakeExam_third_grade_count:
+          type: integer
+          format: int64
+    StudentInsuranceFeeCount:
+      type: object
+      properties:
+        student_insurance_first_grade_count:
+          type: integer
+          format: int64
+        student_insurance_second_grade_count:
+          type: integer
+          format: int64
+        student_insurance_third_grade_count:
           type: integer
           format: int64
     FeesStatistics:
