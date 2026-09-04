@@ -16,13 +16,16 @@ import school.hei.haapi.model.CreditMovement;
 import school.hei.haapi.model.Fee;
 import school.hei.haapi.model.User;
 import school.hei.haapi.repository.CreditRepository;
+import school.hei.haapi.repository.PaymentRepository;
 import school.hei.haapi.repository.TransactionRepository;
 import school.hei.haapi.service.CreditService;
 
 class CreditServiceTest {
   CreditRepository creditRepositoryMock = mock();
   TransactionRepository transactionRepositoryMock = mock();
-  CreditService subject = new CreditService(creditRepositoryMock, transactionRepositoryMock);
+  PaymentRepository paymentRepositoryMock = mock();
+  CreditService subject =
+      new CreditService(creditRepositoryMock, transactionRepositoryMock, paymentRepositoryMock);
 
   @Test
   void transfer_overpayment_creates_transaction_when_none_exists() {
