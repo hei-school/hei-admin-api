@@ -2,6 +2,7 @@ package school.hei.haapi.endpoint.rest.controller;
 
 import static java.util.stream.Collectors.toUnmodifiableList;
 import static org.springframework.http.MediaType.MULTIPART_FORM_DATA_VALUE;
+import static school.hei.haapi.model.User.Status.ENABLED;
 
 import java.util.List;
 import lombok.AllArgsConstructor;
@@ -60,8 +61,8 @@ public class TeacherController {
       @RequestParam(value = "last_name", required = false, defaultValue = "") String lastName,
       @RequestParam(name = "status", required = false) EnableStatus status,
       @RequestParam(name = "sex", required = false) Sex sex) {
-    User.Sex domainSex = sex != null ? sexEnumMapper.toDomainSexEnum(sex) : null;
-    User.Status domainStatus = status != null ? statusEnumMapper.toDomainStatus(status) : null;
+    var domainSex = sex != null ? sexEnumMapper.toDomainSexEnum(sex) : null;
+    var domainStatus = status != null ? statusEnumMapper.toDomainStatus(status) : ENABLED;
     return userService
         .getByCriteria(
             User.Role.TEACHER, firstName, lastName, ref, page, pageSize, domainStatus, domainSex)
