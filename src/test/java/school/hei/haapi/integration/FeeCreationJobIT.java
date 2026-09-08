@@ -41,6 +41,7 @@ import school.hei.haapi.endpoint.rest.model.FeeCreationJob;
 import school.hei.haapi.endpoint.rest.model.FeeStudentCreation;
 import school.hei.haapi.integration.conf.FacadeITMockedThirdParties;
 import school.hei.haapi.integration.conf.TestUtils;
+import school.hei.haapi.model.Fee;
 import school.hei.haapi.model.User;
 import school.hei.haapi.model.V2FeeTemplate;
 import school.hei.haapi.repository.FeeRepository;
@@ -93,7 +94,6 @@ public class FeeCreationJobIT extends FacadeITMockedThirdParties {
   void tearDown() {
     var studentIds = students.stream().map(User::getId).toList();
     var placeholders = String.join(",", studentIds.stream().map(id -> "?").toList());
-    // Fee carries @SQLDelete, so a repository delete would only flag is_deleted
     jdbcTemplate.update(
         "DELETE FROM \"fee_status_history\" WHERE fee_id IN (SELECT id FROM \"fee\" WHERE"
             + " user_id IN ("
@@ -104,7 +104,6 @@ public class FeeCreationJobIT extends FacadeITMockedThirdParties {
         "DELETE FROM \"fee\" WHERE user_id IN (" + placeholders + ")", studentIds.toArray());
     userRepository.deleteAllById(studentIds);
 
-    // the jobs reference the template, and everything hangs off them, so they go first
     var jobsOfTemplate =
         "SELECT id FROM \"fee_creation_job\" WHERE id_fee_template = '" + feeTemplate.getId() + "'";
     jdbcTemplate.update(
@@ -129,9 +128,17 @@ public class FeeCreationJobIT extends FacadeITMockedThirdParties {
     userRepository.deleteById(managerHasina.getId());
   }
 
-  /** The ref of one of this test's own students, so no fixed value is ever reused. */
   private String refOf(int index) {
     return students.get(index).getRef();
+  }
+
+  private List<Fee> feesOfTemplateFor(String studentId) {
+    return feeRepository.findFeesByStudent_Id(studentId).stream()
+        .filter(
+            fee ->
+                fee.getFeeTemplate() != null
+                    && feeTemplate.getId().equals(fee.getFeeTemplate().getId()))
+        .toList();
   }
 
   private PayingApi managerApi() {
@@ -244,14 +251,7 @@ public class FeeCreationJobIT extends FacadeITMockedThirdParties {
     assertNotNull(student.getStudent().getId());
 
     var studentId = userService.findByRef(studentRef).getId();
-    var createdFees =
-        feeRepository.findAll().stream()
-            .filter(
-                fee ->
-                    studentId.equals(fee.getStudent().getId())
-                        && fee.getFeeTemplate() != null
-                        && feeTemplate.getId().equals(fee.getFeeTemplate().getId()))
-            .toList();
+    var createdFees = feesOfTemplateFor(studentId);
     assertEquals(2, createdFees.size());
     assertTrue(createdFees.stream().anyMatch(fee -> fee.getTotalAmount() == 5000));
     assertTrue(createdFees.stream().anyMatch(fee -> fee.getTotalAmount() == 6000));
@@ -325,16 +325,8 @@ public class FeeCreationJobIT extends FacadeITMockedThirdParties {
     assertTrue(job.getFailures().getFirst().getMessage().contains("already created"));
 
     var studentId = userService.findByRef(studentRef).getId();
-    var feeCount =
-        feeRepository.findAll().stream()
-            .filter(
-                fee ->
-                    studentId.equals(fee.getStudent().getId())
-                        && fee.getFeeTemplate() != null
-                        && feeTemplate.getId().equals(fee.getFeeTemplate().getId()))
-            .count();
     // the second job did not add a single fee on top of the first one
-    assertEquals(2, feeCount);
+    assertEquals(2, feesOfTemplateFor(studentId).size());
   }
 
   @Test

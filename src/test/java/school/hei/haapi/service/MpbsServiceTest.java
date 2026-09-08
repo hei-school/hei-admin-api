@@ -31,6 +31,7 @@ class MpbsServiceTest extends FacadeITMockedThirdParties {
   @Autowired private MpbsService subject;
   @MockBean private MpbsRepository mpbsRepository;
   @MockBean private FeeService feeService;
+  @MockBean private PaymentService paymentService;
 
   @BeforeEach
   void setUp() {
@@ -83,6 +84,7 @@ class MpbsServiceTest extends FacadeITMockedThirdParties {
     var result = subject.saveVerifiedSuccessfulPayment(verifiedMpbs);
 
     verify(feeService, times(1)).computeRemainingAmount("feeId", 5000);
+    verify(paymentService, times(1)).savePaymentFromMpbs(result, 5000);
     assertEquals(SUCCESS, result.getStatus());
   }
 
@@ -96,6 +98,7 @@ class MpbsServiceTest extends FacadeITMockedThirdParties {
     var result = subject.saveVerifiedSuccessfulPayment(verifiedMpbs);
 
     verify(feeService, never()).computeRemainingAmount(anyString(), anyInt());
+    verify(paymentService, never()).savePaymentFromMpbs(any(), anyInt());
     assertEquals(alreadyResolved, result);
   }
 

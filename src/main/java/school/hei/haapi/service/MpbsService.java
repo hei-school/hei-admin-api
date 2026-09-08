@@ -17,6 +17,7 @@ import school.hei.haapi.repository.MpbsRepository;
 public class MpbsService {
   private final MpbsRepository mpbsRepository;
   private final FeeService feeService;
+  private final PaymentService paymentService;
 
   @Transactional
   public Mpbs saveVerifiedSuccessfulPayment(Mpbs verifiedMpbs) {
@@ -31,8 +32,18 @@ public class MpbsService {
           lockedMpbs.getStatus());
       return lockedMpbs;
     }
-    feeService.computeRemainingAmount(verifiedMpbs.getFee().getId(), verifiedMpbs.getAmount());
-    return save(verifiedMpbs);
+    int amountInPsp = verifiedMpbs.getAmount();
+    feeService.computeRemainingAmount(verifiedMpbs.getFee().getId(), amountInPsp);
+    var savedMpbs = save(verifiedMpbs);
+
+    paymentService.savePaymentFromMpbs(savedMpbs, amountInPsp);
+    log.info(
+        "Mpbs {} verified: payment of {} created for fee {}",
+        savedMpbs.getId(),
+        amountInPsp,
+        savedMpbs.getFee().getId());
+
+    return savedMpbs;
   }
 
   public List<Mpbs> saveAll(List<Mpbs> toSave) {
