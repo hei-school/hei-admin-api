@@ -198,6 +198,11 @@ public class FeeController {
         monthFrom, monthTo, Optional.ofNullable(advancedFeeStatsCountType));
   }
 
+  @PutMapping("/fees/advanced-stats")
+  public AdvancedFeeStats updateAdvancedFeesStats() {
+    return advancedFeeStatsService.deleteAllAdvancedFeeStats();
+  }
+
   @GetMapping("/fees/export")
   public String exportAllFees(
       @RequestParam(name = "month_from", required = false) Instant from,

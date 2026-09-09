@@ -630,6 +630,11 @@ public class AdvancedFeeStatsService {
     return repository.saveAll(generateAdvancedFeeStats(from, to, type.orElse(ACCOUNTING)));
   }
 
+  public AdvancedFeeStats deleteAllAdvancedFeeStats() {
+    repository.deleteAll();
+    return new AdvancedFeeStats();
+  }
+
   private Map<FeeCategory, Long> countFeesByGrades(List<Fee> fees, FeeFrequency frequency) {
     var feesByGradeCount = new HashMap<FeeCategory, Long>();
     Map<FeeCategory, List<Fee>> feesByGrade =
