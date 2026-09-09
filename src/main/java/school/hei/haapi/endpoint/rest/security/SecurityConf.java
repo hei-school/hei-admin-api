@@ -322,6 +322,7 @@ public class SecurityConf {
                     antMatcher(GET, "/retake_exam_sessions/*/retake_exam_courses"),
                     antMatcher(GET, "/retake_exam_sessions/*/retake_exam_courses/*/participants"),
                     antMatcher(GET, "/global_search/user"),
+                    antMatcher(PUT, "/fees/advanced-stats"),
                     nonAccessibleBySuspendedUserPath)),
             AnonymousAuthenticationFilter.class)
         .addFilterAfter(
@@ -559,6 +560,8 @@ public class SecurityConf {
                     .requestMatchers(GET, "/fees/stats")
                     .hasAnyRole(MANAGER.getRole(), ADMIN.getRole())
                     .requestMatchers(GET, "/fees/advanced-stats")
+                    .hasAnyRole(MANAGER.getRole(), ADMIN.getRole())
+                    .requestMatchers(PUT, "/fees/advanced-stats")
                     .hasAnyRole(MANAGER.getRole(), ADMIN.getRole())
                     .requestMatchers(POST, "/fees/advanced-stats-generate")
                     .hasAnyRole(MANAGER.getRole(), ADMIN.getRole())
