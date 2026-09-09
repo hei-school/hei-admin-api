@@ -5,6 +5,7 @@ import static org.apache.poi.ss.usermodel.Row.MissingCellPolicy.CREATE_NULL_AS_B
 import static school.hei.haapi.model.User.Status.ALUMNI;
 import static school.hei.haapi.model.User.Status.ENABLED;
 import static school.hei.haapi.model.exception.ApiException.ExceptionType.SERVER_EXCEPTION;
+import static school.hei.haapi.service.utils.DataFormatterUtils.parseDecimal;
 
 import jakarta.transaction.Transactional;
 import java.io.ByteArrayOutputStream;
@@ -374,7 +375,11 @@ public class GradeService {
         } else {
           var stringScore = scoreCell.getStringCellValue().trim();
           if (!stringScore.isBlank()) {
-            score = Double.valueOf(stringScore);
+            try {
+              score = parseDecimal(stringScore);
+            } catch (NumberFormatException e) {
+              score = null;
+            }
           }
         }
       }

@@ -2,6 +2,7 @@ package school.hei.haapi.model.dto;
 
 import static java.util.Map.entry;
 import static org.apache.poi.ss.usermodel.CellType.BLANK;
+import static school.hei.haapi.service.utils.DataFormatterUtils.parseDecimal;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -41,11 +42,11 @@ public class GradeImportDto implements Serializable {
       verifyEmptyCell(cell);
       return switch (cell.getCellType()) {
         case NUMERIC -> cell.getNumericCellValue();
-        case STRING -> Double.parseDouble(cell.getStringCellValue().trim());
+        case STRING -> parseDecimal(cell.getStringCellValue().trim());
         case FORMULA ->
             switch (cell.getCachedFormulaResultType()) {
               case NUMERIC -> cell.getNumericCellValue();
-              case STRING -> Double.parseDouble(cell.getStringCellValue().trim());
+              case STRING -> parseDecimal(cell.getStringCellValue().trim());
               default -> throw new IllegalStateException("Type non supporté en formule");
             };
         default ->
