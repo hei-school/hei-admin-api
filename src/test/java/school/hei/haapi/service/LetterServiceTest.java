@@ -2,10 +2,12 @@ package school.hei.haapi.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 import static school.hei.haapi.model.Event.PlaceName.IVANDRY;
 
 import java.util.List;
+import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -28,13 +30,27 @@ class LetterServiceTest extends FacadeITMockedThirdParties {
   @Test
   void getLettersByStudentId() {
     when(eventParticipantRepository.findEventParticipantByParticipantIdAndEventId(any(), any()))
-        .thenReturn(eventParticipant());
+        .thenReturn(Optional.of(eventParticipant()));
     when(letterRepository.findAllByUserIdAndEventParticipantId(any(), any(), any()))
         .thenReturn(List.of(letter()));
     var actual =
         subject.getLettersByStudentId(
             student().getId(), event().getId(), null, new PageFromOne(1), new BoundedPageSize(10));
     assertEquals(List.of(letter()), actual);
+  }
+
+  @Test
+  void getLettersByStudentId_whenNoEventParticipantFoundForEvent() {
+    when(eventParticipantRepository.findEventParticipantByParticipantIdAndEventId(any(), any()))
+        .thenReturn(Optional.empty());
+    when(letterRepository.findAllByUserIdAndEventParticipantId(any(), eq(null), any()))
+        .thenReturn(List.of());
+
+    var actual =
+        subject.getLettersByStudentId(
+            student().getId(), event().getId(), null, new PageFromOne(1), new BoundedPageSize(10));
+
+    assertEquals(List.of(), actual);
   }
 
   private static User student() {
