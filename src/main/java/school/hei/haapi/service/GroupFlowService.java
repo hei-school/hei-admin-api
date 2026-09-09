@@ -111,11 +111,13 @@ public class GroupFlowService {
   public List<GroupFlowPeriod> findStudentLatestGroupFlowPeriodsAtLevel(
       String studentId, StudentLevel level) {
     var groupFlows = repository.findByFlowTypeAndStudentAndLevel(studentId, level);
+    log.info("Student group flow per level : {}", groupFlows);
     var groupFlowsByGroup = groupFlows.stream().collect(Collectors.groupingBy(GroupFlow::getGroup));
     var groupFlowPeriods =
         groupFlowsByGroup.entrySet().stream()
             .map(entry -> toGroupFlowPeriod(entry.getKey(), entry.getValue()))
             .toList();
+    log.info("Student group flow periods : {}", groupFlowPeriods);
     return findLatestGroupFlowPeriods(groupFlowPeriods);
   }
 
