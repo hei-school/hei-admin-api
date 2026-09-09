@@ -13,6 +13,7 @@ import static school.hei.haapi.model.CycleLevel.MASTER;
 
 import java.time.Instant;
 import org.junit.jupiter.api.Test;
+import school.hei.haapi.model.promotion.PromotionLevelOutOfRangeException;
 
 class PromotionTest {
 
@@ -44,6 +45,25 @@ class PromotionTest {
     assertEquals(M1, masterPromotion.findLevelAt(instantToBeM1).get());
     assertEquals(M2, masterPromotion.findLevelAt(instantToBeM2).get());
     assertTrue(masterPromotion.findLevelAt(instantOutOfRange).isEmpty());
+  }
+
+  @Test
+  void no_level_before_the_promotion_starts() {
+    var promotion =
+        Promotion.builder()
+            .cycleLevel(BACHELOR)
+            .startDatetime(Instant.parse("2026-11-08T00:00:00Z"))
+            .build();
+    var instantBeforeStart = Instant.parse("2026-09-09T00:00:00Z");
+
+    assertTrue(promotion.findLevelAt(instantBeforeStart).isEmpty());
+    var exception =
+        assertThrows(
+            PromotionLevelOutOfRangeException.class,
+            () -> promotion.getLevelAt(instantBeforeStart));
+    assertEquals(
+        "Promotion level out of range, promotion starts in 1 scholar year(s)",
+        exception.getMessage());
   }
 
   @Test
