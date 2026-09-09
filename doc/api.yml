@@ -54,7 +54,9 @@ paths:
   '/groups/{id}/students':
     $ref: './operations/groups-api.yml#/operations/getStudentsByGroupId'
   '/students/{id}/group_flows':
-    $ref: './operations/groups-api.yml#/operations/moveOrDeleteStudentInGroup'
+    $ref: './operations/groups-api.yml#/operations/studentGroupFlows'
+  '/group_flows/{id}':
+    $ref: './operations/groups-api.yml#/operations/updateGroupFlow'
   # Users
   /groups/students/stats:
     $ref: './operations/users-api.yml#/operations/getGroupStats'
@@ -255,7 +257,7 @@ paths:
   /fees/advanced-stats-generate:
     $ref: './operations/paying-api.yml#/operations/generateAdvancedStats'
   /fees/advanced-stats:
-    $ref: './operations/paying-api.yml#/operations/getAdvancedFeesStats'
+    $ref: './operations/paying-api.yml#/operations/advancedFeesStats'
   /fees/export:
     $ref: './operations/paying-api.yml#/operations/exportAllFees'
   /fees/advanced-stats/export:

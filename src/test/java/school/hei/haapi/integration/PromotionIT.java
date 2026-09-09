@@ -39,6 +39,7 @@ import school.hei.haapi.endpoint.rest.model.Promotion;
 import school.hei.haapi.endpoint.rest.model.UpdatePromotionSGroup;
 import school.hei.haapi.integration.conf.FacadeITMockedThirdParties;
 import school.hei.haapi.integration.conf.TestUtils;
+import school.hei.haapi.model.CycleLevel;
 import school.hei.haapi.model.Group;
 import school.hei.haapi.model.User;
 import school.hei.haapi.repository.GroupRepository;
@@ -169,6 +170,25 @@ public class PromotionIT extends FacadeITMockedThirdParties {
     var byGroupRef = api.getPromotions(1, 250, null, null, groupInPromotion.getRef());
     assertTrue(idsOf(byGroupRef).contains(promotionWithGroup.getId()));
     assertFalse(idsOf(byGroupRef).contains(promotionWithoutGroup.getId()));
+  }
+
+  @Test
+  void a_promotion_carries_the_level_its_students_are_sitting() throws ApiException {
+    var promotions = apiAs(managerToken).getPromotions(1, 250, null, null, null);
+
+    var read =
+        promotions.stream()
+            .filter(promotion -> promotionWithGroup.getId().equals(promotion.getId()))
+            .findFirst()
+            .orElseThrow();
+
+    assertEquals(
+        1,
+        read.getStudentLevels().size(),
+        "a promotion sits at exactly one level at any given time");
+    assertTrue(
+        CycleLevel.BACHELOR.getLevels().contains(read.getStudentLevels().getFirst()),
+        "the level must belong to the promotion's own cycle");
   }
 
   @Test

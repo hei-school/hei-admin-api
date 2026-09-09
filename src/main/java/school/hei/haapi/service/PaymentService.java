@@ -6,7 +6,6 @@ import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.LATE;
 import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.UNPAID;
 import static school.hei.haapi.endpoint.rest.model.Payment.TypeEnum.CREDIT;
 import static school.hei.haapi.endpoint.rest.model.Payment.TypeEnum.MOBILE_MONEY;
-import static school.hei.haapi.model.PaymentStatus.CREATED;
 import static school.hei.haapi.model.PaymentStatus.VALIDATE;
 import static school.hei.haapi.service.utils.InstantUtils.UTC3;
 
@@ -103,7 +102,7 @@ public class PaymentService {
     Payment paymentFromMpbs =
         Payment.builder()
             .type(MOBILE_MONEY)
-            .status(CREATED)
+            .status(VALIDATE)
             .fee(correspondingFee)
             .amount(amount)
             .creationDatetime(now())

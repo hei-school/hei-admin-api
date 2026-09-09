@@ -15,9 +15,11 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
+import static school.hei.haapi.endpoint.rest.model.FeeFrequency.YEARLY;
 import static school.hei.haapi.integration.conf.ApiAssertions.assertThrowsApiException;
 import static school.hei.haapi.integration.conf.ApiAssertions.assertThrowsForbiddenException;
 import static school.hei.haapi.integration.conf.TestAuth.tokenFor;
+import static school.hei.haapi.integration.testData.FeeTestData.createPendingFee;
 import static school.hei.haapi.integration.testData.GroupTestData.createGroupFlow;
 import static school.hei.haapi.integration.testData.GroupTestData.g1;
 import static school.hei.haapi.integration.testData.MonitorTestData.monitorOfAxel;
@@ -37,6 +39,7 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -64,11 +67,13 @@ import school.hei.haapi.file.hash.FileHash;
 import school.hei.haapi.file.hash.FileHashAlgorithm;
 import school.hei.haapi.integration.conf.FacadeITMockedThirdParties;
 import school.hei.haapi.integration.conf.TestUtils;
+import school.hei.haapi.model.Fee;
 import school.hei.haapi.model.Promotion;
 import school.hei.haapi.model.TemplateDocumenso;
 import school.hei.haapi.model.User;
 import school.hei.haapi.repository.DocumensoDocumentRecipientRepository;
 import school.hei.haapi.repository.DocumensoDocumentRepository;
+import school.hei.haapi.repository.FeeRepository;
 import school.hei.haapi.repository.GroupFlowRepository;
 import school.hei.haapi.repository.GroupRepository;
 import school.hei.haapi.repository.MonitoringStudentRepository;
@@ -87,6 +92,7 @@ class DocumensoIT extends FacadeITMockedThirdParties {
   @Autowired private PromotionRepository promotionRepository;
   @Autowired private GroupRepository groupRepository;
   @Autowired private GroupFlowRepository groupFlowRepository;
+  @Autowired private FeeRepository feeRepository;
   @MockBean private DocumensoClient documensoClientMock;
   @MockBean private BucketComponent bucketComponentMock;
   @MockBean private EventProducer eventProducerMock;
@@ -539,6 +545,23 @@ class DocumensoIT extends FacadeITMockedThirdParties {
   }
 
   @Test
+  void bulk_generation_leaves_out_the_students_who_do_not_pay_monthly() throws Exception {
+    var promotion = aPromotionOfTwoStudents();
+    aYearlyPayingStudentOf(promotion);
+
+    var launched =
+        anApi(adminToken)
+            .generateDocumensoDocumentsForPromotion(
+                promotion.getId(), new GenerateDocumensoDocuments().templateName(templateTitle));
+
+    assertEquals(
+        2,
+        launched.getStudentCount(),
+        "a fiche engages a student on their instalments: yearly payers have none to sign");
+    verify(eventProducerMock, times(2)).accept(any());
+  }
+
+  @Test
   void bulk_generation_on_an_unknown_promotion_is_not_found() {
     var body = new GenerateDocumensoDocuments().templateName(templateTitle);
 
@@ -628,7 +651,33 @@ class DocumensoIT extends FacadeITMockedThirdParties {
     strangers.addAll(List.of(firstStudent, secondStudent, theirMonitor));
     groupFlowRepository.saveAll(
         List.of(createGroupFlow(firstStudent, group), createGroupFlow(secondStudent, group)));
+    // only students paying by instalments are engaged by a fiche, so both need a monthly fee
+    feeRepository.saveAll(List.of(monthlyFeeFor(firstStudent), monthlyFeeFor(secondStudent)));
     return promotion;
+  }
+
+  private Fee monthlyFeeFor(User student) {
+    return createPendingFee(student, 5000, Instant.parse("2022-12-08T08:25:24.00Z"));
+  }
+
+  private User aYearlyPayingStudentOf(Promotion promotion) {
+    var student = userRepository.save(axel());
+    strangers.add(student);
+    var group =
+        groupRepository.findAll().stream()
+            .filter(
+                candidate ->
+                    promotion
+                        .getId()
+                        .equals(
+                            candidate.getPromotion() == null
+                                ? null
+                                : candidate.getPromotion().getId()))
+            .findFirst()
+            .orElseThrow();
+    groupFlowRepository.save(createGroupFlow(student, group));
+    feeRepository.save(monthlyFeeFor(student).toBuilder().frequency(YEARLY).build());
+    return student;
   }
 
   private DocumensoDocument generateOneDocumentFor(User forStudent, long documensoDocumentId)

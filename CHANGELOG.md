@@ -1,3 +1,21 @@
+# [1.172.0](https://github.com/hei-school/hei-admin-api/compare/v1.171.0...v1.172.0) (2026-09-09)
+
+
+### Bug Fixes
+
+* teacherController and CreditService ([a8caf57](https://github.com/hei-school/hei-admin-api/commit/a8caf57427f6638b0bcdfe76a7d39bccd2473d2c))
+
+
+### Features
+
+* add new attributes for student insurance ([a1d3b87](https://github.com/hei-school/hei-admin-api/commit/a1d3b87e638d258ffaf9ff04a21f2fe9bc4207bf))
+* **documenso:** generate fiches only for the students paying monthly ([0692741](https://github.com/hei-school/hei-admin-api/commit/0692741ecd55393d33da0dc7f2f2b9e697ea60f7))
+* **documenso:** only offer the promotions a template's level targets ([4bae50e](https://github.com/hei-school/hei-admin-api/commit/4bae50e72f0a01e922cefb7011481d5d10a86aee))
+* get student group flows and update advanced fees stats ([a9ffb22](https://github.com/hei-school/hei-admin-api/commit/a9ffb2232ee6a96448dbcda6ff6dcb996e654460))
+* get student group flows and update group flow ([6ef8f56](https://github.com/hei-school/hei-admin-api/commit/6ef8f567087a73b611528c23e72e88601c69d0e2))
+
+
+
 # [1.171.0](https://github.com/hei-school/hei-admin-api/compare/v1.170.0...v1.171.0) (2026-09-02)
 
 
@@ -101,34 +119,6 @@
 ### Features
 
 * validate retake exams and update automatically exams grades ([12f5278](https://github.com/hei-school/hei-admin-api/commit/12f52780ccb5f77a52598d37aa792eff6c59b4a2))
-
-
-
-# [1.163.0](https://github.com/hei-school/hei-admin-api/compare/v1.162.0...v1.163.0) (2026-07-22)
-
-
-### Bug Fixes
-
-* **course_result:** student repeating year grades ([1c94790](https://github.com/hei-school/hei-admin-api/commit/1c947907dacb1c22f5088d4c03faee61b1cad6cb))
-* **CourseResult:** remove course_result's duplication ([fbdeb04](https://github.com/hei-school/hei-admin-api/commit/fbdeb043e6610fc35e7450bb0274834f5caabbb5))
-* get alternating student ([874f2d5](https://github.com/hei-school/hei-admin-api/commit/874f2d5c53022a552d6208fad486e4619cbb20d4))
-* get student yearly result ([b3f3913](https://github.com/hei-school/hei-admin-api/commit/b3f3913b7ecc57d109842f644c8b51bdc2501bad))
-* resolve SonarQube code reliability issues ([4b06a96](https://github.com/hei-school/hei-admin-api/commit/4b06a966d97d158f74438351e53fedd1a73a9623))
-* **security:** add new role to security configuration ([16e24a6](https://github.com/hei-school/hei-admin-api/commit/16e24a697c3ee9bbb16bc243e5f364477f5969a2))
-* sonar ([02bf9c1](https://github.com/hei-school/hei-admin-api/commit/02bf9c17b2411c41f6137c5e53c9be3fe59557e5))
-* sonar check failed ([de8bfd8](https://github.com/hei-school/hei-admin-api/commit/de8bfd8090c1aea7e99b05483102897109ac7574))
-* sort pending fees to be first in the student fee list ([c63c0a2](https://github.com/hei-school/hei-admin-api/commit/c63c0a25d5870670cb6995e2bc0f6d93c2493d9c))
-* **user-service:** align transactional configuration for getById ([b827389](https://github.com/hei-school/hei-admin-api/commit/b827389fa8fa64e673a8cf06c556df2ead609e25))
-* **user-service:** align transactional configuration for getById ([fbd5eec](https://github.com/hei-school/hei-admin-api/commit/fbd5eec6d24bd4e76c12b2dcb1d2a8b003fa9bd8))
-
-
-### Features
-
-* configure UserActivityInterceptor with UserActivityInterceptorConfigurer ([7f01718](https://github.com/hei-school/hei-admin-api/commit/7f017181d2b2db56728b5b76c0635c8b0405a238))
-* create annotator for user interceptor ([a215c04](https://github.com/hei-school/hei-admin-api/commit/a215c04cda4205f5763cbb0c8aa6ff5a83c268f4))
-* **globalSearch:** add result limit to global search ([04c4734](https://github.com/hei-school/hei-admin-api/commit/04c47345262a0a6f864bc7624f2db589af29a9b1))
-* **security:** add new role to security configuration ([2a16231](https://github.com/hei-school/hei-admin-api/commit/2a162310c1b8bb5d3143d63984bdb1f3ef2d4694))
-* update retake exams status ([5ba1019](https://github.com/hei-school/hei-admin-api/commit/5ba10198c1d3b8514c9d1f397345c9d0c3362a77))
 
 
 

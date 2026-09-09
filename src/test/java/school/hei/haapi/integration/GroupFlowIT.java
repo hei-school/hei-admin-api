@@ -6,16 +6,19 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static school.hei.haapi.endpoint.rest.model.CreateGroupFlow.MoveTypeEnum.JOIN;
 import static school.hei.haapi.endpoint.rest.model.CreateGroupFlow.MoveTypeEnum.LEAVE;
 import static school.hei.haapi.integration.conf.ApiAssertions.assertThrowsApiException;
+import static school.hei.haapi.integration.conf.ApiAssertions.assertThrowsForbiddenException;
 import static school.hei.haapi.integration.conf.TestAuth.tokenFor;
 import static school.hei.haapi.integration.conf.TestMocks.setUpEventBridge;
 import static school.hei.haapi.integration.conf.TestMocks.setUpS3Service;
 import static school.hei.haapi.integration.testData.GroupTestData.createGroupFlow;
+import static school.hei.haapi.integration.testData.GroupTestData.createGroupFlowAt;
 import static school.hei.haapi.integration.testData.GroupTestData.g1;
 import static school.hei.haapi.integration.testData.GroupTestData.g2;
 import static school.hei.haapi.integration.testData.ManagerTestData.hasina;
 import static school.hei.haapi.integration.testData.StudentTestData.axel;
 import static school.hei.haapi.integration.testData.StudentTestData.freddy;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import org.junit.jupiter.api.AfterEach;
@@ -27,6 +30,7 @@ import school.hei.haapi.endpoint.rest.api.GroupsApi;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
 import school.hei.haapi.endpoint.rest.model.CreateGroupFlow;
+import school.hei.haapi.endpoint.rest.model.UpdateGroupFlow;
 import school.hei.haapi.integration.conf.FacadeITMockedThirdParties;
 import school.hei.haapi.integration.conf.TestUtils;
 import school.hei.haapi.model.Group;
@@ -52,6 +56,7 @@ public class GroupFlowIT extends FacadeITMockedThirdParties {
   private GroupFlow freddyJoinsGroupOne;
 
   private String managerToken;
+  private String studentToken;
 
   private void setUpTestData() {
     studentAxel = userRepository.save(axel());
@@ -72,6 +77,7 @@ public class GroupFlowIT extends FacadeITMockedThirdParties {
     setUpS3Service(fileService, studentAxel);
 
     managerToken = tokenFor(casdoorAuthServiceMock, managerHasina);
+    studentToken = tokenFor(casdoorAuthServiceMock, studentAxel);
   }
 
   @AfterEach
@@ -170,5 +176,66 @@ public class GroupFlowIT extends FacadeITMockedThirdParties {
     assertEquals(studentAxel.getId(), groupOneStudents.getFirst().getId());
     assertEquals(1, groupTwoStudents.size());
     assertEquals(studentFreddy.getId(), groupTwoStudents.getFirst().getId());
+  }
+
+  @Test
+  void manager_gets_group_flows_by_student_id_ok() throws ApiException {
+    var api = apiAs(managerToken);
+    var latestFlow =
+        groupFlowRepository.save(
+            createGroupFlowAt(studentAxel, groupTwo, Instant.parse("2025-08-15T09:00:00Z")));
+
+    var groupFlows = api.getGroupFlowsByStudentId(studentAxel.getId());
+
+    assertEquals(2, groupFlows.size());
+    assertEquals(latestFlow.getId(), groupFlows.get(0).getId());
+    assertEquals(axelJoinsGroupOne.getId(), groupFlows.get(1).getId());
+  }
+
+  @Test
+  void get_group_flows_by_unknown_student_id_ko() {
+    var api = apiAs(managerToken);
+    var expectedBody =
+        "{\"type\":\"404 NOT_FOUND\",\"message\":\"User with id.unknown not found\"}";
+
+    assertThrowsApiException(expectedBody, () -> api.getGroupFlowsByStudentId("unknown"));
+  }
+
+  @Test
+  void student_gets_group_flows_by_student_id_ko() {
+    var api = apiAs(studentToken);
+
+    assertThrowsForbiddenException(() -> api.getGroupFlowsByStudentId(studentAxel.getId()));
+  }
+
+  @Test
+  void manager_updates_group_flow_ok() throws ApiException {
+    var api = apiAs(managerToken);
+    var newFlowDatetime = Instant.parse("2025-09-01T08:00:00Z");
+    var toUpdate = new UpdateGroupFlow().groupId(groupTwo.getId()).flowDatetime(newFlowDatetime);
+
+    var updated = api.updateGroupFlow(axelJoinsGroupOne.getId(), toUpdate);
+
+    assertEquals(axelJoinsGroupOne.getId(), updated.getId());
+    assertEquals(groupTwo.getId(), updated.getGroupId());
+    assertEquals(newFlowDatetime, updated.getFlowDatetime());
+  }
+
+  @Test
+  void update_unknown_group_flow_ko() {
+    var api = apiAs(managerToken);
+    var expectedBody =
+        "{\"type\":\"404 NOT_FOUND\",\"message\":\"GroupFlow with id.unknown not found\"}";
+    var toUpdate = new UpdateGroupFlow().groupId(groupTwo.getId());
+
+    assertThrowsApiException(expectedBody, () -> api.updateGroupFlow("unknown", toUpdate));
+  }
+
+  @Test
+  void student_updates_group_flow_ko() {
+    var api = apiAs(studentToken);
+    var toUpdate = new UpdateGroupFlow().groupId(groupTwo.getId());
+
+    assertThrowsForbiddenException(() -> api.updateGroupFlow(axelJoinsGroupOne.getId(), toUpdate));
   }
 }

@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.stereotype.Component;
 import school.hei.haapi.endpoint.rest.model.CreateGroupFlow;
 import school.hei.haapi.endpoint.rest.model.GroupFlow;
+import school.hei.haapi.endpoint.rest.model.UpdateGroupFlow;
 import school.hei.haapi.model.Group;
 import school.hei.haapi.model.User;
 
@@ -18,6 +19,17 @@ public class GroupFlowMapper {
         .groupId(domain.getGroup().getId())
         .studentId(domain.getStudent().getId())
         .moveType(GroupFlow.MoveTypeEnum.fromValue(domain.getGroupFlowType().toString()));
+  }
+
+  public school.hei.haapi.model.GroupFlow toDomain(
+      school.hei.haapi.model.GroupFlow existingGroupFlow, UpdateGroupFlow toUpdate, Group group) {
+    if (group != null) {
+      existingGroupFlow.setGroup(group);
+    }
+    if (toUpdate.getFlowDatetime() != null) {
+      existingGroupFlow.setFlowDatetime(toUpdate.getFlowDatetime());
+    }
+    return existingGroupFlow;
   }
 
   public List<CreateGroupFlow> toDomain(
