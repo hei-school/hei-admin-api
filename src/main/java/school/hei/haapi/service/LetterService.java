@@ -32,6 +32,7 @@ import school.hei.haapi.endpoint.rest.model.LetterStatus;
 import school.hei.haapi.endpoint.rest.model.UpdateLettersStatus;
 import school.hei.haapi.endpoint.rest.security.model.Principal;
 import school.hei.haapi.model.BoundedPageSize;
+import school.hei.haapi.model.EventParticipant;
 import school.hei.haapi.model.FileInfo;
 import school.hei.haapi.model.Letter;
 import school.hei.haapi.model.PageFromOne;
@@ -155,11 +156,11 @@ public class LetterService {
         PageRequest.of(page.getValue() - 1, pageSize.getValue(), Sort.by(DESC, "creationDatetime"));
     var eventParticipantId =
         ofNullable(eventId)
-            .map(
+            .flatMap(
                 id ->
-                    eventParticipantRepository
-                        .findEventParticipantByParticipantIdAndEventId(userId, id)
-                        .getId())
+                    eventParticipantRepository.findEventParticipantByParticipantIdAndEventId(
+                        userId, id))
+            .map(EventParticipant::getId)
             .orElse(null);
     log.info("EventParticipantId found : " + eventParticipantId);
     return Objects.isNull(status)
