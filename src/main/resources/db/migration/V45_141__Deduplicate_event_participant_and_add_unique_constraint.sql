@@ -1,8 +1,3 @@
--- A participant must have at most one event_participant row per event: this used to be
--- violated because event participants were created once per group targeted by an event,
--- so a student in several groups invited to the same event ended up with several rows for
--- that same event. Re-point any letter attached to a duplicate row onto the row that is kept,
--- then drop the duplicates, before enforcing the invariant with a unique constraint.
 with ranked as (
     select id,
            event_id,
