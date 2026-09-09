@@ -620,7 +620,7 @@ public class AdvancedFeeStatsService {
   }
 
   @Transactional
-  public List<AdvancedFeeStats> updateAdvancedFeeStats(
+  public List<AdvancedFeeStats> updateAdvancedFeeStatsWithDateRange(
       Optional<Instant> from, Optional<Instant> to, Optional<AdvancedFeeStatsCountType> type) {
     if (type.isEmpty()) {
       log.warn(
@@ -630,7 +630,7 @@ public class AdvancedFeeStatsService {
     return repository.saveAll(generateAdvancedFeeStats(from, to, type.orElse(ACCOUNTING)));
   }
 
-  public AdvancedFeeStats deleteAllAdvancedFeeStats() {
+  public AdvancedFeeStats updateAdvancedFeeStats() {
     repository.deleteAll();
     return new AdvancedFeeStats();
   }

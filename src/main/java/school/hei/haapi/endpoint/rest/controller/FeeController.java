@@ -199,8 +199,8 @@ public class FeeController {
   }
 
   @PutMapping("/fees/advanced-stats")
-  public AdvancedFeeStats updateAdvancedFeesStats() {
-    return advancedFeeStatsService.deleteAllAdvancedFeeStats();
+  public AdvancedFeeStats updateAdvancedFeeStats() {
+    return advancedFeeStatsService.updateAdvancedFeeStats();
   }
 
   @GetMapping("/fees/export")
@@ -225,7 +225,7 @@ public class FeeController {
       @RequestParam(name = "date_from") Instant dateFrom,
       @RequestParam(name = "date_to") Instant dateTo) {
     List<AdvancedFeeStats> stats =
-        advancedFeeStatsService.updateAdvancedFeeStats(
+        advancedFeeStatsService.updateAdvancedFeeStatsWithDateRange(
             Optional.of(dateFrom), Optional.of(dateTo), empty());
     return new AdvancedFeeStatisticsGeneration().data("Total stats generated: " + stats.size());
   }
