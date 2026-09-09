@@ -512,6 +512,16 @@ components:
           type: string
         student_id:
           type: string
+    UpdateGroupFlow:
+      type: object
+      properties:
+        id:
+          type: string
+        group_id:
+          type: string
+        flow_datetime:
+          type: string
+          format: date-time
     CourseTemplate:
       type: object
       properties:
