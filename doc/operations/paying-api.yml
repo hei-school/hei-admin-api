@@ -606,7 +606,7 @@ operations:
           $ref: '../components.yml#/components/responses/429'
         '500':
           $ref: '../components.yml#/components/responses/500'
-  getAdvancedFeesStats:
+  advancedFeesStats:
     get:
       tags:
         - Paying
@@ -636,6 +636,30 @@ operations:
             application/json:
               schema:
                 $ref: '../components.yml#/components/schemas/AdvancedFeesStatistics'
+        '400':
+          $ref: '../components.yml#/components/responses/400'
+        '403':
+          $ref: '../components.yml#/components/responses/403'
+        '404':
+          $ref: '../components.yml#/components/responses/404'
+        '429':
+          $ref: '../components.yml#/components/responses/429'
+        '500':
+          $ref: '../components.yml#/components/responses/500'
+    put:
+      tags:
+        - Paying
+      summary: Update advanced monthly statistics on Fees
+      operationId: updateAdvancedFeeStats
+      responses:
+        '200':
+          description: The updated advanced fees stats
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '../components.yml#/components/schemas/AdvancedFeesStatistics'
         '400':
           $ref: '../components.yml#/components/responses/400'
         '403':
