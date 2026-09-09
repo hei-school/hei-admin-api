@@ -13,8 +13,10 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import school.hei.haapi.endpoint.rest.mapper.GroupFlowMapper;
 import school.hei.haapi.endpoint.rest.model.CreateGroupFlow;
 import school.hei.haapi.endpoint.rest.model.StudentLevel;
+import school.hei.haapi.endpoint.rest.model.UpdateGroupFlow;
 import school.hei.haapi.model.Group;
 import school.hei.haapi.model.GroupFlow;
 import school.hei.haapi.model.User;
@@ -33,6 +35,7 @@ public class GroupFlowService {
   private final GroupRepository groupRepository;
   private final UserRepository userRepository;
   private final GroupFlowValidator validator;
+  private final GroupFlowMapper mapper;
   private static final Pattern GROUP_TRAILING_DIGITS = compile("\\d+$");
 
   private void logger(GroupFlow studentGroupFlow) {
@@ -57,6 +60,12 @@ public class GroupFlowService {
         .orElseThrow(() -> new NotFoundException("Group with id." + groupId + " not found"));
   }
 
+  private GroupFlow findGroupFlowById(String id) {
+    return repository
+        .findById(id)
+        .orElseThrow(() -> new NotFoundException("GroupFlow with id." + id + " not found"));
+  }
+
   public GroupFlow save(CreateGroupFlow createGroupFlow) {
     GroupFlow groupFlowToSave = fromCreateGroupFlowsToGroupFlows(createGroupFlow);
 
@@ -75,6 +84,19 @@ public class GroupFlowService {
     validator.accept(groupFlowsToSave);
     groupFlowsToSave.forEach(this::logger);
     return repository.saveAll(groupFlowsToSave);
+  }
+
+  public List<GroupFlow> getByStudentId(String studentId) {
+    findUserById(studentId);
+    return repository.findByStudentIdOrderByFlowDatetimeDesc(studentId);
+  }
+
+  public GroupFlow update(String id, UpdateGroupFlow toUpdate) {
+    var groupFlow = findGroupFlowById(id);
+    var group = toUpdate.getGroupId() == null ? null : findGroupById(toUpdate.getGroupId());
+    var updatedGroupFlow = mapper.toDomain(groupFlow, toUpdate, group);
+    logger(updatedGroupFlow);
+    return repository.save(updatedGroupFlow);
   }
 
   private GroupFlow fromCreateGroupFlowsToGroupFlows(CreateGroupFlow toMap) {

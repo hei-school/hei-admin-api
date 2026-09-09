@@ -21,4 +21,6 @@ public interface GroupFlowRepository extends JpaRepository<GroupFlow, String> {
       """)
   List<GroupFlow> findByFlowTypeAndStudentAndLevel(
       @Param("student_id") String studentId, @Param("level") StudentLevel level);
+
+  List<GroupFlow> findByStudentIdOrderByFlowDatetimeDesc(String studentId);
 }
