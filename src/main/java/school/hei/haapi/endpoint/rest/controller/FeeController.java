@@ -198,6 +198,11 @@ public class FeeController {
         monthFrom, monthTo, Optional.ofNullable(advancedFeeStatsCountType));
   }
 
+  @PutMapping("/fees/advanced-stats")
+  public AdvancedFeeStats updateAdvancedFeeStats() {
+    return advancedFeeStatsService.updateAdvancedFeeStats();
+  }
+
   @GetMapping("/fees/export")
   public String exportAllFees(
       @RequestParam(name = "month_from", required = false) Instant from,
@@ -220,7 +225,7 @@ public class FeeController {
       @RequestParam(name = "date_from") Instant dateFrom,
       @RequestParam(name = "date_to") Instant dateTo) {
     List<AdvancedFeeStats> stats =
-        advancedFeeStatsService.updateAdvancedFeeStats(
+        advancedFeeStatsService.updateAdvancedFeeStatsWithDateRange(
             Optional.of(dateFrom), Optional.of(dateTo), empty());
     return new AdvancedFeeStatisticsGeneration().data("Total stats generated: " + stats.size());
   }
