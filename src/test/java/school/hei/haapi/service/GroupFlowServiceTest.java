@@ -149,11 +149,6 @@ class GroupFlowServiceTest {
   @Test
   void
       a_repeat_between_two_groups_each_dedicated_to_only_that_level_keeps_the_most_recent_one_even_with_a_tight_gap() {
-    // "K5" belongs to a promotion created a year after "K2"'s, exactly like a group a repeating
-    // student gets folded into. Both K2 and K5 are dedicated to L1 only, which is an unambiguous
-    // signal (unlike a multi-level group's own calendar disagreeing with the reference one, see
-    // the H1/J2 test above): visiting two groups that each exist only to teach L1 can only mean a
-    // repeat, so the most recently started one (K5) wins, regardless of the promotion dates.
     var student = User.builder().id("student").build();
     var oldPromotion =
         Promotion.builder()
@@ -230,18 +225,6 @@ class GroupFlowServiceTest {
   @Test
   void
       a_double_repeater_is_reported_using_each_levels_first_attempt_group_without_an_explicit_repeat_signal() {
-    // Student who (in the real world) repeated both L1 and L2: G (L1, failed) -> H (L1 redo,
-    // passed, then started L2) -> J (L2 redo, passed, then L3). H and J each belong to their own,
-    // later-dated promotion, exactly like a normal, non-repeating group switch would look. Since
-    // there is no explicit signal distinguishing the two, findStudentLatestGroupFlowPeriodsAtLevel
-    // reads every stint against the student's ORIGINAL (earliest, "G") calendar, which assumes one
-    // level per academic year with no repeats: G ends up being read as L1, H as L2 (its own second
-    // year on that same calendar) - and by the time J starts, two whole extra (repeat) years have
-    // elapsed that the calendar didn't budget for, so J's start falls after every level's window on
-    // that calendar and it matches NOTHING. This is the accepted, documented limitation of not
-    // auto-detecting repeats: a SINGLE repeat (see the H1/J2 test below) is handled gracefully
-    // because it never overruns an ongoing period's window, but compounding (double) repeats can
-    // still produce a level with no matching group. See the class javadoc for the trade-off.
     var student = User.builder().id("student").build();
     var promoG =
         Promotion.builder()
@@ -292,11 +275,6 @@ class GroupFlowServiceTest {
   @Test
   void
       a_normal_progression_into_a_group_whose_own_promotion_looks_like_an_earlier_level_is_not_mistaken_for_a_repeat() {
-    // Regression test for a real production case: a student did L1 in "H1" (2022-2023), then
-    // simply moved on to L2 (then L3) in "J2" - a plain, non-repeating group switch. But J2's own
-    // promotion happens to have started a year after H1's, so J2's own calendar computes "L1" for
-    // the very window the student is actually doing L2 in. Querying L1 must return only H1, never
-    // J2 (J2's own miscalibrated calendar must not override the student's actual, original one).
     var student = User.builder().id("student").build();
     var h1Promotion =
         Promotion.builder()
@@ -329,11 +307,6 @@ class GroupFlowServiceTest {
 
   @Test
   void a_repeat_between_two_groups_dedicated_to_only_that_one_level_keeps_the_most_recent_group() {
-    // Regression test for a real production case (student STD24075): "K4" and "N2" each teach
-    // ONLY L1 courses for their own respective intake year -- unlike H1/J2 above, they are not
-    // persistent, multi-level groups. Visiting two such single-purpose groups for the same level
-    // can only mean a genuine repeat (there is no other explanation), so this is the one case
-    // where the most recently started group wins, even though its own promotion started later.
     var student = User.builder().id("student").build();
     var k4Promotion =
         Promotion.builder()
@@ -368,12 +341,6 @@ class GroupFlowServiceTest {
   @Test
   void
       a_repeat_into_a_dedicated_group_supersedes_an_earlier_multi_level_groups_attempt_at_that_level() {
-    // Regression test for a real production case (student STD24164): "K2" is a persistent,
-    // multi-level group (L1 and L2 courses) whose own calendar correctly matches L1 for the
-    // student's first stint there; "N3" is a group dedicated to L1 only, joined afterwards. Unlike
-    // the H1/J2 case, N3 being dedicated to L1 is an explicit, unambiguous repeat signal that must
-    // override K2's own (otherwise correctly matching) L1 candidacy, not just other dedicated
-    // groups: the student should be reported in N3 only, not both.
     var student = User.builder().id("student").build();
     var k2Promotion =
         Promotion.builder()
@@ -408,10 +375,6 @@ class GroupFlowServiceTest {
   @Test
   void
       a_mid_level_group_switch_within_the_same_promotion_produces_two_distinct_periods_for_the_new_level() {
-    // A student staying in the same promotion "K" the whole time: K1 for L1, then K2 for the
-    // first semester of L2, then back to K1 for the second semester of L2. Both stints in K1 must
-    // stay distinct (never merged into one), and the L2 query must return the K2 stint together
-    // with the SECOND K1 stint only -- not the earlier, L1 one.
     var student = User.builder().id("student").build();
     var promotion = promotion();
     var k1 = Group.builder().id("k1").ref("K1").promotion(promotion).build();
