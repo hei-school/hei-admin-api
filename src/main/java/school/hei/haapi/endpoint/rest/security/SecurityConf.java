@@ -431,7 +431,7 @@ public class SecurityConf {
                     .requestMatchers(POST, "/students/*/group_flows")
                     .hasAnyRole(MANAGER.getRole(), ADMIN.getRole())
                     .requestMatchers(GET, "/students/*/group_flows")
-                    .hasAnyRole(MANAGER.getRole(), ADMIN.getRole())
+                    .hasAnyRole(MANAGER.getRole(), ADMIN.getRole(), MONITOR.getRole())
                     .requestMatchers(PUT, "/group_flows/*")
                     .hasAnyRole(MANAGER.getRole(), ADMIN.getRole())
                     .requestMatchers(GET, "/students/*/work_files")
@@ -684,7 +684,8 @@ public class SecurityConf {
                     .requestMatchers(GET, "/students/{student_id}/credit")
                     .hasAnyRole(STUDENT.getRole(), MANAGER.getRole(), ADMIN.getRole())
                     .requestMatchers(GET, "/students/{student_id}/credit-transactions")
-                    .hasAnyRole(STUDENT.getRole(), MANAGER.getRole(), ADMIN.getRole())
+                    .hasAnyRole(
+                        STUDENT.getRole(), MANAGER.getRole(), ADMIN.getRole(), MONITOR.getRole())
                     .requestMatchers(
                         new StudentMonitorMatcher(
                             GET, "/students/*", "students", monitoringStudentService))
