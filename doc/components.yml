@@ -2507,3 +2507,302 @@ components:
       properties:
         token:
           type: string
+    SmsContact:
+      type: object
+      description: >-
+        Created automatically whenever a user is created in the application (from that user's
+        phone number and name) — there is no manual create/update for contacts, only the
+        read/soft-delete operations below.
+      properties:
+        id:
+          type: string
+        phoneNumber:
+          type: string
+        name:
+          type: string
+        ownerId:
+          type: string
+          description: Id of the account this contact belongs to.
+        ownerRef:
+          type: string
+          description: >-
+            Ref of the account this contact belongs to (e.g. STD000001), denormalized here for
+            display alongside ownerId.
+          example: STD000001
+        ownerRole:
+          $ref: '#/components/schemas/SmsContactOwnerRole'
+    SmsContactOwnerRole:
+      type: string
+      description: The role of an SmsContact's owner, for filtering and display.
+      enum:
+        - ADMIN
+        - MONITOR
+        - STUDENT
+        - MANAGER
+    SmsContactGroup:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        ownerId:
+          type: string
+          description: Id of the account this group belongs to.
+        memberCount:
+          type: integer
+    SmsContactGroupDetail:
+      description: SmsContactGroup with its members embedded (name and phone number of each).
+      allOf:
+        - $ref: '#/components/schemas/SmsContactGroup'
+        - type: object
+          properties:
+            members:
+              type: array
+              items:
+                $ref: '#/components/schemas/SmsContact'
+    CrupdateSmsContactGroup:
+      type: object
+      properties:
+        name:
+          type: string
+        contactIds:
+          type: array
+          items:
+            type: string
+          description: Replaces the group's members entirely.
+      required:
+        - name
+    SmsBalance:
+      type: object
+      properties:
+        availableBalance:
+          type: integer
+          description: >-
+            Number of SMS units currently available, read live from BEFIANA. Unit and whether this
+            reflects total or remaining quota are still to be confirmed against BEFIANA's actual
+            response.
+    SmsInsufficientBalanceAlert:
+      description: >-
+        400 body whenever the balance can't cover every recipient: still an Exception
+        (type + message) for generic handlers, plus availableBalance/maxSendableRecipients so the
+        caller can alert precisely instead of parsing the message string.
+      allOf:
+        - $ref: '#/components/schemas/Exception'
+        - type: object
+          properties:
+            availableBalance:
+              type: integer
+              description: The account's current SMS balance.
+            recipientCount:
+              type: integer
+              description: Number of recipients the campaign asked for.
+            maxSendableRecipients:
+              type: integer
+              description: How many of those recipients availableBalance actually covers.
+      example:
+        type: BadRequestException
+        message: >-
+          Solde insuffisant : 320 SMS disponibles pour 452 destinataires demandés. Réduisez la
+          liste ou rechargez le compte.
+        availableBalance: 320
+        recipientCount: 452
+        maxSendableRecipients: 320
+    SmsCampaignStatus:
+      type: string
+      enum:
+        - PENDING
+        - IN_PROGRESS
+        - DELIVERED
+        - FAILED
+    SmsMessageStatus:
+      type: string
+      description: >-
+        Provisional — BEFIANA's own /get-delivery-status/ response values are undocumented and
+        unconfirmed; these are named to match once a live test call settles them.
+      enum:
+        - PENDING
+        - SENT
+        - DELIVERED
+        - FAILED
+    SmsRecipientSource:
+      type: string
+      description: Where a campaign recipient's number came from, for traceability.
+      enum:
+        - CONTACT_GROUP
+        - MANUAL_SELECTION
+        - IMPORTED_FILE
+    SmsCampaign:
+      type: object
+      properties:
+        id:
+          type: string
+        message:
+          type: string
+        status:
+          $ref: '#/components/schemas/SmsCampaignStatus'
+        contactGroupId:
+          type: string
+          description: Set only when the campaign targeted a saved contact group.
+        contactGroupName:
+          type: string
+        contactIds:
+          type: array
+          items:
+            type: string
+          description: Set only when the campaign targeted a manual selection of contacts.
+        recipientCount:
+          type: integer
+        deliveredCount:
+          type: integer
+        failedCount:
+          type: integer
+        sendAt:
+          type: string
+          format: date-time
+          description: >-
+            When the campaign is scheduled to fire; null means immediately. ISO date-time — the
+            YYYY-MM-DD HH:mm format BEFIANA itself expects is a server-side conversion detail.
+        createdById:
+          type: string
+        creationDatetime:
+          type: string
+          format: date-time
+    CrupdateSmsCampaign:
+      type: object
+      properties:
+        message:
+          type: string
+          description: Identical for every recipient of the campaign.
+        contactGroupId:
+          type: string
+        contactIds:
+          type: array
+          items:
+            type: string
+          description: A manual selection of contacts, as an alternative to contactGroupId.
+        sendAt:
+          type: string
+          format: date-time
+          description: >-
+            ISO date-time, omitted to send now; converted to BEFIANA's own YYYY-MM-DD HH:mm
+            format server-side.
+      required:
+        - message
+      description: >-
+        Exactly one of contactGroupId or contactIds is required, to resolve the campaign's
+        recipients.
+    SmsCampaignLaunched:
+      type: object
+      description: >-
+        Acknowledges a campaign. Messages are sent one batch at a time in the background, so none
+        of them exists yet when this is returned.
+      properties:
+        campaignId:
+          type: string
+        recipientCount:
+          type: integer
+        status:
+          $ref: '#/components/schemas/SmsCampaignStatus'
+    SmsLog:
+      type: object
+      properties:
+        id:
+          type: string
+        campaignId:
+          type: string
+        phoneNumber:
+          type: string
+        status:
+          $ref: '#/components/schemas/SmsMessageStatus'
+        recipientSource:
+          $ref: '#/components/schemas/SmsRecipientSource'
+        contactId:
+          type: string
+          description: Set only when recipientSource is CONTACT_GROUP and the number matched a saved contact.
+        sentDatetime:
+          type: string
+          format: date-time
+        deliveredDatetime:
+          type: string
+          format: date-time
+          description: Null until BEFIANA confirms delivery.
+        callbackData:
+          type: string
+          description: BEFIANA's identifier for this SMS, used to reconcile delivery status.
+    SmsFileImport:
+      type: object
+      description: >-
+        The file holds nothing but a list of phone numbers (one per row) — every recipient gets
+        the same message, carried separately in the message field.
+      properties:
+        file:
+          type: string
+          format: binary
+          description: .xlsx or .csv file, one phone number per row, no other column expected.
+        message:
+          type: string
+          description: Identical for every recipient in the file.
+        sendAt:
+          type: string
+          format: date-time
+          description: Same as CrupdateSmsCampaign.sendAt — omitted means immediately.
+      required:
+        - file
+        - message
+    SmsPersonalizedFileImport:
+      type: object
+      description: >-
+        Unlike SmsFileImport, the message itself varies per recipient: the file carries two
+        columns, a phone number and its own message text, one recipient per row.
+      properties:
+        file:
+          type: string
+          format: binary
+          description: .xlsx or .csv file with two columns, phone number and message, one recipient per row.
+        sendAt:
+          type: string
+          format: date-time
+          description: Same as CrupdateSmsCampaign.sendAt — omitted means immediately.
+      required:
+        - file
+    SmsFileImportRejectedRow:
+      type: object
+      properties:
+        row:
+          type: integer
+        value:
+          type: string
+        reason:
+          type: string
+    SmsFileImportResult:
+      type: object
+      properties:
+        campaignId:
+          type: string
+        campaignStatus:
+          $ref: '#/components/schemas/SmsCampaignStatus'
+        recipientsTotal:
+          type: integer
+        recipientsValid:
+          type: integer
+        recipientsRejected:
+          type: integer
+        rejectedRows:
+          type: array
+          items:
+            $ref: '#/components/schemas/SmsFileImportRejectedRow'
+    SendSmsToContact:
+      type: object
+      description: >-
+        Internally a 1-recipient campaign: trackable via getSmsCampaignById/getSmsCampaignLogs
+        like any other, so this stays a thin wrapper rather than a separate send mechanism.
+      properties:
+        message:
+          type: string
+        sendAt:
+          type: string
+          format: date-time
+          description: Same as CrupdateSmsCampaign.sendAt — omitted means immediately.
+      required:
+        - message

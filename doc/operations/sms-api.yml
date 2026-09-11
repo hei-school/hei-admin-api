@@ -1,0 +1,548 @@
+operations:
+  # ---------------------------------------------------------------------------------------------
+  # Contacts & contact groups (project-owned; the BEFIANA /contact/ endpoint is not used).
+  # A contact is created automatically when its user is created — no manual create/update.
+  # ---------------------------------------------------------------------------------------------
+  smsContacts:
+    get:
+      tags:
+        - Sms
+      summary: List the authenticated account's SMS contacts
+      description: >
+        contact_group_id and owner_role are optional and independent: omit both for the whole
+        address book, pass one alone to filter by group or by owner type, or combine both.
+      operationId: getSmsContacts
+      parameters:
+        - name: contact_group_id
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: owner_role
+          in: query
+          required: false
+          description: Filter to contacts whose owner has this role.
+          schema:
+            $ref: '../components.yml#/components/schemas/SmsContactOwnerRole'
+        - name: page
+          in: query
+          required: true
+          schema:
+            $ref: '../components.yml#/components/schemas/Page'
+        - name: page_size
+          in: query
+          required: true
+          schema:
+            $ref: '../components.yml#/components/schemas/PageSize'
+      responses:
+        '200':
+          description: The account's contacts, most recently added first
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '../components.yml#/components/schemas/SmsContact'
+        '400':
+          $ref: '../components.yml#/components/responses/400'
+        '403':
+          $ref: '../components.yml#/components/responses/403'
+        '500':
+          $ref: '../components.yml#/components/responses/500'
+  smsContactById:
+    get:
+      tags:
+        - Sms
+      summary: Get a single SMS contact
+      operationId: getSmsContactById
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: The contact
+          content:
+            application/json:
+              schema:
+                $ref: '../components.yml#/components/schemas/SmsContact'
+        '403':
+          $ref: '../components.yml#/components/responses/403'
+        '404':
+          $ref: '../components.yml#/components/responses/404'
+        '500':
+          $ref: '../components.yml#/components/responses/500'
+    delete:
+      tags:
+        - Sms
+      summary: Delete an SMS contact
+      description: >
+        Soft delete, from the SMS address book/groups only — does not touch the underlying user,
+        and nothing recreates the contact automatically afterwards.
+      operationId: deleteSmsContact
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: The deleted contact
+          content:
+            application/json:
+              schema:
+                $ref: '../components.yml#/components/schemas/SmsContact'
+        '400':
+          $ref: '../components.yml#/components/responses/400'
+        '403':
+          $ref: '../components.yml#/components/responses/403'
+        '404':
+          $ref: '../components.yml#/components/responses/404'
+        '500':
+          $ref: '../components.yml#/components/responses/500'
+  smsContactMessages:
+    post:
+      tags:
+        - Sms
+      summary: Send an SMS to a single contact
+      description: >
+        A shortcut for a 1-recipient campaign: same balance check and background send as
+        the bulk flows, trackable afterwards via getSmsCampaignById/getSmsCampaignLogs.
+        sendAt is optional — omit it to send right away, or schedule it like any other campaign.
+      operationId: sendSmsMessageToContact
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '../components.yml#/components/schemas/SendSmsToContact'
+      responses:
+        '202':
+          description: Message accepted and sending in the background
+          content:
+            application/json:
+              schema:
+                $ref: '../components.yml#/components/schemas/SmsCampaignLaunched'
+        '400':
+          description: >
+            Bad request, including insufficient balance — see SmsInsufficientBalanceAlert
+          content:
+            application/json:
+              schema:
+                $ref: '../components.yml#/components/schemas/SmsInsufficientBalanceAlert'
+        '403':
+          $ref: '../components.yml#/components/responses/403'
+        '404':
+          $ref: '../components.yml#/components/responses/404'
+        '500':
+          $ref: '../components.yml#/components/responses/500'
+  smsContactGroups:
+    get:
+      tags:
+        - Sms
+      summary: List the authenticated account's SMS contact groups
+      description: >
+        Lean listing (no members — see getSmsContacts with contact_group_id, or
+        getSmsContactGroupById), safe to back a campaign-target picker even for large groups.
+      operationId: getSmsContactGroups
+      parameters:
+        - name: page
+          in: query
+          required: true
+          schema:
+            $ref: '../components.yml#/components/schemas/Page'
+        - name: page_size
+          in: query
+          required: true
+          schema:
+            $ref: '../components.yml#/components/schemas/PageSize'
+      responses:
+        '200':
+          description: The account's contact groups, most recently created first
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '../components.yml#/components/schemas/SmsContactGroup'
+        '400':
+          $ref: '../components.yml#/components/responses/400'
+        '403':
+          $ref: '../components.yml#/components/responses/403'
+        '500':
+          $ref: '../components.yml#/components/responses/500'
+    post:
+      tags:
+        - Sms
+      summary: Create an SMS contact group
+      operationId: createSmsContactGroup
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '../components.yml#/components/schemas/CrupdateSmsContactGroup'
+      responses:
+        '200':
+          description: The created group
+          content:
+            application/json:
+              schema:
+                $ref: '../components.yml#/components/schemas/SmsContactGroup'
+        '400':
+          $ref: '../components.yml#/components/responses/400'
+        '403':
+          $ref: '../components.yml#/components/responses/403'
+        '500':
+          $ref: '../components.yml#/components/responses/500'
+  smsContactGroupById:
+    get:
+      tags:
+        - Sms
+      summary: Get an SMS contact group with its members
+      description: >
+        Unlike getSmsContactGroups, this embeds the full member list (name and phone number),
+        fine here since it is scoped to a single group.
+      operationId: getSmsContactGroupById
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: The group and its members
+          content:
+            application/json:
+              schema:
+                $ref: '../components.yml#/components/schemas/SmsContactGroupDetail'
+        '403':
+          $ref: '../components.yml#/components/responses/403'
+        '404':
+          $ref: '../components.yml#/components/responses/404'
+        '500':
+          $ref: '../components.yml#/components/responses/500'
+    put:
+      tags:
+        - Sms
+      summary: Rename an SMS contact group or replace its members
+      operationId: updateSmsContactGroup
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '../components.yml#/components/schemas/CrupdateSmsContactGroup'
+      responses:
+        '200':
+          description: The updated group
+          content:
+            application/json:
+              schema:
+                $ref: '../components.yml#/components/schemas/SmsContactGroup'
+        '400':
+          $ref: '../components.yml#/components/responses/400'
+        '403':
+          $ref: '../components.yml#/components/responses/403'
+        '404':
+          $ref: '../components.yml#/components/responses/404'
+        '500':
+          $ref: '../components.yml#/components/responses/500'
+    delete:
+      tags:
+        - Sms
+      summary: Delete an SMS contact group
+      description: Soft delete. Members are untouched — only the group and its use as a campaign target are removed.
+      operationId: deleteSmsContactGroup
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: The deleted group
+          content:
+            application/json:
+              schema:
+                $ref: '../components.yml#/components/schemas/SmsContactGroup'
+        '400':
+          $ref: '../components.yml#/components/responses/400'
+        '403':
+          $ref: '../components.yml#/components/responses/403'
+        '404':
+          $ref: '../components.yml#/components/responses/404'
+        '500':
+          $ref: '../components.yml#/components/responses/500'
+
+  # ---------------------------------------------------------------------------------------------
+  # Balance — read straight through to BEFIANA on every call, never cached.
+  # ---------------------------------------------------------------------------------------------
+  smsBalance:
+    get:
+      tags:
+        - Sms
+      summary: Get the current BEFIANA SMS balance
+      description: >
+        Live from BEFIANA on every call, so it may back the pre-send balance check as well
+        as a balance widget. BEFIANA's exact response shape is still to be confirmed.
+      operationId: getSmsBalance
+      responses:
+        '200':
+          description: The current balance
+          content:
+            application/json:
+              schema:
+                $ref: '../components.yml#/components/schemas/SmsBalance'
+        '403':
+          $ref: '../components.yml#/components/responses/403'
+        '500':
+          $ref: '../components.yml#/components/responses/500'
+
+  # ---------------------------------------------------------------------------------------------
+  # Campaigns — bulk send to a contact group or a manual selection of contacts.
+  # ---------------------------------------------------------------------------------------------
+  smsCampaigns:
+    post:
+      tags:
+        - Sms
+      summary: Launch an SMS campaign to a contact group or a manual selection of contacts
+      description: >
+        Balance is checked synchronously before anything is queued: if insufficient, no campaign
+        is created and 400 returns the available balance and how many recipients it covers.
+        Otherwise recipients are resolved and sent via /sendbulk/ in the background, chunked if
+        BEFIANA caps batch size — poll getSmsCampaignById for progress. One message for every
+        recipient, whether the target was contactGroupId or contactIds.
+      operationId: createSmsCampaign
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '../components.yml#/components/schemas/CrupdateSmsCampaign'
+      responses:
+        '202':
+          description: Campaign accepted and sending in the background
+          content:
+            application/json:
+              schema:
+                $ref: '../components.yml#/components/schemas/SmsCampaignLaunched'
+        '400':
+          description: >
+            Bad request, including insufficient balance — see SmsInsufficientBalanceAlert
+          content:
+            application/json:
+              schema:
+                $ref: '../components.yml#/components/schemas/SmsInsufficientBalanceAlert'
+        '403':
+          $ref: '../components.yml#/components/responses/403'
+        '404':
+          $ref: '../components.yml#/components/responses/404'
+        '500':
+          $ref: '../components.yml#/components/responses/500'
+    get:
+      tags:
+        - Sms
+      summary: List the authenticated account's SMS campaigns
+      operationId: getSmsCampaigns
+      parameters:
+        - name: status
+          in: query
+          required: false
+          schema:
+            $ref: '../components.yml#/components/schemas/SmsCampaignStatus'
+        - name: page
+          in: query
+          required: true
+          schema:
+            $ref: '../components.yml#/components/schemas/Page'
+        - name: page_size
+          in: query
+          required: true
+          schema:
+            $ref: '../components.yml#/components/schemas/PageSize'
+      responses:
+        '200':
+          description: The account's campaigns, most recent first
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '../components.yml#/components/schemas/SmsCampaign'
+        '400':
+          $ref: '../components.yml#/components/responses/400'
+        '403':
+          $ref: '../components.yml#/components/responses/403'
+        '500':
+          $ref: '../components.yml#/components/responses/500'
+  smsCampaignById:
+    get:
+      tags:
+        - Sms
+      summary: Get an SMS campaign's aggregate status
+      description: >
+        Includes contactGroupId/contactGroupName or contactIds, whichever the campaign was
+        launched with, so the original target stays visible after the fact.
+      operationId: getSmsCampaignById
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: The campaign
+          content:
+            application/json:
+              schema:
+                $ref: '../components.yml#/components/schemas/SmsCampaign'
+        '403':
+          $ref: '../components.yml#/components/responses/403'
+        '404':
+          $ref: '../components.yml#/components/responses/404'
+        '500':
+          $ref: '../components.yml#/components/responses/500'
+  smsCampaignLogs:
+    get:
+      tags:
+        - Sms
+      summary: List the per-recipient delivery log of an SMS campaign
+      description: >
+        One entry per SMS sent: recipient, status, timestamps, BEFIANA's callbackData, and where
+        the recipient came from (contact, group, or imported file). Most recent first.
+      operationId: getSmsCampaignLogs
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: status
+          in: query
+          required: false
+          schema:
+            $ref: '../components.yml#/components/schemas/SmsMessageStatus'
+        - name: page
+          in: query
+          required: true
+          schema:
+            $ref: '../components.yml#/components/schemas/Page'
+        - name: page_size
+          in: query
+          required: true
+          schema:
+            $ref: '../components.yml#/components/schemas/PageSize'
+      responses:
+        '200':
+          description: The campaign's delivery log
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '../components.yml#/components/schemas/SmsLog'
+        '403':
+          $ref: '../components.yml#/components/responses/403'
+        '404':
+          $ref: '../components.yml#/components/responses/404'
+        '500':
+          $ref: '../components.yml#/components/responses/500'
+
+  smsCampaignsSendFromFile:
+    post:
+      tags:
+        - Sms
+      summary: Launch an SMS campaign from a file of phone numbers, one shared message for all
+      description: >
+        The file holds nothing but a list of phone numbers, one per row; message is the one text
+        every recipient gets, sendAt an optional schedule (omit to send now). Numbers are
+        normalized to BEFIANA's expected format (digits only, no leading zero) and de-duplicated;
+        unreadable rows reported without blocking the rest. From
+        there the flow is createSmsCampaign's: balance check, background /sendbulk/ send, chunked
+        if needed. The file itself is never sent to BEFIANA, and imported numbers are used for
+        this campaign only.
+      operationId: sendSmsCampaignFromFile
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '../components.yml#/components/schemas/SmsFileImport'
+      responses:
+        '202':
+          description: File parsed and campaign accepted for the valid recipients; sending runs in the background
+          content:
+            application/json:
+              schema:
+                $ref: '../components.yml#/components/schemas/SmsFileImportResult'
+        '400':
+          description: >
+            Bad request — an unreadable file, or insufficient balance — see
+            SmsInsufficientBalanceAlert
+          content:
+            application/json:
+              schema:
+                $ref: '../components.yml#/components/schemas/SmsInsufficientBalanceAlert'
+        '403':
+          $ref: '../components.yml#/components/responses/403'
+        '500':
+          $ref: '../components.yml#/components/responses/500'
+  smsCampaignsSendPersonalizedFromFile:
+    post:
+      tags:
+        - Sms
+      summary: Launch an SMS campaign from a file pairing each phone number with its own message
+      description: >
+        The file carries two columns, a phone number and that recipient's own message, one per
+        row — no single shared message, unlike sendSmsCampaignFromFile. sendAt is an optional
+        schedule (omit to send now). Numbers are normalized to BEFIANA's expected format (digits
+        only, no leading zero); a row missing its number or message is reported without blocking
+        the rest. Because /sendbulk/ only takes one message per batch, this sends one
+        /send/ call per recipient in the background instead — slower, and drawing the balance
+        (still checked up front) at the unitary-send rate. The file is never sent to BEFIANA, only
+        the resulting number/message pairs.
+      operationId: sendPersonalizedSmsCampaignFromFile
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '../components.yml#/components/schemas/SmsPersonalizedFileImport'
+      responses:
+        '202':
+          description: File parsed and campaign accepted for the valid recipients; sending runs in the background
+          content:
+            application/json:
+              schema:
+                $ref: '../components.yml#/components/schemas/SmsFileImportResult'
+        '400':
+          description: >
+            Bad request — an unreadable file, or insufficient balance — see
+            SmsInsufficientBalanceAlert
+          content:
+            application/json:
+              schema:
+                $ref: '../components.yml#/components/schemas/SmsInsufficientBalanceAlert'
+        '403':
+          $ref: '../components.yml#/components/responses/403'
+        '500':
+          $ref: '../components.yml#/components/responses/500'
