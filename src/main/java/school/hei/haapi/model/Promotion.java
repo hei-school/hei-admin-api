@@ -98,21 +98,16 @@ public class Promotion {
     }
   }
 
-  public boolean hasLevelDuring(
-      StudentLevel level, Instant periodStart, Instant periodEnd, int referenceEntranceYear) {
-    var levels = cycleLevel.getLevels();
-    var levelIndex = levels.indexOf(level);
-    if (levelIndex < 0) {
-      return false;
-    }
-    var windowStart = academicYearStart(referenceEntranceYear + levelIndex);
-    var windowEnd = academicYearStart(referenceEntranceYear + levelIndex + 1);
-    var effectivePeriodEnd = periodEnd == null ? Instant.MAX : periodEnd;
-    return periodStart.isBefore(windowEnd) && effectivePeriodEnd.isAfter(windowStart);
-  }
-
   public int getEntranceYear() {
     return startDatetime.atZone(ZoneId.systemDefault()).getYear();
+  }
+
+  public Instant levelWindowEnd(StudentLevel level, int referenceEntranceYear) {
+    var levelIndex = cycleLevel.getLevels().indexOf(level);
+    if (levelIndex < 0) {
+      return null;
+    }
+    return academicYearStart(referenceEntranceYear + levelIndex + 1);
   }
 
   private static Instant academicYearStart(int scholarYear) {
