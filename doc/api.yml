@@ -396,6 +396,29 @@ paths:
     $ref: './operations/documenso-api.yml#/operations/getDocumensoDocumentFileUrl'
   '/documenso-documents/{id}/signing-token':
     $ref: './operations/documenso-api.yml#/operations/getDocumensoDocumentSigningToken'
+  # Sms
+  /sms-contacts:
+    $ref: './operations/sms-api.yml#/operations/smsContacts'
+  '/sms-contacts/{id}':
+    $ref: './operations/sms-api.yml#/operations/smsContactById'
+  '/sms-contacts/{id}/messages':
+    $ref: './operations/sms-api.yml#/operations/smsContactMessages'
+  /sms-contact-groups:
+    $ref: './operations/sms-api.yml#/operations/smsContactGroups'
+  '/sms-contact-groups/{id}':
+    $ref: './operations/sms-api.yml#/operations/smsContactGroupById'
+  /sms-balance:
+    $ref: './operations/sms-api.yml#/operations/smsBalance'
+  /sms-campaigns:
+    $ref: './operations/sms-api.yml#/operations/smsCampaigns'
+  '/sms-campaigns/{id}':
+    $ref: './operations/sms-api.yml#/operations/smsCampaignById'
+  '/sms-campaigns/{id}/logs':
+    $ref: './operations/sms-api.yml#/operations/smsCampaignLogs'
+  /sms-campaigns/send-from-file:
+    $ref: './operations/sms-api.yml#/operations/smsCampaignsSendFromFile'
+  /sms-campaigns/send-personalized-from-file:
+    $ref: './operations/sms-api.yml#/operations/smsCampaignsSendPersonalizedFromFile'
 
 components:
   securitySchemes:
