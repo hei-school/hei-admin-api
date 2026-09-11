@@ -7,9 +7,9 @@ import static school.hei.haapi.model.GroupFlow.GroupFlowType.LEAVE;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -18,14 +18,15 @@ import school.hei.haapi.endpoint.rest.mapper.GroupFlowMapper;
 import school.hei.haapi.endpoint.rest.model.CreateGroupFlow;
 import school.hei.haapi.endpoint.rest.model.StudentLevel;
 import school.hei.haapi.endpoint.rest.model.UpdateGroupFlow;
+import school.hei.haapi.model.CourseAssignment;
 import school.hei.haapi.model.Group;
 import school.hei.haapi.model.GroupFlow;
-import school.hei.haapi.model.Promotion;
 import school.hei.haapi.model.User;
 import school.hei.haapi.model.dto.GroupFlowPeriod;
 import school.hei.haapi.model.exception.NotFoundException;
 import school.hei.haapi.model.validator.GroupFlowValidator;
 import school.hei.haapi.repository.CourseAssignmentRepository;
+import school.hei.haapi.repository.GradeRepository;
 import school.hei.haapi.repository.GroupFlowRepository;
 import school.hei.haapi.repository.GroupRepository;
 import school.hei.haapi.repository.UserRepository;
@@ -40,6 +41,7 @@ public class GroupFlowService {
   private final GroupFlowValidator validator;
   private final GroupFlowMapper mapper;
   private final CourseAssignmentRepository courseAssignmentRepository;
+  private final GradeRepository gradeRepository;
 
   private void logger(GroupFlow studentGroupFlow) {
     log.info(
@@ -115,60 +117,85 @@ public class GroupFlowService {
       String studentId, StudentLevel level) {
     var groupFlows = repository.findByStudentId(studentId);
     var groupFlowsByGroup = groupFlows.stream().collect(Collectors.groupingBy(GroupFlow::getGroup));
-    var allPeriods =
+    var rawPeriods =
         groupFlowsByGroup.entrySet().stream()
             .flatMap(entry -> toGroupFlowPeriods(entry.getKey(), entry.getValue()).stream())
             .toList();
 
-    var referenceCalendar = findReferenceCalendar(allPeriods);
     var candidatesAtLevel =
-        allPeriods.stream()
-            .filter(
-                groupFlowPeriod -> isCandidateAtLevel(groupFlowPeriod, level, referenceCalendar))
+        rawPeriods.stream()
+            .flatMap(period -> sliceByLevel(studentId, period).stream())
+            .filter(levelPeriod -> level.equals(levelPeriod.level()))
+            .map(LevelPeriod::period)
             .toList();
-    var groupFlowPeriodsAtLevel = keepOnlyMostRecentCohort(candidatesAtLevel);
-    log.info(
-        "Student {} group flow periods at level {} : {}",
-        studentId,
-        level,
-        groupFlowPeriodsAtLevel);
-    return groupFlowPeriodsAtLevel;
+
+    var periodsAtLevel = keepOnlyMostRecentCohort(candidatesAtLevel);
+    log.info("Student {} group flow periods at level {} : {}", studentId, level, periodsAtLevel);
+    return periodsAtLevel;
   }
 
-  private boolean isCandidateAtLevel(
-      GroupFlowPeriod groupFlowPeriod, StudentLevel level, Optional<ReferenceCalendar> calendar) {
-    var assignedLevels = assignedLevelsOf(groupFlowPeriod.group());
-    if (!assignedLevels.contains(level)) {
+  private record LevelPeriod(StudentLevel level, GroupFlowPeriod period) {}
+
+  private List<LevelPeriod> sliceByLevel(String studentId, GroupFlowPeriod raw) {
+    var group = raw.group();
+    var assignedLevels = assignedLevelsOf(group);
+    if (assignedLevels.isEmpty()) {
+      return List.of();
+    }
+    var promotion = group.getPromotion();
+    if (assignedLevels.size() == 1 || promotion == null) {
+      return assignedLevels.stream()
+          .filter(level -> hasCredibleEvidenceAtLevel(studentId, group, level))
+          .map(level -> new LevelPeriod(level, raw))
+          .toList();
+    }
+
+    var orderedLevels =
+        promotion.getCycleLevel().getLevels().stream().filter(assignedLevels::contains).toList();
+    var entranceYear = promotion.getEntranceYear();
+    var upperBound = raw.end() != null ? raw.end() : Instant.now();
+    var slices = new ArrayList<LevelPeriod>();
+    var cursor = raw.start();
+    for (var level : orderedLevels) {
+      if (!cursor.isBefore(upperBound)) {
+        break;
+      }
+      var windowEnd = promotion.levelWindowEnd(level, entranceYear);
+      if (windowEnd == null || !windowEnd.isAfter(cursor)) {
+        continue;
+      }
+      var sliceEnd = windowEnd.isBefore(upperBound) ? windowEnd : raw.end();
+      if (hasCredibleEvidenceAtLevel(studentId, group, level)) {
+        slices.add(new LevelPeriod(level, new GroupFlowPeriod(group, cursor, sliceEnd)));
+      }
+      cursor = windowEnd.isBefore(upperBound) ? windowEnd : upperBound;
+    }
+    return slices;
+  }
+
+  private boolean hasCredibleEvidenceAtLevel(String studentId, Group group, StudentLevel level) {
+    var courseAssignmentsAtLevel =
+        courseAssignmentRepository.findAllByGroupId(group.getId()).stream()
+            .filter(ca -> level.equals(ca.getCourse().getStudentLevel()))
+            .toList();
+    if (courseAssignmentsAtLevel.isEmpty()) {
       return false;
     }
-    if (assignedLevels.size() == 1) {
+    var now = Instant.now();
+    var anyExamAlreadyPast =
+        courseAssignmentsAtLevel.stream()
+            .flatMap(ca -> ca.getExams() == null ? Stream.empty() : ca.getExams().stream())
+            .anyMatch(
+                exam ->
+                    exam.getExaminationDate() != null && exam.getExaminationDate().isBefore(now));
+    if (!anyExamAlreadyPast) {
       return true;
     }
-    return calendar.map(cal -> isAtLevel(groupFlowPeriod, level, cal)).orElse(true);
-  }
-
-  private Optional<ReferenceCalendar> findReferenceCalendar(List<GroupFlowPeriod> allPeriods) {
-    return allPeriods.stream()
-        .min(comparing(GroupFlowPeriod::start))
-        .map(GroupFlowPeriod::group)
-        .map(Group::getPromotion)
-        .map(promotion -> new ReferenceCalendar(promotion, promotion.getEntranceYear()));
-  }
-
-  private record ReferenceCalendar(Promotion promotion, int entranceYear) {}
-
-  private Set<StudentLevel> assignedLevelsOf(Group group) {
-    return courseAssignmentRepository.findAllByGroupId(group.getId()).stream()
-        .map(courseAssignment -> courseAssignment.getCourse().getStudentLevel())
-        .collect(Collectors.toSet());
-  }
-
-  private boolean isAtLevel(
-      GroupFlowPeriod groupFlowPeriod, StudentLevel level, ReferenceCalendar calendar) {
-    return calendar
-        .promotion()
-        .hasLevelDuring(
-            level, groupFlowPeriod.start(), groupFlowPeriod.end(), calendar.entranceYear());
+    var courseAssignmentIds =
+        courseAssignmentsAtLevel.stream().map(CourseAssignment::getId).toList();
+    var grades =
+        gradeRepository.findGradesByCourseAssignmentIdsAndStudentId(courseAssignmentIds, studentId);
+    return !grades.isEmpty();
   }
 
   private List<GroupFlowPeriod> keepOnlyMostRecentCohort(List<GroupFlowPeriod> periods) {
@@ -177,17 +204,23 @@ public class GroupFlowService {
     }
     var mostRecentPeriod = periods.stream().max(comparing(GroupFlowPeriod::start)).orElseThrow();
     return periods.stream()
-        .filter(groupFlowPeriod -> sameCohort(groupFlowPeriod, mostRecentPeriod))
+        .filter(groupFlowPeriod -> sameCohort(groupFlowPeriod.group(), mostRecentPeriod.group()))
         .toList();
   }
 
-  private boolean sameCohort(GroupFlowPeriod groupFlowPeriod, GroupFlowPeriod other) {
-    var promotion = groupFlowPeriod.group().getPromotion();
-    var otherPromotion = other.group().getPromotion();
+  private boolean sameCohort(Group group, Group other) {
+    var promotion = group.getPromotion();
+    var otherPromotion = other.getPromotion();
     if (promotion != null && otherPromotion != null) {
       return promotion.getId().equals(otherPromotion.getId());
     }
-    return groupFlowPeriod.group().getId().equals(other.group().getId());
+    return group.getId().equals(other.getId());
+  }
+
+  private Set<StudentLevel> assignedLevelsOf(Group group) {
+    return courseAssignmentRepository.findAllByGroupId(group.getId()).stream()
+        .map(courseAssignment -> courseAssignment.getCourse().getStudentLevel())
+        .collect(Collectors.toSet());
   }
 
   private List<GroupFlowPeriod> toGroupFlowPeriods(Group group, List<GroupFlow> groupFlows) {

@@ -72,6 +72,7 @@ class CourseResultServiceTest extends FacadeITMockedThirdParties {
   private Exam prog3Exam;
   private Exam secu1Exam;
   private Grade repeatingYearGrade;
+  private Grade axelGrade;
   @Autowired private ExamRepository examRepository;
   @Autowired private GradeRepository gradeRepository;
 
@@ -154,6 +155,7 @@ class CourseResultServiceTest extends FacadeITMockedThirdParties {
             .exam(groupHProg1Exam)
             .score(12.)
             .build();
+    axelGrade = Grade.builder().student(studentAxel).exam(prog1Exam).score(14.).build();
 
     userRepository.saveAll(List.of(studentAxel, repeatingStudentTolojanahary, teacherRyan));
     groupRepository.saveAll(List.of(group1, group2, group3));
@@ -161,7 +163,7 @@ class CourseResultServiceTest extends FacadeITMockedThirdParties {
     courseAssignmentRepository.saveAll(
         List.of(anL1Assignment, newL1Assignment, anL2Assignment, anL3Assignment));
     examRepository.saveAll(List.of(prog1Exam, prog3Exam, secu1Exam, groupHProg1Exam));
-    gradeRepository.save(repeatingYearGrade);
+    gradeRepository.saveAll(List.of(repeatingYearGrade, axelGrade));
     groupFlowRepository.saveAll(
         List.of(
             axelGroupFlow,
