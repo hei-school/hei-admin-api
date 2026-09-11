@@ -11,6 +11,7 @@ import static school.hei.haapi.endpoint.rest.model.StudentLevel.L3;
 import static school.hei.haapi.model.GroupFlow.GroupFlowType.JOIN;
 import static school.hei.haapi.model.GroupFlow.GroupFlowType.LEAVE;
 
+import java.util.ArrayList;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 import school.hei.haapi.endpoint.rest.mapper.GroupFlowMapper;
@@ -18,6 +19,8 @@ import school.hei.haapi.endpoint.rest.model.StudentLevel;
 import school.hei.haapi.model.Course;
 import school.hei.haapi.model.CourseAssignment;
 import school.hei.haapi.model.CycleLevel;
+import school.hei.haapi.model.Exam;
+import school.hei.haapi.model.Grade;
 import school.hei.haapi.model.Group;
 import school.hei.haapi.model.GroupFlow;
 import school.hei.haapi.model.Promotion;
@@ -25,6 +28,7 @@ import school.hei.haapi.model.User;
 import school.hei.haapi.model.dto.GroupFlowPeriod;
 import school.hei.haapi.model.validator.GroupFlowValidator;
 import school.hei.haapi.repository.CourseAssignmentRepository;
+import school.hei.haapi.repository.GradeRepository;
 import school.hei.haapi.repository.GroupFlowRepository;
 import school.hei.haapi.repository.GroupRepository;
 import school.hei.haapi.repository.UserRepository;
@@ -32,6 +36,7 @@ import school.hei.haapi.repository.UserRepository;
 class GroupFlowServiceTest {
   private final GroupFlowRepository groupFlowRepository = mock();
   private final CourseAssignmentRepository courseAssignmentRepository = mock();
+  private final GradeRepository gradeRepository = mock();
   private final GroupFlowService subject =
       new GroupFlowService(
           groupFlowRepository,
@@ -39,7 +44,8 @@ class GroupFlowServiceTest {
           mock(UserRepository.class),
           mock(GroupFlowValidator.class),
           mock(GroupFlowMapper.class),
-          courseAssignmentRepository);
+          courseAssignmentRepository,
+          gradeRepository);
 
   private static Promotion promotion() {
     return Promotion.builder()
@@ -67,13 +73,50 @@ class GroupFlowServiceTest {
         .build();
   }
 
-  private static CourseAssignment assignmentAtLevel(StudentLevel level) {
-    return CourseAssignment.builder().course(Course.builder().studentLevel(level).build()).build();
+  private static CourseAssignment assignmentAtLevel(Group group, StudentLevel level) {
+    return CourseAssignment.builder()
+        .id(group.getId() + "-" + level)
+        .course(Course.builder().studentLevel(level).build())
+        .build();
   }
 
   private void groupHasAssignmentsAtLevels(Group group, StudentLevel... levels) {
     when(courseAssignmentRepository.findAllByGroupId(group.getId()))
-        .thenReturn(List.of(levels).stream().map(GroupFlowServiceTest::assignmentAtLevel).toList());
+        .thenReturn(List.of(levels).stream().map(l -> assignmentAtLevel(group, l)).toList());
+  }
+
+  private void groupHasAssignments(Group group, CourseAssignment... assignments) {
+    when(courseAssignmentRepository.findAllByGroupId(group.getId()))
+        .thenReturn(List.of(assignments));
+  }
+
+  private CourseAssignment gradedAssignment(Group group, StudentLevel level, String studentId) {
+    var assignment = assignmentAtLevel(group, level);
+    var exam =
+        Exam.builder()
+            .id(assignment.getId() + "-exam")
+            .examinationDate(parse("2020-01-01T00:00:00Z"))
+            .build();
+    assignment.setExams(new ArrayList<>(List.of(exam)));
+    when(gradeRepository.findGradesByCourseAssignmentIdsAndStudentId(
+            List.of(assignment.getId()), studentId))
+        .thenReturn(List.of(Grade.builder().exam(exam).score(15.).build()));
+    return assignment;
+  }
+
+  private CourseAssignment ungradedPastAssignment(
+      Group group, StudentLevel level, String studentId) {
+    var assignment = assignmentAtLevel(group, level);
+    var exam =
+        Exam.builder()
+            .id(assignment.getId() + "-exam")
+            .examinationDate(parse("2020-01-01T00:00:00Z"))
+            .build();
+    assignment.setExams(new ArrayList<>(List.of(exam)));
+    when(gradeRepository.findGradesByCourseAssignmentIdsAndStudentId(
+            List.of(assignment.getId()), studentId))
+        .thenReturn(List.of());
+    return assignment;
   }
 
   @Test
@@ -223,8 +266,7 @@ class GroupFlowServiceTest {
   }
 
   @Test
-  void
-      a_double_repeater_is_reported_using_each_levels_first_attempt_group_without_an_explicit_repeat_signal() {
+  void a_double_repeater_is_reported_using_each_levels_actual_attempt_group() {
     var student = User.builder().id("student").build();
     var promoG =
         Promotion.builder()
@@ -253,23 +295,28 @@ class GroupFlowServiceTest {
 
     var flows =
         List.of(
+            // L1 attempt 1: fails, leaves g before L1's own calendar year is over.
             flow(student, g, JOIN, "2022-11-05T00:00:00Z"),
             flow(student, g, LEAVE, "2023-08-01T00:00:00Z"),
+            // L1 retake in h, continuing straight into L2 -- also left without validating L2.
             flow(student, h, JOIN, "2023-11-05T00:00:00Z"),
             flow(student, h, LEAVE, "2025-08-01T00:00:00Z"),
-            flow(student, j, JOIN, "2025-11-05T00:00:00Z"));
+            // Finishes L2 and moves into L3 in j.
+            flow(student, j, JOIN, "2025-11-05T00:00:00Z"),
+            flow(student, j, LEAVE, "2027-06-01T00:00:00Z"));
     when(groupFlowRepository.findByStudentId(student.getId())).thenReturn(flows);
 
     var l1Periods = subject.findStudentLatestGroupFlowPeriodsAtLevel(student.getId(), L1);
     assertEquals(1, l1Periods.size());
-    assertEquals(g, l1Periods.getFirst().group());
+    assertEquals(h, l1Periods.getFirst().group(), "L1 must resolve to the retake (h), not g");
 
     var l2Periods = subject.findStudentLatestGroupFlowPeriodsAtLevel(student.getId(), L2);
     assertEquals(1, l2Periods.size());
-    assertEquals(h, l2Periods.getFirst().group());
+    assertEquals(j, l2Periods.getFirst().group(), "L2 must resolve to j, superseding h's attempt");
 
     var l3Periods = subject.findStudentLatestGroupFlowPeriodsAtLevel(student.getId(), L3);
-    assertEquals(List.of(), l3Periods, "compounding repeats overrun the original calendar for L3");
+    assertEquals(1, l3Periods.size());
+    assertEquals(j, l3Periods.getFirst().group());
   }
 
   @Test
@@ -291,7 +338,13 @@ class GroupFlowServiceTest {
     var h1 = Group.builder().id("h1").ref("H1").promotion(h1Promotion).build();
     var j2 = Group.builder().id("j2").ref("J2").promotion(j2Promotion).build();
     groupHasAssignmentsAtLevels(h1, L1, L2, L3);
-    groupHasAssignmentsAtLevels(j2, L1, L2, L3);
+    // j2's own calendar makes its join date look like the start of J2's L1 year, but the student
+    // never actually sat any of J2's (already past) L1 exams -- they only ever did L2/L3 there.
+    groupHasAssignments(
+        j2,
+        ungradedPastAssignment(j2, L1, student.getId()),
+        assignmentAtLevel(j2, L2),
+        assignmentAtLevel(j2, L3));
 
     var flows =
         List.of(
@@ -421,5 +474,151 @@ class GroupFlowServiceTest {
 
     assertEquals(1, periods.size());
     assertEquals(groupWithoutPromotion, periods.getFirst().group());
+  }
+
+  @Test
+  void a_single_repeat_straight_into_a_multi_level_group_resolves_every_level_to_its_own_attempt() {
+    var student = User.builder().id("student").build();
+    var promoH =
+        Promotion.builder()
+            .id("promo-H-single")
+            .startDatetime(parse("2023-11-01T00:00:00Z"))
+            .cycleLevel(CycleLevel.BACHELOR)
+            .build();
+    var promoJ =
+        Promotion.builder()
+            .id("promo-J-single")
+            .startDatetime(parse("2024-11-01T00:00:00Z"))
+            .cycleLevel(CycleLevel.BACHELOR)
+            .build();
+    var h1 = Group.builder().id("h1-single").ref("H1").promotion(promoH).build();
+    var j2 = Group.builder().id("j2-single").ref("J2").promotion(promoJ).build();
+    groupHasAssignmentsAtLevels(h1, L1, L2);
+    groupHasAssignmentsAtLevels(j2, L2, L3);
+
+    var flows =
+        List.of(
+            flow(student, h1, JOIN, "2023-11-05T00:00:00Z"),
+            flow(student, h1, LEAVE, "2025-08-01T00:00:00Z"),
+            flow(student, j2, JOIN, "2025-11-05T00:00:00Z"),
+            flow(student, j2, LEAVE, "2027-06-01T00:00:00Z"));
+    when(groupFlowRepository.findByStudentId(student.getId())).thenReturn(flows);
+
+    var l1Periods = subject.findStudentLatestGroupFlowPeriodsAtLevel(student.getId(), L1);
+    assertEquals(1, l1Periods.size());
+    assertEquals(h1, l1Periods.getFirst().group());
+
+    var l2Periods = subject.findStudentLatestGroupFlowPeriodsAtLevel(student.getId(), L2);
+    assertEquals(1, l2Periods.size());
+    assertEquals(j2, l2Periods.getFirst().group());
+
+    var l3Periods = subject.findStudentLatestGroupFlowPeriodsAtLevel(student.getId(), L3);
+    assertEquals(1, l3Periods.size());
+    assertEquals(j2, l3Periods.getFirst().group());
+  }
+
+  @Test
+  void
+      a_mid_level_split_within_the_same_promotion_keeps_both_stints_even_after_an_earlier_level_switch() {
+    var student = User.builder().id("student").build();
+    var promotion =
+        Promotion.builder()
+            .id("promo-K")
+            .startDatetime(parse("2024-11-01T00:00:00Z"))
+            .cycleLevel(CycleLevel.BACHELOR)
+            .build();
+    var k1 = Group.builder().id("k1-split").ref("K1").promotion(promotion).build();
+    var k2 = Group.builder().id("k2-split").ref("K2").promotion(promotion).build();
+    groupHasAssignmentsAtLevels(k1, L1, L2);
+    groupHasAssignmentsAtLevels(k2, L1, L2);
+
+    var flows =
+        List.of(
+            flow(student, k1, JOIN, "2024-11-05T00:00:00Z"),
+            flow(student, k1, LEAVE, "2025-09-01T00:00:00Z"),
+            flow(student, k2, JOIN, "2025-11-05T00:00:00Z"),
+            flow(student, k2, LEAVE, "2026-04-05T00:00:00Z"),
+            flow(student, k1, JOIN, "2026-04-05T00:00:00Z"),
+            flow(student, k1, LEAVE, "2026-09-05T00:00:00Z"));
+    when(groupFlowRepository.findByStudentId(student.getId())).thenReturn(flows);
+
+    var l1Periods = subject.findStudentLatestGroupFlowPeriodsAtLevel(student.getId(), L1);
+    assertEquals(1, l1Periods.size());
+    assertEquals(k1, l1Periods.getFirst().group());
+
+    var l2Periods = subject.findStudentLatestGroupFlowPeriodsAtLevel(student.getId(), L2);
+    assertEquals(2, l2Periods.size(), "both the K2 and the K1 comeback stints must show for L2");
+    assertEquals(
+        List.of(k2, k1),
+        l2Periods.stream()
+            .sorted(comparing(GroupFlowPeriod::start))
+            .map(GroupFlowPeriod::group)
+            .toList());
+  }
+
+  @Test
+  void a_student_who_never_switched_group_resolves_every_level_to_that_single_group() {
+    var student = User.builder().id("student").build();
+    var promotion =
+        Promotion.builder()
+            .id("promo-J-stable")
+            .startDatetime(parse("2023-11-01T00:00:00Z"))
+            .cycleLevel(CycleLevel.BACHELOR)
+            .build();
+    var j2 = Group.builder().id("j2-stable").ref("J2").promotion(promotion).build();
+    groupHasAssignmentsAtLevels(j2, L1, L2, L3);
+
+    var flows =
+        List.of(
+            flow(student, j2, JOIN, "2023-11-05T00:00:00Z"),
+            flow(student, j2, LEAVE, "2027-06-01T00:00:00Z"));
+    when(groupFlowRepository.findByStudentId(student.getId())).thenReturn(flows);
+
+    for (var level : List.of(L1, L2, L3)) {
+      var periods = subject.findStudentLatestGroupFlowPeriodsAtLevel(student.getId(), level);
+      assertEquals(1, periods.size(), "expected a single period for " + level);
+      assertEquals(j2, periods.getFirst().group());
+    }
+  }
+
+  @Test
+  void
+      a_transfer_into_a_group_whose_l1_exams_the_student_never_took_does_not_steal_l1_from_the_real_group() {
+    var student = User.builder().id("student").build();
+    var h1Promotion =
+        Promotion.builder()
+            .id("promo-h1-real")
+            .startDatetime(parse("2022-11-01T00:00:00Z"))
+            .cycleLevel(CycleLevel.BACHELOR)
+            .build();
+    var j2Promotion =
+        Promotion.builder()
+            .id("promo-j2-real")
+            .startDatetime(parse("2023-11-01T00:00:00Z"))
+            .cycleLevel(CycleLevel.BACHELOR)
+            .build();
+    var h1 = Group.builder().id("h1-real").ref("H1").promotion(h1Promotion).build();
+    var j2 = Group.builder().id("j2-real").ref("J2").promotion(j2Promotion).build();
+    groupHasAssignments(h1, gradedAssignment(h1, L1, student.getId()));
+    groupHasAssignments(
+        j2,
+        ungradedPastAssignment(j2, L1, student.getId()),
+        gradedAssignment(j2, L2, student.getId()));
+
+    var flows =
+        List.of(
+            flow(student, h1, JOIN, "2022-10-02T00:00:00Z"),
+            flow(student, h1, LEAVE, "2023-10-01T00:00:00Z"),
+            flow(student, j2, JOIN, "2024-01-21T07:19:00Z"),
+            flow(student, j2, LEAVE, "2027-06-01T00:00:00Z"));
+    when(groupFlowRepository.findByStudentId(student.getId())).thenReturn(flows);
+
+    var l1Periods = subject.findStudentLatestGroupFlowPeriodsAtLevel(student.getId(), L1);
+    assertEquals(1, l1Periods.size());
+    assertEquals(h1, l1Periods.getFirst().group(), "L1 must stay on H1, not be stolen by J2");
+
+    var l2Periods = subject.findStudentLatestGroupFlowPeriodsAtLevel(student.getId(), L2);
+    assertEquals(1, l2Periods.size());
+    assertEquals(j2, l2Periods.getFirst().group());
   }
 }
