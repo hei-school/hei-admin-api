@@ -11,6 +11,8 @@ import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 import java.io.File;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
 import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.springframework.web.client.RestClientException;
@@ -19,7 +21,6 @@ import school.hei.haapi.model.DocumensoDocument;
 import school.hei.haapi.model.DocumensoDocumentStatus;
 import school.hei.haapi.model.FileInfo;
 import school.hei.haapi.model.exception.ApiException;
-import school.hei.haapi.model.exception.NotFoundException;
 import school.hei.haapi.repository.DocumensoDocumentRepository;
 import school.hei.haapi.repository.FileInfoRepository;
 
@@ -58,14 +59,14 @@ class DocumensoWebhookHandlerTest {
   }
 
   @Test
-  void an_unknown_document_is_not_found() {
+  void an_unknown_document_is_acknowledged_without_being_archived() {
     when(documentRepository.findByDocumensoDocumentId(42L)).thenReturn(Optional.empty());
 
-    var thrown =
-        assertThrows(
-            NotFoundException.class, () -> subject.handle(payload("DOCUMENT_COMPLETED", 42L)));
-    assertEquals("Documenso document 42", thrown.getMessage());
+    subject.handle(payload("DOCUMENT_COMPLETED", 42L));
+
     verify(bucketComponent, never()).upload(any(), any());
+    verify(documentRepository, never()).save(any());
+    verifyNoInteractions(documensoClient);
   }
 
   @Test
@@ -88,10 +89,17 @@ class DocumensoWebhookHandlerTest {
 
     subject.handle(payload("DOCUMENT_COMPLETED", 42L));
 
-    verify(bucketComponent).upload(signedFile, "documenso-documents/42.pdf");
+    /* built from the stamped date: the month folder and the completion date must be the same instant */
+    var expectedKey =
+        "DOCUMENSO/"
+            + DateTimeFormatter.ofPattern("yyyy-MM")
+                .withZone(ZoneOffset.UTC)
+                .format(document.getCompletedDatetime())
+            + "/42.pdf";
+    verify(bucketComponent).upload(signedFile, expectedKey);
     verify(documentRepository).save(document);
     assertEquals(DocumensoDocumentStatus.COMPLETED, document.getStatus());
-    assertEquals("documenso-documents/42.pdf", document.getFileInfo().getFilePath());
+    assertEquals(expectedKey, document.getFileInfo().getFilePath());
   }
 
   @Test

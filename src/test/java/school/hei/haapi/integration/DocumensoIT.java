@@ -744,6 +744,15 @@ class DocumensoIT extends FacadeITMockedThirdParties {
   }
 
   @Test
+  void webhook_of_an_unknown_document_is_acknowledged() throws Exception {
+    var response =
+        sendWebhook("{\"event\":\"DOCUMENT_COMPLETED\",\"payload\":{\"id\":10}}", "dummy-secret");
+
+    // anything else and Documenso keeps retrying the very same payload for hours
+    assertEquals(200, response.statusCode());
+  }
+
+  @Test
   void webhook_with_wrong_secret_is_rejected() throws Exception {
     var response =
         sendWebhook("{\"event\":\"DOCUMENT_COMPLETED\",\"payload\":{\"id\":1}}", "wrong-secret");
