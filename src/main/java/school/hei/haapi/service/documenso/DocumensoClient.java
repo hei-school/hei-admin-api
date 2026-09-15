@@ -1,7 +1,16 @@
 package school.hei.haapi.service.documenso;
 
 import java.io.File;
+import java.io.IOException;
 import java.math.BigDecimal;
+import java.nio.file.Files;
+import java.util.HashMap;
+import java.util.List;
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
+import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.web.client.RestClientException;
 import school.hei.haapi.service.documenso.gen.api.DocumentApi;
 import school.hei.haapi.service.documenso.gen.api.TemplateApi;
@@ -13,11 +22,15 @@ import school.hei.haapi.service.documenso.gen.model.TemplateFindTemplates200Resp
 import school.hei.haapi.service.documenso.gen.model.TemplateGetTemplateById200Response;
 
 public class DocumensoClient {
+  private static final String DOWNLOAD_PATH = "/document/{documentId}/download";
+  private static final String[] API_KEY_AUTH = {"apiKey"};
+
+  private final ApiClient apiClient;
   private final TemplateApi templateApi;
   private final DocumentApi documentApi;
 
   public DocumensoClient(String baseUrl, String apiKey) {
-    var apiClient = new ApiClient();
+    this.apiClient = new ApiClient();
     apiClient.setBasePath(baseUrl);
     apiClient.setApiKey(apiKey);
     this.templateApi = new TemplateApi(apiClient);
@@ -45,6 +58,40 @@ public class DocumensoClient {
   }
 
   public File downloadSignedDocument(long documentId) throws RestClientException {
-    return documentApi.documentDownload(BigDecimal.valueOf(documentId), "signed");
+    var pathParams = new HashMap<String, Object>();
+    pathParams.put("documentId", BigDecimal.valueOf(documentId));
+    var queryParams = new LinkedMultiValueMap<String, String>();
+    queryParams.add("version", "signed");
+
+    var signedPdf =
+        apiClient
+            .invokeAPI(
+                DOWNLOAD_PATH,
+                HttpMethod.GET,
+                pathParams,
+                queryParams,
+                null,
+                new HttpHeaders(),
+                new LinkedMultiValueMap<>(),
+                new LinkedMultiValueMap<>(),
+                List.of(MediaType.APPLICATION_PDF),
+                null,
+                API_KEY_AUTH,
+                new ParameterizedTypeReference<byte[]>() {})
+            .getBody();
+    if (signedPdf == null || signedPdf.length == 0) {
+      throw new RestClientException("Documenso returned an empty signed document " + documentId);
+    }
+    return storeTemporarily(signedPdf, documentId);
+  }
+
+  private static File storeTemporarily(byte[] signedPdf, long documentId) {
+    try {
+      var file = File.createTempFile("documenso-" + documentId + "-", ".pdf");
+      Files.write(file.toPath(), signedPdf);
+      return file;
+    } catch (IOException e) {
+      throw new RestClientException("Could not store the signed document " + documentId, e);
+    }
   }
 }
