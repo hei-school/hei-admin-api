@@ -1,8 +1,4 @@
 operations:
-  # ---------------------------------------------------------------------------------------------
-  # Contacts & contact groups (project-owned; the BEFIANA /contact/ endpoint is not used).
-  # A contact is created automatically when its user is created — no manual create/update.
-  # ---------------------------------------------------------------------------------------------
   smsContacts:
     get:
       tags:
@@ -292,9 +288,6 @@ operations:
         '500':
           $ref: '../components.yml#/components/responses/500'
 
-  # ---------------------------------------------------------------------------------------------
-  # Balance — read straight through to BEFIANA on every call, never cached.
-  # ---------------------------------------------------------------------------------------------
   smsBalance:
     get:
       tags:
@@ -316,9 +309,6 @@ operations:
         '500':
           $ref: '../components.yml#/components/responses/500'
 
-  # ---------------------------------------------------------------------------------------------
-  # Campaigns — bulk send to a contact group or a manual selection of contacts.
-  # ---------------------------------------------------------------------------------------------
   smsCampaigns:
     post:
       tags:
