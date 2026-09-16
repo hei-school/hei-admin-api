@@ -2450,8 +2450,16 @@ components:
           type: string
           format: date-time
           description: >-
-            When the monitor signed. Null while the document is pending, and set by whichever of the
-            webhook or the reconciliation sweep learns of the signature first.
+            When the monitor signed, as stamped by Documenso itself. Null while the document is
+            pending. Falls back to archivedDatetime in the rare case where Documenso reports a
+            completed document without a completion date.
+        archivedDatetime:
+          type: string
+          format: date-time
+          description: >-
+            When we downloaded the signed pdf and stored it. Later than completedDatetime, by
+            seconds when the webhook arrives normally, by as much as a day when the signature was
+            only noticed by the reconciliation sweep.
         generatedById:
           type: string
           description: >-

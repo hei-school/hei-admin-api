@@ -68,7 +68,7 @@ class PendingDocumensoDocumentsCheckTriggeredServiceTest {
 
     subject.accept(new PendingDocumensoDocumentsCheckTriggered());
 
-    verify(webhookHandler).archiveSignedDocument(document);
+    verify(webhookHandler).archiveSignedDocument(document, null);
   }
 
   @Test
@@ -79,7 +79,7 @@ class PendingDocumensoDocumentsCheckTriggeredServiceTest {
 
     subject.accept(new PendingDocumensoDocumentsCheckTriggered());
 
-    verify(webhookHandler, never()).archiveSignedDocument(any());
+    verify(webhookHandler, never()).archiveSignedDocument(any(), any());
     verify(documentRepository, never()).save(any());
   }
 
@@ -94,7 +94,7 @@ class PendingDocumensoDocumentsCheckTriggeredServiceTest {
     assertEquals(DocumensoDocumentStatus.REJECTED, document.getStatus());
     assertNotNull(document.getCompletedDatetime());
     verify(documentRepository).save(document);
-    verify(webhookHandler, never()).archiveSignedDocument(any());
+    verify(webhookHandler, never()).archiveSignedDocument(any(), any());
   }
 
   @Test
@@ -107,7 +107,7 @@ class PendingDocumensoDocumentsCheckTriggeredServiceTest {
 
     assertDoesNotThrow(() -> subject.accept(new PendingDocumensoDocumentsCheckTriggered()));
 
-    verify(webhookHandler).archiveSignedDocument(signed);
+    verify(webhookHandler).archiveSignedDocument(signed, null);
   }
 
   @Test
@@ -118,7 +118,7 @@ class PendingDocumensoDocumentsCheckTriggeredServiceTest {
 
     subject.accept(new PendingDocumensoDocumentsCheckTriggered());
 
-    verify(webhookHandler, never()).archiveSignedDocument(any());
+    verify(webhookHandler, never()).archiveSignedDocument(any(), any());
     verify(documentRepository, never()).save(any());
   }
 }

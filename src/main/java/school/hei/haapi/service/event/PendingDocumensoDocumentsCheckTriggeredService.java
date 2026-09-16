@@ -48,7 +48,8 @@ public class PendingDocumensoDocumentsCheckTriggeredService
     var remote = documensoClient.getDocument(document.getDocumensoDocumentId());
     return switch (remote.getStatus()) {
       case COMPLETED -> {
-        webhookHandler.archiveSignedDocument(document);
+        webhookHandler.archiveSignedDocument(
+            document, DocumensoWebhookHandler.parseDocumensoInstant(remote.getCompletedAt()));
         yield true;
       }
       case REJECTED -> {

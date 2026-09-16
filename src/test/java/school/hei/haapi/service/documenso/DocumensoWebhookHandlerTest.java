@@ -11,6 +11,7 @@ import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 import java.io.File;
+import java.time.Instant;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.Optional;
@@ -36,8 +37,13 @@ class DocumensoWebhookHandlerTest {
           documensoClient, documentRepository, fileInfoRepository, bucketComponent);
 
   private static DocumensoWebhookPayload payload(String event, Long documentId) {
+    return payload(event, documentId, null);
+  }
+
+  private static DocumensoWebhookPayload payload(
+      String event, Long documentId, String completedAt) {
     return new DocumensoWebhookPayload(
-        event, documentId == null ? null : new DocumensoDocumentEvent(documentId));
+        event, documentId == null ? null : new DocumensoDocumentEvent(documentId, completedAt));
   }
 
   @Test
@@ -87,19 +93,22 @@ class DocumensoWebhookHandlerTest {
     when(documensoClient.downloadSignedDocument(42L)).thenReturn(signedFile);
     when(fileInfoRepository.save(any())).thenAnswer(call -> call.getArgument(0, FileInfo.class));
 
-    subject.handle(payload("DOCUMENT_COMPLETED", 42L));
+    subject.handle(payload("DOCUMENT_COMPLETED", 42L, "2026-09-15T09:00:55.842Z"));
 
-    /* built from the stamped date: the month folder and the completion date must be the same instant */
     var expectedKey =
         "DOCUMENSO/"
             + DateTimeFormatter.ofPattern("yyyy-MM")
                 .withZone(ZoneOffset.UTC)
-                .format(document.getCompletedDatetime())
+                .format(document.getArchivedDatetime())
             + "/42.pdf";
     verify(bucketComponent).upload(signedFile, expectedKey);
     verify(documentRepository).save(document);
     assertEquals(DocumensoDocumentStatus.COMPLETED, document.getStatus());
     assertEquals(expectedKey, document.getFileInfo().getFilePath());
+    assertEquals(
+        Instant.parse("2026-09-15T09:00:55.842Z"),
+        document.getCompletedDatetime(),
+        "the signature date is Documenso's, not ours");
   }
 
   @Test

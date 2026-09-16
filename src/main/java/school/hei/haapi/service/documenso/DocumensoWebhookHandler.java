@@ -3,6 +3,7 @@ package school.hei.haapi.service.documenso;
 import java.time.Instant;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -46,27 +47,40 @@ public class DocumensoWebhookHandler {
       return;
     }
 
-    archiveSignedDocument(document.get());
+    archiveSignedDocument(
+        document.get(), parseDocumensoInstant(payload.getPayload().getCompletedAt()));
+  }
+
+  public static Instant parseDocumensoInstant(String raw) {
+    if (raw == null || raw.isBlank()) {
+      return null;
+    }
+    try {
+      return Instant.parse(raw);
+    } catch (DateTimeParseException e) {
+      log.warn("Unreadable Documenso date '{}'", raw);
+      return null;
+    }
   }
 
   @Transactional
-  public void archiveSignedDocument(DocumensoDocument document) {
+  public void archiveSignedDocument(DocumensoDocument document, Instant signedAt) {
     try {
-      var completedAt = Instant.now();
-      downloadAndSaveSignedDocument(document, document.getDocumensoDocumentId(), completedAt);
-      markDocumentCompleted(document, completedAt);
+      var archivedAt = Instant.now();
+      downloadAndSaveSignedDocument(document, document.getDocumensoDocumentId(), archivedAt);
+      markDocumentCompleted(document, signedAt, archivedAt);
     } catch (RestClientException e) {
       throw new ApiException(ExceptionType.SERVER_EXCEPTION, e);
     }
   }
 
   private void downloadAndSaveSignedDocument(
-      DocumensoDocument document, Long documensoDocumentId, Instant completedAt) {
+      DocumensoDocument document, Long documensoDocumentId, Instant archivedAt) {
     var signedFile = documensoClient.downloadSignedDocument(documensoDocumentId);
     try {
       var bucketKey =
           String.format(
-              "%s/%s/%d.pdf", BUCKET_FOLDER, MONTH_FOLDER.format(completedAt), documensoDocumentId);
+              "%s/%s/%d.pdf", BUCKET_FOLDER, MONTH_FOLDER.format(archivedAt), documensoDocumentId);
       bucketComponent.upload(signedFile, bucketKey);
 
       var fileInfo =
@@ -83,9 +97,16 @@ public class DocumensoWebhookHandler {
     }
   }
 
-  private void markDocumentCompleted(DocumensoDocument document, Instant completedAt) {
+  private void markDocumentCompleted(
+      DocumensoDocument document, Instant signedAt, Instant archivedAt) {
+    if (signedAt == null) {
+      log.warn(
+          "Documenso gave no completion date for document {}, falling back to the archiving date",
+          document.getDocumensoDocumentId());
+    }
     document.setStatus(DocumensoDocumentStatus.COMPLETED);
-    document.setCompletedDatetime(completedAt);
+    document.setCompletedDatetime(signedAt == null ? archivedAt : signedAt);
+    document.setArchivedDatetime(archivedAt);
     documensoDocumentRepository.save(document);
   }
 }
