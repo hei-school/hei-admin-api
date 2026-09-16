@@ -415,10 +415,11 @@ paths:
     $ref: './operations/sms-api.yml#/operations/smsCampaignById'
   '/sms-campaigns/{id}/logs':
     $ref: './operations/sms-api.yml#/operations/smsCampaignLogs'
-  /sms-campaigns/send-from-file:
-    $ref: './operations/sms-api.yml#/operations/smsCampaignsSendFromFile'
-  /sms-campaigns/send-personalized-from-file:
-    $ref: './operations/sms-api.yml#/operations/smsCampaignsSendPersonalizedFromFile'
+  # Notifications
+  /notifications:
+    $ref: './operations/notifications-api.yml#/operations/notifications'
+  '/notifications/{id}':
+    $ref: './operations/notifications-api.yml#/operations/notificationById'
 
 components:
   securitySchemes:

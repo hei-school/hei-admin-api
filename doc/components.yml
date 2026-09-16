@@ -2610,19 +2610,39 @@ components:
         maxSendableRecipients: 320
     SmsCampaignStatus:
       type: string
+      description: >-
+        The campaign's own send lifecycle, not a delivery outcome: CREATED right after the
+        request is accepted; PENDING while waiting for sendAt (a scheduled campaign) or while
+        /sendbulk/ chunks are actively being submitted; DELIVERED once every chunk has
+        been submitted successfully — meaning BEFIANA accepted and charged for it, not that every
+        recipient's phone actually received it (see SmsCampaign.deliveredCount/failedCount and
+        SmsLog.status for what is actually knowable per recipient); FAILED only when the send
+        call itself never went through for any recipient at all (e.g. balance ran out by the
+        time a scheduled campaign was due, or BEFIANA rejected the request) — see
+        SmsCampaign.failureReason. A campaign whose later chunks fail after earlier ones
+        succeeded still ends up DELIVERED, with the failures showing up in failedCount instead.
       enum:
+        - CREATED
         - PENDING
-        - IN_PROGRESS
         - DELIVERED
         - FAILED
     SmsMessageStatus:
       type: string
       description: >-
-        Provisional — BEFIANA's own /get-delivery-status/ response values are undocumented and
-        unconfirmed; these are named to match once a live test call settles them.
+        Confirmed by a live test call: GET /get-delivery-status/?callback_data=... returns
+        {"delivery_status": "Delivered", ...} once BEFIANA has delivered the message. There is no
+        bulk equivalent, and a live /sendbulk/ test call confirmed BEFIANA returns no
+        callbackData at all for a bulk send (only recipients/sms_segments_each/balance_debited).
+        So this is null, not FAILED, for a recipient whose /sendbulk/ chunk was submitted
+        successfully — BEFIANA accepted and charged for it, we just have no way to know whether
+        it was actually delivered. It is only ever non-null for a recipient sent via an
+        individual /send/ call (see SmsLog for exactly which recipients that covers): PENDING
+        right after sending, DELIVERED once confirmed, or FAILED either from a failed
+        /get-delivery-status/ poll (provisional, unobserved so far) or because the /send/ call
+        itself errored for that recipient (e.g. a mid-campaign balance shortfall) — a real,
+        knowable failure either way.
       enum:
         - PENDING
-        - SENT
         - DELIVERED
         - FAILED
     SmsRecipientSource:
@@ -2631,6 +2651,7 @@ components:
       enum:
         - CONTACT_GROUP
         - MANUAL_SELECTION
+        - MANUAL_NUMBER
         - IMPORTED_FILE
     SmsCampaign:
       type: object
@@ -2641,22 +2662,86 @@ components:
           type: string
         status:
           $ref: '#/components/schemas/SmsCampaignStatus'
-        contactGroupId:
+        failureReason:
           type: string
-          description: Set only when the campaign targeted a saved contact group.
-        contactGroupName:
-          type: string
+          description: >-
+            Set only when status is FAILED — e.g. "Solde insuffisant au moment de l'envoi" for a
+            scheduled campaign whose balance ran out by sendAt, or BEFIANA's own error message if
+            the send call itself was rejected. Raises a Notification and e-mails the account's
+            admins (see createSmsCampaign) — same as a scheduled campaign that only partially
+            ran out of balance, just with a different message.
+        contactGroupIds:
+          type: array
+          items:
+            type: string
+          description: Saved contact group(s) targeted, if any — combinable with every other source below.
+        contactGroupNames:
+          type: array
+          items:
+            type: string
         contactIds:
           type: array
           items:
             type: string
-          description: Set only when the campaign targeted a manual selection of contacts.
+          description: Manually selected existing contacts included, if any.
+        manualPhoneNumberCount:
+          type: integer
+          description: >-
+            How many recipients came from numbers typed directly (not tied to a saved contact,
+            not from a file) — see getSmsCampaignLogs for the numbers themselves.
+        fileImportCount:
+          type: integer
+          description: How many recipients came from an uploaded file, if one was given.
         recipientCount:
           type: integer
+          description: Total across every source, deduplicated — before any balance-based rejection.
+        recipientsRejectedForBalance:
+          type: integer
+          description: >-
+            Of recipientCount, how many were never even attempted because the balance ran out
+            partway through — computed from message length in segments, not just a head count.
+            recipientCount − recipientsRejectedForBalance is how many were actually sent. Only
+            ever nonzero for a campaign whose balance covered some but not all of it (see
+            createSmsCampaign) — a scheduled campaign that runs short at dispatch time gets this
+            filled in then, with the account's admins notified since nobody's watching in real
+            time.
         deliveredCount:
           type: integer
+          description: >-
+            How many recipients' SmsLog.status is DELIVERED so far. Only ever moves for
+            recipients sent via an individual /send/ call (a 1-recipient campaign, or a
+            personalized file row) — BEFIANA gives no callbackData at all for a /sendbulk/ chunk,
+            so a recipient sent that way can only ever be "unknown" or FAILED, never DELIVERED,
+            in this count. recipientCount − deliveredCount − failedCount is exactly the "sent via
+            /sendbulk/, no way to know" bucket.
         failedCount:
           type: integer
+          description: >-
+            How many recipients' SmsLog.status is FAILED — either a failed /get-delivery-status/
+            poll (unitary sends only, unobserved so far) or a submission that never reached
+            BEFIANA at all (e.g. its /sendbulk/ chunk was rejected for insufficient balance
+            mid-campaign). Unlike deliveredCount, this DOES apply to bulk recipients: a rejected
+            chunk's numbers are knowably failed, even though a successfully-submitted chunk's
+            numbers are only ever "unknown", never confirmed either way.
+        smsSegmentsEach:
+          type: integer
+          description: >-
+            How many SMS segments the message was split into (BEFIANA's sms_segments_each) — more
+            than 1 for a message over the single-segment character limit, which multiplies the
+            credits debited per recipient accordingly. Confirmed present on the /sendbulk/
+            response; the unitary /send/ response does not return it. The pre-send balance check
+            (see createSmsCampaign) computes this itself ahead of calling BEFIANA at all, using
+            the standard GSM 03.38 rule: GSM-7 messages get 160 chars for 1 segment or 153/segment
+            beyond that, anything outside the GSM-7 alphabet (emoji, curly quotes, etc.) forces
+            the whole message to UCS-2 at 70/67 instead — assumed to match BEFIANA's own
+            counting, but not yet confirmed on a real multi-segment test call.
+        creditsDebited:
+          type: integer
+          description: >-
+            Total SMS credits BEFIANA actually debited for the campaign (its balance_debited) —
+            (recipientCount − recipientsRejectedForBalance) × smsSegmentsEach in practice, since
+            the pre-send balance check accounts for segment count, not just a head count. Kept
+            to reconcile against BEFIANA's own figure after the fact.
         sendAt:
           type: string
           format: date-time
@@ -2670,28 +2755,52 @@ components:
           format: date-time
     CrupdateSmsCampaign:
       type: object
+      description: >-
+        multipart/form-data. Every recipient source below is optional and combinable — a
+        campaign can target one or more contact groups, a manual selection of existing contacts,
+        ad hoc numbers typed directly, and/or an uploaded file, all at once; duplicates across
+        sources are merged into one recipient list. At least one source is required. message is
+        required unless file is a 2-column (personalized) file and no other source is used — in
+        that case every recipient's message comes from the file instead.
       properties:
         message:
           type: string
-          description: Identical for every recipient of the campaign.
-        contactGroupId:
-          type: string
+          description: >-
+            Sent to every recipient from contactGroupIds/contactIds/manualPhoneNumbers, and to
+            file rows too if file only has a phone number column (see file).
+        contactGroupIds:
+          type: array
+          items:
+            type: string
+          description: One or more saved contact groups to include.
         contactIds:
           type: array
           items:
             type: string
-          description: A manual selection of contacts, as an alternative to contactGroupId.
+          description: A manual selection of existing contacts to include.
+        manualPhoneNumbers:
+          type: array
+          items:
+            type: string
+          description: >-
+            Numbers typed directly, not tied to any saved contact and not from a file — for a
+            one-off addition too small to bother with a spreadsheet.
+        file:
+          type: string
+          format: binary
+          description: >-
+            .xlsx or .csv. Whether it's personalized is detected from its own shape, not a
+            separate flag: one column (phone number only) shares message with every other
+            recipient of the campaign; two columns (phone number, then that row's own message)
+            makes it personalized, and message is then only needed if another source is also
+            used. A personalized row is sent one by one via /send/ (trackable — see SmsLog),
+            unlike every other recipient sharing the campaign's message.
         sendAt:
           type: string
           format: date-time
           description: >-
             ISO date-time, omitted to send now; converted to BEFIANA's own YYYY-MM-DD HH:mm
             format server-side.
-      required:
-        - message
-      description: >-
-        Exactly one of contactGroupId or contactIds is required, to resolve the campaign's
-        recipients.
     SmsCampaignLaunched:
       type: object
       description: >-
@@ -2702,10 +2811,36 @@ components:
           type: string
         recipientCount:
           type: integer
+          description: Recipients accepted across every source, after de-duplication and file-row validation.
+        recipientsRejected:
+          type: integer
+          description: Rows from file that were unreadable (missing/malformed number), if a file was given.
+        rejectedRows:
+          type: array
+          items:
+            $ref: '#/components/schemas/SmsFileImportRejectedRow'
+        recipientsRejectedForBalance:
+          type: integer
+          description: See SmsCampaign.recipientsRejectedForBalance — nonzero only if balance covered some but not all recipients.
+        smsSegmentsEach:
+          type: integer
+          description: See SmsCampaign.smsSegmentsEach. Present when the underlying call was /sendbulk/.
+        creditsDebited:
+          type: integer
+          description: See SmsCampaign.creditsDebited. Present when the underlying call was /sendbulk/.
         status:
           $ref: '#/components/schemas/SmsCampaignStatus'
     SmsLog:
       type: object
+      description: >-
+        One entry per recipient. deliveredDatetime/callbackData, and status values PENDING/
+        DELIVERED, only ever apply to a recipient sent via an individual /send/ call — a
+        1-recipient campaign, the sendSmsMessageToContact shortcut, or one row of a personalized
+        file import — since a live test call confirmed BEFIANA returns no callbackData at all for
+        a /sendbulk/ chunk. status is null for a recipient whose /sendbulk/ chunk was submitted
+        successfully (unknown, not trackable — see SmsMessageStatus), but can still be FAILED for
+        one whose chunk's submission itself was rejected (e.g. balance ran out mid-campaign) —
+        that failure is known even without a callbackData.
       properties:
         id:
           type: string
@@ -2719,53 +2854,20 @@ components:
           $ref: '#/components/schemas/SmsRecipientSource'
         contactId:
           type: string
-          description: Set only when recipientSource is CONTACT_GROUP and the number matched a saved contact.
+          description: Set when recipientSource is CONTACT_GROUP or MANUAL_SELECTION; null for MANUAL_NUMBER/IMPORTED_FILE.
         sentDatetime:
           type: string
           format: date-time
         deliveredDatetime:
           type: string
           format: date-time
-          description: Null until BEFIANA confirms delivery.
+          description: Null until a poll of callbackData confirms delivery.
         callbackData:
           type: string
-          description: BEFIANA's identifier for this SMS, used to reconcile delivery status.
-    SmsFileImport:
-      type: object
-      description: >-
-        The file holds nothing but a list of phone numbers (one per row) — every recipient gets
-        the same message, carried separately in the message field.
-      properties:
-        file:
-          type: string
-          format: binary
-          description: .xlsx or .csv file, one phone number per row, no other column expected.
-        message:
-          type: string
-          description: Identical for every recipient in the file.
-        sendAt:
-          type: string
-          format: date-time
-          description: Same as CrupdateSmsCampaign.sendAt — omitted means immediately.
-      required:
-        - file
-        - message
-    SmsPersonalizedFileImport:
-      type: object
-      description: >-
-        Unlike SmsFileImport, the message itself varies per recipient: the file carries two
-        columns, a phone number and its own message text, one recipient per row.
-      properties:
-        file:
-          type: string
-          format: binary
-          description: .xlsx or .csv file with two columns, phone number and message, one recipient per row.
-        sendAt:
-          type: string
-          format: date-time
-          description: Same as CrupdateSmsCampaign.sendAt — omitted means immediately.
-      required:
-        - file
+          description: >-
+            BEFIANA's identifier for this SMS. Polled individually via GET
+            /get-delivery-status/?callback_data=... to fill in status/deliveredDatetime — see
+            SmsMessageStatus.
     SmsFileImportRejectedRow:
       type: object
       properties:
@@ -2775,23 +2877,6 @@ components:
           type: string
         reason:
           type: string
-    SmsFileImportResult:
-      type: object
-      properties:
-        campaignId:
-          type: string
-        campaignStatus:
-          $ref: '#/components/schemas/SmsCampaignStatus'
-        recipientsTotal:
-          type: integer
-        recipientsValid:
-          type: integer
-        recipientsRejected:
-          type: integer
-        rejectedRows:
-          type: array
-          items:
-            $ref: '#/components/schemas/SmsFileImportRejectedRow'
     SendSmsToContact:
       type: object
       description: >-
@@ -2806,3 +2891,49 @@ components:
           description: Same as CrupdateSmsCampaign.sendAt — omitted means immediately.
       required:
         - message
+    NotificationResolutionStatus:
+      type: string
+      description: >-
+        Only set on a notification that flags a problem needing admin action, e.g. an SMS
+        campaign that failed (fully or partially) to send at dispatch time. Null on a purely
+        informational notification (e.g. a plain delivery confirmation), which only tracks read.
+      enum:
+        - UNRESOLVED
+        - IN_PROGRESS
+        - RESOLVED
+    Notification:
+      type: object
+      description: >-
+        A notification for one admin account. First use: alerting admins when a scheduled SMS
+        campaign fails to send (fully or partially) at dispatch time, or once one is confirmed
+        delivered — see createSmsCampaign and SmsCampaign.failureReason. Deliberately generic
+        (recipientId + subject/body + read/resolutionStatus) so other features can reuse it.
+      properties:
+        id:
+          type: string
+        recipientId:
+          type: string
+          description: The admin user this notification is for.
+        subject:
+          type: string
+        body:
+          type: string
+          description: The notification's message content.
+        read:
+          type: boolean
+        resolutionStatus:
+          $ref: '#/components/schemas/NotificationResolutionStatus'
+        smsCampaignId:
+          type: string
+          description: Set when this notification was raised by an SMS campaign; null otherwise.
+        creationDatetime:
+          type: string
+          format: date-time
+    UpdateNotification:
+      type: object
+      description: Only read and/or resolutionStatus can be changed after creation.
+      properties:
+        read:
+          type: boolean
+        resolutionStatus:
+          $ref: '#/components/schemas/NotificationResolutionStatus'

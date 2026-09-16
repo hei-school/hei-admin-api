@@ -313,18 +313,46 @@ operations:
     post:
       tags:
         - Sms
-      summary: Launch an SMS campaign to a contact group or a manual selection of contacts
+      summary: Launch an SMS campaign to any combination of contact group(s), a manual contact selection, ad hoc numbers, and a file
       description: >
-        Balance is checked synchronously before anything is queued: if insufficient, no campaign
-        is created and 400 returns the available balance and how many recipients it covers.
-        Otherwise recipients are resolved and sent via /sendbulk/ in the background, chunked if
-        BEFIANA caps batch size — poll getSmsCampaignById for progress. One message for every
-        recipient, whether the target was contactGroupId or contactIds.
+        Every recipient source in CrupdateSmsCampaign is optional and combinable — contact
+        group(s), a manual selection of contacts, numbers typed directly, and an uploaded file
+        can all be used together in one campaign; duplicates are merged. Cost is computed as
+        recipients × message segments (see SmsCampaign.smsSegmentsEach — a message over the
+        single-segment character limit costs more per recipient, not a flat 1), then checked
+        against balance: if it can't cover a single recipient, 400 returns the available balance
+        and how many recipients it would cover instead — nothing is created (for a single
+        recipient, i.e. sendSmsMessageToContact, the front-end is expected to head this off
+        before it is even attempted). If balance covers some but not all, the campaign is still
+        created and sent to as many recipients as it covers; the rest are never attempted and
+        counted in recipientsRejectedForBalance. For a scheduled campaign (sendAt in the future),
+        this same balance check runs again right before actual dispatch rather than at creation
+        time — a full or partial shortfall discovered then no longer blocks anything (the
+        campaign already exists), but is reflected the same way in recipientsRejectedForBalance/
+        failureReason, and additionally raises a Notification and e-mails the account's admins
+        (a different message than the creation-time 400, since by dispatch time the campaign is
+        past the point where the person who created it is still watching). Recipients actually
+        attempted are then sent in the background: a personalized file row (see
+        CrupdateSmsCampaign.file) and, more generally, any campaign that resolves to exactly 1
+        attempted recipient goes through /send/, so its delivery is trackable via
+        getSmsCampaignLogs; every other (non-personalized) recipient sharing the campaign's
+        message goes through /sendbulk/ instead, chunked if BEFIANA caps batch size — a live test
+        call confirmed BEFIANA returns no callbackData at all for a bulk send, so none of those
+        recipients' delivery can ever be tracked, only the campaign-level smsSegmentsEach/
+        creditsDebited BEFIANA also returns for /sendbulk/. If a chunk's send call is rejected
+        outright by BEFIANA (as opposed to being skipped up front for balance) its recipients are
+        marked SmsLog.status FAILED — a real, knowable failure, as opposed to a
+        successfully-submitted bulk recipient whose actual delivery is simply never knowable. The
+        campaign itself only ends up SmsCampaignStatus FAILED (with failureReason set, and the
+        same Notification/e-mail as a dispatch-time balance shortfall) if not a single recipient
+        was attempted at all; otherwise it reaches DELIVERED with every rejection reflected in
+        recipientsRejectedForBalance/failedCount instead. Poll getSmsCampaignById for progress
+        either way.
       operationId: createSmsCampaign
       requestBody:
         required: true
         content:
-          application/json:
+          multipart/form-data:
             schema:
               $ref: '../components.yml#/components/schemas/CrupdateSmsCampaign'
       responses:
@@ -418,7 +446,9 @@ operations:
       summary: List the per-recipient delivery log of an SMS campaign
       description: >
         One entry per SMS sent: recipient, status, timestamps, BEFIANA's callbackData, and where
-        the recipient came from (contact, group, or imported file). Most recent first.
+        the recipient came from (contact, group, or imported file). status is filled in by a
+        background job polling GET /get-delivery-status/ one callbackData at a time — see
+        SmsMessageStatus. Most recent first.
       operationId: getSmsCampaignLogs
       parameters:
         - name: id
@@ -454,85 +484,5 @@ operations:
           $ref: '../components.yml#/components/responses/403'
         '404':
           $ref: '../components.yml#/components/responses/404'
-        '500':
-          $ref: '../components.yml#/components/responses/500'
-
-  smsCampaignsSendFromFile:
-    post:
-      tags:
-        - Sms
-      summary: Launch an SMS campaign from a file of phone numbers, one shared message for all
-      description: >
-        The file holds nothing but a list of phone numbers, one per row; message is the one text
-        every recipient gets, sendAt an optional schedule (omit to send now). Numbers are
-        normalized to BEFIANA's expected format (digits only, no leading zero) and de-duplicated;
-        unreadable rows reported without blocking the rest. From
-        there the flow is createSmsCampaign's: balance check, background /sendbulk/ send, chunked
-        if needed. The file itself is never sent to BEFIANA, and imported numbers are used for
-        this campaign only.
-      operationId: sendSmsCampaignFromFile
-      requestBody:
-        required: true
-        content:
-          multipart/form-data:
-            schema:
-              $ref: '../components.yml#/components/schemas/SmsFileImport'
-      responses:
-        '202':
-          description: File parsed and campaign accepted for the valid recipients; sending runs in the background
-          content:
-            application/json:
-              schema:
-                $ref: '../components.yml#/components/schemas/SmsFileImportResult'
-        '400':
-          description: >
-            Bad request — an unreadable file, or insufficient balance — see
-            SmsInsufficientBalanceAlert
-          content:
-            application/json:
-              schema:
-                $ref: '../components.yml#/components/schemas/SmsInsufficientBalanceAlert'
-        '403':
-          $ref: '../components.yml#/components/responses/403'
-        '500':
-          $ref: '../components.yml#/components/responses/500'
-  smsCampaignsSendPersonalizedFromFile:
-    post:
-      tags:
-        - Sms
-      summary: Launch an SMS campaign from a file pairing each phone number with its own message
-      description: >
-        The file carries two columns, a phone number and that recipient's own message, one per
-        row — no single shared message, unlike sendSmsCampaignFromFile. sendAt is an optional
-        schedule (omit to send now). Numbers are normalized to BEFIANA's expected format (digits
-        only, no leading zero); a row missing its number or message is reported without blocking
-        the rest. Because /sendbulk/ only takes one message per batch, this sends one
-        /send/ call per recipient in the background instead — slower, and drawing the balance
-        (still checked up front) at the unitary-send rate. The file is never sent to BEFIANA, only
-        the resulting number/message pairs.
-      operationId: sendPersonalizedSmsCampaignFromFile
-      requestBody:
-        required: true
-        content:
-          multipart/form-data:
-            schema:
-              $ref: '../components.yml#/components/schemas/SmsPersonalizedFileImport'
-      responses:
-        '202':
-          description: File parsed and campaign accepted for the valid recipients; sending runs in the background
-          content:
-            application/json:
-              schema:
-                $ref: '../components.yml#/components/schemas/SmsFileImportResult'
-        '400':
-          description: >
-            Bad request — an unreadable file, or insufficient balance — see
-            SmsInsufficientBalanceAlert
-          content:
-            application/json:
-              schema:
-                $ref: '../components.yml#/components/schemas/SmsInsufficientBalanceAlert'
-        '403':
-          $ref: '../components.yml#/components/responses/403'
         '500':
           $ref: '../components.yml#/components/responses/500'

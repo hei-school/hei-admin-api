@@ -1,0 +1,104 @@
+operations:
+  notifications:
+    get:
+      tags:
+        - Notifications
+      summary: List the authenticated admin's notifications
+      description: >
+        First populated by SMS campaign failures/delivery confirmations (see
+        SmsCampaign.failureReason), kept generic for other features to raise notifications the
+        same way later.
+      operationId: getNotifications
+      parameters:
+        - name: read
+          in: query
+          required: false
+          schema:
+            type: boolean
+        - name: resolution_status
+          in: query
+          required: false
+          schema:
+            $ref: '../components.yml#/components/schemas/NotificationResolutionStatus'
+        - name: page
+          in: query
+          required: true
+          schema:
+            $ref: '../components.yml#/components/schemas/Page'
+        - name: page_size
+          in: query
+          required: true
+          schema:
+            $ref: '../components.yml#/components/schemas/PageSize'
+      responses:
+        '200':
+          description: The admin's notifications, most recent first
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '../components.yml#/components/schemas/Notification'
+        '400':
+          $ref: '../components.yml#/components/responses/400'
+        '403':
+          $ref: '../components.yml#/components/responses/403'
+        '500':
+          $ref: '../components.yml#/components/responses/500'
+  notificationById:
+    get:
+      tags:
+        - Notifications
+      summary: Get a single notification
+      operationId: getNotificationById
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: The notification
+          content:
+            application/json:
+              schema:
+                $ref: '../components.yml#/components/schemas/Notification'
+        '403':
+          $ref: '../components.yml#/components/responses/403'
+        '404':
+          $ref: '../components.yml#/components/responses/404'
+        '500':
+          $ref: '../components.yml#/components/responses/500'
+    put:
+      tags:
+        - Notifications
+      summary: Mark a notification read and/or update its resolution status
+      operationId: updateNotification
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '../components.yml#/components/schemas/UpdateNotification'
+      responses:
+        '200':
+          description: The updated notification
+          content:
+            application/json:
+              schema:
+                $ref: '../components.yml#/components/schemas/Notification'
+        '400':
+          $ref: '../components.yml#/components/responses/400'
+        '403':
+          $ref: '../components.yml#/components/responses/403'
+        '404':
+          $ref: '../components.yml#/components/responses/404'
+        '500':
+          $ref: '../components.yml#/components/responses/500'
