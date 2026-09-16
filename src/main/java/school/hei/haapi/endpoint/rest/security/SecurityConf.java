@@ -161,6 +161,23 @@ public class SecurityConf {
                     antMatcher(GET, "/monitors/*/documenso-documents"),
                     antMatcher(GET, "/documenso-documents/*/signing-token"),
                     antMatcher(GET, "/documenso-documents/*/file-url"),
+                    antMatcher(GET, "/sms-contacts"),
+                    antMatcher(GET, "/sms-contacts/*"),
+                    antMatcher(DELETE, "/sms-contacts/*"),
+                    antMatcher(POST, "/sms-contacts/*/messages"),
+                    antMatcher(GET, "/sms-contact-groups"),
+                    antMatcher(POST, "/sms-contact-groups"),
+                    antMatcher(GET, "/sms-contact-groups/*"),
+                    antMatcher(PUT, "/sms-contact-groups/*"),
+                    antMatcher(DELETE, "/sms-contact-groups/*"),
+                    antMatcher(GET, "/sms-balance"),
+                    antMatcher(POST, "/sms-campaigns"),
+                    antMatcher(GET, "/sms-campaigns"),
+                    antMatcher(GET, "/sms-campaigns/*"),
+                    antMatcher(GET, "/sms-campaigns/*/logs"),
+                    antMatcher(GET, "/notifications"),
+                    antMatcher(GET, "/notifications/*"),
+                    antMatcher(PUT, "/notifications/*"),
                     antMatcher(PUT, "/students/*/fees/*/mpbs"),
                     antMatcher(GET, "/students/*/fees/*/mpbs"),
                     antMatcher(GET, "/students/*/fees/*/mpbs/verifications"),
@@ -1134,9 +1151,40 @@ public class SecurityConf {
                     .hasAnyRole(ADMIN.getRole(), MANAGER.getRole(), MONITOR.getRole())
                     .requestMatchers(GET, "/documenso-documents/*/file-url")
                     .hasAnyRole(ADMIN.getRole(), MANAGER.getRole(), MONITOR.getRole())
-                    //
-                    // Attendances resources
-                    //
+                    .requestMatchers(GET, "/sms-contacts")
+                    .hasAnyRole(ADMIN.getRole(), MANAGER.getRole())
+                    .requestMatchers(GET, "/sms-contacts/*")
+                    .hasAnyRole(ADMIN.getRole(), MANAGER.getRole())
+                    .requestMatchers(DELETE, "/sms-contacts/*")
+                    .hasAnyRole(ADMIN.getRole(), MANAGER.getRole())
+                    .requestMatchers(POST, "/sms-contacts/*/messages")
+                    .hasAnyRole(ADMIN.getRole(), MANAGER.getRole())
+                    .requestMatchers(GET, "/sms-contact-groups")
+                    .hasAnyRole(ADMIN.getRole(), MANAGER.getRole())
+                    .requestMatchers(POST, "/sms-contact-groups")
+                    .hasAnyRole(ADMIN.getRole(), MANAGER.getRole())
+                    .requestMatchers(GET, "/sms-contact-groups/*")
+                    .hasAnyRole(ADMIN.getRole(), MANAGER.getRole())
+                    .requestMatchers(PUT, "/sms-contact-groups/*")
+                    .hasAnyRole(ADMIN.getRole(), MANAGER.getRole())
+                    .requestMatchers(DELETE, "/sms-contact-groups/*")
+                    .hasAnyRole(ADMIN.getRole(), MANAGER.getRole())
+                    .requestMatchers(GET, "/sms-balance")
+                    .hasAnyRole(ADMIN.getRole(), MANAGER.getRole())
+                    .requestMatchers(POST, "/sms-campaigns")
+                    .hasAnyRole(ADMIN.getRole(), MANAGER.getRole())
+                    .requestMatchers(GET, "/sms-campaigns")
+                    .hasAnyRole(ADMIN.getRole(), MANAGER.getRole())
+                    .requestMatchers(GET, "/sms-campaigns/*")
+                    .hasAnyRole(ADMIN.getRole(), MANAGER.getRole())
+                    .requestMatchers(GET, "/sms-campaigns/*/logs")
+                    .hasAnyRole(ADMIN.getRole(), MANAGER.getRole())
+                    .requestMatchers(GET, "/notifications")
+                    .hasAnyRole(ADMIN.getRole())
+                    .requestMatchers(GET, "/notifications/*")
+                    .hasAnyRole(ADMIN.getRole())
+                    .requestMatchers(PUT, "/notifications/*")
+                    .hasAnyRole(ADMIN.getRole())
                     .requestMatchers(GET, "/attendance")
                     .hasAnyRole(MANAGER.getRole(), TEACHER.getRole(), ADMIN.getRole())
                     .requestMatchers(GET, "/event/*/students/raw/xlsx")
