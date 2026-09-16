@@ -78,10 +78,8 @@ public class DocumensoWebhookHandler {
                   .build());
 
       document.setFileInfo(fileInfo);
-    } finally {
-      if (!signedFile.delete()) {
-        log.warn("Could not delete the temporary file {}", signedFile.getAbsolutePath());
-      }
+    } catch (Exception e) {
+      throw new RuntimeException(e);
     }
   }
 

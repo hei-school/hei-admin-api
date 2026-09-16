@@ -1,9 +1,9 @@
 package school.hei.haapi.service.documenso;
 
+import static school.hei.haapi.service.utils.FileUtils.createFileFromBytes;
+
 import java.io.File;
-import java.io.IOException;
 import java.math.BigDecimal;
-import java.nio.file.Files;
 import java.util.HashMap;
 import java.util.List;
 import org.springframework.core.ParameterizedTypeReference;
@@ -24,6 +24,7 @@ import school.hei.haapi.service.documenso.gen.model.TemplateGetTemplateById200Re
 public class DocumensoClient {
   private static final String DOWNLOAD_PATH = "/document/{documentId}/download";
   private static final String[] API_KEY_AUTH = {"apiKey"};
+  private static final String DOCUMENSO_FILENAME_PREFIX = "documenso-";
 
   private final ApiClient apiClient;
   private final TemplateApi templateApi;
@@ -86,12 +87,6 @@ public class DocumensoClient {
   }
 
   private static File storeTemporarily(byte[] signedPdf, long documentId) {
-    try {
-      var file = File.createTempFile("documenso-" + documentId + "-", ".pdf");
-      Files.write(file.toPath(), signedPdf);
-      return file;
-    } catch (IOException e) {
-      throw new RestClientException("Could not store the signed document " + documentId, e);
-    }
+    return createFileFromBytes(signedPdf, DOCUMENSO_FILENAME_PREFIX + documentId, ".pdf");
   }
 }
