@@ -87,6 +87,6 @@ public class DocumensoClient {
   }
 
   private static File storeTemporarily(byte[] signedPdf, long documentId) {
-    return createFileFromBytes(signedPdf, DOCUMENSO_FILENAME_PREFIX, ".pdf");
+    return createFileFromBytes(signedPdf, DOCUMENSO_FILENAME_PREFIX + documentId, ".pdf");
   }
 }

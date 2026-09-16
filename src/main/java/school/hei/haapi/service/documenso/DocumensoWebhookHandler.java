@@ -1,5 +1,8 @@
 package school.hei.haapi.service.documenso;
 
+import java.time.Instant;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -14,10 +17,6 @@ import school.hei.haapi.model.exception.ApiException;
 import school.hei.haapi.model.exception.ApiException.ExceptionType;
 import school.hei.haapi.repository.DocumensoDocumentRepository;
 import school.hei.haapi.repository.FileInfoRepository;
-
-import java.time.Instant;
-import java.time.ZoneOffset;
-import java.time.format.DateTimeFormatter;
 
 @Component
 @AllArgsConstructor
