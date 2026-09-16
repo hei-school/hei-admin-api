@@ -1,6 +1,7 @@
 package school.hei.haapi.service.documenso;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
@@ -126,5 +127,35 @@ class DocumensoWebhookHandlerTest {
         document.getStatus(),
         "status and completion datetime are set together");
     org.junit.jupiter.api.Assertions.assertNotNull(document.getCompletedDatetime());
+  }
+
+  @Test
+  void a_date_documenso_did_not_give_or_we_cannot_read_counts_as_none() {
+    assertNull(DocumensoWebhookHandler.parseDocumensoInstant(null));
+    assertNull(DocumensoWebhookHandler.parseDocumensoInstant("   "));
+    assertNull(DocumensoWebhookHandler.parseDocumensoInstant("15/09/2026"));
+    assertEquals(
+        Instant.parse("2026-09-15T09:00:55.842Z"),
+        DocumensoWebhookHandler.parseDocumensoInstant("2026-09-15T09:00:55.842Z"));
+  }
+
+  @Test
+  void an_unreadable_completion_date_still_archives_the_document() throws Exception {
+    var document = DocumensoDocument.builder().documensoDocumentId(42L).build();
+    var signedFile = File.createTempFile("signed", ".pdf");
+    when(documentRepository.findByDocumensoDocumentId(42L)).thenReturn(Optional.of(document));
+    when(documensoClient.downloadSignedDocument(42L)).thenReturn(signedFile);
+    when(fileInfoRepository.save(any())).thenAnswer(call -> call.getArgument(0, FileInfo.class));
+
+    subject.handle(payload("DOCUMENT_COMPLETED", 42L, "15/09/2026"));
+
+    assertEquals(
+        DocumensoDocumentStatus.COMPLETED,
+        document.getStatus(),
+        "a date we cannot read must not cost us a genuinely signed document");
+    assertEquals(
+        document.getArchivedDatetime(),
+        document.getCompletedDatetime(),
+        "with no readable signature date, the archiving date stands in");
   }
 }
