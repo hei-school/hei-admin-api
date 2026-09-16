@@ -8,6 +8,7 @@ import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.sqs.SqsClient;
 
 @PojaGenerated
+@SuppressWarnings("all")
 @Configuration
 public class EventConf {
   private final Region region;

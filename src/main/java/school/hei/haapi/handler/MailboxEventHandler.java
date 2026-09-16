@@ -28,6 +28,7 @@ import software.amazon.awssdk.regions.Region;
 
 @Slf4j
 @PojaGenerated
+@SuppressWarnings("all")
 public class MailboxEventHandler implements RequestHandler<SQSEvent, String> {
 
   public static final String SPRING_SERVER_PORT_FOR_RANDOM_VALUE = "0";

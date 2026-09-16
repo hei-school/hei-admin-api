@@ -10,6 +10,7 @@ import school.hei.haapi.repository.DummyUuidRepository;
 import school.hei.haapi.repository.model.DummyUuid;
 
 @PojaGenerated
+@SuppressWarnings("all")
 @Service
 @AllArgsConstructor
 @Slf4j
