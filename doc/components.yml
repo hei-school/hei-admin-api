@@ -1040,6 +1040,23 @@ components:
           type: string
         archived_by_last_name:
           type: string
+        archive_requested_datetime:
+          type: string
+          format: date-time
+        archived_datetime:
+          type: string
+          format: date-time
+        rejected_by_ref:
+          type: string
+        rejected_by_first_name:
+          type: string
+        rejected_by_last_name:
+          type: string
+        rejected_datetime:
+          type: string
+          format: date-time
+        rejection_reason:
+          type: string
     FeeCategory:
       type: string
       enum:
@@ -1498,6 +1515,10 @@ components:
       properties:
         status:
           $ref: '#/components/schemas/ArchiveStatusEnum'
+        reason:
+          type: string
+          description: >
+            Required when status is REJECTED: why the fee archiving was rejected.
       required:
         - status
     FeeTypeEnum:
@@ -2357,6 +2378,15 @@ components:
       enum:
         - DEBIT
         - CREDIT
+    CreditTransactionType:
+      type: string
+      description: >
+        Where a credit transaction originates from: a fee overpayment, a fee archiving,
+        or a fee being paid using existing credit.
+      enum:
+        - FEE_OVERPAYMENT
+        - FEE_ARCHIVING
+        - CREDIT_PAYMENT
     Credit:
       type: object
       properties:
@@ -2384,6 +2414,8 @@ components:
            type: integer
          movement:
            $ref: '#/components/schemas/CreditMovement'
+         type:
+           $ref: '#/components/schemas/CreditTransactionType'
     CreditPayment:
       allOf:
         - $ref: '#/components/schemas/CreatePayment'

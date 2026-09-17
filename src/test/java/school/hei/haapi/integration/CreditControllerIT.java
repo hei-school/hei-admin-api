@@ -126,14 +126,36 @@ class CreditControllerIT extends FacadeITMockedThirdParties {
     var anApiClient = anApiClient(managerToken);
     var payingApi = new PayingApi(anApiClient);
     payingApi.archiveStudentFee(student.getId(), feeToArchive.getId());
+    var reason = "Missing supporting document";
     var rejectedFee =
         payingApi.updateFeeArchiveStatus(
             student.getId(),
             feeToArchive.getId(),
-            new UpdateFeeArchiveStatus().status(ArchiveStatusEnum.REJECTED));
+            new UpdateFeeArchiveStatus().status(ArchiveStatusEnum.REJECTED).reason(reason));
     assertNotNull(rejectedFee);
     assertEquals(ArchiveStatusEnum.REJECTED, rejectedFee.getArchiveStatus());
     assertEquals(false, rejectedFee.getIsArchived());
+    assertEquals(reason, rejectedFee.getRejectionReason());
+    assertEquals(managerHasina.getRef(), rejectedFee.getRejectedByRef());
+    assertNotNull(rejectedFee.getRejectedDatetime());
+  }
+
+  @Test
+  void manager_reject_archive_fee_without_reason_KO() throws ApiException {
+    setUpTestData();
+    var anApiClient = anApiClient(managerToken);
+    var payingApi = new PayingApi(anApiClient);
+    payingApi.archiveStudentFee(student.getId(), feeToArchive.getId());
+
+    var apiException =
+        org.junit.jupiter.api.Assertions.assertThrows(
+            ApiException.class,
+            () ->
+                payingApi.updateFeeArchiveStatus(
+                    student.getId(),
+                    feeToArchive.getId(),
+                    new UpdateFeeArchiveStatus().status(ArchiveStatusEnum.REJECTED)));
+    assertEquals(400, apiException.getCode());
   }
 
   @Test
@@ -237,11 +259,17 @@ class CreditControllerIT extends FacadeITMockedThirdParties {
             .findFirst()
             .orElseThrow();
     assertEquals(managerHasina.getRef(), creditFromArchive.getFee().getArchivedByRef());
+    assertEquals(
+        school.hei.haapi.endpoint.rest.model.CreditTransactionType.FEE_ARCHIVING,
+        creditFromArchive.getType());
     var debitFromPayment =
         transactions.stream()
             .filter(t -> t.getFee().getId().equals(currentFee.getId()))
             .findFirst()
             .orElseThrow();
+    assertEquals(
+        school.hei.haapi.endpoint.rest.model.CreditTransactionType.CREDIT_PAYMENT,
+        debitFromPayment.getType());
     assertNotNull(debitFromPayment.getPayment());
     assertEquals(paymentToValidate.getId(), debitFromPayment.getPayment().getId());
     assertEquals(currentFee.getId(), debitFromPayment.getPayment().getFeeId());

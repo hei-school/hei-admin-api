@@ -143,6 +143,19 @@ public class Fee implements Serializable {
   @EqualsAndHashCode.Exclude
   private User archivedBy;
 
+  @EqualsAndHashCode.Exclude private Instant archiveRequestedDatetime;
+
+  @EqualsAndHashCode.Exclude private Instant archivedDatetime;
+
+  @ManyToOne
+  @JoinColumn(name = "rejected_by_id")
+  @EqualsAndHashCode.Exclude
+  private User rejectedBy;
+
+  @EqualsAndHashCode.Exclude private Instant rejectedDatetime;
+
+  @EqualsAndHashCode.Exclude private String rejectionReason;
+
   public Instant getCreationDatetime() {
     return creationDatetime.truncatedTo(ChronoUnit.MILLIS);
   }
@@ -232,17 +245,24 @@ Fee : {"id" : "%s", "remainingAmount" : "%s", "totalAmount" : "%s", "dueDatetime
           "Fee archive is already " + archiveStatus + ", it can't be requested again");
     }
     this.archiveStatus = TO_ARCHIVE;
+    this.archiveRequestedDatetime = Instant.now();
   }
 
   public void validateArchive() {
     requireToArchive();
     this.archiveStatus = ARCHIVED;
     this.isArchived = true;
+    this.archivedDatetime = Instant.now();
   }
 
-  public Fee rejectArchive() {
+  public Fee rejectArchive(String reason) {
     requireToArchive();
+    if (reason == null || reason.isBlank()) {
+      throw new BadRequestException("A reason is required to reject a fee archiving");
+    }
     this.archiveStatus = REJECTED;
+    this.rejectedDatetime = Instant.now();
+    this.rejectionReason = reason;
     return this;
   }
 
