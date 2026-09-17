@@ -318,6 +318,10 @@ class ExamIT extends FacadeITMockedThirdParties {
     assertBadRequestException(
         "Examination date is mandatory",
         () -> api.createOrUpdateExamsInfos(aCrupdateExam().examinationDate(null)));
+
+    assertBadRequestException(
+        "Awarded course is mandatory",
+        () -> api.createOrUpdateExamsInfos(aCrupdateExam().courseAssignmentId(null)));
   }
 
   @Test
