@@ -10,8 +10,10 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.Mockito.clearInvocations;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.mockStatic;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static school.hei.haapi.endpoint.rest.model.ArchiveStatusEnum.ARCHIVED;
@@ -180,6 +182,22 @@ class FeeServiceTest {
 
     assertEquals(PAID, actual.getStatus());
     assertEquals(0, actual.getRemainingAmount());
+    // 5000 paid for a 4000 (remainingAmount()) fee: only the 1000 surplus is overpayment, the
+    // rest was owed and must not be credited on top.
+    verify(creditService).transferFeeOverpaymentToCredit(initial, initial.getStudent());
+  }
+
+  @Test
+  void fee_status_stays_unpaid_with_partial_mpbs_no_credit_transfer() {
+    clearInvocations(creditService);
+    var initial = fee(0);
+    when(feeRepository.save(any(Fee.class)))
+        .thenAnswer(invocationOnMock -> invocationOnMock.getArgument(0));
+
+    var actual = subject.debitAmountFromMpbs(initial, 1000);
+
+    assertEquals(remainingAmount() - 1000, actual.getRemainingAmount());
+    verify(creditService, never()).transferFeeOverpaymentToCredit(any(), any());
   }
 
   @Test

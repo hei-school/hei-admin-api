@@ -128,6 +128,7 @@ public class FeeService {
     log.info("actual remaining amount = {}", actualRemainingAmount);
     if (actualRemainingAmount <= 0) {
       log.info("if student paid over than expected = {}", actualRemainingAmount);
+      creditService.transferFeeOverpaymentToCredit(toUpdate, toUpdate.getStudent());
       toUpdate.setRemainingAmount(0);
       log.info(
           "set remaining amount even if student paid more = {}", toUpdate.getRemainingAmount());
