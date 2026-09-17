@@ -315,39 +315,13 @@ operations:
         - Sms
       summary: Launch an SMS campaign to any combination of contact group(s), a manual contact selection, ad hoc numbers, and a file
       description: >
-        Every recipient source in CrupdateSmsCampaign is optional and combinable — contact
-        group(s), a manual selection of contacts, numbers typed directly, and an uploaded file
-        can all be used together in one campaign; duplicates are merged. Cost is computed as
-        recipients × message segments (see SmsCampaign.smsSegmentsEach — a message over the
-        single-segment character limit costs more per recipient, not a flat 1), then checked
-        against balance: if it can't cover a single recipient, 400 returns the available balance
-        and how many recipients it would cover instead — nothing is created (for a single
-        recipient, i.e. sendSmsMessageToContact, the front-end is expected to head this off
-        before it is even attempted). If balance covers some but not all, the campaign is still
-        created and sent to as many recipients as it covers; the rest are never attempted and
-        counted in recipientsRejectedForBalance. For a scheduled campaign (sendAt in the future),
-        this same balance check runs again right before actual dispatch rather than at creation
-        time — a full or partial shortfall discovered then no longer blocks anything (the
-        campaign already exists), but is reflected the same way in recipientsRejectedForBalance/
-        failureReason, and additionally raises a Notification and e-mails the account's admins
-        (a different message than the creation-time 400, since by dispatch time the campaign is
-        past the point where the person who created it is still watching). Recipients actually
-        attempted are then sent in the background: a personalized file row (see
-        CrupdateSmsCampaign.file) and, more generally, any campaign that resolves to exactly 1
-        attempted recipient goes through /send/, so its delivery is trackable via
-        getSmsCampaignLogs; every other (non-personalized) recipient sharing the campaign's
-        message goes through /sendbulk/ instead, chunked if BEFIANA caps batch size — a live test
-        call confirmed BEFIANA returns no callbackData at all for a bulk send, so none of those
-        recipients' delivery can ever be tracked, only the campaign-level smsSegmentsEach/
-        creditsDebited BEFIANA also returns for /sendbulk/. If a chunk's send call is rejected
-        outright by BEFIANA (as opposed to being skipped up front for balance) its recipients are
-        marked SmsLog.status FAILED — a real, knowable failure, as opposed to a
-        successfully-submitted bulk recipient whose actual delivery is simply never knowable. The
-        campaign itself only ends up SmsCampaignStatus FAILED (with failureReason set, and the
-        same Notification/e-mail as a dispatch-time balance shortfall) if not a single recipient
-        was attempted at all; otherwise it reaches DELIVERED with every rejection reflected in
-        recipientsRejectedForBalance/failedCount instead. Poll getSmsCampaignById for progress
-        either way.
+        An SMS campaign combines any mix of recipient sources (contact groups, manual picks, typed numbers, uploaded file), deduped. 
+        Cost (recipients × segments) is checked against balance: if it can't cover even one recipient, it 400s and creates nothing; 
+        if it covers some, the campaign is created and sent to those it can, the rest counted separately. For scheduled campaigns, 
+        that check reruns right before dispatch and can notify admins instead of blocking. Sending then happens 
+        in the background: single/personalized recipients go through `/send/` (trackable), everyone else through `/sendbulk/` 
+        (delivery not trackable, except outright BEFIANA rejections which do mark a real failure). The campaign ends up `FAILED` 
+        only if no recipient was attempted at all; otherwise `DELIVERED`, with failures tracked separately.
       operationId: createSmsCampaign
       requestBody:
         required: true
