@@ -2434,6 +2434,31 @@ components:
           type: string
         validated_by_last_name:
           type: string
+        rejected_by_ref:
+          type: string
+        rejected_by_first_name:
+          type: string
+        rejected_by_last_name:
+          type: string
+        rejected_datetime:
+          type: string
+          format: date-time
+        rejection_reason:
+          type: string
+    RejectCreditPayments:
+      type: object
+      properties:
+        payment_ids:
+          type: array
+          items:
+            type: string
+        reason:
+          type: string
+          description: >
+            Required: why the credit payments were rejected. Shared by the whole batch.
+      required:
+        - payment_ids
+        - reason
     TemplateDocumenso:
       type: object
       properties:

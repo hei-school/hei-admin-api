@@ -45,6 +45,7 @@ public class PaymentMapper {
 
   public CreditPayment toRestCreditPayment(school.hei.haapi.model.Payment payment) {
     var validatedBy = payment.getValidatedBy();
+    var rejectedBy = payment.getRejectedBy();
     return new CreditPayment()
         .id(payment.getId())
         .fee(feeMapper.toRestFee(payment.getFee()))
@@ -57,7 +58,12 @@ public class PaymentMapper {
         .creationDatetime(payment.getCreationDatetime())
         .validatedByRef(validatedBy == null ? null : validatedBy.getRef())
         .validatedByFirstName(validatedBy == null ? null : validatedBy.getFirstName())
-        .validatedByLastName(validatedBy == null ? null : validatedBy.getLastName());
+        .validatedByLastName(validatedBy == null ? null : validatedBy.getLastName())
+        .rejectedByRef(rejectedBy == null ? null : rejectedBy.getRef())
+        .rejectedByFirstName(rejectedBy == null ? null : rejectedBy.getFirstName())
+        .rejectedByLastName(rejectedBy == null ? null : rejectedBy.getLastName())
+        .rejectedDatetime(payment.getRejectedDatetime())
+        .rejectionReason(payment.getRejectionReason());
   }
 
   public List<CreditPayment> toRestCreditPayment(List<school.hei.haapi.model.Payment> payments) {

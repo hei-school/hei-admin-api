@@ -27,6 +27,7 @@ import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.SQLRestriction;
 import org.hibernate.type.SqlTypes;
+import school.hei.haapi.model.exception.BadRequestException;
 
 @Entity
 @Table(name = "\"payment\"")
@@ -72,6 +73,25 @@ public class Payment implements Serializable {
   @ManyToOne
   @JoinColumn(name = "validated_by_id")
   private User validatedBy;
+
+  @ManyToOne
+  @JoinColumn(name = "rejected_by_id")
+  private User rejectedBy;
+
+  private Instant rejectedDatetime;
+
+  private String rejectionReason;
+
+  public Payment reject(User rejector, String reason) {
+    if (reason == null || reason.isBlank()) {
+      throw new BadRequestException("A reason is required to reject a credit payment");
+    }
+    this.status = PaymentStatus.INVALIDATE;
+    this.rejectedBy = rejector;
+    this.rejectedDatetime = Instant.now();
+    this.rejectionReason = reason;
+    return this;
+  }
 
   public Instant getCreationDatetime() {
     return creationDatetime.truncatedTo(SECONDS);
