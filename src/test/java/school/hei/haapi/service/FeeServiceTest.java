@@ -354,12 +354,13 @@ class FeeServiceTest {
       mockedAuthProvider
           .when(AuthProvider::getPrincipal)
           .thenReturn(new Principal(validator, "dummy"));
-      actual = subject.updateArchiveStatus(initial, ARCHIVED);
+      actual = subject.updateArchiveStatus(initial, ARCHIVED, null);
     }
 
     assertEquals(ARCHIVED, actual.getArchiveStatus());
     assertTrue(actual.isArchived());
     assertEquals(validator, actual.getArchivedBy());
+    assertTrue(actual.getArchivedDatetime() != null);
     verify(creditService).depositArchivedFee(initial);
   }
 
@@ -367,13 +368,33 @@ class FeeServiceTest {
   void reject_archive_fee_ok() {
     var initial = fee(0);
     initial.requestArchive();
+    var validator = mockUser();
+    var reason = "Missing supporting document";
     when(feeRepository.save(any(Fee.class)))
         .thenAnswer(invocationOnMock -> invocationOnMock.getArgument(0));
 
-    var actual = subject.updateArchiveStatus(initial, REJECTED);
+    Fee actual;
+    try (var mockedAuthProvider = mockStatic(AuthProvider.class)) {
+      mockedAuthProvider
+          .when(AuthProvider::getPrincipal)
+          .thenReturn(new Principal(validator, "dummy"));
+      actual = subject.updateArchiveStatus(initial, REJECTED, reason);
+    }
 
     assertEquals(REJECTED, actual.getArchiveStatus());
     assertFalse(actual.isArchived());
+    assertEquals(validator, actual.getRejectedBy());
+    assertEquals(reason, actual.getRejectionReason());
+    assertTrue(actual.getRejectedDatetime() != null);
+  }
+
+  @Test
+  void reject_archive_fee_without_reason_ko() {
+    var initial = fee(0);
+    initial.requestArchive();
+
+    assertThrows(
+        BadRequestException.class, () -> subject.updateArchiveStatus(initial, REJECTED, null));
   }
 
   @Test
@@ -381,14 +402,16 @@ class FeeServiceTest {
     var initial = fee(0);
     initial.requestArchive();
 
-    assertThrows(BadRequestException.class, () -> subject.updateArchiveStatus(initial, TO_ARCHIVE));
+    assertThrows(
+        BadRequestException.class, () -> subject.updateArchiveStatus(initial, TO_ARCHIVE, null));
   }
 
   @Test
   void validate_archive_without_prior_request_ko() {
     var initial = fee(0);
 
-    assertThrows(BadRequestException.class, () -> subject.updateArchiveStatus(initial, ARCHIVED));
+    assertThrows(
+        BadRequestException.class, () -> subject.updateArchiveStatus(initial, ARCHIVED, null));
   }
 
   private static User mockUser() {

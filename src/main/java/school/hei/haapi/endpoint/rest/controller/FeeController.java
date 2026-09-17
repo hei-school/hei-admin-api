@@ -113,7 +113,8 @@ public class FeeController {
       @PathVariable String feeId,
       @RequestBody UpdateFeeArchiveStatus toUpdate) {
     var fee = feeService.getByStudentIdAndFeeId(studentId, feeId);
-    return feeMapper.toRestFee(feeService.updateArchiveStatus(fee, toUpdate.getStatus()));
+    return feeMapper.toRestFee(
+        feeService.updateArchiveStatus(fee, toUpdate.getStatus(), toUpdate.getReason()));
   }
 
   @GetMapping("/students/{studentId}/fees")

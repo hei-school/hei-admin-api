@@ -44,6 +44,7 @@ public class FeeMapper {
     var studentFee = fee.getStudent();
     var letter = letterService.getByFeeId(fee.getId());
     var archivedBy = fee.getArchivedBy();
+    var rejectedBy = fee.getRejectedBy();
 
     return new Fee()
         .id(fee.getId())
@@ -66,6 +67,13 @@ public class FeeMapper {
         .archivedByRef(archivedBy == null ? null : archivedBy.getRef())
         .archivedByFirstName(archivedBy == null ? null : archivedBy.getFirstName())
         .archivedByLastName(archivedBy == null ? null : archivedBy.getLastName())
+        .archiveRequestedDatetime(fee.getArchiveRequestedDatetime())
+        .archivedDatetime(fee.getArchivedDatetime())
+        .rejectedByRef(rejectedBy == null ? null : rejectedBy.getRef())
+        .rejectedByFirstName(rejectedBy == null ? null : rejectedBy.getFirstName())
+        .rejectedByLastName(rejectedBy == null ? null : rejectedBy.getLastName())
+        .rejectedDatetime(fee.getRejectedDatetime())
+        .rejectionReason(fee.getRejectionReason())
         .letter(letter == null ? null : toLetterFee(letter));
   }
 
