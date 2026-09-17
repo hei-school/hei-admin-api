@@ -17,6 +17,7 @@ import school.hei.haapi.model.exception.CoursesCreditSumZero;
 import school.hei.haapi.model.exception.ForbiddenException;
 import school.hei.haapi.model.exception.NotFoundException;
 import school.hei.haapi.model.exception.NotImplementedException;
+import school.hei.haapi.model.exception.SmsInsufficientBalanceException;
 import school.hei.haapi.model.exception.TooManyRequestsException;
 
 @RestControllerAdvice
@@ -35,6 +36,20 @@ public class InternalToRestExceptionHandler {
       BadRequestException e) {
     log.info("Bad request", e);
     return new ResponseEntity<>(toRest(e, HttpStatus.BAD_REQUEST), HttpStatus.BAD_REQUEST);
+  }
+
+  @ExceptionHandler(value = {SmsInsufficientBalanceException.class})
+  ResponseEntity<school.hei.haapi.endpoint.rest.model.SmsInsufficientBalanceAlert>
+      handleSmsInsufficientBalance(SmsInsufficientBalanceException e) {
+    log.info("SMS balance insufficient", e);
+    var alert =
+        new school.hei.haapi.endpoint.rest.model.SmsInsufficientBalanceAlert()
+            .type("BadRequestException")
+            .message(e.getMessage())
+            .availableBalance(e.getAvailableBalance())
+            .recipientCount(e.getRecipientCount())
+            .maxSendableRecipients(e.getMaxSendableRecipients());
+    return new ResponseEntity<>(alert, HttpStatus.BAD_REQUEST);
   }
 
   @ExceptionHandler(value = {MissingServletRequestParameterException.class})

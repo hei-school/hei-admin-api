@@ -1,0 +1,65 @@
+package school.hei.haapi.unit.sms;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+
+import org.junit.jupiter.api.Test;
+import school.hei.haapi.endpoint.rest.mapper.SmsLogMapper;
+import school.hei.haapi.model.SmsCampaign;
+import school.hei.haapi.model.SmsCampaignStatus;
+import school.hei.haapi.model.SmsContact;
+import school.hei.haapi.model.SmsLog;
+
+class SmsLogMapperTest {
+  private final SmsLogMapper subject = new SmsLogMapper();
+
+  @Test
+  void every_domain_message_status_maps_to_its_rest_counterpart_by_name() {
+    for (var domainStatus : school.hei.haapi.model.SmsMessageStatus.values()) {
+      var rest = subject.toRest(domainStatus);
+      assertEquals(domainStatus.name(), rest.name());
+      assertEquals(domainStatus, subject.toDomain(rest));
+    }
+  }
+
+  @Test
+  void every_domain_recipient_source_maps_to_its_rest_counterpart_by_name() {
+    for (var domainSource : school.hei.haapi.model.SmsRecipientSource.values()) {
+      assertEquals(domainSource.name(), subject.toRest(domainSource).name());
+    }
+  }
+
+  @Test
+  void a_bulk_sent_log_with_a_null_status_maps_to_null_not_a_default_value() {
+    var campaign = SmsCampaign.builder().id("c1").status(SmsCampaignStatus.DELIVERED).build();
+    var log =
+        SmsLog.builder()
+            .id("log1")
+            .campaign(campaign)
+            .phoneNumber("321111111")
+            .recipientSource(school.hei.haapi.model.SmsRecipientSource.MANUAL_NUMBER)
+            .build(); // status/callbackData left null, as a real /sendbulk/ recipient would be
+
+    var rest = subject.toRest(log);
+
+    assertNull(rest.getStatus());
+    assertNull(rest.getCallbackData());
+    assertNull(rest.getContactId());
+  }
+
+  @Test
+  void contact_id_is_populated_when_the_recipient_came_from_a_saved_contact() {
+    var campaign = SmsCampaign.builder().id("c1").status(SmsCampaignStatus.DELIVERED).build();
+    var contact = SmsContact.builder().id("contact1").build();
+    var log =
+        SmsLog.builder()
+            .id("log1")
+            .campaign(campaign)
+            .phoneNumber("321111111")
+            .contact(contact)
+            .recipientSource(school.hei.haapi.model.SmsRecipientSource.CONTACT_GROUP)
+            .build();
+
+    assertEquals("contact1", subject.toRest(log).getContactId());
+  }
+}
