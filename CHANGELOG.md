@@ -1,3 +1,13 @@
+## [1.173.1](https://github.com/hei-school/hei-admin-api/compare/v1.173.0...v1.173.1) (2026-09-18)
+
+
+### Bug Fixes
+
+* duplicate payment ([49c54a9](https://github.com/hei-school/hei-admin-api/commit/49c54a948baf24eaa187c6008ab3edd516dda470))
+* transfert create over_payment transaction ([fd0a5e4](https://github.com/hei-school/hei-admin-api/commit/fd0a5e4ee8c45ca541e9b6812f9248abb87551cd))
+
+
+
 # [1.173.0](https://github.com/hei-school/hei-admin-api/compare/v1.172.0...v1.173.0) (2026-09-17)
 
 
@@ -125,17 +135,6 @@
 ### Bug Fixes
 
 * pin axios version to 1.18.1 ([5e271d3](https://github.com/hei-school/hei-admin-api/commit/5e271d3aaf043f4838c6896e2bd557d8431f5717))
-
-
-
-# [1.165.0](https://github.com/hei-school/hei-admin-api/compare/v1.164.0...v1.165.0) (2026-08-06)
-
-
-### Features
-
-* add fees only mode filter ([bdf0651](https://github.com/hei-school/hei-admin-api/commit/bdf06512111cd5f403030e00e2f806d77f970cb6))
-* create fee template with specific content ([f04be45](https://github.com/hei-school/hei-admin-api/commit/f04be45fcde3c564f3e6496f25aed43d7347baf0))
-* create fees through async jobs ([56a5ae7](https://github.com/hei-school/hei-admin-api/commit/56a5ae7dc5a5aa95e71cc0ec9ac5c12497ed0f53))
 
 
 
