@@ -32,6 +32,7 @@ class MpbsServiceTest extends FacadeITMockedThirdParties {
   @MockBean private MpbsRepository mpbsRepository;
   @MockBean private FeeService feeService;
   @MockBean private PaymentService paymentService;
+  @MockBean private CreditService creditService;
 
   @BeforeEach
   void setUp() {
@@ -69,7 +70,7 @@ class MpbsServiceTest extends FacadeITMockedThirdParties {
 
   @Test
   void save_verified_successful_payment_applies_amount_when_still_pending() {
-    var fee = Fee.builder().id("feeId").build();
+    var fee = Fee.builder().id("feeId").remainingAmount(5000).build();
     var verifiedMpbs =
         Mpbs.builder()
             .id("mpbs1")
@@ -80,11 +81,37 @@ class MpbsServiceTest extends FacadeITMockedThirdParties {
             .build();
     when(mpbsRepository.findByIdForUpdate("mpbs1"))
         .thenReturn(Optional.of(Mpbs.builder().id("mpbs1").status(PENDING).build()));
+    when(feeService.getById("feeId")).thenReturn(fee);
 
     var result = subject.saveVerifiedSuccessfulPayment(verifiedMpbs);
 
     verify(feeService, times(1)).computeRemainingAmount("feeId", 5000);
     verify(paymentService, times(1)).savePaymentFromMpbs(result, 5000);
+    verify(creditService, never()).depositOverpaymentToCredit(any(), any(), anyInt());
+    assertEquals(SUCCESS, result.getStatus());
+  }
+
+  @Test
+  void save_verified_successful_payment_credits_directly_when_fee_already_paid() {
+    var student = school.hei.haapi.model.User.builder().id("studentId").build();
+    var fee = Fee.builder().id("feeId").remainingAmount(0).student(student).build();
+    var verifiedMpbs =
+        Mpbs.builder()
+            .id("mpbs1")
+            .amount(21500)
+            .status(SUCCESS)
+            .fee(fee)
+            .statusHistory(new ArrayList<>(List.of(pendingStatus())))
+            .build();
+    when(mpbsRepository.findByIdForUpdate("mpbs1"))
+        .thenReturn(Optional.of(Mpbs.builder().id("mpbs1").status(PENDING).build()));
+    when(feeService.getById("feeId")).thenReturn(fee);
+
+    var result = subject.saveVerifiedSuccessfulPayment(verifiedMpbs);
+
+    verify(feeService, never()).computeRemainingAmount(anyString(), anyInt());
+    verify(paymentService, never()).savePaymentFromMpbs(any(), anyInt());
+    verify(creditService, times(1)).depositOverpaymentToCredit(fee, student, 21500);
     assertEquals(SUCCESS, result.getStatus());
   }
 
