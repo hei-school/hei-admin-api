@@ -33,17 +33,19 @@ public class MpbsService {
           lockedMpbs.getStatus());
       return lockedMpbs;
     }
-    int amountInPsp = verifiedMpbs.getAmount();
+    var amountInPsp = verifiedMpbs.getAmount();
     var fee = feeService.getById(verifiedMpbs.getFee().getId());
 
     if (fee.getRemainingAmount() <= 0) {
+      var alreadyPaid = fee.getTotalAmount();
+      var overpayment = amountInPsp - alreadyPaid;
       log.info(
-          "Fee {} is already fully paid, crediting the verified Mpbs {} amount {} directly"
+          "Fee {} is already fully paid ({} already recorded for it); crediting {} directly"
               + " instead of creating a duplicate payment",
           fee.getId(),
-          verifiedMpbs.getId(),
-          amountInPsp);
-      creditService.depositOverpaymentToCredit(fee, fee.getStudent(), amountInPsp);
+          alreadyPaid,
+          overpayment);
+      creditService.depositOverpaymentToCredit(fee, fee.getStudent(), overpayment);
       return save(verifiedMpbs);
     }
 
