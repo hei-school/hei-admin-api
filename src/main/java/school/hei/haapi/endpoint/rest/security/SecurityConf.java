@@ -682,7 +682,8 @@ public class SecurityConf {
                     .requestMatchers(GET, "/students/credit-payments")
                     .hasAnyRole(MANAGER.getRole(), ADMIN.getRole())
                     .requestMatchers(GET, "/students/{student_id}/credit")
-                    .hasAnyRole(STUDENT.getRole(), MANAGER.getRole(), ADMIN.getRole())
+                    .hasAnyRole(
+                        STUDENT.getRole(), MANAGER.getRole(), ADMIN.getRole(), MONITOR.getRole())
                     .requestMatchers(GET, "/students/{student_id}/credit-transactions")
                     .hasAnyRole(
                         STUDENT.getRole(), MANAGER.getRole(), ADMIN.getRole(), MONITOR.getRole())

@@ -1,8 +1,12 @@
 package school.hei.haapi.endpoint.rest.mapper;
 
 import static java.util.stream.Collectors.toUnmodifiableList;
+import static school.hei.haapi.endpoint.rest.security.AuthProvider.getPrincipal;
+import static school.hei.haapi.model.User.Role.ADMIN;
+import static school.hei.haapi.model.User.Role.MANAGER;
 
 import java.util.List;
+import java.util.Set;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 import school.hei.haapi.endpoint.rest.model.CreatePayment;
@@ -11,6 +15,7 @@ import school.hei.haapi.endpoint.rest.model.Payment;
 import school.hei.haapi.endpoint.rest.validator.CreatePaymentValidator;
 import school.hei.haapi.model.Fee;
 import school.hei.haapi.model.PaymentStatus;
+import school.hei.haapi.model.User;
 import school.hei.haapi.model.exception.BadRequestException;
 import school.hei.haapi.model.exception.NotFoundException;
 import school.hei.haapi.service.FeeService;
@@ -18,6 +23,8 @@ import school.hei.haapi.service.FeeService;
 @Component
 @AllArgsConstructor
 public class PaymentMapper {
+  private static final Set<User.Role> AUTO_VALIDATING_ROLES = Set.of(ADMIN, MANAGER);
+
   private final FeeService feeService;
   private final FeeMapper feeMapper;
   private final CreatePaymentValidator createPaymentValidator;
@@ -37,10 +44,6 @@ public class PaymentMapper {
         .validatedByRef(validatedBy == null ? null : validatedBy.getRef())
         .validatedByFirstName(validatedBy == null ? null : validatedBy.getFirstName())
         .validatedByLastName(validatedBy == null ? null : validatedBy.getLastName());
-  }
-
-  public List<Payment> toRestPayment(List<school.hei.haapi.model.Payment> payments) {
-    return payments.stream().map(this::toRestPayment).toList();
   }
 
   public CreditPayment toRestCreditPayment(school.hei.haapi.model.Payment payment) {
@@ -73,13 +76,26 @@ public class PaymentMapper {
   private school.hei.haapi.model.Payment toDomainPayment(
       Fee associatedFee, CreatePayment createPayment) {
     createPaymentValidator.accept(createPayment);
+    var type = toDomainPaymentType(createPayment.getType());
+    var status = PaymentStatus.valueOf(createPayment.getStatus().toString());
+    User validatedBy = null;
+
+    if (type == Payment.TypeEnum.CREDIT) {
+      var creator = getPrincipal().getUser();
+      if (AUTO_VALIDATING_ROLES.contains(creator.getRole())) {
+        status = PaymentStatus.VALIDATE;
+        validatedBy = creator;
+      }
+    }
+
     return school.hei.haapi.model.Payment.builder()
         .fee(associatedFee)
-        .type(toDomainPaymentType(createPayment.getType()))
+        .type(type)
         .creationDatetime(createPayment.getCreationDatetime())
         .amount(createPayment.getAmount())
         .comment(createPayment.getComment())
-        .status(PaymentStatus.valueOf(createPayment.getStatus().toString()))
+        .status(status)
+        .validatedBy(validatedBy)
         .build();
   }
 
