@@ -18,6 +18,7 @@ public class MpbsService {
   private final MpbsRepository mpbsRepository;
   private final FeeService feeService;
   private final PaymentService paymentService;
+  private final CreditService creditService;
 
   @Transactional
   public Mpbs saveVerifiedSuccessfulPayment(Mpbs verifiedMpbs) {
@@ -33,7 +34,20 @@ public class MpbsService {
       return lockedMpbs;
     }
     int amountInPsp = verifiedMpbs.getAmount();
-    feeService.computeRemainingAmount(verifiedMpbs.getFee().getId(), amountInPsp);
+    var fee = feeService.getById(verifiedMpbs.getFee().getId());
+
+    if (fee.getRemainingAmount() <= 0) {
+      log.info(
+          "Fee {} is already fully paid, crediting the verified Mpbs {} amount {} directly"
+              + " instead of creating a duplicate payment",
+          fee.getId(),
+          verifiedMpbs.getId(),
+          amountInPsp);
+      creditService.depositOverpaymentToCredit(fee, fee.getStudent(), amountInPsp);
+      return save(verifiedMpbs);
+    }
+
+    feeService.computeRemainingAmount(fee.getId(), amountInPsp);
     var savedMpbs = save(verifiedMpbs);
 
     paymentService.savePaymentFromMpbs(savedMpbs, amountInPsp);
