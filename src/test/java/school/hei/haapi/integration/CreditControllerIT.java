@@ -8,6 +8,8 @@ import static school.hei.haapi.endpoint.rest.model.FeeFrequency.MONTHLY;
 import static school.hei.haapi.integration.conf.TestAuth.tokenFor;
 import static school.hei.haapi.integration.conf.TestMocks.setUpEventBridge;
 import static school.hei.haapi.integration.testData.ManagerTestData.hasina;
+import static school.hei.haapi.integration.testData.MonitorTestData.monitorOfFreddy;
+import static school.hei.haapi.integration.testData.TeacherTestData.ryan;
 import static school.hei.haapi.model.User.Role.STUDENT;
 
 import java.time.Instant;
@@ -51,8 +53,12 @@ class CreditControllerIT extends FacadeITMockedThirdParties {
   @Autowired UserRepository userRepository;
   private static User student;
   private static User managerHasina;
+  private static User monitorFreddy;
+  private static User teacherRyan;
   private String managerToken;
   private String studentToken;
+  private String monitorToken;
+  private String teacherToken;
   private static Fee feeToArchive;
   private static Fee currentFee;
   @Autowired private CreditRepository creditRepository;
@@ -80,12 +86,16 @@ class CreditControllerIT extends FacadeITMockedThirdParties {
 
   void setUpTestData() {
     managerHasina = userRepository.save(hasina());
+    monitorFreddy = userRepository.save(monitorOfFreddy());
+    teacherRyan = userRepository.save(ryan());
     student = userRepository.save(student());
     var savedFees = feeRepository.saveAll(List.of(feeToArchive(), currentFee()));
     feeToArchive = savedFees.getFirst();
     currentFee = savedFees.getLast();
     managerToken = tokenFor(casdoorAuthServiceMock, managerHasina);
     studentToken = tokenFor(casdoorAuthServiceMock, student);
+    monitorToken = tokenFor(casdoorAuthServiceMock, monitorFreddy);
+    teacherToken = tokenFor(casdoorAuthServiceMock, teacherRyan);
   }
 
   @AfterEach
@@ -97,6 +107,8 @@ class CreditControllerIT extends FacadeITMockedThirdParties {
     feeRepository.deleteAllById(List.of(feeToArchive.getId(), currentFee.getId()));
     userRepository.deleteById(student.getId());
     userRepository.deleteById(managerHasina.getId());
+    userRepository.deleteById(monitorFreddy.getId());
+    userRepository.deleteById(teacherRyan.getId());
   }
 
   @Test
@@ -174,6 +186,41 @@ class CreditControllerIT extends FacadeITMockedThirdParties {
   }
 
   @Test
+  void monitor_read_credit_and_credit_transactions_OK() throws ApiException {
+    var managerApiClient = anApiClient(managerToken);
+    var managerPayingApi = new PayingApi(managerApiClient);
+    requestAndValidateArchive(managerPayingApi, feeToArchive.getId());
+
+    var monitorPayingApi = new PayingApi(anApiClient(monitorToken));
+    var credit = monitorPayingApi.getCreditByStudentId(student.getId());
+    assertNotNull(credit);
+    assertEquals(200000, credit.getAmount());
+    var transactions =
+        monitorPayingApi.getCreditTransactionsByStudentId(student.getId(), null, 1, 10);
+    assertNotNull(transactions);
+    assertEquals(1, transactions.size());
+  }
+
+  @Test
+  void teacher_read_credit_KO() throws ApiException {
+    var managerApiClient = anApiClient(managerToken);
+    var managerPayingApi = new PayingApi(managerApiClient);
+    requestAndValidateArchive(managerPayingApi, feeToArchive.getId());
+
+    var teacherPayingApi = new PayingApi(anApiClient(teacherToken));
+    var apiException =
+        org.junit.jupiter.api.Assertions.assertThrows(
+            ApiException.class, () -> teacherPayingApi.getCreditByStudentId(student.getId()));
+    assertEquals(403, apiException.getCode());
+
+    var apiExceptionTransactions =
+        org.junit.jupiter.api.Assertions.assertThrows(
+            ApiException.class,
+            () -> teacherPayingApi.getCreditTransactionsByStudentId(student.getId(), null, 1, 10));
+    assertEquals(403, apiExceptionTransactions.getCode());
+  }
+
+  @Test
   void student_create_credit_payment_OK() throws ApiException {
     var anApiClient = anApiClient(studentToken);
     var payingApi = new PayingApi(anApiClient);
@@ -184,6 +231,21 @@ class CreditControllerIT extends FacadeITMockedThirdParties {
         payingApi.createStudentPayments(
             student.getId(), currentFee.getId(), List.of(bankPayment(), creditPaymentCreated()));
     assertNotNull(payments);
+  }
+
+  @Test
+  void manager_create_credit_payment_is_auto_validated_OK() throws ApiException {
+    var managerApiClient = anApiClient(managerToken);
+    var managerPayingApi = new PayingApi(managerApiClient);
+    requestAndValidateArchive(managerPayingApi, feeToArchive.getId());
+    var payments =
+        managerPayingApi.createStudentPayments(
+            student.getId(), currentFee.getId(), List.of(creditPaymentCreated()));
+    var creditPayment = payments.getFirst();
+    assertEquals(PaymentStatus.VALIDATE, creditPayment.getStatus());
+    assertEquals(managerHasina.getRef(), creditPayment.getValidatedByRef());
+    var feePaid = managerPayingApi.getStudentFeeById(student.getId(), currentFee.getId());
+    assertEquals(100000, feePaid.getRemainingAmount());
   }
 
   @Test
