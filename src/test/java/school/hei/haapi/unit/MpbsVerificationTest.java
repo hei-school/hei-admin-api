@@ -179,6 +179,27 @@ class MpbsVerificationTest {
   }
 
   @Test
+  void verification_skips_an_mpbs_already_verified_by_vola() {
+    var student = User.builder().email("email@gmail.com").build();
+    var fee = Fee.builder().id("feeId").student(student).build();
+    var alreadyVerified =
+        someMpbs("alreadyVerified", now(), fee, student).toBuilder().status(SUCCESS).build();
+    var correspondingTransaction =
+        MobileTransactionDetails.builder()
+            .pspTransactionRef(alreadyVerified.getPspId())
+            .pspTransactionAmount(5000)
+            .status(SUCCESS)
+            .build();
+    when(mobilePaymentServiceMock.findAllTransactionByMpbs(anyList()))
+        .thenReturn(List.of(correspondingTransaction));
+
+    var verifiedMpbs = subject.verifyMobilePaymentAndSaveResult(List.of(alreadyVerified));
+
+    verify(computeVerifiedMobilePaymentMock, never()).saveTheVerifiedMpbs(any(), any());
+    assertEquals(0, verifiedMpbs.size());
+  }
+
+  @Test
   void verify_mpbs_from_vola_with_confirmed_payment() {
     var student = User.builder().email("dummy@gmail.com").build();
     var fee = Fee.builder().id("feeId").student(student).build();
