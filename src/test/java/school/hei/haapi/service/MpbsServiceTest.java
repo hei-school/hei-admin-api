@@ -141,17 +141,18 @@ class MpbsServiceTest extends FacadeITMockedThirdParties {
   }
 
   @Test
-  void save_verified_successful_payment_skips_when_already_resolved_under_the_lock() {
+  void save_verified_successful_payment_skips_when_already_paid_under_the_lock() {
     var fee = Fee.builder().id("feeId").build();
     var verifiedMpbs = Mpbs.builder().id("mpbs1").amount(5000).status(SUCCESS).fee(fee).build();
-    var alreadyResolved = Mpbs.builder().id("mpbs1").status(SUCCESS).build();
-    when(mpbsRepository.findByIdForUpdate("mpbs1")).thenReturn(Optional.of(alreadyResolved));
+    var staleLockedMpbs = Mpbs.builder().id("mpbs1").status(PENDING).build();
+    when(mpbsRepository.findByIdForUpdate("mpbs1")).thenReturn(Optional.of(staleLockedMpbs));
+    when(paymentService.hasPaymentFromMpbs("mpbs1")).thenReturn(true);
 
     var result = subject.saveVerifiedSuccessfulPayment(verifiedMpbs);
 
     verify(feeService, never()).computeRemainingAmount(anyString(), anyInt());
     verify(paymentService, never()).savePaymentFromMpbs(any(), anyInt());
-    assertEquals(alreadyResolved, result);
+    assertEquals(staleLockedMpbs, result);
   }
 
   private static Mpbs mpbs(List<MpbsStatusHistory> statusHistory, MpbsStatus status) {

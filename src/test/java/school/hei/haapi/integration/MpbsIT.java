@@ -36,6 +36,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.jdbc.core.JdbcTemplate;
 import school.hei.haapi.endpoint.rest.api.PayingApi;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
@@ -68,6 +69,7 @@ public class MpbsIT extends FacadeITMockedThirdParties {
   @Autowired private MpbsRepository mpbsRepository;
   @Autowired private MpbsVerificationService mpbsVerificationService;
   @Autowired private FeeStatusHistoryRepository feeStatusHistoryRepository;
+  @Autowired private JdbcTemplate jdbcTemplate;
 
   private User studentAxel;
   private User studentFreddy;
@@ -117,6 +119,11 @@ public class MpbsIT extends FacadeITMockedThirdParties {
     List<String> ownedFeeIds = new ArrayList<>(createdFeeIds);
     ownedFeeIds.addAll(List.of(axelFee.getId(), freddyFee.getId()));
 
+    // payment references the mpbs it was created from, and it carries @SQLDelete so a repository
+    // delete would only flag is_deleted and leave the reference behind: reach the table directly,
+    // before the mpbs
+    ownedFeeIds.forEach(
+        feeId -> jdbcTemplate.update("DELETE FROM \"payment\" WHERE fee_id = ?", feeId));
     mpbsRepository.deleteAll(
         mpbsRepository.findAll().stream()
             .filter(m -> m.getFee() != null && ownedFeeIds.contains(m.getFee().getId()))

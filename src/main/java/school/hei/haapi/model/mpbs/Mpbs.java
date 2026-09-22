@@ -51,6 +51,8 @@ public class Mpbs extends TypedMobileMoneyTransaction implements Serializable {
 
   private Instant pspOwnDatetimeVerification;
 
+  private Instant lastVolaPollDatetime;
+
   @ManyToOne
   @JoinColumn(name = "student_id")
   @ToString.Exclude

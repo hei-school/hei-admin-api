@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.springframework.data.domain.Sort.Direction.DESC;
 import static school.hei.haapi.endpoint.rest.model.FeeCategory.UNKNOWN;
 import static school.hei.haapi.endpoint.rest.model.FeeTypeEnum.TUITION;
 import static school.hei.haapi.integration.conf.TestAuth.tokenFor;
@@ -21,6 +22,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.jdbc.core.JdbcTemplate;
 import school.hei.haapi.endpoint.rest.api.EventsApi;
 import school.hei.haapi.endpoint.rest.api.PayingApi;
@@ -81,8 +83,6 @@ class UserActivityInterceptorIT extends FacadeITMockedThirdParties {
   void tearDown() {
     List<String> feeIds = new ArrayList<>(apiCreatedFeeIds);
     feeIds.add(fee.getId());
-    // Fee carries @SQLDelete, so a repository delete would only flag is_deleted: reach the tables
-    // directly, children first.
     feeIds.forEach(
         feeId -> {
           jdbcTemplate.update("DELETE FROM \"fee_status_history\" WHERE fee_id = ?", feeId);
@@ -186,8 +186,8 @@ class UserActivityInterceptorIT extends FacadeITMockedThirdParties {
   }
 
   private UserActivity getLastActivity() {
-    var all = userActivityRepository.findAll();
+    var all = userActivityRepository.findAll(Sort.by(DESC, "createdAt"));
     assertFalse(all.isEmpty(), "No activity detected");
-    return all.get(all.size() - 1);
+    return all.getFirst();
   }
 }
