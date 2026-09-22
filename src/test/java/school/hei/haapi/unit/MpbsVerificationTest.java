@@ -3,6 +3,7 @@ package school.hei.haapi.unit;
 import static java.time.Instant.now;
 import static java.time.ZoneOffset.UTC;
 import static java.time.temporal.ChronoUnit.DAYS;
+import static java.time.temporal.ChronoUnit.HOURS;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -332,6 +333,7 @@ class MpbsVerificationTest {
     when(volaClientMock.create(ORANGE_MONEY, "MP260101.0000.B00000", "dummy@gmail.com"))
         .thenReturn(volaPaymentResponse);
     when(mpbsServiceMock.saveMpbs(any(Mpbs.class))).thenReturn(savedMpbs);
+    when(mpbsServiceMock.saveVerifiedSuccessfulPayment(savedMpbs)).thenReturn(savedMpbs);
     when(mpbsMapperMock.toRest(savedMpbs)).thenReturn(expectedRestMpbs);
 
     var result = subject.sendVolaVerificationRequestAndSaveResult(mpbs);
@@ -339,8 +341,90 @@ class MpbsVerificationTest {
     verify(volaClientMock, times(1))
         .create(ORANGE_MONEY, "MP260101.0000.B00000", "dummy@gmail.com");
     verify(mpbsServiceMock, times(1)).saveMpbs(any(Mpbs.class));
+    verify(mpbsServiceMock, times(1)).saveVerifiedSuccessfulPayment(savedMpbs);
     verify(mpbsMapperMock, times(1)).toRest(savedMpbs);
     assertEquals("mpbs1", result.getId());
+  }
+
+  @Test
+  void send_vola_verification_request_does_not_pay_while_vola_is_still_verifying() {
+    var student = User.builder().id("studentId").email("dummy@gmail.com").build();
+    var fee = Fee.builder().id("feeId").student(student).build();
+    var mpbs =
+        Mpbs.builder()
+            .id("mpbs1")
+            .pspId("MP260101.0000.B00000")
+            .mobileMoneyType(MobileMoneyType.ORANGE_MONEY)
+            .student(student)
+            .fee(fee)
+            .status(PENDING)
+            .statusHistory(List.of())
+            .build();
+    var volaPaymentResponse =
+        Payment.builder()
+            .pspPayment(
+                PspPayment.builder()
+                    .pspType(ORANGE_MONEY)
+                    .id("MP260101.0000.B00000")
+                    .amount(15000)
+                    .build())
+            .verificationStatus(VerificationStatusEnum.VERIFYING)
+            .lastPspVerificationInstant(now().atOffset(UTC))
+            .creationInstant(now().atOffset(UTC))
+            .build();
+    var savedMpbs = mpbs.toBuilder().amount(15000).build();
+    when(volaClientMock.create(ORANGE_MONEY, "MP260101.0000.B00000", "dummy@gmail.com"))
+        .thenReturn(volaPaymentResponse);
+    when(mpbsServiceMock.saveMpbs(any(Mpbs.class))).thenReturn(savedMpbs);
+    when(mpbsMapperMock.toRest(savedMpbs))
+        .thenReturn(new school.hei.haapi.endpoint.rest.model.Mpbs().id("mpbs1"));
+
+    subject.sendVolaVerificationRequestAndSaveResult(mpbs);
+
+    verify(mpbsServiceMock, never()).saveVerifiedSuccessfulPayment(any());
+  }
+
+  @Test
+  void verify_pending_mpbs_for_student_polls_vola_at_most_once_per_minute() {
+    var student = User.builder().id("studentId").email("dummy@gmail.com").build();
+    var fee = Fee.builder().id("feeId").student(student).build();
+    var justPolled =
+        Mpbs.builder()
+            .id("justPolled")
+            .pspId("MP260101.0000.B00001")
+            .mobileMoneyType(MobileMoneyType.ORANGE_MONEY)
+            .student(student)
+            .fee(fee)
+            .status(PENDING)
+            .lastVolaPollDatetime(now())
+            .statusHistory(List.of())
+            .build();
+    var stale =
+        justPolled.toBuilder()
+            .id("stale")
+            .pspId("MP260101.0000.B00002")
+            .lastVolaPollDatetime(now().minus(1, HOURS))
+            .build();
+    var neverPolled =
+        justPolled.toBuilder()
+            .id("neverPolled")
+            .pspId("MP260101.0000.B00003")
+            .lastVolaPollDatetime(null)
+            .build();
+    when(mpbsRepositoryMock.findAllByStatusAndStudentId(PENDING, "studentId"))
+        .thenReturn(List.of(justPolled, stale, neverPolled));
+    when(mpbsRepositoryMock.findById(any())).thenReturn(java.util.Optional.empty());
+    when(volaClientMock.get(eq(ORANGE_MONEY), any(), eq("dummy@gmail.com")))
+        .thenThrow(new RuntimeException("Vola unreachable"));
+
+    subject.verifyPendingMpbsForStudent("studentId");
+
+    verify(volaClientMock, never()).get(ORANGE_MONEY, "MP260101.0000.B00001", "dummy@gmail.com");
+    verify(volaClientMock, times(1)).get(ORANGE_MONEY, "MP260101.0000.B00002", "dummy@gmail.com");
+    verify(volaClientMock, times(1)).get(ORANGE_MONEY, "MP260101.0000.B00003", "dummy@gmail.com");
+    verify(mpbsRepositoryMock, never()).markVolaPolledAt(eq("justPolled"), any());
+    verify(mpbsRepositoryMock, times(1)).markVolaPolledAt(eq("stale"), any());
+    verify(mpbsRepositoryMock, times(1)).markVolaPolledAt(eq("neverPolled"), any());
   }
 
   @Test

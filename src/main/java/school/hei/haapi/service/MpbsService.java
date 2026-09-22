@@ -26,11 +26,9 @@ public class MpbsService {
         mpbsRepository
             .findByIdForUpdate(verifiedMpbs.getId())
             .orElseThrow(() -> new NotFoundException("Mpbs not found #" + verifiedMpbs.getId()));
-    if (!MpbsStatus.PENDING.equals(lockedMpbs.getStatus())) {
+    if (paymentService.hasPaymentFromMpbs(lockedMpbs.getId())) {
       log.info(
-          "Mpbs {} was already resolved to {} while waiting for the lock, skipping",
-          verifiedMpbs.getId(),
-          lockedMpbs.getStatus());
+          "Mpbs {} was already paid while waiting for the lock, skipping", verifiedMpbs.getId());
       return lockedMpbs;
     }
     var amountInPsp = verifiedMpbs.getAmount();

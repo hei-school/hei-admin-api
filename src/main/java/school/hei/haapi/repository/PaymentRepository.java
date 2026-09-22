@@ -2,6 +2,7 @@ package school.hei.haapi.repository;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Optional;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -20,6 +21,9 @@ public interface PaymentRepository extends JpaRepository<Payment, String> {
       @Param("student_id") String studentId, @Param("fee_id") String feeId, Pageable pageable);
 
   List<Payment> findAllByFee_IdOrderByCreationDatetimeAsc(String feeId);
+
+  @Query("select p from Payment p where p.mpbs.id = :mpbs_id")
+  Optional<Payment> findByMpbsId(@Param("mpbs_id") String mpbsId);
 
   @Query(
       value =

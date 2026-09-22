@@ -69,7 +69,6 @@ class PaymentServiceTest extends FacadeITMockedThirdParties {
   private Fee lateFee2;
   private String managerToken;
 
-  /** Everything created through the API on top of the fixtures, swept in tearDown. */
   private final List<String> ownedFeeIds = new ArrayList<>();
 
   private final List<String> ownedUserIds = new ArrayList<>();
@@ -87,7 +86,6 @@ class PaymentServiceTest extends FacadeITMockedThirdParties {
     setUpS3Service(fileService, studentWithLateFees);
     managerToken = tokenFor(casdoorAuthServiceMock, manager);
 
-    // registering an mpbs calls the PSP: the payment comes back as still being verified
     when(volaClientMock.create(any(PspPayment.PspTypeEnum.class), anyString(), anyString()))
         .thenAnswer(
             invocation ->
@@ -107,8 +105,6 @@ class PaymentServiceTest extends FacadeITMockedThirdParties {
   void tearDown() {
     List<String> feeIds = new ArrayList<>(ownedFeeIds);
     feeIds.addAll(List.of(lateFee1.getId(), lateFee2.getId()));
-    // Fee carries @SQLDelete, so a repository delete would only flag is_deleted: reach the tables
-    // directly, children first.
     feeIds.forEach(
         feeId -> {
           jdbcTemplate.update(
@@ -117,9 +113,9 @@ class PaymentServiceTest extends FacadeITMockedThirdParties {
               feeId);
           jdbcTemplate.update("DELETE FROM \"mpbs_verification\" WHERE fee_id = ?", feeId);
 
+          jdbcTemplate.update("DELETE FROM \"payment\" WHERE fee_id = ?", feeId);
           jdbcTemplate.update("DELETE FROM \"mpbs\" WHERE fee_id = ?", feeId);
           jdbcTemplate.update("DELETE FROM \"fee_status_history\" WHERE fee_id = ?", feeId);
-          jdbcTemplate.update("DELETE FROM \"payment\" WHERE fee_id = ?", feeId);
           jdbcTemplate.update("DELETE FROM \"fee\" WHERE id = ?", feeId);
         });
     ownedFeeIds.clear();
@@ -191,7 +187,6 @@ class PaymentServiceTest extends FacadeITMockedThirdParties {
     var domainMpbs = mpbsService.getByPspId(createdMpbs.getPspId());
     subject.savePaymentFromMpbs(domainMpbs, 5000);
 
-    // the student now has paid every one of their late fees
     feeService.computeRemainingAmount(lateFee1.getId(), 5000);
     feeService.computeRemainingAmount(lateFee2.getId(), 5000);
     feeService.computeRemainingAmount(createdFee.getId(), 5000);
@@ -209,7 +204,6 @@ class PaymentServiceTest extends FacadeITMockedThirdParties {
         User.Status.SUSPENDED, userService.getById(studentWithLateFees.getId()).getStatus());
     assertEquals(User.Status.ENABLED, userService.getById(studentWithoutFees.getId()).getStatus());
 
-    // once every late fee is settled the student goes back to enabled
     feeService.computeRemainingAmount(lateFee1.getId(), 5000);
     feeService.computeRemainingAmount(lateFee2.getId(), 5000);
     feeService.computeUserStatusAfterPayingFee(studentWithLateFees);

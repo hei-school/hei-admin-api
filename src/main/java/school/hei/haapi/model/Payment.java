@@ -1,8 +1,10 @@
 package school.hei.haapi.model;
 
+import static jakarta.persistence.FetchType.LAZY;
 import static jakarta.persistence.GenerationType.IDENTITY;
 import static java.time.temporal.ChronoUnit.SECONDS;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -28,6 +30,7 @@ import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.SQLRestriction;
 import org.hibernate.type.SqlTypes;
 import school.hei.haapi.model.exception.BadRequestException;
+import school.hei.haapi.model.mpbs.Mpbs;
 
 @Entity
 @Table(name = "\"payment\"")
@@ -52,6 +55,11 @@ public class Payment implements Serializable {
   @OneToOne
   @JoinColumn(name = "number_id")
   private PaymentNumberSequence sequence;
+
+  @ManyToOne(fetch = LAZY)
+  @JoinColumn(name = "mpbs_id")
+  @JsonIgnore
+  private Mpbs mpbs;
 
   @Enumerated(EnumType.STRING)
   @JdbcTypeCode(SqlTypes.NAMED_ENUM)
