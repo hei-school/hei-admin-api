@@ -101,15 +101,7 @@ class SmsContactControllerTest {
     assertEquals("campaign1", launched.getCampaignId());
     verify(smsCampaignServiceMock)
         .createCampaign(
-            eq(
-                new CreateSmsCampaignCommand(
-                    principal.getUser(),
-                    "Hello",
-                    null,
-                    List.of("contact1"),
-                    null,
-                    null,
-                    null,
-                    null)));
+            new CreateSmsCampaignCommand(
+                principal.getUser(), "Hello", null, List.of("contact1"), null, null, null, null));
   }
 }

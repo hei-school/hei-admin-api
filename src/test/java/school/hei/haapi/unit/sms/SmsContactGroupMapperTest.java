@@ -1,7 +1,6 @@
 package school.hei.haapi.unit.sms;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
 import org.junit.jupiter.api.Test;
@@ -58,6 +57,6 @@ class SmsContactGroupMapperTest {
     assertEquals(1, rest.getMemberCount());
     assertEquals(1, rest.getMembers().size());
     assertEquals("321111111", rest.getMembers().get(0).getPhoneNumber());
-    assertTrue(rest.getMembers().get(0).getName().equals("Antenaina"));
+    assertEquals("Antenaina", rest.getMembers().get(0).getName());
   }
 }

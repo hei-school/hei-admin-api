@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -89,6 +90,6 @@ class SmsContactGroupServiceTest {
 
     assertTrue(deleted.isDeleted());
     assertEquals(List.of(member), deleted.getMembers());
-    verify(smsContactRepositoryMock, org.mockito.Mockito.never()).save(any());
+    verify(smsContactRepositoryMock, never()).save(any());
   }
 }

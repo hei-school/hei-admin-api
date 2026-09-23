@@ -83,16 +83,8 @@ class SmsCampaignControllerTest {
 
     verify(smsCampaignServiceMock)
         .createCampaign(
-            eq(
-                new CreateSmsCampaignCommand(
-                    principal.getUser(),
-                    null,
-                    null,
-                    null,
-                    null,
-                    convertedFile,
-                    "numbers.xlsx",
-                    null)));
+            new CreateSmsCampaignCommand(
+                principal.getUser(), null, null, null, null, convertedFile, "numbers.xlsx", null));
   }
 
   @Test
@@ -108,9 +100,8 @@ class SmsCampaignControllerTest {
     verify(fileConverterMock, never()).apply(any());
     verify(smsCampaignServiceMock)
         .createCampaign(
-            eq(
-                new CreateSmsCampaignCommand(
-                    principal.getUser(), null, null, null, null, null, null, null)));
+            new CreateSmsCampaignCommand(
+                principal.getUser(), null, null, null, null, null, null, null));
   }
 
   @Test
