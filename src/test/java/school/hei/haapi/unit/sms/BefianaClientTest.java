@@ -89,6 +89,23 @@ class BefianaClientTest {
   }
 
   @Test
+  void sendBulk_with_sendAt_formats_the_given_date_instead_of_now() {
+    when(restTemplateMock.exchange(
+            anyString(),
+            any(),
+            any(),
+            eq(school.hei.haapi.service.befiana.BefianaSendBulkResponse.class)))
+        .thenReturn(
+            ResponseEntity.ok(new school.hei.haapi.service.befiana.BefianaSendBulkResponse()));
+
+    subject.sendBulk(List.of("321111111"), "Hello all", Instant.parse("2026-07-06T20:05:00Z"));
+
+    var entity = captureRequestEntity("/api/smsko/v1/sendbulk/");
+    var body = (Map<String, Object>) entity.getBody();
+    assertEquals("2026-07-06 23:05", body.get("send_at"));
+  }
+
+  @Test
   void getBalance_returns_zero_and_never_throws_when_the_response_matches_no_known_field() {
     var response = new BefianaBalanceResponse(); // availableBalance left null on purpose
     when(restTemplateMock.exchange(anyString(), any(), any(), eq(BefianaBalanceResponse.class)))
@@ -135,5 +152,18 @@ class BefianaClientTest {
             eq(HttpMethod.GET),
             any(),
             eq(school.hei.haapi.service.befiana.BefianaDeliveryStatusResponse.class));
+  }
+
+  @Test
+  void getDeliveryStatus_wraps_a_rest_client_error_as_a_befiana_exception() {
+    when(restTemplateMock.exchange(
+            anyString(),
+            eq(HttpMethod.GET),
+            any(),
+            eq(school.hei.haapi.service.befiana.BefianaDeliveryStatusResponse.class)))
+        .thenThrow(new HttpServerErrorException(HttpStatus.INTERNAL_SERVER_ERROR, "boom"));
+
+    assertThrows(
+        BefianaException.class, () -> subject.getDeliveryStatus("befiana-20241011-cd-adc1d60"));
   }
 }

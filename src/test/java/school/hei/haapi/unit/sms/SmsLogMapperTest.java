@@ -30,6 +30,11 @@ class SmsLogMapperTest {
   }
 
   @Test
+  void null_recipient_source_is_null_safe() {
+    assertNull(subject.toRest((school.hei.haapi.model.SmsRecipientSource) null));
+  }
+
+  @Test
   void a_bulk_sent_log_with_a_null_status_maps_to_null_not_a_default_value() {
     var campaign = SmsCampaign.builder().id("c1").status(SmsCampaignStatus.DELIVERED).build();
     var log =

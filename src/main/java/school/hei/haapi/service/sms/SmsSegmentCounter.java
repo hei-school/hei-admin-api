@@ -1,8 +1,7 @@
 package school.hei.haapi.service.sms;
 
-import org.springframework.stereotype.Component;
-
 import java.util.Set;
+import org.springframework.stereotype.Component;
 
 @Component
 public class SmsSegmentCounter {

@@ -186,4 +186,25 @@ class SmsCampaignServiceTest {
 
     assertThrows(NotFoundException.class, () -> subject.getById("missing"));
   }
+
+  @Test
+  void getByCriteria_delegates_to_the_dao() {
+    var campaign = school.hei.haapi.model.SmsCampaign.builder().id("campaign1").build();
+    when(smsCampaignDaoMock.filterByCriteria(SmsCampaignStatus.DELIVERED, any()))
+        .thenReturn(List.of(campaign));
+
+    var result =
+        subject.getByCriteria(
+            SmsCampaignStatus.DELIVERED, org.springframework.data.domain.PageRequest.of(0, 10));
+
+    assertEquals(List.of(campaign), result);
+  }
+
+  @Test
+  void save_delegates_to_the_repository() {
+    var campaign = school.hei.haapi.model.SmsCampaign.builder().id("campaign1").build();
+    when(smsCampaignRepositoryMock.save(campaign)).thenReturn(campaign);
+
+    assertEquals(campaign, subject.save(campaign));
+  }
 }

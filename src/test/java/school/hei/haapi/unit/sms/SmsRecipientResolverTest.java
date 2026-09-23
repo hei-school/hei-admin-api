@@ -149,6 +149,25 @@ class SmsRecipientResolverTest {
     verify(bucketComponentMock).upload(any(), any());
   }
 
+  @Test
+  void falls_back_to_the_file_name_when_no_original_filename_is_given() throws IOException {
+    var file = xlsxWith(List.of("321111111"), null);
+
+    var resolved = subject.resolve(null, null, null, file, null);
+
+    assertEquals(1, resolved.fileImportCount());
+    assertTrue(resolved.fileBucketKey().endsWith("_" + file.getName()));
+  }
+
+  @Test
+  void empty_group_and_contact_id_lists_are_treated_like_no_source() {
+    var resolved = subject.resolve(List.of(), List.of(), List.of("321111111"), null, null);
+
+    assertEquals(1, resolved.recipients().size());
+    assertEquals(List.of(), resolved.contactGroups());
+    assertEquals(List.of(), resolved.manuallySelectedContacts());
+  }
+
   private File xlsxWith(List<String> phoneNumbers, List<String> messages) throws IOException {
     try (var workbook = new XSSFWorkbook()) {
       var sheet = workbook.createSheet();

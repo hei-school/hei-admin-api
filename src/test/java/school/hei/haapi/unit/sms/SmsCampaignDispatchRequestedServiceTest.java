@@ -204,6 +204,30 @@ class SmsCampaignDispatchRequestedServiceTest {
   }
 
   @Test
+  void a_failed_unitary_send_marks_the_log_failed_but_does_not_block_other_recipients() {
+    var campaign = campaign("shared message unused here", 2);
+    var log1 = personalizedLog(campaign, "321111111", "Bonjour A");
+    var log2 = personalizedLog(campaign, "321111112", "Bonjour B");
+    when(smsCampaignRepositoryMock.findById("campaign1")).thenReturn(Optional.of(campaign));
+    stubLogs(campaign, List.of(log1, log2));
+    when(befianaClientMock.getBalance()).thenReturn(10);
+    when(befianaClientMock.send("321111111", "Bonjour A", null))
+        .thenReturn(new BefianaSendResponse());
+    when(befianaClientMock.send("321111112", "Bonjour B", null))
+        .thenThrow(new BefianaException("BEFIANA is down", 500, null));
+    when(smsLogRepositoryMock.countByCampaign_IdAndStatus("campaign1", SmsMessageStatus.FAILED))
+        .thenReturn(1L);
+
+    subject.accept(new SmsCampaignDispatchRequested("campaign1"));
+
+    assertEquals(SmsMessageStatus.PENDING, log1.getStatus());
+    assertEquals(SmsMessageStatus.FAILED, log2.getStatus());
+    // one recipient still went through -> the campaign as a whole is not FAILED.
+    assertEquals(SmsCampaignStatus.DELIVERED, campaign.getStatus());
+    assertEquals(1, campaign.getFailedCount());
+  }
+
+  @Test
   void zero_balance_at_dispatch_time_fails_the_whole_campaign() {
     var campaign = campaign("Hi", 2);
     var log1 = sharedLog(campaign, "321111111");

@@ -36,4 +36,27 @@ class SmsContactMapperTest {
     var user = User.builder().firstName(null).lastName("Jaonina").build();
     assertEquals(" Jaonina", SmsContactMapper.toContactName(user));
   }
+
+  @Test
+  void a_contact_maps_to_its_rest_representation() {
+    var owner = User.builder().id("owner1").ref("REF-1").build();
+    var domain =
+        school.hei.haapi.model.SmsContact.builder()
+            .id("c1")
+            .phoneNumber("321111111")
+            .name("Antenaina Jaonina")
+            .owner(owner)
+            .ownerRole(school.hei.haapi.model.SmsContactOwnerRole.STUDENT)
+            .build();
+
+    var rest = subject.toRest(domain);
+
+    assertEquals("c1", rest.getId());
+    assertEquals("321111111", rest.getPhoneNumber());
+    assertEquals("Antenaina Jaonina", rest.getName());
+    assertEquals("owner1", rest.getOwnerId());
+    assertEquals("REF-1", rest.getOwnerRef());
+    assertEquals(
+        school.hei.haapi.endpoint.rest.model.SmsContactOwnerRole.STUDENT, rest.getOwnerRole());
+  }
 }
