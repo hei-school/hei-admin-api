@@ -17,15 +17,6 @@ import school.hei.haapi.service.befiana.BefianaClient;
 import school.hei.haapi.service.befiana.BefianaException;
 import school.hei.haapi.service.sms.SmsSegmentCounter;
 
-/**
- * The actual BEFIANA dispatch — see doc/operations/sms-api.yml#createSmsCampaign for the routing
- * rules (unitary vs bulk, balance re-check, chunking) this implements.
- *
- * <p>Admin notification on failure/partial rejection (Notification rows + e-mail) is out of scope
- * for this SMS BEFIANA integration for now — see the failureReason/failedCount/
- * recipientsRejectedForBalance fields this still populates, which a follow-up notification feature
- * can read from. TODO(notifications): wire that up once it lands.
- */
 @Slf4j
 @org.springframework.stereotype.Service
 @AllArgsConstructor
@@ -44,8 +35,7 @@ public class SmsCampaignDispatchRequestedService implements Consumer<SmsCampaign
       log.warn("SMS campaign {} not found, dropping dispatch event", event.getCampaignId());
       return;
     }
-    if (campaign.getStatus() == SmsCampaignStatus.DELIVERED
-        || campaign.getStatus() == SmsCampaignStatus.FAILED) {
+    if (isAlreadyDispatched(campaign)) {
       log.info(
           "SMS campaign {} already dispatched (status={}), skipping",
           campaign.getId(),
@@ -77,19 +67,17 @@ public class SmsCampaignDispatchRequestedService implements Consumer<SmsCampaign
     finalizeCampaign(campaign, newlyRejected, submittedCount);
   }
 
-  /**
-   * Re-checks balance at dispatch time; drops (deletes) whatever no longer fits, greedily, same
-   * order as creation.
-   */
+  private boolean isAlreadyDispatched(SmsCampaign campaign) {
+    return campaign.getStatus() == SmsCampaignStatus.DELIVERED
+        || campaign.getStatus() == SmsCampaignStatus.FAILED;
+  }
+
   private int dropUnaffordable(SmsCampaign campaign, List<SmsLog> logs) {
     var availableBalance = befianaClient.getBalance();
     var runningCost = 0;
     var toDrop = new ArrayList<SmsLog>();
     for (var l : logs) {
-      var segments =
-          l.getPersonalizedMessage() != null
-              ? smsSegmentCounter.countSegments(l.getPersonalizedMessage())
-              : smsSegmentCounter.countSegments(campaign.getMessage());
+      var segments = smsSegmentCounter.countSegments(applicableMessage(campaign, l));
       if (runningCost + segments > availableBalance) {
         toDrop.add(l);
         continue;
@@ -109,6 +97,12 @@ public class SmsCampaignDispatchRequestedService implements Consumer<SmsCampaign
           toDrop.size());
     }
     return toDrop.size();
+  }
+
+  private String applicableMessage(SmsCampaign campaign, SmsLog log) {
+    return log.getPersonalizedMessage() != null
+        ? log.getPersonalizedMessage()
+        : campaign.getMessage();
   }
 
   private boolean sendUnitary(SmsLog l, String message) {
@@ -131,7 +125,6 @@ public class SmsCampaignDispatchRequestedService implements Consumer<SmsCampaign
     }
   }
 
-  /** Exactly 1 remaining shared recipient uses /send/ (trackable); 2+ use /sendbulk/, chunked. */
   private int dispatchShared(SmsCampaign campaign, List<SmsLog> shared) {
     if (shared.isEmpty()) {
       return 0;
@@ -143,33 +136,34 @@ public class SmsCampaignDispatchRequestedService implements Consumer<SmsCampaign
     var submitted = 0;
     for (var i = 0; i < shared.size(); i += BULK_CHUNK_SIZE) {
       var chunk = shared.subList(i, Math.min(i + BULK_CHUNK_SIZE, shared.size()));
-      var numbers = chunk.stream().map(SmsLog::getPhoneNumber).toList();
-      try {
-        var response = befianaClient.sendBulk(numbers, campaign.getMessage(), null);
-        var now = Instant.now();
-        for (var l : chunk) {
-          l.setSentDatetime(now);
-        }
-        smsLogRepository.saveAll(chunk);
-        campaign.setSmsSegmentsEach(response.getSmsSegmentsEach());
-        campaign.setCreditsDebited(
-            (campaign.getCreditsDebited() == null ? 0 : campaign.getCreditsDebited())
-                + (response.getBalanceDebited() == null ? 0 : response.getBalanceDebited()));
-        submitted += chunk.size();
-      } catch (BefianaException e) {
-        log.warn(
-            "BEFIANA /sendbulk/ chunk failed for campaign {}: {}",
-            campaign.getId(),
-            e.getMessage());
-        var now = Instant.now();
-        for (var l : chunk) {
-          l.setStatus(SmsMessageStatus.FAILED);
-          l.setSentDatetime(now);
-        }
-        smsLogRepository.saveAll(chunk);
-      }
+      submitted += submitChunk(campaign, chunk) ? chunk.size() : 0;
     }
     return submitted;
+  }
+
+  private boolean submitChunk(SmsCampaign campaign, List<SmsLog> chunk) {
+    var numbers = chunk.stream().map(SmsLog::getPhoneNumber).toList();
+    var now = Instant.now();
+    try {
+      var response = befianaClient.sendBulk(numbers, campaign.getMessage(), null);
+      chunk.forEach(l -> l.setSentDatetime(now));
+      smsLogRepository.saveAll(chunk);
+      campaign.setSmsSegmentsEach(response.getSmsSegmentsEach());
+      campaign.setCreditsDebited(
+          (campaign.getCreditsDebited() == null ? 0 : campaign.getCreditsDebited())
+              + (response.getBalanceDebited() == null ? 0 : response.getBalanceDebited()));
+      return true;
+    } catch (BefianaException e) {
+      log.warn(
+          "BEFIANA /sendbulk/ chunk failed for campaign {}: {}", campaign.getId(), e.getMessage());
+      chunk.forEach(
+          l -> {
+            l.setStatus(SmsMessageStatus.FAILED);
+            l.setSentDatetime(now);
+          });
+      smsLogRepository.saveAll(chunk);
+      return false;
+    }
   }
 
   private void finalizeCampaign(SmsCampaign campaign, int newlyRejected, int submittedCount) {
@@ -178,20 +172,15 @@ public class SmsCampaignDispatchRequestedService implements Consumer<SmsCampaign
     campaign.setFailedCount((int) failedCount);
 
     var nothingWentThrough = submittedCount == 0;
+    campaign.setStatus(nothingWentThrough ? SmsCampaignStatus.FAILED : SmsCampaignStatus.DELIVERED);
     if (nothingWentThrough) {
-      campaign.setStatus(SmsCampaignStatus.FAILED);
       campaign.setFailureReason(
           campaign.getRecipientsRejectedForBalance() >= campaign.getRecipientCount()
               ? "Solde insuffisant au moment de l'envoi effectif de la campagne."
               : "BEFIANA a rejeté l'envoi pour tous les destinataires.");
-    } else {
-      campaign.setStatus(SmsCampaignStatus.DELIVERED);
     }
     smsCampaignRepository.save(campaign);
 
-    // TODO(notifications): alert admins here (Notification row + e-mail) once that feature
-    // lands — for now this is only visible via SmsCampaign.failureReason/failedCount/
-    // recipientsRejectedForBalance, polled through getSmsCampaignById.
     if (nothingWentThrough || newlyRejected > 0 || failedCount > 0) {
       log.warn(
           "SMS campaign {} needs admin attention (nothingWentThrough={}, newlyRejected={},"

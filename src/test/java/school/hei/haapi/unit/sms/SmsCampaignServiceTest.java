@@ -11,12 +11,14 @@ import static org.mockito.Mockito.when;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import school.hei.haapi.endpoint.event.EventProducer;
 import school.hei.haapi.endpoint.event.model.SmsCampaignDispatchRequested;
 import school.hei.haapi.model.SmsCampaignStatus;
 import school.hei.haapi.model.SmsRecipientSource;
 import school.hei.haapi.model.User;
+import school.hei.haapi.model.exception.NotFoundException;
 import school.hei.haapi.model.exception.SmsInsufficientBalanceException;
 import school.hei.haapi.repository.SmsCampaignRepository;
 import school.hei.haapi.repository.SmsContactRepository;
@@ -25,9 +27,15 @@ import school.hei.haapi.repository.dao.SmsCampaignDao;
 import school.hei.haapi.service.befiana.BefianaClient;
 import school.hei.haapi.service.sms.ResolvedRecipient;
 import school.hei.haapi.service.sms.SmsCampaignService;
+import school.hei.haapi.service.sms.SmsCampaignService.CreateSmsCampaignCommand;
 import school.hei.haapi.service.sms.SmsRecipientResolver;
 import school.hei.haapi.service.sms.SmsSegmentCounter;
 
+/**
+ * Covers the core business rule of doc/operations/sms-api.yml#createSmsCampaign: cost is computed
+ * in SMS segments (not a flat head count), balance is checked synchronously, and a campaign is
+ * still created and partially dispatched when the balance covers some but not all recipients.
+ */
 class SmsCampaignServiceTest {
   private final SmsCampaignRepository smsCampaignRepositoryMock = mock();
   private final SmsCampaignDao smsCampaignDaoMock = mock();
@@ -62,26 +70,22 @@ class SmsCampaignServiceTest {
     when(smsCampaignRepositoryMock.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
   }
 
+  private CreateSmsCampaignCommand command(
+      String message, List<String> manualPhoneNumbers, Instant sendAt) {
+    return new CreateSmsCampaignCommand(
+        createdBy, message, null, null, manualPhoneNumbers, null, null, sendAt);
+  }
+
   @Test
   void balance_covering_everyone_creates_campaign_and_dispatches_immediately() {
-    var recipients =
-        List.of(manualNumber("321111111"), manualNumber("321111112"), manualNumber("321111113"));
-    when(smsRecipientResolverMock.resolve(
-            null, null, List.of("321111111", "321111112", "321111113"), null, null))
+    var numbers = List.of("321111111", "321111112", "321111113");
+    var recipients = numbers.stream().map(SmsCampaignServiceTest::manualNumber).toList();
+    when(smsRecipientResolverMock.resolve(null, null, numbers, null, null))
         .thenReturn(resolvedWith(recipients));
     when(befianaClientMock.getBalance()).thenReturn(10);
     stubSaveAsIdentity();
 
-    var result =
-        subject.createCampaign(
-            createdBy,
-            "Hello",
-            null,
-            null,
-            List.of("321111111", "321111112", "321111113"),
-            null,
-            null,
-            null);
+    var result = subject.createCampaign(command("Hello", numbers, null));
 
     assertEquals(3, result.campaign().getRecipientCount());
     assertEquals(0, result.campaign().getRecipientsRejectedForBalance());
@@ -93,25 +97,15 @@ class SmsCampaignServiceTest {
 
   @Test
   void balance_covering_nobody_rejects_without_persisting_anything() {
-    var recipients = List.of(manualNumber("321111111"), manualNumber("321111112"));
-    when(smsRecipientResolverMock.resolve(
-            null, null, List.of("321111111", "321111112"), null, null))
+    var numbers = List.of("321111111", "321111112");
+    var recipients = numbers.stream().map(SmsCampaignServiceTest::manualNumber).toList();
+    when(smsRecipientResolverMock.resolve(null, null, numbers, null, null))
         .thenReturn(resolvedWith(recipients));
     when(befianaClientMock.getBalance()).thenReturn(0);
+    var toCreate = command("Hello", numbers, null);
 
     var exception =
-        assertThrows(
-            SmsInsufficientBalanceException.class,
-            () ->
-                subject.createCampaign(
-                    createdBy,
-                    "Hello",
-                    null,
-                    null,
-                    List.of("321111111", "321111112"),
-                    null,
-                    null,
-                    null));
+        assertThrows(SmsInsufficientBalanceException.class, () -> subject.createCampaign(toCreate));
 
     assertEquals(0, exception.getAvailableBalance());
     assertEquals(2, exception.getRecipientCount());
@@ -124,24 +118,14 @@ class SmsCampaignServiceTest {
   @Test
   void balance_covering_some_creates_a_partially_affordable_campaign() {
     // Each recipient costs 1 segment (short message); balance of 2 covers only the first two.
-    var recipients =
-        List.of(manualNumber("321111111"), manualNumber("321111112"), manualNumber("321111113"));
-    when(smsRecipientResolverMock.resolve(
-            null, null, List.of("321111111", "321111112", "321111113"), null, null))
+    var numbers = List.of("321111111", "321111112", "321111113");
+    var recipients = numbers.stream().map(SmsCampaignServiceTest::manualNumber).toList();
+    when(smsRecipientResolverMock.resolve(null, null, numbers, null, null))
         .thenReturn(resolvedWith(recipients));
     when(befianaClientMock.getBalance()).thenReturn(2);
     stubSaveAsIdentity();
 
-    var result =
-        subject.createCampaign(
-            createdBy,
-            "Hello",
-            null,
-            null,
-            List.of("321111111", "321111112", "321111113"),
-            null,
-            null,
-            null);
+    var result = subject.createCampaign(command("Hello", numbers, null));
 
     assertEquals(3, result.campaign().getRecipientCount());
     assertEquals(1, result.campaign().getRecipientsRejectedForBalance());
@@ -162,7 +146,7 @@ class SmsCampaignServiceTest {
     when(befianaClientMock.getBalance()).thenReturn(2);
     stubSaveAsIdentity();
 
-    var result = subject.createCampaign(createdBy, "Hi", null, null, null, null, null, null);
+    var result = subject.createCampaign(command("Hi", null, null));
 
     assertEquals(1, result.campaign().getRecipientCount());
     assertEquals(0, result.campaign().getRecipientsRejectedForBalance());
@@ -170,43 +154,36 @@ class SmsCampaignServiceTest {
 
   @Test
   void scheduled_campaign_in_the_future_does_not_dispatch_immediately() {
-    var recipients = List.of(manualNumber("321111111"));
-    when(smsRecipientResolverMock.resolve(null, null, List.of("321111111"), null, null))
+    var numbers = List.of("321111111");
+    var recipients = numbers.stream().map(SmsCampaignServiceTest::manualNumber).toList();
+    when(smsRecipientResolverMock.resolve(null, null, numbers, null, null))
         .thenReturn(resolvedWith(recipients));
     when(befianaClientMock.getBalance()).thenReturn(10);
     stubSaveAsIdentity();
 
-    subject.createCampaign(
-        createdBy,
-        "Hello",
-        null,
-        null,
-        List.of("321111111"),
-        null,
-        null,
-        Instant.now().plusSeconds(3600));
+    subject.createCampaign(command("Hello", numbers, Instant.now().plusSeconds(3600)));
 
     verify(dispatchEventProducerMock, never()).accept(any());
   }
 
   @Test
   void campaign_with_null_sendAt_dispatches_immediately() {
-    var recipients = List.of(manualNumber("321111111"));
-    when(smsRecipientResolverMock.resolve(null, null, List.of("321111111"), null, null))
+    var numbers = List.of("321111111");
+    var recipients = numbers.stream().map(SmsCampaignServiceTest::manualNumber).toList();
+    when(smsRecipientResolverMock.resolve(null, null, numbers, null, null))
         .thenReturn(resolvedWith(recipients));
     when(befianaClientMock.getBalance()).thenReturn(10);
     stubSaveAsIdentity();
 
-    subject.createCampaign(createdBy, "Hello", null, null, List.of("321111111"), null, null, null);
+    subject.createCampaign(command("Hello", numbers, null));
 
     verify(dispatchEventProducerMock, times(1)).accept(any());
   }
 
   @Test
   void getById_wraps_missing_campaign_in_not_found() {
-    when(smsCampaignRepositoryMock.findById("missing")).thenReturn(java.util.Optional.empty());
+    when(smsCampaignRepositoryMock.findById("missing")).thenReturn(Optional.empty());
 
-    assertThrows(
-        school.hei.haapi.model.exception.NotFoundException.class, () -> subject.getById("missing"));
+    assertThrows(NotFoundException.class, () -> subject.getById("missing"));
   }
 }

@@ -45,7 +45,7 @@ public class SmsFileImportRowDto implements Serializable {
   }
 
   public static String normalizePhoneNumber(String raw) {
-    var digitsOnly = raw.replaceAll("[^0-9]", "");
+    var digitsOnly = raw.replaceAll("\\D", "");
     return digitsOnly.startsWith("0") ? digitsOnly.substring(1) : digitsOnly;
   }
 

@@ -1,7 +1,6 @@
 package school.hei.haapi.endpoint.rest.controller;
 
 import static org.springframework.http.HttpStatus.ACCEPTED;
-import static org.springframework.web.bind.annotation.RequestMethod.POST;
 
 import java.time.Instant;
 import java.util.List;
@@ -10,7 +9,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -39,7 +38,7 @@ public class SmsCampaignController {
   private final SmsLogMapper smsLogMapper;
   private final MultipartFileConverter fileConverter;
 
-  @RequestMapping(value = "/sms-campaigns", method = POST, consumes = "multipart/form-data")
+  @PostMapping(value = "/sms-campaigns", consumes = "multipart/form-data")
   @ResponseStatus(ACCEPTED)
   public SmsCampaignLaunched createSmsCampaign(
       @RequestParam(required = false) String message,
@@ -51,14 +50,15 @@ public class SmsCampaignController {
       @AuthenticationPrincipal Principal principal) {
     var result =
         smsCampaignService.createCampaign(
-            principal.getUser(),
-            message,
-            contactGroupIds,
-            contactIds,
-            manualPhoneNumbers,
-            file == null || file.isEmpty() ? null : fileConverter.apply(file),
-            file == null ? null : file.getOriginalFilename(),
-            sendAt);
+            new SmsCampaignService.CreateSmsCampaignCommand(
+                principal.getUser(),
+                message,
+                contactGroupIds,
+                contactIds,
+                manualPhoneNumbers,
+                file == null || file.isEmpty() ? null : fileConverter.apply(file),
+                file == null ? null : file.getOriginalFilename(),
+                sendAt));
     return smsCampaignMapper.toLaunched(result.campaign(), result.rejectedRows());
   }
 

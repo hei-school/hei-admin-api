@@ -28,18 +28,6 @@ import school.hei.haapi.repository.SmsLogRepository;
 import school.hei.haapi.repository.dao.SmsCampaignDao;
 import school.hei.haapi.service.befiana.BefianaClient;
 
-/**
- * See doc/operations/sms-api.yml#createSmsCampaign for the full spec this implements. The costly
- * BEFIANA network calls (the actual /send/ or /sendbulk/) are NOT made here — this method only
- * resolves recipients, computes their true cost in SMS segments (see SmsSegmentCounter), checks it
- * against the live balance, and persists the outcome, all synchronously so the 202/400 response can
- * report it immediately. The background dispatch itself is SmsCampaignDispatchRequestedService's
- * job, triggered by the event published at the end of this method (or later, by whatever the caller
- * wires up to detect a due sendAt).
- *
- * <p>Recipient sources are persisted as real relations (sms_campaign_contact_group,
- * sms_campaign_contact, sms_campaign_manual_phone_number join tables) — not comma-joined strings.
- */
 @Slf4j
 @org.springframework.stereotype.Service
 @AllArgsConstructor
@@ -57,8 +45,7 @@ public class SmsCampaignService {
 
   public record CreationResult(SmsCampaign campaign, List<SmsFileImportRejectedRow> rejectedRows) {}
 
-  @Transactional
-  public CreationResult createCampaign(
+  public record CreateSmsCampaignCommand(
       User createdBy,
       String message,
       List<String> contactGroupIds,
@@ -66,12 +53,19 @@ public class SmsCampaignService {
       List<String> manualPhoneNumbers,
       File file,
       String originalFilename,
-      Instant sendAt) {
+      Instant sendAt) {}
+
+  @Transactional
+  public CreationResult createCampaign(CreateSmsCampaignCommand command) {
     var resolved =
         smsRecipientResolver.resolve(
-            contactGroupIds, contactIds, manualPhoneNumbers, file, originalFilename);
+            command.contactGroupIds(),
+            command.contactIds(),
+            command.manualPhoneNumbers(),
+            command.file(),
+            command.originalFilename());
 
-    var sharedSegments = smsSegmentCounter.countSegments(message);
+    var sharedSegments = smsSegmentCounter.countSegments(command.message());
     var costed =
         resolved.recipients().stream()
             .map(
@@ -88,8 +82,9 @@ public class SmsCampaignService {
 
     if (affordable.isEmpty()) {
       throw new SmsInsufficientBalanceException(
-          "Solde insuffisant : %d SMS disponibles pour %d destinataires demandés. Réduisez la liste"
-              + " ou rechargez le compte.".formatted(availableBalance, costed.size()),
+          ("Solde insuffisant : %d SMS disponibles pour %d destinataires demandés. Réduisez la"
+                  + " liste ou rechargez le compte.")
+              .formatted(availableBalance, costed.size()),
           availableBalance,
           costed.size(),
           0);
@@ -106,7 +101,7 @@ public class SmsCampaignService {
         smsCampaignRepository.save(
             SmsCampaign.builder()
                 .id(UUID.randomUUID().toString())
-                .message(message)
+                .message(command.message())
                 .status(SmsCampaignStatus.CREATED)
                 .contactGroups(resolved.contactGroups())
                 .contacts(resolved.manuallySelectedContacts())
@@ -116,8 +111,8 @@ public class SmsCampaignService {
                 .recipientCount(costed.size())
                 .recipientsRejectedForBalance(costed.size() - affordable.size())
                 .smsSegmentsEach(sharedSegments)
-                .sendAt(sendAt)
-                .createdBy(createdBy)
+                .sendAt(command.sendAt())
+                .createdBy(command.createdBy())
                 .build());
 
     var contactsById =
@@ -142,6 +137,7 @@ public class SmsCampaignService {
               .build());
     }
 
+    var sendAt = command.sendAt();
     if (sendAt == null || !sendAt.isAfter(Instant.now())) {
       dispatchNow(campaign.getId());
     }
@@ -149,10 +145,6 @@ public class SmsCampaignService {
     return new CreationResult(campaign, resolved.rejectedRows());
   }
 
-  /**
-   * Greedy, in resolution order — see the class javadoc and
-   * doc/components.yml#SmsCampaign.recipientsRejectedForBalance.
-   */
   private List<CostedRecipient> takeAffordable(List<CostedRecipient> costed, int availableBalance) {
     var affordable = new ArrayList<CostedRecipient>();
     var runningCost = 0;

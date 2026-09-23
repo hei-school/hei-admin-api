@@ -28,9 +28,11 @@ public class SmsContactDao {
     if (contactGroupId != null) {
       var groupRoot = query.from(school.hei.haapi.model.SmsContactGroup.class);
       predicates.add(builder.equal(groupRoot.get("id"), contactGroupId));
+      // Declared (not cast) as Expression<SmsContact> to pick the isMember(Expression, Expression)
+      // overload — root itself is ambiguous between it and isMember(Object, Expression).
+      Expression<SmsContact> rootAsExpression = root;
       predicates.add(
-          builder.isMember(
-              (Expression<SmsContact>) root, groupRoot.<List<SmsContact>>get("members")));
+          builder.isMember(rootAsExpression, groupRoot.<List<SmsContact>>get("members")));
     }
     if (ownerRole != null) {
       predicates.add(builder.equal(root.get("ownerRole"), ownerRole));

@@ -1,13 +1,14 @@
 package school.hei.haapi.service.sms;
 
-import java.util.Set;
 import org.springframework.stereotype.Component;
+
+import java.util.Set;
 
 @Component
 public class SmsSegmentCounter {
 
   private static final String GSM7_BASIC =
-      "@£$¥èéùìòÇ\nØø\rÅåΔ_ΦΓΛΩΠΨΣΘΞÆæßÉ"
+      "@£$¥èéùìòÇ\nØø\rÅåΔ_ΦΓΛΩΠΨΣΘΞÆæßÉ"
           + " !\"#¤%&'()*+,-./0123456789:;<=>?"
           + "¡ABCDEFGHIJKLMNOPQRSTUVWXYZÄÖÑÜ§"
           + "¿abcdefghijklmnopqrstuvwxyzäöñüà";

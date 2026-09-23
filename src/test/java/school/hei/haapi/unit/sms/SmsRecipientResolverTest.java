@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.io.File;
@@ -145,7 +146,7 @@ class SmsRecipientResolverTest {
 
     subject.resolve(null, null, null, file, "numbers.xlsx");
 
-    org.mockito.Mockito.verify(bucketComponentMock).upload(any(), any());
+    verify(bucketComponentMock).upload(any(), any());
   }
 
   private File xlsxWith(List<String> phoneNumbers, List<String> messages) throws IOException {

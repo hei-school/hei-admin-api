@@ -68,14 +68,15 @@ public class SmsContactController {
       @AuthenticationPrincipal Principal principal) {
     var result =
         smsCampaignService.createCampaign(
-            principal.getUser(),
-            toSend.getMessage(),
-            null,
-            List.of(id),
-            null,
-            null,
-            null,
-            toSend.getSendAt());
+            new SmsCampaignService.CreateSmsCampaignCommand(
+                principal.getUser(),
+                toSend.getMessage(),
+                null,
+                List.of(id),
+                null,
+                null,
+                null,
+                toSend.getSendAt()));
     return smsCampaignMapper.toLaunched(result.campaign(), result.rejectedRows());
   }
 }

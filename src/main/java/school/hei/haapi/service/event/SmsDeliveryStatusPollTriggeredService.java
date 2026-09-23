@@ -13,15 +13,6 @@ import school.hei.haapi.repository.SmsLogRepository;
 import school.hei.haapi.service.befiana.BefianaClient;
 import school.hei.haapi.service.befiana.BefianaException;
 
-/**
- * Periodic sweep polling BEFIANA's /get-delivery-status/?callback_data=... for every SmsLog still
- * PENDING — see doc/operations/sms-api.yml#smsCampaignLogs.
- *
- * <p>Admin confirmation once a campaign is fully resolved (Notification row + e-mail) is out of
- * scope for this SMS BEFIANA integration for now — SmsCampaign.deliveredCount is still updated
- * here, readable via getSmsCampaignById. TODO(notifications): wire the alert up once that feature
- * lands.
- */
 @Slf4j
 @org.springframework.stereotype.Service
 @AllArgsConstructor
