@@ -12,8 +12,16 @@ import school.hei.haapi.repository.SmsCampaignRepository;
 import school.hei.haapi.repository.SmsLogRepository;
 import school.hei.haapi.service.befiana.BefianaClient;
 import school.hei.haapi.service.befiana.BefianaException;
-import school.hei.haapi.service.sms.NotificationService;
 
+/**
+ * Periodic sweep polling BEFIANA's /get-delivery-status/?callback_data=... for every SmsLog still
+ * PENDING — see doc/operations/sms-api.yml#smsCampaignLogs.
+ *
+ * <p>Admin confirmation once a campaign is fully resolved (Notification row + e-mail) is out of
+ * scope for this SMS BEFIANA integration for now — SmsCampaign.deliveredCount is still updated
+ * here, readable via getSmsCampaignById. TODO(notifications): wire the alert up once that feature
+ * lands.
+ */
 @Slf4j
 @org.springframework.stereotype.Service
 @AllArgsConstructor
@@ -22,7 +30,6 @@ public class SmsDeliveryStatusPollTriggeredService
   private final SmsLogRepository smsLogRepository;
   private final SmsCampaignRepository smsCampaignRepository;
   private final BefianaClient befianaClient;
-  private final NotificationService notificationService;
 
   @Override
   public void accept(SmsDeliveryStatusPollTriggered event) {
@@ -47,10 +54,10 @@ public class SmsDeliveryStatusPollTriggeredService
         log.warn("Could not poll delivery status for SmsLog {}: {}", l.getId(), e.getMessage());
       }
     }
-    touchedCampaigns.forEach(this::notifyIfFullyResolved);
+    touchedCampaigns.forEach(this::updateDeliveredCountIfFullyResolved);
   }
 
-  private void notifyIfFullyResolved(SmsCampaign campaign) {
+  private void updateDeliveredCountIfFullyResolved(SmsCampaign campaign) {
     var stillPending =
         smsLogRepository.findAllByCampaign_IdAndStatusOrderBySentDatetimeDesc(
             campaign.getId(), SmsMessageStatus.PENDING);
@@ -61,11 +68,5 @@ public class SmsDeliveryStatusPollTriggeredService
         smsLogRepository.countByCampaign_IdAndStatus(campaign.getId(), SmsMessageStatus.DELIVERED);
     campaign.setDeliveredCount((int) deliveredCount);
     smsCampaignRepository.save(campaign);
-
-    notificationService.notifyAdminsOfCampaignOutcome(
-        campaign,
-        "[SMS] Campagne confirmée délivrée : " + campaign.getId(),
-        "<p>Tous les destinataires trackables de la campagne (%d) ont été confirmés délivrés par BEFIANA.</p>"
-            .formatted(deliveredCount));
   }
 }

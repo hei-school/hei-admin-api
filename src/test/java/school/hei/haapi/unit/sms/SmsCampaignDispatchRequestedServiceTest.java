@@ -29,22 +29,19 @@ import school.hei.haapi.service.befiana.BefianaException;
 import school.hei.haapi.service.befiana.BefianaSendBulkResponse;
 import school.hei.haapi.service.befiana.BefianaSendResponse;
 import school.hei.haapi.service.event.SmsCampaignDispatchRequestedService;
-import school.hei.haapi.service.sms.NotificationService;
 import school.hei.haapi.service.sms.SmsSegmentCounter;
 
 class SmsCampaignDispatchRequestedServiceTest {
   private final SmsCampaignRepository smsCampaignRepositoryMock = mock();
   private final SmsLogRepository smsLogRepositoryMock = mock();
   private final BefianaClient befianaClientMock = mock();
-  private final NotificationService notificationServiceMock = mock();
 
   private final SmsCampaignDispatchRequestedService subject =
       new SmsCampaignDispatchRequestedService(
           smsCampaignRepositoryMock,
           smsLogRepositoryMock,
           befianaClientMock,
-          new SmsSegmentCounter(),
-          notificationServiceMock);
+          new SmsSegmentCounter());
 
   private SmsCampaign campaign(String message, int recipientCount) {
     return SmsCampaign.builder()
@@ -180,8 +177,6 @@ class SmsCampaignDispatchRequestedServiceTest {
     assertEquals(SmsCampaignStatus.FAILED, campaign.getStatus());
     assertEquals(
         "BEFIANA a rejeté l'envoi pour tous les destinataires.", campaign.getFailureReason());
-    verify(notificationServiceMock)
-        .notifyAdminsOfCampaignOutcome(eq(campaign), anyString(), anyString());
   }
 
   @Test
@@ -206,8 +201,6 @@ class SmsCampaignDispatchRequestedServiceTest {
     assertEquals(1, campaign.getRecipientsRejectedForBalance());
     verify(befianaClientMock, times(1)).send(eq("321111111"), eq("Hi"), any());
     assertEquals(SmsCampaignStatus.DELIVERED, campaign.getStatus());
-    verify(notificationServiceMock)
-        .notifyAdminsOfCampaignOutcome(eq(campaign), anyString(), anyString());
   }
 
   @Test
@@ -230,7 +223,5 @@ class SmsCampaignDispatchRequestedServiceTest {
     assertEquals(
         "Solde insuffisant au moment de l'envoi effectif de la campagne.",
         campaign.getFailureReason());
-    verify(notificationServiceMock)
-        .notifyAdminsOfCampaignOutcome(eq(campaign), anyString(), anyString());
   }
 }

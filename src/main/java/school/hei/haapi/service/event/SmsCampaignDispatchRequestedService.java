@@ -15,9 +15,17 @@ import school.hei.haapi.repository.SmsCampaignRepository;
 import school.hei.haapi.repository.SmsLogRepository;
 import school.hei.haapi.service.befiana.BefianaClient;
 import school.hei.haapi.service.befiana.BefianaException;
-import school.hei.haapi.service.sms.NotificationService;
 import school.hei.haapi.service.sms.SmsSegmentCounter;
 
+/**
+ * The actual BEFIANA dispatch — see doc/operations/sms-api.yml#createSmsCampaign for the routing
+ * rules (unitary vs bulk, balance re-check, chunking) this implements.
+ *
+ * <p>Admin notification on failure/partial rejection (Notification rows + e-mail) is out of scope
+ * for this SMS BEFIANA integration for now — see the failureReason/failedCount/
+ * recipientsRejectedForBalance fields this still populates, which a follow-up notification feature
+ * can read from. TODO(notifications): wire that up once it lands.
+ */
 @Slf4j
 @org.springframework.stereotype.Service
 @AllArgsConstructor
@@ -28,7 +36,6 @@ public class SmsCampaignDispatchRequestedService implements Consumer<SmsCampaign
   private final SmsLogRepository smsLogRepository;
   private final BefianaClient befianaClient;
   private final SmsSegmentCounter smsSegmentCounter;
-  private final NotificationService notificationService;
 
   @Override
   public void accept(SmsCampaignDispatchRequested event) {
@@ -182,50 +189,17 @@ public class SmsCampaignDispatchRequestedService implements Consumer<SmsCampaign
     }
     smsCampaignRepository.save(campaign);
 
-    var needsAdminAttention = nothingWentThrough || newlyRejected > 0 || failedCount > 0;
-    if (needsAdminAttention) {
-      notifyAdmins(campaign, newlyRejected, failedCount, nothingWentThrough);
+    // TODO(notifications): alert admins here (Notification row + e-mail) once that feature
+    // lands — for now this is only visible via SmsCampaign.failureReason/failedCount/
+    // recipientsRejectedForBalance, polled through getSmsCampaignById.
+    if (nothingWentThrough || newlyRejected > 0 || failedCount > 0) {
+      log.warn(
+          "SMS campaign {} needs admin attention (nothingWentThrough={}, newlyRejected={},"
+              + " failedCount={}) — no notification mechanism wired up yet",
+          campaign.getId(),
+          nothingWentThrough,
+          newlyRejected,
+          failedCount);
     }
-  }
-
-  private void notifyAdmins(
-      SmsCampaign campaign, int newlyRejected, long failedCount, boolean nothingWentThrough) {
-    var subject =
-        nothingWentThrough
-            ? "[SMS] Campagne non envoyée : " + campaign.getId()
-            : "[SMS] Campagne envoyée avec des problèmes : " + campaign.getId();
-    var body =
-        new StringBuilder()
-            .append("<p>Campagne : <b>")
-            .append(escapeHtml(campaign.getMessage()))
-            .append("</b></p>")
-            .append("<p>Destinataires demandés : ")
-            .append(campaign.getRecipientCount())
-            .append("</p>");
-    if (nothingWentThrough) {
-      body.append("<p><b>Aucun message n'a pu être envoyé.</b> Raison : ")
-          .append(escapeHtml(campaign.getFailureReason()))
-          .append("</p>");
-    } else {
-      if (newlyRejected > 0) {
-        body.append("<p>")
-            .append(newlyRejected)
-            .append(
-                " destinataire(s) n'ont pas pu être envoyés : le solde est tombé à zéro entre la"
-                    + " création et l'envoi effectif de la campagne programmée.</p>");
-      }
-      if (failedCount > 0) {
-        body.append("<p>")
-            .append(failedCount)
-            .append(
-                " destinataire(s) ont échoué lors de la soumission à BEFIANA (voir les journaux"
-                    + " de la campagne).</p>");
-      }
-    }
-    notificationService.notifyAdminsOfCampaignOutcome(campaign, subject, body.toString());
-  }
-
-  private String escapeHtml(String s) {
-    return s == null ? "" : s.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;");
   }
 }
