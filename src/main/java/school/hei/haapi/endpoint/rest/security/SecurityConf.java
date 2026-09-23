@@ -46,6 +46,11 @@ public class SecurityConf {
   private static final String SMS_CONTACT_GROUPS_PATH = "/sms-contact-groups";
   private static final String SMS_CONTACT_GROUPS_BY_ID_PATH = "/sms-contact-groups/*";
   private static final String SMS_CAMPAIGNS_PATH = "/sms-campaigns";
+  private static final String SMS_CAMPAIGNS_BY_CONTACTS_PATH = "/sms-campaigns/by-contacts";
+  private static final String SMS_CAMPAIGNS_BY_MANUAL_NUMBERS_PATH =
+      "/sms-campaigns/by-manual-numbers";
+  private static final String SMS_CAMPAIGNS_BY_GROUPS_PATH = "/sms-campaigns/by-groups";
+  private static final String SMS_CAMPAIGNS_BY_FILE_PATH = "/sms-campaigns/by-file";
   private final CourseAssignmentService courseAssignmentService;
   private final MonitoringStudentService monitoringStudentService;
   private final AbstractUserDetailsAuthenticationProvider authProvider;
@@ -175,7 +180,10 @@ public class SecurityConf {
                     antMatcher(PUT, SMS_CONTACT_GROUPS_BY_ID_PATH),
                     antMatcher(DELETE, SMS_CONTACT_GROUPS_BY_ID_PATH),
                     antMatcher(GET, "/sms-balance"),
-                    antMatcher(POST, SMS_CAMPAIGNS_PATH),
+                    antMatcher(POST, SMS_CAMPAIGNS_BY_CONTACTS_PATH),
+                    antMatcher(POST, SMS_CAMPAIGNS_BY_MANUAL_NUMBERS_PATH),
+                    antMatcher(POST, SMS_CAMPAIGNS_BY_GROUPS_PATH),
+                    antMatcher(POST, SMS_CAMPAIGNS_BY_FILE_PATH),
                     antMatcher(GET, SMS_CAMPAIGNS_PATH),
                     antMatcher(GET, "/sms-campaigns/*"),
                     antMatcher(GET, "/sms-campaigns/*/logs"),
@@ -1172,7 +1180,13 @@ public class SecurityConf {
                     .hasAnyRole(ADMIN.getRole(), MANAGER.getRole())
                     .requestMatchers(GET, "/sms-balance")
                     .hasAnyRole(ADMIN.getRole(), MANAGER.getRole())
-                    .requestMatchers(POST, SMS_CAMPAIGNS_PATH)
+                    .requestMatchers(POST, SMS_CAMPAIGNS_BY_CONTACTS_PATH)
+                    .hasAnyRole(ADMIN.getRole(), MANAGER.getRole())
+                    .requestMatchers(POST, SMS_CAMPAIGNS_BY_MANUAL_NUMBERS_PATH)
+                    .hasAnyRole(ADMIN.getRole(), MANAGER.getRole())
+                    .requestMatchers(POST, SMS_CAMPAIGNS_BY_GROUPS_PATH)
+                    .hasAnyRole(ADMIN.getRole(), MANAGER.getRole())
+                    .requestMatchers(POST, SMS_CAMPAIGNS_BY_FILE_PATH)
                     .hasAnyRole(ADMIN.getRole(), MANAGER.getRole())
                     .requestMatchers(GET, SMS_CAMPAIGNS_PATH)
                     .hasAnyRole(ADMIN.getRole(), MANAGER.getRole())

@@ -10,6 +10,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -17,6 +18,9 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import school.hei.haapi.endpoint.rest.mapper.SmsCampaignMapper;
 import school.hei.haapi.endpoint.rest.mapper.SmsLogMapper;
+import school.hei.haapi.endpoint.rest.model.CrupdateSmsCampaignByContacts;
+import school.hei.haapi.endpoint.rest.model.CrupdateSmsCampaignByGroups;
+import school.hei.haapi.endpoint.rest.model.CrupdateSmsCampaignByManualNumbers;
 import school.hei.haapi.endpoint.rest.model.SmsCampaign;
 import school.hei.haapi.endpoint.rest.model.SmsCampaignLaunched;
 import school.hei.haapi.endpoint.rest.model.SmsCampaignStatus;
@@ -38,14 +42,68 @@ public class SmsCampaignController {
   private final SmsLogMapper smsLogMapper;
   private final MultipartFileConverter fileConverter;
 
-  @PostMapping(value = "/sms-campaigns", consumes = "multipart/form-data")
+  @PostMapping("/sms-campaigns/by-contacts")
   @ResponseStatus(ACCEPTED)
-  public SmsCampaignLaunched createSmsCampaign(
+  public SmsCampaignLaunched createSmsCampaignByContacts(
+      @RequestBody CrupdateSmsCampaignByContacts crupdate,
+      @AuthenticationPrincipal Principal principal) {
+    var result =
+        smsCampaignService.createCampaign(
+            new SmsCampaignService.CreateSmsCampaignCommand(
+                principal.getUser(),
+                crupdate.getMessage(),
+                null,
+                crupdate.getContactIds(),
+                null,
+                null,
+                null,
+                crupdate.getSendAt()));
+    return smsCampaignMapper.toLaunched(result.campaign(), result.rejectedRows());
+  }
+
+  @PostMapping("/sms-campaigns/by-manual-numbers")
+  @ResponseStatus(ACCEPTED)
+  public SmsCampaignLaunched createSmsCampaignByManualNumbers(
+      @RequestBody CrupdateSmsCampaignByManualNumbers crupdate,
+      @AuthenticationPrincipal Principal principal) {
+    var result =
+        smsCampaignService.createCampaign(
+            new SmsCampaignService.CreateSmsCampaignCommand(
+                principal.getUser(),
+                crupdate.getMessage(),
+                null,
+                null,
+                crupdate.getManualPhoneNumbers(),
+                null,
+                null,
+                crupdate.getSendAt()));
+    return smsCampaignMapper.toLaunched(result.campaign(), result.rejectedRows());
+  }
+
+  @PostMapping("/sms-campaigns/by-groups")
+  @ResponseStatus(ACCEPTED)
+  public SmsCampaignLaunched createSmsCampaignByGroups(
+      @RequestBody CrupdateSmsCampaignByGroups crupdate,
+      @AuthenticationPrincipal Principal principal) {
+    var result =
+        smsCampaignService.createCampaign(
+            new SmsCampaignService.CreateSmsCampaignCommand(
+                principal.getUser(),
+                crupdate.getMessage(),
+                crupdate.getContactGroupIds(),
+                null,
+                null,
+                null,
+                null,
+                crupdate.getSendAt()));
+    return smsCampaignMapper.toLaunched(result.campaign(), result.rejectedRows());
+  }
+
+  @PostMapping(value = "/sms-campaigns/by-file", consumes = "multipart/form-data")
+  @ResponseStatus(ACCEPTED)
+  public SmsCampaignLaunched createSmsCampaignByFile(
       @RequestParam(required = false) String message,
-      @RequestParam(required = false) List<String> contactGroupIds,
-      @RequestParam(required = false) List<String> contactIds,
-      @RequestParam(required = false) List<String> manualPhoneNumbers,
-      @RequestPart(value = "file", required = false) MultipartFile file,
+      @RequestPart("file") MultipartFile file,
       @RequestParam(required = false) Instant sendAt,
       @AuthenticationPrincipal Principal principal) {
     var result =
@@ -53,11 +111,11 @@ public class SmsCampaignController {
             new SmsCampaignService.CreateSmsCampaignCommand(
                 principal.getUser(),
                 message,
-                contactGroupIds,
-                contactIds,
-                manualPhoneNumbers,
-                file == null || file.isEmpty() ? null : fileConverter.apply(file),
-                file == null || file.isEmpty() ? null : file.getOriginalFilename(),
+                null,
+                null,
+                null,
+                fileConverter.apply(file),
+                file.getOriginalFilename(),
                 sendAt));
     return smsCampaignMapper.toLaunched(result.campaign(), result.rejectedRows());
   }

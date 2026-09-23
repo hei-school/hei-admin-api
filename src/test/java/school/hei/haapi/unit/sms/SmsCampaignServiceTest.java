@@ -33,9 +33,10 @@ import school.hei.haapi.service.sms.SmsRecipientResolver;
 import school.hei.haapi.service.sms.SmsSegmentCounter;
 
 /**
- * Covers the core business rule of doc/operations/sms-api.yml#createSmsCampaign: cost is computed
- * in SMS segments (not a flat head count), balance is checked synchronously, and a campaign is
- * still created and partially dispatched when the balance covers some but not all recipients.
+ * Covers the core business rule shared by every createSmsCampaignBy* operation in
+ * doc/operations/sms-api.yml: cost is computed in SMS segments (not a flat head count), balance is
+ * checked synchronously, and a campaign is still created and partially dispatched when the balance
+ * covers some but not all recipients.
  */
 class SmsCampaignServiceTest {
   private final SmsCampaignRepository smsCampaignRepositoryMock = mock();
