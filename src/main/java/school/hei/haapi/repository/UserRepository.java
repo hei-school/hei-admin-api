@@ -235,18 +235,22 @@ public interface UserRepository extends JpaRepository<User, String> {
   StatisticsDto getStudentsStatistics();
 
   @Query(
-      """
-      SELECT u FROM User u
-      WHERE(
-             :search IS NULL
-          OR :search = ''
-          OR LOWER(u.ref) LIKE LOWER(CONCAT('%', :search, '%'))
-          OR LOWER(u.firstName) LIKE LOWER(CONCAT('%', :search, '%'))
-          OR LOWER(u.lastName) LIKE LOWER(CONCAT('%', :search, '%'))
-        )
-      ORDER BY u.lastName
-      LIMIT 25
-      """)
+      value =
+          """
+          SELECT u.* FROM "user" u
+          WHERE u.is_deleted = false
+            AND NOT EXISTS (
+              SELECT 1
+              FROM unnest(string_to_array(unaccent(lower(:search)), ' ')) AS word
+              WHERE word <> ''
+                AND strpos(
+                      unaccent(lower(concat_ws(' ', u.ref, u.first_name, u.last_name))),
+                      word) = 0
+            )
+          ORDER BY u.last_name
+          LIMIT 25
+          """,
+      nativeQuery = true)
   List<User> searchUsers(@Param("search") String search);
 
   @Query(

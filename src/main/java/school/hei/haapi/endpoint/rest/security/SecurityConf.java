@@ -1181,7 +1181,7 @@ public class SecurityConf {
                     .hasAnyRole(TEACHER.getRole(), MANAGER.getRole(), ADMIN.getRole())
                     .requestMatchers(PUT, "/students/*/courses")
                     .hasAnyRole(MANAGER.getRole(), ADMIN.getRole())
-                    .requestMatchers(GET, "global_search/user")
+                    .requestMatchers(GET, "/global_search/user")
                     .hasAnyRole(MANAGER.getRole(), ADMIN.getRole())
                     .requestMatchers(nonAccessibleBySuspendedUserPath)
                     .authenticated()
