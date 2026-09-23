@@ -1,5 +1,6 @@
 package school.hei.haapi.endpoint.event.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.time.Duration;
 import lombok.AllArgsConstructor;
@@ -17,6 +18,7 @@ import lombok.ToString;
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString(callSuper = true)
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class SmsCampaignDispatchRequested extends PojaEvent {
   @JsonProperty("campaign_id")
   private String campaignId;

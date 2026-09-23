@@ -57,7 +57,7 @@ public class SmsCampaignController {
                 contactIds,
                 manualPhoneNumbers,
                 file == null || file.isEmpty() ? null : fileConverter.apply(file),
-                file == null ? null : file.getOriginalFilename(),
+                file == null || file.isEmpty() ? null : file.getOriginalFilename(),
                 sendAt));
     return smsCampaignMapper.toLaunched(result.campaign(), result.rejectedRows());
   }

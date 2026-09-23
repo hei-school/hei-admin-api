@@ -3,6 +3,7 @@ package school.hei.haapi.unit.sms;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
@@ -190,7 +191,7 @@ class SmsCampaignServiceTest {
   @Test
   void getByCriteria_delegates_to_the_dao() {
     var campaign = school.hei.haapi.model.SmsCampaign.builder().id("campaign1").build();
-    when(smsCampaignDaoMock.filterByCriteria(SmsCampaignStatus.DELIVERED, any()))
+    when(smsCampaignDaoMock.filterByCriteria(eq(SmsCampaignStatus.DELIVERED), any()))
         .thenReturn(List.of(campaign));
 
     var result =

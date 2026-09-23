@@ -1,5 +1,6 @@
 package school.hei.haapi.endpoint.event.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.time.Duration;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -12,6 +13,7 @@ import lombok.ToString;
 @EqualsAndHashCode(callSuper = false)
 @NoArgsConstructor
 @ToString(callSuper = true)
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class SmsScheduledCampaignDispatchTriggered extends PojaEvent {
   @Override
   public Duration maxConsumerDuration() {
