@@ -17,15 +17,15 @@ public class SearchService {
   private final UserDtoMapper userDtoMapper;
 
   public SearchResults searchAll(String search) {
-    List<User> allUsers = userRepository.searchUsers(search);
+    List<User> allUsers = userRepository.searchUsers(search == null ? "" : search.trim());
 
     SearchResults results = new SearchResults();
     results.setStudents(filterAndConvertByRole(allUsers, User.Role.STUDENT));
     results.setTeachers(filterAndConvertByRole(allUsers, User.Role.TEACHER));
     results.setManagers(filterAndConvertByRole(allUsers, User.Role.MANAGER));
-    results.setOrganizer(filterAndConvertByRole(allUsers, User.Role.ORGANIZER));
-    results.setMonitor(filterAndConvertByRole(allUsers, User.Role.MONITOR));
-    results.setStaff(filterAndConvertByRole(allUsers, User.Role.STAFF_MEMBER));
+    results.setOrganisers(filterAndConvertByRole(allUsers, User.Role.ORGANIZER));
+    results.setMonitors(filterAndConvertByRole(allUsers, User.Role.MONITOR));
+    results.setStaffMembers(filterAndConvertByRole(allUsers, User.Role.STAFF_MEMBER));
 
     return results;
   }
