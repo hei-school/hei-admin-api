@@ -34,6 +34,7 @@ class DocumensoClientTest {
     server = HttpServer.create(new InetSocketAddress(0), 0);
     server.createContext("/document/", this::serve);
     server.createContext("/folder", this::serveJson);
+    server.createContext("/template", this::serveJson);
     server.start();
   }
 
@@ -146,5 +147,32 @@ class DocumensoClientTest {
 
     /* Documenso refuses a null parentId, so the key has to be absent, not empty */
     assertFalse(receivedBody.contains("parentId"), receivedBody);
+  }
+
+  @Test
+  void the_templates_of_a_folder_are_asked_for_by_folder() {
+    /* the generated findTemplates cannot pass a folderId, and Documenso then answers with the root
+     * only: a template filed in a folder would silently vanish from the sync */
+    json =
+        """
+        {"data":[{"id":7,"title":"Fiche 2027 L3.pdf"}],"count":1}
+        """;
+
+    var page = subject().findTemplatesOfFolder("f1", 1, 100);
+
+    assertEquals(1, page.getData().size());
+    assertEquals("Fiche 2027 L3.pdf", page.getData().getFirst().getTitle());
+    assertTrue(servedUris.getFirst().contains("folderId=f1"), servedUris.getFirst());
+    assertTrue(servedUris.getFirst().contains("perPage=100"), servedUris.getFirst());
+  }
+
+  @Test
+  void an_empty_folder_yields_an_empty_page_rather_than_a_failure() {
+    json =
+        """
+        {"data":[],"count":0}
+        """;
+
+    assertEquals(List.of(), subject().findTemplatesOfFolder("f1", 1, 100).getData());
   }
 }

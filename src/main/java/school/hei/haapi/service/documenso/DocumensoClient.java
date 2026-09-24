@@ -24,6 +24,7 @@ import school.hei.haapi.service.documenso.gen.model.TemplateGetTemplateById200Re
 
 public class DocumensoClient {
   private static final String DOWNLOAD_PATH = "/document/{documentId}/download";
+  private static final String TEMPLATE_PATH = "/template";
   private static final String FOLDER_PATH = "/folder";
   private static final String FOLDER_CREATE_PATH = "/folder/create";
   private static final int FOLDER_PAGE_SIZE = 100;
@@ -48,6 +49,30 @@ public class DocumensoClient {
         query, BigDecimal.valueOf(page), BigDecimal.valueOf(perPage));
   }
 
+  public TemplateFindTemplates200Response findTemplatesOfFolder(
+      String folderId, int page, int perPage) throws RestClientException {
+    var queryParams = new LinkedMultiValueMap<String, String>();
+    queryParams.add("folderId", folderId);
+    queryParams.add("page", String.valueOf(page));
+    queryParams.add("perPage", String.valueOf(perPage));
+
+    return apiClient
+        .invokeAPI(
+            TEMPLATE_PATH,
+            HttpMethod.GET,
+            new HashMap<>(),
+            queryParams,
+            null,
+            new HttpHeaders(),
+            new LinkedMultiValueMap<>(),
+            new LinkedMultiValueMap<>(),
+            List.of(MediaType.APPLICATION_JSON),
+            null,
+            API_KEY_AUTH,
+            new ParameterizedTypeReference<TemplateFindTemplates200Response>() {})
+        .getBody();
+  }
+
   public TemplateGetTemplateById200Response getTemplate(long templateId)
       throws RestClientException {
     return templateApi.templateGetTemplateById(BigDecimal.valueOf(templateId));
@@ -62,11 +87,6 @@ public class DocumensoClient {
     return documentApi.documentGet(BigDecimal.valueOf(documentId));
   }
 
-  /**
-   * Lists the folders directly under {@code parentId}, or the root ones when it is null. Documenso
-   * has no folder endpoint in our generated client, so we drive the ApiClient ourselves, exactly as
-   * the download does.
-   */
   public List<RemoteFolder> findFolders(String parentId, String type) throws RestClientException {
     var queryParams = new LinkedMultiValueMap<String, String>();
     queryParams.add("type", type);
@@ -94,10 +114,6 @@ public class DocumensoClient {
     if (page == null || page.getData() == null) {
       return List.of();
     }
-    /*
-     * Filtered on our side too: the parentId query is not documented as exclusive, and a listing
-     * that quietly returned the whole tree would have us reuse a folder from another branch.
-     */
     return page.getData().stream()
         .filter(folder -> Objects.equals(parentId, folder.getParentId()))
         .toList();
