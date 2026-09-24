@@ -2598,12 +2598,17 @@ components:
           $ref: '#/components/schemas/SmsContactOwnerRole'
     SmsContactOwnerRole:
       type: string
-      description: The role of an SmsContact's owner, for filtering and display.
+      description: >-
+        The role of an SmsContact's owner, for filtering and display — matches every User.Role
+        value, since a contact can now be auto-created for any enabled user regardless of role.
       enum:
+        - STAFF_MEMBER
         - ADMIN
         - MONITOR
         - STUDENT
+        - TEACHER
         - MANAGER
+        - ORGANIZER
     SmsContactGroup:
       type: object
       properties:
@@ -2818,54 +2823,101 @@ components:
         creationDatetime:
           type: string
           format: date-time
-    CrupdateSmsCampaign:
+    CrupdateSmsCampaignByContacts:
       type: object
       description: >-
-        multipart/form-data. Every recipient source below is optional and combinable — a
-        campaign can target one or more contact groups, a manual selection of existing contacts,
-        ad hoc numbers typed directly, and/or an uploaded file, all at once; duplicates across
-        sources are merged into one recipient list. At least one source is required. message is
-        required unless file is a 2-column (personalized) file and no other source is used — in
-        that case every recipient's message comes from the file instead.
+        Targets an existing selection of saved contacts. Kept as its own endpoint (and its own
+        JSON body, not multipart) rather than folded into a single do-everything campaign
+        endpoint — see CrupdateSmsCampaignByFile for why.
       properties:
         message:
           type: string
-          description: >-
-            Sent to every recipient from contactGroupIds/contactIds/manualPhoneNumbers, and to
-            file rows too if file only has a phone number column (see file).
-        contactGroupIds:
-          type: array
-          items:
-            type: string
-          description: One or more saved contact groups to include.
         contactIds:
           type: array
           items:
             type: string
-          description: A manual selection of existing contacts to include.
-        manualPhoneNumbers:
-          type: array
-          items:
-            type: string
-          description: >-
-            Numbers typed directly, not tied to any saved contact and not from a file — for a
-            one-off addition too small to bother with a spreadsheet.
-        file:
-          type: string
-          format: binary
-          description: >-
-            .xlsx or .csv. Whether it's personalized is detected from its own shape, not a
-            separate flag: one column (phone number only) shares message with every other
-            recipient of the campaign; two columns (phone number, then that row's own message)
-            makes it personalized, and message is then only needed if another source is also
-            used. A personalized row is sent one by one via /send/ (trackable — see SmsLog),
-            unlike every other recipient sharing the campaign's message.
+          description: One or more existing contacts to include. At least one is required.
         sendAt:
           type: string
           format: date-time
           description: >-
             ISO date-time, omitted to send now; converted to BEFIANA's own YYYY-MM-DD HH:mm
             format server-side.
+      required:
+        - message
+        - contactIds
+    CrupdateSmsCampaignByManualNumbers:
+      type: object
+      description: >-
+        Targets ad hoc numbers typed directly, not tied to any saved contact and not from a
+        file — for a one-off send too small to bother with a spreadsheet.
+      properties:
+        message:
+          type: string
+        manualPhoneNumbers:
+          type: array
+          items:
+            type: string
+          description: At least one number is required.
+        sendAt:
+          type: string
+          format: date-time
+          description: >-
+            ISO date-time, omitted to send now; converted to BEFIANA's own YYYY-MM-DD HH:mm
+            format server-side.
+      required:
+        - message
+        - manualPhoneNumbers
+    CrupdateSmsCampaignByGroups:
+      type: object
+      description: Targets one or more saved contact groups.
+      properties:
+        message:
+          type: string
+        contactGroupIds:
+          type: array
+          items:
+            type: string
+          description: At least one group is required.
+        sendAt:
+          type: string
+          format: date-time
+          description: >-
+            ISO date-time, omitted to send now; converted to BEFIANA's own YYYY-MM-DD HH:mm
+            format server-side.
+      required:
+        - message
+        - contactGroupIds
+    CrupdateSmsCampaignByFile:
+      type: object
+      description: >-
+        multipart/form-data — the one recipient source that genuinely needs a binary body, which
+        is why it stays a separate endpoint from the other three (JSON) sources instead of a
+        single combined campaign endpoint.
+      properties:
+        message:
+          type: string
+          description: >-
+            Sent to every row if file only has a phone number column (see file). Not needed if
+            file is personalized (two columns).
+        file:
+          type: string
+          format: binary
+          description: >-
+            .xlsx or .csv. Whether it's personalized is detected from its own shape, not a
+            separate flag: one column (phone number only) shares message with every other
+            recipient; two columns (phone number, then that row's own message) makes it
+            personalized, and message is then not needed. A personalized row is sent one by one
+            via /send/ (trackable — see SmsLog), unlike every other recipient sharing the
+            campaign's message.
+        sendAt:
+          type: string
+          format: date-time
+          description: >-
+            ISO date-time, omitted to send now; converted to BEFIANA's own YYYY-MM-DD HH:mm
+            format server-side.
+      required:
+        - file
     SmsCampaignLaunched:
       type: object
       description: >-
@@ -2953,7 +3005,7 @@ components:
         sendAt:
           type: string
           format: date-time
-          description: Same as CrupdateSmsCampaign.sendAt — omitted means immediately.
+          description: Same as CrupdateSmsCampaignByContacts.sendAt — omitted means immediately.
       required:
         - message
     NotificationResolutionStatus:

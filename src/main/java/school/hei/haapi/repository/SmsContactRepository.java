@@ -11,4 +11,6 @@ public interface SmsContactRepository extends JpaRepository<SmsContact, String> 
   Optional<SmsContact> findByOwner_IdAndIsDeletedFalse(String ownerId);
 
   List<SmsContact> findAllByIdInAndIsDeletedFalse(List<String> ids);
+
+  boolean existsByOwner_Id(String ownerId);
 }

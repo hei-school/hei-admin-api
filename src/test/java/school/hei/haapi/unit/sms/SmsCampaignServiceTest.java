@@ -32,11 +32,6 @@ import school.hei.haapi.service.sms.SmsCampaignService.CreateSmsCampaignCommand;
 import school.hei.haapi.service.sms.SmsRecipientResolver;
 import school.hei.haapi.service.sms.SmsSegmentCounter;
 
-/**
- * Covers the core business rule of doc/operations/sms-api.yml#createSmsCampaign: cost is computed
- * in SMS segments (not a flat head count), balance is checked synchronously, and a campaign is
- * still created and partially dispatched when the balance covers some but not all recipients.
- */
 class SmsCampaignServiceTest {
   private final SmsCampaignRepository smsCampaignRepositoryMock = mock();
   private final SmsCampaignDao smsCampaignDaoMock = mock();
@@ -118,7 +113,6 @@ class SmsCampaignServiceTest {
 
   @Test
   void balance_covering_some_creates_a_partially_affordable_campaign() {
-    // Each recipient costs 1 segment (short message); balance of 2 covers only the first two.
     var numbers = List.of("321111111", "321111112", "321111113");
     var recipients = numbers.stream().map(SmsCampaignServiceTest::manualNumber).toList();
     when(smsRecipientResolverMock.resolve(null, null, numbers, null, null))
@@ -130,20 +124,17 @@ class SmsCampaignServiceTest {
 
     assertEquals(3, result.campaign().getRecipientCount());
     assertEquals(1, result.campaign().getRecipientsRejectedForBalance());
-    // Only the 2 affordable recipients get an SmsLog row — the 3rd is never attempted.
     verify(smsLogRepositoryMock, times(2)).save(any());
     verify(dispatchEventProducerMock, times(1)).accept(any());
   }
 
   @Test
   void a_personalized_recipients_own_message_drives_its_segment_cost_not_the_shared_one() {
-    // Shared message is short (1 segment); the personalized row is long enough for 2 segments.
     var longMessage = "a".repeat(200);
     var personalized =
         new ResolvedRecipient("321111111", SmsRecipientSource.IMPORTED_FILE, null, longMessage);
     when(smsRecipientResolverMock.resolve(null, null, null, null, null))
         .thenReturn(resolvedWith(List.of(personalized)));
-    // Balance covers the personalized row's 2 segments but nothing more.
     when(befianaClientMock.getBalance()).thenReturn(2);
     stubSaveAsIdentity();
 

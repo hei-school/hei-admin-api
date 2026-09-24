@@ -411,6 +411,14 @@ paths:
     $ref: './operations/sms-api.yml#/operations/smsBalance'
   /sms-campaigns:
     $ref: './operations/sms-api.yml#/operations/smsCampaigns'
+  /sms-campaigns/by-contacts:
+    $ref: './operations/sms-api.yml#/operations/smsCampaignsByContacts'
+  /sms-campaigns/by-manual-numbers:
+    $ref: './operations/sms-api.yml#/operations/smsCampaignsByManualNumbers'
+  /sms-campaigns/by-groups:
+    $ref: './operations/sms-api.yml#/operations/smsCampaignsByGroups'
+  /sms-campaigns/by-file:
+    $ref: './operations/sms-api.yml#/operations/smsCampaignsByFile'
   '/sms-campaigns/{id}':
     $ref: './operations/sms-api.yml#/operations/smsCampaignById'
   '/sms-campaigns/{id}/logs':

@@ -310,45 +310,6 @@ operations:
           $ref: '../components.yml#/components/responses/500'
 
   smsCampaigns:
-    post:
-      tags:
-        - Sms
-      summary: Launch an SMS campaign to any combination of contact group(s), a manual contact selection, ad hoc numbers, and a file
-      description: >
-        An SMS campaign combines any mix of recipient sources (contact groups, manual picks, typed numbers, uploaded file), deduped. 
-        Cost (recipients × segments) is checked against balance: if it can't cover even one recipient, it 400s and creates nothing; 
-        if it covers some, the campaign is created and sent to those it can, the rest counted separately. For scheduled campaigns, 
-        that check reruns right before dispatch and can notify admins instead of blocking. Sending then happens 
-        in the background: single/personalized recipients go through `/send/` (trackable), everyone else through `/sendbulk/` 
-        (delivery not trackable, except outright BEFIANA rejections which do mark a real failure). The campaign ends up `FAILED` 
-        only if no recipient was attempted at all; otherwise `DELIVERED`, with failures tracked separately.
-      operationId: createSmsCampaign
-      requestBody:
-        required: true
-        content:
-          multipart/form-data:
-            schema:
-              $ref: '../components.yml#/components/schemas/CrupdateSmsCampaign'
-      responses:
-        '202':
-          description: Campaign accepted and sending in the background
-          content:
-            application/json:
-              schema:
-                $ref: '../components.yml#/components/schemas/SmsCampaignLaunched'
-        '400':
-          description: >
-            Bad request, including insufficient balance — see SmsInsufficientBalanceAlert
-          content:
-            application/json:
-              schema:
-                $ref: '../components.yml#/components/schemas/SmsInsufficientBalanceAlert'
-        '403':
-          $ref: '../components.yml#/components/responses/403'
-        '404':
-          $ref: '../components.yml#/components/responses/404'
-        '500':
-          $ref: '../components.yml#/components/responses/500'
     get:
       tags:
         - Sms
@@ -381,6 +342,143 @@ operations:
                   $ref: '../components.yml#/components/schemas/SmsCampaign'
         '400':
           $ref: '../components.yml#/components/responses/400'
+        '403':
+          $ref: '../components.yml#/components/responses/403'
+        '500':
+          $ref: '../components.yml#/components/responses/500'
+  smsCampaignsByContacts:
+    post:
+      tags:
+        - Sms
+      summary: Launch an SMS campaign to a selection of existing contacts
+      description: >
+        Cost (recipients × segments) is checked against balance: if it can't cover even one
+        recipient, it 400s and creates nothing; if it covers some, the campaign is created and
+        sent to those it can, the rest counted separately. For scheduled campaigns, that check
+        reruns right before dispatch and can notify admins instead of blocking. Sending then
+        happens in the background: a single recipient goes through `/send/` (trackable), several
+        through `/sendbulk/` (delivery not trackable, except outright BEFIANA rejections which do
+        mark a real failure). The campaign ends up `FAILED` only if no recipient was attempted at
+        all; otherwise `DELIVERED`, with failures tracked separately.
+      operationId: createSmsCampaignByContacts
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '../components.yml#/components/schemas/CrupdateSmsCampaignByContacts'
+      responses:
+        '202':
+          description: Campaign accepted and sending in the background
+          content:
+            application/json:
+              schema:
+                $ref: '../components.yml#/components/schemas/SmsCampaignLaunched'
+        '400':
+          description: >
+            Bad request, including insufficient balance — see SmsInsufficientBalanceAlert
+          content:
+            application/json:
+              schema:
+                $ref: '../components.yml#/components/schemas/SmsInsufficientBalanceAlert'
+        '403':
+          $ref: '../components.yml#/components/responses/403'
+        '500':
+          $ref: '../components.yml#/components/responses/500'
+  smsCampaignsByManualNumbers:
+    post:
+      tags:
+        - Sms
+      summary: Launch an SMS campaign to ad hoc phone numbers
+      description: >
+        Same cost/balance/dispatch behavior as createSmsCampaignByContacts — see its description.
+      operationId: createSmsCampaignByManualNumbers
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '../components.yml#/components/schemas/CrupdateSmsCampaignByManualNumbers'
+      responses:
+        '202':
+          description: Campaign accepted and sending in the background
+          content:
+            application/json:
+              schema:
+                $ref: '../components.yml#/components/schemas/SmsCampaignLaunched'
+        '400':
+          description: >
+            Bad request, including insufficient balance — see SmsInsufficientBalanceAlert
+          content:
+            application/json:
+              schema:
+                $ref: '../components.yml#/components/schemas/SmsInsufficientBalanceAlert'
+        '403':
+          $ref: '../components.yml#/components/responses/403'
+        '500':
+          $ref: '../components.yml#/components/responses/500'
+  smsCampaignsByGroups:
+    post:
+      tags:
+        - Sms
+      summary: Launch an SMS campaign to one or more saved contact groups
+      description: >
+        Same cost/balance/dispatch behavior as createSmsCampaignByContacts — see its description.
+      operationId: createSmsCampaignByGroups
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '../components.yml#/components/schemas/CrupdateSmsCampaignByGroups'
+      responses:
+        '202':
+          description: Campaign accepted and sending in the background
+          content:
+            application/json:
+              schema:
+                $ref: '../components.yml#/components/schemas/SmsCampaignLaunched'
+        '400':
+          description: >
+            Bad request, including insufficient balance — see SmsInsufficientBalanceAlert
+          content:
+            application/json:
+              schema:
+                $ref: '../components.yml#/components/schemas/SmsInsufficientBalanceAlert'
+        '403':
+          $ref: '../components.yml#/components/responses/403'
+        '500':
+          $ref: '../components.yml#/components/responses/500'
+  smsCampaignsByFile:
+    post:
+      tags:
+        - Sms
+      summary: Launch an SMS campaign from an uploaded contacts file
+      description: >
+        Its own endpoint, separate from the other recipient sources, because it's the only one
+        that needs a multipart/form-data body — see CrupdateSmsCampaignByFile. Same cost/balance/
+        dispatch behavior as createSmsCampaignByContacts otherwise.
+      operationId: createSmsCampaignByFile
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '../components.yml#/components/schemas/CrupdateSmsCampaignByFile'
+      responses:
+        '202':
+          description: Campaign accepted and sending in the background
+          content:
+            application/json:
+              schema:
+                $ref: '../components.yml#/components/schemas/SmsCampaignLaunched'
+        '400':
+          description: >
+            Bad request, including insufficient balance — see SmsInsufficientBalanceAlert
+          content:
+            application/json:
+              schema:
+                $ref: '../components.yml#/components/schemas/SmsInsufficientBalanceAlert'
         '403':
           $ref: '../components.yml#/components/responses/403'
         '500':
