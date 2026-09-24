@@ -93,4 +93,23 @@ class TemplateDocumensoServiceTest {
 
     verify(templateRepository, never()).delete(any());
   }
+
+  @Test
+  void a_listing_that_never_ends_stops_the_pruning_rather_than_the_sync() {
+    /* every page comes back full, so the listing is never known to be complete: deleting on that
+     * basis would drop templates we simply never saw */
+    var aFullPage =
+        new TemplateFindTemplates200Response()
+            .data(
+                java.util.stream.IntStream.range(0, 100)
+                    .mapToObj(i -> aRemoteTemplate(i, "Fiche " + i))
+                    .toList());
+    when(documensoClient.findTemplates(any(), anyInt(), anyInt())).thenReturn(aFullPage);
+    when(templateRepository.findAll())
+        .thenReturn(List.of(TemplateDocumenso.builder().documensoTemplateId(999L).build()));
+
+    subject.syncTemplates();
+
+    verify(templateRepository, never()).delete(any());
+  }
 }
