@@ -63,4 +63,16 @@ public class SmsContactGroupController {
   public SmsContactGroup deleteSmsContactGroup(@PathVariable("id") String id) {
     return smsContactGroupMapper.toRest(smsContactGroupService.delete(id));
   }
+
+  @PostMapping("/sms-contact-groups/{id}/members/{contact_id}")
+  public SmsContactGroupDetail addSmsContactGroupMember(
+      @PathVariable("id") String id, @PathVariable("contact_id") String contactId) {
+    return smsContactGroupMapper.toRestDetail(smsContactGroupService.addMember(id, contactId));
+  }
+
+  @DeleteMapping("/sms-contact-groups/{id}/members/{contact_id}")
+  public SmsContactGroupDetail removeSmsContactGroupMember(
+      @PathVariable("id") String id, @PathVariable("contact_id") String contactId) {
+    return smsContactGroupMapper.toRestDetail(smsContactGroupService.removeMember(id, contactId));
+  }
 }

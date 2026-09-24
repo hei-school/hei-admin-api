@@ -407,6 +407,8 @@ paths:
     $ref: './operations/sms-api.yml#/operations/smsContactGroups'
   '/sms-contact-groups/{id}':
     $ref: './operations/sms-api.yml#/operations/smsContactGroupById'
+  '/sms-contact-groups/{id}/members/{contact_id}':
+    $ref: './operations/sms-api.yml#/operations/smsContactGroupMember'
   /sms-balance:
     $ref: './operations/sms-api.yml#/operations/smsBalance'
   /sms-campaigns:

@@ -25,6 +25,7 @@ import school.hei.haapi.model.SmsMessageStatus;
 import school.hei.haapi.repository.SmsCampaignRepository;
 import school.hei.haapi.repository.SmsLogRepository;
 import school.hei.haapi.service.befiana.BefianaClient;
+import school.hei.haapi.service.befiana.BefianaDeliveryStatusResponse;
 import school.hei.haapi.service.befiana.BefianaException;
 import school.hei.haapi.service.befiana.BefianaSendBulkResponse;
 import school.hei.haapi.service.befiana.BefianaSendResponse;
@@ -71,6 +72,12 @@ class SmsCampaignDispatchRequestedServiceTest {
         .thenReturn(new ArrayList<>(logs));
   }
 
+  private BefianaDeliveryStatusResponse deliveryStatus(String status) {
+    var response = new BefianaDeliveryStatusResponse();
+    response.setDeliveryStatus(status);
+    return response;
+  }
+
   @Test
   void unknown_campaign_is_dropped_silently() {
     when(smsCampaignRepositoryMock.findById("missing")).thenReturn(Optional.empty());
@@ -102,18 +109,62 @@ class SmsCampaignDispatchRequestedServiceTest {
     var response = new BefianaSendResponse();
     response.setCallbackData("cb1");
     when(befianaClientMock.send("321111111", "Hi", null)).thenReturn(response);
+    when(befianaClientMock.getDeliveryStatus("cb1")).thenReturn(deliveryStatus("Delivered"));
+    when(smsLogRepositoryMock.countByCampaign_IdAndStatus("campaign1", SmsMessageStatus.DELIVERED))
+        .thenReturn(1L);
 
     subject.accept(new SmsCampaignDispatchRequested("campaign1"));
 
     verify(befianaClientMock, times(1)).send("321111111", "Hi", null);
     verify(befianaClientMock, never()).sendBulk(anyList(), anyString(), any());
-    assertEquals(SmsMessageStatus.PENDING, log.getStatus());
+    // Checked right in the same dispatch flow via getDeliveryStatus, not by a later poll.
+    verify(befianaClientMock, times(1)).getDeliveryStatus("cb1");
+    assertEquals(SmsMessageStatus.DELIVERED, log.getStatus());
     assertEquals("cb1", log.getCallbackData());
+    assertEquals(SmsCampaignStatus.DELIVERED, campaign.getStatus());
+    assertEquals(1, campaign.getDeliveredCount());
+  }
+
+  @Test
+  void a_unitary_send_not_yet_confirmed_delivered_stays_pending() {
+    var campaign = campaign("Hi", 1);
+    var log = sharedLog(campaign, "321111111");
+    when(smsCampaignRepositoryMock.findById("campaign1")).thenReturn(Optional.of(campaign));
+    stubLogs(campaign, List.of(log));
+    when(befianaClientMock.getBalance()).thenReturn(10);
+    var response = new BefianaSendResponse();
+    response.setCallbackData("cb1");
+    when(befianaClientMock.send("321111111", "Hi", null)).thenReturn(response);
+    when(befianaClientMock.getDeliveryStatus("cb1")).thenReturn(deliveryStatus("Pending"));
+
+    subject.accept(new SmsCampaignDispatchRequested("campaign1"));
+
+    assertEquals(SmsMessageStatus.PENDING, log.getStatus());
+    assertNull(log.getDeliveredDatetime());
+  }
+
+  @Test
+  void a_unitary_send_whose_status_check_itself_fails_stays_pending() {
+    var campaign = campaign("Hi", 1);
+    var log = sharedLog(campaign, "321111111");
+    when(smsCampaignRepositoryMock.findById("campaign1")).thenReturn(Optional.of(campaign));
+    stubLogs(campaign, List.of(log));
+    when(befianaClientMock.getBalance()).thenReturn(10);
+    var response = new BefianaSendResponse();
+    response.setCallbackData("cb1");
+    when(befianaClientMock.send("321111111", "Hi", null)).thenReturn(response);
+    when(befianaClientMock.getDeliveryStatus("cb1"))
+        .thenThrow(new BefianaException("BEFIANA is down", 500, null));
+
+    subject.accept(new SmsCampaignDispatchRequested("campaign1"));
+
+    // The send itself went through -> not FAILED, just not confirmed yet.
+    assertEquals(SmsMessageStatus.PENDING, log.getStatus());
     assertEquals(SmsCampaignStatus.DELIVERED, campaign.getStatus());
   }
 
   @Test
-  void two_or_more_shared_recipients_use_bulk_send_and_stay_untracked() {
+  void two_or_more_shared_recipients_use_bulk_send_and_are_assumed_delivered() {
     var campaign = campaign("Hi", 2);
     var log1 = sharedLog(campaign, "321111111");
     var log2 = sharedLog(campaign, "321111112");
@@ -125,17 +176,21 @@ class SmsCampaignDispatchRequestedServiceTest {
     response.setBalanceDebited(2);
     when(befianaClientMock.sendBulk(List.of("321111111", "321111112"), "Hi", null))
         .thenReturn(response);
+    when(smsLogRepositoryMock.countByCampaign_IdAndStatus("campaign1", SmsMessageStatus.DELIVERED))
+        .thenReturn(2L);
 
     subject.accept(new SmsCampaignDispatchRequested("campaign1"));
 
     verify(befianaClientMock, never()).send(anyString(), anyString(), any());
     verify(befianaClientMock, times(1)).sendBulk(List.of("321111111", "321111112"), "Hi", null);
-    // BEFIANA gives no callbackData for bulk -> status is never set, delivery stays unknowable.
-    assertNull(log1.getStatus());
-    assertNull(log2.getStatus());
+    // BEFIANA gives no callbackData for bulk, so a successful submission is the only delivery
+    // signal we ever get for these recipients -> assumed delivered rather than left unknown.
+    assertEquals(SmsMessageStatus.DELIVERED, log1.getStatus());
+    assertEquals(SmsMessageStatus.DELIVERED, log2.getStatus());
     assertEquals(1, campaign.getSmsSegmentsEach());
     assertEquals(2, campaign.getCreditsDebited());
     assertEquals(SmsCampaignStatus.DELIVERED, campaign.getStatus());
+    assertEquals(2, campaign.getDeliveredCount());
   }
 
   @Test
@@ -148,6 +203,7 @@ class SmsCampaignDispatchRequestedServiceTest {
     when(befianaClientMock.getBalance()).thenReturn(10);
     when(befianaClientMock.send(anyString(), anyString(), isNull()))
         .thenReturn(new BefianaSendResponse());
+    when(befianaClientMock.getDeliveryStatus(isNull())).thenReturn(deliveryStatus("Delivered"));
 
     subject.accept(new SmsCampaignDispatchRequested("campaign1"));
 
@@ -194,6 +250,7 @@ class SmsCampaignDispatchRequestedServiceTest {
         .thenReturn(0L);
     when(befianaClientMock.send(eq("321111111"), eq("Hi"), any()))
         .thenReturn(new BefianaSendResponse());
+    when(befianaClientMock.getDeliveryStatus(isNull())).thenReturn(deliveryStatus("Delivered"));
 
     subject.accept(new SmsCampaignDispatchRequested("campaign1"));
 
@@ -215,6 +272,7 @@ class SmsCampaignDispatchRequestedServiceTest {
         .thenReturn(new BefianaSendResponse());
     when(befianaClientMock.send("321111112", "Bonjour B", null))
         .thenThrow(new BefianaException("BEFIANA is down", 500, null));
+    when(befianaClientMock.getDeliveryStatus(isNull())).thenReturn(deliveryStatus("Pending"));
     when(smsLogRepositoryMock.countByCampaign_IdAndStatus("campaign1", SmsMessageStatus.FAILED))
         .thenReturn(1L);
 

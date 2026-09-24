@@ -1,6 +1,7 @@
 package school.hei.haapi.endpoint.rest.controller;
 
 import static org.springframework.http.HttpStatus.ACCEPTED;
+import static org.springframework.http.MediaType.MULTIPART_FORM_DATA_VALUE;
 
 import java.time.Instant;
 import java.util.List;
@@ -99,7 +100,7 @@ public class SmsCampaignController {
     return smsCampaignMapper.toLaunched(result.campaign(), result.rejectedRows());
   }
 
-  @PostMapping(value = "/sms-campaigns/by-file", consumes = "multipart/form-data")
+  @PostMapping(value = "/sms-campaigns/by-file", consumes = MULTIPART_FORM_DATA_VALUE)
   @ResponseStatus(ACCEPTED)
   public SmsCampaignLaunched createSmsCampaignByFile(
       @RequestParam(required = false) String message,

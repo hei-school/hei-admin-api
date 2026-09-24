@@ -2820,6 +2820,15 @@ components:
             YYYY-MM-DD HH:mm format BEFIANA itself expects is a server-side conversion detail.
         createdById:
           type: string
+        createdByRef:
+          type: string
+          description: >-
+            Ref of the account that launched this campaign (e.g. STF000001), denormalized here for
+            display alongside createdById.
+          example: STF000001
+        createdByFirstName:
+          type: string
+          description: First name of the account that launched this campaign, denormalized for display.
         creationDatetime:
           type: string
           format: date-time
@@ -2893,13 +2902,11 @@ components:
       description: >-
         multipart/form-data — the one recipient source that genuinely needs a binary body, which
         is why it stays a separate endpoint from the other three (JSON) sources instead of a
-        single combined campaign endpoint.
+        single combined campaign endpoint. message and sendAt are query parameters on this
+        operation instead of body fields — the Lambda deployment's HTTP adapter cannot read a
+        text field placed in a multipart body (see createSmsCampaignByFile's description), so the
+        file is the only thing left in the body here.
       properties:
-        message:
-          type: string
-          description: >-
-            Sent to every row if file only has a phone number column (see file). Not needed if
-            file is personalized (two columns).
         file:
           type: string
           format: binary
@@ -2910,12 +2917,6 @@ components:
             personalized, and message is then not needed. A personalized row is sent one by one
             via /send/ (trackable — see SmsLog), unlike every other recipient sharing the
             campaign's message.
-        sendAt:
-          type: string
-          format: date-time
-          description: >-
-            ISO date-time, omitted to send now; converted to BEFIANA's own YYYY-MM-DD HH:mm
-            format server-side.
       required:
         - file
     SmsCampaignLaunched:

@@ -21,6 +21,10 @@ public class SmsContactDao {
     var builder = entityManager.getCriteriaBuilder();
     var query = builder.createQuery(SmsContact.class);
     var root = query.from(SmsContact.class);
+    // Explicit select is required as soon as a second root (groupRoot, below) is added — Hibernate
+    // 6 rejects a CriteriaQuery with multiple roots and no explicit select ("Criteria has multiple
+    // query roots"), unlike a plain implicit cross join in older Hibernate versions.
+    query.select(root);
 
     List<Predicate> predicates = new ArrayList<>();
     predicates.add(builder.isFalse(root.get("isDeleted")));

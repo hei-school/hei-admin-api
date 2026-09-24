@@ -108,9 +108,12 @@ public class SmsCampaignDispatchRequestedService implements Consumer<SmsCampaign
   private boolean sendUnitary(SmsLog l, String message) {
     try {
       var response = befianaClient.send(l.getPhoneNumber(), message, null);
-      l.setStatus(SmsMessageStatus.PENDING);
       l.setCallbackData(response.getCallbackData());
       l.setSentDatetime(Instant.now());
+      l.setStatus(checkDeliveryStatus(response.getCallbackData()));
+      if (l.getStatus() == SmsMessageStatus.DELIVERED) {
+        l.setDeliveredDatetime(Instant.now());
+      }
       smsLogRepository.save(l);
       return true;
     } catch (BefianaException e) {
@@ -122,6 +125,24 @@ public class SmsCampaignDispatchRequestedService implements Consumer<SmsCampaign
       l.setSentDatetime(Instant.now());
       smsLogRepository.save(l);
       return false;
+    }
+  }
+
+  // Called right in the same dispatch flow, not from a scheduled poll: unlike a bulk chunk, a
+  // unitary /send/ gives us a callbackData we can immediately re-check via /get-delivery-status/,
+  // so there is no need to wait for a separate cron to confirm it later.
+  private SmsMessageStatus checkDeliveryStatus(String callbackData) {
+    try {
+      var status = befianaClient.getDeliveryStatus(callbackData);
+      return "Delivered".equalsIgnoreCase(status.getDeliveryStatus())
+          ? SmsMessageStatus.DELIVERED
+          : SmsMessageStatus.PENDING;
+    } catch (BefianaException e) {
+      log.warn(
+          "BEFIANA get-delivery-status check failed for callbackData {}: {}",
+          callbackData,
+          e.getMessage());
+      return SmsMessageStatus.PENDING;
     }
   }
 
@@ -146,7 +167,16 @@ public class SmsCampaignDispatchRequestedService implements Consumer<SmsCampaign
     var now = Instant.now();
     try {
       var response = befianaClient.sendBulk(numbers, campaign.getMessage(), null);
-      chunk.forEach(l -> l.setSentDatetime(now));
+      // /sendbulk/ never returns a callbackData to poll later (see
+      // SmsDeliveryStatusPollTriggeredService),
+      // so a successful submission is the only delivery signal BEFIANA gives us for these
+      // recipients — treated as delivered rather than left unknown forever.
+      chunk.forEach(
+          l -> {
+            l.setStatus(SmsMessageStatus.DELIVERED);
+            l.setSentDatetime(now);
+            l.setDeliveredDatetime(now);
+          });
       smsLogRepository.saveAll(chunk);
       campaign.setSmsSegmentsEach(response.getSmsSegmentsEach());
       campaign.setCreditsDebited(
@@ -170,6 +200,12 @@ public class SmsCampaignDispatchRequestedService implements Consumer<SmsCampaign
     var failedCount =
         smsLogRepository.countByCampaign_IdAndStatus(campaign.getId(), SmsMessageStatus.FAILED);
     campaign.setFailedCount((int) failedCount);
+    // Counts bulk recipients (already DELIVERED above) immediately; personalized/unitary ones
+    // stay PENDING here and only get counted once SmsDeliveryStatusPollTriggeredService confirms
+    // them.
+    var deliveredCount =
+        smsLogRepository.countByCampaign_IdAndStatus(campaign.getId(), SmsMessageStatus.DELIVERED);
+    campaign.setDeliveredCount((int) deliveredCount);
 
     var nothingWentThrough = submittedCount == 0;
     campaign.setStatus(nothingWentThrough ? SmsCampaignStatus.FAILED : SmsCampaignStatus.DELIVERED);

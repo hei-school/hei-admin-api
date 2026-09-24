@@ -155,7 +155,6 @@ public class SmsRecipientResolver {
               + (originalFilename == null ? file.getName() : originalFilename);
       bucketComponent.upload(file, bucketKey);
 
-      // Personalized as soon as at least one row carries its own message.
       var personalized =
           parseResult.parsedResult().stream().anyMatch(row -> row.getMessage() != null);
 

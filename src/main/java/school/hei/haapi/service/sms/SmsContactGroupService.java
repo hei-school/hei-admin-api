@@ -49,4 +49,24 @@ public class SmsContactGroupService {
     group.setDeleted(true);
     return smsContactGroupRepository.save(group);
   }
+
+  public SmsContactGroup addMember(String groupId, String contactId) {
+    var group = getById(groupId);
+    var contact =
+        smsContactRepository
+            .findById(contactId)
+            .orElseThrow(() -> new NotFoundException("SMS contact " + contactId + " not found"));
+    if (group.getMembers().stream().noneMatch(m -> m.getId().equals(contactId))) {
+      group.getMembers().add(contact);
+      smsContactGroupRepository.save(group);
+    }
+    return group;
+  }
+
+  public SmsContactGroup removeMember(String groupId, String contactId) {
+    var group = getById(groupId);
+    group.getMembers().removeIf(m -> m.getId().equals(contactId));
+    smsContactGroupRepository.save(group);
+    return group;
+  }
 }

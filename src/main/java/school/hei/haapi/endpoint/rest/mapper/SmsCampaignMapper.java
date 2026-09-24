@@ -1,5 +1,6 @@
 package school.hei.haapi.endpoint.rest.mapper;
 
+import java.util.List;
 import org.springframework.stereotype.Component;
 import school.hei.haapi.endpoint.rest.model.SmsCampaign;
 import school.hei.haapi.endpoint.rest.model.SmsCampaignLaunched;
@@ -10,11 +11,6 @@ import school.hei.haapi.model.SmsContactGroup;
 @Component
 public class SmsCampaignMapper {
 
-  /**
-   * contactGroupIds/contactGroupNames/contactIds are derived from the real relations
-   * (sms_campaign_contact_group / sms_campaign_contact) at read time — never denormalized on the
-   * entity itself, per the feedback that a comma-joined VARCHAR was the wrong call.
-   */
   public SmsCampaign toRest(school.hei.haapi.model.SmsCampaign domain) {
     return new SmsCampaign()
         .id(domain.getId())
@@ -36,12 +32,14 @@ public class SmsCampaignMapper {
         .creditsDebited(domain.getCreditsDebited())
         .sendAt(domain.getSendAt())
         .createdById(domain.getCreatedBy() == null ? null : domain.getCreatedBy().getId())
+        .createdByRef(domain.getCreatedBy() == null ? null : domain.getCreatedBy().getRef())
+        .createdByFirstName(
+            domain.getCreatedBy() == null ? null : domain.getCreatedBy().getFirstName())
         .creationDatetime(domain.getCreationDatetime());
   }
 
   public SmsCampaignLaunched toLaunched(
-      school.hei.haapi.model.SmsCampaign domain,
-      java.util.List<SmsFileImportRejectedRow> rejectedRows) {
+      school.hei.haapi.model.SmsCampaign domain, List<SmsFileImportRejectedRow> rejectedRows) {
     return new SmsCampaignLaunched()
         .campaignId(domain.getId())
         .recipientCount(domain.getRecipientCount())

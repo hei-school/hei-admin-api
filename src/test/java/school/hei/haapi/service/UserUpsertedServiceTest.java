@@ -57,6 +57,22 @@ class UserUpsertedServiceTest {
   }
 
   @Test
+  void a_cognito_failure_does_not_prevent_the_sms_contact_from_being_created() {
+    // e.g. a missing IAM permission on the worker's execution role
+    // (CognitoIdentityProviderException) —
+    // seen for real in preprod: it must not stop createContactIfMissing from running.
+    var user = User.builder().id("u1").build();
+    var userUpserted = new UserUpserted().userId("u1").email("a@hei.school");
+    when(cognitoComponent.createUser("a@hei.school"))
+        .thenThrow(new RuntimeException("cognito-idp:AdminCreateUser not authorized"));
+    when(userRepositoryMock.findById("u1")).thenReturn(Optional.of(user));
+
+    userUpsertedService.accept(userUpserted);
+
+    verify(smsContactServiceMock).createContactIfMissing(user);
+  }
+
+  @Test
   void also_creates_an_sms_contact_for_the_upserted_user_when_found() {
     var user = User.builder().id("u1").build();
     var userUpserted = new UserUpserted().userId("u1").email("a@hei.school");

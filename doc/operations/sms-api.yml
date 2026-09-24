@@ -288,6 +288,73 @@ operations:
         '500':
           $ref: '../components.yml#/components/responses/500'
 
+  smsContactGroupMember:
+    post:
+      tags:
+        - Sms
+      summary: Add a contact to an SMS contact group
+      description: >
+        Adds a single existing contact without touching the rest of the group's members — unlike
+        updateSmsContactGroup's contactIds, which replaces the whole list. A no-op (not an error)
+        if the contact is already a member.
+      operationId: addSmsContactGroupMember
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: contact_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: The group with its updated member list
+          content:
+            application/json:
+              schema:
+                $ref: '../components.yml#/components/schemas/SmsContactGroupDetail'
+        '403':
+          $ref: '../components.yml#/components/responses/403'
+        '404':
+          $ref: '../components.yml#/components/responses/404'
+        '500':
+          $ref: '../components.yml#/components/responses/500'
+    delete:
+      tags:
+        - Sms
+      summary: Remove a contact from an SMS contact group
+      description: >
+        Removes a single member without touching the rest of the group. The contact itself is
+        untouched — only its membership in this group is removed.
+      operationId: removeSmsContactGroupMember
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: contact_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: The group with its updated member list
+          content:
+            application/json:
+              schema:
+                $ref: '../components.yml#/components/schemas/SmsContactGroupDetail'
+        '403':
+          $ref: '../components.yml#/components/responses/403'
+        '404':
+          $ref: '../components.yml#/components/responses/404'
+        '500':
+          $ref: '../components.yml#/components/responses/500'
+
   smsBalance:
     get:
       tags:
@@ -456,9 +523,31 @@ operations:
       summary: Launch an SMS campaign from an uploaded contacts file
       description: >
         Its own endpoint, separate from the other recipient sources, because it's the only one
-        that needs a multipart/form-data body — see CrupdateSmsCampaignByFile. Same cost/balance/
-        dispatch behavior as createSmsCampaignByContacts otherwise.
+        that needs a multipart/form-data body — see CrupdateSmsCampaignByFile. message and sendAt
+        are query parameters, not body fields: the Lambda deployment's HTTP adapter cannot read a
+        text field placed inside a multipart body (it only reads the query string and
+        application/x-www-form-urlencoded bodies), so anything other than the file itself has to
+        travel as a query parameter here. Same cost/balance/dispatch behavior as
+        createSmsCampaignByContacts otherwise.
       operationId: createSmsCampaignByFile
+      parameters:
+        - name: message
+          in: query
+          required: false
+          description: >-
+            Sent to every row if file only has a phone number column. Not needed if file is
+            personalized (two columns) — see CrupdateSmsCampaignByFile.file.
+          schema:
+            type: string
+        - name: sendAt
+          in: query
+          required: false
+          description: >-
+            ISO date-time, omitted to send now; converted to BEFIANA's own YYYY-MM-DD HH:mm
+            format server-side.
+          schema:
+            type: string
+            format: date-time
       requestBody:
         required: true
         content:
