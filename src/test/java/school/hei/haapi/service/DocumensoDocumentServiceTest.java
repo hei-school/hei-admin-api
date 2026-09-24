@@ -52,6 +52,7 @@ class DocumensoDocumentServiceTest {
   private final PrefillFieldsFactory prefillFieldsFactory = mock(PrefillFieldsFactory.class);
   private final DocumensoWebhookHandler webhookHandler = mock(DocumensoWebhookHandler.class);
   private final FileService fileService = mock(FileService.class);
+  private final DocumensoFolderService folderService = mock(DocumensoFolderService.class);
 
   private final DocumensoDocumentService subject =
       new DocumensoDocumentService(
@@ -64,7 +65,8 @@ class DocumensoDocumentServiceTest {
           templateResolver,
           prefillFieldsFactory,
           webhookHandler,
-          fileService);
+          fileService,
+          folderService);
 
   private static final String ADMIN_ID = randomUUID().toString();
 
