@@ -47,7 +47,6 @@ public class DocumensoFolderService {
         documensoClient.findFolders(parentId, DOCUMENT_FOLDER_TYPE).stream()
             .filter(folder -> name.equals(folder.getName()))
             .findFirst()
-            .map(RemoteFolder::getId)
             .orElseGet(
                 () -> {
                   log.info("Creating Documenso folder {}", path);
