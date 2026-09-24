@@ -8,13 +8,6 @@ import school.hei.haapi.endpoint.event.model.SmsContactBackfillTriggered;
 import school.hei.haapi.service.UserService;
 import school.hei.haapi.service.sms.SmsContactService;
 
-/**
- * Safety net for SmsContact creation: covers every enabled user who slipped past the on-upsert hook
- * in UserUpsertedService — either because they existed before this feature shipped, or because they
- * were created through a path that never fires UserUpserted (e.g. monitors, see
- * MonitoringStudentService). createContactIfMissing is idempotent, so re-running this over users
- * who already have a contact is harmless.
- */
 @Slf4j
 @Service
 @AllArgsConstructor

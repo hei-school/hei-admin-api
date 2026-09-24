@@ -41,13 +41,6 @@ public class SmsContactService {
     return smsContactRepository.save(contact);
   }
 
-  /**
-   * Auto-creates an SmsContact for an enabled user with a usable phone number, unless one already
-   * exists (owner_id is unique regardless of soft-deletion, so existsByOwner_Id is checked rather
-   * than the *_IsDeletedFalse variant). Silently a no-op for disabled users, users without a phone,
-   * or users who already have a contact — this is meant to be called opportunistically (on every
-   * user upsert, and from a periodic backfill), not to report why it didn't act.
-   */
   @Transactional
   public Optional<SmsContact> createContactIfMissing(User user) {
     if (user.getStatus() != User.Status.ENABLED) {
