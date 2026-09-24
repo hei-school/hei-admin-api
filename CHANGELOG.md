@@ -1,3 +1,19 @@
+# [1.174.0](https://github.com/hei-school/hei-admin-api/compare/v1.173.1...v1.174.0) (2026-09-24)
+
+
+### Bug Fixes
+
+* allow user search without accents ([be290b0](https://github.com/hei-school/hei-admin-api/commit/be290b05d991abb7b690a3d6ecc9052e8c5b3e4b))
+* duplicate payment and repeated verification ([3d3961f](https://github.com/hei-school/hei-admin-api/commit/3d3961f03837b5791091a07f485b96ec8cf8d469))
+* send sms compaign ([cf8c7db](https://github.com/hei-school/hei-admin-api/commit/cf8c7dbd3f62380c57dfc2299e9d5c5704e5cce3))
+
+
+### Features
+
+* SmsBefiana integration ([f503b30](https://github.com/hei-school/hei-admin-api/commit/f503b30cfad326cf6a5a28536cff3bbee7c4b2f7))
+
+
+
 ## [1.173.1](https://github.com/hei-school/hei-admin-api/compare/v1.173.0...v1.173.1) (2026-09-18)
 
 
@@ -126,15 +142,6 @@
 
 * implement fees archiving and credit movement tracking ([f6f2ffd](https://github.com/hei-school/hei-admin-api/commit/f6f2ffd8c83833fdfdf0c704ee0d8c6635ddc291))
 * reject credit payment ([8497a7f](https://github.com/hei-school/hei-admin-api/commit/8497a7f713b82d0d514711c6b68ce8d35c0fb4e1))
-
-
-
-## [1.165.1](https://github.com/hei-school/hei-admin-api/compare/v1.165.0...v1.165.1) (2026-08-06)
-
-
-### Bug Fixes
-
-* pin axios version to 1.18.1 ([5e271d3](https://github.com/hei-school/hei-admin-api/commit/5e271d3aaf043f4838c6896e2bd557d8431f5717))
 
 
 
