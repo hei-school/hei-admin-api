@@ -1,3 +1,12 @@
+# [1.175.0](https://github.com/hei-school/hei-admin-api/compare/v1.174.0...v1.175.0) (2026-09-24)
+
+
+### Features
+
+* file generated fiches by year and level ([3de781e](https://github.com/hei-school/hei-admin-api/commit/3de781e7a4ab3d9da28676105b850da88960e852))
+
+
+
 # [1.174.0](https://github.com/hei-school/hei-admin-api/compare/v1.173.1...v1.174.0) (2026-09-24)
 
 
@@ -127,21 +136,6 @@
 ### Bug Fixes
 
 * pin axios version to 1.18.1 ([54199a6](https://github.com/hei-school/hei-admin-api/commit/54199a63f8b236a5b5d2bb41ba644f2deb9bf99d))
-
-
-
-# [1.166.0](https://github.com/hei-school/hei-admin-api/compare/v1.165.1...v1.166.0) (2026-08-11)
-
-
-### Bug Fixes
-
-* get student credit transactions ([a5f583e](https://github.com/hei-school/hei-admin-api/commit/a5f583ed88a402b1367a560ca843421dc19cd941))
-
-
-### Features
-
-* implement fees archiving and credit movement tracking ([f6f2ffd](https://github.com/hei-school/hei-admin-api/commit/f6f2ffd8c83833fdfdf0c704ee0d8c6635ddc291))
-* reject credit payment ([8497a7f](https://github.com/hei-school/hei-admin-api/commit/8497a7f713b82d0d514711c6b68ce8d35c0fb4e1))
 
 
 
