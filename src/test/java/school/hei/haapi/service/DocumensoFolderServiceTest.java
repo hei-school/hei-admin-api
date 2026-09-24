@@ -5,6 +5,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
@@ -77,7 +78,7 @@ class DocumensoFolderServiceTest {
     assertEquals("L3", subject.resolveFolderId(A_PATH));
 
     var created = ArgumentCaptor.forClass(CreateRemoteFolder.class);
-    verify(documensoClient, org.mockito.Mockito.times(3)).createFolder(created.capture());
+    verify(documensoClient, times(3)).createFolder(created.capture());
     var asked = created.getAllValues();
     assertEquals(DocumensoFolderService.ROOT_FOLDER_NAME, asked.get(0).name());
     assertEquals(null, asked.get(0).parentId(), "the root folder hangs off nothing");
@@ -101,7 +102,7 @@ class DocumensoFolderServiceTest {
     subject.resolveFolderId(A_PATH);
 
     var saved = ArgumentCaptor.forClass(DocumensoFolder.class);
-    verify(folderRepository, org.mockito.Mockito.times(3)).save(saved.capture());
+    verify(folderRepository, times(3)).save(saved.capture());
     assertEquals(
         List.of(
             "Fiches d'engagement",
