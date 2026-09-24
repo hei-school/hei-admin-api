@@ -6,6 +6,7 @@ import java.io.File;
 import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Objects;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -23,6 +24,9 @@ import school.hei.haapi.service.documenso.gen.model.TemplateGetTemplateById200Re
 
 public class DocumensoClient {
   private static final String DOWNLOAD_PATH = "/document/{documentId}/download";
+  private static final String FOLDER_PATH = "/folder";
+  private static final String FOLDER_CREATE_PATH = "/folder/create";
+  private static final int FOLDER_PAGE_SIZE = 100;
   private static final String[] API_KEY_AUTH = {"apiKey"};
   private static final String DOCUMENSO_FILENAME_PREFIX = "documenso-";
 
@@ -56,6 +60,65 @@ public class DocumensoClient {
 
   public DocumentGet200Response getDocument(long documentId) throws RestClientException {
     return documentApi.documentGet(BigDecimal.valueOf(documentId));
+  }
+
+  /**
+   * Lists the folders directly under {@code parentId}, or the root ones when it is null. Documenso
+   * has no folder endpoint in our generated client, so we drive the ApiClient ourselves, exactly as
+   * the download does.
+   */
+  public List<RemoteFolder> findFolders(String parentId, String type) throws RestClientException {
+    var queryParams = new LinkedMultiValueMap<String, String>();
+    queryParams.add("type", type);
+    queryParams.add("perPage", String.valueOf(FOLDER_PAGE_SIZE));
+    if (parentId != null) {
+      queryParams.add("parentId", parentId);
+    }
+
+    var page =
+        apiClient
+            .invokeAPI(
+                FOLDER_PATH,
+                HttpMethod.GET,
+                new HashMap<>(),
+                queryParams,
+                null,
+                new HttpHeaders(),
+                new LinkedMultiValueMap<>(),
+                new LinkedMultiValueMap<>(),
+                List.of(MediaType.APPLICATION_JSON),
+                null,
+                API_KEY_AUTH,
+                new ParameterizedTypeReference<RemoteFolderPage>() {})
+            .getBody();
+    if (page == null || page.getData() == null) {
+      return List.of();
+    }
+    /*
+     * Filtered on our side too: the parentId query is not documented as exclusive, and a listing
+     * that quietly returned the whole tree would have us reuse a folder from another branch.
+     */
+    return page.getData().stream()
+        .filter(folder -> Objects.equals(parentId, folder.getParentId()))
+        .toList();
+  }
+
+  public RemoteFolder createFolder(CreateRemoteFolder folder) throws RestClientException {
+    return apiClient
+        .invokeAPI(
+            FOLDER_CREATE_PATH,
+            HttpMethod.POST,
+            new HashMap<>(),
+            new LinkedMultiValueMap<>(),
+            folder,
+            new HttpHeaders(),
+            new LinkedMultiValueMap<>(),
+            new LinkedMultiValueMap<>(),
+            List.of(MediaType.APPLICATION_JSON),
+            MediaType.APPLICATION_JSON,
+            API_KEY_AUTH,
+            new ParameterizedTypeReference<RemoteFolder>() {})
+        .getBody();
   }
 
   public File downloadSignedDocument(long documentId) throws RestClientException {
