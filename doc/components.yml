@@ -2598,12 +2598,17 @@ components:
           $ref: '#/components/schemas/SmsContactOwnerRole'
     SmsContactOwnerRole:
       type: string
-      description: The role of an SmsContact's owner, for filtering and display.
+      description: >-
+        The role of an SmsContact's owner, for filtering and display — matches every User.Role
+        value, since a contact can now be auto-created for any enabled user regardless of role.
       enum:
+        - STAFF_MEMBER
         - ADMIN
         - MONITOR
         - STUDENT
+        - TEACHER
         - MANAGER
+        - ORGANIZER
     SmsContactGroup:
       type: object
       properties:

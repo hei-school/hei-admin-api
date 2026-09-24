@@ -1,0 +1,3 @@
+ALTER TYPE sms_contact_owner_role ADD VALUE IF NOT EXISTS 'STAFF_MEMBER';
+ALTER TYPE sms_contact_owner_role ADD VALUE IF NOT EXISTS 'TEACHER';
+ALTER TYPE sms_contact_owner_role ADD VALUE IF NOT EXISTS 'ORGANIZER';
