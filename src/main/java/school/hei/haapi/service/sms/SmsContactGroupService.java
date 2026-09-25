@@ -56,7 +56,7 @@ public class SmsContactGroupService {
         smsContactRepository
             .findById(contactId)
             .orElseThrow(() -> new NotFoundException("SMS contact " + contactId + " not found"));
-    if (group.getMembers().stream().noneMatch(m -> m.getId().equals(contactId))) {
+    if (group.getMembers().stream().noneMatch(member -> member.getId().equals(contactId))) {
       group.getMembers().add(contact);
       smsContactGroupRepository.save(group);
     }
@@ -65,7 +65,7 @@ public class SmsContactGroupService {
 
   public SmsContactGroup removeMember(String groupId, String contactId) {
     var group = getById(groupId);
-    group.getMembers().removeIf(m -> m.getId().equals(contactId));
+    group.getMembers().removeIf(member -> member.getId().equals(contactId));
     smsContactGroupRepository.save(group);
     return group;
   }

@@ -50,9 +50,9 @@ public class SmsContactDaoIT extends FacadeITMockedThirdParties {
     var result = smsContactDao.filterByCriteria(group.getId(), null, PageRequest.of(0, 10));
 
     assertEquals(2, result.size());
-    assertTrue(result.stream().anyMatch(c -> c.getId().equals(inGroup1.getId())));
-    assertTrue(result.stream().anyMatch(c -> c.getId().equals(inGroup2.getId())));
-    assertTrue(result.stream().noneMatch(c -> c.getId().equals(notInGroup.getId())));
+    assertTrue(result.stream().anyMatch(contact -> contact.getId().equals(inGroup1.getId())));
+    assertTrue(result.stream().anyMatch(contact -> contact.getId().equals(inGroup2.getId())));
+    assertTrue(result.stream().noneMatch(contact -> contact.getId().equals(notInGroup.getId())));
   }
 
   @Test

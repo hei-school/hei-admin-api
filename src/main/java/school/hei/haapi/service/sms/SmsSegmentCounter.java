@@ -37,7 +37,9 @@ public class SmsSegmentCounter {
   private boolean isGsm7(String message) {
     return message
         .chars()
-        .allMatch(c -> GSM7_BASIC.indexOf(c) >= 0 || GSM7_EXTENDED.contains((char) c));
+        .allMatch(
+            codePoint ->
+                GSM7_BASIC.indexOf(codePoint) >= 0 || GSM7_EXTENDED.contains((char) codePoint));
   }
 
   private int effectiveGsm7Length(String message) {

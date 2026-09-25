@@ -56,7 +56,8 @@ class SmsContactGroupServiceTest {
     var member = SmsContact.builder().id("c1").build();
     when(smsContactRepositoryMock.findAllByIdInAndIsDeletedFalse(List.of("c1")))
         .thenReturn(List.of(member));
-    when(smsContactGroupRepositoryMock.save(any())).thenAnswer(i -> i.getArgument(0));
+    when(smsContactGroupRepositoryMock.save(any()))
+        .thenAnswer(invocation -> invocation.getArgument(0));
 
     var created = subject.create(owner, "Promo 2026", List.of("c1"));
 
@@ -72,7 +73,8 @@ class SmsContactGroupServiceTest {
     var newMember = SmsContact.builder().id("c2").build();
     when(smsContactRepositoryMock.findAllByIdInAndIsDeletedFalse(List.of("c2")))
         .thenReturn(List.of(newMember));
-    when(smsContactGroupRepositoryMock.save(any())).thenAnswer(i -> i.getArgument(0));
+    when(smsContactGroupRepositoryMock.save(any()))
+        .thenAnswer(invocation -> invocation.getArgument(0));
 
     var updated = subject.update("g1", "New name", List.of("c2"));
 
@@ -85,7 +87,8 @@ class SmsContactGroupServiceTest {
     var member = SmsContact.builder().id("c1").build();
     var group = SmsContactGroup.builder().id("g1").owner(owner).members(List.of(member)).build();
     when(smsContactGroupRepositoryMock.findById("g1")).thenReturn(Optional.of(group));
-    when(smsContactGroupRepositoryMock.save(any())).thenAnswer(i -> i.getArgument(0));
+    when(smsContactGroupRepositoryMock.save(any()))
+        .thenAnswer(invocation -> invocation.getArgument(0));
 
     var deleted = subject.delete("g1");
 
@@ -106,7 +109,8 @@ class SmsContactGroupServiceTest {
     when(smsContactGroupRepositoryMock.findById("g1")).thenReturn(Optional.of(group));
     var toAdd = SmsContact.builder().id("c2").build();
     when(smsContactRepositoryMock.findById("c2")).thenReturn(Optional.of(toAdd));
-    when(smsContactGroupRepositoryMock.save(any())).thenAnswer(i -> i.getArgument(0));
+    when(smsContactGroupRepositoryMock.save(any()))
+        .thenAnswer(invocation -> invocation.getArgument(0));
 
     var result = subject.addMember("g1", "c2");
 
@@ -151,7 +155,8 @@ class SmsContactGroupServiceTest {
             .members(new ArrayList<>(List.of(member1, member2)))
             .build();
     when(smsContactGroupRepositoryMock.findById("g1")).thenReturn(Optional.of(group));
-    when(smsContactGroupRepositoryMock.save(any())).thenAnswer(i -> i.getArgument(0));
+    when(smsContactGroupRepositoryMock.save(any()))
+        .thenAnswer(invocation -> invocation.getArgument(0));
 
     var result = subject.removeMember("g1", "c1");
 

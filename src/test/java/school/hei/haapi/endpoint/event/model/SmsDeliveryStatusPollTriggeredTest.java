@@ -8,16 +8,17 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 
 class SmsDeliveryStatusPollTriggeredTest {
-  ObjectMapper om = new ObjectMapper();
+  ObjectMapper objectMapper = new ObjectMapper();
 
   @Test
   void sms_delivery_status_poll_triggered() throws JsonProcessingException {
     var event = new SmsDeliveryStatusPollTriggered();
 
-    var s = om.writeValueAsString(event);
-    var dese = om.readValue(s, SmsDeliveryStatusPollTriggered.class);
+    var serializedJson = objectMapper.writeValueAsString(event);
+    var deserializedEvent =
+        objectMapper.readValue(serializedJson, SmsDeliveryStatusPollTriggered.class);
 
-    assertEquals(event, dese);
+    assertEquals(event, deserializedEvent);
     assertEquals(ofMinutes(10), event.maxConsumerDuration());
     assertEquals(ofMinutes(1), event.maxConsumerBackoffBetweenRetries());
   }

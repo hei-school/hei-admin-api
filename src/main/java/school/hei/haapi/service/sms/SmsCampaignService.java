@@ -66,11 +66,11 @@ public class SmsCampaignService {
     var costed =
         resolved.recipients().stream()
             .map(
-                r ->
+                recipient ->
                     new CostedRecipient(
-                        r,
-                        r.isPersonalized()
-                            ? smsSegmentCounter.countSegments(r.personalizedMessage())
+                        recipient,
+                        recipient.isPersonalized()
+                            ? smsSegmentCounter.countSegments(recipient.personalizedMessage())
                             : sharedSegments))
             .toList();
 
@@ -90,7 +90,7 @@ public class SmsCampaignService {
     var manualNumbers =
         costed.stream()
             .map(CostedRecipient::recipient)
-            .filter(r -> r.source() == SmsRecipientSource.MANUAL_NUMBER)
+            .filter(recipient -> recipient.source() == SmsRecipientSource.MANUAL_NUMBER)
             .map(ResolvedRecipient::phoneNumber)
             .toList();
 
@@ -115,21 +115,21 @@ public class SmsCampaignService {
         smsContactRepository
             .findAllById(
                 affordable.stream()
-                    .map(c -> c.recipient().contactId())
+                    .map(costedRecipient -> costedRecipient.recipient().contactId())
                     .filter(Objects::nonNull)
                     .toList())
             .stream()
-            .collect(Collectors.toMap(SmsContact::getId, c -> c));
+            .collect(Collectors.toMap(SmsContact::getId, contact -> contact));
 
-    for (var c : affordable) {
+    for (var costedRecipient : affordable) {
       smsLogRepository.save(
           SmsLog.builder()
               .id(UUID.randomUUID().toString())
               .campaign(campaign)
-              .phoneNumber(c.recipient().phoneNumber())
-              .recipientSource(c.recipient().source())
-              .contact(contactsById.get(c.recipient().contactId()))
-              .personalizedMessage(c.recipient().personalizedMessage())
+              .phoneNumber(costedRecipient.recipient().phoneNumber())
+              .recipientSource(costedRecipient.recipient().source())
+              .contact(contactsById.get(costedRecipient.recipient().contactId()))
+              .personalizedMessage(costedRecipient.recipient().personalizedMessage())
               .build());
     }
 
@@ -141,12 +141,12 @@ public class SmsCampaignService {
   private List<CostedRecipient> takeAffordable(List<CostedRecipient> costed, int availableBalance) {
     var affordable = new ArrayList<CostedRecipient>();
     var runningCost = 0;
-    for (var c : costed) {
-      if (runningCost + c.segments() > availableBalance) {
+    for (var costedRecipient : costed) {
+      if (runningCost + costedRecipient.segments() > availableBalance) {
         break;
       }
-      runningCost += c.segments();
-      affordable.add(c);
+      runningCost += costedRecipient.segments();
+      affordable.add(costedRecipient);
     }
     return affordable;
   }

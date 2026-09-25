@@ -61,7 +61,7 @@ class SmsRecipientResolverTest {
     assertEquals(List.of(group), resolved.contactGroups());
     assertTrue(
         resolved.recipients().stream()
-            .allMatch(r -> r.source() == SmsRecipientSource.CONTACT_GROUP));
+            .allMatch(recipient -> recipient.source() == SmsRecipientSource.CONTACT_GROUP));
   }
 
   @Test
@@ -112,10 +112,12 @@ class SmsRecipientResolverTest {
     var resolved = subject.resolve(null, null, null, file, "numbers.xlsx");
 
     assertEquals(2, resolved.fileImportCount());
-    assertTrue(resolved.recipients().stream().allMatch(r -> r.personalizedMessage() == null));
     assertTrue(
         resolved.recipients().stream()
-            .allMatch(r -> r.source() == SmsRecipientSource.IMPORTED_FILE));
+            .allMatch(recipient -> recipient.personalizedMessage() == null));
+    assertTrue(
+        resolved.recipients().stream()
+            .allMatch(recipient -> recipient.source() == SmsRecipientSource.IMPORTED_FILE));
   }
 
   @Test
@@ -128,7 +130,7 @@ class SmsRecipientResolverTest {
     assertEquals(
         "Bonjour A",
         resolved.recipients().stream()
-            .filter(r -> r.phoneNumber().equals("321111111"))
+            .filter(recipient -> recipient.phoneNumber().equals("321111111"))
             .findFirst()
             .orElseThrow()
             .personalizedMessage());
