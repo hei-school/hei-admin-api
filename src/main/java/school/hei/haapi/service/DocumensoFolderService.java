@@ -4,8 +4,6 @@ import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 import school.hei.haapi.model.DocumensoFolder;
 import school.hei.haapi.repository.DocumensoFolderRepository;
 import school.hei.haapi.service.documenso.CreateRemoteFolder;
@@ -23,7 +21,6 @@ public class DocumensoFolderService {
   private final DocumensoClient documensoClient;
   private final DocumensoFolderRepository documensoFolderRepository;
 
-  @Transactional(propagation = Propagation.REQUIRES_NEW)
   public String resolveFolderId(List<String> segments) {
     String parentId = null;
     var walked = new StringBuilder();
@@ -48,16 +45,20 @@ public class DocumensoFolderService {
             .filter(folder -> name.equals(folder.getName()))
             .findFirst()
             .map(RemoteFolder::getId)
-            .orElseGet(
-                () -> {
-                  log.info("Creating Documenso folder {}", path);
-                  return documensoClient
-                      .createFolder(new CreateRemoteFolder(name, parentId, DOCUMENT_FOLDER_TYPE))
-                      .getId();
-                });
+            .orElseGet(() -> createRemote(path, name, parentId));
 
     documensoFolderRepository.save(
         DocumensoFolder.builder().path(path).documensoFolderId(remoteId).build());
     return remoteId;
+  }
+
+  private String createRemote(String path, String name, String parentId) {
+    log.info("Creating Documenso folder {}", path);
+    var created =
+        documensoClient.createFolder(new CreateRemoteFolder(name, parentId, DOCUMENT_FOLDER_TYPE));
+    if (created == null || created.getId() == null || created.getId().isBlank()) {
+      throw new IllegalStateException("Documenso created folder " + path + " without an id");
+    }
+    return created.getId();
   }
 }

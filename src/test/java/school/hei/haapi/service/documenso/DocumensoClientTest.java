@@ -9,6 +9,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpServer;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.net.InetSocketAddress;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -18,6 +19,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.web.client.RestClientException;
+import school.hei.haapi.service.documenso.gen.model.TemplateCreateDocumentFromTemplateRequest;
 
 class DocumensoClientTest {
   private static final byte[] A_PDF = "%PDF-1.7 signed".getBytes(StandardCharsets.UTF_8);
@@ -85,8 +87,6 @@ class DocumensoClientTest {
 
   @Test
   void only_the_folders_of_the_asked_parent_are_kept() {
-    /* the second one hangs off another branch: the API's parentId filter is not documented as
-     * exclusive, and reusing it would scatter the fiches */
     json =
         """
         {"data":[{"id":"f1","name":"L3","parentId":"year","type":"DOCUMENT"},
@@ -144,15 +144,11 @@ class DocumensoClientTest {
         """;
 
     subject().createFolder(new CreateRemoteFolder("Fiches", null, "DOCUMENT"));
-
-    /* Documenso refuses a null parentId, so the key has to be absent, not empty */
     assertFalse(receivedBody.contains("parentId"), receivedBody);
   }
 
   @Test
   void the_templates_of_a_folder_are_asked_for_by_folder() {
-    /* the generated findTemplates cannot pass a folderId, and Documenso then answers with the root
-     * only: a template filed in a folder would silently vanish from the sync */
     json =
         """
         {"data":[{"id":7,"title":"Fiche 2027 L3.pdf"}],"count":1}
@@ -174,5 +170,38 @@ class DocumensoClientTest {
         """;
 
     assertEquals(List.of(), subject().findTemplatesOfFolder("f1", 1, 100).getData());
+  }
+
+  private static TemplateCreateDocumentFromTemplateRequest aDocumentRequest() {
+    var request = new TemplateCreateDocumentFromTemplateRequest();
+    request.setTemplateId(BigDecimal.ONE);
+    request.setRecipients(List.of());
+    return request;
+  }
+
+  @Test
+  void a_document_filed_nowhere_leaves_the_folder_key_out_entirely() {
+    json =
+        """
+        {"id":1,"recipients":[]}
+        """;
+
+    subject().useTemplate(aDocumentRequest());
+
+    assertFalse(receivedBody.contains("folderId"), receivedBody);
+  }
+
+  @Test
+  void a_document_filed_in_a_folder_sends_that_folder() {
+    json =
+        """
+        {"id":1,"recipients":[]}
+        """;
+    var request = aDocumentRequest();
+    request.setFolderId("f1");
+
+    subject().useTemplate(request);
+
+    assertTrue(receivedBody.contains("\"folderId\":\"f1\""), receivedBody);
   }
 }

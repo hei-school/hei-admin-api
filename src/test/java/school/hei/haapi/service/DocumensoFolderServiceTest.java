@@ -1,6 +1,8 @@
 package school.hei.haapi.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
@@ -109,5 +111,17 @@ class DocumensoFolderServiceTest {
             "Fiches d'engagement/2026 - 2027",
             "Fiches d'engagement/2026 - 2027/L3"),
         saved.getAllValues().stream().map(DocumensoFolder::getPath).toList());
+  }
+
+  @Test
+  void a_folder_documenso_creates_without_an_id_is_refused_rather_than_remembered() {
+    givenNothingKnownLocally();
+    when(documensoClient.findFolders(any(), eq("DOCUMENT"))).thenReturn(List.of());
+    when(documensoClient.createFolder(any())).thenReturn(null);
+
+    var thrown = assertThrows(IllegalStateException.class, () -> subject.resolveFolderId(A_PATH));
+
+    assertTrue(thrown.getMessage().contains("without an id"), thrown.getMessage());
+    verify(folderRepository, never()).save(any());
   }
 }

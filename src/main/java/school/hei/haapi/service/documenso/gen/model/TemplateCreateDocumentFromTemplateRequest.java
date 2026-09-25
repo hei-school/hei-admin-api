@@ -151,15 +151,19 @@ public class TemplateCreateDocumentFromTemplateRequest implements Serializable {
    *
    * @return folderId
    */
+  /*
+   * NON_NULL, unlike its neighbours: Documenso accepts the key absent but rejects it null ("Expected
+   * string, received null"), which turned the fall-back to the root into a failed generation.
+   */
   @jakarta.annotation.Nullable
   @JsonProperty(JSON_PROPERTY_FOLDER_ID)
-  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  @JsonInclude(value = JsonInclude.Include.NON_NULL)
   public String getFolderId() {
     return folderId;
   }
 
   @JsonProperty(JSON_PROPERTY_FOLDER_ID)
-  @JsonInclude(value = JsonInclude.Include.USE_DEFAULTS)
+  @JsonInclude(value = JsonInclude.Include.NON_NULL)
   public void setFolderId(String folderId) {
     this.folderId = folderId;
   }
