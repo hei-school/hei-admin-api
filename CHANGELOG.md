@@ -1,3 +1,17 @@
+# [1.176.0](https://github.com/hei-school/hei-admin-api/compare/v1.175.0...v1.176.0) (2026-09-25)
+
+
+### Bug Fixes
+
+* remove unused status and send sms by file ([d33ab00](https://github.com/hei-school/hei-admin-api/commit/d33ab0008a4458ac9ae419ef8447d335dab54ba1))
+
+
+### Features
+
+* documenso folders ([1cb2d07](https://github.com/hei-school/hei-admin-api/commit/1cb2d07f46f062e6c98c787b9c029460ff321450))
+
+
+
 # [1.175.0](https://github.com/hei-school/hei-admin-api/compare/v1.174.0...v1.175.0) (2026-09-24)
 
 
@@ -127,15 +141,6 @@
 ### Features
 
 * documenso integration ([e5ad697](https://github.com/hei-school/hei-admin-api/commit/e5ad6972f73514bd163b9858fdb614a403edfffb))
-
-
-
-## [1.166.1](https://github.com/hei-school/hei-admin-api/compare/v1.166.0...v1.166.1) (2026-08-12)
-
-
-### Bug Fixes
-
-* pin axios version to 1.18.1 ([54199a6](https://github.com/hei-school/hei-admin-api/commit/54199a63f8b236a5b5d2bb41ba644f2deb9bf99d))
 
 
 
