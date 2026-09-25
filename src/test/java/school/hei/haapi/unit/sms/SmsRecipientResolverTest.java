@@ -79,13 +79,16 @@ class SmsRecipientResolverTest {
 
   @Test
   void normalizes_and_dedupes_manual_phone_numbers() {
-    var resolved =
-        subject.resolve(null, null, List.of("0321111111", "321111111", "12"), null, null);
+    var leadingZeroNumber = "0321111111";
+    var sameNumberWithoutLeadingZero = "321111111";
+    var tooShortToBeRealNumber = "12";
+    var manualPhoneNumbers =
+        List.of(leadingZeroNumber, sameNumberWithoutLeadingZero, tooShortToBeRealNumber);
 
-    // "0321111111" and "321111111" normalize to the same number -> deduplicated to one; "12" is
-    // too short to be a real number and is dropped.
+    var resolved = subject.resolve(null, null, manualPhoneNumbers, null, null);
+
     assertEquals(1, resolved.recipients().size());
-    assertEquals("321111111", resolved.recipients().get(0).phoneNumber());
+    assertEquals(sameNumberWithoutLeadingZero, resolved.recipients().get(0).phoneNumber());
     assertEquals(SmsRecipientSource.MANUAL_NUMBER, resolved.recipients().get(0).source());
   }
 

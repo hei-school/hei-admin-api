@@ -116,7 +116,6 @@ class SmsCampaignDispatchRequestedServiceTest {
 
     verify(befianaClientMock, times(1)).send("321111111", "Hi");
     verify(befianaClientMock, never()).sendBulk(anyList(), anyString());
-    // Checked right in the same dispatch flow via getDeliveryStatus, not by a later poll.
     verify(befianaClientMock, times(1)).getDeliveryStatus("cb1");
     assertEquals(SmsMessageStatus.DELIVERED, log.getStatus());
     assertEquals("cb1", log.getCallbackData());
@@ -157,7 +156,6 @@ class SmsCampaignDispatchRequestedServiceTest {
 
     subject.accept(new SmsCampaignDispatchRequested("campaign1"));
 
-    // The send itself went through -> not FAILED, just not confirmed yet.
     assertEquals(SmsMessageStatus.PENDING, log.getStatus());
     assertEquals(SmsCampaignStatus.DELIVERED, campaign.getStatus());
   }
@@ -181,8 +179,6 @@ class SmsCampaignDispatchRequestedServiceTest {
 
     verify(befianaClientMock, never()).send(anyString(), anyString());
     verify(befianaClientMock, times(1)).sendBulk(List.of("321111111", "321111112"), "Hi");
-    // BEFIANA gives no callbackData for bulk, so a successful submission is the only delivery
-    // signal we ever get for these recipients -> assumed delivered rather than left unknown.
     assertEquals(SmsMessageStatus.DELIVERED, log1.getStatus());
     assertEquals(SmsMessageStatus.DELIVERED, log2.getStatus());
     assertEquals(1, campaign.getSmsSegmentsEach());
@@ -238,14 +234,13 @@ class SmsCampaignDispatchRequestedServiceTest {
   @Test
   void
       balance_dropping_below_two_recipients_at_dispatch_time_falls_back_to_a_trackable_unitary_send() {
-    // Both recipients cost 1 segment each; a balance of 1 at dispatch time can only cover one of
-    // them -> the survivor becomes a lone shared recipient, which is sent trackably via /send/.
     var campaign = campaign("Hi", 2);
-    var log1 = sharedLog(campaign, "321111111");
-    var log2 = sharedLog(campaign, "321111112");
+    var affordableRecipientLog = sharedLog(campaign, "321111111");
+    var unaffordableRecipientLog = sharedLog(campaign, "321111112");
     when(smsCampaignRepositoryMock.findById("campaign1")).thenReturn(Optional.of(campaign));
-    stubLogs(campaign, List.of(log1, log2));
-    when(befianaClientMock.getBalance()).thenReturn(1);
+    stubLogs(campaign, List.of(affordableRecipientLog, unaffordableRecipientLog));
+    var balanceCoveringOnlyOneSegment = 1;
+    when(befianaClientMock.getBalance()).thenReturn(balanceCoveringOnlyOneSegment);
     when(smsLogRepositoryMock.countByCampaign_IdAndStatus("campaign1", SmsMessageStatus.FAILED))
         .thenReturn(0L);
     when(befianaClientMock.send("321111111", "Hi")).thenReturn(new BefianaSendResponse());
@@ -253,7 +248,7 @@ class SmsCampaignDispatchRequestedServiceTest {
 
     subject.accept(new SmsCampaignDispatchRequested("campaign1"));
 
-    verify(smsLogRepositoryMock).deleteAll(List.of(log2));
+    verify(smsLogRepositoryMock).deleteAll(List.of(unaffordableRecipientLog));
     assertEquals(1, campaign.getRecipientsRejectedForBalance());
     verify(befianaClientMock, times(1)).send("321111111", "Hi");
     assertEquals(SmsCampaignStatus.DELIVERED, campaign.getStatus());
@@ -283,7 +278,6 @@ class SmsCampaignDispatchRequestedServiceTest {
     assertEquals(SmsMessageStatus.FAILED, log2.getStatus());
     assertEquals(
         "BEFIANA call to /send/ failed: HTTP 400 - numéro invalide", log2.getFailureReason());
-    // one recipient still went through -> the campaign as a whole is not FAILED.
     assertEquals(SmsCampaignStatus.DELIVERED, campaign.getStatus());
     assertEquals(1, campaign.getFailedCount());
   }

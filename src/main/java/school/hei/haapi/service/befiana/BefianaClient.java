@@ -74,7 +74,7 @@ public class BefianaClient {
               BefianaDeliveryStatusResponse.class);
       return response.getBody();
     } catch (RestClientException e) {
-      throw wrap("BEFIANA get-delivery-status call failed", e);
+      throw toDetailedBefianaException("BEFIANA get-delivery-status call failed", e);
     }
   }
 
@@ -85,21 +85,16 @@ public class BefianaClient {
               baseUrl + path, method, new HttpEntity<>(body, headers()), responseType);
       return response.getBody();
     } catch (RestClientException e) {
-      throw wrap("BEFIANA call to " + path + " failed", e);
+      throw toDetailedBefianaException("BEFIANA call to " + path + " failed", e);
     }
   }
 
-  // BEFIANA's own error detail (HTTP status + response body) is far more useful than the generic
-  // RestClientException message when it's shown to an admin as an SmsLog/SmsCampaign failureReason.
-  private BefianaException wrap(String context, RestClientException e) {
+  private BefianaException toDetailedBefianaException(String context, RestClientException e) {
     if (e instanceof RestClientResponseException responseException) {
-      var detail =
-          context
-              + ": HTTP "
-              + responseException.getStatusCode().value()
-              + " - "
-              + responseException.getResponseBodyAsString();
-      return new BefianaException(detail, responseException.getStatusCode().value(), e);
+      var statusCode = responseException.getStatusCode().value();
+      var responseBody = responseException.getResponseBodyAsString();
+      var detailedMessage = context + ": HTTP " + statusCode + " - " + responseBody;
+      return new BefianaException(detailedMessage, statusCode, e);
     }
     return new BefianaException(context + ": " + e.getMessage(), null, e);
   }

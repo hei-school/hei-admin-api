@@ -37,15 +37,15 @@ class SmsLogMapperTest {
   @Test
   void a_bulk_sent_log_with_a_null_status_maps_to_null_not_a_default_value() {
     var campaign = SmsCampaign.builder().id("c1").status(SmsCampaignStatus.DELIVERED).build();
-    var log =
+    var bulkSentLogWithNoStatusOrCallbackDataYet =
         SmsLog.builder()
             .id("log1")
             .campaign(campaign)
             .phoneNumber("321111111")
             .recipientSource(school.hei.haapi.model.SmsRecipientSource.MANUAL_NUMBER)
-            .build(); // status/callbackData left null, as a real /sendbulk/ recipient would be
+            .build();
 
-    var rest = subject.toRest(log);
+    var rest = subject.toRest(bulkSentLogWithNoStatusOrCallbackDataYet);
 
     assertNull(rest.getStatus());
     assertNull(rest.getCallbackData());

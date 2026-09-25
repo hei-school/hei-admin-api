@@ -74,7 +74,6 @@ public class SmsCampaign implements Serializable {
 
   @Builder.Default private int fileImportCount = 0;
 
-  /** Internal-only: where the raw uploaded file was stored, for audit — not exposed via REST. */
   private String fileBucketKey;
 
   @Builder.Default private int recipientCount = 0;

@@ -24,12 +24,6 @@ import school.hei.haapi.repository.SmsContactGroupRepository;
 import school.hei.haapi.repository.SmsContactRepository;
 import school.hei.haapi.service.utils.excel.ExcelParser;
 
-/**
- * Merges every CrupdateSmsCampaign recipient source into one deduplicated list — see
- * doc/components.yml#CrupdateSmsCampaign. Resolution order (groups, then contactIds, then
- * manualPhoneNumbers, then file) is also the tie-break order for deduplication and, later, for
- * which recipients get cut off first if the balance can't cover everyone.
- */
 @Slf4j
 @org.springframework.stereotype.Component
 @AllArgsConstructor
@@ -42,11 +36,6 @@ public class SmsRecipientResolver {
   private final SmsContactGroupRepository smsContactGroupRepository;
   private final BucketComponent bucketComponent;
 
-  /**
-   * contactGroups/manuallySelectedContacts are the actual entities (not just ids) so
-   * SmsCampaignService can attach them directly to SmsCampaign's relations without a second fetch —
-   * see the sms_campaign_contact_group / sms_campaign_contact join tables.
-   */
   public record Resolved(
       List<ResolvedRecipient> recipients,
       List<SmsContactGroup> contactGroups,
@@ -182,8 +171,6 @@ public class SmsRecipientResolver {
                           .reason(entry.getValue().getMessage()))
               .toList();
 
-      // All-or-nothing: a single bad row blocks the whole file, so nothing is ever sent half-way —
-      // the client fixes every reported row and re-imports rather than resending just the rest.
       if (!rejectedRows.isEmpty()) {
         throw new SmsFileRowsRejectedException(rejectedRows);
       }

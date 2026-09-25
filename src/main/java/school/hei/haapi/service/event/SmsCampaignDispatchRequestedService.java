@@ -129,9 +129,6 @@ public class SmsCampaignDispatchRequestedService implements Consumer<SmsCampaign
     }
   }
 
-  // Called right in the same dispatch flow, not from a scheduled poll: unlike a bulk chunk, a
-  // unitary /send/ gives us a callbackData we can immediately re-check via /get-delivery-status/,
-  // so there is no need to wait for a separate cron to confirm it later.
   private SmsMessageStatus checkDeliveryStatus(String callbackData) {
     try {
       var status = befianaClient.getDeliveryStatus(callbackData);
@@ -168,10 +165,6 @@ public class SmsCampaignDispatchRequestedService implements Consumer<SmsCampaign
     var now = Instant.now();
     try {
       var response = befianaClient.sendBulk(numbers, campaign.getMessage());
-      // /sendbulk/ never returns a callbackData to poll later (see
-      // SmsDeliveryStatusPollTriggeredService),
-      // so a successful submission is the only delivery signal BEFIANA gives us for these
-      // recipients — treated as delivered rather than left unknown forever.
       chunk.forEach(
           l -> {
             l.setStatus(SmsMessageStatus.DELIVERED);
@@ -202,8 +195,6 @@ public class SmsCampaignDispatchRequestedService implements Consumer<SmsCampaign
     var failedCount =
         smsLogRepository.countByCampaign_IdAndStatus(campaign.getId(), SmsMessageStatus.FAILED);
     campaign.setFailedCount((int) failedCount);
-    // Bulk recipients are already DELIVERED above; personalized/unitary ones are only DELIVERED
-    // here if checkDeliveryStatus already confirmed them synchronously during sendUnitary.
     var deliveredCount =
         smsLogRepository.countByCampaign_IdAndStatus(campaign.getId(), SmsMessageStatus.DELIVERED);
     campaign.setDeliveredCount((int) deliveredCount);

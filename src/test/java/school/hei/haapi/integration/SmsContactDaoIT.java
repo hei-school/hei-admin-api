@@ -19,11 +19,6 @@ import school.hei.haapi.repository.SmsContactRepository;
 import school.hei.haapi.repository.UserRepository;
 import school.hei.haapi.repository.dao.SmsContactDao;
 
-/**
- * Real-DB check for filterByCriteria(contactGroupId, ...) — the unit test for this DAO mocks
- * EntityManager, so it never actually verifies the isMember(...) Criteria query is correct against
- * real join tables.
- */
 public class SmsContactDaoIT extends FacadeITMockedThirdParties {
   @Autowired private UserRepository userRepository;
   @Autowired private SmsContactRepository smsContactRepository;
@@ -33,10 +28,15 @@ public class SmsContactDaoIT extends FacadeITMockedThirdParties {
   @Test
   void filterByCriteria_by_group_id_returns_only_that_groups_members() {
     var groupOwner = userRepository.save(ManagerTestData.hasina());
-    var inGroup1 = smsContactRepository.save(aContact(userRepository.save(aUser()), "0321111111"));
-    var inGroup2 = smsContactRepository.save(aContact(userRepository.save(aUser()), "0321111112"));
+    var inGroup1 =
+        smsContactRepository.save(
+            aContact(userRepository.save(aUserWithUniqueOwnerId()), "0321111111"));
+    var inGroup2 =
+        smsContactRepository.save(
+            aContact(userRepository.save(aUserWithUniqueOwnerId()), "0321111112"));
     var notInGroup =
-        smsContactRepository.save(aContact(userRepository.save(aUser()), "0321111113"));
+        smsContactRepository.save(
+            aContact(userRepository.save(aUserWithUniqueOwnerId()), "0321111113"));
 
     var group =
         smsContactGroupRepository.save(
@@ -60,10 +60,16 @@ public class SmsContactDaoIT extends FacadeITMockedThirdParties {
     var groupOwner = userRepository.save(ManagerTestData.hasina());
     var student =
         smsContactRepository.save(
-            aContact(userRepository.save(aUser()), "0321111121", SmsContactOwnerRole.STUDENT));
+            aContact(
+                userRepository.save(aUserWithUniqueOwnerId()),
+                "0321111121",
+                SmsContactOwnerRole.STUDENT));
     var manager =
         smsContactRepository.save(
-            aContact(userRepository.save(aUser()), "0321111122", SmsContactOwnerRole.MANAGER));
+            aContact(
+                userRepository.save(aUserWithUniqueOwnerId()),
+                "0321111122",
+                SmsContactOwnerRole.MANAGER));
 
     var group =
         smsContactGroupRepository.save(
@@ -82,8 +88,7 @@ public class SmsContactDaoIT extends FacadeITMockedThirdParties {
     assertEquals(student.getId(), result.get(0).getId());
   }
 
-  // Each SmsContact needs its own distinct owner: sms_contact.owner_id is unique.
-  private User aUser() {
+  private User aUserWithUniqueOwnerId() {
     var id = UUID.randomUUID().toString();
     return User.builder()
         .id(id)
