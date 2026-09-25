@@ -18,7 +18,8 @@ public class SmsLogMapper {
         .contactId(domain.getContact() == null ? null : domain.getContact().getId())
         .sentDatetime(domain.getSentDatetime())
         .deliveredDatetime(domain.getDeliveredDatetime())
-        .callbackData(domain.getCallbackData());
+        .callbackData(domain.getCallbackData())
+        .failureReason(domain.getFailureReason());
   }
 
   public SmsMessageStatus toRest(school.hei.haapi.model.SmsMessageStatus domain) {

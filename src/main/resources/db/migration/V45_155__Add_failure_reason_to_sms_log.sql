@@ -1,0 +1,2 @@
+ALTER TABLE sms_log
+    ADD COLUMN IF NOT EXISTS failure_reason VARCHAR;

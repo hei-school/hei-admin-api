@@ -10,7 +10,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.time.Instant;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 import org.junit.jupiter.api.Test;
@@ -19,6 +19,7 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestTemplate;
 import school.hei.haapi.service.befiana.BefianaBalanceResponse;
@@ -44,11 +45,11 @@ class BefianaClientTest {
   }
 
   @Test
-  void send_without_sendAt_calls_the_immediate_endpoint_with_the_api_key_header() {
+  void send_calls_the_immediate_endpoint_with_the_api_key_header() {
     when(restTemplateMock.exchange(anyString(), any(), any(), eq(BefianaSendResponse.class)))
         .thenReturn(ResponseEntity.ok(new BefianaSendResponse()));
 
-    subject.send("321111111", "Hello", null);
+    subject.send("321111111", "Hello");
 
     var entity = captureRequestEntity("/api/smsko/v1/send/");
     assertEquals("my-api-key", entity.getHeaders().getFirst("Authorization"));
@@ -56,18 +57,6 @@ class BefianaClientTest {
     assertEquals("321111111", body.get("phone_number"));
     assertEquals("Hello", body.get("message"));
     assertTrue(!body.containsKey("send_at"));
-  }
-
-  @Test
-  void send_with_sendAt_calls_the_scheduled_endpoint_with_a_formatted_date() {
-    when(restTemplateMock.exchange(anyString(), any(), any(), eq(BefianaSendResponse.class)))
-        .thenReturn(ResponseEntity.ok(new BefianaSendResponse()));
-
-    subject.send("321111111", "Hello", Instant.parse("2026-07-06T20:05:00Z"));
-
-    var entity = captureRequestEntity("/api/smsko/v1/sendlater/");
-    var body = (Map<String, Object>) entity.getBody();
-    assertEquals("2026-07-06 23:05", body.get("send_at"));
   }
 
   @Test
@@ -80,29 +69,13 @@ class BefianaClientTest {
         .thenReturn(
             ResponseEntity.ok(new school.hei.haapi.service.befiana.BefianaSendBulkResponse()));
 
-    subject.sendBulk(List.of("321111111", "321111112"), "Hello all", null);
+    subject.sendBulk(List.of("321111111", "321111112"), "Hello all");
 
     var entity = captureRequestEntity("/api/smsko/v1/sendbulk/");
     var body = (Map<String, Object>) entity.getBody();
     assertEquals(List.of("321111111", "321111112"), body.get("phone_numbers"));
     assertEquals("Hello all", body.get("message"));
-  }
-
-  @Test
-  void sendBulk_with_sendAt_formats_the_given_date_instead_of_now() {
-    when(restTemplateMock.exchange(
-            anyString(),
-            any(),
-            any(),
-            eq(school.hei.haapi.service.befiana.BefianaSendBulkResponse.class)))
-        .thenReturn(
-            ResponseEntity.ok(new school.hei.haapi.service.befiana.BefianaSendBulkResponse()));
-
-    subject.sendBulk(List.of("321111111"), "Hello all", Instant.parse("2026-07-06T20:05:00Z"));
-
-    var entity = captureRequestEntity("/api/smsko/v1/sendbulk/");
-    var body = (Map<String, Object>) entity.getBody();
-    assertEquals("2026-07-06 23:05", body.get("send_at"));
+    assertTrue(body.containsKey("send_at"));
   }
 
   @Test
@@ -129,7 +102,26 @@ class BefianaClientTest {
     when(restTemplateMock.exchange(anyString(), any(), any(), eq(BefianaSendResponse.class)))
         .thenThrow(new HttpServerErrorException(HttpStatus.INTERNAL_SERVER_ERROR, "boom"));
 
-    assertThrows(BefianaException.class, () -> subject.send("321111111", "Hi", null));
+    assertThrows(BefianaException.class, () -> subject.send("321111111", "Hi"));
+  }
+
+  @Test
+  void a_rest_client_error_s_message_includes_the_http_status_and_befiana_s_response_body() {
+    var httpError =
+        HttpClientErrorException.create(
+            HttpStatus.BAD_REQUEST,
+            "Bad Request",
+            new org.springframework.http.HttpHeaders(),
+            "{\"message\":\"Solde insuffisant\"}".getBytes(StandardCharsets.UTF_8),
+            StandardCharsets.UTF_8);
+    when(restTemplateMock.exchange(anyString(), any(), any(), eq(BefianaSendResponse.class)))
+        .thenThrow(httpError);
+
+    var exception = assertThrows(BefianaException.class, () -> subject.send("321111111", "Hi"));
+
+    assertEquals(400, exception.getHttpStatus());
+    assertTrue(exception.getMessage().contains("400"));
+    assertTrue(exception.getMessage().contains("Solde insuffisant"));
   }
 
   @Test

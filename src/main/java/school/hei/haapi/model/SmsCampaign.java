@@ -85,8 +85,6 @@ public class SmsCampaign implements Serializable {
   private Integer smsSegmentsEach;
   private Integer creditsDebited;
 
-  private Instant sendAt;
-
   @ManyToOne
   @JoinColumn(name = "created_by_id")
   private User createdBy;

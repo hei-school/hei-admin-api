@@ -1,7 +1,6 @@
 package school.hei.haapi.service.sms;
 
 import java.io.File;
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -13,7 +12,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.transaction.annotation.Transactional;
 import school.hei.haapi.endpoint.event.EventProducer;
 import school.hei.haapi.endpoint.event.model.SmsCampaignDispatchRequested;
-import school.hei.haapi.endpoint.rest.model.SmsFileImportRejectedRow;
 import school.hei.haapi.model.SmsCampaign;
 import school.hei.haapi.model.SmsCampaignStatus;
 import school.hei.haapi.model.SmsContact;
@@ -43,7 +41,7 @@ public class SmsCampaignService {
 
   private record CostedRecipient(ResolvedRecipient recipient, int segments) {}
 
-  public record CreationResult(SmsCampaign campaign, List<SmsFileImportRejectedRow> rejectedRows) {}
+  public record CreationResult(SmsCampaign campaign) {}
 
   public record CreateSmsCampaignCommand(
       User createdBy,
@@ -52,8 +50,7 @@ public class SmsCampaignService {
       List<String> contactIds,
       List<String> manualPhoneNumbers,
       File file,
-      String originalFilename,
-      Instant sendAt) {}
+      String originalFilename) {}
 
   @Transactional
   public CreationResult createCampaign(CreateSmsCampaignCommand command) {
@@ -111,7 +108,6 @@ public class SmsCampaignService {
                 .recipientCount(costed.size())
                 .recipientsRejectedForBalance(costed.size() - affordable.size())
                 .smsSegmentsEach(sharedSegments)
-                .sendAt(command.sendAt())
                 .createdBy(command.createdBy())
                 .build());
 
@@ -137,12 +133,9 @@ public class SmsCampaignService {
               .build());
     }
 
-    var sendAt = command.sendAt();
-    if (sendAt == null || !sendAt.isAfter(Instant.now())) {
-      dispatchNow(campaign.getId());
-    }
+    dispatchNow(campaign.getId());
 
-    return new CreationResult(campaign, resolved.rejectedRows());
+    return new CreationResult(campaign);
   }
 
   private List<CostedRecipient> takeAffordable(List<CostedRecipient> costed, int availableBalance) {

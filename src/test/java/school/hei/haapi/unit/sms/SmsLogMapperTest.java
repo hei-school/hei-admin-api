@@ -67,4 +67,21 @@ class SmsLogMapperTest {
 
     assertEquals("contact1", subject.toRest(log).getContactId());
   }
+
+  @Test
+  void failure_reason_is_carried_through_for_a_failed_log() {
+    var campaign = SmsCampaign.builder().id("c1").status(SmsCampaignStatus.FAILED).build();
+    var log =
+        SmsLog.builder()
+            .id("log1")
+            .campaign(campaign)
+            .phoneNumber("321111111")
+            .status(school.hei.haapi.model.SmsMessageStatus.FAILED)
+            .failureReason("BEFIANA call to /send/ failed: HTTP 400 - numéro invalide")
+            .build();
+
+    assertEquals(
+        "BEFIANA call to /send/ failed: HTTP 400 - numéro invalide",
+        subject.toRest(log).getFailureReason());
+  }
 }

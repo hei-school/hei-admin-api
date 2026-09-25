@@ -19,6 +19,7 @@ import school.hei.haapi.model.SmsContactGroup;
 import school.hei.haapi.model.SmsRecipientSource;
 import school.hei.haapi.model.dto.SmsFileImportRowDto;
 import school.hei.haapi.model.exception.BadRequestException;
+import school.hei.haapi.model.exception.SmsFileRowsRejectedException;
 import school.hei.haapi.repository.SmsContactGroupRepository;
 import school.hei.haapi.repository.SmsContactRepository;
 import school.hei.haapi.service.utils.excel.ExcelParser;
@@ -51,7 +52,6 @@ public class SmsRecipientResolver {
       List<SmsContactGroup> contactGroups,
       List<SmsContact> manuallySelectedContacts,
       int fileImportCount,
-      List<SmsFileImportRejectedRow> rejectedRows,
       String fileBucketKey) {}
 
   public Resolved resolve(
@@ -78,7 +78,6 @@ public class SmsRecipientResolver {
         groups,
         manuallySelectedContacts,
         fileOutcome.count(),
-        fileOutcome.rejectedRows(),
         fileOutcome.bucketKey());
   }
 
@@ -133,13 +132,12 @@ public class SmsRecipientResolver {
     }
   }
 
-  private record FileOutcome(
-      int count, List<SmsFileImportRejectedRow> rejectedRows, String bucketKey) {}
+  private record FileOutcome(int count, String bucketKey) {}
 
   private FileOutcome addFile(
       File file, String originalFilename, LinkedHashMap<String, ResolvedRecipient> byPhoneNumber) {
     if (file == null) {
-      return new FileOutcome(0, List.of(), null);
+      return new FileOutcome(0, null);
     }
     try {
       var parser = new ExcelParser<>(SmsFileImportRowDto.class, SmsFileImportRowDto.getCellMap());
@@ -184,7 +182,13 @@ public class SmsRecipientResolver {
                           .reason(entry.getValue().getMessage()))
               .toList();
 
-      return new FileOutcome(addedCount, rejectedRows, bucketKey);
+      // All-or-nothing: a single bad row blocks the whole file, so nothing is ever sent half-way —
+      // the client fixes every reported row and re-imports rather than resending just the rest.
+      if (!rejectedRows.isEmpty()) {
+        throw new SmsFileRowsRejectedException(rejectedRows);
+      }
+
+      return new FileOutcome(addedCount, bucketKey);
     } catch (IOException e) {
       throw new BadRequestException("Fichier illisible : " + e.getMessage());
     }

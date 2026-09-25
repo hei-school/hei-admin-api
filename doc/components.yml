@@ -2678,17 +2678,43 @@ components:
         availableBalance: 320
         recipientCount: 452
         maxSendableRecipients: 320
+    SmsFileRowsRejectedAlert:
+      description: >-
+        400 body whenever createSmsCampaignByFile finds any unreadable row: still an Exception
+        (type + message) for generic handlers, plus the exact rejectedRows so the caller can
+        show precisely which lines to fix. All-or-nothing — nothing from the file is sent while
+        this is returned, so there's no partial recipientCount/rejectedRows split to reconcile.
+      allOf:
+        - $ref: '#/components/schemas/Exception'
+        - type: object
+          properties:
+            rejectedRows:
+              type: array
+              items:
+                $ref: '#/components/schemas/SmsFileImportRejectedRow'
+      example:
+        type: BadRequestException
+        message: >-
+          2 ligne(s) invalide(s) dans le fichier — aucun message n'a été envoyé, corrige le
+          fichier puis réimporte-le.
+        rejectedRows:
+          - row: 4
+            value: "abc"
+            reason: "Ligne 4 ignorée : format de numéro invalide"
+          - row: 9
+            value: ""
+            reason: "Ligne 9 ignorée : numéro manquant"
     SmsCampaignStatus:
       type: string
       description: >-
         The campaign's own send lifecycle, not a delivery outcome: CREATED right after the
-        request is accepted; PENDING while waiting for sendAt (a scheduled campaign) or while
-        /sendbulk/ chunks are actively being submitted; DELIVERED once every chunk has
-        been submitted successfully — meaning BEFIANA accepted and charged for it, not that every
-        recipient's phone actually received it (see SmsCampaign.deliveredCount/failedCount and
-        SmsLog.status for what is actually knowable per recipient); FAILED only when the send
-        call itself never went through for any recipient at all (e.g. balance ran out by the
-        time a scheduled campaign was due, or BEFIANA rejected the request) — see
+        request is accepted; PENDING from the moment dispatch starts (always immediately — there
+        is no scheduling) while requests are actively being submitted to BEFIANA; DELIVERED once
+        every request has gone out successfully — meaning BEFIANA accepted and charged for it,
+        not that every recipient's phone actually received it (see
+        SmsCampaign.deliveredCount/failedCount and SmsLog.status for what is actually knowable
+        per recipient); FAILED only when the send call itself never went through for any
+        recipient at all (e.g. insufficient balance, or BEFIANA rejected the request) — see
         SmsCampaign.failureReason. A campaign whose later chunks fail after earlier ones
         succeeded still ends up DELIVERED, with the failures showing up in failedCount instead.
       enum:
@@ -2735,11 +2761,11 @@ components:
         failureReason:
           type: string
           description: >-
-            Set only when status is FAILED — e.g. "Solde insuffisant au moment de l'envoi" for a
-            scheduled campaign whose balance ran out by sendAt, or BEFIANA's own error message if
-            the send call itself was rejected. Raises a Notification and e-mails the account's
-            admins (see createSmsCampaign) — same as a scheduled campaign that only partially
-            ran out of balance, just with a different message.
+            Set only when status is FAILED — e.g. "Solde insuffisant au moment de l'envoi" if
+            the balance ran out at dispatch time, or BEFIANA's own error message if the send
+            call itself was rejected. Raises a Notification and e-mails the account's admins
+            (see createSmsCampaign) — same wording as a campaign that only partially ran out
+            of balance.
         contactGroupIds:
           type: array
           items:
@@ -2812,12 +2838,6 @@ components:
             (recipientCount − recipientsRejectedForBalance) × smsSegmentsEach in practice, since
             the pre-send balance check accounts for segment count, not just a head count. Kept
             to reconcile against BEFIANA's own figure after the fact.
-        sendAt:
-          type: string
-          format: date-time
-          description: >-
-            When the campaign is scheduled to fire; null means immediately. ISO date-time — the
-            YYYY-MM-DD HH:mm format BEFIANA itself expects is a server-side conversion detail.
         createdById:
           type: string
         createdByRef:
@@ -2846,12 +2866,6 @@ components:
           items:
             type: string
           description: One or more existing contacts to include. At least one is required.
-        sendAt:
-          type: string
-          format: date-time
-          description: >-
-            ISO date-time, omitted to send now; converted to BEFIANA's own YYYY-MM-DD HH:mm
-            format server-side.
       required:
         - message
         - contactIds
@@ -2868,12 +2882,6 @@ components:
           items:
             type: string
           description: At least one number is required.
-        sendAt:
-          type: string
-          format: date-time
-          description: >-
-            ISO date-time, omitted to send now; converted to BEFIANA's own YYYY-MM-DD HH:mm
-            format server-side.
       required:
         - message
         - manualPhoneNumbers
@@ -2888,12 +2896,6 @@ components:
           items:
             type: string
           description: At least one group is required.
-        sendAt:
-          type: string
-          format: date-time
-          description: >-
-            ISO date-time, omitted to send now; converted to BEFIANA's own YYYY-MM-DD HH:mm
-            format server-side.
       required:
         - message
         - contactGroupIds
@@ -2902,10 +2904,10 @@ components:
       description: >-
         multipart/form-data — the one recipient source that genuinely needs a binary body, which
         is why it stays a separate endpoint from the other three (JSON) sources instead of a
-        single combined campaign endpoint. message and sendAt are query parameters on this
-        operation instead of body fields — the Lambda deployment's HTTP adapter cannot read a
-        text field placed in a multipart body (see createSmsCampaignByFile's description), so the
-        file is the only thing left in the body here.
+        single combined campaign endpoint. message is a query parameter on this operation instead
+        of a body field — the Lambda deployment's HTTP adapter cannot read a text field placed in
+        a multipart body (see createSmsCampaignByFile's description), so the file is the only
+        thing left in the body here.
       properties:
         file:
           type: string
@@ -2916,7 +2918,10 @@ components:
             recipient; two columns (phone number, then that row's own message) makes it
             personalized, and message is then not needed. A personalized row is sent one by one
             via /send/ (trackable — see SmsLog), unlike every other recipient sharing the
-            campaign's message.
+            campaign's message. All-or-nothing: if any row is unreadable (missing/malformed
+            number), the whole file is rejected and nothing is sent — see
+            createSmsCampaignByFile's 400 response (SmsFileRowsRejectedAlert) for the exact rows
+            to fix.
       required:
         - file
     SmsCampaignLaunched:
@@ -2929,14 +2934,7 @@ components:
           type: string
         recipientCount:
           type: integer
-          description: Recipients accepted across every source, after de-duplication and file-row validation.
-        recipientsRejected:
-          type: integer
-          description: Rows from file that were unreadable (missing/malformed number), if a file was given.
-        rejectedRows:
-          type: array
-          items:
-            $ref: '#/components/schemas/SmsFileImportRejectedRow'
+          description: Recipients accepted across every source, after de-duplication.
         recipientsRejectedForBalance:
           type: integer
           description: See SmsCampaign.recipientsRejectedForBalance — nonzero only if balance covered some but not all recipients.
@@ -2983,9 +2981,15 @@ components:
         callbackData:
           type: string
           description: >-
-            BEFIANA's identifier for this SMS. Polled individually via GET
-            /get-delivery-status/?callback_data=... to fill in status/deliveredDatetime — see
+            BEFIANA's identifier for this SMS. Checked right after sending (GET
+            /get-delivery-status/?callback_data=...) to fill in status/deliveredDatetime — see
             SmsMessageStatus.
+        failureReason:
+          type: string
+          description: >-
+            Set only when status is FAILED — BEFIANA's own error detail for this recipient (or
+            this recipient's /sendbulk/ chunk, shared across every recipient in that chunk),
+            not a generic message.
     SmsFileImportRejectedRow:
       type: object
       properties:
@@ -3003,10 +3007,6 @@ components:
       properties:
         message:
           type: string
-        sendAt:
-          type: string
-          format: date-time
-          description: Same as CrupdateSmsCampaignByContacts.sendAt — omitted means immediately.
       required:
         - message
     NotificationResolutionStatus:

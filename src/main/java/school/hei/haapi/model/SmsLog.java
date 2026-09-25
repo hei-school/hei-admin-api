@@ -55,4 +55,6 @@ public class SmsLog implements Serializable {
   private String callbackData;
 
   private String personalizedMessage;
+
+  private String failureReason;
 }

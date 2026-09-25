@@ -60,7 +60,7 @@ class SmsCampaignControllerTest {
 
   @Test
   void creates_a_campaign_by_contacts() {
-    var result = new SmsCampaignService.CreationResult(campaignResult(), List.of());
+    var result = new SmsCampaignService.CreationResult(campaignResult());
     when(smsCampaignServiceMock.createCampaign(any(CreateSmsCampaignCommand.class)))
         .thenReturn(result);
     var crupdate = new CrupdateSmsCampaignByContacts().message("Hello").contactIds(List.of("c1"));
@@ -71,13 +71,13 @@ class SmsCampaignControllerTest {
     verify(smsCampaignServiceMock)
         .createCampaign(
             new CreateSmsCampaignCommand(
-                principal.getUser(), "Hello", null, List.of("c1"), null, null, null, null));
+                principal.getUser(), "Hello", null, List.of("c1"), null, null, null));
     verify(fileConverterMock, never()).apply(any());
   }
 
   @Test
   void creates_a_campaign_by_manual_numbers() {
-    var result = new SmsCampaignService.CreationResult(campaignResult(), List.of());
+    var result = new SmsCampaignService.CreationResult(campaignResult());
     when(smsCampaignServiceMock.createCampaign(any(CreateSmsCampaignCommand.class)))
         .thenReturn(result);
     var crupdate =
@@ -91,12 +91,12 @@ class SmsCampaignControllerTest {
     verify(smsCampaignServiceMock)
         .createCampaign(
             new CreateSmsCampaignCommand(
-                principal.getUser(), "Hello", null, null, List.of("321111111"), null, null, null));
+                principal.getUser(), "Hello", null, null, List.of("321111111"), null, null));
   }
 
   @Test
   void creates_a_campaign_by_groups() {
-    var result = new SmsCampaignService.CreationResult(campaignResult(), List.of());
+    var result = new SmsCampaignService.CreationResult(campaignResult());
     when(smsCampaignServiceMock.createCampaign(any(CreateSmsCampaignCommand.class)))
         .thenReturn(result);
     var crupdate =
@@ -108,12 +108,12 @@ class SmsCampaignControllerTest {
     verify(smsCampaignServiceMock)
         .createCampaign(
             new CreateSmsCampaignCommand(
-                principal.getUser(), "Hello", List.of("g1"), null, null, null, null, null));
+                principal.getUser(), "Hello", List.of("g1"), null, null, null, null));
   }
 
   @Test
   void creates_a_campaign_from_a_file() {
-    var result = new SmsCampaignService.CreationResult(campaignResult(), List.of());
+    var result = new SmsCampaignService.CreationResult(campaignResult());
     when(smsCampaignServiceMock.createCampaign(any(CreateSmsCampaignCommand.class)))
         .thenReturn(result);
     var multipartFile =
@@ -121,12 +121,12 @@ class SmsCampaignControllerTest {
     var convertedFile = mock(File.class);
     when(fileConverterMock.apply(multipartFile)).thenReturn(convertedFile);
 
-    subject.createSmsCampaignByFile(null, multipartFile, null, principal);
+    subject.createSmsCampaignByFile(null, multipartFile, principal);
 
     verify(smsCampaignServiceMock)
         .createCampaign(
             new CreateSmsCampaignCommand(
-                principal.getUser(), null, null, null, null, convertedFile, "numbers.xlsx", null));
+                principal.getUser(), null, null, null, null, convertedFile, "numbers.xlsx"));
   }
 
   @Test

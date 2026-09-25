@@ -106,8 +106,8 @@ operations:
       summary: Send an SMS to a single contact
       description: >
         A shortcut for a 1-recipient campaign: same balance check and background send as
-        the bulk flows, trackable afterwards via getSmsCampaignById/getSmsCampaignLogs.
-        sendAt is optional — omit it to send right away, or schedule it like any other campaign.
+        the bulk flows, trackable afterwards via getSmsCampaignById/getSmsCampaignLogs. Always
+        sent right away — there is no scheduling.
       operationId: sendSmsMessageToContact
       parameters:
         - name: id
@@ -421,12 +421,12 @@ operations:
       description: >
         Cost (recipients × segments) is checked against balance: if it can't cover even one
         recipient, it 400s and creates nothing; if it covers some, the campaign is created and
-        sent to those it can, the rest counted separately. For scheduled campaigns, that check
-        reruns right before dispatch and can notify admins instead of blocking. Sending then
-        happens in the background: a single recipient goes through `/send/` (trackable), several
-        through `/sendbulk/` (delivery not trackable, except outright BEFIANA rejections which do
-        mark a real failure). The campaign ends up `FAILED` only if no recipient was attempted at
-        all; otherwise `DELIVERED`, with failures tracked separately.
+        sent to those it can, the rest counted separately. Always sent right away — there is no
+        scheduling. Sending happens in the background: a single recipient goes through `/send/`
+        (trackable), several through `/sendbulk/` (delivery not trackable, except outright
+        BEFIANA rejections which do mark a real failure). The campaign ends up `FAILED` only if
+        no recipient was attempted at all; otherwise `DELIVERED`, with failures tracked
+        separately.
       operationId: createSmsCampaignByContacts
       requestBody:
         required: true
@@ -523,12 +523,13 @@ operations:
       summary: Launch an SMS campaign from an uploaded contacts file
       description: >
         Its own endpoint, separate from the other recipient sources, because it's the only one
-        that needs a multipart/form-data body — see CrupdateSmsCampaignByFile. message and sendAt
-        are query parameters, not body fields: the Lambda deployment's HTTP adapter cannot read a
+        that needs a multipart/form-data body — see CrupdateSmsCampaignByFile. message is a
+        query parameter, not a body field: the Lambda deployment's HTTP adapter cannot read a
         text field placed inside a multipart body (it only reads the query string and
         application/x-www-form-urlencoded bodies), so anything other than the file itself has to
         travel as a query parameter here. Same cost/balance/dispatch behavior as
-        createSmsCampaignByContacts otherwise.
+        createSmsCampaignByContacts otherwise, plus an all-or-nothing check on the file's own
+        rows — see CrupdateSmsCampaignByFile.file and the 400 response below.
       operationId: createSmsCampaignByFile
       parameters:
         - name: message
@@ -539,15 +540,6 @@ operations:
             personalized (two columns) — see CrupdateSmsCampaignByFile.file.
           schema:
             type: string
-        - name: sendAt
-          in: query
-          required: false
-          description: >-
-            ISO date-time, omitted to send now; converted to BEFIANA's own YYYY-MM-DD HH:mm
-            format server-side.
-          schema:
-            type: string
-            format: date-time
       requestBody:
         required: true
         content:
@@ -563,11 +555,14 @@ operations:
                 $ref: '../components.yml#/components/schemas/SmsCampaignLaunched'
         '400':
           description: >
-            Bad request, including insufficient balance — see SmsInsufficientBalanceAlert
+            Bad request. Shown here: one or more unreadable file rows, none of which are ever
+            sent (SmsFileRowsRejectedAlert) — the file-specific failure mode. Insufficient
+            balance can also 400 here with SmsInsufficientBalanceAlert's shape instead, same as
+            every other createSmsCampaignBy* operation.
           content:
             application/json:
               schema:
-                $ref: '../components.yml#/components/schemas/SmsInsufficientBalanceAlert'
+                $ref: '../components.yml#/components/schemas/SmsFileRowsRejectedAlert'
         '403':
           $ref: '../components.yml#/components/responses/403'
         '500':

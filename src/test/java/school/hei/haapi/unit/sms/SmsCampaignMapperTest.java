@@ -65,7 +65,7 @@ class SmsCampaignMapperTest {
   }
 
   @Test
-  void launched_response_bundles_the_rejected_rows_and_campaign_totals() {
+  void launched_response_bundles_the_campaign_totals() {
     var campaign =
         school.hei.haapi.model.SmsCampaign.builder()
             .id("campaign1")
@@ -75,19 +75,11 @@ class SmsCampaignMapperTest {
             .smsSegmentsEach(2)
             .creditsDebited(10)
             .build();
-    var rejectedRows =
-        java.util.List.of(
-            new school.hei.haapi.endpoint.rest.model.SmsFileImportRejectedRow()
-                .row(3)
-                .value("0321")
-                .reason("too short"));
 
-    var launched = subject.toLaunched(campaign, rejectedRows);
+    var launched = subject.toLaunched(campaign);
 
     assertEquals("campaign1", launched.getCampaignId());
     assertEquals(5, launched.getRecipientCount());
-    assertEquals(1, launched.getRecipientsRejected());
-    assertEquals(rejectedRows, launched.getRejectedRows());
     assertEquals(1, launched.getRecipientsRejectedForBalance());
     assertEquals(2, launched.getSmsSegmentsEach());
     assertEquals(10, launched.getCreditsDebited());

@@ -1,11 +1,9 @@
 package school.hei.haapi.endpoint.rest.mapper;
 
-import java.util.List;
 import org.springframework.stereotype.Component;
 import school.hei.haapi.endpoint.rest.model.SmsCampaign;
 import school.hei.haapi.endpoint.rest.model.SmsCampaignLaunched;
 import school.hei.haapi.endpoint.rest.model.SmsCampaignStatus;
-import school.hei.haapi.endpoint.rest.model.SmsFileImportRejectedRow;
 import school.hei.haapi.model.SmsContactGroup;
 
 @Component
@@ -30,7 +28,6 @@ public class SmsCampaignMapper {
         .failedCount(domain.getFailedCount())
         .smsSegmentsEach(domain.getSmsSegmentsEach())
         .creditsDebited(domain.getCreditsDebited())
-        .sendAt(domain.getSendAt())
         .createdById(domain.getCreatedBy() == null ? null : domain.getCreatedBy().getId())
         .createdByRef(domain.getCreatedBy() == null ? null : domain.getCreatedBy().getRef())
         .createdByFirstName(
@@ -38,13 +35,10 @@ public class SmsCampaignMapper {
         .creationDatetime(domain.getCreationDatetime());
   }
 
-  public SmsCampaignLaunched toLaunched(
-      school.hei.haapi.model.SmsCampaign domain, List<SmsFileImportRejectedRow> rejectedRows) {
+  public SmsCampaignLaunched toLaunched(school.hei.haapi.model.SmsCampaign domain) {
     return new SmsCampaignLaunched()
         .campaignId(domain.getId())
         .recipientCount(domain.getRecipientCount())
-        .recipientsRejected(rejectedRows.size())
-        .rejectedRows(rejectedRows)
         .recipientsRejectedForBalance(domain.getRecipientsRejectedForBalance())
         .smsSegmentsEach(domain.getSmsSegmentsEach())
         .creditsDebited(domain.getCreditsDebited())

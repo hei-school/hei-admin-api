@@ -11,6 +11,7 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.web.client.RestClientException;
+import org.springframework.web.client.RestClientResponseException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -29,19 +30,12 @@ public class BefianaClient {
     this.apiKey = apiKey;
   }
 
-  public BefianaSendResponse send(String phoneNumber, String message, Instant sendAt) {
-    var path = sendAt == null ? "/api/smsko/v1/send/" : "/api/smsko/v1/sendlater/";
-    var body = new java.util.HashMap<String, Object>();
-    body.put("phone_number", phoneNumber);
-    body.put("message", message);
-    if (sendAt != null) {
-      body.put("send_at", SEND_AT_FORMAT.format(sendAt));
-    }
-    return exchange(path, HttpMethod.POST, body, BefianaSendResponse.class);
+  public BefianaSendResponse send(String phoneNumber, String message) {
+    var body = Map.of("phone_number", phoneNumber, "message", message);
+    return exchange("/api/smsko/v1/send/", HttpMethod.POST, body, BefianaSendResponse.class);
   }
 
-  public BefianaSendBulkResponse sendBulk(
-      List<String> phoneNumbers, String message, Instant sendAt) {
+  public BefianaSendBulkResponse sendBulk(List<String> phoneNumbers, String message) {
     var body =
         Map.of(
             "phone_numbers",
@@ -49,7 +43,7 @@ public class BefianaClient {
             "message",
             message,
             "send_at",
-            SEND_AT_FORMAT.format(sendAt == null ? Instant.now() : sendAt));
+            SEND_AT_FORMAT.format(Instant.now()));
     return exchange(
         "/api/smsko/v1/sendbulk/", HttpMethod.POST, body, BefianaSendBulkResponse.class);
   }
@@ -80,7 +74,7 @@ public class BefianaClient {
               BefianaDeliveryStatusResponse.class);
       return response.getBody();
     } catch (RestClientException e) {
-      throw new BefianaException("BEFIANA get-delivery-status call failed", null, e);
+      throw wrap("BEFIANA get-delivery-status call failed", e);
     }
   }
 
@@ -91,8 +85,23 @@ public class BefianaClient {
               baseUrl + path, method, new HttpEntity<>(body, headers()), responseType);
       return response.getBody();
     } catch (RestClientException e) {
-      throw new BefianaException("BEFIANA call to " + path + " failed", null, e);
+      throw wrap("BEFIANA call to " + path + " failed", e);
     }
+  }
+
+  // BEFIANA's own error detail (HTTP status + response body) is far more useful than the generic
+  // RestClientException message when it's shown to an admin as an SmsLog/SmsCampaign failureReason.
+  private BefianaException wrap(String context, RestClientException e) {
+    if (e instanceof RestClientResponseException responseException) {
+      var detail =
+          context
+              + ": HTTP "
+              + responseException.getStatusCode().value()
+              + " - "
+              + responseException.getResponseBodyAsString();
+      return new BefianaException(detail, responseException.getStatusCode().value(), e);
+    }
+    return new BefianaException(context + ": " + e.getMessage(), null, e);
   }
 
   private HttpHeaders headers() {

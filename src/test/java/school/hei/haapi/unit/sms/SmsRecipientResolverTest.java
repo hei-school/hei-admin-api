@@ -21,6 +21,7 @@ import school.hei.haapi.model.SmsContact;
 import school.hei.haapi.model.SmsContactGroup;
 import school.hei.haapi.model.SmsRecipientSource;
 import school.hei.haapi.model.exception.BadRequestException;
+import school.hei.haapi.model.exception.SmsFileRowsRejectedException;
 import school.hei.haapi.repository.SmsContactGroupRepository;
 import school.hei.haapi.repository.SmsContactRepository;
 import school.hei.haapi.service.sms.SmsRecipientResolver;
@@ -131,13 +132,16 @@ class SmsRecipientResolverTest {
   }
 
   @Test
-  void invalid_file_rows_are_reported_without_blocking_the_valid_ones() throws IOException {
+  void a_single_invalid_file_row_blocks_the_whole_file_all_or_nothing() throws IOException {
     var file = xlsxWithRawFirstColumn(List.of("321111111", "not-a-number"));
 
-    var resolved = subject.resolve(null, null, null, file, "mixed.xlsx");
+    var exception =
+        assertThrows(
+            SmsFileRowsRejectedException.class,
+            () -> subject.resolve(null, null, null, file, "mixed.xlsx"));
 
-    assertEquals(1, resolved.recipients().size());
-    assertEquals(1, resolved.rejectedRows().size());
+    assertEquals(1, exception.getRejectedRows().size());
+    assertEquals(1, exception.getRejectedRows().get(0).getRow());
   }
 
   @Test

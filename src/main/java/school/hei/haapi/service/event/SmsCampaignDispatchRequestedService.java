@@ -107,7 +107,7 @@ public class SmsCampaignDispatchRequestedService implements Consumer<SmsCampaign
 
   private boolean sendUnitary(SmsLog l, String message) {
     try {
-      var response = befianaClient.send(l.getPhoneNumber(), message, null);
+      var response = befianaClient.send(l.getPhoneNumber(), message);
       l.setCallbackData(response.getCallbackData());
       l.setSentDatetime(Instant.now());
       l.setStatus(checkDeliveryStatus(response.getCallbackData()));
@@ -123,6 +123,7 @@ public class SmsCampaignDispatchRequestedService implements Consumer<SmsCampaign
           e.getMessage());
       l.setStatus(SmsMessageStatus.FAILED);
       l.setSentDatetime(Instant.now());
+      l.setFailureReason(e.getMessage());
       smsLogRepository.save(l);
       return false;
     }
@@ -166,7 +167,7 @@ public class SmsCampaignDispatchRequestedService implements Consumer<SmsCampaign
     var numbers = chunk.stream().map(SmsLog::getPhoneNumber).toList();
     var now = Instant.now();
     try {
-      var response = befianaClient.sendBulk(numbers, campaign.getMessage(), null);
+      var response = befianaClient.sendBulk(numbers, campaign.getMessage());
       // /sendbulk/ never returns a callbackData to poll later (see
       // SmsDeliveryStatusPollTriggeredService),
       // so a successful submission is the only delivery signal BEFIANA gives us for these
@@ -190,6 +191,7 @@ public class SmsCampaignDispatchRequestedService implements Consumer<SmsCampaign
           l -> {
             l.setStatus(SmsMessageStatus.FAILED);
             l.setSentDatetime(now);
+            l.setFailureReason(e.getMessage());
           });
       smsLogRepository.saveAll(chunk);
       return false;
@@ -200,9 +202,8 @@ public class SmsCampaignDispatchRequestedService implements Consumer<SmsCampaign
     var failedCount =
         smsLogRepository.countByCampaign_IdAndStatus(campaign.getId(), SmsMessageStatus.FAILED);
     campaign.setFailedCount((int) failedCount);
-    // Counts bulk recipients (already DELIVERED above) immediately; personalized/unitary ones
-    // stay PENDING here and only get counted once SmsDeliveryStatusPollTriggeredService confirms
-    // them.
+    // Bulk recipients are already DELIVERED above; personalized/unitary ones are only DELIVERED
+    // here if checkDeliveryStatus already confirmed them synchronously during sendUnitary.
     var deliveredCount =
         smsLogRepository.countByCampaign_IdAndStatus(campaign.getId(), SmsMessageStatus.DELIVERED);
     campaign.setDeliveredCount((int) deliveredCount);
