@@ -1,7 +1,6 @@
 package school.hei.haapi.service.sms;
 
 import java.io.File;
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -13,7 +12,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.transaction.annotation.Transactional;
 import school.hei.haapi.endpoint.event.EventProducer;
 import school.hei.haapi.endpoint.event.model.SmsCampaignDispatchRequested;
-import school.hei.haapi.endpoint.rest.model.SmsFileImportRejectedRow;
 import school.hei.haapi.model.SmsCampaign;
 import school.hei.haapi.model.SmsCampaignStatus;
 import school.hei.haapi.model.SmsContact;
@@ -43,7 +41,7 @@ public class SmsCampaignService {
 
   private record CostedRecipient(ResolvedRecipient recipient, int segments) {}
 
-  public record CreationResult(SmsCampaign campaign, List<SmsFileImportRejectedRow> rejectedRows) {}
+  public record CreationResult(SmsCampaign campaign) {}
 
   public record CreateSmsCampaignCommand(
       User createdBy,
@@ -52,8 +50,7 @@ public class SmsCampaignService {
       List<String> contactIds,
       List<String> manualPhoneNumbers,
       File file,
-      String originalFilename,
-      Instant sendAt) {}
+      String originalFilename) {}
 
   @Transactional
   public CreationResult createCampaign(CreateSmsCampaignCommand command) {
@@ -69,11 +66,11 @@ public class SmsCampaignService {
     var costed =
         resolved.recipients().stream()
             .map(
-                r ->
+                recipient ->
                     new CostedRecipient(
-                        r,
-                        r.isPersonalized()
-                            ? smsSegmentCounter.countSegments(r.personalizedMessage())
+                        recipient,
+                        recipient.isPersonalized()
+                            ? smsSegmentCounter.countSegments(recipient.personalizedMessage())
                             : sharedSegments))
             .toList();
 
@@ -93,7 +90,7 @@ public class SmsCampaignService {
     var manualNumbers =
         costed.stream()
             .map(CostedRecipient::recipient)
-            .filter(r -> r.source() == SmsRecipientSource.MANUAL_NUMBER)
+            .filter(recipient -> recipient.source() == SmsRecipientSource.MANUAL_NUMBER)
             .map(ResolvedRecipient::phoneNumber)
             .toList();
 
@@ -111,7 +108,6 @@ public class SmsCampaignService {
                 .recipientCount(costed.size())
                 .recipientsRejectedForBalance(costed.size() - affordable.size())
                 .smsSegmentsEach(sharedSegments)
-                .sendAt(command.sendAt())
                 .createdBy(command.createdBy())
                 .build());
 
@@ -119,41 +115,38 @@ public class SmsCampaignService {
         smsContactRepository
             .findAllById(
                 affordable.stream()
-                    .map(c -> c.recipient().contactId())
+                    .map(costedRecipient -> costedRecipient.recipient().contactId())
                     .filter(Objects::nonNull)
                     .toList())
             .stream()
-            .collect(Collectors.toMap(SmsContact::getId, c -> c));
+            .collect(Collectors.toMap(SmsContact::getId, contact -> contact));
 
-    for (var c : affordable) {
+    for (var costedRecipient : affordable) {
       smsLogRepository.save(
           SmsLog.builder()
               .id(UUID.randomUUID().toString())
               .campaign(campaign)
-              .phoneNumber(c.recipient().phoneNumber())
-              .recipientSource(c.recipient().source())
-              .contact(contactsById.get(c.recipient().contactId()))
-              .personalizedMessage(c.recipient().personalizedMessage())
+              .phoneNumber(costedRecipient.recipient().phoneNumber())
+              .recipientSource(costedRecipient.recipient().source())
+              .contact(contactsById.get(costedRecipient.recipient().contactId()))
+              .personalizedMessage(costedRecipient.recipient().personalizedMessage())
               .build());
     }
 
-    var sendAt = command.sendAt();
-    if (sendAt == null || !sendAt.isAfter(Instant.now())) {
-      dispatchNow(campaign.getId());
-    }
+    dispatchNow(campaign.getId());
 
-    return new CreationResult(campaign, resolved.rejectedRows());
+    return new CreationResult(campaign);
   }
 
   private List<CostedRecipient> takeAffordable(List<CostedRecipient> costed, int availableBalance) {
     var affordable = new ArrayList<CostedRecipient>();
     var runningCost = 0;
-    for (var c : costed) {
-      if (runningCost + c.segments() > availableBalance) {
+    for (var costedRecipient : costed) {
+      if (runningCost + costedRecipient.segments() > availableBalance) {
         break;
       }
-      runningCost += c.segments();
-      affordable.add(c);
+      runningCost += costedRecipient.segments();
+      affordable.add(costedRecipient);
     }
     return affordable;
   }

@@ -19,16 +19,11 @@ import school.hei.haapi.model.SmsContactGroup;
 import school.hei.haapi.model.SmsRecipientSource;
 import school.hei.haapi.model.dto.SmsFileImportRowDto;
 import school.hei.haapi.model.exception.BadRequestException;
+import school.hei.haapi.model.exception.SmsFileRowsRejectedException;
 import school.hei.haapi.repository.SmsContactGroupRepository;
 import school.hei.haapi.repository.SmsContactRepository;
 import school.hei.haapi.service.utils.excel.ExcelParser;
 
-/**
- * Merges every CrupdateSmsCampaign recipient source into one deduplicated list — see
- * doc/components.yml#CrupdateSmsCampaign. Resolution order (groups, then contactIds, then
- * manualPhoneNumbers, then file) is also the tie-break order for deduplication and, later, for
- * which recipients get cut off first if the balance can't cover everyone.
- */
 @Slf4j
 @org.springframework.stereotype.Component
 @AllArgsConstructor
@@ -41,17 +36,11 @@ public class SmsRecipientResolver {
   private final SmsContactGroupRepository smsContactGroupRepository;
   private final BucketComponent bucketComponent;
 
-  /**
-   * contactGroups/manuallySelectedContacts are the actual entities (not just ids) so
-   * SmsCampaignService can attach them directly to SmsCampaign's relations without a second fetch —
-   * see the sms_campaign_contact_group / sms_campaign_contact join tables.
-   */
   public record Resolved(
       List<ResolvedRecipient> recipients,
       List<SmsContactGroup> contactGroups,
       List<SmsContact> manuallySelectedContacts,
       int fileImportCount,
-      List<SmsFileImportRejectedRow> rejectedRows,
       String fileBucketKey) {}
 
   public Resolved resolve(
@@ -78,7 +67,6 @@ public class SmsRecipientResolver {
         groups,
         manuallySelectedContacts,
         fileOutcome.count(),
-        fileOutcome.rejectedRows(),
         fileOutcome.bucketKey());
   }
 
@@ -133,13 +121,12 @@ public class SmsRecipientResolver {
     }
   }
 
-  private record FileOutcome(
-      int count, List<SmsFileImportRejectedRow> rejectedRows, String bucketKey) {}
+  private record FileOutcome(int count, String bucketKey) {}
 
   private FileOutcome addFile(
       File file, String originalFilename, LinkedHashMap<String, ResolvedRecipient> byPhoneNumber) {
     if (file == null) {
-      return new FileOutcome(0, List.of(), null);
+      return new FileOutcome(0, null);
     }
     try {
       var parser = new ExcelParser<>(SmsFileImportRowDto.class, SmsFileImportRowDto.getCellMap());
@@ -155,7 +142,6 @@ public class SmsRecipientResolver {
               + (originalFilename == null ? file.getName() : originalFilename);
       bucketComponent.upload(file, bucketKey);
 
-      // Personalized as soon as at least one row carries its own message.
       var personalized =
           parseResult.parsedResult().stream().anyMatch(row -> row.getMessage() != null);
 
@@ -185,7 +171,11 @@ public class SmsRecipientResolver {
                           .reason(entry.getValue().getMessage()))
               .toList();
 
-      return new FileOutcome(addedCount, rejectedRows, bucketKey);
+      if (!rejectedRows.isEmpty()) {
+        throw new SmsFileRowsRejectedException(rejectedRows);
+      }
+
+      return new FileOutcome(addedCount, bucketKey);
     } catch (IOException e) {
       throw new BadRequestException("Fichier illisible : " + e.getMessage());
     }

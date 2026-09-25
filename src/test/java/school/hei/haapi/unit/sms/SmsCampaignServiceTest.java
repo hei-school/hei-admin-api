@@ -10,7 +10,6 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.Test;
@@ -59,17 +58,16 @@ class SmsCampaignServiceTest {
   }
 
   private SmsRecipientResolver.Resolved resolvedWith(List<ResolvedRecipient> recipients) {
-    return new SmsRecipientResolver.Resolved(recipients, List.of(), List.of(), 0, List.of(), null);
+    return new SmsRecipientResolver.Resolved(recipients, List.of(), List.of(), 0, null);
   }
 
   private void stubSaveAsIdentity() {
     when(smsCampaignRepositoryMock.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
   }
 
-  private CreateSmsCampaignCommand command(
-      String message, List<String> manualPhoneNumbers, Instant sendAt) {
+  private CreateSmsCampaignCommand command(String message, List<String> manualPhoneNumbers) {
     return new CreateSmsCampaignCommand(
-        createdBy, message, null, null, manualPhoneNumbers, null, null, sendAt);
+        createdBy, message, null, null, manualPhoneNumbers, null, null);
   }
 
   @Test
@@ -81,7 +79,7 @@ class SmsCampaignServiceTest {
     when(befianaClientMock.getBalance()).thenReturn(10);
     stubSaveAsIdentity();
 
-    var result = subject.createCampaign(command("Hello", numbers, null));
+    var result = subject.createCampaign(command("Hello", numbers));
 
     assertEquals(3, result.campaign().getRecipientCount());
     assertEquals(0, result.campaign().getRecipientsRejectedForBalance());
@@ -98,7 +96,7 @@ class SmsCampaignServiceTest {
     when(smsRecipientResolverMock.resolve(null, null, numbers, null, null))
         .thenReturn(resolvedWith(recipients));
     when(befianaClientMock.getBalance()).thenReturn(0);
-    var toCreate = command("Hello", numbers, null);
+    var toCreate = command("Hello", numbers);
 
     var exception =
         assertThrows(SmsInsufficientBalanceException.class, () -> subject.createCampaign(toCreate));
@@ -120,7 +118,7 @@ class SmsCampaignServiceTest {
     when(befianaClientMock.getBalance()).thenReturn(2);
     stubSaveAsIdentity();
 
-    var result = subject.createCampaign(command("Hello", numbers, null));
+    var result = subject.createCampaign(command("Hello", numbers));
 
     assertEquals(3, result.campaign().getRecipientCount());
     assertEquals(1, result.campaign().getRecipientsRejectedForBalance());
@@ -138,14 +136,14 @@ class SmsCampaignServiceTest {
     when(befianaClientMock.getBalance()).thenReturn(2);
     stubSaveAsIdentity();
 
-    var result = subject.createCampaign(command("Hi", null, null));
+    var result = subject.createCampaign(command("Hi", null));
 
     assertEquals(1, result.campaign().getRecipientCount());
     assertEquals(0, result.campaign().getRecipientsRejectedForBalance());
   }
 
   @Test
-  void scheduled_campaign_in_the_future_does_not_dispatch_immediately() {
+  void a_campaign_always_dispatches_immediately_there_is_no_scheduling() {
     var numbers = List.of("321111111");
     var recipients = numbers.stream().map(SmsCampaignServiceTest::manualNumber).toList();
     when(smsRecipientResolverMock.resolve(null, null, numbers, null, null))
@@ -153,21 +151,7 @@ class SmsCampaignServiceTest {
     when(befianaClientMock.getBalance()).thenReturn(10);
     stubSaveAsIdentity();
 
-    subject.createCampaign(command("Hello", numbers, Instant.now().plusSeconds(3600)));
-
-    verify(dispatchEventProducerMock, never()).accept(any());
-  }
-
-  @Test
-  void campaign_with_null_sendAt_dispatches_immediately() {
-    var numbers = List.of("321111111");
-    var recipients = numbers.stream().map(SmsCampaignServiceTest::manualNumber).toList();
-    when(smsRecipientResolverMock.resolve(null, null, numbers, null, null))
-        .thenReturn(resolvedWith(recipients));
-    when(befianaClientMock.getBalance()).thenReturn(10);
-    stubSaveAsIdentity();
-
-    subject.createCampaign(command("Hello", numbers, null));
+    subject.createCampaign(command("Hello", numbers));
 
     verify(dispatchEventProducerMock, times(1)).accept(any());
   }

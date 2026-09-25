@@ -5,7 +5,6 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -25,6 +24,7 @@ import school.hei.haapi.model.SmsMessageStatus;
 import school.hei.haapi.repository.SmsCampaignRepository;
 import school.hei.haapi.repository.SmsLogRepository;
 import school.hei.haapi.service.befiana.BefianaClient;
+import school.hei.haapi.service.befiana.BefianaDeliveryStatusResponse;
 import school.hei.haapi.service.befiana.BefianaException;
 import school.hei.haapi.service.befiana.BefianaSendBulkResponse;
 import school.hei.haapi.service.befiana.BefianaSendResponse;
@@ -71,6 +71,12 @@ class SmsCampaignDispatchRequestedServiceTest {
         .thenReturn(new ArrayList<>(logs));
   }
 
+  private BefianaDeliveryStatusResponse deliveryStatus(String status) {
+    var response = new BefianaDeliveryStatusResponse();
+    response.setDeliveryStatus(status);
+    return response;
+  }
+
   @Test
   void unknown_campaign_is_dropped_silently() {
     when(smsCampaignRepositoryMock.findById("missing")).thenReturn(Optional.empty());
@@ -101,19 +107,61 @@ class SmsCampaignDispatchRequestedServiceTest {
     when(befianaClientMock.getBalance()).thenReturn(10);
     var response = new BefianaSendResponse();
     response.setCallbackData("cb1");
-    when(befianaClientMock.send("321111111", "Hi", null)).thenReturn(response);
+    when(befianaClientMock.send("321111111", "Hi")).thenReturn(response);
+    when(befianaClientMock.getDeliveryStatus("cb1")).thenReturn(deliveryStatus("Delivered"));
+    when(smsLogRepositoryMock.countByCampaign_IdAndStatus("campaign1", SmsMessageStatus.DELIVERED))
+        .thenReturn(1L);
 
     subject.accept(new SmsCampaignDispatchRequested("campaign1"));
 
-    verify(befianaClientMock, times(1)).send("321111111", "Hi", null);
-    verify(befianaClientMock, never()).sendBulk(anyList(), anyString(), any());
-    assertEquals(SmsMessageStatus.PENDING, log.getStatus());
+    verify(befianaClientMock, times(1)).send("321111111", "Hi");
+    verify(befianaClientMock, never()).sendBulk(anyList(), anyString());
+    verify(befianaClientMock, times(1)).getDeliveryStatus("cb1");
+    assertEquals(SmsMessageStatus.DELIVERED, log.getStatus());
     assertEquals("cb1", log.getCallbackData());
+    assertEquals(SmsCampaignStatus.DELIVERED, campaign.getStatus());
+    assertEquals(1, campaign.getDeliveredCount());
+  }
+
+  @Test
+  void a_unitary_send_not_yet_confirmed_delivered_stays_pending() {
+    var campaign = campaign("Hi", 1);
+    var log = sharedLog(campaign, "321111111");
+    when(smsCampaignRepositoryMock.findById("campaign1")).thenReturn(Optional.of(campaign));
+    stubLogs(campaign, List.of(log));
+    when(befianaClientMock.getBalance()).thenReturn(10);
+    var response = new BefianaSendResponse();
+    response.setCallbackData("cb1");
+    when(befianaClientMock.send("321111111", "Hi")).thenReturn(response);
+    when(befianaClientMock.getDeliveryStatus("cb1")).thenReturn(deliveryStatus("Pending"));
+
+    subject.accept(new SmsCampaignDispatchRequested("campaign1"));
+
+    assertEquals(SmsMessageStatus.PENDING, log.getStatus());
+    assertNull(log.getDeliveredDatetime());
+  }
+
+  @Test
+  void a_unitary_send_whose_status_check_itself_fails_stays_pending() {
+    var campaign = campaign("Hi", 1);
+    var log = sharedLog(campaign, "321111111");
+    when(smsCampaignRepositoryMock.findById("campaign1")).thenReturn(Optional.of(campaign));
+    stubLogs(campaign, List.of(log));
+    when(befianaClientMock.getBalance()).thenReturn(10);
+    var response = new BefianaSendResponse();
+    response.setCallbackData("cb1");
+    when(befianaClientMock.send("321111111", "Hi")).thenReturn(response);
+    when(befianaClientMock.getDeliveryStatus("cb1"))
+        .thenThrow(new BefianaException("BEFIANA is down", 500, null));
+
+    subject.accept(new SmsCampaignDispatchRequested("campaign1"));
+
+    assertEquals(SmsMessageStatus.PENDING, log.getStatus());
     assertEquals(SmsCampaignStatus.DELIVERED, campaign.getStatus());
   }
 
   @Test
-  void two_or_more_shared_recipients_use_bulk_send_and_stay_untracked() {
+  void two_or_more_shared_recipients_use_bulk_send_and_are_assumed_delivered() {
     var campaign = campaign("Hi", 2);
     var log1 = sharedLog(campaign, "321111111");
     var log2 = sharedLog(campaign, "321111112");
@@ -123,19 +171,20 @@ class SmsCampaignDispatchRequestedServiceTest {
     var response = new BefianaSendBulkResponse();
     response.setSmsSegmentsEach(1);
     response.setBalanceDebited(2);
-    when(befianaClientMock.sendBulk(List.of("321111111", "321111112"), "Hi", null))
-        .thenReturn(response);
+    when(befianaClientMock.sendBulk(List.of("321111111", "321111112"), "Hi")).thenReturn(response);
+    when(smsLogRepositoryMock.countByCampaign_IdAndStatus("campaign1", SmsMessageStatus.DELIVERED))
+        .thenReturn(2L);
 
     subject.accept(new SmsCampaignDispatchRequested("campaign1"));
 
-    verify(befianaClientMock, never()).send(anyString(), anyString(), any());
-    verify(befianaClientMock, times(1)).sendBulk(List.of("321111111", "321111112"), "Hi", null);
-    // BEFIANA gives no callbackData for bulk -> status is never set, delivery stays unknowable.
-    assertNull(log1.getStatus());
-    assertNull(log2.getStatus());
+    verify(befianaClientMock, never()).send(anyString(), anyString());
+    verify(befianaClientMock, times(1)).sendBulk(List.of("321111111", "321111112"), "Hi");
+    assertEquals(SmsMessageStatus.DELIVERED, log1.getStatus());
+    assertEquals(SmsMessageStatus.DELIVERED, log2.getStatus());
     assertEquals(1, campaign.getSmsSegmentsEach());
     assertEquals(2, campaign.getCreditsDebited());
     assertEquals(SmsCampaignStatus.DELIVERED, campaign.getStatus());
+    assertEquals(2, campaign.getDeliveredCount());
   }
 
   @Test
@@ -146,27 +195,28 @@ class SmsCampaignDispatchRequestedServiceTest {
     when(smsCampaignRepositoryMock.findById("campaign1")).thenReturn(Optional.of(campaign));
     stubLogs(campaign, List.of(log1, log2));
     when(befianaClientMock.getBalance()).thenReturn(10);
-    when(befianaClientMock.send(anyString(), anyString(), isNull()))
-        .thenReturn(new BefianaSendResponse());
+    when(befianaClientMock.send(anyString(), anyString())).thenReturn(new BefianaSendResponse());
+    when(befianaClientMock.getDeliveryStatus(isNull())).thenReturn(deliveryStatus("Delivered"));
 
     subject.accept(new SmsCampaignDispatchRequested("campaign1"));
 
-    verify(befianaClientMock).send("321111111", "Bonjour A", null);
-    verify(befianaClientMock).send("321111112", "Bonjour B", null);
-    verify(befianaClientMock, never()).sendBulk(anyList(), anyString(), any());
+    verify(befianaClientMock).send("321111111", "Bonjour A");
+    verify(befianaClientMock).send("321111112", "Bonjour B");
+    verify(befianaClientMock, never()).sendBulk(anyList(), anyString());
   }
 
   @Test
   void
-      a_rejected_bulk_chunk_marks_its_recipients_failed_and_fails_the_campaign_if_nothing_else_went_through() {
+      a_rejected_bulk_chunk_marks_its_recipients_failed_with_the_befiana_reason_and_fails_the_campaign_if_nothing_else_went_through() {
     var campaign = campaign("Hi", 2);
     var log1 = sharedLog(campaign, "321111111");
     var log2 = sharedLog(campaign, "321111112");
     when(smsCampaignRepositoryMock.findById("campaign1")).thenReturn(Optional.of(campaign));
     stubLogs(campaign, List.of(log1, log2));
     when(befianaClientMock.getBalance()).thenReturn(10);
-    when(befianaClientMock.sendBulk(anyList(), anyString(), any()))
-        .thenThrow(new BefianaException("BEFIANA is down", 500, null));
+    when(befianaClientMock.sendBulk(anyList(), anyString()))
+        .thenThrow(
+            new BefianaException("BEFIANA call to /sendbulk/ failed: HTTP 500 - boom", 500, null));
     when(smsLogRepositoryMock.countByCampaign_IdAndStatus("campaign1", SmsMessageStatus.FAILED))
         .thenReturn(2L);
 
@@ -174,6 +224,8 @@ class SmsCampaignDispatchRequestedServiceTest {
 
     assertEquals(SmsMessageStatus.FAILED, log1.getStatus());
     assertEquals(SmsMessageStatus.FAILED, log2.getStatus());
+    assertEquals("BEFIANA call to /sendbulk/ failed: HTTP 500 - boom", log1.getFailureReason());
+    assertEquals("BEFIANA call to /sendbulk/ failed: HTTP 500 - boom", log2.getFailureReason());
     assertEquals(SmsCampaignStatus.FAILED, campaign.getStatus());
     assertEquals(
         "BEFIANA a rejeté l'envoi pour tous les destinataires.", campaign.getFailureReason());
@@ -182,47 +234,50 @@ class SmsCampaignDispatchRequestedServiceTest {
   @Test
   void
       balance_dropping_below_two_recipients_at_dispatch_time_falls_back_to_a_trackable_unitary_send() {
-    // Both recipients cost 1 segment each; a balance of 1 at dispatch time can only cover one of
-    // them -> the survivor becomes a lone shared recipient, which is sent trackably via /send/.
     var campaign = campaign("Hi", 2);
-    var log1 = sharedLog(campaign, "321111111");
-    var log2 = sharedLog(campaign, "321111112");
+    var affordableRecipientLog = sharedLog(campaign, "321111111");
+    var unaffordableRecipientLog = sharedLog(campaign, "321111112");
     when(smsCampaignRepositoryMock.findById("campaign1")).thenReturn(Optional.of(campaign));
-    stubLogs(campaign, List.of(log1, log2));
-    when(befianaClientMock.getBalance()).thenReturn(1);
+    stubLogs(campaign, List.of(affordableRecipientLog, unaffordableRecipientLog));
+    var balanceCoveringOnlyOneSegment = 1;
+    when(befianaClientMock.getBalance()).thenReturn(balanceCoveringOnlyOneSegment);
     when(smsLogRepositoryMock.countByCampaign_IdAndStatus("campaign1", SmsMessageStatus.FAILED))
         .thenReturn(0L);
-    when(befianaClientMock.send(eq("321111111"), eq("Hi"), any()))
-        .thenReturn(new BefianaSendResponse());
+    when(befianaClientMock.send("321111111", "Hi")).thenReturn(new BefianaSendResponse());
+    when(befianaClientMock.getDeliveryStatus(isNull())).thenReturn(deliveryStatus("Delivered"));
 
     subject.accept(new SmsCampaignDispatchRequested("campaign1"));
 
-    verify(smsLogRepositoryMock).deleteAll(List.of(log2));
+    verify(smsLogRepositoryMock).deleteAll(List.of(unaffordableRecipientLog));
     assertEquals(1, campaign.getRecipientsRejectedForBalance());
-    verify(befianaClientMock, times(1)).send(eq("321111111"), eq("Hi"), any());
+    verify(befianaClientMock, times(1)).send("321111111", "Hi");
     assertEquals(SmsCampaignStatus.DELIVERED, campaign.getStatus());
   }
 
   @Test
-  void a_failed_unitary_send_marks_the_log_failed_but_does_not_block_other_recipients() {
+  void a_failed_unitary_send_marks_the_log_failed_with_the_befiana_reason() {
     var campaign = campaign("shared message unused here", 2);
     var log1 = personalizedLog(campaign, "321111111", "Bonjour A");
     var log2 = personalizedLog(campaign, "321111112", "Bonjour B");
     when(smsCampaignRepositoryMock.findById("campaign1")).thenReturn(Optional.of(campaign));
     stubLogs(campaign, List.of(log1, log2));
     when(befianaClientMock.getBalance()).thenReturn(10);
-    when(befianaClientMock.send("321111111", "Bonjour A", null))
-        .thenReturn(new BefianaSendResponse());
-    when(befianaClientMock.send("321111112", "Bonjour B", null))
-        .thenThrow(new BefianaException("BEFIANA is down", 500, null));
+    when(befianaClientMock.send("321111111", "Bonjour A")).thenReturn(new BefianaSendResponse());
+    when(befianaClientMock.send("321111112", "Bonjour B"))
+        .thenThrow(
+            new BefianaException(
+                "BEFIANA call to /send/ failed: HTTP 400 - numéro invalide", 400, null));
+    when(befianaClientMock.getDeliveryStatus(isNull())).thenReturn(deliveryStatus("Pending"));
     when(smsLogRepositoryMock.countByCampaign_IdAndStatus("campaign1", SmsMessageStatus.FAILED))
         .thenReturn(1L);
 
     subject.accept(new SmsCampaignDispatchRequested("campaign1"));
 
     assertEquals(SmsMessageStatus.PENDING, log1.getStatus());
+    assertNull(log1.getFailureReason());
     assertEquals(SmsMessageStatus.FAILED, log2.getStatus());
-    // one recipient still went through -> the campaign as a whole is not FAILED.
+    assertEquals(
+        "BEFIANA call to /send/ failed: HTTP 400 - numéro invalide", log2.getFailureReason());
     assertEquals(SmsCampaignStatus.DELIVERED, campaign.getStatus());
     assertEquals(1, campaign.getFailedCount());
   }
@@ -240,8 +295,8 @@ class SmsCampaignDispatchRequestedServiceTest {
 
     subject.accept(new SmsCampaignDispatchRequested("campaign1"));
 
-    verify(befianaClientMock, never()).send(anyString(), anyString(), any());
-    verify(befianaClientMock, never()).sendBulk(anyList(), anyString(), any());
+    verify(befianaClientMock, never()).send(anyString(), anyString());
+    verify(befianaClientMock, never()).sendBulk(anyList(), anyString());
     assertEquals(2, campaign.getRecipientsRejectedForBalance());
     assertEquals(SmsCampaignStatus.FAILED, campaign.getStatus());
     assertEquals(

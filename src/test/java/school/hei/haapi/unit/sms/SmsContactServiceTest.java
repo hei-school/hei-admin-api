@@ -56,7 +56,7 @@ class SmsContactServiceTest {
   void delete_soft_deletes_the_contact() {
     var contact = SmsContact.builder().id("c1").build();
     when(smsContactRepositoryMock.findById("c1")).thenReturn(Optional.of(contact));
-    when(smsContactRepositoryMock.save(any())).thenAnswer(i -> i.getArgument(0));
+    when(smsContactRepositoryMock.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
 
     var deleted = subject.delete("c1");
 
@@ -118,7 +118,7 @@ class SmsContactServiceTest {
   void createContactIfMissing_creates_a_contact_with_the_normalized_phone_and_mapped_role() {
     var user = enabledUserBuilder().phone("0321111111").role(User.Role.TEACHER).build();
     when(smsContactRepositoryMock.existsByOwner_Id("u1")).thenReturn(false);
-    when(smsContactRepositoryMock.save(any())).thenAnswer(i -> i.getArgument(0));
+    when(smsContactRepositoryMock.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
 
     var result = subject.createContactIfMissing(user);
 

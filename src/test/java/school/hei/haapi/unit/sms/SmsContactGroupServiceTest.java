@@ -9,6 +9,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.Test;
@@ -55,7 +56,8 @@ class SmsContactGroupServiceTest {
     var member = SmsContact.builder().id("c1").build();
     when(smsContactRepositoryMock.findAllByIdInAndIsDeletedFalse(List.of("c1")))
         .thenReturn(List.of(member));
-    when(smsContactGroupRepositoryMock.save(any())).thenAnswer(i -> i.getArgument(0));
+    when(smsContactGroupRepositoryMock.save(any()))
+        .thenAnswer(invocation -> invocation.getArgument(0));
 
     var created = subject.create(owner, "Promo 2026", List.of("c1"));
 
@@ -71,7 +73,8 @@ class SmsContactGroupServiceTest {
     var newMember = SmsContact.builder().id("c2").build();
     when(smsContactRepositoryMock.findAllByIdInAndIsDeletedFalse(List.of("c2")))
         .thenReturn(List.of(newMember));
-    when(smsContactGroupRepositoryMock.save(any())).thenAnswer(i -> i.getArgument(0));
+    when(smsContactGroupRepositoryMock.save(any()))
+        .thenAnswer(invocation -> invocation.getArgument(0));
 
     var updated = subject.update("g1", "New name", List.of("c2"));
 
@@ -84,12 +87,79 @@ class SmsContactGroupServiceTest {
     var member = SmsContact.builder().id("c1").build();
     var group = SmsContactGroup.builder().id("g1").owner(owner).members(List.of(member)).build();
     when(smsContactGroupRepositoryMock.findById("g1")).thenReturn(Optional.of(group));
-    when(smsContactGroupRepositoryMock.save(any())).thenAnswer(i -> i.getArgument(0));
+    when(smsContactGroupRepositoryMock.save(any()))
+        .thenAnswer(invocation -> invocation.getArgument(0));
 
     var deleted = subject.delete("g1");
 
     assertTrue(deleted.isDeleted());
     assertEquals(List.of(member), deleted.getMembers());
     verify(smsContactRepositoryMock, never()).save(any());
+  }
+
+  @Test
+  void addMember_adds_the_contact_when_not_already_a_member() {
+    var existing = SmsContact.builder().id("c1").build();
+    var group =
+        SmsContactGroup.builder()
+            .id("g1")
+            .owner(owner)
+            .members(new ArrayList<>(List.of(existing)))
+            .build();
+    when(smsContactGroupRepositoryMock.findById("g1")).thenReturn(Optional.of(group));
+    var toAdd = SmsContact.builder().id("c2").build();
+    when(smsContactRepositoryMock.findById("c2")).thenReturn(Optional.of(toAdd));
+    when(smsContactGroupRepositoryMock.save(any()))
+        .thenAnswer(invocation -> invocation.getArgument(0));
+
+    var result = subject.addMember("g1", "c2");
+
+    assertEquals(List.of(existing, toAdd), result.getMembers());
+  }
+
+  @Test
+  void addMember_is_a_noop_when_contact_is_already_a_member() {
+    var existing = SmsContact.builder().id("c1").build();
+    var group =
+        SmsContactGroup.builder()
+            .id("g1")
+            .owner(owner)
+            .members(new ArrayList<>(List.of(existing)))
+            .build();
+    when(smsContactGroupRepositoryMock.findById("g1")).thenReturn(Optional.of(group));
+    when(smsContactRepositoryMock.findById("c1")).thenReturn(Optional.of(existing));
+
+    var result = subject.addMember("g1", "c1");
+
+    assertEquals(List.of(existing), result.getMembers());
+    verify(smsContactGroupRepositoryMock, never()).save(any());
+  }
+
+  @Test
+  void addMember_throws_not_found_for_a_missing_contact() {
+    var group = SmsContactGroup.builder().id("g1").owner(owner).members(new ArrayList<>()).build();
+    when(smsContactGroupRepositoryMock.findById("g1")).thenReturn(Optional.of(group));
+    when(smsContactRepositoryMock.findById("missing")).thenReturn(Optional.empty());
+
+    assertThrows(NotFoundException.class, () -> subject.addMember("g1", "missing"));
+  }
+
+  @Test
+  void removeMember_removes_the_contact_from_the_group() {
+    var member1 = SmsContact.builder().id("c1").build();
+    var member2 = SmsContact.builder().id("c2").build();
+    var group =
+        SmsContactGroup.builder()
+            .id("g1")
+            .owner(owner)
+            .members(new ArrayList<>(List.of(member1, member2)))
+            .build();
+    when(smsContactGroupRepositoryMock.findById("g1")).thenReturn(Optional.of(group));
+    when(smsContactGroupRepositoryMock.save(any()))
+        .thenAnswer(invocation -> invocation.getArgument(0));
+
+    var result = subject.removeMember("g1", "c1");
+
+    assertEquals(List.of(member2), result.getMembers());
   }
 }

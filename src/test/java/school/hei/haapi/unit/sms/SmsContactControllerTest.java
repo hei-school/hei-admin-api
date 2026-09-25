@@ -93,7 +93,7 @@ class SmsContactControllerTest {
     var launchedCampaign =
         SmsCampaign.builder().id("campaign1").status(SmsCampaignStatus.CREATED).build();
     when(smsCampaignServiceMock.createCampaign(any(CreateSmsCampaignCommand.class)))
-        .thenReturn(new SmsCampaignService.CreationResult(launchedCampaign, List.of()));
+        .thenReturn(new SmsCampaignService.CreationResult(launchedCampaign));
     var toSend = new SendSmsToContact().message("Hello");
 
     var launched = subject.sendSmsMessageToContact("contact1", toSend, principal);
@@ -102,6 +102,6 @@ class SmsContactControllerTest {
     verify(smsCampaignServiceMock)
         .createCampaign(
             new CreateSmsCampaignCommand(
-                principal.getUser(), "Hello", null, List.of("contact1"), null, null, null, null));
+                principal.getUser(), "Hello", null, List.of("contact1"), null, null, null));
   }
 }

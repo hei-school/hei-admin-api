@@ -21,6 +21,7 @@ import school.hei.haapi.model.SmsContact;
 import school.hei.haapi.model.SmsContactGroup;
 import school.hei.haapi.model.SmsRecipientSource;
 import school.hei.haapi.model.exception.BadRequestException;
+import school.hei.haapi.model.exception.SmsFileRowsRejectedException;
 import school.hei.haapi.repository.SmsContactGroupRepository;
 import school.hei.haapi.repository.SmsContactRepository;
 import school.hei.haapi.service.sms.SmsRecipientResolver;
@@ -60,7 +61,7 @@ class SmsRecipientResolverTest {
     assertEquals(List.of(group), resolved.contactGroups());
     assertTrue(
         resolved.recipients().stream()
-            .allMatch(r -> r.source() == SmsRecipientSource.CONTACT_GROUP));
+            .allMatch(recipient -> recipient.source() == SmsRecipientSource.CONTACT_GROUP));
   }
 
   @Test
@@ -78,13 +79,16 @@ class SmsRecipientResolverTest {
 
   @Test
   void normalizes_and_dedupes_manual_phone_numbers() {
-    var resolved =
-        subject.resolve(null, null, List.of("0321111111", "321111111", "12"), null, null);
+    var leadingZeroNumber = "0321111111";
+    var sameNumberWithoutLeadingZero = "321111111";
+    var tooShortToBeRealNumber = "12";
+    var manualPhoneNumbers =
+        List.of(leadingZeroNumber, sameNumberWithoutLeadingZero, tooShortToBeRealNumber);
 
-    // "0321111111" and "321111111" normalize to the same number -> deduplicated to one; "12" is
-    // too short to be a real number and is dropped.
+    var resolved = subject.resolve(null, null, manualPhoneNumbers, null, null);
+
     assertEquals(1, resolved.recipients().size());
-    assertEquals("321111111", resolved.recipients().get(0).phoneNumber());
+    assertEquals(sameNumberWithoutLeadingZero, resolved.recipients().get(0).phoneNumber());
     assertEquals(SmsRecipientSource.MANUAL_NUMBER, resolved.recipients().get(0).source());
   }
 
@@ -108,10 +112,12 @@ class SmsRecipientResolverTest {
     var resolved = subject.resolve(null, null, null, file, "numbers.xlsx");
 
     assertEquals(2, resolved.fileImportCount());
-    assertTrue(resolved.recipients().stream().allMatch(r -> r.personalizedMessage() == null));
     assertTrue(
         resolved.recipients().stream()
-            .allMatch(r -> r.source() == SmsRecipientSource.IMPORTED_FILE));
+            .allMatch(recipient -> recipient.personalizedMessage() == null));
+    assertTrue(
+        resolved.recipients().stream()
+            .allMatch(recipient -> recipient.source() == SmsRecipientSource.IMPORTED_FILE));
   }
 
   @Test
@@ -124,20 +130,23 @@ class SmsRecipientResolverTest {
     assertEquals(
         "Bonjour A",
         resolved.recipients().stream()
-            .filter(r -> r.phoneNumber().equals("321111111"))
+            .filter(recipient -> recipient.phoneNumber().equals("321111111"))
             .findFirst()
             .orElseThrow()
             .personalizedMessage());
   }
 
   @Test
-  void invalid_file_rows_are_reported_without_blocking_the_valid_ones() throws IOException {
+  void a_single_invalid_file_row_blocks_the_whole_file_all_or_nothing() throws IOException {
     var file = xlsxWithRawFirstColumn(List.of("321111111", "not-a-number"));
 
-    var resolved = subject.resolve(null, null, null, file, "mixed.xlsx");
+    var exception =
+        assertThrows(
+            SmsFileRowsRejectedException.class,
+            () -> subject.resolve(null, null, null, file, "mixed.xlsx"));
 
-    assertEquals(1, resolved.recipients().size());
-    assertEquals(1, resolved.rejectedRows().size());
+    assertEquals(1, exception.getRejectedRows().size());
+    assertEquals(1, exception.getRejectedRows().get(0).getRow());
   }
 
   @Test

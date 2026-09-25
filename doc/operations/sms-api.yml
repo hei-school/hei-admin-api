@@ -106,8 +106,8 @@ operations:
       summary: Send an SMS to a single contact
       description: >
         A shortcut for a 1-recipient campaign: same balance check and background send as
-        the bulk flows, trackable afterwards via getSmsCampaignById/getSmsCampaignLogs.
-        sendAt is optional — omit it to send right away, or schedule it like any other campaign.
+        the bulk flows, trackable afterwards via getSmsCampaignById/getSmsCampaignLogs. Always
+        sent right away — there is no scheduling.
       operationId: sendSmsMessageToContact
       parameters:
         - name: id
@@ -288,6 +288,73 @@ operations:
         '500':
           $ref: '../components.yml#/components/responses/500'
 
+  smsContactGroupMember:
+    post:
+      tags:
+        - Sms
+      summary: Add a contact to an SMS contact group
+      description: >
+        Adds a single existing contact without touching the rest of the group's members — unlike
+        updateSmsContactGroup's contactIds, which replaces the whole list. A no-op (not an error)
+        if the contact is already a member.
+      operationId: addSmsContactGroupMember
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: contact_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: The group with its updated member list
+          content:
+            application/json:
+              schema:
+                $ref: '../components.yml#/components/schemas/SmsContactGroupDetail'
+        '403':
+          $ref: '../components.yml#/components/responses/403'
+        '404':
+          $ref: '../components.yml#/components/responses/404'
+        '500':
+          $ref: '../components.yml#/components/responses/500'
+    delete:
+      tags:
+        - Sms
+      summary: Remove a contact from an SMS contact group
+      description: >
+        Removes a single member without touching the rest of the group. The contact itself is
+        untouched — only its membership in this group is removed.
+      operationId: removeSmsContactGroupMember
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: contact_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: The group with its updated member list
+          content:
+            application/json:
+              schema:
+                $ref: '../components.yml#/components/schemas/SmsContactGroupDetail'
+        '403':
+          $ref: '../components.yml#/components/responses/403'
+        '404':
+          $ref: '../components.yml#/components/responses/404'
+        '500':
+          $ref: '../components.yml#/components/responses/500'
+
   smsBalance:
     get:
       tags:
@@ -354,12 +421,12 @@ operations:
       description: >
         Cost (recipients × segments) is checked against balance: if it can't cover even one
         recipient, it 400s and creates nothing; if it covers some, the campaign is created and
-        sent to those it can, the rest counted separately. For scheduled campaigns, that check
-        reruns right before dispatch and can notify admins instead of blocking. Sending then
-        happens in the background: a single recipient goes through `/send/` (trackable), several
-        through `/sendbulk/` (delivery not trackable, except outright BEFIANA rejections which do
-        mark a real failure). The campaign ends up `FAILED` only if no recipient was attempted at
-        all; otherwise `DELIVERED`, with failures tracked separately.
+        sent to those it can, the rest counted separately. Always sent right away — there is no
+        scheduling. Sending happens in the background: a single recipient goes through `/send/`
+        (trackable), several through `/sendbulk/` (delivery not trackable, except outright
+        BEFIANA rejections which do mark a real failure). The campaign ends up `FAILED` only if
+        no recipient was attempted at all; otherwise `DELIVERED`, with failures tracked
+        separately.
       operationId: createSmsCampaignByContacts
       requestBody:
         required: true
@@ -456,9 +523,23 @@ operations:
       summary: Launch an SMS campaign from an uploaded contacts file
       description: >
         Its own endpoint, separate from the other recipient sources, because it's the only one
-        that needs a multipart/form-data body — see CrupdateSmsCampaignByFile. Same cost/balance/
-        dispatch behavior as createSmsCampaignByContacts otherwise.
+        that needs a multipart/form-data body — see CrupdateSmsCampaignByFile. message is a
+        query parameter, not a body field: the Lambda deployment's HTTP adapter cannot read a
+        text field placed inside a multipart body (it only reads the query string and
+        application/x-www-form-urlencoded bodies), so anything other than the file itself has to
+        travel as a query parameter here. Same cost/balance/dispatch behavior as
+        createSmsCampaignByContacts otherwise, plus an all-or-nothing check on the file's own
+        rows — see CrupdateSmsCampaignByFile.file and the 400 response below.
       operationId: createSmsCampaignByFile
+      parameters:
+        - name: message
+          in: query
+          required: false
+          description: >-
+            Sent to every row if file only has a phone number column. Not needed if file is
+            personalized (two columns) — see CrupdateSmsCampaignByFile.file.
+          schema:
+            type: string
       requestBody:
         required: true
         content:
@@ -474,11 +555,14 @@ operations:
                 $ref: '../components.yml#/components/schemas/SmsCampaignLaunched'
         '400':
           description: >
-            Bad request, including insufficient balance — see SmsInsufficientBalanceAlert
+            Bad request. Shown here: one or more unreadable file rows, none of which are ever
+            sent (SmsFileRowsRejectedAlert) — the file-specific failure mode. Insufficient
+            balance can also 400 here with SmsInsufficientBalanceAlert's shape instead, same as
+            every other createSmsCampaignBy* operation.
           content:
             application/json:
               schema:
-                $ref: '../components.yml#/components/schemas/SmsInsufficientBalanceAlert'
+                $ref: '../components.yml#/components/schemas/SmsFileRowsRejectedAlert'
         '403':
           $ref: '../components.yml#/components/responses/403'
         '500':

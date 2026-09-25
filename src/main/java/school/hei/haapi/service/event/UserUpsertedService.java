@@ -21,15 +21,20 @@ public class UserUpsertedService implements Consumer<UserUpserted> {
 
   @Override
   public void accept(UserUpserted userUpserted) {
-    String email = userUpserted.getEmail();
-    try {
-      cognitoComponent.createUser(email);
-    } catch (UsernameExistsException e) {
-      log.info("User already exists, do nothing: email={}", email);
-    }
+    createCognitoUser(userUpserted.getEmail());
 
     userRepository
         .findById(userUpserted.getUserId())
         .ifPresent(smsContactService::createContactIfMissing);
+  }
+
+  private void createCognitoUser(String email) {
+    try {
+      cognitoComponent.createUser(email);
+    } catch (UsernameExistsException e) {
+      log.info("User already exists, do nothing: email={}", email);
+    } catch (RuntimeException e) {
+      log.error("Failed to create Cognito user for email={}", email, e);
+    }
   }
 }

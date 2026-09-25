@@ -32,17 +32,18 @@ public class SmsDeliveryStatusPollTriggeredService
     log.info("Polling BEFIANA delivery status for {} pending SMS", pending.size());
 
     var touchedCampaigns = new HashSet<SmsCampaign>();
-    for (var l : pending) {
+    for (var pendingLog : pending) {
       try {
-        var response = befianaClient.getDeliveryStatus(l.getCallbackData());
+        var response = befianaClient.getDeliveryStatus(pendingLog.getCallbackData());
         if ("Delivered".equalsIgnoreCase(response.getDeliveryStatus())) {
-          l.setStatus(SmsMessageStatus.DELIVERED);
-          l.setDeliveredDatetime(Instant.now());
-          smsLogRepository.save(l);
-          touchedCampaigns.add(l.getCampaign());
+          pendingLog.setStatus(SmsMessageStatus.DELIVERED);
+          pendingLog.setDeliveredDatetime(Instant.now());
+          smsLogRepository.save(pendingLog);
+          touchedCampaigns.add(pendingLog.getCampaign());
         }
       } catch (BefianaException e) {
-        log.warn("Could not poll delivery status for SmsLog {}: {}", l.getId(), e.getMessage());
+        log.warn(
+            "Could not poll delivery status for SmsLog {}: {}", pendingLog.getId(), e.getMessage());
       }
     }
     touchedCampaigns.forEach(this::updateDeliveredCountIfFullyResolved);

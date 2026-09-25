@@ -18,14 +18,6 @@ import school.hei.haapi.model.SmsContact;
 import school.hei.haapi.model.SmsContactOwnerRole;
 import school.hei.haapi.repository.dao.SmsContactDao;
 
-/**
- * The actual filtering is delegated to the JPA criteria API (a real DB round-trip is out of scope
- * for a plain unit test here); this stubs each step of the EntityManager/CriteriaBuilder chain
- * explicitly rather than relying on Mockito's RETURNS_DEEP_STUBS to auto-wire it, because deep
- * stubs don't reliably resolve a stub declared with an argument matcher (e.g.
- * createQuery(any(CriteriaQuery.class))) back to the same TypedQuery mock once the code calls it
- * with the real (non-null) CriteriaQuery instance built at runtime.
- */
 class SmsContactDaoTest {
   private final EntityManager entityManagerMock = mock();
   private final CriteriaBuilder criteriaBuilderMock =

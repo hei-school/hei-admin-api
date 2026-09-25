@@ -50,19 +50,19 @@ public class SmsCampaignDispatchRequestedService implements Consumer<SmsCampaign
         smsLogRepository.findAllByCampaign_IdOrderBySentDatetimeDesc(campaign.getId());
     var newlyRejected = dropUnaffordable(campaign, pendingLogs);
 
-    var personalized = new ArrayList<SmsLog>();
-    var shared = new ArrayList<SmsLog>();
-    for (var l : pendingLogs) {
-      (l.getPersonalizedMessage() != null ? personalized : shared).add(l);
+    var personalizedLogs = new ArrayList<SmsLog>();
+    var sharedLogs = new ArrayList<SmsLog>();
+    for (var smsLog : pendingLogs) {
+      (smsLog.getPersonalizedMessage() != null ? personalizedLogs : sharedLogs).add(smsLog);
     }
 
     var submittedCount = 0;
-    for (var l : personalized) {
-      if (sendUnitary(l, l.getPersonalizedMessage())) {
+    for (var smsLog : personalizedLogs) {
+      if (sendUnitary(smsLog, smsLog.getPersonalizedMessage())) {
         submittedCount++;
       }
     }
-    submittedCount += dispatchShared(campaign, shared);
+    submittedCount += dispatchShared(campaign, sharedLogs);
 
     finalizeCampaign(campaign, newlyRejected, submittedCount);
   }
@@ -75,67 +75,87 @@ public class SmsCampaignDispatchRequestedService implements Consumer<SmsCampaign
   private int dropUnaffordable(SmsCampaign campaign, List<SmsLog> logs) {
     var availableBalance = befianaClient.getBalance();
     var runningCost = 0;
-    var toDrop = new ArrayList<SmsLog>();
-    for (var l : logs) {
-      var segments = smsSegmentCounter.countSegments(applicableMessage(campaign, l));
+    var unaffordableLogs = new ArrayList<SmsLog>();
+    for (var smsLog : logs) {
+      var segments = smsSegmentCounter.countSegments(applicableMessage(campaign, smsLog));
       if (runningCost + segments > availableBalance) {
-        toDrop.add(l);
+        unaffordableLogs.add(smsLog);
         continue;
       }
       runningCost += segments;
     }
-    logs.removeAll(toDrop);
-    smsLogRepository.deleteAll(toDrop);
-    if (!toDrop.isEmpty()) {
+    logs.removeAll(unaffordableLogs);
+    smsLogRepository.deleteAll(unaffordableLogs);
+    if (!unaffordableLogs.isEmpty()) {
       campaign.setRecipientsRejectedForBalance(
-          campaign.getRecipientsRejectedForBalance() + toDrop.size());
+          campaign.getRecipientsRejectedForBalance() + unaffordableLogs.size());
       log.warn(
           "SMS campaign {}: balance dropped to {} by dispatch time, {} recipient(s) newly"
               + " unaffordable",
           campaign.getId(),
           availableBalance,
-          toDrop.size());
+          unaffordableLogs.size());
     }
-    return toDrop.size();
+    return unaffordableLogs.size();
   }
 
-  private String applicableMessage(SmsCampaign campaign, SmsLog log) {
-    return log.getPersonalizedMessage() != null
-        ? log.getPersonalizedMessage()
+  private String applicableMessage(SmsCampaign campaign, SmsLog smsLog) {
+    return smsLog.getPersonalizedMessage() != null
+        ? smsLog.getPersonalizedMessage()
         : campaign.getMessage();
   }
 
-  private boolean sendUnitary(SmsLog l, String message) {
+  private boolean sendUnitary(SmsLog smsLog, String message) {
     try {
-      var response = befianaClient.send(l.getPhoneNumber(), message, null);
-      l.setStatus(SmsMessageStatus.PENDING);
-      l.setCallbackData(response.getCallbackData());
-      l.setSentDatetime(Instant.now());
-      smsLogRepository.save(l);
+      var response = befianaClient.send(smsLog.getPhoneNumber(), message);
+      smsLog.setCallbackData(response.getCallbackData());
+      smsLog.setSentDatetime(Instant.now());
+      smsLog.setStatus(checkDeliveryStatus(response.getCallbackData()));
+      if (smsLog.getStatus() == SmsMessageStatus.DELIVERED) {
+        smsLog.setDeliveredDatetime(Instant.now());
+      }
+      smsLogRepository.save(smsLog);
       return true;
     } catch (BefianaException e) {
       log.warn(
           "BEFIANA /send/ failed for a recipient of campaign {}: {}",
-          l.getCampaign().getId(),
+          smsLog.getCampaign().getId(),
           e.getMessage());
-      l.setStatus(SmsMessageStatus.FAILED);
-      l.setSentDatetime(Instant.now());
-      smsLogRepository.save(l);
+      smsLog.setStatus(SmsMessageStatus.FAILED);
+      smsLog.setSentDatetime(Instant.now());
+      smsLog.setFailureReason(e.getMessage());
+      smsLogRepository.save(smsLog);
       return false;
     }
   }
 
-  private int dispatchShared(SmsCampaign campaign, List<SmsLog> shared) {
-    if (shared.isEmpty()) {
+  private SmsMessageStatus checkDeliveryStatus(String callbackData) {
+    try {
+      var status = befianaClient.getDeliveryStatus(callbackData);
+      return "Delivered".equalsIgnoreCase(status.getDeliveryStatus())
+          ? SmsMessageStatus.DELIVERED
+          : SmsMessageStatus.PENDING;
+    } catch (BefianaException e) {
+      log.warn(
+          "BEFIANA get-delivery-status check failed for callbackData {}: {}",
+          callbackData,
+          e.getMessage());
+      return SmsMessageStatus.PENDING;
+    }
+  }
+
+  private int dispatchShared(SmsCampaign campaign, List<SmsLog> sharedLogs) {
+    if (sharedLogs.isEmpty()) {
       return 0;
     }
-    if (shared.size() == 1) {
-      return sendUnitary(shared.get(0), campaign.getMessage()) ? 1 : 0;
+    if (sharedLogs.size() == 1) {
+      return sendUnitary(sharedLogs.get(0), campaign.getMessage()) ? 1 : 0;
     }
 
     var submitted = 0;
-    for (var i = 0; i < shared.size(); i += BULK_CHUNK_SIZE) {
-      var chunk = shared.subList(i, Math.min(i + BULK_CHUNK_SIZE, shared.size()));
+    for (var chunkStart = 0; chunkStart < sharedLogs.size(); chunkStart += BULK_CHUNK_SIZE) {
+      var chunkEnd = Math.min(chunkStart + BULK_CHUNK_SIZE, sharedLogs.size());
+      var chunk = sharedLogs.subList(chunkStart, chunkEnd);
       submitted += submitChunk(campaign, chunk) ? chunk.size() : 0;
     }
     return submitted;
@@ -145,8 +165,13 @@ public class SmsCampaignDispatchRequestedService implements Consumer<SmsCampaign
     var numbers = chunk.stream().map(SmsLog::getPhoneNumber).toList();
     var now = Instant.now();
     try {
-      var response = befianaClient.sendBulk(numbers, campaign.getMessage(), null);
-      chunk.forEach(l -> l.setSentDatetime(now));
+      var response = befianaClient.sendBulk(numbers, campaign.getMessage());
+      chunk.forEach(
+          smsLog -> {
+            smsLog.setStatus(SmsMessageStatus.DELIVERED);
+            smsLog.setSentDatetime(now);
+            smsLog.setDeliveredDatetime(now);
+          });
       smsLogRepository.saveAll(chunk);
       campaign.setSmsSegmentsEach(response.getSmsSegmentsEach());
       campaign.setCreditsDebited(
@@ -157,9 +182,10 @@ public class SmsCampaignDispatchRequestedService implements Consumer<SmsCampaign
       log.warn(
           "BEFIANA /sendbulk/ chunk failed for campaign {}: {}", campaign.getId(), e.getMessage());
       chunk.forEach(
-          l -> {
-            l.setStatus(SmsMessageStatus.FAILED);
-            l.setSentDatetime(now);
+          smsLog -> {
+            smsLog.setStatus(SmsMessageStatus.FAILED);
+            smsLog.setSentDatetime(now);
+            smsLog.setFailureReason(e.getMessage());
           });
       smsLogRepository.saveAll(chunk);
       return false;
@@ -170,6 +196,9 @@ public class SmsCampaignDispatchRequestedService implements Consumer<SmsCampaign
     var failedCount =
         smsLogRepository.countByCampaign_IdAndStatus(campaign.getId(), SmsMessageStatus.FAILED);
     campaign.setFailedCount((int) failedCount);
+    var deliveredCount =
+        smsLogRepository.countByCampaign_IdAndStatus(campaign.getId(), SmsMessageStatus.DELIVERED);
+    campaign.setDeliveredCount((int) deliveredCount);
 
     var nothingWentThrough = submittedCount == 0;
     campaign.setStatus(nothingWentThrough ? SmsCampaignStatus.FAILED : SmsCampaignStatus.DELIVERED);

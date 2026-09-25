@@ -21,6 +21,7 @@ public class SmsContactDao {
     var builder = entityManager.getCriteriaBuilder();
     var query = builder.createQuery(SmsContact.class);
     var root = query.from(SmsContact.class);
+    query.select(root);
 
     List<Predicate> predicates = new ArrayList<>();
     predicates.add(builder.isFalse(root.get("isDeleted")));
@@ -28,11 +29,9 @@ public class SmsContactDao {
     if (contactGroupId != null) {
       var groupRoot = query.from(school.hei.haapi.model.SmsContactGroup.class);
       predicates.add(builder.equal(groupRoot.get("id"), contactGroupId));
-      // Declared (not cast) as Expression<SmsContact> to pick the isMember(Expression, Expression)
-      // overload — root itself is ambiguous between it and isMember(Object, Expression).
-      Expression<SmsContact> rootAsExpression = root;
+      Expression<SmsContact> contactRootExpression = root;
       predicates.add(
-          builder.isMember(rootAsExpression, groupRoot.<List<SmsContact>>get("members")));
+          builder.isMember(contactRootExpression, groupRoot.<List<SmsContact>>get("members")));
     }
     if (ownerRole != null) {
       predicates.add(builder.equal(root.get("ownerRole"), ownerRole));

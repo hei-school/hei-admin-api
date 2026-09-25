@@ -1,8 +1,8 @@
 package school.hei.haapi.endpoint.rest.controller;
 
 import static org.springframework.http.HttpStatus.ACCEPTED;
+import static org.springframework.http.MediaType.MULTIPART_FORM_DATA_VALUE;
 
-import java.time.Instant;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
@@ -56,9 +56,8 @@ public class SmsCampaignController {
                 crupdate.getContactIds(),
                 null,
                 null,
-                null,
-                crupdate.getSendAt()));
-    return smsCampaignMapper.toLaunched(result.campaign(), result.rejectedRows());
+                null));
+    return smsCampaignMapper.toLaunched(result.campaign());
   }
 
   @PostMapping("/sms-campaigns/by-manual-numbers")
@@ -75,9 +74,8 @@ public class SmsCampaignController {
                 null,
                 crupdate.getManualPhoneNumbers(),
                 null,
-                null,
-                crupdate.getSendAt()));
-    return smsCampaignMapper.toLaunched(result.campaign(), result.rejectedRows());
+                null));
+    return smsCampaignMapper.toLaunched(result.campaign());
   }
 
   @PostMapping("/sms-campaigns/by-groups")
@@ -94,17 +92,15 @@ public class SmsCampaignController {
                 null,
                 null,
                 null,
-                null,
-                crupdate.getSendAt()));
-    return smsCampaignMapper.toLaunched(result.campaign(), result.rejectedRows());
+                null));
+    return smsCampaignMapper.toLaunched(result.campaign());
   }
 
-  @PostMapping(value = "/sms-campaigns/by-file", consumes = "multipart/form-data")
+  @PostMapping(value = "/sms-campaigns/by-file", consumes = MULTIPART_FORM_DATA_VALUE)
   @ResponseStatus(ACCEPTED)
   public SmsCampaignLaunched createSmsCampaignByFile(
       @RequestParam(required = false) String message,
       @RequestPart("file") MultipartFile file,
-      @RequestParam(required = false) Instant sendAt,
       @AuthenticationPrincipal Principal principal) {
     var result =
         smsCampaignService.createCampaign(
@@ -115,9 +111,8 @@ public class SmsCampaignController {
                 null,
                 null,
                 fileConverter.apply(file),
-                file.getOriginalFilename(),
-                sendAt));
-    return smsCampaignMapper.toLaunched(result.campaign(), result.rejectedRows());
+                file.getOriginalFilename()));
+    return smsCampaignMapper.toLaunched(result.campaign());
   }
 
   @GetMapping("/sms-campaigns")

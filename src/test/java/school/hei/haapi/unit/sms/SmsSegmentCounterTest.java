@@ -33,8 +33,8 @@ class SmsSegmentCounterTest {
 
   @Test
   void gsm7_message_of_306_chars_still_fits_two_segments() {
-    var message = "a".repeat(306); // 2 * 153
-    assertEquals(2, subject.countSegments(message));
+    var messageOfTwoFullSegments = "a".repeat(306);
+    assertEquals(2, subject.countSegments(messageOfTwoFullSegments));
   }
 
   @Test
@@ -45,30 +45,29 @@ class SmsSegmentCounterTest {
 
   @Test
   void french_accents_stay_within_gsm7_single_segment() {
-    // é è à ù (and uppercase É/Ç) are part of the GSM 03.38 default alphabet.
-    var message = "Écoute élève, c'est déjà décidé : à partir de maintenant, c'est validé.";
-    assertEquals(1, subject.countSegments(message));
+    var messageWithGsm7Accents =
+        "Écoute élève, c'est déjà décidé : à partir de maintenant, c'est validé.";
+    assertEquals(1, subject.countSegments(messageWithGsm7Accents));
   }
 
   @Test
   void lowercase_c_cedilla_is_not_in_gsm7_and_forces_ucs2() {
-    var message = "ça va";
-    assertEquals(
-        1, subject.countSegments(message)); // still 1 segment, just under the 70-char UCS-2 cap
-    var longMessage = "ça " + "a".repeat(68); // 71 chars total, forced into UCS-2
-    assertEquals(2, subject.countSegments(longMessage));
+    var shortMessageUnderUcs2SingleSegmentCap = "ça va";
+    assertEquals(1, subject.countSegments(shortMessageUnderUcs2SingleSegmentCap));
+    var messageOf71CharsForcedIntoUcs2 = "ça " + "a".repeat(68);
+    assertEquals(2, subject.countSegments(messageOf71CharsForcedIntoUcs2));
   }
 
   @Test
   void message_with_emoji_forces_ucs2_encoding() {
-    var message = "Bonjour 😀"; // contains an emoji, not in GSM-7 at all
-    assertEquals(1, subject.countSegments(message));
+    var messageWithEmojiNotInGsm7 = "Bonjour 😀";
+    assertEquals(1, subject.countSegments(messageWithEmojiNotInGsm7));
   }
 
   @Test
   void ucs2_message_of_exactly_70_chars_is_one_segment() {
-    var message = "★".repeat(70); // any non-GSM-7 char forces UCS-2
-    assertEquals(1, subject.countSegments(message));
+    var nonGsm7CharForcingUcs2 = "★".repeat(70);
+    assertEquals(1, subject.countSegments(nonGsm7CharForcingUcs2));
   }
 
   @Test
@@ -79,9 +78,9 @@ class SmsSegmentCounterTest {
 
   @Test
   void gsm7_extended_table_chars_count_as_two_septets() {
-    var message = "€".repeat(80); // 160 septets worth, still GSM-7
-    assertEquals(1, subject.countSegments(message));
-    var overLimit = "€".repeat(81); // 162 septets -> over the 160 single-segment limit
-    assertEquals(2, subject.countSegments(overLimit));
+    var messageOf160SeptetsStillGsm7 = "€".repeat(80);
+    assertEquals(1, subject.countSegments(messageOf160SeptetsStillGsm7));
+    var messageOf162SeptetsOverSingleSegmentLimit = "€".repeat(81);
+    assertEquals(2, subject.countSegments(messageOf162SeptetsOverSingleSegmentLimit));
   }
 }

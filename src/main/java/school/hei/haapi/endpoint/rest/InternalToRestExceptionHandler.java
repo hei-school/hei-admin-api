@@ -17,6 +17,7 @@ import school.hei.haapi.model.exception.CoursesCreditSumZero;
 import school.hei.haapi.model.exception.ForbiddenException;
 import school.hei.haapi.model.exception.NotFoundException;
 import school.hei.haapi.model.exception.NotImplementedException;
+import school.hei.haapi.model.exception.SmsFileRowsRejectedException;
 import school.hei.haapi.model.exception.SmsInsufficientBalanceException;
 import school.hei.haapi.model.exception.TooManyRequestsException;
 
@@ -49,6 +50,18 @@ public class InternalToRestExceptionHandler {
             .availableBalance(e.getAvailableBalance())
             .recipientCount(e.getRecipientCount())
             .maxSendableRecipients(e.getMaxSendableRecipients());
+    return new ResponseEntity<>(alert, HttpStatus.BAD_REQUEST);
+  }
+
+  @ExceptionHandler(value = {SmsFileRowsRejectedException.class})
+  ResponseEntity<school.hei.haapi.endpoint.rest.model.SmsFileRowsRejectedAlert>
+      handleSmsFileRowsRejected(SmsFileRowsRejectedException e) {
+    log.info("SMS file import rows rejected", e);
+    var alert =
+        new school.hei.haapi.endpoint.rest.model.SmsFileRowsRejectedAlert()
+            .type("BadRequestException")
+            .message(e.getMessage())
+            .rejectedRows(e.getRejectedRows());
     return new ResponseEntity<>(alert, HttpStatus.BAD_REQUEST);
   }
 
