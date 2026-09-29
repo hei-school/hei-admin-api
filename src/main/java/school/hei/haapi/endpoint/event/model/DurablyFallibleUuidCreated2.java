@@ -14,7 +14,6 @@ import school.hei.haapi.PojaGenerated;
 import school.hei.haapi.endpoint.event.EventStack;
 
 @PojaGenerated
-@SuppressWarnings("all")
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder(toBuilder = true)

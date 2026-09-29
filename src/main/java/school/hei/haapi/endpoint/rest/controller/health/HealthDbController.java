@@ -11,7 +11,6 @@ import school.hei.haapi.PojaGenerated;
 import school.hei.haapi.repository.DummyRepository;
 
 @PojaGenerated
-@SuppressWarnings("all")
 @RestController
 @AllArgsConstructor
 public class HealthDbController {

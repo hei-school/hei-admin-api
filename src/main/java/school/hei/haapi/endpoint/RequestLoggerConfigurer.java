@@ -18,7 +18,6 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import school.hei.haapi.PojaGenerated;
 
 @PojaGenerated
-@SuppressWarnings("all")
 @Configuration
 @AllArgsConstructor
 public class RequestLoggerConfigurer implements WebMvcConfigurer {
@@ -28,7 +27,6 @@ public class RequestLoggerConfigurer implements WebMvcConfigurer {
   }
 
   @PojaGenerated
-  @SuppressWarnings("all")
   @AllArgsConstructor
   @Slf4j
   private static class RequestLogger implements HandlerInterceptor {

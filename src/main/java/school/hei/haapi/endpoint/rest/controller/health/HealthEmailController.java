@@ -17,7 +17,6 @@ import school.hei.haapi.mail.Email;
 import school.hei.haapi.mail.Mailer;
 
 @PojaGenerated
-@SuppressWarnings("all")
 @RestController
 @AllArgsConstructor
 public class HealthEmailController {
