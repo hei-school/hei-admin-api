@@ -9,6 +9,7 @@ import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.ses.SesClient;
 
 @PojaGenerated
+@SuppressWarnings("all")
 @Configuration
 public class EmailConf {
 

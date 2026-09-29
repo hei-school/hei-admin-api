@@ -11,6 +11,7 @@ import school.hei.haapi.PojaGenerated;
 import school.hei.haapi.endpoint.event.EventStack;
 
 @PojaGenerated
+@SuppressWarnings("all")
 public abstract class PojaEvent implements Serializable {
 
   @Getter @Setter protected int attemptNb;
