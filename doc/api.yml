@@ -396,6 +396,40 @@ paths:
     $ref: './operations/documenso-api.yml#/operations/getDocumensoDocumentFileUrl'
   '/documenso-documents/{id}/signing-token':
     $ref: './operations/documenso-api.yml#/operations/getDocumensoDocumentSigningToken'
+  # Sms
+  /sms-contacts:
+    $ref: './operations/sms-api.yml#/operations/smsContacts'
+  '/sms-contacts/{id}':
+    $ref: './operations/sms-api.yml#/operations/smsContactById'
+  '/sms-contacts/{id}/messages':
+    $ref: './operations/sms-api.yml#/operations/smsContactMessages'
+  /sms-contact-groups:
+    $ref: './operations/sms-api.yml#/operations/smsContactGroups'
+  '/sms-contact-groups/{id}':
+    $ref: './operations/sms-api.yml#/operations/smsContactGroupById'
+  '/sms-contact-groups/{id}/members/{contact_id}':
+    $ref: './operations/sms-api.yml#/operations/smsContactGroupMember'
+  /sms-balance:
+    $ref: './operations/sms-api.yml#/operations/smsBalance'
+  /sms-campaigns:
+    $ref: './operations/sms-api.yml#/operations/smsCampaigns'
+  /sms-campaigns/by-contacts:
+    $ref: './operations/sms-api.yml#/operations/smsCampaignsByContacts'
+  /sms-campaigns/by-manual-numbers:
+    $ref: './operations/sms-api.yml#/operations/smsCampaignsByManualNumbers'
+  /sms-campaigns/by-groups:
+    $ref: './operations/sms-api.yml#/operations/smsCampaignsByGroups'
+  /sms-campaigns/by-file:
+    $ref: './operations/sms-api.yml#/operations/smsCampaignsByFile'
+  '/sms-campaigns/{id}':
+    $ref: './operations/sms-api.yml#/operations/smsCampaignById'
+  '/sms-campaigns/{id}/logs':
+    $ref: './operations/sms-api.yml#/operations/smsCampaignLogs'
+  # Notifications
+  /notifications:
+    $ref: './operations/notifications-api.yml#/operations/notifications'
+  '/notifications/{id}':
+    $ref: './operations/notifications-api.yml#/operations/notificationById'
 
 components:
   securitySchemes:

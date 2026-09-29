@@ -7,6 +7,7 @@ import school.hei.haapi.PojaGenerated;
 import school.hei.haapi.repository.model.DummyUuid;
 
 @PojaGenerated
+@SuppressWarnings("all")
 @Repository
 public interface DummyUuidRepository extends JpaRepository<DummyUuid, String> {
   @Override

@@ -1,6 +1,5 @@
 package school.hei.haapi.endpoint.rest.controller;
 
-import static school.hei.haapi.model.PaymentStatus.INVALIDATE;
 import static school.hei.haapi.model.PaymentStatus.VALIDATE;
 
 import java.util.List;
@@ -18,6 +17,7 @@ import school.hei.haapi.endpoint.rest.model.CreatePayment;
 import school.hei.haapi.endpoint.rest.model.CreditPayment;
 import school.hei.haapi.endpoint.rest.model.Payment;
 import school.hei.haapi.endpoint.rest.model.PaymentStatus;
+import school.hei.haapi.endpoint.rest.model.RejectCreditPayments;
 import school.hei.haapi.endpoint.rest.security.AuthProvider;
 import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.PageFromOne;
@@ -52,9 +52,10 @@ public class PaymentController {
   }
 
   @PatchMapping("/students/payments/reject")
-  public List<CreditPayment> rejectPayments(@RequestBody List<String> paymentIds) {
-    var payments = paymentService.getByIds(paymentIds);
-    payments.forEach(payment -> payment.setStatus(INVALIDATE));
+  public List<CreditPayment> rejectPayments(@RequestBody RejectCreditPayments toReject) {
+    var payments = paymentService.getByIds(toReject.getPaymentIds());
+    var rejector = AuthProvider.getPrincipal().getUser();
+    payments.forEach(payment -> payment.reject(rejector, toReject.getReason()));
     return paymentMapper.toRestCreditPayment(paymentService.saveAll(payments));
   }
 

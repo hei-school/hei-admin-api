@@ -23,6 +23,7 @@ import school.hei.haapi.service.documenso.gen.model.TemplateFindTemplates200Resp
 @Service
 @AllArgsConstructor
 public class TemplateDocumensoService {
+  private static final String TEMPLATE_FOLDER_TYPE = "TEMPLATE";
   private static final int PAGE_SIZE = 100;
   private static final int MAX_PAGES = 50;
 
@@ -52,24 +53,54 @@ public class TemplateDocumensoService {
 
   private RemoteTemplates fetchAllRemoteTemplates() {
     var remoteTemplates = new ArrayList<TemplateFindTemplates200ResponseDataInner>();
+    var listedInFull = listInto(remoteTemplates, null);
+    for (var folderId : templateFolderIds()) {
+      listedInFull = listInto(remoteTemplates, folderId) && listedInFull;
+    }
+    return new RemoteTemplates(remoteTemplates, listedInFull);
+  }
+
+  private boolean listInto(List<TemplateFindTemplates200ResponseDataInner> into, String folderId) {
     for (var page = 1; page <= MAX_PAGES; page++) {
-      var data = documensoClient.findTemplates(null, page, PAGE_SIZE).getData();
+      var response =
+          folderId == null
+              ? documensoClient.findTemplates(null, page, PAGE_SIZE)
+              : documensoClient.findTemplatesOfFolder(folderId, page, PAGE_SIZE);
+      var data = response == null ? null : response.getData();
       if (data == null || data.isEmpty()) {
-        return new RemoteTemplates(remoteTemplates, true);
+        return true;
       }
-      remoteTemplates.addAll(data);
+      into.addAll(data);
       if (data.size() < PAGE_SIZE) {
-        return new RemoteTemplates(remoteTemplates, true);
+        return true;
       }
     }
     log.warn(
-        "Stopped listing Documenso templates after {} pages: pruning is skipped to avoid deleting"
-            + " templates that were never listed",
+        "Stopped listing Documenso templates of folder {} after {} pages: pruning is skipped to"
+            + " avoid deleting templates that were never listed",
+        folderId,
         MAX_PAGES);
-    return new RemoteTemplates(remoteTemplates, false);
+    return false;
+  }
+
+  private List<String> templateFolderIds() {
+    var ids = new ArrayList<String>();
+    collectFolders(null, ids);
+    return ids;
+  }
+
+  private void collectFolders(String parentId, List<String> into) {
+    for (var folder : documensoClient.findFolders(parentId, TEMPLATE_FOLDER_TYPE)) {
+      into.add(folder.getId());
+      collectFolders(folder.getId(), into);
+    }
   }
 
   private void prune(List<Long> remoteIds) {
+    if (remoteIds.isEmpty() && !templateDocumensoRepository.findAll().isEmpty()) {
+      log.warn("Documenso listed no template at all: pruning is skipped");
+      return;
+    }
     var stale =
         remoteIds.isEmpty()
             ? templateDocumensoRepository.findAll()

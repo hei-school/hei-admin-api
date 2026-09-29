@@ -18,6 +18,7 @@ public class MpbsService {
   private final MpbsRepository mpbsRepository;
   private final FeeService feeService;
   private final PaymentService paymentService;
+  private final CreditService creditService;
 
   @Transactional
   public Mpbs saveVerifiedSuccessfulPayment(Mpbs verifiedMpbs) {
@@ -25,15 +26,28 @@ public class MpbsService {
         mpbsRepository
             .findByIdForUpdate(verifiedMpbs.getId())
             .orElseThrow(() -> new NotFoundException("Mpbs not found #" + verifiedMpbs.getId()));
-    if (!MpbsStatus.PENDING.equals(lockedMpbs.getStatus())) {
+    if (paymentService.hasPaymentFromMpbs(lockedMpbs.getId())) {
       log.info(
-          "Mpbs {} was already resolved to {} while waiting for the lock, skipping",
-          verifiedMpbs.getId(),
-          lockedMpbs.getStatus());
+          "Mpbs {} was already paid while waiting for the lock, skipping", verifiedMpbs.getId());
       return lockedMpbs;
     }
-    int amountInPsp = verifiedMpbs.getAmount();
-    feeService.computeRemainingAmount(verifiedMpbs.getFee().getId(), amountInPsp);
+    var amountInPsp = verifiedMpbs.getAmount();
+    var fee = feeService.getById(verifiedMpbs.getFee().getId());
+
+    if (fee.getRemainingAmount() <= 0) {
+      var alreadyPaid = fee.getTotalAmount();
+      var overpayment = amountInPsp - alreadyPaid;
+      log.info(
+          "Fee {} is already fully paid ({} already recorded for it); crediting {} directly"
+              + " instead of creating a duplicate payment",
+          fee.getId(),
+          alreadyPaid,
+          overpayment);
+      creditService.depositOverpaymentToCredit(fee, fee.getStudent(), overpayment);
+      return save(verifiedMpbs);
+    }
+
+    feeService.computeRemainingAmount(fee.getId(), amountInPsp);
     var savedMpbs = save(verifiedMpbs);
 
     paymentService.savePaymentFromMpbs(savedMpbs, amountInPsp);

@@ -13,4 +13,7 @@ public class DocumensoDocumentEvent {
   @NotNull
   @JsonProperty("id")
   private Long id;
+
+  @JsonProperty("completedAt")
+  private String completedAt;
 }

@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,8 +18,10 @@ import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.DocumensoDocument;
 import school.hei.haapi.model.DocumensoDocumentRecipient;
 import school.hei.haapi.model.DocumensoDocumentStatus;
+import school.hei.haapi.model.Group;
 import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.model.PersonSnapshot;
+import school.hei.haapi.model.Promotion;
 import school.hei.haapi.model.TemplateDocumenso;
 import school.hei.haapi.model.User;
 import school.hei.haapi.model.exception.ApiException;
@@ -43,6 +46,7 @@ import school.hei.haapi.service.documenso.gen.model.TemplateGetTemplateById200Re
 
 @Service
 @AllArgsConstructor
+@Slf4j
 public class DocumensoDocumentService {
   private final DocumensoClient documensoClient;
   private final DocumensoDocumentRepository documensoDocumentRepository;
@@ -54,6 +58,7 @@ public class DocumensoDocumentService {
   private final PrefillFieldsFactory prefillFieldsFactory;
   private final DocumensoWebhookHandler webhookHandler;
   private final FileService fileService;
+  private final DocumensoFolderService documensoFolderService;
   private static final Set<User.Role> STAFF_ROLES = Set.of(User.Role.ADMIN, User.Role.MANAGER);
   private static final long SIGNED_FILE_LINK_LIFETIME_SECONDS = 300L;
 
@@ -89,7 +94,9 @@ public class DocumensoDocumentService {
       var remoteTemplate = documensoClient.getTemplate(template.getDocumensoTemplateId());
       validateRemoteTemplate(remoteTemplate, template);
 
-      var request = buildDocumentRequest(remoteTemplate, template, student, monitor, level);
+      var request =
+          buildDocumentRequest(
+              remoteTemplate, template, student, monitor, level, folderIdFor(student, level));
       var response = documensoClient.useTemplate(request);
 
       return persistDocument(template, student, level, monitor, generatedBy, response);
@@ -103,10 +110,12 @@ public class DocumensoDocumentService {
       TemplateDocumenso template,
       User student,
       User monitor,
-      StudentLevel level) {
+      StudentLevel level,
+      String folderId) {
     var request = new TemplateCreateDocumentFromTemplateRequest();
     request.setTemplateId(BigDecimal.valueOf(remoteTemplate.getId().longValue()));
     request.setDistributeDocument(true);
+    request.setFolderId(folderId);
     request.setRecipients(
         List.of(toRecipient(remoteTemplate.getRecipients().getFirst().getId(), monitor)));
     request.setPrefillFields(
@@ -166,6 +175,42 @@ public class DocumensoDocumentService {
     recipient.setEmail(user.getEmail());
     recipient.setName(user.getFirstName() + " " + user.getLastName());
     return recipient;
+  }
+
+  private String folderIdFor(User student, StudentLevel level) {
+    if (level == null) {
+      return null;
+    }
+    var year =
+        student
+            .findCurrentGroup()
+            .map(Group::getPromotion)
+            .filter(promotion -> promotion.getStartDatetime() != null)
+            .flatMap(promotion -> safeYearString(promotion, level));
+    if (year.isEmpty()) {
+      log.warn(
+          "No academic year for student {}: its fiche stays at the Documenso root",
+          student.getId());
+      return null;
+    }
+    try {
+      return documensoFolderService.resolveFolderId(
+          List.of(DocumensoFolderService.ROOT_FOLDER_NAME, year.get(), level.name()));
+    } catch (Exception e) {
+      log.warn(
+          "Could not resolve the Documenso folder of student {}: its fiche stays at the root",
+          student.getId(),
+          e);
+      return null;
+    }
+  }
+
+  private Optional<String> safeYearString(Promotion promotion, StudentLevel level) {
+    try {
+      return Optional.of(promotion.getPromotionYearString(level));
+    } catch (IllegalArgumentException e) {
+      return Optional.empty();
+    }
   }
 
   private StudentLevel safeLevelAt(User student) {

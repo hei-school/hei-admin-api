@@ -1,5 +1,6 @@
 package school.hei.haapi.service;
 
+import static java.time.Instant.now;
 import static org.apache.poi.ss.usermodel.Row.MissingCellPolicy.CREATE_NULL_AS_BLANK;
 import static school.hei.haapi.endpoint.rest.model.MpbsStatus.PENDING;
 import static school.hei.haapi.endpoint.rest.model.MpbsStatus.SUCCESS;
@@ -7,6 +8,8 @@ import static school.hei.haapi.endpoint.rest.model.MpbsStatus.SUCCESS;
 import jakarta.transaction.Transactional;
 import java.io.File;
 import java.io.IOException;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -50,6 +53,8 @@ public class MpbsVerificationService {
   private final MpbsService mpbsService;
   private final MpbsMapper mapper;
 
+  private static final Duration VOLA_POLL_INTERVAL = Duration.ofMinutes(1);
+
   public List<MpbsVerification> findAllByStudentIdAndFeeId(String studentId, String feeId) {
     return repository.findAllByStudentIdAndFeeId(studentId, feeId);
   }
@@ -92,8 +97,29 @@ public class MpbsVerificationService {
   }
 
   public void verifyPendingMpbsForStudent(String studentId) {
-    var pendingMpbs = mpbsRepository.findAllByStatusAndStudentId(PENDING, studentId);
-    pendingMpbs.forEach(this::verifyMpbsFromVola);
+    var now = now();
+    mpbsRepository.findAllByStatusAndStudentId(PENDING, studentId).stream()
+        .filter(mpbs -> isDueForVolaPoll(mpbs, now))
+        .forEach(
+            mpbs -> {
+              try {
+                verifyMpbsFromVola(mpbs);
+              } finally {
+                mpbsRepository.markVolaPolledAt(mpbs.getId(), now);
+              }
+            });
+  }
+
+  private boolean isDueForVolaPoll(Mpbs mpbs, Instant now) {
+    var lastPoll = mpbs.getLastVolaPollDatetime();
+    if (lastPoll == null) {
+      return true;
+    }
+    if (lastPoll.plus(VOLA_POLL_INTERVAL).isAfter(now)) {
+      log.debug("Mpbs {} was polled from Vola at {}, skipping this one", mpbs.getId(), lastPoll);
+      return false;
+    }
+    return true;
   }
 
   public school.hei.haapi.endpoint.rest.model.Mpbs sendVolaVerificationRequestAndSaveResult(
@@ -114,7 +140,11 @@ public class MpbsVerificationService {
               mpbs.getFee(),
               mpbs.getStatusHistory());
 
-      return mapper.toRest(mpbsService.saveMpbs(mpbsMappedFromVola));
+      var savedMpbs = mpbsService.saveMpbs(mpbsMappedFromVola);
+      if (SUCCESS.equals(savedMpbs.getStatus()) && savedMpbs.getAmount() != null) {
+        savedMpbs = mpbsService.saveVerifiedSuccessfulPayment(savedMpbs);
+      }
+      return mapper.toRest(savedMpbs);
     } catch (Exception e) {
       log.error("Failed to create Vola payment for mpbs {}", mpbs.getPspId(), e);
       throw e;
@@ -131,6 +161,12 @@ public class MpbsVerificationService {
 
     // TIPS: do not use exception to continue script
     for (Mpbs pendingMbps : pendingMpbsList) {
+      if (SUCCESS.equals(pendingMbps.getStatus())) {
+        log.info(
+            "Mpbs {} is already SUCCESS, skipping transaction details verification",
+            pendingMbps.getId());
+        continue;
+      }
       List<MobileTransactionDetails> correspondingTransactionsPendingDetails =
           mobileTransactionResponseDetails.stream()
               .filter(

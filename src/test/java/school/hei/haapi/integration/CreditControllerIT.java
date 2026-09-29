@@ -8,6 +8,8 @@ import static school.hei.haapi.endpoint.rest.model.FeeFrequency.MONTHLY;
 import static school.hei.haapi.integration.conf.TestAuth.tokenFor;
 import static school.hei.haapi.integration.conf.TestMocks.setUpEventBridge;
 import static school.hei.haapi.integration.testData.ManagerTestData.hasina;
+import static school.hei.haapi.integration.testData.MonitorTestData.monitorOfFreddy;
+import static school.hei.haapi.integration.testData.TeacherTestData.ryan;
 import static school.hei.haapi.model.User.Role.STUDENT;
 
 import java.time.Instant;
@@ -29,6 +31,7 @@ import school.hei.haapi.endpoint.rest.model.CreatePayment;
 import school.hei.haapi.endpoint.rest.model.FeeStatusEnum;
 import school.hei.haapi.endpoint.rest.model.FeeTypeEnum;
 import school.hei.haapi.endpoint.rest.model.PaymentStatus;
+import school.hei.haapi.endpoint.rest.model.RejectCreditPayments;
 import school.hei.haapi.endpoint.rest.model.UpdateFeeArchiveStatus;
 import school.hei.haapi.integration.conf.FacadeITMockedThirdParties;
 import school.hei.haapi.integration.conf.TestUtils;
@@ -50,8 +53,12 @@ class CreditControllerIT extends FacadeITMockedThirdParties {
   @Autowired UserRepository userRepository;
   private static User student;
   private static User managerHasina;
+  private static User monitorFreddy;
+  private static User teacherRyan;
   private String managerToken;
   private String studentToken;
+  private String monitorToken;
+  private String teacherToken;
   private static Fee feeToArchive;
   private static Fee currentFee;
   @Autowired private CreditRepository creditRepository;
@@ -79,12 +86,16 @@ class CreditControllerIT extends FacadeITMockedThirdParties {
 
   void setUpTestData() {
     managerHasina = userRepository.save(hasina());
+    monitorFreddy = userRepository.save(monitorOfFreddy());
+    teacherRyan = userRepository.save(ryan());
     student = userRepository.save(student());
     var savedFees = feeRepository.saveAll(List.of(feeToArchive(), currentFee()));
     feeToArchive = savedFees.getFirst();
     currentFee = savedFees.getLast();
     managerToken = tokenFor(casdoorAuthServiceMock, managerHasina);
     studentToken = tokenFor(casdoorAuthServiceMock, student);
+    monitorToken = tokenFor(casdoorAuthServiceMock, monitorFreddy);
+    teacherToken = tokenFor(casdoorAuthServiceMock, teacherRyan);
   }
 
   @AfterEach
@@ -96,6 +107,8 @@ class CreditControllerIT extends FacadeITMockedThirdParties {
     feeRepository.deleteAllById(List.of(feeToArchive.getId(), currentFee.getId()));
     userRepository.deleteById(student.getId());
     userRepository.deleteById(managerHasina.getId());
+    userRepository.deleteById(monitorFreddy.getId());
+    userRepository.deleteById(teacherRyan.getId());
   }
 
   @Test
@@ -126,14 +139,36 @@ class CreditControllerIT extends FacadeITMockedThirdParties {
     var anApiClient = anApiClient(managerToken);
     var payingApi = new PayingApi(anApiClient);
     payingApi.archiveStudentFee(student.getId(), feeToArchive.getId());
+    var reason = "Missing supporting document";
     var rejectedFee =
         payingApi.updateFeeArchiveStatus(
             student.getId(),
             feeToArchive.getId(),
-            new UpdateFeeArchiveStatus().status(ArchiveStatusEnum.REJECTED));
+            new UpdateFeeArchiveStatus().status(ArchiveStatusEnum.REJECTED).reason(reason));
     assertNotNull(rejectedFee);
     assertEquals(ArchiveStatusEnum.REJECTED, rejectedFee.getArchiveStatus());
     assertEquals(false, rejectedFee.getIsArchived());
+    assertEquals(reason, rejectedFee.getRejectionReason());
+    assertEquals(managerHasina.getRef(), rejectedFee.getRejectedByRef());
+    assertNotNull(rejectedFee.getRejectedDatetime());
+  }
+
+  @Test
+  void manager_reject_archive_fee_without_reason_KO() throws ApiException {
+    setUpTestData();
+    var anApiClient = anApiClient(managerToken);
+    var payingApi = new PayingApi(anApiClient);
+    payingApi.archiveStudentFee(student.getId(), feeToArchive.getId());
+
+    var apiException =
+        org.junit.jupiter.api.Assertions.assertThrows(
+            ApiException.class,
+            () ->
+                payingApi.updateFeeArchiveStatus(
+                    student.getId(),
+                    feeToArchive.getId(),
+                    new UpdateFeeArchiveStatus().status(ArchiveStatusEnum.REJECTED)));
+    assertEquals(400, apiException.getCode());
   }
 
   @Test
@@ -151,6 +186,41 @@ class CreditControllerIT extends FacadeITMockedThirdParties {
   }
 
   @Test
+  void monitor_read_credit_and_credit_transactions_OK() throws ApiException {
+    var managerApiClient = anApiClient(managerToken);
+    var managerPayingApi = new PayingApi(managerApiClient);
+    requestAndValidateArchive(managerPayingApi, feeToArchive.getId());
+
+    var monitorPayingApi = new PayingApi(anApiClient(monitorToken));
+    var credit = monitorPayingApi.getCreditByStudentId(student.getId());
+    assertNotNull(credit);
+    assertEquals(200000, credit.getAmount());
+    var transactions =
+        monitorPayingApi.getCreditTransactionsByStudentId(student.getId(), null, 1, 10);
+    assertNotNull(transactions);
+    assertEquals(1, transactions.size());
+  }
+
+  @Test
+  void teacher_read_credit_KO() throws ApiException {
+    var managerApiClient = anApiClient(managerToken);
+    var managerPayingApi = new PayingApi(managerApiClient);
+    requestAndValidateArchive(managerPayingApi, feeToArchive.getId());
+
+    var teacherPayingApi = new PayingApi(anApiClient(teacherToken));
+    var apiException =
+        org.junit.jupiter.api.Assertions.assertThrows(
+            ApiException.class, () -> teacherPayingApi.getCreditByStudentId(student.getId()));
+    assertEquals(403, apiException.getCode());
+
+    var apiExceptionTransactions =
+        org.junit.jupiter.api.Assertions.assertThrows(
+            ApiException.class,
+            () -> teacherPayingApi.getCreditTransactionsByStudentId(student.getId(), null, 1, 10));
+    assertEquals(403, apiExceptionTransactions.getCode());
+  }
+
+  @Test
   void student_create_credit_payment_OK() throws ApiException {
     var anApiClient = anApiClient(studentToken);
     var payingApi = new PayingApi(anApiClient);
@@ -161,6 +231,21 @@ class CreditControllerIT extends FacadeITMockedThirdParties {
         payingApi.createStudentPayments(
             student.getId(), currentFee.getId(), List.of(bankPayment(), creditPaymentCreated()));
     assertNotNull(payments);
+  }
+
+  @Test
+  void manager_create_credit_payment_is_auto_validated_OK() throws ApiException {
+    var managerApiClient = anApiClient(managerToken);
+    var managerPayingApi = new PayingApi(managerApiClient);
+    requestAndValidateArchive(managerPayingApi, feeToArchive.getId());
+    var payments =
+        managerPayingApi.createStudentPayments(
+            student.getId(), currentFee.getId(), List.of(creditPaymentCreated()));
+    var creditPayment = payments.getFirst();
+    assertEquals(PaymentStatus.VALIDATE, creditPayment.getStatus());
+    assertEquals(managerHasina.getRef(), creditPayment.getValidatedByRef());
+    var feePaid = managerPayingApi.getStudentFeeById(student.getId(), currentFee.getId());
+    assertEquals(100000, feePaid.getRemainingAmount());
   }
 
   @Test
@@ -203,15 +288,42 @@ class CreditControllerIT extends FacadeITMockedThirdParties {
     assertEquals(payments.getLast().getId(), paymentsToReject.getFirst().getId());
     assertEquals(currentFee.getId(), paymentsToReject.getFirst().getFee().getId());
     var creditPaymentsRejected =
-        managerPayingApi.rejectCreditPayments(List.of(paymentsToReject.getFirst().getId()));
+        managerPayingApi.rejectCreditPayments(
+            new RejectCreditPayments()
+                .paymentIds(List.of(paymentsToReject.getFirst().getId()))
+                .reason("Justificatif manquant"));
     assertNotNull(creditPaymentsRejected);
     assertEquals(PaymentStatus.INVALIDATE, creditPaymentsRejected.getFirst().getStatus());
+    assertEquals("Justificatif manquant", creditPaymentsRejected.getFirst().getRejectionReason());
+    assertEquals(managerHasina.getRef(), creditPaymentsRejected.getFirst().getRejectedByRef());
+    assertNotNull(creditPaymentsRejected.getFirst().getRejectedDatetime());
     var feeNotPaid = managerPayingApi.getStudentFeeById(student.getId(), currentFee.getId());
     assertNotNull(feeNotPaid);
     assertEquals(50000, feeNotPaid.getRemainingAmount());
     var actualCredit = managerPayingApi.getCreditByStudentId(student.getId());
     assertNotNull(actualCredit);
     assertEquals(200000, actualCredit.getAmount());
+  }
+
+  @Test
+  void manager_reject_credit_payments_without_reason_KO() throws ApiException {
+    var studentApiClient = anApiClient(studentToken);
+    var managerApiClient = anApiClient(managerToken);
+    var studentPayingApi = new PayingApi(studentApiClient);
+    var managerPayingApi = new PayingApi(managerApiClient);
+    requestAndValidateArchive(managerPayingApi, feeToArchive.getId());
+    studentPayingApi.createStudentPayments(
+        student.getId(), currentFee.getId(), List.of(bankPayment(), creditPaymentCreated()));
+    var paymentsToReject = managerPayingApi.getCreditPaymentsByStatus(PaymentStatus.CREATED, 1, 10);
+
+    var apiException =
+        org.junit.jupiter.api.Assertions.assertThrows(
+            ApiException.class,
+            () ->
+                managerPayingApi.rejectCreditPayments(
+                    new RejectCreditPayments()
+                        .paymentIds(List.of(paymentsToReject.getFirst().getId()))));
+    assertEquals(400, apiException.getCode());
   }
 
   @Test
@@ -237,11 +349,17 @@ class CreditControllerIT extends FacadeITMockedThirdParties {
             .findFirst()
             .orElseThrow();
     assertEquals(managerHasina.getRef(), creditFromArchive.getFee().getArchivedByRef());
+    assertEquals(
+        school.hei.haapi.endpoint.rest.model.CreditTransactionType.FEE_ARCHIVING,
+        creditFromArchive.getType());
     var debitFromPayment =
         transactions.stream()
             .filter(t -> t.getFee().getId().equals(currentFee.getId()))
             .findFirst()
             .orElseThrow();
+    assertEquals(
+        school.hei.haapi.endpoint.rest.model.CreditTransactionType.CREDIT_PAYMENT,
+        debitFromPayment.getType());
     assertNotNull(debitFromPayment.getPayment());
     assertEquals(paymentToValidate.getId(), debitFromPayment.getPayment().getId());
     assertEquals(currentFee.getId(), debitFromPayment.getPayment().getFeeId());

@@ -72,7 +72,6 @@ public class CheckStudentsStatusTest extends FacadeITMockedThirdParties {
   private String managerToken;
   private String indebtedStudentToken;
 
-  /** Fees created through the API on top of the fixtures, swept in tearDown. */
   private final List<String> apiCreatedFeeIds = new ArrayList<>();
 
   @BeforeEach
@@ -92,7 +91,6 @@ public class CheckStudentsStatusTest extends FacadeITMockedThirdParties {
     setUpVolaClient();
   }
 
-  /** Registering an mpbs calls the PSP: the payment comes back as still being verified. */
   private void setUpVolaClient() {
     when(volaClientMock.create(any(PspPayment.PspTypeEnum.class), anyString(), anyString()))
         .thenAnswer(
@@ -113,8 +111,6 @@ public class CheckStudentsStatusTest extends FacadeITMockedThirdParties {
   void tearDown() {
     List<String> feeIds = new ArrayList<>(apiCreatedFeeIds);
     feeIds.addAll(List.of(lateFee1.getId(), lateFee2.getId(), otherLateFee.getId()));
-    // Fee carries @SQLDelete, so a repository delete would only flag is_deleted: reach the tables
-    // directly, children first.
     feeIds.forEach(
         feeId -> {
           jdbcTemplate.update(
@@ -123,9 +119,9 @@ public class CheckStudentsStatusTest extends FacadeITMockedThirdParties {
               feeId);
           jdbcTemplate.update("DELETE FROM \"mpbs_verification\" WHERE fee_id = ?", feeId);
 
+          jdbcTemplate.update("DELETE FROM \"payment\" WHERE fee_id = ?", feeId);
           jdbcTemplate.update("DELETE FROM \"mpbs\" WHERE fee_id = ?", feeId);
           jdbcTemplate.update("DELETE FROM \"fee_status_history\" WHERE fee_id = ?", feeId);
-          jdbcTemplate.update("DELETE FROM \"payment\" WHERE fee_id = ?", feeId);
           jdbcTemplate.update("DELETE FROM \"fee\" WHERE id = ?", feeId);
         });
     apiCreatedFeeIds.clear();
@@ -155,14 +151,12 @@ public class CheckStudentsStatusTest extends FacadeITMockedThirdParties {
   void update_students_status_ok() {
     assertEquals(ENABLED, userService.getById(indebtedStudent.getId()).getStatus());
 
-    // here, we check if the enabled student has paid all their fees
     suspendStudentsWithOverdueFeesService.suspendStudentsWithUnpaidOrLateFee();
     assertEquals(SUSPENDED, userService.getById(indebtedStudent.getId()).getStatus());
 
     feeService.computeRemainingAmount(lateFee1.getId(), 5000);
     feeService.computeRemainingAmount(lateFee2.getId(), 5000);
 
-    // here, we check if the suspended student has paid all their fees
     checkSuspendedStudentsStatusService.updateStatusBasedOnPayment();
     assertEquals(ENABLED, userService.getById(indebtedStudent.getId()).getStatus());
   }
@@ -186,10 +180,8 @@ public class CheckStudentsStatusTest extends FacadeITMockedThirdParties {
 
     suspendStudentsWithOverdueFeesService.suspendStudentsWithUnpaidOrLateFee();
 
-    // the student does have an unpaid or late fee
     assertTrue(userService.getStudentsWithLateFee().contains(userService.getById(studentId)));
 
-    // yet they stay enabled, because of the pending mpbs
     assertEquals(1, mpbsService.countPendingOfStudent(studentId));
     assertEquals(ENABLED, userService.getById(studentId).getStatus());
   }

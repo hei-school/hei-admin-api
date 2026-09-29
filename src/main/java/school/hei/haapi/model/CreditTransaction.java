@@ -37,11 +37,14 @@ public class CreditTransaction implements Serializable {
   @Enumerated(STRING)
   private CreditMovement creditMovement;
 
+  @JdbcTypeCode(NAMED_ENUM)
+  @Enumerated(STRING)
+  private CreditTransactionType type;
+
   @ManyToOne
   @JoinColumn(name = "fee_id", nullable = false, updatable = false)
   private Fee fee;
 
-  /** Only set for a DEBIT transaction caused by a credit payment; null otherwise. */
   @ManyToOne
   @JoinColumn(name = "payment_id", updatable = false)
   private Payment payment;

@@ -1,3 +1,78 @@
+# [1.176.0](https://github.com/hei-school/hei-admin-api/compare/v1.175.0...v1.176.0) (2026-09-25)
+
+
+### Bug Fixes
+
+* remove unused status and send sms by file ([d33ab00](https://github.com/hei-school/hei-admin-api/commit/d33ab0008a4458ac9ae419ef8447d335dab54ba1))
+
+
+### Features
+
+* documenso folders ([1cb2d07](https://github.com/hei-school/hei-admin-api/commit/1cb2d07f46f062e6c98c787b9c029460ff321450))
+
+
+
+# [1.175.0](https://github.com/hei-school/hei-admin-api/compare/v1.174.0...v1.175.0) (2026-09-24)
+
+
+### Features
+
+* file generated fiches by year and level ([3de781e](https://github.com/hei-school/hei-admin-api/commit/3de781e7a4ab3d9da28676105b850da88960e852))
+
+
+
+# [1.174.0](https://github.com/hei-school/hei-admin-api/compare/v1.173.1...v1.174.0) (2026-09-24)
+
+
+### Bug Fixes
+
+* allow user search without accents ([be290b0](https://github.com/hei-school/hei-admin-api/commit/be290b05d991abb7b690a3d6ecc9052e8c5b3e4b))
+* duplicate payment and repeated verification ([3d3961f](https://github.com/hei-school/hei-admin-api/commit/3d3961f03837b5791091a07f485b96ec8cf8d469))
+* send sms compaign ([cf8c7db](https://github.com/hei-school/hei-admin-api/commit/cf8c7dbd3f62380c57dfc2299e9d5c5704e5cce3))
+
+
+### Features
+
+* SmsBefiana integration ([f503b30](https://github.com/hei-school/hei-admin-api/commit/f503b30cfad326cf6a5a28536cff3bbee7c4b2f7))
+
+
+
+## [1.173.1](https://github.com/hei-school/hei-admin-api/compare/v1.173.0...v1.173.1) (2026-09-18)
+
+
+### Bug Fixes
+
+* duplicate payment ([49c54a9](https://github.com/hei-school/hei-admin-api/commit/49c54a948baf24eaa187c6008ab3edd516dda470))
+* transfert create over_payment transaction ([fd0a5e4](https://github.com/hei-school/hei-admin-api/commit/fd0a5e4ee8c45ca541e9b6812f9248abb87551cd))
+
+
+
+# [1.173.0](https://github.com/hei-school/hei-admin-api/compare/v1.172.0...v1.173.0) (2026-09-17)
+
+
+### Bug Fixes
+
+* **casdoor:** handle client auth errors correctly ([42fb277](https://github.com/hei-school/hei-admin-api/commit/42fb277f6d83ac76198a4b9dac40be8f81ab8cbc))
+* **ci:** raise the gradle daemon heap so sonar can finish ([8795c64](https://github.com/hei-school/hei-admin-api/commit/8795c64820a28e228a8a77601bcaf3438ae2ba32))
+* create credit transaction for payment created by admin ([bb4b672](https://github.com/hei-school/hei-admin-api/commit/bb4b672f37cabf5ec953de8e27b0f9805122832f))
+* **documenso:** acknowledge webhooks of unknown documents ([5df8ac0](https://github.com/hei-school/hei-admin-api/commit/5df8ac0b72983266d6f4006e1f1c07bbc02df683))
+* **documenso:** download the signed pdf as bytes, not as a File ([a126b41](https://github.com/hei-school/hei-admin-api/commit/a126b41abb7849e4e8a6d6ea6a52e52be4e05732))
+* format number ([3562cea](https://github.com/hei-school/hei-admin-api/commit/3562ceafe76c37e152e7b9bf397e9b85916bbe90))
+* get student group flows at level ([a983fa8](https://github.com/hei-school/hei-admin-api/commit/a983fa8947cbd41737ecdd9dc9ad00dff751dfc4))
+* incorrect return result (instead of an unique object, it returned a list) ([384d191](https://github.com/hei-school/hei-admin-api/commit/384d1911f5149b5fddb728b97dc62e4e9c8c9ddf))
+* **promotion:** report a not-yet-started promotion as such instead of an error ([c804dc0](https://github.com/hei-school/hei-admin-api/commit/c804dc04191825172b4b3264dd13a641b7bdaf5f))
+* trigger patch release ([1c73935](https://github.com/hei-school/hei-admin-api/commit/1c73935249b4571b00bbbd5bdc52d09e78de564f))
+
+
+### Features
+
+* add reason before rejecting credit payment ([5020ee4](https://github.com/hei-school/hei-admin-api/commit/5020ee498f9ea78943ed2c69c3729cff107a164d))
+* add security rule for /fees/advanced-stats ([788e627](https://github.com/hei-school/hei-admin-api/commit/788e627ea5974d8f4c9142daa04c93678a574eb8))
+* advanced fees stats update ([4e50783](https://github.com/hei-school/hei-admin-api/commit/4e507838c87044c2fc25b7c2cf5db19d6f413602))
+* **documenso:** tell the signature date from the archiving date ([19c7e7f](https://github.com/hei-school/hei-admin-api/commit/19c7e7f9699f6d7c7eec705f3eaa599cec5d0963))
+
+
+
 # [1.172.0](https://github.com/hei-school/hei-admin-api/compare/v1.171.0...v1.172.0) (2026-09-09)
 
 
@@ -66,59 +141,6 @@
 ### Features
 
 * documenso integration ([e5ad697](https://github.com/hei-school/hei-admin-api/commit/e5ad6972f73514bd163b9858fdb614a403edfffb))
-
-
-
-## [1.166.1](https://github.com/hei-school/hei-admin-api/compare/v1.166.0...v1.166.1) (2026-08-12)
-
-
-### Bug Fixes
-
-* pin axios version to 1.18.1 ([54199a6](https://github.com/hei-school/hei-admin-api/commit/54199a63f8b236a5b5d2bb41ba644f2deb9bf99d))
-
-
-
-# [1.166.0](https://github.com/hei-school/hei-admin-api/compare/v1.165.1...v1.166.0) (2026-08-11)
-
-
-### Bug Fixes
-
-* get student credit transactions ([a5f583e](https://github.com/hei-school/hei-admin-api/commit/a5f583ed88a402b1367a560ca843421dc19cd941))
-
-
-### Features
-
-* implement fees archiving and credit movement tracking ([f6f2ffd](https://github.com/hei-school/hei-admin-api/commit/f6f2ffd8c83833fdfdf0c704ee0d8c6635ddc291))
-* reject credit payment ([8497a7f](https://github.com/hei-school/hei-admin-api/commit/8497a7f713b82d0d514711c6b68ce8d35c0fb4e1))
-
-
-
-## [1.165.1](https://github.com/hei-school/hei-admin-api/compare/v1.165.0...v1.165.1) (2026-08-06)
-
-
-### Bug Fixes
-
-* pin axios version to 1.18.1 ([5e271d3](https://github.com/hei-school/hei-admin-api/commit/5e271d3aaf043f4838c6896e2bd557d8431f5717))
-
-
-
-# [1.165.0](https://github.com/hei-school/hei-admin-api/compare/v1.164.0...v1.165.0) (2026-08-06)
-
-
-### Features
-
-* add fees only mode filter ([bdf0651](https://github.com/hei-school/hei-admin-api/commit/bdf06512111cd5f403030e00e2f806d77f970cb6))
-* create fee template with specific content ([f04be45](https://github.com/hei-school/hei-admin-api/commit/f04be45fcde3c564f3e6496f25aed43d7347baf0))
-* create fees through async jobs ([56a5ae7](https://github.com/hei-school/hei-admin-api/commit/56a5ae7dc5a5aa95e71cc0ec9ac5c12497ed0f53))
-
-
-
-# [1.164.0](https://github.com/hei-school/hei-admin-api/compare/v1.163.0...v1.164.0) (2026-07-23)
-
-
-### Features
-
-* validate retake exams and update automatically exams grades ([12f5278](https://github.com/hei-school/hei-admin-api/commit/12f52780ccb5f77a52598d37aa792eff6c59b4a2))
 
 
 

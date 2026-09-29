@@ -98,18 +98,31 @@ public class PaymentService {
 
   @Transactional
   public Payment savePaymentFromMpbs(Mpbs verifiedMpbs, int amount) {
+    var alreadySavedPayment = paymentRepository.findByMpbsId(verifiedMpbs.getId());
+    if (alreadySavedPayment.isPresent()) {
+      log.info(
+          "Mpbs {} already produced payment {}, no new payment created",
+          verifiedMpbs.getId(),
+          alreadySavedPayment.get().getId());
+      return alreadySavedPayment.get();
+    }
     Fee correspondingFee = verifiedMpbs.getFee();
     Payment paymentFromMpbs =
         Payment.builder()
             .type(MOBILE_MONEY)
             .status(VALIDATE)
             .fee(correspondingFee)
+            .mpbs(verifiedMpbs)
             .amount(amount)
             .creationDatetime(now())
             .comment(correspondingFee.getComment())
             .build();
     eventProducer.accept(List.of(PaidFeeByMpbsNotificationBody.from(paymentFromMpbs)));
     return paymentRepository.save(paymentFromMpbs);
+  }
+
+  public boolean hasPaymentFromMpbs(String mpbsId) {
+    return paymentRepository.findByMpbsId(mpbsId).isPresent();
   }
 
   @Transactional

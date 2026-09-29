@@ -177,6 +177,11 @@ paths:
                   description: >-
                     When true, Documenso sends the document to its recipients right away. Left
                     out, the document stays a draft nobody is ever asked to sign.
+                folderId:
+                  type: string
+                  description: >-
+                    Folder the document is filed in. Only settable here: no endpoint moves an
+                    existing document. Left out, the document lands at the root.
                 prefillFields:
                   type: array
                   items:
@@ -283,6 +288,79 @@ paths:
                 required:
                   - id
                   - status
+  /folder:
+    get:
+      operationId: folder-find
+      summary: Find folders
+      description: >-
+        Lists folders, optionally those directly under a parent. The parent filter is not documented
+        as exclusive, so callers check parentId themselves.
+      tags:
+        - Folder
+      security:
+        - apiKey: []
+      parameters:
+        - in: query
+          name: parentId
+          schema:
+            type: string
+        - in: query
+          name: type
+          schema:
+            type: string
+            enum:
+              - DOCUMENT
+              - TEMPLATE
+        - in: query
+          name: perPage
+          schema:
+            type: number
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Folder"
+  /folder/create:
+    post:
+      operationId: folder-create
+      summary: Create a folder
+      tags:
+        - Folder
+      security:
+        - apiKey: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                parentId:
+                  type: string
+                  description: Left out, the folder is created at the root.
+                type:
+                  type: string
+                  enum:
+                    - DOCUMENT
+                    - TEMPLATE
+              required:
+                - name
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Folder"
   /document/{documentId}/download:
     get:
       operationId: document-download
@@ -317,6 +395,24 @@ paths:
                 type: string
                 format: binary
 components:
+  schemas:
+    Folder:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        parentId:
+          type: string
+        type:
+          type: string
+          enum:
+            - DOCUMENT
+            - TEMPLATE
+      required:
+        - id
+        - name
   securitySchemes:
     apiKey:
       type: apiKey

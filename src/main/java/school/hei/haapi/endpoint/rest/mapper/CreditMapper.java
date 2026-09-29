@@ -7,6 +7,7 @@ import org.springframework.stereotype.Component;
 import school.hei.haapi.endpoint.rest.model.Credit;
 import school.hei.haapi.endpoint.rest.model.CreditMovement;
 import school.hei.haapi.endpoint.rest.model.CreditTransaction;
+import school.hei.haapi.endpoint.rest.model.CreditTransactionType;
 
 @Component
 @AllArgsConstructor
@@ -35,6 +36,7 @@ public class CreditMapper {
         .payment(payment == null ? null : paymentMapper.toRestPayment(payment))
         .credit(toRest(creditTransaction.getCredit()))
         .movement(CreditMovement.valueOf(creditTransaction.getCreditMovement().toString()))
+        .type(CreditTransactionType.valueOf(creditTransaction.getType().toString()))
         .dateTime(creditTransaction.getCreationDatetime());
   }
 
