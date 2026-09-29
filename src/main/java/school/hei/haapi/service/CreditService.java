@@ -113,19 +113,6 @@ public class CreditService {
     fee.setRemainingAmount(0);
   }
 
-  public void depositOverpaymentToCredit(Fee fee, User student, int amount) {
-    if (amount <= 0) {
-      return;
-    }
-    applyTransaction(
-        getOrCreateCredit(student),
-        fee,
-        null,
-        amount,
-        CreditMovement.CREDIT,
-        CreditTransactionType.FEE_OVERPAYMENT);
-  }
-
   private boolean isPaidByCredit(Payment payment) {
     return CREDIT.equals(payment.getType());
   }
