@@ -47,7 +47,7 @@ public class SmsContactDaoIT extends FacadeITMockedThirdParties {
                 .members(List.of(inGroup1, inGroup2))
                 .build());
 
-    var result = smsContactDao.filterByCriteria(group.getId(), null, PageRequest.of(0, 10));
+    var result = smsContactDao.filterByCriteria(group.getId(), null, null, PageRequest.of(0, 10));
 
     assertEquals(2, result.size());
     assertTrue(result.stream().anyMatch(contact -> contact.getId().equals(inGroup1.getId())));
@@ -82,10 +82,42 @@ public class SmsContactDaoIT extends FacadeITMockedThirdParties {
 
     var result =
         smsContactDao.filterByCriteria(
-            group.getId(), SmsContactOwnerRole.STUDENT, PageRequest.of(0, 10));
+            group.getId(), SmsContactOwnerRole.STUDENT, null, PageRequest.of(0, 10));
 
     assertEquals(1, result.size());
     assertEquals(student.getId(), result.get(0).getId());
+  }
+
+  @Test
+  void filterByCriteria_search_matches_the_contact_name_case_insensitively() {
+    var match =
+        smsContactRepository.save(
+            aContactNamed(
+                userRepository.save(aUserWithUniqueOwnerId()), "0321111131", "Rota Naina"));
+    var noMatch =
+        smsContactRepository.save(
+            aContactNamed(
+                userRepository.save(aUserWithUniqueOwnerId()), "0321111132", "Tiana Rakoto"));
+
+    var result = smsContactDao.filterByCriteria(null, null, "rota", PageRequest.of(0, 10));
+
+    assertTrue(result.stream().anyMatch(contact -> contact.getId().equals(match.getId())));
+    assertTrue(result.stream().noneMatch(contact -> contact.getId().equals(noMatch.getId())));
+  }
+
+  @Test
+  void filterByCriteria_search_matches_the_phone_number() {
+    var match =
+        smsContactRepository.save(
+            aContact(userRepository.save(aUserWithUniqueOwnerId()), "0321119999"));
+    var noMatch =
+        smsContactRepository.save(
+            aContact(userRepository.save(aUserWithUniqueOwnerId()), "0321111199"));
+
+    var result = smsContactDao.filterByCriteria(null, null, "9999", PageRequest.of(0, 10));
+
+    assertTrue(result.stream().anyMatch(contact -> contact.getId().equals(match.getId())));
+    assertTrue(result.stream().noneMatch(contact -> contact.getId().equals(noMatch.getId())));
   }
 
   private User aUserWithUniqueOwnerId() {
@@ -104,6 +136,16 @@ public class SmsContactDaoIT extends FacadeITMockedThirdParties {
 
   private SmsContact aContact(User owner, String phoneNumber) {
     return aContact(owner, phoneNumber, SmsContactOwnerRole.MANAGER);
+  }
+
+  private SmsContact aContactNamed(User owner, String phoneNumber, String name) {
+    return SmsContact.builder()
+        .id(UUID.randomUUID().toString())
+        .phoneNumber(phoneNumber)
+        .name(name)
+        .owner(owner)
+        .ownerRole(SmsContactOwnerRole.MANAGER)
+        .build();
   }
 
   private SmsContact aContact(User owner, String phoneNumber, SmsContactOwnerRole ownerRole) {

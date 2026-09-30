@@ -38,6 +38,10 @@ public class SmsContactGroup implements Serializable {
   @JoinColumn(name = "owner_id")
   private User owner;
 
+  @ManyToOne
+  @JoinColumn(name = "group_id")
+  private Group studentGroup;
+
   @ManyToMany
   @JoinTable(
       name = "sms_contact_group_member",

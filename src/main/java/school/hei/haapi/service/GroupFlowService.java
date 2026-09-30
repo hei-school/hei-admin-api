@@ -29,6 +29,7 @@ import school.hei.haapi.repository.CourseAssignmentRepository;
 import school.hei.haapi.repository.GroupFlowRepository;
 import school.hei.haapi.repository.GroupRepository;
 import school.hei.haapi.repository.UserRepository;
+import school.hei.haapi.service.sms.StudentGroupContactSyncService;
 
 @Slf4j
 @Service
@@ -40,6 +41,7 @@ public class GroupFlowService {
   private final GroupFlowValidator validator;
   private final GroupFlowMapper mapper;
   private final CourseAssignmentRepository courseAssignmentRepository;
+  private final StudentGroupContactSyncService studentGroupContactSyncService;
 
   private void logger(GroupFlow studentGroupFlow) {
     log.info(
@@ -74,7 +76,9 @@ public class GroupFlowService {
 
     validator.accept(groupFlowToSave);
     logger(groupFlowToSave);
-    return repository.save(groupFlowToSave);
+    var saved = repository.save(groupFlowToSave);
+    studentGroupContactSyncService.syncMembership(saved);
+    return saved;
   }
 
   @Transactional
@@ -86,7 +90,9 @@ public class GroupFlowService {
 
     validator.accept(groupFlowsToSave);
     groupFlowsToSave.forEach(this::logger);
-    return repository.saveAll(groupFlowsToSave);
+    var saved = repository.saveAll(groupFlowsToSave);
+    studentGroupContactSyncService.syncMembership(saved);
+    return saved;
   }
 
   public List<GroupFlow> getByStudentId(String studentId) {

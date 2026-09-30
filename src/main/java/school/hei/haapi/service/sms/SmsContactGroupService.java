@@ -17,8 +17,7 @@ public class SmsContactGroupService {
   private final SmsContactRepository smsContactRepository;
 
   public List<SmsContactGroup> getByOwner(User owner, Pageable pageable) {
-    return smsContactGroupRepository.findAllByOwner_IdAndIsDeletedFalseOrderByCreationDatetimeDesc(
-        owner.getId(), pageable);
+    return smsContactGroupRepository.findAllVisibleTo(owner.getId(), pageable);
   }
 
   public SmsContactGroup getById(String id) {

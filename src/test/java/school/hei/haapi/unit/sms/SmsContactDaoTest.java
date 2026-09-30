@@ -41,7 +41,8 @@ class SmsContactDaoTest {
     var expected = List.of(SmsContact.builder().id("c1").build());
     when(typedQueryMock.getResultList()).thenReturn(expected);
 
-    var result = subject.filterByCriteria("g1", SmsContactOwnerRole.STUDENT, PageRequest.of(0, 10));
+    var result =
+        subject.filterByCriteria("g1", SmsContactOwnerRole.STUDENT, null, PageRequest.of(0, 10));
 
     assertEquals(expected, result);
   }
@@ -51,7 +52,7 @@ class SmsContactDaoTest {
     var expected = List.of(SmsContact.builder().id("c1").build());
     when(typedQueryMock.getResultList()).thenReturn(expected);
 
-    var result = subject.filterByCriteria("g1", null, PageRequest.of(0, 10));
+    var result = subject.filterByCriteria("g1", null, null, PageRequest.of(0, 10));
 
     assertEquals(expected, result);
   }
@@ -61,7 +62,28 @@ class SmsContactDaoTest {
     var expected = List.of(SmsContact.builder().id("c1").build());
     when(typedQueryMock.getResultList()).thenReturn(expected);
 
-    var result = subject.filterByCriteria(null, SmsContactOwnerRole.ADMIN, PageRequest.of(0, 10));
+    var result =
+        subject.filterByCriteria(null, SmsContactOwnerRole.ADMIN, null, PageRequest.of(0, 10));
+
+    assertEquals(expected, result);
+  }
+
+  @Test
+  void filters_by_search_only() {
+    var expected = List.of(SmsContact.builder().id("c1").build());
+    when(typedQueryMock.getResultList()).thenReturn(expected);
+
+    var result = subject.filterByCriteria(null, null, "Antenaina", PageRequest.of(0, 10));
+
+    assertEquals(expected, result);
+  }
+
+  @Test
+  void a_blank_search_is_ignored() {
+    var expected = List.of(SmsContact.builder().id("c1").build());
+    when(typedQueryMock.getResultList()).thenReturn(expected);
+
+    var result = subject.filterByCriteria(null, null, "   ", PageRequest.of(0, 10));
 
     assertEquals(expected, result);
   }
@@ -71,7 +93,7 @@ class SmsContactDaoTest {
     var expected = List.<SmsContact>of();
     when(typedQueryMock.getResultList()).thenReturn(expected);
 
-    var result = subject.filterByCriteria(null, null, PageRequest.of(0, 10));
+    var result = subject.filterByCriteria(null, null, null, PageRequest.of(0, 10));
 
     assertEquals(expected, result);
   }

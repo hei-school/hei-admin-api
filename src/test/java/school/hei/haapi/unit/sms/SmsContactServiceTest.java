@@ -21,25 +21,29 @@ import school.hei.haapi.model.User;
 import school.hei.haapi.model.exception.NotFoundException;
 import school.hei.haapi.repository.SmsContactRepository;
 import school.hei.haapi.repository.dao.SmsContactDao;
+import school.hei.haapi.service.UserService;
 import school.hei.haapi.service.sms.SmsContactService;
 
 class SmsContactServiceTest {
   private final SmsContactRepository smsContactRepositoryMock = mock();
   private final SmsContactDao smsContactDaoMock = mock();
+  private final UserService userServiceMock = mock();
 
   private final SmsContactService subject =
-      new SmsContactService(smsContactRepositoryMock, smsContactDaoMock);
+      new SmsContactService(smsContactRepositoryMock, smsContactDaoMock, userServiceMock);
 
   @Test
   void getByCriteria_delegates_to_the_dao() {
     var contact = SmsContact.builder().id("c1").build();
-    when(smsContactDaoMock.filterByCriteria(eq("g1"), eq(SmsContactOwnerRole.STUDENT), any()))
+    when(smsContactDaoMock.filterByCriteria(
+            eq("g1"), eq(SmsContactOwnerRole.STUDENT), eq("Ante"), any()))
         .thenReturn(List.of(contact));
 
     var result =
         subject.getByCriteria(
             "g1",
             SmsContactOwnerRole.STUDENT,
+            "Ante",
             org.springframework.data.domain.PageRequest.of(0, 10));
 
     assertEquals(List.of(contact), result);
@@ -141,5 +145,26 @@ class SmsContactServiceTest {
     var result = subject.createContactIfMissing(user);
 
     assertTrue(result.isEmpty());
+  }
+
+  @Test
+  void backfillMissingContacts_attempts_every_enabled_user_and_counts_the_ones_created() {
+    var withContact = enabledUserBuilder().id("u1").build();
+    var withoutContact = enabledUserBuilder().id("u2").phone("0321111112").build();
+    when(userServiceMock.getAllEnabledUsers()).thenReturn(List.of(withContact, withoutContact));
+    when(smsContactRepositoryMock.existsByOwner_Id("u1")).thenReturn(true);
+    when(smsContactRepositoryMock.existsByOwner_Id("u2")).thenReturn(false);
+    when(smsContactRepositoryMock.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
+
+    var createdCount = subject.backfillMissingContacts();
+
+    assertEquals(1, createdCount);
+  }
+
+  @Test
+  void backfillMissingContacts_returns_zero_when_no_user_is_enabled() {
+    when(userServiceMock.getAllEnabledUsers()).thenReturn(List.of());
+
+    assertEquals(0, subject.backfillMissingContacts());
   }
 }

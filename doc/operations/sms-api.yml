@@ -5,8 +5,8 @@ operations:
         - Sms
       summary: List the authenticated account's SMS contacts
       description: >
-        contact_group_id and owner_role are optional and independent: omit both for the whole
-        address book, pass one alone to filter by group or by owner type, or combine both.
+        contact_group_id, owner_role and search are optional and independent: omit all for the
+        whole address book, pass any subset to narrow it down.
       operationId: getSmsContacts
       parameters:
         - name: contact_group_id
@@ -20,6 +20,14 @@ operations:
           description: Filter to contacts whose owner has this role.
           schema:
             $ref: '../components.yml#/components/schemas/SmsContactOwnerRole'
+        - name: search
+          in: query
+          required: false
+          description: >-
+            Case-insensitive partial match against the contact's name (the owner's name) or its
+            phone number.
+          schema:
+            type: string
         - name: page
           in: query
           required: true
