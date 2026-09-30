@@ -18,7 +18,6 @@ public class MpbsService {
   private final MpbsRepository mpbsRepository;
   private final FeeService feeService;
   private final PaymentService paymentService;
-  private final CreditService creditService;
 
   @Transactional
   public Mpbs saveVerifiedSuccessfulPayment(Mpbs verifiedMpbs) {
@@ -32,24 +31,23 @@ public class MpbsService {
       return lockedMpbs;
     }
     var amountInPsp = verifiedMpbs.getAmount();
-    var fee = feeService.getById(verifiedMpbs.getFee().getId());
+    var feeId = verifiedMpbs.getFee().getId();
 
-    if (fee.getRemainingAmount() <= 0) {
-      var alreadyPaid = fee.getTotalAmount();
-      var overpayment = amountInPsp - alreadyPaid;
-      log.info(
-          "Fee {} is already fully paid ({} already recorded for it); crediting {} directly"
-              + " instead of creating a duplicate payment",
-          fee.getId(),
-          alreadyPaid,
-          overpayment);
-      creditService.depositOverpaymentToCredit(fee, fee.getStudent(), overpayment);
-      return save(verifiedMpbs);
-    }
-
-    feeService.computeRemainingAmount(fee.getId(), amountInPsp);
     var savedMpbs = save(verifiedMpbs);
 
+    var unreconciledPayment = paymentService.findUnreconciledPaymentByFeeId(feeId);
+    if (unreconciledPayment.isPresent()) {
+      log.info(
+          "Fee {} already has a manually recorded payment {}, reconciling it with mpbs {} instead"
+              + " of debiting the fee again",
+          feeId,
+          unreconciledPayment.get().getId(),
+          savedMpbs.getId());
+      paymentService.reconcilePaymentWithMpbs(unreconciledPayment.get(), savedMpbs);
+      return savedMpbs;
+    }
+
+    feeService.computeRemainingAmount(feeId, amountInPsp);
     paymentService.savePaymentFromMpbs(savedMpbs, amountInPsp);
     log.info(
         "Mpbs {} verified: payment of {} created for fee {}",

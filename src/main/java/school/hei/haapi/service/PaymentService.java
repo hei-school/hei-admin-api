@@ -12,6 +12,7 @@ import static school.hei.haapi.service.utils.InstantUtils.UTC3;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
@@ -123,6 +124,16 @@ public class PaymentService {
 
   public boolean hasPaymentFromMpbs(String mpbsId) {
     return paymentRepository.findByMpbsId(mpbsId).isPresent();
+  }
+
+  public Optional<Payment> findUnreconciledPaymentByFeeId(String feeId) {
+    return paymentRepository.findFirstByFee_IdAndMpbsIsNullOrderByCreationDatetimeAsc(feeId);
+  }
+
+  @Transactional
+  public Payment reconcilePaymentWithMpbs(Payment payment, Mpbs verifiedMpbs) {
+    payment.setMpbs(verifiedMpbs);
+    return paymentRepository.save(payment);
   }
 
   @Transactional
