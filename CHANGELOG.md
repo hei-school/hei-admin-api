@@ -1,3 +1,19 @@
+# [1.177.0](https://github.com/hei-school/hei-admin-api/compare/v1.176.0...v1.177.0) (2026-09-30)
+
+
+### Bug Fixes
+
+* **documenso:** keep a failed filing from rolling the fiche back ([1faab58](https://github.com/hei-school/hei-admin-api/commit/1faab585a46c620558497e7cc89c2e06fd274c76))
+* payment creation by admin ([f3571e2](https://github.com/hei-school/hei-admin-api/commit/f3571e2c386381ba6b3c192ea74c6ea91a852ba1))
+* payment duplication ([129eb1f](https://github.com/hei-school/hei-admin-api/commit/129eb1f36f784d093cd3a070b81c2f648b10baf5))
+
+
+### Features
+
+* create group contact automatically while creating a student group ([82c34dd](https://github.com/hei-school/hei-admin-api/commit/82c34dd4f23dda38d34432f3adfe0afaaecfea9d))
+
+
+
 # [1.176.0](https://github.com/hei-school/hei-admin-api/compare/v1.175.0...v1.176.0) (2026-09-25)
 
 
@@ -132,15 +148,6 @@
 ### Bug Fixes
 
 * **test:** scope global search test to its own marker ([4621402](https://github.com/hei-school/hei-admin-api/commit/4621402d3365482981b160702cc4550ecf5cb38a))
-
-
-
-# [1.169.0](https://github.com/hei-school/hei-admin-api/compare/v1.166.1...v1.169.0) (2026-08-21)
-
-
-### Features
-
-* documenso integration ([e5ad697](https://github.com/hei-school/hei-admin-api/commit/e5ad6972f73514bd163b9858fdb614a403edfffb))
 
 
 
