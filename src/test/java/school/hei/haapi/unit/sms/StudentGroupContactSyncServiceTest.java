@@ -41,12 +41,26 @@ class StudentGroupContactSyncServiceTest {
 
   @Test
   void createContactGroupFor_names_it_contact_de_plus_the_group_name() {
+    when(smsContactGroupRepositoryMock.findByStudentGroup_IdAndIsDeletedFalse("g1"))
+        .thenReturn(Optional.empty());
     when(smsContactGroupRepositoryMock.save(any())).thenAnswer(i -> i.getArgument(0));
 
     var created = subject.createContactGroupFor(group());
 
     assertEquals("Contact de K2", created.getName());
     assertEquals(group(), created.getStudentGroup());
+  }
+
+  @Test
+  void createContactGroupFor_is_idempotent_when_the_group_already_has_one() {
+    var existing = SmsContactGroup.builder().id("cg1").studentGroup(group()).build();
+    when(smsContactGroupRepositoryMock.findByStudentGroup_IdAndIsDeletedFalse("g1"))
+        .thenReturn(Optional.of(existing));
+
+    var result = subject.createContactGroupFor(group());
+
+    assertEquals(existing, result);
+    verify(smsContactGroupRepositoryMock, never()).save(any());
   }
 
   @Test

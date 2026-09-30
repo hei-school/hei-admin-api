@@ -19,12 +19,16 @@ public class StudentGroupContactSyncService {
   private final SmsContactRepository smsContactRepository;
 
   public SmsContactGroup createContactGroupFor(Group group) {
-    return smsContactGroupRepository.save(
-        SmsContactGroup.builder()
-            .id(UUID.randomUUID().toString())
-            .name(CONTACT_GROUP_NAME_PREFIX + group.getName())
-            .studentGroup(group)
-            .build());
+    return smsContactGroupRepository
+        .findByStudentGroup_IdAndIsDeletedFalse(group.getId())
+        .orElseGet(
+            () ->
+                smsContactGroupRepository.save(
+                    SmsContactGroup.builder()
+                        .id(UUID.randomUUID().toString())
+                        .name(CONTACT_GROUP_NAME_PREFIX + group.getName())
+                        .studentGroup(group)
+                        .build()));
   }
 
   public void syncMembership(List<GroupFlow> groupFlows) {
