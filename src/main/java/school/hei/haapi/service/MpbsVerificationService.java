@@ -207,8 +207,11 @@ public class MpbsVerificationService {
             transactionDetailsMapper.toExternalTransactionDetails(lastTransactionDetails);
         log.info("mapped transaction details = {}", transactionDetails);
 
-        verifiedMpbs.add(
-            computeVerifiedMobilePayment.saveTheVerifiedMpbs(pendingMbps, transactionDetails));
+        var verification =
+            computeVerifiedMobilePayment.saveTheVerifiedMpbs(pendingMbps, transactionDetails);
+        if (verification != null) {
+          verifiedMpbs.add(verification);
+        }
       } catch (NoRemainingAmountFee e) {
         log.error(
             "payment %s could not be verified because fee %s has no remaining amount"

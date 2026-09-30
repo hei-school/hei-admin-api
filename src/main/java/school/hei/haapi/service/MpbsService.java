@@ -31,10 +31,23 @@ public class MpbsService {
       return lockedMpbs;
     }
     var amountInPsp = verifiedMpbs.getAmount();
+    var feeId = verifiedMpbs.getFee().getId();
 
-    feeService.computeRemainingAmount(verifiedMpbs.getFee().getId(), amountInPsp);
     var savedMpbs = save(verifiedMpbs);
 
+    var unreconciledPayment = paymentService.findUnreconciledPaymentByFeeId(feeId);
+    if (unreconciledPayment.isPresent()) {
+      log.info(
+          "Fee {} already has a manually recorded payment {}, reconciling it with mpbs {} instead"
+              + " of debiting the fee again",
+          feeId,
+          unreconciledPayment.get().getId(),
+          savedMpbs.getId());
+      paymentService.reconcilePaymentWithMpbs(unreconciledPayment.get(), savedMpbs);
+      return savedMpbs;
+    }
+
+    feeService.computeRemainingAmount(feeId, amountInPsp);
     paymentService.savePaymentFromMpbs(savedMpbs, amountInPsp);
     log.info(
         "Mpbs {} verified: payment of {} created for fee {}",

@@ -23,6 +23,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import school.hei.haapi.endpoint.rest.model.MpbsStatus;
 import school.hei.haapi.integration.conf.FacadeITMockedThirdParties;
 import school.hei.haapi.model.Fee;
+import school.hei.haapi.model.Payment;
 import school.hei.haapi.model.mpbs.Mpbs;
 import school.hei.haapi.model.mpbs.MpbsStatusHistory;
 import school.hei.haapi.repository.MpbsRepository;
@@ -124,6 +125,32 @@ class MpbsServiceTest extends FacadeITMockedThirdParties {
     verify(feeService, never()).computeRemainingAmount(anyString(), anyInt());
     verify(paymentService, never()).savePaymentFromMpbs(any(), anyInt());
     assertEquals(staleLockedMpbs, result);
+  }
+
+  @Test
+  void save_verified_successful_payment_reconciles_existing_manual_payment() {
+    var fee = Fee.builder().id("feeId").remainingAmount(100_000).build();
+    var verifiedMpbs =
+        Mpbs.builder()
+            .id("mpbs1")
+            .amount(300_000)
+            .status(SUCCESS)
+            .fee(fee)
+            .statusHistory(new ArrayList<>(List.of(pendingStatus())))
+            .build();
+    var manualPayment = Payment.builder().id("payment1").fee(fee).build();
+    when(mpbsRepository.findByIdForUpdate("mpbs1"))
+        .thenReturn(Optional.of(Mpbs.builder().id("mpbs1").status(PENDING).build()));
+    when(paymentService.findUnreconciledPaymentByFeeId("feeId"))
+        .thenReturn(Optional.of(manualPayment));
+
+    var result = subject.saveVerifiedSuccessfulPayment(verifiedMpbs);
+
+    verify(feeService, never()).computeRemainingAmount(anyString(), anyInt());
+    verify(paymentService, never()).savePaymentFromMpbs(any(), anyInt());
+    verify(paymentService).reconcilePaymentWithMpbs(manualPayment, result);
+    assertEquals(SUCCESS, result.getStatus());
+    assertEquals(100_000, fee.getRemainingAmount());
   }
 
   private static Mpbs mpbs(List<MpbsStatusHistory> statusHistory, MpbsStatus status) {

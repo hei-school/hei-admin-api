@@ -25,6 +25,8 @@ public interface PaymentRepository extends JpaRepository<Payment, String> {
   @Query("select p from Payment p where p.mpbs.id = :mpbs_id")
   Optional<Payment> findByMpbsId(@Param("mpbs_id") String mpbsId);
 
+  Optional<Payment> findFirstByFee_IdAndMpbsIsNullOrderByCreationDatetimeAsc(String feeId);
+
   @Query(
       value =
           "select p from Payment p join Fee f on f.id = p.fee.id"
