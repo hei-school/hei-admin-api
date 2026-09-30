@@ -30,10 +30,12 @@ public class SmsContactGroupController {
   @GetMapping("/sms-contact-groups")
   public List<SmsContactGroup> getSmsContactGroups(
       @AuthenticationPrincipal Principal principal,
+      @RequestParam(name = "search", required = false) String search,
       @RequestParam(name = "page") PageFromOne page,
       @RequestParam(name = "page_size") BoundedPageSize pageSize) {
     return smsContactGroupService
-        .getByOwner(principal.getUser(), PageRequest.of(page.getValue() - 1, pageSize.getValue()))
+        .getByOwner(
+            principal.getUser(), search, PageRequest.of(page.getValue() - 1, pageSize.getValue()))
         .stream()
         .map(smsContactGroupMapper::toRest)
         .toList();

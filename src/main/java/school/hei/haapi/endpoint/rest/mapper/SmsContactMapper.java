@@ -7,14 +7,14 @@ import school.hei.haapi.model.User;
 
 @Component
 public class SmsContactMapper {
-
   public SmsContact toRest(school.hei.haapi.model.SmsContact domain) {
+    var owner = domain.getOwner();
     return new SmsContact()
         .id(domain.getId())
         .phoneNumber(domain.getPhoneNumber())
         .name(domain.getName())
-        .ownerId(domain.getOwner().getId())
-        .ownerRef(domain.getOwner().getRef())
+        .ownerId(owner.getId())
+        .ownerRef(owner.getRef())
         .ownerRole(toRest(domain.getOwnerRole()));
   }
 
@@ -27,8 +27,6 @@ public class SmsContactMapper {
   }
 
   public static String toContactName(User user) {
-    return (user.getFirstName() == null ? "" : user.getFirstName())
-        + " "
-        + (user.getLastName() == null ? "" : user.getLastName());
+    return user.getRef();
   }
 }

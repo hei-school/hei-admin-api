@@ -35,9 +35,10 @@ class SmsContactGroupControllerTest {
 
   @Test
   void lists_the_authenticated_owners_groups() {
-    when(smsContactGroupServiceMock.getByOwner(any(), any())).thenReturn(List.of(group()));
+    when(smsContactGroupServiceMock.getByOwner(any(), any(), any())).thenReturn(List.of(group()));
 
-    var page = subject.getSmsContactGroups(principal, new PageFromOne(1), new BoundedPageSize(10));
+    var page =
+        subject.getSmsContactGroups(principal, null, new PageFromOne(1), new BoundedPageSize(10));
 
     assertEquals(1, page.size());
     assertEquals("g1", page.get(0).getId());

@@ -63,11 +63,38 @@ public class SmsContactGroupRepositoryIT extends FacadeITMockedThirdParties {
                 .studentGroup(studentGroup)
                 .build());
 
-    var result = smsContactGroupRepository.findAllVisibleTo(caller.getId(), PageRequest.of(0, 10));
+    var result =
+        smsContactGroupRepository.findAllVisibleTo(caller.getId(), null, PageRequest.of(0, 10));
 
     assertTrue(result.stream().anyMatch(g -> g.getId().equals(ownedByCaller.getId())));
     assertTrue(result.stream().anyMatch(g -> g.getId().equals(linkedToStudentGroup.getId())));
     assertTrue(result.stream().noneMatch(g -> g.getId().equals(ownedByOther.getId())));
+  }
+
+  @Test
+  void findAllVisibleTo_search_matches_the_group_name_case_insensitively() {
+    var caller = userRepository.save(aManager());
+    var match =
+        smsContactGroupRepository.save(
+            SmsContactGroup.builder()
+                .id(UUID.randomUUID().toString())
+                .name("Promo Rotamahafinaritra")
+                .owner(caller)
+                .build());
+    var noMatch =
+        smsContactGroupRepository.save(
+            SmsContactGroup.builder()
+                .id(UUID.randomUUID().toString())
+                .name("Promo Tiana")
+                .owner(caller)
+                .build());
+
+    var result =
+        smsContactGroupRepository.findAllVisibleTo(
+            caller.getId(), "rotamahafinaritra", PageRequest.of(0, 10));
+
+    assertTrue(result.stream().anyMatch(g -> g.getId().equals(match.getId())));
+    assertTrue(result.stream().noneMatch(g -> g.getId().equals(noMatch.getId())));
   }
 
   @Test

@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import school.hei.haapi.model.Group;
 import school.hei.haapi.model.GroupFlow;
 import school.hei.haapi.model.SmsContactGroup;
+import school.hei.haapi.model.User;
 import school.hei.haapi.repository.SmsContactGroupRepository;
 import school.hei.haapi.repository.SmsContactRepository;
 
@@ -18,7 +19,7 @@ public class StudentGroupContactSyncService {
   private final SmsContactGroupRepository smsContactGroupRepository;
   private final SmsContactRepository smsContactRepository;
 
-  public SmsContactGroup createContactGroupFor(Group group) {
+  public SmsContactGroup createContactGroupFor(Group group, User owner) {
     return smsContactGroupRepository
         .findByStudentGroup_IdAndIsDeletedFalse(group.getId())
         .orElseGet(
@@ -28,6 +29,7 @@ public class StudentGroupContactSyncService {
                         .id(UUID.randomUUID().toString())
                         .name(CONTACT_GROUP_NAME_PREFIX + group.getName())
                         .studentGroup(group)
+                        .owner(owner)
                         .build()));
   }
 

@@ -2576,7 +2576,7 @@ components:
       type: object
       description: >-
         Created automatically whenever a user is created in the application (from that user's
-        phone number and name) — there is no manual create/update for contacts, only the
+        phone number and ref) — there is no manual create/update for contacts, only the
         read/soft-delete operations below.
       properties:
         id:
@@ -2585,6 +2585,9 @@ components:
           type: string
         name:
           type: string
+          description: >-
+            The owner's ref (e.g. STD000001), not their first/last name — same value as
+            ownerRef, kept under this name for search (see getSmsContacts.search).
         ownerId:
           type: string
           description: Id of the account this contact belongs to.
@@ -2619,9 +2622,9 @@ components:
         ownerId:
           type: string
           description: >-
-            Id of the account this group belongs to. Null for a group auto-created for a student
-            group (see groupId) — those belong to no one in particular and are visible to every
-            admin/manager instead.
+            Id of the account this group belongs to. For a group auto-created for a student
+            group (see groupId), this is whoever created that student group — but the group is
+            still visible to every admin/manager regardless of owner, not just its creator.
         groupId:
           type: string
           description: >-

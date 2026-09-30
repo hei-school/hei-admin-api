@@ -18,6 +18,8 @@ public interface SmsContactGroupRepository extends JpaRepository<SmsContactGroup
   @Query(
       "SELECT g FROM SmsContactGroup g WHERE g.isDeleted = false"
           + " AND (g.owner.id = :ownerId OR g.studentGroup IS NOT NULL)"
+          + " AND (:search IS NULL OR LOWER(g.name) LIKE LOWER(CONCAT('%', :search, '%')))"
           + " ORDER BY g.creationDatetime DESC")
-  List<SmsContactGroup> findAllVisibleTo(@Param("ownerId") String ownerId, Pageable pageable);
+  List<SmsContactGroup> findAllVisibleTo(
+      @Param("ownerId") String ownerId, @Param("search") String search, Pageable pageable);
 }

@@ -34,10 +34,21 @@ class SmsContactGroupServiceTest {
   @Test
   void lists_groups_visible_to_the_given_user() {
     var group = SmsContactGroup.builder().id("g1").owner(owner).build();
-    when(smsContactGroupRepositoryMock.findAllVisibleTo("admin1", PageRequest.of(0, 10)))
+    when(smsContactGroupRepositoryMock.findAllVisibleTo("admin1", null, PageRequest.of(0, 10)))
         .thenReturn(List.of(group));
 
-    var result = subject.getByOwner(owner, PageRequest.of(0, 10));
+    var result = subject.getByOwner(owner, null, PageRequest.of(0, 10));
+
+    assertEquals(List.of(group), result);
+  }
+
+  @Test
+  void lists_groups_visible_to_the_given_user_filtered_by_search() {
+    var group = SmsContactGroup.builder().id("g1").owner(owner).name("Promo 2026").build();
+    when(smsContactGroupRepositoryMock.findAllVisibleTo("admin1", "promo", PageRequest.of(0, 10)))
+        .thenReturn(List.of(group));
+
+    var result = subject.getByOwner(owner, "promo", PageRequest.of(0, 10));
 
     assertEquals(List.of(group), result);
   }

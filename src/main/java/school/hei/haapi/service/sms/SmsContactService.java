@@ -1,5 +1,6 @@
 package school.hei.haapi.service.sms;
 
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -14,6 +15,7 @@ import school.hei.haapi.model.SmsContactOwnerRole;
 import school.hei.haapi.model.User;
 import school.hei.haapi.model.dto.SmsFileImportRowDto;
 import school.hei.haapi.model.exception.NotFoundException;
+import school.hei.haapi.repository.MonitoringStudentRepository;
 import school.hei.haapi.repository.SmsContactRepository;
 import school.hei.haapi.repository.dao.SmsContactDao;
 import school.hei.haapi.service.UserService;
@@ -25,10 +27,48 @@ public class SmsContactService {
   private final SmsContactRepository smsContactRepository;
   private final SmsContactDao smsContactDao;
   private final UserService userService;
+  private final MonitoringStudentRepository monitoringStudentRepository;
 
   public List<SmsContact> getByCriteria(
       String contactGroupId, SmsContactOwnerRole ownerRole, String search, Pageable pageable) {
-    return smsContactDao.filterByCriteria(contactGroupId, ownerRole, search, pageable);
+    var matches = smsContactDao.filterByCriteria(contactGroupId, ownerRole, search, pageable);
+    if (search == null || search.isBlank()) {
+      return matches;
+    }
+    return withLinkedContacts(matches);
+  }
+
+  private List<SmsContact> withLinkedContacts(List<SmsContact> matches) {
+    var byId = new LinkedHashMap<String, SmsContact>();
+    for (var contact : matches) {
+      byId.put(contact.getId(), contact);
+      for (var linked : linkedContactsOf(contact)) {
+        byId.putIfAbsent(linked.getId(), linked);
+      }
+    }
+    return List.copyOf(byId.values());
+  }
+
+  private List<SmsContact> linkedContactsOf(SmsContact contact) {
+    if (contact.getOwnerRole() == SmsContactOwnerRole.STUDENT) {
+      return monitoringStudentRepository
+          .findAllMonitorsByStudentId(contact.getOwner().getId())
+          .stream()
+          .flatMap(
+              monitor ->
+                  smsContactRepository.findByOwner_IdAndIsDeletedFalse(monitor.getId()).stream())
+          .toList();
+    }
+    if (contact.getOwnerRole() == SmsContactOwnerRole.MONITOR) {
+      return monitoringStudentRepository
+          .findAllStudentsByMonitorId(contact.getOwner().getId(), Pageable.unpaged())
+          .stream()
+          .flatMap(
+              student ->
+                  smsContactRepository.findByOwner_IdAndIsDeletedFalse(student.getId()).stream())
+          .toList();
+    }
+    return List.of();
   }
 
   public SmsContact getById(String id) {
