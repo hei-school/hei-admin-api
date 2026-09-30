@@ -148,22 +148,35 @@ class SmsContactServiceTest {
   }
 
   @Test
-  void backfillMissingContacts_attempts_every_enabled_user_and_counts_the_ones_created() {
-    var withContact = enabledUserBuilder().id("u1").build();
-    var withoutContact = enabledUserBuilder().id("u2").phone("0321111112").build();
-    when(userServiceMock.getAllEnabledUsers()).thenReturn(List.of(withContact, withoutContact));
-    when(smsContactRepositoryMock.existsByOwner_Id("u1")).thenReturn(true);
+  void backfillMissingContacts_only_asks_the_repository_for_users_already_without_one() {
+    var withoutContact1 = enabledUserBuilder().id("u1").build();
+    var withoutContact2 = enabledUserBuilder().id("u2").phone("0321111112").build();
+    when(userServiceMock.getAllEnabledUsersWithoutContact())
+        .thenReturn(List.of(withoutContact1, withoutContact2));
+    when(smsContactRepositoryMock.existsByOwner_Id("u1")).thenReturn(false);
     when(smsContactRepositoryMock.existsByOwner_Id("u2")).thenReturn(false);
     when(smsContactRepositoryMock.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
 
     var createdCount = subject.backfillMissingContacts();
 
-    assertEquals(1, createdCount);
+    assertEquals(2, createdCount);
+  }
+
+  @Test
+  void backfillMissingContacts_still_skips_a_user_that_raced_a_contact_in_before_the_save() {
+    var user = enabledUserBuilder().id("u1").build();
+    when(userServiceMock.getAllEnabledUsersWithoutContact()).thenReturn(List.of(user));
+    when(smsContactRepositoryMock.existsByOwner_Id("u1")).thenReturn(true);
+
+    var createdCount = subject.backfillMissingContacts();
+
+    assertEquals(0, createdCount);
+    verify(smsContactRepositoryMock, never()).save(any());
   }
 
   @Test
   void backfillMissingContacts_returns_zero_when_no_user_is_enabled() {
-    when(userServiceMock.getAllEnabledUsers()).thenReturn(List.of());
+    when(userServiceMock.getAllEnabledUsersWithoutContact()).thenReturn(List.of());
 
     assertEquals(0, subject.backfillMissingContacts());
   }

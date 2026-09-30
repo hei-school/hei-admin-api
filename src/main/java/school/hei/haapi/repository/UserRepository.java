@@ -22,6 +22,11 @@ public interface UserRepository extends JpaRepository<User, String> {
 
   List<User> findAllByStatus(User.Status status);
 
+  @Query(
+      "SELECT u FROM User u WHERE u.status = :status"
+          + " AND NOT EXISTS (SELECT 1 FROM SmsContact c WHERE c.owner = u)")
+  List<User> findAllByStatusAndNoSmsContact(@Param("status") User.Status status);
+
   List<User> findAllByRoleAndStatus(Role role, User.Status status);
 
   @Query(

@@ -76,17 +76,16 @@ public class SmsContactService {
 
   @Transactional
   public int backfillMissingContacts() {
-    var enabledUsers = userService.getAllEnabledUsers();
-    var createdCount = 0;
-    for (var user : enabledUsers) {
-      if (createContactIfMissing(user).isPresent()) {
-        createdCount++;
-      }
-    }
+    var usersWithoutContact = userService.getAllEnabledUsersWithoutContact();
+    var createdCount =
+        usersWithoutContact.stream()
+            .filter(user -> createContactIfMissing(user).isPresent())
+            .toList()
+            .size();
     log.info(
-        "SMS contact backfill: {} contact(s) created out of {} enabled user(s)",
+        "SMS contact backfill: {} contact(s) created out of {} candidate(s)",
         createdCount,
-        enabledUsers.size());
+        usersWithoutContact.size());
     return createdCount;
   }
 }
