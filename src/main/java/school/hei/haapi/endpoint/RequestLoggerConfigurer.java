@@ -48,7 +48,12 @@ public class RequestLoggerConfigurer implements WebMvcConfigurer {
 
       String parameters =
           request.getParameterMap().entrySet().stream()
-              .map(entry -> entry.getKey() + "=" + String.join(",", entry.getValue()))
+              .map(
+                  entry ->
+                      entry.getKey()
+                          + "="
+                          + String.join(
+                              ",", entry.getValue() == null ? new String[0] : entry.getValue()))
               .collect(joining(";"));
       log.info(
           "preHandle: " + "method={}, uri={}, parameters=[{}], " + "handler={}, oldThreadName={}",
