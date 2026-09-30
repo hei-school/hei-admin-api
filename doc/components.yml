@@ -2618,7 +2618,16 @@ components:
           type: string
         ownerId:
           type: string
-          description: Id of the account this group belongs to.
+          description: >-
+            Id of the account this group belongs to. Null for a group auto-created for a student
+            group (see groupId) — those belong to no one in particular and are visible to every
+            admin/manager instead.
+        groupId:
+          type: string
+          description: >-
+            Id of the student Group this contact group tracks, if it was auto-created for one
+            (see createSmsContactGroup) — a manually created contact group has none. At most one
+            contact group per student Group.
         memberCount:
           type: integer
     SmsContactGroupDetail:

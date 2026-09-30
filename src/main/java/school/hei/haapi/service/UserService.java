@@ -271,6 +271,10 @@ public class UserService {
     return userRepository.findAllByStatus(ENABLED);
   }
 
+  public List<User> getAllEnabledUsersWithoutContact() {
+    return userRepository.findAllByStatusAndNoSmsContact(ENABLED);
+  }
+
   public List<User> getAllSuspendedUsers() {
     return userRepository.findAllByStatus(SUSPENDED);
   }

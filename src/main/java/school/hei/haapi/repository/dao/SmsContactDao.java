@@ -17,7 +17,7 @@ public class SmsContactDao {
   private final EntityManager entityManager;
 
   public List<SmsContact> filterByCriteria(
-      String contactGroupId, SmsContactOwnerRole ownerRole, Pageable pageable) {
+      String contactGroupId, SmsContactOwnerRole ownerRole, String search, Pageable pageable) {
     var builder = entityManager.getCriteriaBuilder();
     var query = builder.createQuery(SmsContact.class);
     var root = query.from(SmsContact.class);
@@ -35,6 +35,13 @@ public class SmsContactDao {
     }
     if (ownerRole != null) {
       predicates.add(builder.equal(root.get("ownerRole"), ownerRole));
+    }
+    if (search != null && !search.isBlank()) {
+      var searchPattern = "%" + search.trim().toLowerCase() + "%";
+      predicates.add(
+          builder.or(
+              builder.like(builder.lower(root.get("name")), searchPattern),
+              builder.like(builder.lower(root.get("phoneNumber")), searchPattern)));
     }
 
     query.where(predicates.toArray(new Predicate[0]));

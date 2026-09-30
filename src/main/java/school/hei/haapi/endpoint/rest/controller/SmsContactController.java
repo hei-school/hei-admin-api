@@ -38,12 +38,14 @@ public class SmsContactController {
   public List<SmsContact> getSmsContacts(
       @RequestParam(name = "contact_group_id", required = false) String contactGroupId,
       @RequestParam(name = "owner_role", required = false) SmsContactOwnerRole ownerRole,
+      @RequestParam(name = "search", required = false) String search,
       @RequestParam(name = "page") PageFromOne page,
       @RequestParam(name = "page_size") BoundedPageSize pageSize) {
     return smsContactService
         .getByCriteria(
             contactGroupId,
             smsContactMapper.toDomain(ownerRole),
+            search,
             PageRequest.of(page.getValue() - 1, pageSize.getValue()))
         .stream()
         .map(smsContactMapper::toRest)

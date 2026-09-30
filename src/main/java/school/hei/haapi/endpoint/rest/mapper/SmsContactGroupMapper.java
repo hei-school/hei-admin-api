@@ -14,7 +14,8 @@ public class SmsContactGroupMapper {
     return new SmsContactGroup()
         .id(domain.getId())
         .name(domain.getName())
-        .ownerId(domain.getOwner().getId())
+        .ownerId(domain.getOwner() == null ? null : domain.getOwner().getId())
+        .groupId(domain.getStudentGroup() == null ? null : domain.getStudentGroup().getId())
         .memberCount(domain.getMembers().size());
   }
 
@@ -22,7 +23,8 @@ public class SmsContactGroupMapper {
     return new SmsContactGroupDetail()
         .id(domain.getId())
         .name(domain.getName())
-        .ownerId(domain.getOwner().getId())
+        .ownerId(domain.getOwner() == null ? null : domain.getOwner().getId())
+        .groupId(domain.getStudentGroup() == null ? null : domain.getStudentGroup().getId())
         .memberCount(domain.getMembers().size())
         .members(domain.getMembers().stream().map(smsContactMapper::toRest).toList());
   }

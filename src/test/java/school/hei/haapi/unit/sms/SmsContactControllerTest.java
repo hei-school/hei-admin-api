@@ -52,12 +52,12 @@ class SmsContactControllerTest {
   @Test
   void lists_contacts_converting_the_owner_role_filter_to_the_domain_enum() {
     when(smsContactServiceMock.getByCriteria(
-            eq("g1"), eq(school.hei.haapi.model.SmsContactOwnerRole.STUDENT), any()))
+            eq("g1"), eq(school.hei.haapi.model.SmsContactOwnerRole.STUDENT), isNull(), any()))
         .thenReturn(List.of(contact()));
 
     var page =
         subject.getSmsContacts(
-            "g1", SmsContactOwnerRole.STUDENT, new PageFromOne(1), new BoundedPageSize(10));
+            "g1", SmsContactOwnerRole.STUDENT, null, new PageFromOne(1), new BoundedPageSize(10));
 
     assertEquals(1, page.size());
     assertEquals("contact1", page.get(0).getId());
@@ -65,11 +65,25 @@ class SmsContactControllerTest {
 
   @Test
   void lists_contacts_with_no_filters() {
-    when(smsContactServiceMock.getByCriteria(isNull(), isNull(), any())).thenReturn(List.of());
+    when(smsContactServiceMock.getByCriteria(isNull(), isNull(), isNull(), any()))
+        .thenReturn(List.of());
 
-    var page = subject.getSmsContacts(null, null, new PageFromOne(1), new BoundedPageSize(10));
+    var page =
+        subject.getSmsContacts(null, null, null, new PageFromOne(1), new BoundedPageSize(10));
 
     assertEquals(0, page.size());
+  }
+
+  @Test
+  void lists_contacts_filtered_by_search() {
+    when(smsContactServiceMock.getByCriteria(isNull(), isNull(), eq("Antenaina"), any()))
+        .thenReturn(List.of(contact()));
+
+    var page =
+        subject.getSmsContacts(
+            null, null, "Antenaina", new PageFromOne(1), new BoundedPageSize(10));
+
+    assertEquals(1, page.size());
   }
 
   @Test

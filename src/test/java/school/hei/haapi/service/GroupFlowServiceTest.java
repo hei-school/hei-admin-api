@@ -3,7 +3,9 @@ package school.hei.haapi.service;
 import static java.time.Instant.parse;
 import static java.util.Comparator.comparing;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static school.hei.haapi.endpoint.rest.model.StudentLevel.L1;
 import static school.hei.haapi.endpoint.rest.model.StudentLevel.L2;
@@ -12,8 +14,10 @@ import static school.hei.haapi.model.GroupFlow.GroupFlowType.JOIN;
 import static school.hei.haapi.model.GroupFlow.GroupFlowType.LEAVE;
 
 import java.util.List;
+import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import school.hei.haapi.endpoint.rest.mapper.GroupFlowMapper;
+import school.hei.haapi.endpoint.rest.model.CreateGroupFlow;
 import school.hei.haapi.endpoint.rest.model.StudentLevel;
 import school.hei.haapi.model.Course;
 import school.hei.haapi.model.CourseAssignment;
@@ -28,18 +32,66 @@ import school.hei.haapi.repository.CourseAssignmentRepository;
 import school.hei.haapi.repository.GroupFlowRepository;
 import school.hei.haapi.repository.GroupRepository;
 import school.hei.haapi.repository.UserRepository;
+import school.hei.haapi.service.sms.StudentGroupContactSyncService;
 
 class GroupFlowServiceTest {
   private final GroupFlowRepository groupFlowRepository = mock();
   private final CourseAssignmentRepository courseAssignmentRepository = mock();
+  private final GroupRepository groupRepository = mock();
+  private final UserRepository userRepository = mock();
+  private final StudentGroupContactSyncService studentGroupContactSyncService = mock();
   private final GroupFlowService subject =
       new GroupFlowService(
           groupFlowRepository,
-          mock(GroupRepository.class),
-          mock(UserRepository.class),
+          groupRepository,
+          userRepository,
           mock(GroupFlowValidator.class),
           mock(GroupFlowMapper.class),
-          courseAssignmentRepository);
+          courseAssignmentRepository,
+          studentGroupContactSyncService);
+
+  @Test
+  void save_syncs_the_contact_group_membership_for_the_saved_flow() {
+    var student = User.builder().id("student1").build();
+    var group = Group.builder().id("g1").ref("K2").build();
+    when(userRepository.findById("student1")).thenReturn(Optional.of(student));
+    when(groupRepository.findById("g1")).thenReturn(Optional.of(group));
+    when(groupFlowRepository.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
+
+    var saved =
+        subject.save(
+            new CreateGroupFlow()
+                .studentId("student1")
+                .groupId("g1")
+                .moveType(CreateGroupFlow.MoveTypeEnum.JOIN));
+
+    verify(studentGroupContactSyncService).syncMembership(saved);
+  }
+
+  @Test
+  void saveAll_syncs_the_contact_group_membership_for_every_saved_flow() {
+    var student = User.builder().id("student1").build();
+    var oldGroup = Group.builder().id("old").ref("K1").build();
+    var newGroup = Group.builder().id("new").ref("K2").build();
+    when(userRepository.findById("student1")).thenReturn(Optional.of(student));
+    when(groupRepository.findById("old")).thenReturn(Optional.of(oldGroup));
+    when(groupRepository.findById("new")).thenReturn(Optional.of(newGroup));
+    when(groupFlowRepository.saveAll(any())).thenAnswer(invocation -> invocation.getArgument(0));
+
+    var saved =
+        subject.saveAll(
+            List.of(
+                new CreateGroupFlow()
+                    .studentId("student1")
+                    .groupId("old")
+                    .moveType(CreateGroupFlow.MoveTypeEnum.LEAVE),
+                new CreateGroupFlow()
+                    .studentId("student1")
+                    .groupId("new")
+                    .moveType(CreateGroupFlow.MoveTypeEnum.JOIN)));
+
+    verify(studentGroupContactSyncService).syncMembership(saved);
+  }
 
   private static Promotion promotion() {
     return Promotion.builder()

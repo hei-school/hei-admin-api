@@ -21,25 +21,29 @@ import school.hei.haapi.model.User;
 import school.hei.haapi.model.exception.NotFoundException;
 import school.hei.haapi.repository.SmsContactRepository;
 import school.hei.haapi.repository.dao.SmsContactDao;
+import school.hei.haapi.service.UserService;
 import school.hei.haapi.service.sms.SmsContactService;
 
 class SmsContactServiceTest {
   private final SmsContactRepository smsContactRepositoryMock = mock();
   private final SmsContactDao smsContactDaoMock = mock();
+  private final UserService userServiceMock = mock();
 
   private final SmsContactService subject =
-      new SmsContactService(smsContactRepositoryMock, smsContactDaoMock);
+      new SmsContactService(smsContactRepositoryMock, smsContactDaoMock, userServiceMock);
 
   @Test
   void getByCriteria_delegates_to_the_dao() {
     var contact = SmsContact.builder().id("c1").build();
-    when(smsContactDaoMock.filterByCriteria(eq("g1"), eq(SmsContactOwnerRole.STUDENT), any()))
+    when(smsContactDaoMock.filterByCriteria(
+            eq("g1"), eq(SmsContactOwnerRole.STUDENT), eq("Ante"), any()))
         .thenReturn(List.of(contact));
 
     var result =
         subject.getByCriteria(
             "g1",
             SmsContactOwnerRole.STUDENT,
+            "Ante",
             org.springframework.data.domain.PageRequest.of(0, 10));
 
     assertEquals(List.of(contact), result);
@@ -141,5 +145,39 @@ class SmsContactServiceTest {
     var result = subject.createContactIfMissing(user);
 
     assertTrue(result.isEmpty());
+  }
+
+  @Test
+  void backfillMissingContacts_only_asks_the_repository_for_users_already_without_one() {
+    var withoutContact1 = enabledUserBuilder().id("u1").build();
+    var withoutContact2 = enabledUserBuilder().id("u2").phone("0321111112").build();
+    when(userServiceMock.getAllEnabledUsersWithoutContact())
+        .thenReturn(List.of(withoutContact1, withoutContact2));
+    when(smsContactRepositoryMock.existsByOwner_Id("u1")).thenReturn(false);
+    when(smsContactRepositoryMock.existsByOwner_Id("u2")).thenReturn(false);
+    when(smsContactRepositoryMock.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
+
+    var createdCount = subject.backfillMissingContacts();
+
+    assertEquals(2, createdCount);
+  }
+
+  @Test
+  void backfillMissingContacts_still_skips_a_user_that_raced_a_contact_in_before_the_save() {
+    var user = enabledUserBuilder().id("u1").build();
+    when(userServiceMock.getAllEnabledUsersWithoutContact()).thenReturn(List.of(user));
+    when(smsContactRepositoryMock.existsByOwner_Id("u1")).thenReturn(true);
+
+    var createdCount = subject.backfillMissingContacts();
+
+    assertEquals(0, createdCount);
+    verify(smsContactRepositoryMock, never()).save(any());
+  }
+
+  @Test
+  void backfillMissingContacts_returns_zero_when_no_user_is_enabled() {
+    when(userServiceMock.getAllEnabledUsersWithoutContact()).thenReturn(List.of());
+
+    assertEquals(0, subject.backfillMissingContacts());
   }
 }

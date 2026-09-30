@@ -16,6 +16,7 @@ import school.hei.haapi.model.dto.SmsFileImportRowDto;
 import school.hei.haapi.model.exception.NotFoundException;
 import school.hei.haapi.repository.SmsContactRepository;
 import school.hei.haapi.repository.dao.SmsContactDao;
+import school.hei.haapi.service.UserService;
 
 @Slf4j
 @org.springframework.stereotype.Service
@@ -23,10 +24,11 @@ import school.hei.haapi.repository.dao.SmsContactDao;
 public class SmsContactService {
   private final SmsContactRepository smsContactRepository;
   private final SmsContactDao smsContactDao;
+  private final UserService userService;
 
   public List<SmsContact> getByCriteria(
-      String contactGroupId, SmsContactOwnerRole ownerRole, Pageable pageable) {
-    return smsContactDao.filterByCriteria(contactGroupId, ownerRole, pageable);
+      String contactGroupId, SmsContactOwnerRole ownerRole, String search, Pageable pageable) {
+    return smsContactDao.filterByCriteria(contactGroupId, ownerRole, search, pageable);
   }
 
   public SmsContact getById(String id) {
@@ -70,5 +72,20 @@ public class SmsContactService {
       log.info("SMS contact already exists for user {}, skipping", user.getId());
       return Optional.empty();
     }
+  }
+
+  @Transactional
+  public int backfillMissingContacts() {
+    var usersWithoutContact = userService.getAllEnabledUsersWithoutContact();
+    var createdCount =
+        usersWithoutContact.stream()
+            .filter(user -> createContactIfMissing(user).isPresent())
+            .toList()
+            .size();
+    log.info(
+        "SMS contact backfill: {} contact(s) created out of {} candidate(s)",
+        createdCount,
+        usersWithoutContact.size());
+    return createdCount;
   }
 }
