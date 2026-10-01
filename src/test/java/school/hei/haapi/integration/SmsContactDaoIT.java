@@ -106,6 +106,25 @@ public class SmsContactDaoIT extends FacadeITMockedThirdParties {
   }
 
   @Test
+  void filterByCriteria_search_matches_the_owners_ref_case_insensitively() {
+    var matchOwner = aUserWithUniqueOwnerId();
+    var match =
+        smsContactRepository.save(
+            aContactNamed(userRepository.save(matchOwner), "0321111161", "Unrelated Name"));
+    var noMatch =
+        smsContactRepository.save(
+            aContactNamed(
+                userRepository.save(aUserWithUniqueOwnerId()), "0321111162", "Another Name"));
+
+    var result =
+        smsContactDao.filterByCriteria(
+            null, null, matchOwner.getRef().toLowerCase(), PageRequest.of(0, 10));
+
+    assertTrue(result.stream().anyMatch(contact -> contact.getId().equals(match.getId())));
+    assertTrue(result.stream().noneMatch(contact -> contact.getId().equals(noMatch.getId())));
+  }
+
+  @Test
   void filterByCriteria_search_matches_the_phone_number() {
     var match =
         smsContactRepository.save(

@@ -41,14 +41,16 @@ class StudentGroupContactSyncServiceTest {
 
   @Test
   void createContactGroupFor_names_it_contact_de_plus_the_group_name() {
+    var creator = User.builder().id("creator1").build();
     when(smsContactGroupRepositoryMock.findByStudentGroup_IdAndIsDeletedFalse("g1"))
         .thenReturn(Optional.empty());
     when(smsContactGroupRepositoryMock.save(any())).thenAnswer(i -> i.getArgument(0));
 
-    var created = subject.createContactGroupFor(group());
+    var created = subject.createContactGroupFor(group(), creator);
 
     assertEquals("Contact de K2", created.getName());
     assertEquals(group(), created.getStudentGroup());
+    assertEquals(creator, created.getOwner());
   }
 
   @Test
@@ -57,7 +59,7 @@ class StudentGroupContactSyncServiceTest {
     when(smsContactGroupRepositoryMock.findByStudentGroup_IdAndIsDeletedFalse("g1"))
         .thenReturn(Optional.of(existing));
 
-    var result = subject.createContactGroupFor(group());
+    var result = subject.createContactGroupFor(group(), User.builder().id("creator1").build());
 
     assertEquals(existing, result);
     verify(smsContactGroupRepositoryMock, never()).save(any());

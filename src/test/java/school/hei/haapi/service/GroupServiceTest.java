@@ -9,6 +9,7 @@ import static org.mockito.Mockito.when;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 import school.hei.haapi.model.Group;
+import school.hei.haapi.model.User;
 import school.hei.haapi.model.notEntity.CreateGroup;
 import school.hei.haapi.repository.GroupRepository;
 import school.hei.haapi.repository.dao.GroupDao;
@@ -30,10 +31,11 @@ class GroupServiceTest {
   @Test
   void saveAll_creates_a_matching_contact_group_for_every_new_group() {
     var group = Group.builder().id("g1").name("K2").ref("K2").build();
+    var creator = User.builder().id("creator1").build();
     when(groupRepository.save(any())).thenReturn(group);
 
-    subject.saveAll(List.of(CreateGroup.builder().group(group).build()));
+    subject.saveAll(List.of(CreateGroup.builder().group(group).build()), creator);
 
-    verify(studentGroupContactSyncService, times(1)).createContactGroupFor(group);
+    verify(studentGroupContactSyncService, times(1)).createContactGroupFor(group, creator);
   }
 }

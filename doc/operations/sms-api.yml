@@ -6,7 +6,10 @@ operations:
       summary: List the authenticated account's SMS contacts
       description: >
         contact_group_id, owner_role and search are optional and independent: omit all for the
-        whole address book, pass any subset to narrow it down.
+        whole address book, pass any subset to narrow it down. When search is given, the result
+        is expanded with linked contacts: a matched STUDENT contact also pulls in their
+        monitor(s)' contacts, and a matched MONITOR contact pulls in every one of their
+        students' contacts — all in the same flat, deduplicated list.
       operationId: getSmsContacts
       parameters:
         - name: contact_group_id
@@ -24,8 +27,8 @@ operations:
           in: query
           required: false
           description: >-
-            Case-insensitive partial match against the contact's name (the owner's name) or its
-            phone number.
+            Case-insensitive partial match against the contact's name (the owner's first/last
+            name), its owner's ref (e.g. STD000001), or its phone number.
           schema:
             type: string
         - name: page
@@ -159,6 +162,12 @@ operations:
         getSmsContactGroupById), safe to back a campaign-target picker even for large groups.
       operationId: getSmsContactGroups
       parameters:
+        - name: search
+          in: query
+          required: false
+          description: Case-insensitive partial match against the group's name.
+          schema:
+            type: string
         - name: page
           in: query
           required: true

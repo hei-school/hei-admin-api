@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -15,10 +16,12 @@ import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.domain.Pageable;
 import school.hei.haapi.model.SmsContact;
 import school.hei.haapi.model.SmsContactOwnerRole;
 import school.hei.haapi.model.User;
 import school.hei.haapi.model.exception.NotFoundException;
+import school.hei.haapi.repository.MonitoringStudentRepository;
 import school.hei.haapi.repository.SmsContactRepository;
 import school.hei.haapi.repository.dao.SmsContactDao;
 import school.hei.haapi.service.UserService;
@@ -28,9 +31,14 @@ class SmsContactServiceTest {
   private final SmsContactRepository smsContactRepositoryMock = mock();
   private final SmsContactDao smsContactDaoMock = mock();
   private final UserService userServiceMock = mock();
+  private final MonitoringStudentRepository monitoringStudentRepositoryMock = mock();
 
   private final SmsContactService subject =
-      new SmsContactService(smsContactRepositoryMock, smsContactDaoMock, userServiceMock);
+      new SmsContactService(
+          smsContactRepositoryMock,
+          smsContactDaoMock,
+          userServiceMock,
+          monitoringStudentRepositoryMock);
 
   @Test
   void getByCriteria_delegates_to_the_dao() {
@@ -47,6 +55,124 @@ class SmsContactServiceTest {
             org.springframework.data.domain.PageRequest.of(0, 10));
 
     assertEquals(List.of(contact), result);
+  }
+
+  @Test
+  void getByCriteria_with_no_search_does_not_expand_linked_contacts() {
+    var student = User.builder().id("student1").ref("STD000001").build();
+    var contact =
+        SmsContact.builder().id("c1").owner(student).ownerRole(SmsContactOwnerRole.STUDENT).build();
+    when(smsContactDaoMock.filterByCriteria(isNull(), isNull(), isNull(), any()))
+        .thenReturn(List.of(contact));
+
+    var result =
+        subject.getByCriteria(
+            null, null, null, org.springframework.data.domain.PageRequest.of(0, 10));
+
+    assertEquals(List.of(contact), result);
+  }
+
+  @Test
+  void getByCriteria_with_search_also_returns_the_matched_students_monitor_contact() {
+    var student = User.builder().id("student1").ref("STD25001").build();
+    var monitor = User.builder().id("monitor1").ref("MTR25001").build();
+    var studentContact =
+        SmsContact.builder()
+            .id("c-student")
+            .owner(student)
+            .ownerRole(SmsContactOwnerRole.STUDENT)
+            .build();
+    var monitorContact =
+        SmsContact.builder()
+            .id("c-monitor")
+            .owner(monitor)
+            .ownerRole(SmsContactOwnerRole.MONITOR)
+            .build();
+    when(smsContactDaoMock.filterByCriteria(isNull(), isNull(), eq("STD25001"), any()))
+        .thenReturn(List.of(studentContact));
+    when(monitoringStudentRepositoryMock.findAllMonitorsByStudentId("student1"))
+        .thenReturn(List.of(monitor));
+    when(smsContactRepositoryMock.findByOwner_IdAndIsDeletedFalse("monitor1"))
+        .thenReturn(Optional.of(monitorContact));
+
+    var result =
+        subject.getByCriteria(
+            null, null, "STD25001", org.springframework.data.domain.PageRequest.of(0, 10));
+
+    assertEquals(List.of(studentContact, monitorContact), result);
+  }
+
+  @Test
+  void getByCriteria_with_search_also_returns_every_linked_students_contact_for_a_monitor() {
+    var monitor = User.builder().id("monitor1").ref("MTR25001").build();
+    var student1 = User.builder().id("student1").ref("STD25001").build();
+    var student2 = User.builder().id("student2").ref("STD25002").build();
+    var monitorContact =
+        SmsContact.builder()
+            .id("c-monitor")
+            .owner(monitor)
+            .ownerRole(SmsContactOwnerRole.MONITOR)
+            .build();
+    var student1Contact =
+        SmsContact.builder()
+            .id("c-student1")
+            .owner(student1)
+            .ownerRole(SmsContactOwnerRole.STUDENT)
+            .build();
+    var student2Contact =
+        SmsContact.builder()
+            .id("c-student2")
+            .owner(student2)
+            .ownerRole(SmsContactOwnerRole.STUDENT)
+            .build();
+    when(smsContactDaoMock.filterByCriteria(isNull(), isNull(), eq("MTR25001"), any()))
+        .thenReturn(List.of(monitorContact));
+    when(monitoringStudentRepositoryMock.findAllStudentsByMonitorId("monitor1", Pageable.unpaged()))
+        .thenReturn(List.of(student1, student2));
+    when(smsContactRepositoryMock.findByOwner_IdAndIsDeletedFalse("student1"))
+        .thenReturn(Optional.of(student1Contact));
+    when(smsContactRepositoryMock.findByOwner_IdAndIsDeletedFalse("student2"))
+        .thenReturn(Optional.of(student2Contact));
+
+    var result =
+        subject.getByCriteria(
+            null, null, "MTR25001", org.springframework.data.domain.PageRequest.of(0, 10));
+
+    assertEquals(List.of(monitorContact, student1Contact, student2Contact), result);
+  }
+
+  @Test
+  void getByCriteria_does_not_duplicate_a_linked_contact_already_in_the_matches() {
+    var student = User.builder().id("student1").ref("STD25001").build();
+    var monitor = User.builder().id("monitor1").ref("MTR25001").build();
+    var studentContact =
+        SmsContact.builder()
+            .id("c-student")
+            .owner(student)
+            .ownerRole(SmsContactOwnerRole.STUDENT)
+            .build();
+    var monitorContact =
+        SmsContact.builder()
+            .id("c-monitor")
+            .owner(monitor)
+            .ownerRole(SmsContactOwnerRole.MONITOR)
+            .build();
+    when(smsContactDaoMock.filterByCriteria(isNull(), isNull(), eq("25001"), any()))
+        .thenReturn(List.of(studentContact, monitorContact));
+    when(monitoringStudentRepositoryMock.findAllMonitorsByStudentId("student1"))
+        .thenReturn(List.of(monitor));
+    when(smsContactRepositoryMock.findByOwner_IdAndIsDeletedFalse("monitor1"))
+        .thenReturn(Optional.of(monitorContact));
+    when(monitoringStudentRepositoryMock.findAllStudentsByMonitorId("monitor1", Pageable.unpaged()))
+        .thenReturn(List.of(student));
+    when(smsContactRepositoryMock.findByOwner_IdAndIsDeletedFalse("student1"))
+        .thenReturn(Optional.of(studentContact));
+
+    var result =
+        subject.getByCriteria(
+            null, null, "25001", org.springframework.data.domain.PageRequest.of(0, 10));
+
+    assertEquals(List.of(studentContact, monitorContact), result);
   }
 
   @Test
@@ -70,6 +196,7 @@ class SmsContactServiceTest {
   private User.UserBuilder enabledUserBuilder() {
     return User.builder()
         .id("u1")
+        .ref("STD000001")
         .firstName("Antenaina")
         .lastName("Jaonina")
         .phone("0321111111")
@@ -120,7 +247,8 @@ class SmsContactServiceTest {
 
   @Test
   void createContactIfMissing_creates_a_contact_with_the_normalized_phone_and_mapped_role() {
-    var user = enabledUserBuilder().phone("0321111111").role(User.Role.TEACHER).build();
+    var user =
+        enabledUserBuilder().ref("TCH000001").phone("0321111111").role(User.Role.TEACHER).build();
     when(smsContactRepositoryMock.existsByOwner_Id("u1")).thenReturn(false);
     when(smsContactRepositoryMock.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
 
@@ -150,7 +278,8 @@ class SmsContactServiceTest {
   @Test
   void backfillMissingContacts_only_asks_the_repository_for_users_already_without_one() {
     var withoutContact1 = enabledUserBuilder().id("u1").build();
-    var withoutContact2 = enabledUserBuilder().id("u2").phone("0321111112").build();
+    var withoutContact2 =
+        enabledUserBuilder().id("u2").ref("STD000002").phone("0321111112").build();
     when(userServiceMock.getAllEnabledUsersWithoutContact())
         .thenReturn(List.of(withoutContact1, withoutContact2));
     when(smsContactRepositoryMock.existsByOwner_Id("u1")).thenReturn(false);

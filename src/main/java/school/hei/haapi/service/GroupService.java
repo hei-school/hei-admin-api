@@ -75,14 +75,15 @@ public class GroupService {
   }
 
   @Transactional
-  public List<Group> saveAll(List<school.hei.haapi.model.notEntity.CreateGroup> createGroups) {
+  public List<Group> saveAll(
+      List<school.hei.haapi.model.notEntity.CreateGroup> createGroups, User creator) {
     List<school.hei.haapi.model.Group> groups = new ArrayList<>();
     List<CreateGroupFlow> createGroupFlows = new ArrayList<>();
 
     for (school.hei.haapi.model.notEntity.CreateGroup createGroup : createGroups) {
       Group group = repository.save(createGroup.getGroup());
       groups.add(group);
-      studentGroupContactSyncService.createContactGroupFor(group);
+      studentGroupContactSyncService.createContactGroupFor(group, creator);
 
       if (createGroup.getStudents() != null) {
         for (String studentId : createGroup.getStudents()) {

@@ -82,7 +82,8 @@ class DirtyEventServiceTest extends FacadeITMockedThirdParties {
             List.of(
                 new CreateGroup(
                     groupMapper.toDomain(fakeDataProvider.createGroup()),
-                    disabledStudents.stream().map(User::getId).toList())));
+                    disabledStudents.stream().map(User::getId).toList())),
+            planner);
     var creatableEvent =
         eventMapper.toDomain(
             someCreatableEvent(
@@ -117,7 +118,8 @@ class DirtyEventServiceTest extends FacadeITMockedThirdParties {
             List.of(
                 new CreateGroup(
                     groupMapper.toDomain(fakeDataProvider.createGroup()),
-                    randomUsers.stream().map(User::getId).toList())));
+                    randomUsers.stream().map(User::getId).toList())),
+            planner);
 
     var creatableEvent =
         eventMapper.toDomain(
@@ -203,7 +205,8 @@ class DirtyEventServiceTest extends FacadeITMockedThirdParties {
             List.of(
                 new CreateGroup(
                     groupMapper.toDomain(fakeDataProvider.createGroup()),
-                    randomUsers.stream().map(User::getId).toList())));
+                    randomUsers.stream().map(User::getId).toList())),
+            planner);
 
     var randomCourseEvent =
         subject.createOrUpdateEvent(
@@ -250,7 +253,8 @@ class DirtyEventServiceTest extends FacadeITMockedThirdParties {
             List.of(
                 new CreateGroup(
                     groupMapper.toDomain(fakeDataProvider.createGroup()),
-                    randomUsers.stream().map(User::getId).toList())));
+                    randomUsers.stream().map(User::getId).toList())),
+            planner);
     var randomCourseEvent =
         subject.createOrUpdateEvent(
             List.of(

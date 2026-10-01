@@ -4,6 +4,7 @@ import static java.util.stream.Collectors.*;
 
 import java.util.List;
 import lombok.AllArgsConstructor;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -16,6 +17,7 @@ import school.hei.haapi.endpoint.rest.model.CreateGroup;
 import school.hei.haapi.endpoint.rest.model.Group;
 import school.hei.haapi.endpoint.rest.model.GroupFlow;
 import school.hei.haapi.endpoint.rest.model.UpdateGroupFlow;
+import school.hei.haapi.endpoint.rest.security.model.Principal;
 import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.service.GroupFlowService;
@@ -48,11 +50,13 @@ public class GroupController {
 
   // todo: to review
   @PutMapping(value = "/groups")
-  public List<Group> createOrUpdateGroups(@RequestBody List<CreateGroup> createGroupsRest) {
+  public List<Group> createOrUpdateGroups(
+      @RequestBody List<CreateGroup> createGroupsRest,
+      @AuthenticationPrincipal Principal principal) {
     List<school.hei.haapi.model.notEntity.CreateGroup> createGroups =
         createGroupsRest.stream().map(groupMapper::toDomain).collect(toList());
 
-    var saved = groupService.saveAll(createGroups);
+    var saved = groupService.saveAll(createGroups, principal.getUser());
     return saved.stream().map(groupMapper::toRest).collect(toUnmodifiableList());
   }
 
