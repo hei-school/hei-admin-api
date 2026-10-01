@@ -1,3 +1,17 @@
+# [1.179.0](https://github.com/hei-school/hei-admin-api/compare/v1.178.0...v1.179.0) (2026-10-01)
+
+
+### Bug Fixes
+
+* fetch contact's group ([8e85b1c](https://github.com/hei-school/hei-admin-api/commit/8e85b1ce284780409523cb596a8fadf7da53a29e))
+
+
+### Features
+
+* implementation badge ([0fb9f52](https://github.com/hei-school/hei-admin-api/commit/0fb9f521447af4647d75c2bf33c5887cc9c8e2d6))
+
+
+
 # [1.178.0](https://github.com/hei-school/hei-admin-api/compare/v1.177.0...v1.178.0) (2026-10-01)
 
 
@@ -131,23 +145,6 @@
 ### Features
 
 * add student insurance fee count ([882ac53](https://github.com/hei-school/hei-admin-api/commit/882ac53c829e4c6578d06bdebe034faf7205ac29))
-
-
-
-# [1.170.0](https://github.com/hei-school/hei-admin-api/compare/v1.169.1...v1.170.0) (2026-08-26)
-
-
-### Bug Fixes
-
-* create credit transaction ([f78c6f9](https://github.com/hei-school/hei-admin-api/commit/f78c6f9bb4e0fac40cc046bef55a74cf30604fd1))
-* trigger CD ([132d622](https://github.com/hei-school/hei-admin-api/commit/132d622f5d98b976cce2885a5d3fd177a23d5282))
-* trigger CD ([328341f](https://github.com/hei-school/hei-admin-api/commit/328341f8e7f237b32ac803a5b9b4a339252e8b9c))
-
-
-### Features
-
-* add Documenso document distribution ([b952b82](https://github.com/hei-school/hei-admin-api/commit/b952b8244da97d9a1a28cede7b31f6562988b910))
-* expose credit transaction creation datetime ([491e827](https://github.com/hei-school/hei-admin-api/commit/491e827dcbec988da306ad7918f8e1beeb810eb0))
 
 
 
