@@ -27,9 +27,18 @@ class SmsContactMapperTest {
   }
 
   @Test
-  void contact_name_is_the_owners_ref() {
-    var user = User.builder().ref("STD000001").build();
-    assertEquals("STD000001", SmsContactMapper.toContactName(user));
+  void contact_name_is_the_owners_first_and_last_name() {
+    var user = User.builder().firstName("Antenaina").lastName("Jaonina").build();
+    assertEquals("Antenaina Jaonina", SmsContactMapper.toContactName(user));
+  }
+
+  @Test
+  void contact_name_handles_missing_first_or_last_name() {
+    var onlyFirst = User.builder().firstName("Antenaina").build();
+    var onlyLast = User.builder().lastName("Jaonina").build();
+
+    assertEquals("Antenaina ", SmsContactMapper.toContactName(onlyFirst));
+    assertEquals(" Jaonina", SmsContactMapper.toContactName(onlyLast));
   }
 
   @Test
@@ -39,7 +48,7 @@ class SmsContactMapperTest {
         school.hei.haapi.model.SmsContact.builder()
             .id("c1")
             .phoneNumber("321111111")
-            .name("REF-1")
+            .name("Antenaina Jaonina")
             .owner(owner)
             .ownerRole(SmsContactOwnerRole.STAFF_MEMBER)
             .build();
@@ -48,7 +57,7 @@ class SmsContactMapperTest {
 
     assertEquals("c1", rest.getId());
     assertEquals("321111111", rest.getPhoneNumber());
-    assertEquals("REF-1", rest.getName());
+    assertEquals("Antenaina Jaonina", rest.getName());
     assertEquals("owner1", rest.getOwnerId());
     assertEquals("REF-1", rest.getOwnerRef());
     assertEquals(

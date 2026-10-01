@@ -27,6 +27,8 @@ public class SmsContactMapper {
   }
 
   public static String toContactName(User user) {
-    return user.getRef();
+    return (user.getFirstName() == null ? "" : user.getFirstName())
+        + " "
+        + (user.getLastName() == null ? "" : user.getLastName());
   }
 }

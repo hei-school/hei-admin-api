@@ -38,10 +38,12 @@ public class SmsContactDao {
     }
     if (search != null && !search.isBlank()) {
       var searchPattern = "%" + search.trim().toLowerCase() + "%";
+      var ownerJoin = root.join("owner");
       predicates.add(
           builder.or(
               builder.like(builder.lower(root.get("name")), searchPattern),
-              builder.like(builder.lower(root.get("phoneNumber")), searchPattern)));
+              builder.like(builder.lower(root.get("phoneNumber")), searchPattern),
+              builder.like(builder.lower(ownerJoin.get("ref")), searchPattern)));
     }
 
     query.where(predicates.toArray(new Predicate[0]));

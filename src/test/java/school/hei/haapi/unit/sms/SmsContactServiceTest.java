@@ -257,7 +257,7 @@ class SmsContactServiceTest {
     assertTrue(result.isPresent());
     var contact = result.get();
     assertEquals("321111111", contact.getPhoneNumber());
-    assertEquals("TCH000001", contact.getName());
+    assertEquals("Antenaina Jaonina", contact.getName());
     assertEquals(user, contact.getOwner());
     assertEquals(SmsContactOwnerRole.TEACHER, contact.getOwnerRole());
     assertFalse(contact.isDeleted());

@@ -27,8 +27,8 @@ operations:
           in: query
           required: false
           description: >-
-            Case-insensitive partial match against the contact's name (the owner's name) or its
-            phone number.
+            Case-insensitive partial match against the contact's name (the owner's first/last
+            name), its owner's ref (e.g. STD000001), or its phone number.
           schema:
             type: string
         - name: page
