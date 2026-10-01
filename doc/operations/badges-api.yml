@@ -1,0 +1,135 @@
+operations:
+  getPublicStudent:
+    get:
+      tags:
+        - Badges
+      summary: Get public information of a student from its public id.
+      description: |
+        Public endpoint (no authentication), called when the badge QR code is scanned.
+        The public id is random and never reveals the real student id.
+      security: [ ]
+      operationId: getPublicStudent
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: public id of the student
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Public information of the student
+          content:
+            application/json:
+              schema:
+                $ref: '../components.yml#/components/schemas/PublicStudent'
+        '404':
+          $ref: '../components.yml#/components/responses/404'
+        '429':
+          $ref: '../components.yml#/components/responses/429'
+        '500':
+          $ref: '../components.yml#/components/responses/500'
+  getStudentByPublicId:
+    get:
+      tags:
+        - Badges
+      summary: Get the student from its public id.
+      description: |
+        For connected staff: gives the student (and so its real id) to open its profile, fees, etc.
+      operationId: getStudentByPublicId
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: public id of the student
+          schema:
+            type: string
+      responses:
+        '200':
+          description: The student
+          content:
+            application/json:
+              schema:
+                $ref: '../components.yml#/components/schemas/Student'
+        '400':
+          $ref: '../components.yml#/components/responses/400'
+        '403':
+          $ref: '../components.yml#/components/responses/403'
+        '404':
+          $ref: '../components.yml#/components/responses/404'
+        '429':
+          $ref: '../components.yml#/components/responses/429'
+        '500':
+          $ref: '../components.yml#/components/responses/500'
+  revokeStudentBadge:
+    put:
+      tags:
+        - Badges
+      summary: Revoke a lost badge.
+      description: The public id stops working, a new one is generated on the next badge print.
+      operationId: revokeStudentBadge
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: public id of the student
+          schema:
+            type: string
+      responses:
+        '200':
+          description: The student of the revoked badge
+          content:
+            application/json:
+              schema:
+                $ref: '../components.yml#/components/schemas/PublicStudent'
+        '400':
+          $ref: '../components.yml#/components/responses/400'
+        '403':
+          $ref: '../components.yml#/components/responses/403'
+        '404':
+          $ref: '../components.yml#/components/responses/404'
+        '429':
+          $ref: '../components.yml#/components/responses/429'
+        '500':
+          $ref: '../components.yml#/components/responses/500'
+  checkEventAttendanceByPublicId:
+    put:
+      tags:
+        - Events
+      summary: Check the attendance of a student to an event by scanning its badge.
+      operationId: checkEventAttendanceByPublicId
+      parameters:
+        - name: event_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: id
+          in: path
+          required: true
+          description: public id of the student
+          schema:
+            type: string
+        - name: status
+          in: query
+          required: false
+          description: PRESENT by default
+          schema:
+            $ref: '../components.yml#/components/schemas/AttendanceStatus'
+      responses:
+        '200':
+          description: The updated event participant
+          content:
+            application/json:
+              schema:
+                $ref: '../components.yml#/components/schemas/EventParticipant'
+        '400':
+          $ref: '../components.yml#/components/responses/400'
+        '403':
+          $ref: '../components.yml#/components/responses/403'
+        '404':
+          $ref: '../components.yml#/components/responses/404'
+        '429':
+          $ref: '../components.yml#/components/responses/429'
+        '500':
+          $ref: '../components.yml#/components/responses/500'

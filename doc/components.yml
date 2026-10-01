@@ -706,6 +706,35 @@ components:
         - L3
         - M1
         - M2
+    PublicStudent:
+      type: object
+      description: |
+        Public information of a student, shown when the QR code of its badge is scanned.
+        The id is a random public id, never the real student id.
+      properties:
+        id:
+          type: string
+          description: public id printed in the badge QR code
+          example: 7c1e4b9a-2f3d-4e8a-9b6c-1d2e3f4a5b6c
+        is_valid:
+          type: boolean
+          description: false when the badge has been revoked (lost badge)
+        ref:
+          type: string
+          example: STD000001
+        first_name:
+          type: string
+        last_name:
+          type: string
+        status:
+          $ref: '#/components/schemas/EnableStatus'
+        level:
+          $ref: '#/components/schemas/StudentLevel'
+        specialization_field:
+          $ref: '#/components/schemas/SpecializationField'
+        profile_picture:
+          type: string
+          description: presigned url of the profile picture
     ExamGradeStats:
       type: object
       properties:

@@ -229,6 +229,10 @@ public class SecurityConf {
                     antMatcher(GET, "/teachers"),
                     antMatcher(GET, "/teachers/*"),
                     antMatcher(GET, "/students/*/scholarship_certificate/raw"),
+                    antMatcher(GET, "/students/badges/raw"),
+                    antMatcher(GET, "/students/public/*/student"),
+                    antMatcher(PUT, "/students/public/*/revocation"),
+                    antMatcher(PUT, "/events/*/students/public/*/attendance"),
                     antMatcher(PUT, "/students/**"),
                     antMatcher(GET, "/fees/templates"),
                     antMatcher(PUT, "/fees/templates/*"),
@@ -391,6 +395,8 @@ public class SecurityConf {
                             new AntPathRequestMatcher("/authentication/signin", POST.name()),
                             new AntPathRequestMatcher("/authentication/login-url", GET.name()),
                             new AntPathRequestMatcher("/documenso/webhook", POST.name()),
+                            // badge QR code scan: random public id, public information only
+                            new AntPathRequestMatcher("/students/public/*", GET.name()),
                             new AntPathRequestMatcher("/**", OPTIONS.toString())))
                     .permitAll()
                     .requestMatchers(GET, "/whoami")
@@ -810,6 +816,12 @@ public class SecurityConf {
                     .hasRole(MONITOR.getRole())
                     .requestMatchers(GET, "/students/*/courses/*/grades")
                     .hasAnyRole(TEACHER.getRole(), MANAGER.getRole(), ADMIN.getRole())
+                    .requestMatchers(GET, "/students/badges/raw")
+                    .hasAnyRole(MANAGER.getRole(), ADMIN.getRole())
+                    .requestMatchers(GET, "/students/public/*/student")
+                    .hasAnyRole(MANAGER.getRole(), ADMIN.getRole(), TEACHER.getRole())
+                    .requestMatchers(PUT, "/events/*/students/public/*/attendance")
+                    .hasAnyRole(MANAGER.getRole(), TEACHER.getRole(), ADMIN.getRole())
                     // scholarship security conf
                     .requestMatchers(
                         new NonAlumniSelfMatcher(
