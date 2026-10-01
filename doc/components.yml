@@ -667,6 +667,11 @@ components:
           type: integer
     CrupdateExam:
       type: object
+      required:
+        - coefficient
+        - title
+        - examination_date
+        - course_assignment_id
       properties:
         id:
           type: string

@@ -9,6 +9,7 @@ import school.hei.haapi.endpoint.rest.model.Fraction;
 import school.hei.haapi.endpoint.rest.model.StudentExamGrade;
 import school.hei.haapi.endpoint.rest.validator.FractionValidator;
 import school.hei.haapi.model.CourseAssignment;
+import school.hei.haapi.model.exception.BadRequestException;
 import school.hei.haapi.service.CourseAssignmentService;
 
 @Component
@@ -43,6 +44,9 @@ public class ExamMapper {
   }
 
   public school.hei.haapi.model.Exam toDomain(CrupdateExam createExam) {
+    if (createExam.getCourseAssignmentId() == null) {
+      throw new BadRequestException("Awarded course is mandatory");
+    }
     CourseAssignment courseAssignment =
         courseAssignmentService.getCourseAssignmentById(createExam.getCourseAssignmentId());
     fractionValidator.accept(createExam.getCoefficient());
