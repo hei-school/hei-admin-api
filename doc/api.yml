@@ -330,6 +330,16 @@ paths:
     $ref: './operations/files-api.yml#/operations/getUserFiles'
   '/students/{id}/scholarship_certificate/raw':
     $ref: './operations/files-api.yml#/operations/getStudentScholarshipCertificate'
+  '/students/badges/raw':
+    $ref: './operations/files-api.yml#/operations/getStudentBadges'
+  '/students/public/{id}':
+    $ref: './operations/badges-api.yml#/operations/getPublicStudent'
+  '/students/public/{id}/student':
+    $ref: './operations/badges-api.yml#/operations/getStudentByPublicId'
+  '/students/public/{id}/revocation':
+    $ref: './operations/badges-api.yml#/operations/revokeStudentBadge'
+  '/events/{event_id}/students/public/{id}/attendance':
+    $ref: './operations/badges-api.yml#/operations/checkEventAttendanceByPublicId'
   # Comments
   /comments:
     $ref: './operations/comments-api.yml#/operations/getComments'

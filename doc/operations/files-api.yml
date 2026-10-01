@@ -443,3 +443,54 @@ operations:
           $ref: '../components.yml#/components/responses/429'
         '500':
           $ref: '../components.yml#/components/responses/500'
+  getStudentBadges:
+    get:
+      tags:
+        - Files
+      summary: Get printable badges of students.
+      description: |
+        PDF of 9 x 5.7 cm badges (2 columns x 5 rows with a 5 mm gap between the columns, 10 badges
+        per page, the 18.5 x 28.5 cm page
+        has no margin and prints on A4 at actual size), each with
+        the student last name, first name, ref, photo, academic year and a QR code linking to
+        the student page. Either group_id or student_ids must be provided (both can be combined),
+        at most 200 badges per request.
+      operationId: getStudentBadges
+      parameters:
+        - name: group_id
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: student_ids
+          in: query
+          required: false
+          schema:
+            type: array
+            items:
+              type: string
+        - name: academic_year
+          in: query
+          required: false
+          description: Printed academic year, e.g. "2026 - 2027". Defaults to the current one.
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Badges of the students
+          content:
+            application/pdf:
+              schema:
+                type: string
+                format: byte
+                example: PDF VERSION
+        '400':
+          $ref: '../components.yml#/components/responses/400'
+        '403':
+          $ref: '../components.yml#/components/responses/403'
+        '404':
+          $ref: '../components.yml#/components/responses/404'
+        '429':
+          $ref: '../components.yml#/components/responses/429'
+        '500':
+          $ref: '../components.yml#/components/responses/500'
