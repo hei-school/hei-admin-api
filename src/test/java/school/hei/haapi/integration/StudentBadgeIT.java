@@ -135,6 +135,7 @@ class StudentBadgeIT extends FacadeITMockedThirdParties {
     String attendancePath =
         "/events/" + event.getId() + "/students/public/" + publicId + "/attendance";
     assertEquals(403, send("PUT", attendancePath, studentToken).statusCode());
+    assertEquals(403, send("PUT", attendancePath, managerToken).statusCode());
     assertEquals(200, send("PUT", attendancePath, teacherToken).statusCode());
     assertEquals(
         PRESENT,
@@ -156,6 +157,42 @@ class StudentBadgeIT extends FacadeITMockedThirdParties {
     assertTrue(
         send("GET", "/students/public/" + publicId, null).body().contains("\"is_valid\":false"));
     assertEquals(400, send("PUT", attendancePath, teacherToken).statusCode());
+  }
+
+  @Test
+  void print_and_remove_badge_of_one_student() throws Exception {
+    String badgePath = "/students/" + student.getId() + "/badge";
+    assertEquals(404, send("GET", badgePath, managerToken).statusCode());
+
+    // badge of this student only, from its profile
+    HttpResponse<String> pdf =
+        send("GET", "/students/badges/raw?student_ids=" + student.getId(), managerToken);
+    assertEquals(200, pdf.statusCode());
+    HttpResponse<String> activeBadge = send("GET", badgePath, managerToken);
+    assertEquals(200, activeBadge.statusCode());
+    assertEquals(403, send("GET", badgePath, teacherToken).statusCode());
+    String firstPublicId =
+        studentBadgeRepository
+            .findByStudentIdAndRevocationDatetimeIsNull(student.getId())
+            .orElseThrow()
+            .getPublicId();
+    assertTrue(activeBadge.body().contains(firstPublicId));
+
+    // removing the badge: its QR code stops working, a new one is printed next time
+    assertEquals(403, send("PUT", badgePath + "/revocation", teacherToken).statusCode());
+    assertEquals(200, send("PUT", badgePath + "/revocation", managerToken).statusCode());
+    assertEquals(404, send("GET", badgePath, managerToken).statusCode());
+    assertTrue(
+        send("GET", "/students/public/" + firstPublicId, null)
+            .body()
+            .contains("\"is_valid\":false"));
+    send("GET", "/students/badges/raw?student_ids=" + student.getId(), managerToken);
+    assertNotEquals(
+        firstPublicId,
+        studentBadgeRepository
+            .findByStudentIdAndRevocationDatetimeIsNull(student.getId())
+            .orElseThrow()
+            .getPublicId());
   }
 
   @Test

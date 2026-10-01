@@ -110,6 +110,21 @@ class StudentBadgeCodeServiceTest {
     assertThrows(NotFoundException.class, () -> subject.getByPublicId("unknown"));
   }
 
+  @Test
+  void remove_active_badge_of_student() {
+    User student = student();
+    StudentBadge active = badge(student);
+    when(studentBadgeRepository.findByStudentIdAndRevocationDatetimeIsNull(student.getId()))
+        .thenReturn(Optional.of(active))
+        .thenReturn(Optional.empty());
+
+    StudentBadge removed = subject.revokeActiveBadgeOfStudent(student.getId());
+
+    assertTrue(removed.isRevoked());
+    // nothing left to remove: the next print creates a new badge
+    assertThrows(NotFoundException.class, () -> subject.getActiveBadgeOfStudent(student.getId()));
+  }
+
   private static User student() {
     User student = new User();
     student.setId("student1_id");

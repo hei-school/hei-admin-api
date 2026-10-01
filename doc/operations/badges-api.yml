@@ -92,11 +92,71 @@ operations:
           $ref: '../components.yml#/components/responses/429'
         '500':
           $ref: '../components.yml#/components/responses/500'
+  getStudentActiveBadge:
+    get:
+      tags:
+        - Badges
+      summary: Get the active badge of a student.
+      description: 404 when the student has no active badge (never printed, or removed).
+      operationId: getStudentActiveBadge
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: real id of the student
+          schema:
+            type: string
+      responses:
+        '200':
+          description: The active badge of the student
+          content:
+            application/json:
+              schema:
+                $ref: '../components.yml#/components/schemas/PublicStudent'
+        '403':
+          $ref: '../components.yml#/components/responses/403'
+        '404':
+          $ref: '../components.yml#/components/responses/404'
+        '429':
+          $ref: '../components.yml#/components/responses/429'
+        '500':
+          $ref: '../components.yml#/components/responses/500'
+  revokeStudentActiveBadge:
+    put:
+      tags:
+        - Badges
+      summary: Remove the active badge of a student.
+      description: |
+        Its QR code stops working; a new public id is generated on the next badge print.
+      operationId: revokeStudentActiveBadge
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: real id of the student
+          schema:
+            type: string
+      responses:
+        '200':
+          description: The removed badge
+          content:
+            application/json:
+              schema:
+                $ref: '../components.yml#/components/schemas/PublicStudent'
+        '403':
+          $ref: '../components.yml#/components/responses/403'
+        '404':
+          $ref: '../components.yml#/components/responses/404'
+        '429':
+          $ref: '../components.yml#/components/responses/429'
+        '500':
+          $ref: '../components.yml#/components/responses/500'
   checkEventAttendanceByPublicId:
     put:
       tags:
         - Events
       summary: Check the attendance of a student to an event by scanning its badge.
+      description: Teachers only.
       operationId: checkEventAttendanceByPublicId
       parameters:
         - name: event_id

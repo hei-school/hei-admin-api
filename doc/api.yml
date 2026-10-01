@@ -338,6 +338,10 @@ paths:
     $ref: './operations/badges-api.yml#/operations/getStudentByPublicId'
   '/students/public/{id}/revocation':
     $ref: './operations/badges-api.yml#/operations/revokeStudentBadge'
+  '/students/{id}/badge':
+    $ref: './operations/badges-api.yml#/operations/getStudentActiveBadge'
+  '/students/{id}/badge/revocation':
+    $ref: './operations/badges-api.yml#/operations/revokeStudentActiveBadge'
   '/events/{event_id}/students/public/{id}/attendance':
     $ref: './operations/badges-api.yml#/operations/checkEventAttendanceByPublicId'
   # Comments

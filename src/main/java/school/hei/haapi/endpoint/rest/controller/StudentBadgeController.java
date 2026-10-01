@@ -38,6 +38,16 @@ public class StudentBadgeController {
     return studentBadgeMapper.toRest(studentBadgeCodeService.revoke(publicId));
   }
 
+  @GetMapping("/students/{id}/badge")
+  public PublicStudent getStudentActiveBadge(@PathVariable(name = "id") String studentId) {
+    return studentBadgeMapper.toRest(studentBadgeCodeService.getActiveBadgeOfStudent(studentId));
+  }
+
+  @PutMapping("/students/{id}/badge/revocation")
+  public PublicStudent revokeStudentActiveBadge(@PathVariable(name = "id") String studentId) {
+    return studentBadgeMapper.toRest(studentBadgeCodeService.revokeActiveBadgeOfStudent(studentId));
+  }
+
   @PutMapping("/events/{event_id}/students/public/{id}/attendance")
   public EventParticipant checkEventAttendanceByPublicId(
       @PathVariable(name = "event_id") String eventId,

@@ -38,6 +38,20 @@ public class StudentBadgeCodeService {
         .orElseThrow(() -> new NotFoundException("Student #" + publicId + " does not exist"));
   }
 
+  public StudentBadge getActiveBadgeOfStudent(String studentId) {
+    return studentBadgeRepository
+        .findByStudentIdAndRevocationDatetimeIsNull(studentId)
+        .orElseThrow(() -> new NotFoundException("Student #" + studentId + " has no active badge"));
+  }
+
+  /** Removes the badge of a student: its QR code stops working, a new one is printed next. */
+  @Transactional
+  public StudentBadge revokeActiveBadgeOfStudent(String studentId) {
+    StudentBadge badge = getActiveBadgeOfStudent(studentId);
+    badge.setRevocationDatetime(Instant.now());
+    return studentBadgeRepository.save(badge);
+  }
+
   @Transactional
   public StudentBadge revoke(String publicId) {
     StudentBadge badge = getByPublicId(publicId);

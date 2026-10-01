@@ -231,6 +231,7 @@ public class SecurityConf {
                     antMatcher(GET, "/students/*/scholarship_certificate/raw"),
                     antMatcher(GET, "/students/badges/raw"),
                     antMatcher(GET, "/students/public/*/student"),
+                    antMatcher(GET, "/students/*/badge"),
                     antMatcher(PUT, "/students/public/*/revocation"),
                     antMatcher(PUT, "/events/*/students/public/*/attendance"),
                     antMatcher(PUT, "/students/**"),
@@ -820,8 +821,12 @@ public class SecurityConf {
                     .hasAnyRole(MANAGER.getRole(), ADMIN.getRole())
                     .requestMatchers(GET, "/students/public/*/student")
                     .hasAnyRole(MANAGER.getRole(), ADMIN.getRole(), TEACHER.getRole())
+                    // PUT /students/*/badge/revocation is covered by PUT /students/** (manager,
+                    // admin)
+                    .requestMatchers(GET, "/students/*/badge")
+                    .hasAnyRole(MANAGER.getRole(), ADMIN.getRole())
                     .requestMatchers(PUT, "/events/*/students/public/*/attendance")
-                    .hasAnyRole(MANAGER.getRole(), TEACHER.getRole(), ADMIN.getRole())
+                    .hasRole(TEACHER.getRole())
                     // scholarship security conf
                     .requestMatchers(
                         new NonAlumniSelfMatcher(
