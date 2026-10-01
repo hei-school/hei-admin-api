@@ -17,7 +17,8 @@ public class SmsContactGroupService {
   private final SmsContactRepository smsContactRepository;
 
   public List<SmsContactGroup> getByOwner(User owner, String search, Pageable pageable) {
-    return smsContactGroupRepository.findAllVisibleTo(owner.getId(), search, pageable);
+    return smsContactGroupRepository.findAllVisibleTo(
+        owner.getId(), search == null ? "" : search, pageable);
   }
 
   public SmsContactGroup getById(String id) {

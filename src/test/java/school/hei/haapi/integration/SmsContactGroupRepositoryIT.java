@@ -16,11 +16,13 @@ import school.hei.haapi.model.User;
 import school.hei.haapi.repository.GroupRepository;
 import school.hei.haapi.repository.SmsContactGroupRepository;
 import school.hei.haapi.repository.UserRepository;
+import school.hei.haapi.service.sms.SmsContactGroupService;
 
 public class SmsContactGroupRepositoryIT extends FacadeITMockedThirdParties {
   @Autowired private UserRepository userRepository;
   @Autowired private GroupRepository groupRepository;
   @Autowired private SmsContactGroupRepository smsContactGroupRepository;
+  @Autowired private SmsContactGroupService smsContactGroupService;
 
   private User aManager() {
     var id = UUID.randomUUID().toString();
@@ -64,11 +66,27 @@ public class SmsContactGroupRepositoryIT extends FacadeITMockedThirdParties {
                 .build());
 
     var result =
-        smsContactGroupRepository.findAllVisibleTo(caller.getId(), null, PageRequest.of(0, 10));
+        smsContactGroupRepository.findAllVisibleTo(caller.getId(), "", PageRequest.of(0, 10));
 
     assertTrue(result.stream().anyMatch(g -> g.getId().equals(ownedByCaller.getId())));
     assertTrue(result.stream().anyMatch(g -> g.getId().equals(linkedToStudentGroup.getId())));
     assertTrue(result.stream().noneMatch(g -> g.getId().equals(ownedByOther.getId())));
+  }
+
+  @Test
+  void getByOwner_with_no_search_param_does_not_fail_against_a_real_database() {
+    var caller = userRepository.save(aManager());
+    var ownedByCaller =
+        smsContactGroupRepository.save(
+            SmsContactGroup.builder()
+                .id(UUID.randomUUID().toString())
+                .name("Owned by caller, no search")
+                .owner(caller)
+                .build());
+
+    var result = smsContactGroupService.getByOwner(caller, null, PageRequest.of(0, 10));
+
+    assertTrue(result.stream().anyMatch(g -> g.getId().equals(ownedByCaller.getId())));
   }
 
   @Test

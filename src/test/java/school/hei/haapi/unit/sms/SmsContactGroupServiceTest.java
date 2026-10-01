@@ -32,9 +32,9 @@ class SmsContactGroupServiceTest {
   private final User owner = User.builder().id("admin1").build();
 
   @Test
-  void lists_groups_visible_to_the_given_user() {
+  void lists_groups_visible_to_the_given_user_normalizing_a_null_search_to_empty() {
     var group = SmsContactGroup.builder().id("g1").owner(owner).build();
-    when(smsContactGroupRepositoryMock.findAllVisibleTo("admin1", null, PageRequest.of(0, 10)))
+    when(smsContactGroupRepositoryMock.findAllVisibleTo("admin1", "", PageRequest.of(0, 10)))
         .thenReturn(List.of(group));
 
     var result = subject.getByOwner(owner, null, PageRequest.of(0, 10));
