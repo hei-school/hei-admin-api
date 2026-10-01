@@ -1,3 +1,12 @@
+# [1.178.0](https://github.com/hei-school/hei-admin-api/compare/v1.177.0...v1.178.0) (2026-10-01)
+
+
+### Features
+
+* return linked student while getting monitor's contact ([a592dc6](https://github.com/hei-school/hei-admin-api/commit/a592dc6461a46f93117f94d0246a6ca87668aa46))
+
+
+
 # [1.177.0](https://github.com/hei-school/hei-admin-api/compare/v1.176.0...v1.177.0) (2026-09-30)
 
 
@@ -139,15 +148,6 @@
 
 * add Documenso document distribution ([b952b82](https://github.com/hei-school/hei-admin-api/commit/b952b8244da97d9a1a28cede7b31f6562988b910))
 * expose credit transaction creation datetime ([491e827](https://github.com/hei-school/hei-admin-api/commit/491e827dcbec988da306ad7918f8e1beeb810eb0))
-
-
-
-## [1.169.1](https://github.com/hei-school/hei-admin-api/compare/v1.169.0...v1.169.1) (2026-08-25)
-
-
-### Bug Fixes
-
-* **test:** scope global search test to its own marker ([4621402](https://github.com/hei-school/hei-admin-api/commit/4621402d3365482981b160702cc4550ecf5cb38a))
 
 
 
