@@ -9,6 +9,7 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static school.hei.haapi.endpoint.rest.model.StudentLevel.L2;
 import static school.hei.haapi.model.CycleLevel.BACHELOR;
 import static school.hei.haapi.model.GroupFlow.GroupFlowType.JOIN;
 import static school.hei.haapi.model.User.Role.STUDENT;
@@ -25,8 +26,9 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Instant;
-import java.time.ZoneId;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.IntStream;
 import javax.imageio.ImageIO;
 import org.junit.jupiter.api.BeforeEach;
@@ -39,6 +41,7 @@ import school.hei.haapi.model.Promotion;
 import school.hei.haapi.model.StudentBadge;
 import school.hei.haapi.model.User;
 import school.hei.haapi.model.exception.BadRequestException;
+import school.hei.haapi.service.utils.AcademicYear;
 import school.hei.haapi.service.utils.ClassPathResourceResolver;
 import school.hei.haapi.service.utils.HtmlParser;
 import school.hei.haapi.service.utils.PdfRenderer;
@@ -50,14 +53,17 @@ class StudentBadgeServiceTest {
   private static final Path PREVIEW = Path.of("build", "badges-preview.pdf");
   private UserService userService;
   private BucketComponent bucketComponent;
+  private PromotionService promotionService;
   private StudentBadgeService subject;
 
   @BeforeEach
   void setUp() {
     userService = mock(UserService.class);
     bucketComponent = mock(BucketComponent.class);
+    promotionService = mock(PromotionService.class);
+    when(promotionService.getAllStudentPromotions(anyString())).thenReturn(new LinkedHashSet<>());
     StudentBadgeCodeService studentBadgeCodeService = mock(StudentBadgeCodeService.class);
-    when(studentBadgeCodeService.getOrCreateActiveBadge(any()))
+    when(studentBadgeCodeService.getOrCreateBadge(any(), any()))
         .thenAnswer(
             invocation ->
                 StudentBadge.builder()
@@ -74,6 +80,7 @@ class StudentBadgeServiceTest {
             new ClassPathResourceResolver(),
             new SchoolYearSupplier(),
             studentBadgeCodeService,
+            promotionService,
             "https://admin.hei.school/students/");
   }
 
@@ -103,22 +110,10 @@ class StudentBadgeServiceTest {
 
   @Test
   void badge_shows_level_of_printed_academic_year() throws Exception {
+    // Bachelor promotion entered in November 2025: L1 in 2025 - 2026, L2 in 2026 - 2027
     User student = student("student1_id", "STD25001", false);
-    Promotion promotion =
-        Promotion.builder()
-            .id("promotion1_id")
-            .startDatetime(Instant.parse("2025-11-01T00:00:00Z"))
-            .cycleLevel(BACHELOR)
-            .build();
-    Group group = Group.builder().id(GROUP_ID).promotion(promotion).build();
-    student.setGroupFlows(
-        List.of(
-            GroupFlow.builder()
-                .student(student)
-                .group(group)
-                .groupFlowType(JOIN)
-                .flowDatetime(Instant.parse("2025-11-01T00:00:00Z"))
-                .build()));
+    when(promotionService.getAllStudentPromotions("student1_id"))
+        .thenReturn(new LinkedHashSet<>(List.of(bachelorPromotion("2025-11-01T00:00:00Z"))));
     when(userService.getByGroupId(eq(GROUP_ID), any())).thenReturn(List.of(student));
 
     String l2Badge =
@@ -133,15 +128,39 @@ class StudentBadgeServiceTest {
   }
 
   @Test
-  void level_instant_is_in_november_of_academic_year_start() {
+  void level_comes_from_promotions_even_if_last_joined_group_has_none() {
+    User student = student("student1_id", "STD25001", false);
+    // the last joined group (a club, an option...) has no promotion
+    student.setGroupFlows(
+        List.of(
+            GroupFlow.builder()
+                .student(student)
+                .group(Group.builder().id("club_id").build())
+                .groupFlowType(JOIN)
+                .flowDatetime(Instant.parse("2026-09-01T00:00:00Z"))
+                .build()));
+    when(promotionService.getAllStudentPromotions("student1_id"))
+        .thenReturn(new LinkedHashSet<>(List.of(bachelorPromotion("2025-11-01T00:00:00Z"))));
+
     assertEquals(
-        2026,
-        StudentBadgeService.levelInstantOf("2026 - 2027").atZone(ZoneId.systemDefault()).getYear());
+        Optional.of(L2),
+        subject.findLevel(student, AcademicYear.parse("2026 - 2027").levelInstant()));
+  }
+
+  @Test
+  void repeating_student_gets_level_of_its_last_promotion() {
+    User student = student("student1_id", "STD24001", false);
+    // entered in 2024 (would be L3 in 2026 - 2027), repeats with the 2025 promotion (L2)
+    when(promotionService.getAllStudentPromotions("student1_id"))
+        .thenReturn(
+            new LinkedHashSet<>(
+                List.of(
+                    bachelorPromotion("2024-11-01T00:00:00Z"),
+                    bachelorPromotion("2025-11-01T00:00:00Z"))));
+
     assertEquals(
-        11,
-        StudentBadgeService.levelInstantOf("2026 - 2027")
-            .atZone(ZoneId.systemDefault())
-            .getMonthValue());
+        Optional.of(L2),
+        subject.findLevel(student, AcademicYear.parse("2026 - 2027").levelInstant()));
   }
 
   @Test
@@ -178,6 +197,16 @@ class StudentBadgeServiceTest {
   }
 
   @Test
+  void generate_badges_ko_with_invalid_academic_year() {
+    when(userService.getByGroupId(eq(GROUP_ID), any()))
+        .thenReturn(List.of(student("student1_id", "STD26001", false)));
+
+    assertThrows(BadRequestException.class, () -> subject.generateBadges(GROUP_ID, null, "2026"));
+    assertThrows(
+        BadRequestException.class, () -> subject.generateBadges(GROUP_ID, null, "2026 - 2028"));
+  }
+
+  @Test
   void qr_code_links_to_public_id_not_to_student_id() {
     assertEquals(
         "https://admin.hei.school/students/7c1e4b9a-2f3d-4e8a-9b6c-1d2e3f4a5b6c",
@@ -209,6 +238,15 @@ class StudentBadgeServiceTest {
           PREVIEW.resolveSibling("badges-preview-" + System.currentTimeMillis() + ".pdf");
       Files.write(fallback, pdf);
     }
+  }
+
+  private static Promotion bachelorPromotion(String startDatetime) {
+    return Promotion.builder()
+        .id("promotion_" + startDatetime)
+        .ref("PROM_" + startDatetime.substring(0, 4))
+        .startDatetime(Instant.parse(startDatetime))
+        .cycleLevel(BACHELOR)
+        .build();
   }
 
   private static User student(String id, String ref, boolean hasPhoto) {

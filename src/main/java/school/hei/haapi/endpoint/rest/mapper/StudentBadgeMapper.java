@@ -13,17 +13,20 @@ import school.hei.haapi.service.StudentBadgeService;
 public class StudentBadgeMapper {
   private final UserMapper userMapper;
   private final StatusEnumMapper statusEnumMapper;
+  private final StudentBadgeService studentBadgeService;
 
   public PublicStudent toRest(StudentBadge badge) {
     User student = badge.getStudent();
     return new PublicStudent()
         .id(badge.getPublicId())
-        .isValid(!badge.isRevoked())
+        .isValid(badge.isValidAt(Instant.now()))
+        .academicYear(badge.getAcademicYear())
+        .expirationDatetime(badge.getExpirationDatetime())
         .ref(student.getRef())
         .firstName(student.getFirstName())
         .lastName(student.getLastName())
         .status(statusEnumMapper.toRestStatus(student.getStatus()))
-        .level(StudentBadgeService.findLevel(student, Instant.now()).orElse(null))
+        .level(studentBadgeService.findCurrentLevel(student).orElse(null))
         .specializationField(student.getSpecializationField())
         .profilePicture(userMapper.getPresignedProfilePictureUrl(student));
   }

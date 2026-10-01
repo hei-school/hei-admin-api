@@ -42,7 +42,19 @@ public class StudentBadge implements Serializable {
 
   private Instant revocationDatetime;
 
+  private String academicYear;
+
+  private Instant expirationDatetime;
+
   public boolean isRevoked() {
     return revocationDatetime != null;
+  }
+
+  public boolean isExpiredAt(Instant instant) {
+    return expirationDatetime != null && !instant.isBefore(expirationDatetime);
+  }
+
+  public boolean isValidAt(Instant instant) {
+    return !isRevoked() && !isExpiredAt(instant);
   }
 }

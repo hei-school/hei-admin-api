@@ -15,6 +15,7 @@ import school.hei.haapi.model.exception.BadRequestException;
 import school.hei.haapi.model.exception.NotFoundException;
 import school.hei.haapi.repository.EventParticipantRepository;
 import school.hei.haapi.repository.StudentBadgeRepository;
+import school.hei.haapi.service.utils.AcademicYear;
 
 @Service
 @AllArgsConstructor
@@ -23,13 +24,19 @@ public class StudentBadgeCodeService {
   private final EventParticipantRepository eventParticipantRepository;
 
   @Transactional
-  public StudentBadge getOrCreateActiveBadge(User student) {
+  public StudentBadge getOrCreateBadge(User student, AcademicYear academicYear) {
     return studentBadgeRepository
-        .findByStudentIdAndRevocationDatetimeIsNull(student.getId())
+        .findByStudentIdAndAcademicYearAndRevocationDatetimeIsNull(
+            student.getId(), academicYear.label())
         .orElseGet(
             () ->
                 studentBadgeRepository.save(
-                    StudentBadge.builder().student(student).publicId(newPublicId()).build()));
+                    StudentBadge.builder()
+                        .student(student)
+                        .publicId(newPublicId())
+                        .academicYear(academicYear.label())
+                        .expirationDatetime(academicYear.badgeExpiration())
+                        .build()));
   }
 
   public StudentBadge getByPublicId(String publicId) {
@@ -40,11 +47,11 @@ public class StudentBadgeCodeService {
 
   public StudentBadge getActiveBadgeOfStudent(String studentId) {
     return studentBadgeRepository
-        .findByStudentIdAndRevocationDatetimeIsNull(studentId)
+        .findFirstByStudentIdAndRevocationDatetimeIsNullAndExpirationDatetimeAfterOrderByExpirationDatetimeDesc(
+            studentId, Instant.now())
         .orElseThrow(() -> new NotFoundException("Student #" + studentId + " has no active badge"));
   }
 
-  /** Removes the badge of a student: its QR code stops working, a new one is printed next. */
   @Transactional
   public StudentBadge revokeActiveBadgeOfStudent(String studentId) {
     StudentBadge badge = getActiveBadgeOfStudent(studentId);
@@ -67,6 +74,10 @@ public class StudentBadgeCodeService {
     StudentBadge badge = getByPublicId(publicId);
     if (badge.isRevoked()) {
       throw new BadRequestException("Badge of student #" + publicId + " has been revoked");
+    }
+    if (badge.isExpiredAt(Instant.now())) {
+      throw new BadRequestException(
+          "Badge of student #" + publicId + " has expired (" + badge.getAcademicYear() + ")");
     }
     EventParticipant participant =
         eventParticipantRepository

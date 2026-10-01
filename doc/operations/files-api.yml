@@ -472,7 +472,11 @@ operations:
         - name: academic_year
           in: query
           required: false
-          description: Printed academic year, e.g. "2026 - 2027". Defaults to the current one.
+          description: |
+            Printed academic year, like "2026 - 2027". Defaults to the current one.
+            Badges are valid for this academic year only (until November 1st of its second year,
+            when the next school year starts):
+            printing another academic year gives new badges with new QR codes.
           schema:
             type: string
       responses:

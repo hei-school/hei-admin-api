@@ -8,7 +8,6 @@ import static java.awt.RenderingHints.VALUE_INTERPOLATION_BICUBIC;
 import static java.awt.RenderingHints.VALUE_RENDER_QUALITY;
 import static java.awt.image.BufferedImage.TYPE_INT_ARGB;
 import static java.awt.image.BufferedImage.TYPE_INT_RGB;
-import static java.time.Month.NOVEMBER;
 import static java.util.Comparator.comparing;
 import static java.util.Comparator.nullsLast;
 import static org.springframework.data.domain.Pageable.unpaged;
@@ -25,8 +24,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.time.Instant;
-import java.time.LocalDate;
-import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Base64;
@@ -36,8 +33,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import javax.imageio.ImageIO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,10 +42,11 @@ import org.thymeleaf.context.Context;
 import school.hei.haapi.endpoint.rest.model.StudentLevel;
 import school.hei.haapi.file.bucket.BucketComponent;
 import school.hei.haapi.model.Badge;
-import school.hei.haapi.model.Group;
+import school.hei.haapi.model.Promotion;
 import school.hei.haapi.model.User;
 import school.hei.haapi.model.exception.ApiException;
 import school.hei.haapi.model.exception.BadRequestException;
+import school.hei.haapi.service.utils.AcademicYear;
 import school.hei.haapi.service.utils.ClassPathResourceResolver;
 import school.hei.haapi.service.utils.HtmlParser;
 import school.hei.haapi.service.utils.PdfRenderer;
@@ -66,7 +62,6 @@ public class StudentBadgeService {
   private static final String TEMPLATE = "studentBadges";
   private static final int PHOTO_WIDTH_IN_PIXELS = 300;
   private static final int PHOTO_HEIGHT_IN_PIXELS = 400;
-  // ~2.7 mm on the 22.5 mm wide photo frame
   private static final int PHOTO_CORNER_RADIUS_IN_PIXELS = 36;
   private static final int LOGO_WIDTH_IN_PIXELS = 360;
 
@@ -78,6 +73,7 @@ public class StudentBadgeService {
   private final ClassPathResourceResolver classPathResourceResolver;
   private final SchoolYearSupplier schoolYearSupplier;
   private final StudentBadgeCodeService studentBadgeCodeService;
+  private final PromotionService promotionService;
   private final String qrCodeBaseUrl;
 
   @Autowired
@@ -90,6 +86,7 @@ public class StudentBadgeService {
       ClassPathResourceResolver classPathResourceResolver,
       SchoolYearSupplier schoolYearSupplier,
       StudentBadgeCodeService studentBadgeCodeService,
+      PromotionService promotionService,
       @Value("${badge.qr.base-url}") String qrCodeBaseUrl) {
     this.userService = userService;
     this.bucketComponent = bucketComponent;
@@ -99,6 +96,7 @@ public class StudentBadgeService {
     this.classPathResourceResolver = classPathResourceResolver;
     this.schoolYearSupplier = schoolYearSupplier;
     this.studentBadgeCodeService = studentBadgeCodeService;
+    this.promotionService = promotionService;
     this.qrCodeBaseUrl =
         qrCodeBaseUrl.endsWith("/")
             ? qrCodeBaseUrl.substring(0, qrCodeBaseUrl.length() - 1)
@@ -116,13 +114,16 @@ public class StudentBadgeService {
           "Cannot generate more than " + MAX_BADGES_PER_REQUEST + " badges at once");
     }
 
-    String printedAcademicYear =
-        academicYear == null || academicYear.isBlank() ? schoolYearSupplier.get() : academicYear;
-    Instant levelInstant = levelInstantOf(printedAcademicYear);
-    List<Badge> badges = students.stream().map(student -> toBadge(student, levelInstant)).toList();
+    AcademicYear printedAcademicYear =
+        AcademicYear.parse(
+            academicYear == null || academicYear.isBlank()
+                ? schoolYearSupplier.get()
+                : academicYear);
+    List<Badge> badges =
+        students.stream().map(student -> toBadge(student, printedAcademicYear)).toList();
     Context context = new Context();
     context.setVariable("pages", toPages(badges));
-    context.setVariable("academic_year", printedAcademicYear);
+    context.setVariable("academic_year", printedAcademicYear.label());
     context.setVariable("logo", loadLogo());
     return pdfRenderer.apply(htmlParser.apply(TEMPLATE, context));
   }
@@ -167,46 +168,46 @@ public class StudentBadgeService {
     return pages;
   }
 
-  private Badge toBadge(User student, Instant levelInstant) {
+  private Badge toBadge(User student, AcademicYear academicYear) {
     String lastName = nullToEmpty(student.getLastName()).toUpperCase(Locale.FRENCH);
     return new Badge(
         lastName,
         nullToEmpty(student.getFirstName()),
         nullToEmpty(student.getRef()),
-        findLevel(student, levelInstant).map(StudentLevel::name).orElse(null),
+        // level of the printed year: badges printed before its start show the new level
+        findLevel(student, academicYear.levelInstant()).map(StudentLevel::name).orElse(null),
         loadPhoto(student).orElse(null),
         qrCodeGenerator.apply(
-            qrCodeUrlOf(studentBadgeCodeService.getOrCreateActiveBadge(student).getPublicId())),
+            qrCodeUrlOf(
+                studentBadgeCodeService.getOrCreateBadge(student, academicYear).getPublicId())),
         lastNameFontSize(lastName));
   }
 
-  /**
-   * The level is computed for the printed academic year (e.g. "2026 - 2027" gives the level of
-   * November 2026), so that badges printed before the start of the year show the new level.
-   */
-  static Instant levelInstantOf(String academicYear) {
-    Matcher startYear = Pattern.compile("(\\d{4})").matcher(academicYear);
-    if (!startYear.find()) {
-      return Instant.now();
-    }
-    return LocalDate.of(Integer.parseInt(startYear.group(1)), NOVEMBER, 15)
-        .atStartOfDay(ZoneId.systemDefault())
-        .toInstant();
-  }
-
-  public static Optional<StudentLevel> findLevel(User student, Instant levelInstant) {
+  public Optional<StudentLevel> findLevel(User student, Instant levelInstant) {
     try {
-      return student
-          .findCurrentGroup()
-          .map(Group::getPromotion)
-          .flatMap(promotion -> promotion.findLevelAt(levelInstant));
+      List<Promotion> promotions =
+          new ArrayList<>(promotionService.getAllStudentPromotions(student.getId()));
+      for (int i = promotions.size() - 1; i >= 0; i--) {
+        Optional<StudentLevel> level = promotions.get(i).findLevelAt(levelInstant);
+        if (level.isPresent()) {
+          return level;
+        }
+      }
+      log.info(
+          "No level for student {} at {}, promotions: {}",
+          student.getRef(),
+          levelInstant,
+          promotions.stream().map(Promotion::getRef).toList());
     } catch (RuntimeException e) {
       log.warn("Cannot compute level of student {}: {}", student.getRef(), e.getMessage());
-      return Optional.empty();
     }
+    return Optional.empty();
   }
 
-  /** The QR code only holds the random public id, never the real student id. */
+  public Optional<StudentLevel> findCurrentLevel(User student) {
+    return findLevel(student, AcademicYear.parse(schoolYearSupplier.get()).levelInstant());
+  }
+
   public String qrCodeUrlOf(String publicId) {
     return qrCodeBaseUrl + "/" + publicId;
   }
@@ -285,10 +286,6 @@ public class StudentBadgeService {
     return target;
   }
 
-  /**
-   * flying-saucer cannot clip an image with CSS border-radius, so the corners are rounded on the
-   * image itself, over the white background of the badge (JPEG keeps the PDF light).
-   */
   private static BufferedImage roundCorners(BufferedImage photo) {
     int width = photo.getWidth();
     int height = photo.getHeight();
@@ -324,10 +321,6 @@ public class StudentBadgeService {
     return Base64.getEncoder().encodeToString(outputStream.toByteArray());
   }
 
-  /**
-   * Long malagasy last names must fit the ~35 mm wide column: names with several words wrap, so
-   * only the longest word matters.
-   */
   static String lastNameFontSize(String lastName) {
     int longestWord =
         Arrays.stream(lastName.split("[\\s-]+")).mapToInt(String::length).max().orElse(0);

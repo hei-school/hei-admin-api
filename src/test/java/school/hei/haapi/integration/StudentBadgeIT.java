@@ -34,6 +34,7 @@ import school.hei.haapi.model.Event;
 import school.hei.haapi.model.EventParticipant;
 import school.hei.haapi.model.Group;
 import school.hei.haapi.model.GroupFlow;
+import school.hei.haapi.model.StudentBadge;
 import school.hei.haapi.model.User;
 import school.hei.haapi.repository.EventParticipantRepository;
 import school.hei.haapi.repository.EventRepository;
@@ -41,6 +42,7 @@ import school.hei.haapi.repository.GroupFlowRepository;
 import school.hei.haapi.repository.GroupRepository;
 import school.hei.haapi.repository.StudentBadgeRepository;
 import school.hei.haapi.repository.UserRepository;
+import school.hei.haapi.service.utils.AcademicYear;
 import software.amazon.awssdk.services.eventbridge.EventBridgeClient;
 
 class StudentBadgeIT extends FacadeITMockedThirdParties {
@@ -109,11 +111,7 @@ class StudentBadgeIT extends FacadeITMockedThirdParties {
         send("GET", "/students/badges/raw?group_id=" + group.getId(), managerToken);
     assertEquals(200, pdf.statusCode());
     assertTrue(pdf.body().startsWith("%PDF"));
-    String publicId =
-        studentBadgeRepository
-            .findByStudentIdAndRevocationDatetimeIsNull(student.getId())
-            .orElseThrow()
-            .getPublicId();
+    String publicId = activePublicId();
     assertNotEquals(student.getId(), publicId);
 
     // anyone scanning the QR code sees public information, never the real id
@@ -143,12 +141,7 @@ class StudentBadgeIT extends FacadeITMockedThirdParties {
 
     // reprint keeps the same public id: already printed badges keep working
     send("GET", "/students/badges/raw?group_id=" + group.getId(), managerToken);
-    assertEquals(
-        publicId,
-        studentBadgeRepository
-            .findByStudentIdAndRevocationDatetimeIsNull(student.getId())
-            .orElseThrow()
-            .getPublicId());
+    assertEquals(publicId, activePublicId());
 
     // a lost badge is revoked: it cannot check attendance anymore
     assertEquals(
@@ -171,11 +164,7 @@ class StudentBadgeIT extends FacadeITMockedThirdParties {
     HttpResponse<String> activeBadge = send("GET", badgePath, managerToken);
     assertEquals(200, activeBadge.statusCode());
     assertEquals(403, send("GET", badgePath, teacherToken).statusCode());
-    String firstPublicId =
-        studentBadgeRepository
-            .findByStudentIdAndRevocationDatetimeIsNull(student.getId())
-            .orElseThrow()
-            .getPublicId();
+    String firstPublicId = activePublicId();
     assertTrue(activeBadge.body().contains(firstPublicId));
 
     // removing the badge: its QR code stops working, a new one is printed next time
@@ -187,12 +176,41 @@ class StudentBadgeIT extends FacadeITMockedThirdParties {
             .body()
             .contains("\"is_valid\":false"));
     send("GET", "/students/badges/raw?student_ids=" + student.getId(), managerToken);
-    assertNotEquals(
-        firstPublicId,
+    assertNotEquals(firstPublicId, activePublicId());
+  }
+
+  @Test
+  void badge_of_a_past_academic_year_has_expired() throws Exception {
+    // a badge printed for 2024 - 2025: its year is over
+    AcademicYear pastYear = AcademicYear.parse("2024 - 2025");
+    String expiredPublicId =
         studentBadgeRepository
-            .findByStudentIdAndRevocationDatetimeIsNull(student.getId())
-            .orElseThrow()
-            .getPublicId());
+            .save(
+                StudentBadge.builder()
+                    .student(student)
+                    .publicId(java.util.UUID.randomUUID().toString())
+                    .academicYear(pastYear.label())
+                    .expirationDatetime(pastYear.badgeExpiration())
+                    .build())
+            .getPublicId();
+
+    assertTrue(
+        send("GET", "/students/public/" + expiredPublicId, null)
+            .body()
+            .contains("\"is_valid\":false"));
+    assertEquals(
+        400,
+        send(
+                "PUT",
+                "/events/" + event.getId() + "/students/public/" + expiredPublicId + "/attendance",
+                teacherToken)
+            .statusCode());
+    assertEquals(
+        404, send("GET", "/students/" + student.getId() + "/badge", managerToken).statusCode());
+
+    // printing the current academic year gives a new badge with a new QR code
+    send("GET", "/students/badges/raw?student_ids=" + student.getId(), managerToken);
+    assertNotEquals(expiredPublicId, activePublicId());
   }
 
   @Test
@@ -200,6 +218,14 @@ class StudentBadgeIT extends FacadeITMockedThirdParties {
     assertEquals(
         404,
         send("GET", "/students/public/7c1e4b9a-2f3d-4e8a-9b6c-1d2e3f4a5b6c", null).statusCode());
+  }
+
+  private String activePublicId() {
+    return studentBadgeRepository
+        .findFirstByStudentIdAndRevocationDatetimeIsNullAndExpirationDatetimeAfterOrderByExpirationDatetimeDesc(
+            student.getId(), Instant.now())
+        .orElseThrow()
+        .getPublicId();
   }
 
   private HttpResponse<String> send(String method, String path, String token)

@@ -718,7 +718,16 @@ components:
           example: 7c1e4b9a-2f3d-4e8a-9b6c-1d2e3f4a5b6c
         is_valid:
           type: boolean
-          description: false when the badge has been revoked (lost badge)
+          description: |
+            false when the badge has been revoked (lost badge) or has expired (its academic
+            year is over: a new badge is printed every year)
+        academic_year:
+          type: string
+          example: 2026 - 2027
+        expiration_datetime:
+          type: string
+          format: date-time
+          description: the badge stops working at the start of the next academic year
         ref:
           type: string
           example: STD000001
