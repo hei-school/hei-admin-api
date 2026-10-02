@@ -30,6 +30,7 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.AnonymousAuthenticationFilter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.OrRequestMatcher;
+import org.springframework.security.web.util.matcher.RegexRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.web.servlet.HandlerExceptionResolver;
 import school.hei.haapi.model.exception.ForbiddenException;
@@ -52,6 +53,8 @@ public class SecurityConf {
       "/sms-campaigns/by-manual-numbers";
   private static final String SMS_CAMPAIGNS_BY_GROUPS_PATH = "/sms-campaigns/by-groups";
   private static final String SMS_CAMPAIGNS_BY_FILE_PATH = "/sms-campaigns/by-file";
+  private static final String PUBLIC_BADGE_PATH =
+      "^/students/badges/[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$";
   private final CourseAssignmentService courseAssignmentService;
   private final MonitoringStudentService monitoringStudentService;
   private final AbstractUserDetailsAuthenticationProvider authProvider;
@@ -230,10 +233,8 @@ public class SecurityConf {
                     antMatcher(GET, "/teachers/*"),
                     antMatcher(GET, "/students/*/scholarship_certificate/raw"),
                     antMatcher(GET, "/students/badges/raw"),
-                    antMatcher(GET, "/students/public/*/student"),
+                    antMatcher(GET, "/students/badges/*/student"),
                     antMatcher(GET, "/students/*/badge"),
-                    antMatcher(PUT, "/students/public/*/revocation"),
-                    antMatcher(PUT, "/events/*/students/public/*/attendance"),
                     antMatcher(PUT, "/students/**"),
                     antMatcher(GET, "/fees/templates"),
                     antMatcher(PUT, "/fees/templates/*"),
@@ -396,8 +397,7 @@ public class SecurityConf {
                             new AntPathRequestMatcher("/authentication/signin", POST.name()),
                             new AntPathRequestMatcher("/authentication/login-url", GET.name()),
                             new AntPathRequestMatcher("/documenso/webhook", POST.name()),
-                            // badge QR code scan: random public id, public information only
-                            new AntPathRequestMatcher("/students/public/*", GET.name()),
+                            RegexRequestMatcher.regexMatcher(GET, PUBLIC_BADGE_PATH),
                             new AntPathRequestMatcher("/**", OPTIONS.toString())))
                     .permitAll()
                     .requestMatchers(GET, "/whoami")
@@ -738,6 +738,8 @@ public class SecurityConf {
                         ADMIN.getRole(),
                         STUDENT.getRole(),
                         MONITOR.getRole())
+                    .requestMatchers(PUT, "/students/badges/*/events/*/attendance")
+                    .hasRole(TEACHER.getRole())
                     // TODO: clarify PUT STUDENTS/** FOR MANAGERS
                     .requestMatchers(PUT, "/students/**")
                     .hasAnyRole(MANAGER.getRole(), ADMIN.getRole())
@@ -819,14 +821,10 @@ public class SecurityConf {
                     .hasAnyRole(TEACHER.getRole(), MANAGER.getRole(), ADMIN.getRole())
                     .requestMatchers(GET, "/students/badges/raw")
                     .hasAnyRole(MANAGER.getRole(), ADMIN.getRole())
-                    .requestMatchers(GET, "/students/public/*/student")
+                    .requestMatchers(GET, "/students/badges/*/student")
                     .hasAnyRole(MANAGER.getRole(), ADMIN.getRole(), TEACHER.getRole())
-                    // PUT /students/*/badge/revocation is covered by PUT /students/** (manager,
-                    // admin)
                     .requestMatchers(GET, "/students/*/badge")
                     .hasAnyRole(MANAGER.getRole(), ADMIN.getRole())
-                    .requestMatchers(PUT, "/events/*/students/public/*/attendance")
-                    .hasRole(TEACHER.getRole())
                     // scholarship security conf
                     .requestMatchers(
                         new NonAlumniSelfMatcher(

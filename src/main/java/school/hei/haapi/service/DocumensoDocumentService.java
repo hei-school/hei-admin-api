@@ -5,6 +5,7 @@ import static school.hei.haapi.model.exception.ApiException.ExceptionType.SERVER
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import lombok.AllArgsConstructor;
@@ -126,15 +127,15 @@ public class DocumensoDocumentService {
 
   private void validateRemoteTemplate(
       TemplateGetTemplateById200Response remoteTemplate, TemplateDocumenso template) {
-    var placeholders = remoteTemplate.getRecipients();
-    if (placeholders == null || placeholders.size() != 1) {
+    var placeholders = Objects.requireNonNullElse(remoteTemplate.getRecipients(), List.of());
+    if (placeholders.size() != 1) {
       throw new ApiException(
           SERVER_EXCEPTION,
           "Documenso template "
               + template.getDocumensoTemplateId()
               + " must define exactly one signer, the monitor, the admin's signature belonging to"
               + " the template's PDF: found "
-              + (placeholders == null ? 0 : placeholders.size()));
+              + placeholders.size());
     }
   }
 

@@ -134,9 +134,7 @@ class StudentBadgeCodeServiceTest {
   void remove_active_badge_of_student() {
     var student = student();
     var active = badge(student, inOneYear());
-    when(studentBadgeRepository
-            .findFirstByStudentIdAndRevocationDatetimeIsNullAndExpirationDatetimeAfterOrderByExpirationDatetimeDesc(
-                eq(student.getId()), any()))
+    when(studentBadgeRepository.findCurrentBadgeOfStudent(eq(student.getId()), any()))
         .thenReturn(Optional.of(active))
         .thenReturn(Optional.empty());
 

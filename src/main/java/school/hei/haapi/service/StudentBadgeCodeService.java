@@ -40,13 +40,14 @@ public class StudentBadgeCodeService {
               + academicYear.label()
               + ": remove it before printing a new one");
     }
-    return studentBadgeRepository.save(
+    var badge =
         StudentBadge.builder()
             .student(student)
             .publicId(newPublicId())
             .academicYear(academicYear.label())
             .expirationDatetime(academicYear.badgeExpiration())
-            .build());
+            .build();
+    return studentBadgeRepository.save(badge);
   }
 
   public StudentBadge getByPublicId(String publicId) {
@@ -57,25 +58,18 @@ public class StudentBadgeCodeService {
 
   public StudentBadge getActiveBadgeOfStudent(String studentId) {
     return studentBadgeRepository
-        .findFirstByStudentIdAndRevocationDatetimeIsNullAndExpirationDatetimeAfterOrderByExpirationDatetimeDesc(
-            studentId, Instant.now())
+        .findCurrentBadgeOfStudent(studentId, Instant.now())
         .orElseThrow(() -> new NotFoundException("Student #" + studentId + " has no active badge"));
   }
 
   @Transactional
   public StudentBadge revokeActiveBadgeOfStudent(String studentId) {
-    var badge = getActiveBadgeOfStudent(studentId);
-    badge.setRevocationDatetime(Instant.now());
-    return studentBadgeRepository.save(badge);
+    return revoke(getActiveBadgeOfStudent(studentId));
   }
 
   @Transactional
   public StudentBadge revoke(String publicId) {
-    var badge = getByPublicId(publicId);
-    if (!badge.isRevoked()) {
-      badge.setRevocationDatetime(Instant.now());
-    }
-    return studentBadgeRepository.save(badge);
+    return revoke(getByPublicId(publicId));
   }
 
   @Transactional
@@ -91,6 +85,13 @@ public class StudentBadgeCodeService {
                         "Student #" + publicId + " is not a participant of event #" + eventId));
     participant.setStatus(attendanceStatus == null ? PRESENT : attendanceStatus);
     return eventParticipantRepository.save(participant);
+  }
+
+  private StudentBadge revoke(StudentBadge badge) {
+    if (!badge.isRevoked()) {
+      badge.setRevocationDatetime(Instant.now());
+    }
+    return studentBadgeRepository.save(badge);
   }
 
   private StudentBadge getValidBadge(String publicId) {

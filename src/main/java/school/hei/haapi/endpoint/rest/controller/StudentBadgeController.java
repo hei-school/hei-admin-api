@@ -23,17 +23,17 @@ public class StudentBadgeController {
   private final UserMapper userMapper;
   private final EventParticipantMapper eventParticipantMapper;
 
-  @GetMapping("/students/public/{id}")
+  @GetMapping("/students/badges/{id}")
   public PublicStudent getPublicStudent(@PathVariable(name = "id") String publicId) {
     return studentBadgeMapper.toRest(studentBadgeCodeService.getByPublicId(publicId));
   }
 
-  @GetMapping("/students/public/{id}/student")
+  @GetMapping("/students/badges/{id}/student")
   public Student getStudentByPublicId(@PathVariable(name = "id") String publicId) {
     return userMapper.toRestStudent(studentBadgeCodeService.getByPublicId(publicId).getStudent());
   }
 
-  @PutMapping("/students/public/{id}/revocation")
+  @PutMapping("/students/badges/{id}/revocation")
   public PublicStudent revokeStudentBadge(@PathVariable(name = "id") String publicId) {
     return studentBadgeMapper.toRest(studentBadgeCodeService.revoke(publicId));
   }
@@ -48,7 +48,7 @@ public class StudentBadgeController {
     return studentBadgeMapper.toRest(studentBadgeCodeService.revokeActiveBadgeOfStudent(studentId));
   }
 
-  @PutMapping("/events/{event_id}/students/public/{id}/attendance")
+  @PutMapping("/students/badges/{id}/events/{event_id}/attendance")
   public EventParticipant checkEventAttendanceByPublicId(
       @PathVariable(name = "event_id") String eventId,
       @PathVariable(name = "id") String publicId,

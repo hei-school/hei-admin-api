@@ -332,17 +332,17 @@ paths:
     $ref: './operations/files-api.yml#/operations/getStudentScholarshipCertificate'
   '/students/badges/raw':
     $ref: './operations/files-api.yml#/operations/getStudentBadges'
-  '/students/public/{id}':
+  '/students/badges/{id}':
     $ref: './operations/badges-api.yml#/operations/getPublicStudent'
-  '/students/public/{id}/student':
+  '/students/badges/{id}/student':
     $ref: './operations/badges-api.yml#/operations/getStudentByPublicId'
-  '/students/public/{id}/revocation':
+  '/students/badges/{id}/revocation':
     $ref: './operations/badges-api.yml#/operations/revokeStudentBadge'
   '/students/{id}/badge':
     $ref: './operations/badges-api.yml#/operations/getStudentActiveBadge'
   '/students/{id}/badge/revocation':
     $ref: './operations/badges-api.yml#/operations/revokeStudentActiveBadge'
-  '/events/{event_id}/students/public/{id}/attendance':
+  '/students/badges/{id}/events/{event_id}/attendance':
     $ref: './operations/badges-api.yml#/operations/checkEventAttendanceByPublicId'
   # Comments
   /comments:

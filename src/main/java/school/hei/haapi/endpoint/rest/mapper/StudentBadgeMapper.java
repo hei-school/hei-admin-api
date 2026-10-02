@@ -5,14 +5,14 @@ import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 import school.hei.haapi.endpoint.rest.model.PublicStudent;
 import school.hei.haapi.model.StudentBadge;
-import school.hei.haapi.service.StudentBadgeService;
+import school.hei.haapi.service.StudentLevelResolver;
 
 @Component
 @AllArgsConstructor
 public class StudentBadgeMapper {
   private final UserMapper userMapper;
   private final StatusEnumMapper statusEnumMapper;
-  private final StudentBadgeService studentBadgeService;
+  private final StudentLevelResolver studentLevelResolver;
 
   public PublicStudent toRest(StudentBadge badge) {
     var student = badge.getStudent();
@@ -25,7 +25,7 @@ public class StudentBadgeMapper {
         .firstName(student.getFirstName())
         .lastName(student.getLastName())
         .status(statusEnumMapper.toRestStatus(student.getStatus()))
-        .level(studentBadgeService.findCurrentLevel(student).orElse(null))
+        .level(studentLevelResolver.findCurrentLevel(student).orElse(null))
         .specializationField(student.getSpecializationField())
         .profilePicture(userMapper.getPresignedProfilePictureUrl(student));
   }

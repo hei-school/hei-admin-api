@@ -176,6 +176,17 @@ public class Fee implements Serializable {
     this.payments = fee.getPayments();
     this.isDeleted = fee.isDeleted();
     this.updatedAt = fee.getUpdatedAt();
+    this.transactions = fee.getTransactions();
+    this.statusHistories = fee.getStatusHistories();
+    this.feeTemplate = fee.getFeeTemplate();
+    this.isArchived = fee.isArchived();
+    this.archiveStatus = fee.getArchiveStatus();
+    this.archivedBy = fee.getArchivedBy();
+    this.archiveRequestedDatetime = fee.getArchiveRequestedDatetime();
+    this.archivedDatetime = fee.getArchivedDatetime();
+    this.rejectedBy = fee.getRejectedBy();
+    this.rejectedDatetime = fee.getRejectedDatetime();
+    this.rejectionReason = fee.getRejectionReason();
   }
 
   public String describe() {

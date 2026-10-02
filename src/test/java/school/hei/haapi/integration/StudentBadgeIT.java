@@ -106,32 +106,26 @@ class StudentBadgeIT extends FacadeITMockedThirdParties {
 
   @Test
   void print_then_scan_badge() throws Exception {
-    // the manager prints the badges of the group: a public id is created for the student
-    HttpResponse<String> pdf =
-        send("GET", "/students/badges/raw?group_id=" + group.getId(), managerToken);
+    var pdf = send("GET", "/students/badges/raw?group_id=" + group.getId(), managerToken);
     assertEquals(200, pdf.statusCode());
     assertTrue(pdf.body().startsWith("%PDF"));
     String publicId = activePublicId();
     assertNotEquals(student.getId(), publicId);
 
-    // anyone scanning the QR code sees public information, never the real id
-    HttpResponse<String> publicStudent = send("GET", "/students/public/" + publicId, null);
+    var publicStudent = send("GET", "/students/badges/" + publicId, null);
     assertEquals(200, publicStudent.statusCode());
     assertTrue(publicStudent.body().contains(student.getRef()));
     assertTrue(publicStudent.body().contains("\"is_valid\":true"));
     assertFalse(publicStudent.body().contains(student.getId()));
 
-    // connected staff get the real student, to open its profile with its fees
-    HttpResponse<String> fullStudent =
-        send("GET", "/students/public/" + publicId + "/student", managerToken);
+    var fullStudent = send("GET", "/students/badges/" + publicId + "/student", managerToken);
     assertEquals(200, fullStudent.statusCode());
     assertTrue(fullStudent.body().contains(student.getId()));
     assertEquals(
-        403, send("GET", "/students/public/" + publicId + "/student", studentToken).statusCode());
+        403, send("GET", "/students/badges/" + publicId + "/student", studentToken).statusCode());
 
-    // the teacher scans the badge from the event page: the student is present
-    String attendancePath =
-        "/events/" + event.getId() + "/students/public/" + publicId + "/attendance";
+    var attendancePath =
+        "/students/badges/" + publicId + "/events/" + event.getId() + "/attendance";
     assertEquals(403, send("PUT", attendancePath, studentToken).statusCode());
     assertEquals(403, send("PUT", attendancePath, managerToken).statusCode());
     assertEquals(200, send("PUT", attendancePath, teacherToken).statusCode());
@@ -139,46 +133,41 @@ class StudentBadgeIT extends FacadeITMockedThirdParties {
         PRESENT,
         eventParticipantRepository.findById(participant.getId()).orElseThrow().getStatus());
 
-    // no second badge in circulation while this one is active
     assertEquals(
         400,
         send("GET", "/students/badges/raw?group_id=" + group.getId(), managerToken).statusCode());
     assertEquals(publicId, activePublicId());
 
-    // a lost badge is revoked: it cannot check attendance anymore
     assertEquals(
         200,
-        send("PUT", "/students/public/" + publicId + "/revocation", managerToken).statusCode());
+        send("PUT", "/students/badges/" + publicId + "/revocation", managerToken).statusCode());
     assertTrue(
-        send("GET", "/students/public/" + publicId, null).body().contains("\"is_valid\":false"));
+        send("GET", "/students/badges/" + publicId, null).body().contains("\"is_valid\":false"));
     assertEquals(400, send("PUT", attendancePath, teacherToken).statusCode());
   }
 
   @Test
   void print_and_remove_badge_of_one_student() throws Exception {
-    String badgePath = "/students/" + student.getId() + "/badge";
+    var badgePath = "/students/" + student.getId() + "/badge";
     assertEquals(404, send("GET", badgePath, managerToken).statusCode());
 
-    // badge of this student only, from its profile
-    HttpResponse<String> pdf =
-        send("GET", "/students/badges/raw?student_ids=" + student.getId(), managerToken);
+    var pdf = send("GET", "/students/badges/raw?student_ids=" + student.getId(), managerToken);
     assertEquals(200, pdf.statusCode());
-    HttpResponse<String> activeBadge = send("GET", badgePath, managerToken);
+    var activeBadge = send("GET", badgePath, managerToken);
     assertEquals(200, activeBadge.statusCode());
     assertEquals(403, send("GET", badgePath, teacherToken).statusCode());
-    String firstPublicId = activePublicId();
+    var firstPublicId = activePublicId();
     assertTrue(activeBadge.body().contains(firstPublicId));
     assertEquals(
         400,
         send("GET", "/students/badges/raw?student_ids=" + student.getId(), managerToken)
             .statusCode());
 
-    // removing the badge: its QR code stops working, a new one can be printed
     assertEquals(403, send("PUT", badgePath + "/revocation", teacherToken).statusCode());
     assertEquals(200, send("PUT", badgePath + "/revocation", managerToken).statusCode());
     assertEquals(404, send("GET", badgePath, managerToken).statusCode());
     assertTrue(
-        send("GET", "/students/public/" + firstPublicId, null)
+        send("GET", "/students/badges/" + firstPublicId, null)
             .body()
             .contains("\"is_valid\":false"));
     send("GET", "/students/badges/raw?student_ids=" + student.getId(), managerToken);
@@ -187,9 +176,8 @@ class StudentBadgeIT extends FacadeITMockedThirdParties {
 
   @Test
   void badge_of_a_past_academic_year_has_expired() throws Exception {
-    // a badge printed for 2024 - 2025: its year is over
-    AcademicYear pastYear = AcademicYear.parse("2024 - 2025");
-    String expiredPublicId =
+    var pastYear = AcademicYear.parse("2024 - 2025");
+    var expiredPublicId =
         studentBadgeRepository
             .save(
                 StudentBadge.builder()
@@ -201,20 +189,19 @@ class StudentBadgeIT extends FacadeITMockedThirdParties {
             .getPublicId();
 
     assertTrue(
-        send("GET", "/students/public/" + expiredPublicId, null)
+        send("GET", "/students/badges/" + expiredPublicId, null)
             .body()
             .contains("\"is_valid\":false"));
     assertEquals(
         400,
         send(
                 "PUT",
-                "/events/" + event.getId() + "/students/public/" + expiredPublicId + "/attendance",
+                "/students/badges/" + expiredPublicId + "/events/" + event.getId() + "/attendance",
                 teacherToken)
             .statusCode());
     assertEquals(
         404, send("GET", "/students/" + student.getId() + "/badge", managerToken).statusCode());
 
-    // printing the current academic year gives a new badge with a new QR code
     send("GET", "/students/badges/raw?student_ids=" + student.getId(), managerToken);
     assertNotEquals(expiredPublicId, activePublicId());
   }
@@ -223,13 +210,22 @@ class StudentBadgeIT extends FacadeITMockedThirdParties {
   void unknown_public_id_is_not_found() throws Exception {
     assertEquals(
         404,
-        send("GET", "/students/public/7c1e4b9a-2f3d-4e8a-9b6c-1d2e3f4a5b6c", null).statusCode());
+        send("GET", "/students/badges/7c1e4b9a-2f3d-4e8a-9b6c-1d2e3f4a5b6c", null).statusCode());
+  }
+
+  @Test
+  void only_badge_public_ids_are_public_not_the_badges_pdf() throws Exception {
+    var pdfWithoutToken =
+        send("GET", "/students/badges/raw?group_id=" + group.getId(), null).statusCode();
+    assertTrue(pdfWithoutToken == 401 || pdfWithoutToken == 403);
+    assertEquals(
+        403,
+        send("GET", "/students/badges/raw?group_id=" + group.getId(), studentToken).statusCode());
   }
 
   private String activePublicId() {
     return studentBadgeRepository
-        .findFirstByStudentIdAndRevocationDatetimeIsNullAndExpirationDatetimeAfterOrderByExpirationDatetimeDesc(
-            student.getId(), Instant.now())
+        .findCurrentBadgeOfStudent(student.getId(), Instant.now())
         .orElseThrow()
         .getPublicId();
   }
