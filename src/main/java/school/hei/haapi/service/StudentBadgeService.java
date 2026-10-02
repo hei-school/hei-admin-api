@@ -119,8 +119,25 @@ public class StudentBadgeService {
             academicYear == null || academicYear.isBlank()
                 ? schoolYearSupplier.get()
                 : academicYear);
+    // no second badge in circulation: students with an active badge are not printed again
+    List<User> studentsWithoutBadge =
+        students.stream()
+            .filter(
+                student -> !studentBadgeCodeService.hasActiveBadge(student, printedAcademicYear))
+            .toList();
+    if (studentsWithoutBadge.isEmpty()) {
+      throw new BadRequestException(
+          (students.size() == 1
+                  ? "The student already has"
+                  : "All the " + students.size() + " students already have")
+              + " an active badge for "
+              + printedAcademicYear.label()
+              + ": remove a badge before printing a new one");
+    }
     List<Badge> badges =
-        students.stream().map(student -> toBadge(student, printedAcademicYear)).toList();
+        studentsWithoutBadge.stream()
+            .map(student -> toBadge(student, printedAcademicYear))
+            .toList();
     Context context = new Context();
     context.setVariable("pages", toPages(badges));
     context.setVariable("academic_year", printedAcademicYear.label());
@@ -178,8 +195,7 @@ public class StudentBadgeService {
         findLevel(student, academicYear.levelInstant()).map(StudentLevel::name).orElse(null),
         loadPhoto(student).orElse(null),
         qrCodeGenerator.apply(
-            qrCodeUrlOf(
-                studentBadgeCodeService.getOrCreateBadge(student, academicYear).getPublicId())),
+            qrCodeUrlOf(studentBadgeCodeService.createBadge(student, academicYear).getPublicId())),
         lastNameFontSize(lastName));
   }
 

@@ -139,8 +139,10 @@ class StudentBadgeIT extends FacadeITMockedThirdParties {
         PRESENT,
         eventParticipantRepository.findById(participant.getId()).orElseThrow().getStatus());
 
-    // reprint keeps the same public id: already printed badges keep working
-    send("GET", "/students/badges/raw?group_id=" + group.getId(), managerToken);
+    // no second badge in circulation while this one is active
+    assertEquals(
+        400,
+        send("GET", "/students/badges/raw?group_id=" + group.getId(), managerToken).statusCode());
     assertEquals(publicId, activePublicId());
 
     // a lost badge is revoked: it cannot check attendance anymore
@@ -166,8 +168,12 @@ class StudentBadgeIT extends FacadeITMockedThirdParties {
     assertEquals(403, send("GET", badgePath, teacherToken).statusCode());
     String firstPublicId = activePublicId();
     assertTrue(activeBadge.body().contains(firstPublicId));
+    assertEquals(
+        400,
+        send("GET", "/students/badges/raw?student_ids=" + student.getId(), managerToken)
+            .statusCode());
 
-    // removing the badge: its QR code stops working, a new one is printed next time
+    // removing the badge: its QR code stops working, a new one can be printed
     assertEquals(403, send("PUT", badgePath + "/revocation", teacherToken).statusCode());
     assertEquals(200, send("PUT", badgePath + "/revocation", managerToken).statusCode());
     assertEquals(404, send("GET", badgePath, managerToken).statusCode());

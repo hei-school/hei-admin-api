@@ -23,20 +23,30 @@ public class StudentBadgeCodeService {
   private final StudentBadgeRepository studentBadgeRepository;
   private final EventParticipantRepository eventParticipantRepository;
 
-  @Transactional
-  public StudentBadge getOrCreateBadge(User student, AcademicYear academicYear) {
+  public boolean hasActiveBadge(User student, AcademicYear academicYear) {
     return studentBadgeRepository
         .findByStudentIdAndAcademicYearAndRevocationDatetimeIsNull(
             student.getId(), academicYear.label())
-        .orElseGet(
-            () ->
-                studentBadgeRepository.save(
-                    StudentBadge.builder()
-                        .student(student)
-                        .publicId(newPublicId())
-                        .academicYear(academicYear.label())
-                        .expirationDatetime(academicYear.badgeExpiration())
-                        .build()));
+        .isPresent();
+  }
+
+  @Transactional
+  public StudentBadge createBadge(User student, AcademicYear academicYear) {
+    if (hasActiveBadge(student, academicYear)) {
+      throw new BadRequestException(
+          "Student #"
+              + student.getRef()
+              + " already has an active badge for "
+              + academicYear.label()
+              + ": remove it before printing a new one");
+    }
+    return studentBadgeRepository.save(
+        StudentBadge.builder()
+            .student(student)
+            .publicId(newPublicId())
+            .academicYear(academicYear.label())
+            .expirationDatetime(academicYear.badgeExpiration())
+            .build());
   }
 
   public StudentBadge getByPublicId(String publicId) {
@@ -54,14 +64,14 @@ public class StudentBadgeCodeService {
 
   @Transactional
   public StudentBadge revokeActiveBadgeOfStudent(String studentId) {
-    StudentBadge badge = getActiveBadgeOfStudent(studentId);
+    var badge = getActiveBadgeOfStudent(studentId);
     badge.setRevocationDatetime(Instant.now());
     return studentBadgeRepository.save(badge);
   }
 
   @Transactional
   public StudentBadge revoke(String publicId) {
-    StudentBadge badge = getByPublicId(publicId);
+    var badge = getByPublicId(publicId);
     if (!badge.isRevoked()) {
       badge.setRevocationDatetime(Instant.now());
     }
@@ -71,15 +81,8 @@ public class StudentBadgeCodeService {
   @Transactional
   public EventParticipant checkAttendance(
       String eventId, String publicId, AttendanceStatus attendanceStatus) {
-    StudentBadge badge = getByPublicId(publicId);
-    if (badge.isRevoked()) {
-      throw new BadRequestException("Badge of student #" + publicId + " has been revoked");
-    }
-    if (badge.isExpiredAt(Instant.now())) {
-      throw new BadRequestException(
-          "Badge of student #" + publicId + " has expired (" + badge.getAcademicYear() + ")");
-    }
-    EventParticipant participant =
+    var badge = getValidBadge(publicId);
+    var participant =
         eventParticipantRepository
             .findEventParticipantByParticipantIdAndEventId(badge.getStudent().getId(), eventId)
             .orElseThrow(
@@ -88,6 +91,18 @@ public class StudentBadgeCodeService {
                         "Student #" + publicId + " is not a participant of event #" + eventId));
     participant.setStatus(attendanceStatus == null ? PRESENT : attendanceStatus);
     return eventParticipantRepository.save(participant);
+  }
+
+  private StudentBadge getValidBadge(String publicId) {
+    var badge = getByPublicId(publicId);
+    if (badge.isRevoked()) {
+      throw new BadRequestException("Badge of student #" + publicId + " has been revoked");
+    }
+    if (badge.isExpiredAt(Instant.now())) {
+      throw new BadRequestException(
+          "Badge of student #" + publicId + " has expired (" + badge.getAcademicYear() + ")");
+    }
+    return badge;
   }
 
   private String newPublicId() {

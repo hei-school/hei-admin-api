@@ -5,7 +5,6 @@ import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 import school.hei.haapi.endpoint.rest.model.PublicStudent;
 import school.hei.haapi.model.StudentBadge;
-import school.hei.haapi.model.User;
 import school.hei.haapi.service.StudentBadgeService;
 
 @Component
@@ -16,7 +15,7 @@ public class StudentBadgeMapper {
   private final StudentBadgeService studentBadgeService;
 
   public PublicStudent toRest(StudentBadge badge) {
-    User student = badge.getStudent();
+    var student = badge.getStudent();
     return new PublicStudent()
         .id(badge.getPublicId())
         .isValid(badge.isValidAt(Instant.now()))

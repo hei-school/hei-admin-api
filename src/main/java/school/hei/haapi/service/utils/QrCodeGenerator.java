@@ -34,7 +34,7 @@ public class QrCodeGenerator implements Function<String, String> {
                   SIZE_IN_PIXELS,
                   SIZE_IN_PIXELS,
                   Map.of(ERROR_CORRECTION, M, MARGIN, 0, CHARACTER_SET, "UTF-8"));
-      ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+      var outputStream = new ByteArrayOutputStream();
       MatrixToImageWriter.writeToStream(matrix, "PNG", outputStream);
       return Base64.getEncoder().encodeToString(outputStream.toByteArray());
     } catch (WriterException | IOException e) {

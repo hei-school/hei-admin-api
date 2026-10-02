@@ -8,6 +8,8 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static school.hei.haapi.endpoint.rest.model.StudentLevel.L2;
 import static school.hei.haapi.model.CycleLevel.BACHELOR;
@@ -19,7 +21,6 @@ import com.lowagie.text.pdf.PdfReader;
 import com.lowagie.text.pdf.parser.PdfTextExtractor;
 import java.awt.Color;
 import java.awt.GradientPaint;
-import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -54,6 +55,7 @@ class StudentBadgeServiceTest {
   private UserService userService;
   private BucketComponent bucketComponent;
   private PromotionService promotionService;
+  private StudentBadgeCodeService studentBadgeCodeService;
   private StudentBadgeService subject;
 
   @BeforeEach
@@ -62,8 +64,8 @@ class StudentBadgeServiceTest {
     bucketComponent = mock(BucketComponent.class);
     promotionService = mock(PromotionService.class);
     when(promotionService.getAllStudentPromotions(anyString())).thenReturn(new LinkedHashSet<>());
-    StudentBadgeCodeService studentBadgeCodeService = mock(StudentBadgeCodeService.class);
-    when(studentBadgeCodeService.getOrCreateBadge(any(), any()))
+    studentBadgeCodeService = mock(StudentBadgeCodeService.class);
+    when(studentBadgeCodeService.createBadge(any(), any()))
         .thenAnswer(
             invocation ->
                 StudentBadge.builder()
@@ -86,7 +88,7 @@ class StudentBadgeServiceTest {
 
   @Test
   void generate_badges_ten_per_page() throws Exception {
-    List<User> students =
+    var students =
         IntStream.rangeClosed(1, 12)
             .mapToObj(i -> student("student" + i + "_id", "STD2600" + i, i % 3 != 0))
             .toList();
@@ -95,31 +97,30 @@ class StudentBadgeServiceTest {
     when(userService.getByGroupId(eq(GROUP_ID), any())).thenReturn(students);
     when(bucketComponent.download(anyString())).thenAnswer(invocation -> aPhoto());
 
-    byte[] pdf = subject.generateBadges(GROUP_ID, null, "2026 - 2027");
+    var pdf = subject.generateBadges(GROUP_ID, null, "2026 - 2027");
     writePreview(pdf);
 
-    PdfReader reader = new PdfReader(pdf);
+    var reader = new PdfReader(pdf);
     assertEquals(2, reader.getNumberOfPages());
-    String firstPage = new PdfTextExtractor(reader).getTextFromPage(1);
+    var firstPage = new PdfTextExtractor(reader).getTextFromPage(1);
     assertTrue(firstPage.contains("STD26001"));
     assertTrue(firstPage.contains("Année universitaire 2026 - 2027"));
-    String secondPage = new PdfTextExtractor(reader).getTextFromPage(2);
+    var secondPage = new PdfTextExtractor(reader).getTextFromPage(2);
     assertTrue(secondPage.contains("RANDRIANARIVELO"));
     assertFalse(firstPage.contains("RANDRIANARIVELO"));
   }
 
   @Test
   void badge_shows_level_of_printed_academic_year() throws Exception {
-    // Bachelor promotion entered in November 2025: L1 in 2025 - 2026, L2 in 2026 - 2027
-    User student = student("student1_id", "STD25001", false);
+    var student = student("student1_id", "STD25001", false);
     when(promotionService.getAllStudentPromotions("student1_id"))
         .thenReturn(new LinkedHashSet<>(List.of(bachelorPromotion("2025-11-01T00:00:00Z"))));
     when(userService.getByGroupId(eq(GROUP_ID), any())).thenReturn(List.of(student));
 
-    String l2Badge =
+    var l2Badge =
         new PdfTextExtractor(new PdfReader(subject.generateBadges(GROUP_ID, null, "2026 - 2027")))
             .getTextFromPage(1);
-    String l1Badge =
+    var l1Badge =
         new PdfTextExtractor(new PdfReader(subject.generateBadges(GROUP_ID, null, "2025 - 2026")))
             .getTextFromPage(1);
 
@@ -129,8 +130,7 @@ class StudentBadgeServiceTest {
 
   @Test
   void level_comes_from_promotions_even_if_last_joined_group_has_none() {
-    User student = student("student1_id", "STD25001", false);
-    // the last joined group (a club, an option...) has no promotion
+    var student = student("student1_id", "STD25001", false);
     student.setGroupFlows(
         List.of(
             GroupFlow.builder()
@@ -149,8 +149,7 @@ class StudentBadgeServiceTest {
 
   @Test
   void repeating_student_gets_level_of_its_last_promotion() {
-    User student = student("student1_id", "STD24001", false);
-    // entered in 2024 (would be L3 in 2026 - 2027), repeats with the 2025 promotion (L2)
+    var student = student("student1_id", "STD24001", false);
     when(promotionService.getAllStudentPromotions("student1_id"))
         .thenReturn(
             new LinkedHashSet<>(
@@ -180,7 +179,7 @@ class StudentBadgeServiceTest {
         .thenReturn(List.of(student("student1_id", "STD26001", true)));
     when(bucketComponent.download(anyString())).thenThrow(new RuntimeException("NoSuchKey"));
 
-    byte[] pdf = subject.generateBadges(null, List.of("student1_id"), null);
+    var pdf = subject.generateBadges(null, List.of("student1_id"), null);
 
     assertEquals(1, new PdfReader(pdf).getNumberOfPages());
   }
@@ -190,10 +189,38 @@ class StudentBadgeServiceTest {
     assertThrows(BadRequestException.class, () -> subject.generateBadges(null, null, null));
     assertThrows(BadRequestException.class, () -> subject.generateBadges(" ", List.of(), null));
 
-    User teacher = student("teacher1_id", "TCR26001", false);
+    var teacher = student("teacher1_id", "TCR26001", false);
     teacher.setRole(TEACHER);
     when(userService.getByGroupId(eq(GROUP_ID), any())).thenReturn(List.of(teacher));
     assertThrows(BadRequestException.class, () -> subject.generateBadges(GROUP_ID, null, null));
+  }
+
+  @Test
+  void students_with_an_active_badge_are_not_printed_again() throws Exception {
+    var withBadge = student("student1_id", "STD26001", false);
+    var withoutBadge = student("student2_id", "STD26002", false);
+    when(userService.getByGroupId(eq(GROUP_ID), any()))
+        .thenReturn(List.of(withBadge, withoutBadge));
+    when(studentBadgeCodeService.hasActiveBadge(eq(withBadge), any())).thenReturn(true);
+
+    var page =
+        new PdfTextExtractor(new PdfReader(subject.generateBadges(GROUP_ID, null, "2026 - 2027")))
+            .getTextFromPage(1);
+
+    assertTrue(page.contains("STD26002"));
+    assertFalse(page.contains("STD26001"));
+    verify(studentBadgeCodeService, never()).createBadge(eq(withBadge), any());
+  }
+
+  @Test
+  void generate_badges_ko_when_every_student_has_an_active_badge() {
+    when(userService.getByRoleAndIds(List.of(STUDENT), List.of("student1_id")))
+        .thenReturn(List.of(student("student1_id", "STD26001", false)));
+    when(studentBadgeCodeService.hasActiveBadge(any(), any())).thenReturn(true);
+
+    assertThrows(
+        BadRequestException.class,
+        () -> subject.generateBadges(null, List.of("student1_id"), "2026 - 2027"));
   }
 
   @Test
@@ -215,7 +242,7 @@ class StudentBadgeServiceTest {
 
   @Test
   void split_badges_by_pages_and_rows() {
-    List<Badge> badges =
+    var badges =
         IntStream.range(0, 23)
             .mapToObj(i -> new Badge("L", "F", "R" + i, "L1", null, "", "9pt"))
             .toList();
@@ -234,7 +261,7 @@ class StudentBadgeServiceTest {
     try {
       Files.write(PREVIEW, pdf);
     } catch (IOException e) {
-      Path fallback =
+      var fallback =
           PREVIEW.resolveSibling("badges-preview-" + System.currentTimeMillis() + ".pdf");
       Files.write(fallback, pdf);
     }
@@ -250,7 +277,7 @@ class StudentBadgeServiceTest {
   }
 
   private static User student(String id, String ref, boolean hasPhoto) {
-    User student = new User();
+    var student = new User();
     student.setId(id);
     student.setRef(ref);
     student.setFirstName("Prénom " + ref);
@@ -263,14 +290,14 @@ class StudentBadgeServiceTest {
   }
 
   private static File aPhoto() throws Exception {
-    BufferedImage image = new BufferedImage(800, 600, BufferedImage.TYPE_INT_RGB);
-    Graphics2D graphics = image.createGraphics();
+    var image = new BufferedImage(800, 600, BufferedImage.TYPE_INT_RGB);
+    var graphics = image.createGraphics();
     graphics.setPaint(new GradientPaint(0, 0, new Color(40, 90, 160), 800, 600, Color.ORANGE));
     graphics.fillRect(0, 0, 800, 600);
     graphics.setColor(Color.WHITE);
     graphics.fillOval(300, 150, 200, 260);
     graphics.dispose();
-    File file = File.createTempFile("photo", ".jpg");
+    var file = File.createTempFile("photo", ".jpg");
     ImageIO.write(image, "jpg", file);
     return file;
   }

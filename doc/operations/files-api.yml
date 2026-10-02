@@ -455,6 +455,9 @@ operations:
         the student last name, first name, ref, photo, academic year and a QR code linking to
         the student page. Either group_id or student_ids must be provided (both can be combined),
         at most 200 badges per request.
+        Only one badge per student and academic year is in circulation: students who already have
+        an active badge are not printed again (400 when all of them have one); remove a badge
+        first to print a new one.
       operationId: getStudentBadges
       parameters:
         - name: group_id

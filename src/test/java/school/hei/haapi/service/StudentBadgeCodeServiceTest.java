@@ -51,26 +51,26 @@ class StudentBadgeCodeServiceTest {
   }
 
   @Test
-  void reprint_of_same_academic_year_reuses_badge() {
-    User student = student();
-    StudentBadge active = badge(student, inOneYear());
+  void no_second_badge_while_one_is_active() {
+    var student = student();
     when(studentBadgeRepository.findByStudentIdAndAcademicYearAndRevocationDatetimeIsNull(
             student.getId(), "2026 - 2027"))
-        .thenReturn(Optional.of(active));
+        .thenReturn(Optional.of(badge(student, inOneYear())));
 
-    assertSame(active, subject.getOrCreateBadge(student, YEAR));
+    assertTrue(subject.hasActiveBadge(student, YEAR));
+    assertThrows(BadRequestException.class, () -> subject.createBadge(student, YEAR));
     verify(studentBadgeRepository, never()).save(any());
   }
 
   @Test
   void first_print_of_academic_year_creates_badge_expiring_at_its_end() {
-    User student = student();
+    var student = student();
     when(studentBadgeRepository.findByStudentIdAndAcademicYearAndRevocationDatetimeIsNull(
             eq(student.getId()), anyString()))
         .thenReturn(Optional.empty());
     when(studentBadgeRepository.existsByPublicId(anyString())).thenReturn(false);
 
-    StudentBadge created = subject.getOrCreateBadge(student, YEAR);
+    var created = subject.createBadge(student, YEAR);
 
     assertSame(student, created.getStudent());
     assertEquals(4, UUID.fromString(created.getPublicId()).version());
@@ -81,7 +81,7 @@ class StudentBadgeCodeServiceTest {
 
   @Test
   void expired_badge_is_not_valid_and_cannot_check_attendance() {
-    StudentBadge expired = badge(student(), Instant.now().minus(1, ChronoUnit.DAYS));
+    var expired = badge(student(), Instant.now().minus(1, ChronoUnit.DAYS));
     when(studentBadgeRepository.findByPublicId(PUBLIC_ID)).thenReturn(Optional.of(expired));
 
     assertFalse(expired.isValidAt(Instant.now()));
@@ -91,7 +91,7 @@ class StudentBadgeCodeServiceTest {
 
   @Test
   void revoked_badge_cannot_check_attendance() {
-    StudentBadge revoked = badge(student(), inOneYear());
+    var revoked = badge(student(), inOneYear());
     when(studentBadgeRepository.findByPublicId(PUBLIC_ID)).thenReturn(Optional.of(revoked));
 
     subject.revoke(PUBLIC_ID);
@@ -104,11 +104,10 @@ class StudentBadgeCodeServiceTest {
 
   @Test
   void scan_marks_student_present_by_default() {
-    User student = student();
+    var student = student();
     when(studentBadgeRepository.findByPublicId(PUBLIC_ID))
         .thenReturn(Optional.of(badge(student, inOneYear())));
-    EventParticipant participant =
-        EventParticipant.builder().participant(student).status(UNCHECKED).build();
+    var participant = EventParticipant.builder().participant(student).status(UNCHECKED).build();
     when(eventParticipantRepository.findEventParticipantByParticipantIdAndEventId(
             student.getId(), EVENT_ID))
         .thenReturn(Optional.of(participant));
@@ -119,7 +118,7 @@ class StudentBadgeCodeServiceTest {
 
   @Test
   void scan_ko_when_student_is_not_participant_or_public_id_unknown() {
-    User student = student();
+    var student = student();
     when(studentBadgeRepository.findByPublicId(PUBLIC_ID))
         .thenReturn(Optional.of(badge(student, inOneYear())));
     when(eventParticipantRepository.findEventParticipantByParticipantIdAndEventId(
@@ -133,18 +132,17 @@ class StudentBadgeCodeServiceTest {
 
   @Test
   void remove_active_badge_of_student() {
-    User student = student();
-    StudentBadge active = badge(student, inOneYear());
+    var student = student();
+    var active = badge(student, inOneYear());
     when(studentBadgeRepository
             .findFirstByStudentIdAndRevocationDatetimeIsNullAndExpirationDatetimeAfterOrderByExpirationDatetimeDesc(
                 eq(student.getId()), any()))
         .thenReturn(Optional.of(active))
         .thenReturn(Optional.empty());
 
-    StudentBadge removed = subject.revokeActiveBadgeOfStudent(student.getId());
+    var removed = subject.revokeActiveBadgeOfStudent(student.getId());
 
     assertTrue(removed.isRevoked());
-    // nothing left to remove: the next print creates a new badge
     assertThrows(NotFoundException.class, () -> subject.getActiveBadgeOfStudent(student.getId()));
   }
 
@@ -153,7 +151,7 @@ class StudentBadgeCodeServiceTest {
   }
 
   private static User student() {
-    User student = new User();
+    var student = new User();
     student.setId("student1_id");
     student.setRef("STD26001");
     return student;
