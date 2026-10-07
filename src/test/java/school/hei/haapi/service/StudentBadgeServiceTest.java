@@ -201,9 +201,9 @@ class StudentBadgeServiceTest {
   }
 
   @Test
-  void qr_code_hides_public_id_after_hash_and_never_gives_student_id() {
+  void qr_code_links_to_badge_page_of_public_id_never_to_student_id() {
     assertEquals(
-        "https://admin.hei.school/badges#7c1e4b9a-2f3d-4e8a-9b6c-1d2e3f4a5b6c",
+        "https://admin.hei.school/badges/7c1e4b9a-2f3d-4e8a-9b6c-1d2e3f4a5b6c",
         subject.qrCodeUrlOf("7c1e4b9a-2f3d-4e8a-9b6c-1d2e3f4a5b6c"));
   }
 

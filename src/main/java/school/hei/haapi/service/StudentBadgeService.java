@@ -84,7 +84,7 @@ public class StudentBadgeService {
   }
 
   public String qrCodeUrlOf(String publicId) {
-    return qrCodeBaseUrl + "#" + publicId;
+    return qrCodeBaseUrl + "/" + publicId;
   }
 
   private List<User> findStudents(String groupId, List<String> studentIds) {
