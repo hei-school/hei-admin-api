@@ -15,6 +15,7 @@ import static school.hei.haapi.endpoint.rest.model.RetakeExamStatus.CANCELED;
 import static school.hei.haapi.endpoint.rest.model.RetakeExamStatus.REGISTERED;
 import static school.hei.haapi.endpoint.rest.model.RetakeExamStatus.TO_CANCEL;
 import static school.hei.haapi.endpoint.rest.model.StudentLevel.L1;
+import static school.hei.haapi.integration.conf.ApiAssertions.assertBadRequestException;
 import static school.hei.haapi.integration.conf.TestAuth.tokenFor;
 import static school.hei.haapi.integration.conf.TestMocks.setUpS3Service;
 import static school.hei.haapi.integration.testData.CourseTestData.toRest;
@@ -211,6 +212,31 @@ public class RetakeExamIT extends FacadeITMockedThirdParties {
     assertEquals(studentAxel.getId(), first.getStudentIdentifier().getId());
 
     retakeExamRepository.deleteById(first.getId());
+  }
+
+  @Test
+  void student_create_duplicate_retake_exam_ko() throws ApiException {
+    var retakeExam = new CrupdateRetakeExam();
+    retakeExam.setStudentId(studentAxel.getId());
+    retakeExam.setCourseId(courseProg1.getId());
+    retakeExam.setSessionId(otherSession.getId());
+    retakeExam.setStatus(TO_CANCEL);
+
+    var created =
+        apiAs(axelToken).createOrUpdateRetakeExam(otherSession.getId(), List.of(retakeExam));
+    assertEquals(1, created.size());
+
+    var duplicate = new CrupdateRetakeExam();
+    duplicate.setStudentId(studentAxel.getId());
+    duplicate.setCourseId(courseProg1.getId());
+    duplicate.setSessionId(otherSession.getId());
+    duplicate.setStatus(TO_CANCEL);
+
+    assertBadRequestException(
+        "A retake exam already exists for this student, course and session",
+        () -> apiAs(axelToken).createOrUpdateRetakeExam(otherSession.getId(), List.of(duplicate)));
+
+    retakeExamRepository.deleteById(created.getFirst().getId());
   }
 
   @Test
