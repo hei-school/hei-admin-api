@@ -4,10 +4,14 @@ import static java.time.Instant.now;
 import static java.util.Comparator.comparing;
 import static java.util.stream.Collectors.toUnmodifiableSet;
 import static school.hei.haapi.endpoint.rest.model.CourseResultStatus.INCOMPLETE;
+import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.LATE;
+import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.UNPAID;
+import static school.hei.haapi.endpoint.rest.model.FeeTypeEnum.RETAKE_EXAM_COSTS;
 import static school.hei.haapi.model.RetakeExamStatus.INVALIDATE;
 import static school.hei.haapi.model.RetakeExamStatus.REGISTERED;
 import static school.hei.haapi.model.RetakeExamStatus.TO_CANCEL;
 import static school.hei.haapi.model.RetakeExamStatus.VALIDATE;
+import static school.hei.haapi.service.utils.DataFormatterUtils.isLate;
 
 import java.util.List;
 import java.util.Objects;
@@ -21,12 +25,15 @@ import school.hei.haapi.endpoint.rest.mapper.GradeMapper;
 import school.hei.haapi.endpoint.rest.model.CourseResult;
 import school.hei.haapi.endpoint.rest.model.YearlyResult;
 import school.hei.haapi.model.BoundedPageSize;
+import school.hei.haapi.model.Fee;
+import school.hei.haapi.model.FeeTemplate;
 import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.model.RetakeExam;
 import school.hei.haapi.model.RetakeExamSession;
 import school.hei.haapi.model.RetakeExamStatus;
 import school.hei.haapi.model.exception.NotFoundException;
 import school.hei.haapi.model.pagination.PaginationFromPageAndPageSize;
+import school.hei.haapi.repository.FeeTemplateRepository;
 import school.hei.haapi.repository.RetakeExamRepository;
 import school.hei.haapi.repository.dao.RetakeExamDao;
 
@@ -41,9 +48,41 @@ public class RetakeExamService {
   private final PaginationFromPageAndPageSize paginationFromPageAndPageSize;
   private final GradeService gradeService;
   private final GradeMapper gradeMapper;
+  private final FeeTemplateRepository feeTemplateRepository;
+  private final FeeService feeService;
 
   public List<RetakeExam> crupdateRetakeExams(List<RetakeExam> crupdateRetakeExams) {
-    return retakeExamRepository.saveAll(crupdateRetakeExams);
+    var newRetakeExams =
+        crupdateRetakeExams.stream().filter(retakeExam -> retakeExam.getId() == null).toList();
+    var saved = retakeExamRepository.saveAll(crupdateRetakeExams);
+    createRetakeExamFees(newRetakeExams);
+    return saved;
+  }
+
+  private void createRetakeExamFees(List<RetakeExam> newRetakeExams) {
+    if (newRetakeExams.isEmpty()) {
+      return;
+    }
+    feeTemplateRepository
+        .findFirstByTypeOrderByCreationDatetimeDesc(RETAKE_EXAM_COSTS)
+        .ifPresent(
+            feeTemplate ->
+                feeService.saveAll(
+                    newRetakeExams.stream().map(exam -> toFee(exam, feeTemplate)).toList()));
+  }
+
+  private Fee toFee(RetakeExam retakeExam, FeeTemplate feeTemplate) {
+    var dueDatetime = retakeExam.getSession().getDateFrom();
+    return Fee.builder()
+        .student(retakeExam.getStudent())
+        .type(RETAKE_EXAM_COSTS)
+        .category(feeTemplate.getCategory())
+        .frequency(feeTemplate.getFrequency())
+        .totalAmount(feeTemplate.getAmount())
+        .remainingAmount(feeTemplate.getAmount())
+        .status(isLate(dueDatetime) ? LATE : UNPAID)
+        .dueDatetime(dueDatetime)
+        .build();
   }
 
   public List<RetakeExam> updateRetakeExams(List<RetakeExam> retakeExams) {
