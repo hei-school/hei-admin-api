@@ -1,7 +1,6 @@
 package school.hei.haapi.service;
 
 import static java.time.Instant.now;
-import static java.util.Comparator.comparing;
 import static java.util.stream.Collectors.toUnmodifiableSet;
 import static school.hei.haapi.endpoint.rest.model.CourseResultStatus.INCOMPLETE;
 import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.LATE;
@@ -17,6 +16,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Stream;
 import lombok.AllArgsConstructor;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -31,6 +31,7 @@ import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.model.RetakeExam;
 import school.hei.haapi.model.RetakeExamSession;
 import school.hei.haapi.model.RetakeExamStatus;
+import school.hei.haapi.model.exception.BadRequestException;
 import school.hei.haapi.model.exception.NotFoundException;
 import school.hei.haapi.model.pagination.PaginationFromPageAndPageSize;
 import school.hei.haapi.repository.FeeTemplateRepository;
@@ -54,9 +55,14 @@ public class RetakeExamService {
   public List<RetakeExam> crupdateRetakeExams(List<RetakeExam> crupdateRetakeExams) {
     var newRetakeExams =
         crupdateRetakeExams.stream().filter(retakeExam -> retakeExam.getId() == null).toList();
-    var saved = retakeExamRepository.saveAll(crupdateRetakeExams);
-    createRetakeExamFees(newRetakeExams);
-    return saved;
+    try {
+      var saved = retakeExamRepository.saveAll(crupdateRetakeExams);
+      createRetakeExamFees(newRetakeExams);
+      return saved;
+    } catch (DataIntegrityViolationException e) {
+      throw new BadRequestException(
+          "A retake exam already exists for this student, course and session");
+    }
   }
 
   private void createRetakeExamFees(List<RetakeExam> newRetakeExams) {
@@ -181,13 +187,7 @@ public class RetakeExamService {
   public List<school.hei.haapi.model.Course> getAllRetakeExamCoursesBySessionId(
       String sessionId, String courseCode, PageFromOne page, BoundedPageSize pageSize) {
     var pageable = paginationFromPageAndPageSize.apply(page, pageSize);
-    return retakeExamDao
-        .filterByCriteria(sessionId, null, null, null, courseCode, null, pageable)
-        .stream()
-        .map(RetakeExam::getCourse)
-        .distinct()
-        .sorted(comparing(school.hei.haapi.model.Course::getCode))
-        .toList();
+    return retakeExamDao.findDistinctCoursesBySessionId(sessionId, courseCode, pageable);
   }
 
   public List<RetakeExam> getAllRetakeExamParticipantByCourseAndBySessionId(
