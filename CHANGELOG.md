@@ -1,3 +1,21 @@
+# [1.180.0](https://github.com/hei-school/hei-admin-api/compare/v1.179.0...v1.180.0) (2026-10-07)
+
+
+### Bug Fixes
+
+* public badge denied behind the lambda function url ([e051b21](https://github.com/hei-school/hei-admin-api/commit/e051b21bc73f2098701f0a66e22d0beef91b6da8))
+* update API URLs ([ca27c96](https://github.com/hei-school/hei-admin-api/commit/ca27c9628b8f99b68c79814c11af0804848ed90f))
+
+
+### Features
+
+* add actual balance in credit transaction ([36433e3](https://github.com/hei-school/hei-admin-api/commit/36433e32e336b1a9e78c7d6c6a1fe6154223125e))
+* badges valid for one academic year, level from student promotions ([1d78b5c](https://github.com/hei-school/hei-admin-api/commit/1d78b5ca1adc08b93aa2e7dee5f04e0170731ec1))
+* only one badge in circulation per student and academic year ([5aeca71](https://github.com/hei-school/hei-admin-api/commit/5aeca7168441e2215cdefcaaa3e561f9d80d2b46))
+* print or remove the badge of one student ([3493564](https://github.com/hei-school/hei-admin-api/commit/3493564ce17c1bc2449214bdda053b0c2e6436a3))
+
+
+
 # [1.179.0](https://github.com/hei-school/hei-admin-api/compare/v1.178.0...v1.179.0) (2026-10-01)
 
 
@@ -127,24 +145,6 @@
 * **documenso:** only offer the promotions a template's level targets ([4bae50e](https://github.com/hei-school/hei-admin-api/commit/4bae50e72f0a01e922cefb7011481d5d10a86aee))
 * get student group flows and update advanced fees stats ([a9ffb22](https://github.com/hei-school/hei-admin-api/commit/a9ffb2232ee6a96448dbcda6ff6dcb996e654460))
 * get student group flows and update group flow ([6ef8f56](https://github.com/hei-school/hei-admin-api/commit/6ef8f567087a73b611528c23e72e88601c69d0e2))
-
-
-
-# [1.171.0](https://github.com/hei-school/hei-admin-api/compare/v1.170.0...v1.171.0) (2026-09-02)
-
-
-### Bug Fixes
-
-* **documenso:** drop the templates Documenso no longer has when syncing ([3ad6707](https://github.com/hei-school/hei-admin-api/commit/3ad6707745829737b12648329f318eb3bd5c0987))
-* get student group flows ([57d3029](https://github.com/hei-school/hei-admin-api/commit/57d30295ffd2cae4f030ce5902fe3cb7b4f945f1))
-* get student group flows at level ([a3048a4](https://github.com/hei-school/hei-admin-api/commit/a3048a4e52251d28d67abe55079873acda04862c))
-* student yearly result ([49e046a](https://github.com/hei-school/hei-admin-api/commit/49e046afefbc8032a733405297da53e58ffc4519))
-* test documensoIT ([ea29913](https://github.com/hei-school/hei-admin-api/commit/ea29913dce1590d95b27b7b446b23ebbc9716971))
-
-
-### Features
-
-* add student insurance fee count ([882ac53](https://github.com/hei-school/hei-admin-api/commit/882ac53c829e4c6578d06bdebe034faf7205ac29))
 
 
 
