@@ -4,11 +4,9 @@ import static org.apache.poi.ss.usermodel.CellType.NUMERIC;
 import static org.apache.poi.ss.usermodel.Row.MissingCellPolicy.CREATE_NULL_AS_BLANK;
 import static school.hei.haapi.model.User.Status.ALUMNI;
 import static school.hei.haapi.model.User.Status.ENABLED;
-import static school.hei.haapi.model.exception.ApiException.ExceptionType.SERVER_EXCEPTION;
 import static school.hei.haapi.service.utils.DataFormatterUtils.parseDecimal;
 
 import jakarta.transaction.Transactional;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -24,7 +22,6 @@ import java.util.stream.Stream;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import school.hei.haapi.endpoint.event.EventProducer;
@@ -42,7 +39,7 @@ import school.hei.haapi.model.GroupFlow;
 import school.hei.haapi.model.RetakeExam;
 import school.hei.haapi.model.dto.GradeDto;
 import school.hei.haapi.model.dto.GradeImportDto;
-import school.hei.haapi.model.exception.ApiException;
+import school.hei.haapi.model.dto.GradeTemplateRowDto;
 import school.hei.haapi.model.exception.BadRequestException;
 import school.hei.haapi.model.exception.NotFoundException;
 import school.hei.haapi.model.notEntity.UpdateGrade;
@@ -51,6 +48,7 @@ import school.hei.haapi.repository.CourseAssignmentRepository;
 import school.hei.haapi.repository.GradeChangeHistoryRepository;
 import school.hei.haapi.repository.GradeRepository;
 import school.hei.haapi.repository.dao.GradeDao;
+import school.hei.haapi.service.utils.XlsxCellsGenerator;
 import school.hei.haapi.service.utils.excel.ExcelParser;
 import school.hei.haapi.service.utils.excel.ParseResult;
 
@@ -502,32 +500,15 @@ public class GradeService {
       studentScoreAndRefs.put(grade.getRef(), grade.getScore());
     }
     var participants = examParticipantService.getExamParticipantsGrade(examId, null, null, null);
-    try (var workbook = new XSSFWorkbook()) {
-      var fileName = "note_" + examId;
-      var sheet = workbook.createSheet(fileName);
-      var headerRow = sheet.createRow(0);
-      headerRow.createCell(0).setCellValue("ref");
-      headerRow.createCell(1).setCellValue("score");
-      int rowIndex = 1;
-      for (var participant : participants) {
-        var row = sheet.createRow(rowIndex++);
-        var ref = participant.getStudent().getRef();
-        row.createCell(0).setCellValue(ref);
-        var score = studentScoreAndRefs.get(ref);
-        if (score != null) {
-          row.createCell(1).setCellValue(score);
-        } else {
-          row.createCell(1);
-        }
-      }
-      sheet.autoSizeColumn(0);
-      sheet.autoSizeColumn(1);
-      try (ByteArrayOutputStream template = new ByteArrayOutputStream()) {
-        workbook.write(template);
-        return template.toByteArray();
-      }
-    } catch (IOException e) {
-      throw new ApiException(SERVER_EXCEPTION, e);
-    }
+    var rows =
+        participants.stream()
+            .map(
+                participant -> {
+                  var ref = participant.getStudent().getRef();
+                  return new GradeTemplateRowDto(ref, studentScoreAndRefs.get(ref));
+                })
+            .toList();
+    XlsxCellsGenerator<GradeTemplateRowDto> xlsxCellsGenerator = new XlsxCellsGenerator<>();
+    return xlsxCellsGenerator.apply(rows, List.of("ref", "score"));
   }
 }

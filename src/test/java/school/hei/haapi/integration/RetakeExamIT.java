@@ -10,6 +10,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
+import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.UNPAID;
 import static school.hei.haapi.endpoint.rest.model.ResultOverviewStatus.INVALIDATED;
 import static school.hei.haapi.endpoint.rest.model.RetakeExamStatus.CANCELED;
 import static school.hei.haapi.endpoint.rest.model.RetakeExamStatus.REGISTERED;
@@ -19,6 +20,7 @@ import static school.hei.haapi.integration.conf.ApiAssertions.assertBadRequestEx
 import static school.hei.haapi.integration.conf.TestAuth.tokenFor;
 import static school.hei.haapi.integration.conf.TestMocks.setUpS3Service;
 import static school.hei.haapi.integration.testData.CourseTestData.toRest;
+import static school.hei.haapi.integration.testData.FeeTestData.createFeeWithStatus;
 import static school.hei.haapi.integration.testData.RequestRetakeExam.cancelRequest;
 import static school.hei.haapi.integration.testData.RequestRetakeExam.toCancel;
 import static school.hei.haapi.integration.testData.RetakeExamSessionTestData.passedSession;
@@ -30,8 +32,18 @@ import static school.hei.haapi.integration.testData.StudentTestData.axel;
 import static school.hei.haapi.integration.testData.StudentTestData.freddy;
 import static school.hei.haapi.integration.testData.StudentTestData.tolojanahary;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -49,11 +61,15 @@ import school.hei.haapi.endpoint.rest.model.YearlyResult;
 import school.hei.haapi.integration.conf.FacadeITMockedThirdParties;
 import school.hei.haapi.integration.conf.TestUtils;
 import school.hei.haapi.model.Course;
+import school.hei.haapi.model.Fee;
 import school.hei.haapi.model.RetakeExam;
+import school.hei.haapi.model.RetakeExamFee;
 import school.hei.haapi.model.RetakeExamSession;
 import school.hei.haapi.model.RetakeExamStatus;
 import school.hei.haapi.model.User;
 import school.hei.haapi.repository.CourseRepository;
+import school.hei.haapi.repository.FeeRepository;
+import school.hei.haapi.repository.RetakeExamFeeRepository;
 import school.hei.haapi.repository.RetakeExamRepository;
 import school.hei.haapi.repository.RetakeExamSessionRepository;
 import school.hei.haapi.repository.UserRepository;
@@ -67,6 +83,8 @@ public class RetakeExamIT extends FacadeITMockedThirdParties {
   @Autowired private CourseRepository courseRepository;
   @Autowired private RetakeExamSessionRepository retakeExamSessionRepository;
   @Autowired private RetakeExamRepository retakeExamRepository;
+  @Autowired private FeeRepository feeRepository;
+  @Autowired private RetakeExamFeeRepository retakeExamFeeRepository;
 
   private User studentAxel;
   private User studentFreddy;
@@ -87,6 +105,9 @@ public class RetakeExamIT extends FacadeITMockedThirdParties {
   private RetakeExam tolojanaharyRegistered;
   private RetakeExam freddyCanceledOnProg1;
   private RetakeExam tolojanaharyInPassedSession;
+
+  private Fee tolojanaharyAutoFee;
+  private RetakeExamFee tolojanaharyAutoFeeLink;
 
   private String axelToken;
   private String adminToken;
@@ -131,6 +152,16 @@ public class RetakeExamIT extends FacadeITMockedThirdParties {
                 passedRetakeSession,
                 RetakeExamStatus.REGISTERED,
                 now().minus(60, DAYS)));
+
+    tolojanaharyAutoFee =
+        feeRepository.save(
+            createFeeWithStatus(studentTolojanahary, 50000, now().plus(30, DAYS), UNPAID));
+    tolojanaharyAutoFeeLink =
+        retakeExamFeeRepository.save(
+            RetakeExamFee.builder()
+                .retakeExam(tolojanaharyRegistered)
+                .fee(tolojanaharyAutoFee)
+                .build());
   }
 
   @BeforeEach
@@ -160,6 +191,8 @@ public class RetakeExamIT extends FacadeITMockedThirdParties {
 
   @AfterEach
   void tearDown() {
+    retakeExamFeeRepository.deleteById(tolojanaharyAutoFeeLink.getId());
+    feeRepository.deleteById(tolojanaharyAutoFee.getId());
     retakeExamRepository.deleteAll(
         retakeExamRepository.findAll().stream()
             .filter(r -> ownedSessionIds().contains(r.getSession().getId()))
@@ -180,6 +213,19 @@ public class RetakeExamIT extends FacadeITMockedThirdParties {
 
   private ApiClient anApiClient(String token) {
     return TestUtils.anApiClient(token, localPort);
+  }
+
+  private HttpResponse<byte[]> getRaw(String path, String token)
+      throws IOException, InterruptedException {
+    return HttpClient.newBuilder()
+        .build()
+        .send(
+            HttpRequest.newBuilder()
+                .uri(URI.create("http://localhost:" + localPort + path))
+                .GET()
+                .header("Authorization", "Bearer " + token)
+                .build(),
+            HttpResponse.BodyHandlers.ofByteArray());
   }
 
   private static Course aCourse(String code, String name) {
@@ -325,6 +371,78 @@ public class RetakeExamIT extends FacadeITMockedThirdParties {
     assertEquals(
         studentTolojanahary.getFirstName(),
         participants.getFirst().getStudentIdentifier().getFirstName());
+  }
+
+  @Test
+  void export_retake_exam_participants_by_session_ok() throws Exception {
+    var response =
+        getRaw(
+            "/retake_exam_sessions/" + otherSession.getId() + "/retake_exam_participants/export",
+            adminToken);
+
+    assertEquals(200, response.statusCode());
+
+    try (var workbook = new XSSFWorkbook(new ByteArrayInputStream(response.body()))) {
+      var sheet = workbook.getSheetAt(0);
+      var headerRow = sheet.getRow(0);
+      assertEquals("ref", headerRow.getCell(0).getStringCellValue());
+      assertEquals("courseCode", headerRow.getCell(1).getStringCellValue());
+      assertEquals("totalAmount", headerRow.getCell(2).getStringCellValue());
+      assertEquals("status", headerRow.getCell(3).getStringCellValue());
+
+      assertEquals(2, sheet.getLastRowNum());
+
+      Map<String, Row> rowsByRef = new HashMap<>();
+      for (int i = 1; i <= sheet.getLastRowNum(); i++) {
+        var row = sheet.getRow(i);
+        rowsByRef.put(row.getCell(0).getStringCellValue(), row);
+      }
+      assertTrue(rowsByRef.containsKey(studentFreddy.getRef()));
+      assertTrue(rowsByRef.containsKey(studentTolojanahary.getRef()));
+
+      var freddyRow = rowsByRef.get(studentFreddy.getRef());
+      assertEquals(courseProg3.getCode(), freddyRow.getCell(1).getStringCellValue());
+      assertEquals("", freddyRow.getCell(2).getStringCellValue());
+      assertEquals("", freddyRow.getCell(3).getStringCellValue());
+
+      var tolojanaharyRow = rowsByRef.get(studentTolojanahary.getRef());
+      assertEquals(courseIa2.getCode(), tolojanaharyRow.getCell(1).getStringCellValue());
+      assertEquals(
+          tolojanaharyAutoFee.getTotalAmount().toString(),
+          tolojanaharyRow.getCell(2).getStringCellValue());
+      assertEquals(UNPAID.toString(), tolojanaharyRow.getCell(3).getStringCellValue());
+    }
+  }
+
+  @Test
+  void export_retake_exam_participants_by_course_and_session_ok() throws Exception {
+    var response =
+        getRaw(
+            "/retake_exam_sessions/"
+                + otherSession.getId()
+                + "/retake_exam_courses/"
+                + courseIa2.getId()
+                + "/retake_exam_participants/export",
+            adminToken);
+
+    assertEquals(200, response.statusCode());
+
+    try (var workbook = new XSSFWorkbook(new ByteArrayInputStream(response.body()))) {
+      var sheet = workbook.getSheetAt(0);
+      var headerRow = sheet.getRow(0);
+      assertEquals("ref", headerRow.getCell(0).getStringCellValue());
+      assertEquals("courseCode", headerRow.getCell(1).getStringCellValue());
+      assertEquals("totalAmount", headerRow.getCell(2).getStringCellValue());
+      assertEquals("status", headerRow.getCell(3).getStringCellValue());
+
+      assertEquals(1, sheet.getLastRowNum());
+      var row = sheet.getRow(1);
+      assertEquals(studentTolojanahary.getRef(), row.getCell(0).getStringCellValue());
+      assertEquals(courseIa2.getCode(), row.getCell(1).getStringCellValue());
+      assertEquals(
+          tolojanaharyAutoFee.getTotalAmount().toString(), row.getCell(2).getStringCellValue());
+      assertEquals(UNPAID.toString(), row.getCell(3).getStringCellValue());
+    }
   }
 
   @Test
