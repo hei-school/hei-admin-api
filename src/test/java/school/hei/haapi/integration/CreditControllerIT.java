@@ -352,6 +352,7 @@ class CreditControllerIT extends FacadeITMockedThirdParties {
     assertEquals(
         school.hei.haapi.endpoint.rest.model.CreditTransactionType.FEE_ARCHIVING,
         creditFromArchive.getType());
+    assertEquals(200000, creditFromArchive.getBalance());
     var debitFromPayment =
         transactions.stream()
             .filter(t -> t.getFee().getId().equals(currentFee.getId()))
@@ -360,6 +361,7 @@ class CreditControllerIT extends FacadeITMockedThirdParties {
     assertEquals(
         school.hei.haapi.endpoint.rest.model.CreditTransactionType.CREDIT_PAYMENT,
         debitFromPayment.getType());
+    assertEquals(150000, debitFromPayment.getBalance());
     assertNotNull(debitFromPayment.getPayment());
     assertEquals(paymentToValidate.getId(), debitFromPayment.getPayment().getId());
     assertEquals(currentFee.getId(), debitFromPayment.getPayment().getFeeId());

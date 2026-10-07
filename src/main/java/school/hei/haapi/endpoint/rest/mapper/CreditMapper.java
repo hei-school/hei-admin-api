@@ -32,6 +32,7 @@ public class CreditMapper {
     return new CreditTransaction()
         .transactionId(creditTransaction.getId())
         .amount(creditTransaction.getAmount())
+        .balance(creditTransaction.getBalance())
         .fee(feeMapper.toRestFee(creditTransaction.getFee()))
         .payment(payment == null ? null : paymentMapper.toRestPayment(payment))
         .credit(toRest(creditTransaction.getCredit()))

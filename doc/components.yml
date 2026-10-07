@@ -2450,6 +2450,9 @@ components:
            format: date-time
          amount:
            type: integer
+         balance:
+           type: integer
+           description: Student's credit balance resulting from this transaction's application.
          movement:
            $ref: '#/components/schemas/CreditMovement'
          type:
