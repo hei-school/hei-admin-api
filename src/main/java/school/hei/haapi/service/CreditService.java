@@ -42,8 +42,8 @@ public class CreditService {
     if (!credit.isPresent()) {
       return credit;
     }
-    var actuelSomme = paymentRepository.sumPendingCreditPaymentsAmountByStudentId(studentId);
-    credit.get().setAmount(credit.get().getAmount() - actuelSomme);
+    var actualSum = paymentRepository.sumPendingCreditPaymentsAmountByStudentId(studentId);
+    credit.get().setAmount(credit.get().getAmount() - actualSum);
     return credit;
   }
 
