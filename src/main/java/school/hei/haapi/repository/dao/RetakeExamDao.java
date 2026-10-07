@@ -18,6 +18,8 @@ import school.hei.haapi.model.RetakeExamStatus;
 @Repository
 @AllArgsConstructor
 public class RetakeExamDao {
+  private static final String COURSE = "course";
+
   private final EntityManager entityManager;
 
   public List<RetakeExam> filterByCriteria(
@@ -49,13 +51,13 @@ public class RetakeExamDao {
     }
 
     if (courseId != null) {
-      predicates.add(builder.equal(root.get("course").get("id"), courseId));
+      predicates.add(builder.equal(root.get(COURSE).get("id"), courseId));
     }
 
     if (courseCode != null) {
       predicates.add(
           builder.like(
-              builder.lower(root.get("course").get("code")), "%" + courseCode.toLowerCase() + "%"));
+              builder.lower(root.get(COURSE).get("code")), "%" + courseCode.toLowerCase() + "%"));
     }
 
     if (statuses != null && !statuses.isEmpty()) {
@@ -76,7 +78,7 @@ public class RetakeExamDao {
     CriteriaBuilder builder = entityManager.getCriteriaBuilder();
     CriteriaQuery<Course> query = builder.createQuery(Course.class);
     Root<RetakeExam> root = query.from(RetakeExam.class);
-    Join<RetakeExam, Course> courseJoin = root.join("course");
+    Join<RetakeExam, Course> courseJoin = root.join(COURSE);
 
     List<Predicate> predicates = new ArrayList<>();
 
