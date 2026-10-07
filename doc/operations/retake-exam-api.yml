@@ -415,6 +415,78 @@ operations:
           $ref: '../components.yml#/components/responses/429'
         '500':
           $ref: '../components.yml#/components/responses/500'
+  exportRetakeExamParticipantsBySessionId:
+    get:
+      tags:
+        - RetakeExam
+      summary: Export the retake exam participants (student ref, course code, fee amount and
+        status when an auto-created fee is attached) for a session
+      operationId: exportRetakeExamParticipantsBySessionId
+      parameters:
+        - name: session_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: course_code
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Retake exam participants export for a session
+          content:
+            application/vnd.openxmlformats-officedocument.spreadsheetml.sheet:
+              schema:
+                type: string
+                format: binary
+        '400':
+          $ref: '../components.yml#/components/responses/400'
+        '403':
+          $ref: '../components.yml#/components/responses/403'
+        '404':
+          $ref: '../components.yml#/components/responses/404'
+        '429':
+          $ref: '../components.yml#/components/responses/429'
+        '500':
+          $ref: '../components.yml#/components/responses/500'
+  exportRetakeExamParticipantsByCourseIdAndSessionId:
+    get:
+      tags:
+        - RetakeExam
+      summary: Export the retake exam participants (student ref, course code, fee amount and
+        status when an auto-created fee is attached) for a course inside a session
+      operationId: exportRetakeExamParticipantsByCourseIdAndSessionId
+      parameters:
+        - name: session_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: course_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Retake exam participants export for a course inside a session
+          content:
+            application/vnd.openxmlformats-officedocument.spreadsheetml.sheet:
+              schema:
+                type: string
+                format: binary
+        '400':
+          $ref: '../components.yml#/components/responses/400'
+        '403':
+          $ref: '../components.yml#/components/responses/403'
+        '404':
+          $ref: '../components.yml#/components/responses/404'
+        '429':
+          $ref: '../components.yml#/components/responses/429'
+        '500':
+          $ref: '../components.yml#/components/responses/500'
   getStudentRetakeExamBySession:
     get:
       tags:

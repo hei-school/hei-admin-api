@@ -32,6 +32,7 @@ import school.hei.haapi.model.RetakeExamStatus;
 import school.hei.haapi.model.User;
 import school.hei.haapi.model.pagination.PaginationFromPageAndPageSize;
 import school.hei.haapi.repository.FeeTemplateRepository;
+import school.hei.haapi.repository.RetakeExamFeeRepository;
 import school.hei.haapi.repository.RetakeExamRepository;
 import school.hei.haapi.repository.dao.RetakeExamDao;
 import school.hei.haapi.service.FeeService;
@@ -62,7 +63,8 @@ class RetakeExamServiceTest {
             mock(GradeService.class),
             mock(GradeMapper.class),
             feeTemplateRepository,
-            feeService);
+            feeService,
+            mock(RetakeExamFeeRepository.class));
     when(retakeExamRepository.saveAll(any())).thenAnswer(invocation -> invocation.getArgument(0));
   }
 
