@@ -32,7 +32,7 @@ class PublicBadgeMatcherTest {
   @Test
   void other_badge_endpoints_are_not_public() {
     assertFalse(PUBLIC_BADGE.matches(request("GET", "/badges/" + PUBLIC_ID + "/student", "")));
-    assertFalse(PUBLIC_BADGE.matches(request("GET", "/badges/" + PUBLIC_ID + "/situation", "")));
+    assertFalse(PUBLIC_BADGE.matches(request("PUT", "/badges/" + PUBLIC_ID + "/attendance", "")));
     assertFalse(PUBLIC_BADGE.matches(request("PUT", "/badges/" + PUBLIC_ID + "/revocation", "")));
     assertFalse(PUBLIC_BADGE.matches(request("PUT", "/badges/" + PUBLIC_ID, "")));
     assertFalse(PUBLIC_BADGE.matches(request("GET", "/students/badges/raw", "")));

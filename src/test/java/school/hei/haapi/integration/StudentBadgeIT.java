@@ -3,9 +3,12 @@ package school.hei.haapi.integration;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static school.hei.haapi.endpoint.rest.model.AttendanceStatus.PRESENT;
 import static school.hei.haapi.endpoint.rest.model.AttendanceStatus.UNCHECKED;
+import static school.hei.haapi.endpoint.rest.model.BadgeInvalidity.EXPIRED;
+import static school.hei.haapi.endpoint.rest.model.BadgeInvalidity.REVOKED;
 import static school.hei.haapi.endpoint.rest.model.EventType.COURSE;
 import static school.hei.haapi.integration.conf.TestAuth.tokenFor;
 import static school.hei.haapi.integration.conf.TestMocks.setUpEventBridge;
@@ -17,6 +20,7 @@ import static school.hei.haapi.integration.testData.ManagerTestData.hasina;
 import static school.hei.haapi.integration.testData.StudentTestData.axel;
 import static school.hei.haapi.integration.testData.TeacherTestData.toky;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -29,6 +33,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import school.hei.haapi.endpoint.rest.model.EncryptedBadge;
+import school.hei.haapi.endpoint.rest.model.PublicStudent;
 import school.hei.haapi.integration.conf.FacadeITMockedThirdParties;
 import school.hei.haapi.model.Event;
 import school.hei.haapi.model.EventParticipant;
@@ -43,6 +49,7 @@ import school.hei.haapi.repository.GroupRepository;
 import school.hei.haapi.repository.StudentBadgeRepository;
 import school.hei.haapi.repository.UserRepository;
 import school.hei.haapi.service.utils.AcademicYear;
+import school.hei.haapi.service.utils.BadgeCipher;
 import software.amazon.awssdk.services.eventbridge.EventBridgeClient;
 
 class StudentBadgeIT extends FacadeITMockedThirdParties {
@@ -54,6 +61,8 @@ class StudentBadgeIT extends FacadeITMockedThirdParties {
   @Autowired private EventRepository eventRepository;
   @Autowired private EventParticipantRepository eventParticipantRepository;
   @Autowired private StudentBadgeRepository studentBadgeRepository;
+  @Autowired private BadgeCipher badgeCipher;
+  @Autowired private ObjectMapper objectMapper;
 
   private User student;
   private User teacher;
@@ -114,9 +123,12 @@ class StudentBadgeIT extends FacadeITMockedThirdParties {
 
     var publicStudent = send("GET", "/badges/" + publicId, null);
     assertEquals(200, publicStudent.statusCode());
-    assertTrue(publicStudent.body().contains(student.getRef()));
-    assertTrue(publicStudent.body().contains("\"is_valid\":true"));
+    assertFalse(publicStudent.body().contains(student.getRef()));
     assertFalse(publicStudent.body().contains(student.getId()));
+    var decrypted = publicStudentOf(publicStudent, publicId);
+    assertEquals(student.getRef(), decrypted.getRef());
+    assertEquals(true, decrypted.getIsValid());
+    assertEquals(java.util.List.of(), decrypted.getLateFees());
 
     var ownerPath = "/badges/" + publicId + "/student";
     var owner = send("GET", ownerPath, managerToken);
@@ -125,11 +137,16 @@ class StudentBadgeIT extends FacadeITMockedThirdParties {
     assertEquals(403, send("GET", ownerPath, teacherToken).statusCode());
     assertEquals(403, send("GET", ownerPath, studentToken).statusCode());
 
-    var situationPath = "/badges/" + publicId + "/situation";
-    var situation = send("GET", situationPath, teacherToken);
-    assertEquals(200, situation.statusCode());
-    assertTrue(situation.body().contains("\"status\":\"ENABLED\""));
-    assertEquals(403, send("GET", situationPath, studentToken).statusCode());
+    // the event is not a course of the teacher: opening the badge marks nothing
+    var autoAttendancePath = "/badges/" + publicId + "/attendance";
+    var autoAttendance = send("PUT", autoAttendancePath, teacherToken);
+    assertEquals(200, autoAttendance.statusCode());
+    assertTrue(autoAttendance.body().contains("\"result\":\"NO_COURSE_IN_PROGRESS\""));
+    assertEquals(403, send("PUT", autoAttendancePath, studentToken).statusCode());
+    assertEquals(403, send("PUT", autoAttendancePath, managerToken).statusCode());
+    assertEquals(
+        UNCHECKED,
+        eventParticipantRepository.findById(participant.getId()).orElseThrow().getStatus());
 
     var attendancePath = "/badges/" + publicId + "/events/" + event.getId() + "/attendance";
     assertEquals(403, send("PUT", attendancePath, studentToken).statusCode());
@@ -148,13 +165,13 @@ class StudentBadgeIT extends FacadeITMockedThirdParties {
         403, send("PUT", "/badges/" + publicId + "/revocation", teacherToken).statusCode());
     assertEquals(
         200, send("PUT", "/badges/" + publicId + "/revocation", managerToken).statusCode());
-    var revoked = send("GET", "/badges/" + publicId, null).body();
-    assertTrue(revoked.contains("\"is_valid\":false"));
-    assertTrue(revoked.contains("\"invalidity\":\"REVOKED\""));
-    assertFalse(revoked.contains(student.getRef()));
-    assertFalse(revoked.contains(student.getLastName()));
+    var revoked = publicStudentOf(send("GET", "/badges/" + publicId, null), publicId);
+    assertEquals(false, revoked.getIsValid());
+    assertEquals(REVOKED, revoked.getInvalidity());
+    assertNull(revoked.getRef());
+    assertNull(revoked.getLastName());
     assertEquals(400, send("PUT", attendancePath, teacherToken).statusCode());
-    assertEquals(400, send("GET", situationPath, teacherToken).statusCode());
+    assertEquals(400, send("PUT", autoAttendancePath, teacherToken).statusCode());
   }
 
   @Test
@@ -177,7 +194,9 @@ class StudentBadgeIT extends FacadeITMockedThirdParties {
     assertEquals(403, send("PUT", badgePath + "/revocation", teacherToken).statusCode());
     assertEquals(200, send("PUT", badgePath + "/revocation", managerToken).statusCode());
     assertEquals(404, send("GET", badgePath, managerToken).statusCode());
-    assertTrue(send("GET", "/badges/" + firstPublicId, null).body().contains("\"is_valid\":false"));
+    assertEquals(
+        false,
+        publicStudentOf(send("GET", "/badges/" + firstPublicId, null), firstPublicId).getIsValid());
     send("GET", "/students/badges/raw?student_ids=" + student.getId(), managerToken);
     assertNotEquals(firstPublicId, activePublicId());
   }
@@ -196,9 +215,9 @@ class StudentBadgeIT extends FacadeITMockedThirdParties {
                     .build())
             .getPublicId();
 
-    var expired = send("GET", "/badges/" + expiredPublicId, null).body();
-    assertTrue(expired.contains("\"invalidity\":\"EXPIRED\""));
-    assertFalse(expired.contains(student.getRef()));
+    var expired = publicStudentOf(send("GET", "/badges/" + expiredPublicId, null), expiredPublicId);
+    assertEquals(EXPIRED, expired.getInvalidity());
+    assertNull(expired.getRef());
     assertEquals(
         400,
         send(
@@ -229,6 +248,12 @@ class StudentBadgeIT extends FacadeITMockedThirdParties {
     assertEquals(
         403,
         send("GET", "/students/badges/raw?group_id=" + group.getId(), studentToken).statusCode());
+  }
+
+  private PublicStudent publicStudentOf(HttpResponse<String> response, String publicId)
+      throws IOException {
+    var encrypted = objectMapper.readValue(response.body(), EncryptedBadge.class);
+    return badgeCipher.decrypt(encrypted, publicId, PublicStudent.class);
   }
 
   private String activePublicId() {

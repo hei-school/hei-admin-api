@@ -732,7 +732,7 @@ components:
           format: date-time
           description: |
             the badge stops working at the start of the next academic year;
-            null for a badge without expiration (from the third year of Licence)
+            null for a badge without expiration (a student who went out after its Licence)
         ref:
           type: string
           example: STD000001
@@ -749,6 +749,42 @@ components:
         profile_picture:
           type: string
           description: presigned url of the profile picture, valid a few minutes
+        suspension_reason:
+          $ref: '#/components/schemas/SuspensionReason'
+        late_fees:
+          type: array
+          description: its late fees, without their amounts
+          items:
+            $ref: '#/components/schemas/SituationLateFee'
+    EncryptedBadge:
+      type: object
+      description: |
+        A PublicStudent in JSON, encrypted so that its information is not readable as is in the
+        network tools of a browser: base64 of a 12 bytes iv followed by the AES-GCM ciphertext.
+        The AES-256 key is the SHA-256 of "hei-badge:" followed by the public id in lower case.
+        It hides the information from a look, it does not protect it from whoever has the link.
+      properties:
+        payload:
+          type: string
+    BadgeAttendance:
+      type: object
+      properties:
+        result:
+          $ref: '#/components/schemas/BadgeAttendanceResult'
+        event_title:
+          type: string
+        course_code:
+          type: string
+    BadgeAttendanceResult:
+      type: string
+      description: |
+        CHECKED: marked present to the course in progress of the teacher.
+        NO_COURSE_IN_PROGRESS: the teacher has no course now.
+        NOT_PARTICIPANT: the student does not take part in it.
+      enum:
+        - CHECKED
+        - NO_COURSE_IN_PROGRESS
+        - NOT_PARTICIPANT
     BadgeInvalidity:
       type: string
       enum:
@@ -761,18 +797,6 @@ components:
         id:
           type: string
           description: real id of the student
-    StudentSituation:
-      type: object
-      description: Status of the student of a badge and why it is suspended.
-      properties:
-        status:
-          $ref: '#/components/schemas/EnableStatus'
-        suspension_reason:
-          $ref: '#/components/schemas/SuspensionReason'
-        late_fees:
-          type: array
-          items:
-            $ref: '#/components/schemas/SituationLateFee'
     SuspensionReason:
       type: string
       description: LATE_FEES when the suspended student has late fees, OTHER otherwise
@@ -781,7 +805,7 @@ components:
         - OTHER
     SituationLateFee:
       type: object
-      description: A late fee of a suspended student, without its amounts.
+      description: A late fee of a student, without its amounts.
       properties:
         label:
           type: string

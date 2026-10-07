@@ -7,6 +7,7 @@ operations:
       description: |
         Public endpoint (no authentication), called when the badge QR code is scanned.
         The public id is random and never reveals the real student id.
+        Gives a PublicStudent, with its late fees (without amounts), encrypted: see EncryptedBadge.
         A revoked or expired badge only gives its invalidity, no information on the student.
         404 for an unknown public id, or a value that is not a public id.
       security: [ ]
@@ -20,11 +21,11 @@ operations:
             type: string
       responses:
         '200':
-          description: Public information of the student
+          description: Public information of the student, encrypted
           content:
             application/json:
               schema:
-                $ref: '../components.yml#/components/schemas/PublicStudent'
+                $ref: '../components.yml#/components/schemas/EncryptedBadge'
         '404':
           $ref: '../components.yml#/components/responses/404'
         '429':
@@ -60,15 +61,15 @@ operations:
           $ref: '../components.yml#/components/responses/429'
         '500':
           $ref: '../components.yml#/components/responses/500'
-  getBadgeStudentSituation:
-    get:
+  checkBadgeAttendance:
+    put:
       tags:
         - Badges
-      summary: Get the situation of the student of a valid badge.
+      summary: Mark the student of a badge present to the course in progress of the teacher.
       description: |
-        For connected teachers, managers and admins: the status of the student and why it is
-        suspended (its late fees, without their amounts).
-      operationId: getBadgeStudentSituation
+        Teachers only, when they open a scanned badge: the course in progress is an event of a
+        course of the connected teacher, from 15 minutes before its beginning to its end.
+      operationId: checkBadgeAttendance
       parameters:
         - name: id
           in: path
@@ -78,11 +79,11 @@ operations:
             type: string
       responses:
         '200':
-          description: The situation of the student
+          description: Whether the student has been marked present, and to which course
           content:
             application/json:
               schema:
-                $ref: '../components.yml#/components/schemas/StudentSituation'
+                $ref: '../components.yml#/components/schemas/BadgeAttendance'
         '400':
           $ref: '../components.yml#/components/responses/400'
         '403':

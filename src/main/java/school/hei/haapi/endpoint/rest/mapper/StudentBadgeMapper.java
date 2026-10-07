@@ -12,6 +12,7 @@ import school.hei.haapi.endpoint.rest.model.PublicStudent;
 import school.hei.haapi.model.StudentBadge;
 import school.hei.haapi.model.User;
 import school.hei.haapi.service.StudentLevelResolver;
+import school.hei.haapi.service.StudentSituationService;
 import school.hei.haapi.service.aws.FileService;
 
 @Component
@@ -21,13 +22,20 @@ public class StudentBadgeMapper {
 
   private final StatusEnumMapper statusEnumMapper;
   private final StudentLevelResolver studentLevelResolver;
+  private final StudentSituationService studentSituationService;
   private final FileService fileService;
 
+  /** What a scanned badge shows: with its late fees, nothing once the badge is invalid. */
   public PublicStudent toPublicRest(StudentBadge badge) {
     var invalidity = invalidityOf(badge);
-    return invalidity == null
-        ? toRest(badge)
-        : new PublicStudent().isValid(false).invalidity(invalidity);
+    if (invalidity != null) {
+      return new PublicStudent().isValid(false).invalidity(invalidity);
+    }
+    var student = badge.getStudent();
+    var lateFees = studentSituationService.lateFeesOf(student);
+    return toRest(badge)
+        .lateFees(lateFees)
+        .suspensionReason(studentSituationService.suspensionReasonOf(student, lateFees));
   }
 
   public PublicStudent toRest(StudentBadge badge) {

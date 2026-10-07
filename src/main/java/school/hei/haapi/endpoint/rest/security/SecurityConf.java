@@ -233,7 +233,6 @@ public class SecurityConf {
                     antMatcher(GET, "/students/badges/raw"),
                     antMatcher(GET, "/students/*/badge"),
                     antMatcher(GET, "/badges/*/student"),
-                    antMatcher(GET, "/badges/*/situation"),
                     antMatcher(PUT, "/badges/**"),
                     antMatcher(PUT, "/students/**"),
                     antMatcher(GET, "/fees/templates"),
@@ -824,8 +823,8 @@ public class SecurityConf {
                     // badges, from the public id of their QR code
                     .requestMatchers(GET, "/badges/*/student")
                     .hasAnyRole(MANAGER.getRole(), ADMIN.getRole())
-                    .requestMatchers(GET, "/badges/*/situation")
-                    .hasAnyRole(TEACHER.getRole(), MANAGER.getRole(), ADMIN.getRole())
+                    .requestMatchers(PUT, "/badges/*/attendance")
+                    .hasRole(TEACHER.getRole())
                     .requestMatchers(PUT, "/badges/*/revocation")
                     .hasAnyRole(MANAGER.getRole(), ADMIN.getRole())
                     .requestMatchers(PUT, "/badges/*/events/*/attendance")

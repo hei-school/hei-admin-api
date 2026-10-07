@@ -185,19 +185,19 @@ class StudentBadgeServiceTest {
   }
 
   @Test
-  void badge_has_no_expiration_from_the_third_year_of_licence() {
-    var l3 = student("student1_id", "STD24001", false);
-    var l2 = student("student2_id", "STD25001", false);
+  void badge_has_no_expiration_only_after_licence() {
+    var graduated = student("student1_id", "STD23001", false);
+    var l3 = student("student2_id", "STD24001", false);
     when(promotionService.getAllStudentPromotions("student1_id"))
-        .thenReturn(new LinkedHashSet<>(List.of(bachelorPromotion("2024-11-01T00:00:00Z"))));
+        .thenReturn(new LinkedHashSet<>(List.of(bachelorPromotion("2023-11-01T00:00:00Z"))));
     when(promotionService.getAllStudentPromotions("student2_id"))
-        .thenReturn(new LinkedHashSet<>(List.of(bachelorPromotion("2025-11-01T00:00:00Z"))));
-    when(userService.getByGroupId(eq(GROUP_ID), any())).thenReturn(List.of(l3, l2));
+        .thenReturn(new LinkedHashSet<>(List.of(bachelorPromotion("2024-11-01T00:00:00Z"))));
+    when(userService.getByGroupId(eq(GROUP_ID), any())).thenReturn(List.of(graduated, l3));
 
     subject.generateBadges(GROUP_ID, null, "2026 - 2027");
 
-    verify(studentBadgeCodeService).createBadge(eq(l3), any(), eq(true));
-    verify(studentBadgeCodeService).createBadge(eq(l2), any(), eq(false));
+    verify(studentBadgeCodeService).createBadge(eq(graduated), any(), eq(true));
+    verify(studentBadgeCodeService).createBadge(eq(l3), any(), eq(false));
   }
 
   @Test

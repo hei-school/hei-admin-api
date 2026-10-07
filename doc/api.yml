@@ -341,8 +341,8 @@ paths:
     $ref: './operations/badges-api.yml#/operations/getPublicStudent'
   '/badges/{id}/student':
     $ref: './operations/badges-api.yml#/operations/getBadgeOwner'
-  '/badges/{id}/situation':
-    $ref: './operations/badges-api.yml#/operations/getBadgeStudentSituation'
+  '/badges/{id}/attendance':
+    $ref: './operations/badges-api.yml#/operations/checkBadgeAttendance'
   '/badges/{id}/revocation':
     $ref: './operations/badges-api.yml#/operations/revokeStudentBadge'
   '/badges/{id}/events/{event_id}/attendance':

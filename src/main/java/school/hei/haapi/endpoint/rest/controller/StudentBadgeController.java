@@ -11,28 +11,33 @@ import org.springframework.web.bind.annotation.RestController;
 import school.hei.haapi.endpoint.rest.mapper.EventParticipantMapper;
 import school.hei.haapi.endpoint.rest.mapper.StudentBadgeMapper;
 import school.hei.haapi.endpoint.rest.model.AttendanceStatus;
+import school.hei.haapi.endpoint.rest.model.BadgeAttendance;
 import school.hei.haapi.endpoint.rest.model.BadgeOwner;
+import school.hei.haapi.endpoint.rest.model.EncryptedBadge;
 import school.hei.haapi.endpoint.rest.model.EventParticipant;
 import school.hei.haapi.endpoint.rest.model.PublicStudent;
-import school.hei.haapi.endpoint.rest.model.StudentSituation;
+import school.hei.haapi.endpoint.rest.security.AuthProvider;
+import school.hei.haapi.service.BadgeAttendanceService;
 import school.hei.haapi.service.StudentBadgeCodeService;
-import school.hei.haapi.service.StudentSituationService;
+import school.hei.haapi.service.utils.BadgeCipher;
 
 @RestController
 @AllArgsConstructor
 public class StudentBadgeController {
   private final StudentBadgeCodeService studentBadgeCodeService;
-  private final StudentSituationService studentSituationService;
+  private final BadgeAttendanceService badgeAttendanceService;
+  private final BadgeCipher badgeCipher;
   private final StudentBadgeMapper studentBadgeMapper;
   private final EventParticipantMapper eventParticipantMapper;
 
   @GetMapping("/badges/{id}")
-  public ResponseEntity<PublicStudent> getPublicStudent(
+  public ResponseEntity<EncryptedBadge> getPublicStudent(
       @PathVariable(name = "id") String publicId) {
+    var badge = studentBadgeCodeService.getByPublicId(publicId);
     return ResponseEntity.ok()
         .cacheControl(CacheControl.noStore())
         .header("X-Robots-Tag", "noindex, nofollow")
-        .body(studentBadgeMapper.toPublicRest(studentBadgeCodeService.getByPublicId(publicId)));
+        .body(badgeCipher.encrypt(studentBadgeMapper.toPublicRest(badge), badge.getPublicId()));
   }
 
   @GetMapping("/badges/{id}/student")
@@ -40,9 +45,10 @@ public class StudentBadgeController {
     return studentBadgeMapper.toOwner(studentBadgeCodeService.getByPublicId(publicId));
   }
 
-  @GetMapping("/badges/{id}/situation")
-  public StudentSituation getBadgeStudentSituation(@PathVariable(name = "id") String publicId) {
-    return studentSituationService.getSituationOfBadge(publicId);
+  @PutMapping("/badges/{id}/attendance")
+  public BadgeAttendance checkBadgeAttendance(@PathVariable(name = "id") String publicId) {
+    return badgeAttendanceService.checkAttendanceToCourseOf(
+        AuthProvider.getPrincipal().getUser(), publicId);
   }
 
   @PutMapping("/badges/{id}/revocation")

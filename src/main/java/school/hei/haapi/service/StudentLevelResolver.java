@@ -1,7 +1,5 @@
 package school.hei.haapi.service;
 
-import static school.hei.haapi.endpoint.rest.model.StudentLevel.L3;
-
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Optional;
@@ -49,13 +47,14 @@ public class StudentLevelResolver {
     return findLevelOf(student, AcademicYear.parse(schoolYearSupplier.get()));
   }
 
+  /**
+   * A student who went out after its Licence keeps its badge, without expiration: it has no level
+   * any more because its cycle is over. A student in L3 still gets a badge for the year.
+   */
   public boolean keepsBadgeAfter(User student, AcademicYear academicYear) {
     var levelInstant = academicYear.levelInstant();
-    return findLevelAt(student, levelInstant)
-        .map(level -> level.compareTo(L3) >= 0)
-        .orElseGet(
-            () ->
-                promotionService.getAllStudentPromotions(student.getId()).stream()
-                    .anyMatch(promotion -> promotion.isOverAt(levelInstant)));
+    return findLevelAt(student, levelInstant).isEmpty()
+        && promotionService.getAllStudentPromotions(student.getId()).stream()
+            .anyMatch(promotion -> promotion.isOverAt(levelInstant));
   }
 }

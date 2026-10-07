@@ -80,18 +80,18 @@ class StudentLevelResolverTest {
   }
 
   @Test
-  void student_keeps_badge_from_the_third_year_of_licence() {
-    var l3 = student();
-    givenPromotions(l3, bachelorPromotion("2024-11-01T00:00:00Z"));
-    assertTrue(subject.keepsBadgeAfter(l3, YEAR_2026));
-
+  void student_who_went_out_after_licence_keeps_badge() {
     var graduated = student();
-    givenPromotions(graduated, bachelorPromotion("2020-11-01T00:00:00Z"));
+    givenPromotions(graduated, bachelorPromotion("2023-11-01T00:00:00Z"));
     assertTrue(subject.keepsBadgeAfter(graduated, YEAR_2026));
   }
 
   @Test
-  void student_before_the_third_year_or_without_promotion_gets_a_yearly_badge() {
+  void student_still_studying_or_without_promotion_gets_a_yearly_badge() {
+    var l3 = student();
+    givenPromotions(l3, bachelorPromotion("2024-11-01T00:00:00Z"));
+    assertFalse(subject.keepsBadgeAfter(l3, YEAR_2026));
+
     var l2 = student();
     givenPromotions(l2, bachelorPromotion("2025-11-01T00:00:00Z"));
     assertFalse(subject.keepsBadgeAfter(l2, YEAR_2026));
