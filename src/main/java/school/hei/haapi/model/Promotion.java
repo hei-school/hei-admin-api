@@ -62,17 +62,26 @@ public class Promotion {
       throw new PromotionLevelOutOfRangeException();
     }
 
+    int yearOfStudying = yearOfStudyingAt(levelInstant);
+    if (yearOfStudying < 0 || yearOfStudying >= cycleLevel.getLevels().size()) {
+      throw new PromotionLevelOutOfRangeException(yearOfStudying);
+    }
+    return cycleLevel.getLevels().get(yearOfStudying);
+  }
+
+  /** True once all the levels of the cycle are over: its students went out of the school. */
+  public boolean isOverAt(Instant levelInstant) {
+    var levels = cycleLevel.getLevels();
+    return !levels.isEmpty() && yearOfStudyingAt(levelInstant) >= levels.size();
+  }
+
+  private int yearOfStudyingAt(Instant levelInstant) {
     int firstYear = startDatetime.atZone(ZoneId.systemDefault()).getYear();
     LocalDate date = levelInstant.atZone(ZoneId.systemDefault()).toLocalDate();
     int year = date.getYear();
     int month = date.getMonthValue();
     int scholarYear = (month >= 11) ? year : year - 1;
-    int yearOfStudying = scholarYear - firstYear;
-
-    if (yearOfStudying < 0 || yearOfStudying >= cycleLevel.getLevels().size()) {
-      throw new PromotionLevelOutOfRangeException(yearOfStudying);
-    }
-    return cycleLevel.getLevels().get(yearOfStudying);
+    return scholarYear - firstYear;
   }
 
   // TODO: Going from L1 to L2 and so on is not automatic: consider repeaters please ?

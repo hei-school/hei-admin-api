@@ -3,6 +3,7 @@ package school.hei.haapi.service;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -58,8 +59,39 @@ class StudentBadgeCodeServiceTest {
         .thenReturn(Optional.of(badge(student, inOneYear())));
 
     assertTrue(subject.hasActiveBadge(student, YEAR));
-    assertThrows(BadRequestException.class, () -> subject.createBadge(student, YEAR));
+    assertThrows(BadRequestException.class, () -> subject.createBadge(student, YEAR, false));
     verify(studentBadgeRepository, never()).save(any());
+  }
+
+  @Test
+  void badge_without_expiration_stays_active_the_following_years() {
+    var student = student();
+    when(studentBadgeRepository
+            .existsByStudentIdAndExpirationDatetimeIsNullAndRevocationDatetimeIsNull(
+                student.getId()))
+        .thenReturn(true);
+
+    var nextYear = AcademicYear.parse("2027 - 2028");
+    assertTrue(subject.hasActiveBadge(student, nextYear));
+    assertThrows(BadRequestException.class, () -> subject.createBadge(student, nextYear, true));
+  }
+
+  @Test
+  void badge_from_the_third_year_of_licence_has_no_expiration() {
+    var student = student();
+    when(studentBadgeRepository.existsByPublicId(anyString())).thenReturn(false);
+
+    var created = subject.createBadge(student, YEAR, true);
+
+    assertNull(created.getExpirationDatetime());
+    assertTrue(created.isValidAt(Instant.parse("2040-01-01T00:00:00Z")));
+  }
+
+  @Test
+  void value_that_is_not_a_public_id_is_not_found_without_looking_for_it() {
+    assertThrows(NotFoundException.class, () -> subject.getByPublicId("not-a-public-id"));
+    assertThrows(NotFoundException.class, () -> subject.getByPublicId(null));
+    verify(studentBadgeRepository, never()).findByPublicId(any());
   }
 
   @Test
@@ -70,7 +102,7 @@ class StudentBadgeCodeServiceTest {
         .thenReturn(Optional.empty());
     when(studentBadgeRepository.existsByPublicId(anyString())).thenReturn(false);
 
-    var created = subject.createBadge(student, YEAR);
+    var created = subject.createBadge(student, YEAR, false);
 
     assertSame(student, created.getStudent());
     assertEquals(4, UUID.fromString(created.getPublicId()).version());

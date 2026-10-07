@@ -14,13 +14,15 @@ public interface StudentBadgeRepository extends JpaRepository<StudentBadge, Stri
   Optional<StudentBadge> findByStudentIdAndAcademicYearAndRevocationDatetimeIsNull(
       String studentId, String academicYear);
 
+  boolean existsByStudentIdAndExpirationDatetimeIsNullAndRevocationDatetimeIsNull(String studentId);
+
   @Query(
       """
       select badge from StudentBadge badge
       where badge.student.id = :studentId
         and badge.revocationDatetime is null
-        and badge.expirationDatetime > :now
-      order by badge.expirationDatetime desc
+        and (badge.expirationDatetime is null or badge.expirationDatetime > :now)
+      order by badge.expirationDatetime desc nulls first
       limit 1
       """)
   Optional<StudentBadge> findCurrentBadgeOfStudent(String studentId, Instant now);

@@ -4,6 +4,7 @@ import static school.hei.haapi.endpoint.rest.model.AttendanceStatus.PRESENT;
 
 import java.time.Instant;
 import java.util.UUID;
+import java.util.regex.Pattern;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,18 +21,27 @@ import school.hei.haapi.service.utils.AcademicYear;
 @Service
 @AllArgsConstructor
 public class StudentBadgeCodeService {
+  private static final Pattern PUBLIC_ID =
+      Pattern.compile(
+          "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$");
+  private static final String BADGE_NOT_FOUND = "Badge not found";
+
   private final StudentBadgeRepository studentBadgeRepository;
   private final EventParticipantRepository eventParticipantRepository;
 
   public boolean hasActiveBadge(User student, AcademicYear academicYear) {
+    var studentId = student.getId();
     return studentBadgeRepository
-        .findByStudentIdAndAcademicYearAndRevocationDatetimeIsNull(
-            student.getId(), academicYear.label())
-        .isPresent();
+            .findByStudentIdAndAcademicYearAndRevocationDatetimeIsNull(
+                studentId, academicYear.label())
+            .isPresent()
+        || studentBadgeRepository
+            .existsByStudentIdAndExpirationDatetimeIsNullAndRevocationDatetimeIsNull(studentId);
   }
 
   @Transactional
-  public StudentBadge createBadge(User student, AcademicYear academicYear) {
+  public StudentBadge createBadge(
+      User student, AcademicYear academicYear, boolean withoutExpiration) {
     if (hasActiveBadge(student, academicYear)) {
       throw new BadRequestException(
           "Student #"
@@ -45,15 +55,29 @@ public class StudentBadgeCodeService {
             .student(student)
             .publicId(newPublicId())
             .academicYear(academicYear.label())
-            .expirationDatetime(academicYear.badgeExpiration())
+            .expirationDatetime(withoutExpiration ? null : academicYear.badgeExpiration())
             .build();
     return studentBadgeRepository.save(badge);
   }
 
   public StudentBadge getByPublicId(String publicId) {
+    if (publicId == null || !PUBLIC_ID.matcher(publicId).matches()) {
+      throw new NotFoundException(BADGE_NOT_FOUND);
+    }
     return studentBadgeRepository
-        .findByPublicId(publicId)
-        .orElseThrow(() -> new NotFoundException("Student #" + publicId + " does not exist"));
+        .findByPublicId(publicId.toLowerCase())
+        .orElseThrow(() -> new NotFoundException(BADGE_NOT_FOUND));
+  }
+
+  public StudentBadge getValidBadge(String publicId) {
+    var badge = getByPublicId(publicId);
+    if (badge.isRevoked()) {
+      throw new BadRequestException("The badge has been revoked");
+    }
+    if (badge.isExpiredAt(Instant.now())) {
+      throw new BadRequestException("The badge has expired (" + badge.getAcademicYear() + ")");
+    }
+    return badge;
   }
 
   public StudentBadge getActiveBadgeOfStudent(String studentId) {
@@ -82,7 +106,7 @@ public class StudentBadgeCodeService {
             .orElseThrow(
                 () ->
                     new NotFoundException(
-                        "Student #" + publicId + " is not a participant of event #" + eventId));
+                        "The student of the badge is not a participant of event #" + eventId));
     participant.setStatus(attendanceStatus == null ? PRESENT : attendanceStatus);
     return eventParticipantRepository.save(participant);
   }
@@ -92,18 +116,6 @@ public class StudentBadgeCodeService {
       badge.setRevocationDatetime(Instant.now());
     }
     return studentBadgeRepository.save(badge);
-  }
-
-  private StudentBadge getValidBadge(String publicId) {
-    var badge = getByPublicId(publicId);
-    if (badge.isRevoked()) {
-      throw new BadRequestException("Badge of student #" + publicId + " has been revoked");
-    }
-    if (badge.isExpiredAt(Instant.now())) {
-      throw new BadRequestException(
-          "Badge of student #" + publicId + " has expired (" + badge.getAcademicYear() + ")");
-    }
-    return badge;
   }
 
   private String newPublicId() {

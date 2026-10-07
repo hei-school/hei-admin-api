@@ -112,20 +112,26 @@ class StudentBadgeIT extends FacadeITMockedThirdParties {
     String publicId = activePublicId();
     assertNotEquals(student.getId(), publicId);
 
-    var publicStudent = send("GET", "/students/badges/" + publicId, null);
+    var publicStudent = send("GET", "/badges/" + publicId, null);
     assertEquals(200, publicStudent.statusCode());
     assertTrue(publicStudent.body().contains(student.getRef()));
     assertTrue(publicStudent.body().contains("\"is_valid\":true"));
     assertFalse(publicStudent.body().contains(student.getId()));
 
-    var fullStudent = send("GET", "/students/badges/" + publicId + "/student", managerToken);
-    assertEquals(200, fullStudent.statusCode());
-    assertTrue(fullStudent.body().contains(student.getId()));
-    assertEquals(
-        403, send("GET", "/students/badges/" + publicId + "/student", studentToken).statusCode());
+    var ownerPath = "/badges/" + publicId + "/student";
+    var owner = send("GET", ownerPath, managerToken);
+    assertEquals(200, owner.statusCode());
+    assertEquals("{\"id\":\"" + student.getId() + "\"}", owner.body());
+    assertEquals(403, send("GET", ownerPath, teacherToken).statusCode());
+    assertEquals(403, send("GET", ownerPath, studentToken).statusCode());
 
-    var attendancePath =
-        "/students/badges/" + publicId + "/events/" + event.getId() + "/attendance";
+    var situationPath = "/badges/" + publicId + "/situation";
+    var situation = send("GET", situationPath, teacherToken);
+    assertEquals(200, situation.statusCode());
+    assertTrue(situation.body().contains("\"status\":\"ENABLED\""));
+    assertEquals(403, send("GET", situationPath, studentToken).statusCode());
+
+    var attendancePath = "/badges/" + publicId + "/events/" + event.getId() + "/attendance";
     assertEquals(403, send("PUT", attendancePath, studentToken).statusCode());
     assertEquals(403, send("PUT", attendancePath, managerToken).statusCode());
     assertEquals(200, send("PUT", attendancePath, teacherToken).statusCode());
@@ -139,11 +145,16 @@ class StudentBadgeIT extends FacadeITMockedThirdParties {
     assertEquals(publicId, activePublicId());
 
     assertEquals(
-        200,
-        send("PUT", "/students/badges/" + publicId + "/revocation", managerToken).statusCode());
-    assertTrue(
-        send("GET", "/students/badges/" + publicId, null).body().contains("\"is_valid\":false"));
+        403, send("PUT", "/badges/" + publicId + "/revocation", teacherToken).statusCode());
+    assertEquals(
+        200, send("PUT", "/badges/" + publicId + "/revocation", managerToken).statusCode());
+    var revoked = send("GET", "/badges/" + publicId, null).body();
+    assertTrue(revoked.contains("\"is_valid\":false"));
+    assertTrue(revoked.contains("\"invalidity\":\"REVOKED\""));
+    assertFalse(revoked.contains(student.getRef()));
+    assertFalse(revoked.contains(student.getLastName()));
     assertEquals(400, send("PUT", attendancePath, teacherToken).statusCode());
+    assertEquals(400, send("GET", situationPath, teacherToken).statusCode());
   }
 
   @Test
@@ -166,10 +177,7 @@ class StudentBadgeIT extends FacadeITMockedThirdParties {
     assertEquals(403, send("PUT", badgePath + "/revocation", teacherToken).statusCode());
     assertEquals(200, send("PUT", badgePath + "/revocation", managerToken).statusCode());
     assertEquals(404, send("GET", badgePath, managerToken).statusCode());
-    assertTrue(
-        send("GET", "/students/badges/" + firstPublicId, null)
-            .body()
-            .contains("\"is_valid\":false"));
+    assertTrue(send("GET", "/badges/" + firstPublicId, null).body().contains("\"is_valid\":false"));
     send("GET", "/students/badges/raw?student_ids=" + student.getId(), managerToken);
     assertNotEquals(firstPublicId, activePublicId());
   }
@@ -188,15 +196,14 @@ class StudentBadgeIT extends FacadeITMockedThirdParties {
                     .build())
             .getPublicId();
 
-    assertTrue(
-        send("GET", "/students/badges/" + expiredPublicId, null)
-            .body()
-            .contains("\"is_valid\":false"));
+    var expired = send("GET", "/badges/" + expiredPublicId, null).body();
+    assertTrue(expired.contains("\"invalidity\":\"EXPIRED\""));
+    assertFalse(expired.contains(student.getRef()));
     assertEquals(
         400,
         send(
                 "PUT",
-                "/students/badges/" + expiredPublicId + "/events/" + event.getId() + "/attendance",
+                "/badges/" + expiredPublicId + "/events/" + event.getId() + "/attendance",
                 teacherToken)
             .statusCode());
     assertEquals(
@@ -207,10 +214,11 @@ class StudentBadgeIT extends FacadeITMockedThirdParties {
   }
 
   @Test
-  void unknown_public_id_is_not_found() throws Exception {
+  void unknown_or_guessed_public_id_is_not_found() throws Exception {
     assertEquals(
-        404,
-        send("GET", "/students/badges/7c1e4b9a-2f3d-4e8a-9b6c-1d2e3f4a5b6c", null).statusCode());
+        404, send("GET", "/badges/7c1e4b9a-2f3d-4e8a-9b6c-1d2e3f4a5b6c", null).statusCode());
+    assertEquals(404, send("GET", "/badges/" + student.getId(), null).statusCode());
+    assertEquals(404, send("GET", "/badges/raw", null).statusCode());
   }
 
   @Test

@@ -1,5 +1,7 @@
 package school.hei.haapi.service;
 
+import static school.hei.haapi.endpoint.rest.model.StudentLevel.L3;
+
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Optional;
@@ -45,5 +47,15 @@ public class StudentLevelResolver {
 
   public Optional<StudentLevel> findCurrentLevel(User student) {
     return findLevelOf(student, AcademicYear.parse(schoolYearSupplier.get()));
+  }
+
+  public boolean keepsBadgeAfter(User student, AcademicYear academicYear) {
+    var levelInstant = academicYear.levelInstant();
+    return findLevelAt(student, levelInstant)
+        .map(level -> level.compareTo(L3) >= 0)
+        .orElseGet(
+            () ->
+                promotionService.getAllStudentPromotions(student.getId()).stream()
+                    .anyMatch(promotion -> promotion.isOverAt(levelInstant)));
   }
 }

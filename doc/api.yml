@@ -332,17 +332,20 @@ paths:
     $ref: './operations/files-api.yml#/operations/getStudentScholarshipCertificate'
   '/students/badges/raw':
     $ref: './operations/files-api.yml#/operations/getStudentBadges'
-  '/students/badges/{id}':
-    $ref: './operations/badges-api.yml#/operations/getPublicStudent'
-  '/students/badges/{id}/student':
-    $ref: './operations/badges-api.yml#/operations/getStudentByPublicId'
-  '/students/badges/{id}/revocation':
-    $ref: './operations/badges-api.yml#/operations/revokeStudentBadge'
   '/students/{id}/badge':
     $ref: './operations/badges-api.yml#/operations/getStudentActiveBadge'
   '/students/{id}/badge/revocation':
     $ref: './operations/badges-api.yml#/operations/revokeStudentActiveBadge'
-  '/students/badges/{id}/events/{event_id}/attendance':
+  # Badges (from the public id of their QR code)
+  '/badges/{id}':
+    $ref: './operations/badges-api.yml#/operations/getPublicStudent'
+  '/badges/{id}/student':
+    $ref: './operations/badges-api.yml#/operations/getBadgeOwner'
+  '/badges/{id}/situation':
+    $ref: './operations/badges-api.yml#/operations/getBadgeStudentSituation'
+  '/badges/{id}/revocation':
+    $ref: './operations/badges-api.yml#/operations/revokeStudentBadge'
+  '/badges/{id}/events/{event_id}/attendance':
     $ref: './operations/badges-api.yml#/operations/checkEventAttendanceByPublicId'
   # Comments
   /comments:

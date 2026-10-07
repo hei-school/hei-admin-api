@@ -84,7 +84,7 @@ public class StudentBadgeService {
   }
 
   public String qrCodeUrlOf(String publicId) {
-    return qrCodeBaseUrl + "/" + publicId;
+    return qrCodeBaseUrl + "#" + publicId;
   }
 
   private List<User> findStudents(String groupId, List<String> studentIds) {
@@ -136,7 +136,9 @@ public class StudentBadgeService {
   private Badge toBadge(User student, AcademicYear academicYear) {
     var lastName = nullToEmpty(student.getLastName()).toUpperCase(Locale.FRENCH);
     var level = studentLevelResolver.findLevelOf(student, academicYear);
-    var publicId = studentBadgeCodeService.createBadge(student, academicYear).getPublicId();
+    var withoutExpiration = studentLevelResolver.keepsBadgeAfter(student, academicYear);
+    var publicId =
+        studentBadgeCodeService.createBadge(student, academicYear, withoutExpiration).getPublicId();
     return new Badge(
         lastName,
         nullToEmpty(student.getFirstName()),

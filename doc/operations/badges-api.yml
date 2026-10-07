@@ -7,6 +7,8 @@ operations:
       description: |
         Public endpoint (no authentication), called when the badge QR code is scanned.
         The public id is random and never reveals the real student id.
+        A revoked or expired badge only gives its invalidity, no information on the student.
+        404 for an unknown public id, or a value that is not a public id.
       security: [ ]
       operationId: getPublicStudent
       parameters:
@@ -29,14 +31,13 @@ operations:
           $ref: '../components.yml#/components/responses/429'
         '500':
           $ref: '../components.yml#/components/responses/500'
-  getStudentByPublicId:
+  getBadgeOwner:
     get:
       tags:
         - Badges
-      summary: Get the student from its public id.
-      description: |
-        For connected staff: gives the student (and so its real id) to open its profile, fees, etc.
-      operationId: getStudentByPublicId
+      summary: Get the real id of the student of a badge.
+      description: For connected managers and admins, to open the profile and fees of the student.
+      operationId: getBadgeOwner
       parameters:
         - name: id
           in: path
@@ -46,11 +47,42 @@ operations:
             type: string
       responses:
         '200':
-          description: The student
+          description: The student of the badge
           content:
             application/json:
               schema:
-                $ref: '../components.yml#/components/schemas/Student'
+                $ref: '../components.yml#/components/schemas/BadgeOwner'
+        '403':
+          $ref: '../components.yml#/components/responses/403'
+        '404':
+          $ref: '../components.yml#/components/responses/404'
+        '429':
+          $ref: '../components.yml#/components/responses/429'
+        '500':
+          $ref: '../components.yml#/components/responses/500'
+  getBadgeStudentSituation:
+    get:
+      tags:
+        - Badges
+      summary: Get the situation of the student of a valid badge.
+      description: |
+        For connected teachers, managers and admins: the status of the student and why it is
+        suspended (its late fees, without their amounts).
+      operationId: getBadgeStudentSituation
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: public id of the student
+          schema:
+            type: string
+      responses:
+        '200':
+          description: The situation of the student
+          content:
+            application/json:
+              schema:
+                $ref: '../components.yml#/components/schemas/StudentSituation'
         '400':
           $ref: '../components.yml#/components/responses/400'
         '403':

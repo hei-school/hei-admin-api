@@ -19,23 +19,23 @@ class PublicBadgeMatcherTest {
 
   @Test
   void badge_of_public_id_is_public_whatever_the_query_string() {
-    assertTrue(PUBLIC_BADGE.matches(request("GET", "/students/badges/" + PUBLIC_ID, "")));
-    assertTrue(PUBLIC_BADGE.matches(request("GET", "/students/badges/" + PUBLIC_ID, null)));
-    assertTrue(PUBLIC_BADGE.matches(request("GET", "/students/badges/" + PUBLIC_ID, "a=b")));
-    assertTrue(
-        PUBLIC_BADGE.matches(request("GET", "/students/badges/" + PUBLIC_ID.toUpperCase(), "")));
+    assertTrue(PUBLIC_BADGE.matches(request("GET", "/badges/" + PUBLIC_ID, "")));
+    assertTrue(PUBLIC_BADGE.matches(request("GET", "/badges/" + PUBLIC_ID, null)));
+    assertTrue(PUBLIC_BADGE.matches(request("GET", "/badges/" + PUBLIC_ID, "a=b")));
+  }
+
+  @Test
+  void guessed_public_id_reaches_the_api_which_answers_404() {
+    assertTrue(PUBLIC_BADGE.matches(request("GET", "/badges/not-a-public-id", "")));
   }
 
   @Test
   void other_badge_endpoints_are_not_public() {
+    assertFalse(PUBLIC_BADGE.matches(request("GET", "/badges/" + PUBLIC_ID + "/student", "")));
+    assertFalse(PUBLIC_BADGE.matches(request("GET", "/badges/" + PUBLIC_ID + "/situation", "")));
+    assertFalse(PUBLIC_BADGE.matches(request("PUT", "/badges/" + PUBLIC_ID + "/revocation", "")));
+    assertFalse(PUBLIC_BADGE.matches(request("PUT", "/badges/" + PUBLIC_ID, "")));
     assertFalse(PUBLIC_BADGE.matches(request("GET", "/students/badges/raw", "")));
-    assertFalse(
-        PUBLIC_BADGE.matches(request("GET", "/students/badges/raw", "group_id=" + PUBLIC_ID)));
-    assertFalse(
-        PUBLIC_BADGE.matches(request("GET", "/students/badges/" + PUBLIC_ID + "/student", "")));
-    assertFalse(
-        PUBLIC_BADGE.matches(request("PUT", "/students/badges/" + PUBLIC_ID + "/revocation", "")));
-    assertFalse(PUBLIC_BADGE.matches(request("PUT", "/students/badges/" + PUBLIC_ID, "")));
-    assertFalse(PUBLIC_BADGE.matches(request("GET", "/students/badges/not-a-uuid", "")));
+    assertFalse(PUBLIC_BADGE.matches(request("GET", "/students/badges/" + PUBLIC_ID, "")));
   }
 }

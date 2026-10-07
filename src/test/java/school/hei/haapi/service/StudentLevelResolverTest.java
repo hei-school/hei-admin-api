@@ -1,6 +1,8 @@
 package school.hei.haapi.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static school.hei.haapi.endpoint.rest.model.StudentLevel.L1;
@@ -75,6 +77,28 @@ class StudentLevelResolverTest {
     givenPromotions(student, bachelorPromotion("2020-11-01T00:00:00Z"));
 
     assertEquals(Optional.empty(), subject.findLevelOf(student, YEAR_2026));
+  }
+
+  @Test
+  void student_keeps_badge_from_the_third_year_of_licence() {
+    var l3 = student();
+    givenPromotions(l3, bachelorPromotion("2024-11-01T00:00:00Z"));
+    assertTrue(subject.keepsBadgeAfter(l3, YEAR_2026));
+
+    var graduated = student();
+    givenPromotions(graduated, bachelorPromotion("2020-11-01T00:00:00Z"));
+    assertTrue(subject.keepsBadgeAfter(graduated, YEAR_2026));
+  }
+
+  @Test
+  void student_before_the_third_year_or_without_promotion_gets_a_yearly_badge() {
+    var l2 = student();
+    givenPromotions(l2, bachelorPromotion("2025-11-01T00:00:00Z"));
+    assertFalse(subject.keepsBadgeAfter(l2, YEAR_2026));
+
+    var withoutPromotion = student();
+    givenPromotions(withoutPromotion);
+    assertFalse(subject.keepsBadgeAfter(withoutPromotion, YEAR_2026));
   }
 
   private void givenPromotions(User student, Promotion... promotions) {

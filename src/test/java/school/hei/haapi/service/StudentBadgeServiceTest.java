@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
@@ -60,7 +61,7 @@ class StudentBadgeServiceTest {
     promotionService = mock(PromotionService.class);
     when(promotionService.getAllStudentPromotions(anyString())).thenReturn(new LinkedHashSet<>());
     studentBadgeCodeService = mock(StudentBadgeCodeService.class);
-    when(studentBadgeCodeService.createBadge(any(), any()))
+    when(studentBadgeCodeService.createBadge(any(), any(), anyBoolean()))
         .thenAnswer(
             invocation ->
                 StudentBadge.builder()
@@ -78,7 +79,7 @@ class StudentBadgeServiceTest {
             new HtmlParser(),
             new PdfRenderer(),
             schoolYearSupplier,
-            "https://admin.hei.school/students/");
+            "https://admin.hei.school/badges/");
   }
 
   @Test
@@ -148,7 +149,7 @@ class StudentBadgeServiceTest {
 
     assertTrue(page.contains("STD26002"));
     assertFalse(page.contains("STD26001"));
-    verify(studentBadgeCodeService, never()).createBadge(eq(withBadge), any());
+    verify(studentBadgeCodeService, never()).createBadge(eq(withBadge), any(), anyBoolean());
   }
 
   @Test
@@ -184,10 +185,34 @@ class StudentBadgeServiceTest {
   }
 
   @Test
-  void qr_code_links_to_public_id_not_to_student_id() {
+  void badge_has_no_expiration_from_the_third_year_of_licence() {
+    var l3 = student("student1_id", "STD24001", false);
+    var l2 = student("student2_id", "STD25001", false);
+    when(promotionService.getAllStudentPromotions("student1_id"))
+        .thenReturn(new LinkedHashSet<>(List.of(bachelorPromotion("2024-11-01T00:00:00Z"))));
+    when(promotionService.getAllStudentPromotions("student2_id"))
+        .thenReturn(new LinkedHashSet<>(List.of(bachelorPromotion("2025-11-01T00:00:00Z"))));
+    when(userService.getByGroupId(eq(GROUP_ID), any())).thenReturn(List.of(l3, l2));
+
+    subject.generateBadges(GROUP_ID, null, "2026 - 2027");
+
+    verify(studentBadgeCodeService).createBadge(eq(l3), any(), eq(true));
+    verify(studentBadgeCodeService).createBadge(eq(l2), any(), eq(false));
+  }
+
+  @Test
+  void qr_code_hides_public_id_after_hash_and_never_gives_student_id() {
     assertEquals(
-        "https://admin.hei.school/students/7c1e4b9a-2f3d-4e8a-9b6c-1d2e3f4a5b6c",
+        "https://admin.hei.school/badges#7c1e4b9a-2f3d-4e8a-9b6c-1d2e3f4a5b6c",
         subject.qrCodeUrlOf("7c1e4b9a-2f3d-4e8a-9b6c-1d2e3f4a5b6c"));
+  }
+
+  private static Promotion bachelorPromotion(String startDatetime) {
+    return Promotion.builder()
+        .id("promotion_" + startDatetime)
+        .startDatetime(Instant.parse(startDatetime))
+        .cycleLevel(BACHELOR)
+        .build();
   }
 
   private static String textOfFirstPage(byte[] pdf) throws IOException {

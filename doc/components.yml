@@ -720,14 +720,19 @@ components:
           type: boolean
           description: |
             false when the badge has been revoked (lost badge) or has expired (its academic
-            year is over: a new badge is printed every year)
+            year is over: a new badge is printed every year). An invalid badge only gives
+            is_valid and invalidity.
+        invalidity:
+          $ref: '#/components/schemas/BadgeInvalidity'
         academic_year:
           type: string
           example: 2026 - 2027
         expiration_datetime:
           type: string
           format: date-time
-          description: the badge stops working at the start of the next academic year
+          description: |
+            the badge stops working at the start of the next academic year;
+            null for a badge without expiration (from the third year of Licence)
         ref:
           type: string
           example: STD000001
@@ -743,7 +748,47 @@ components:
           $ref: '#/components/schemas/SpecializationField'
         profile_picture:
           type: string
-          description: presigned url of the profile picture
+          description: presigned url of the profile picture, valid a few minutes
+    BadgeInvalidity:
+      type: string
+      enum:
+        - REVOKED
+        - EXPIRED
+    BadgeOwner:
+      type: object
+      description: The student of a badge, only its real id.
+      properties:
+        id:
+          type: string
+          description: real id of the student
+    StudentSituation:
+      type: object
+      description: Status of the student of a badge and why it is suspended.
+      properties:
+        status:
+          $ref: '#/components/schemas/EnableStatus'
+        suspension_reason:
+          $ref: '#/components/schemas/SuspensionReason'
+        late_fees:
+          type: array
+          items:
+            $ref: '#/components/schemas/SituationLateFee'
+    SuspensionReason:
+      type: string
+      description: LATE_FEES when the suspended student has late fees, OTHER otherwise
+      enum:
+        - LATE_FEES
+        - OTHER
+    SituationLateFee:
+      type: object
+      description: A late fee of a suspended student, without its amounts.
+      properties:
+        label:
+          type: string
+          example: Frais de scolarité octobre
+        due_datetime:
+          type: string
+          format: date-time
     ExamGradeStats:
       type: object
       properties:
