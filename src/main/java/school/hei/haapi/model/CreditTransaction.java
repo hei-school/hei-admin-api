@@ -51,5 +51,7 @@ public class CreditTransaction implements Serializable {
 
   private int amount;
 
+  private int balance;
+
   private Instant creationDatetime;
 }
