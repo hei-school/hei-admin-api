@@ -30,7 +30,6 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.AnonymousAuthenticationFilter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.OrRequestMatcher;
-import org.springframework.security.web.util.matcher.RegexRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.web.servlet.HandlerExceptionResolver;
 import school.hei.haapi.model.exception.ForbiddenException;
@@ -53,8 +52,13 @@ public class SecurityConf {
       "/sms-campaigns/by-manual-numbers";
   private static final String SMS_CAMPAIGNS_BY_GROUPS_PATH = "/sms-campaigns/by-groups";
   private static final String SMS_CAMPAIGNS_BY_FILE_PATH = "/sms-campaigns/by-file";
-  private static final String PUBLIC_BADGE_PATH =
-      "^/students/badges/[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$";
+  // GET /students/badges/<public id (uuid)> is public, unlike GET /students/badges/raw.
+  // Not a RegexRequestMatcher: it also matches the query string, which the Lambda function url
+  // gives empty ("/students/badges/<uuid>?"), so the public badge was denied.
+  static final RequestMatcher PUBLIC_BADGE =
+      new AntPathRequestMatcher(
+          "/students/badges/{id:[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}}",
+          GET.name());
   private final CourseAssignmentService courseAssignmentService;
   private final MonitoringStudentService monitoringStudentService;
   private final AbstractUserDetailsAuthenticationProvider authProvider;
@@ -397,7 +401,7 @@ public class SecurityConf {
                             new AntPathRequestMatcher("/authentication/signin", POST.name()),
                             new AntPathRequestMatcher("/authentication/login-url", GET.name()),
                             new AntPathRequestMatcher("/documenso/webhook", POST.name()),
-                            RegexRequestMatcher.regexMatcher(GET, PUBLIC_BADGE_PATH),
+                            PUBLIC_BADGE,
                             new AntPathRequestMatcher("/**", OPTIONS.toString())))
                     .permitAll()
                     .requestMatchers(GET, "/whoami")
