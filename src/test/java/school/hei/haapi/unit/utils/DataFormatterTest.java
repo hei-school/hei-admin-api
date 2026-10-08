@@ -24,4 +24,16 @@ class DataFormatterTest {
     var actual = DataFormatterUtils.numberToWords(amount);
     assertEquals(expected, actual);
   }
+
+  @Test
+  void parse_decimal_with_comma_separator() {
+    var actual = DataFormatterUtils.parseDecimal("11,1");
+    assertEquals(11.1, actual);
+  }
+
+  @Test
+  void parse_decimal_with_dot_separator() {
+    var actual = DataFormatterUtils.parseDecimal("11.1");
+    assertEquals(11.1, actual);
+  }
 }

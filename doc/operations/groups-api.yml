@@ -188,7 +188,37 @@ operations:
           $ref: '../components.yml#/components/responses/429'
         '500':
           $ref: '../components.yml#/components/responses/500'
-  moveOrDeleteStudentInGroup:
+  studentGroupFlows:
+    get:
+      tags:
+        - Groups
+      summary: Get the group flows of a student
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      operationId: getGroupFlowsByStudentId
+      responses:
+        '200':
+          description: List of the group flows of the identified student
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '../components.yml#/components/schemas/GroupFlow'
+        '400':
+          $ref: '../components.yml#/components/responses/400'
+        '403':
+          $ref: '../components.yml#/components/responses/403'
+        '404':
+          $ref: '../components.yml#/components/responses/404'
+        '429':
+          $ref: '../components.yml#/components/responses/429'
+        '500':
+          $ref: '../components.yml#/components/responses/500'
     post:
       tags:
         - Groups
@@ -218,6 +248,42 @@ operations:
                 type: array
                 items:
                   $ref: '../components.yml#/components/schemas/GroupFlow'
+        '400':
+          $ref: '../components.yml#/components/responses/400'
+        '403':
+          $ref: '../components.yml#/components/responses/403'
+        '404':
+          $ref: '../components.yml#/components/responses/404'
+        '429':
+          $ref: '../components.yml#/components/responses/429'
+        '500':
+          $ref: '../components.yml#/components/responses/500'
+  updateGroupFlow:
+    put:
+      tags:
+        - Groups
+      summary: Update a group flow
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      operationId: updateGroupFlow
+      requestBody:
+        description: The group flow to update.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '../components.yml#/components/schemas/UpdateGroupFlow'
+      responses:
+        '200':
+          description: The updated group flow
+          content:
+            application/json:
+              schema:
+                $ref: '../components.yml#/components/schemas/GroupFlow'
         '400':
           $ref: '../components.yml#/components/responses/400'
         '403':

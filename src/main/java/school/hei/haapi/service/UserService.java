@@ -271,6 +271,10 @@ public class UserService {
     return userRepository.findAllByStatus(ENABLED);
   }
 
+  public List<User> getAllEnabledUsersWithoutContact() {
+    return userRepository.findAllByStatusAndNoSmsContact(ENABLED);
+  }
+
   public List<User> getAllSuspendedUsers() {
     return userRepository.findAllByStatus(SUSPENDED);
   }
@@ -459,7 +463,7 @@ public class UserService {
           .map(g -> g.getPromotion().getLevelAt(now()))
           .orElse(null);
     } catch (PromotionLevelOutOfRangeException e) {
-      log.error("Level for student id {} is out of bounds: {}", studentId, e.getMessage());
+      log.info("No level for student id {}: {}", studentId, e.getMessage());
       return null;
     }
   }

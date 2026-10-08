@@ -29,6 +29,7 @@ import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.model.validator.ScholarshipDataValidator;
 import school.hei.haapi.service.ReceiptGenerationService;
+import school.hei.haapi.service.StudentBadgeService;
 import school.hei.haapi.service.StudentFileService;
 import school.hei.haapi.service.UserService;
 
@@ -42,6 +43,7 @@ public class UserFileController {
   private final CreateStudentWorkFileValidator createStudentWorkFileValidator;
   private final ScholarshipDataValidator scholarshipDataValidator;
   private final UserService userService;
+  private final StudentBadgeService studentBadgeService;
 
   @GetMapping(
       value = "/students/{id}/scholarship_certificate/raw",
@@ -50,6 +52,14 @@ public class UserFileController {
     var student = userService.getById(studentId);
     scholarshipDataValidator.accept(student);
     return fileService.generateScholarshipCertificate(studentId, "scolarity");
+  }
+
+  @GetMapping(value = "/students/badges/raw", produces = APPLICATION_PDF_VALUE)
+  public byte[] getStudentBadges(
+      @RequestParam(name = "group_id", required = false) String groupId,
+      @RequestParam(name = "student_ids", required = false) List<String> studentIds,
+      @RequestParam(name = "academic_year", required = false) String academicYear) {
+    return studentBadgeService.generateBadges(groupId, studentIds, academicYear);
   }
 
   @GetMapping(

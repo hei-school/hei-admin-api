@@ -27,7 +27,8 @@ import java.util.Objects;
   TemplateCreateDocumentFromTemplateRequest.JSON_PROPERTY_TEMPLATE_ID,
   TemplateCreateDocumentFromTemplateRequest.JSON_PROPERTY_RECIPIENTS,
   TemplateCreateDocumentFromTemplateRequest.JSON_PROPERTY_DISTRIBUTE_DOCUMENT,
-  TemplateCreateDocumentFromTemplateRequest.JSON_PROPERTY_PREFILL_FIELDS
+  TemplateCreateDocumentFromTemplateRequest.JSON_PROPERTY_PREFILL_FIELDS,
+  TemplateCreateDocumentFromTemplateRequest.JSON_PROPERTY_FOLDER_ID
 })
 @JsonTypeName("template_createDocumentFromTemplate_request")
 @jakarta.annotation.Generated(
@@ -46,6 +47,9 @@ public class TemplateCreateDocumentFromTemplateRequest implements Serializable {
 
   public static final String JSON_PROPERTY_DISTRIBUTE_DOCUMENT = "distributeDocument";
   private Boolean distributeDocument;
+
+  public static final String JSON_PROPERTY_FOLDER_ID = "folderId";
+  private String folderId;
 
   public static final String JSON_PROPERTY_PREFILL_FIELDS = "prefillFields";
   private List<TemplateCreateDocumentFromTemplateRequestPrefillFieldsInner> prefillFields =
@@ -136,6 +140,34 @@ public class TemplateCreateDocumentFromTemplateRequest implements Serializable {
     this.distributeDocument = distributeDocument;
   }
 
+  public TemplateCreateDocumentFromTemplateRequest folderId(String folderId) {
+
+    this.folderId = folderId;
+    return this;
+  }
+
+  /**
+   * Get folderId
+   *
+   * @return folderId
+   */
+  /*
+   * NON_NULL, unlike its neighbours: Documenso accepts the key absent but rejects it null ("Expected
+   * string, received null"), which turned the fall-back to the root into a failed generation.
+   */
+  @jakarta.annotation.Nullable
+  @JsonProperty(JSON_PROPERTY_FOLDER_ID)
+  @JsonInclude(value = JsonInclude.Include.NON_NULL)
+  public String getFolderId() {
+    return folderId;
+  }
+
+  @JsonProperty(JSON_PROPERTY_FOLDER_ID)
+  @JsonInclude(value = JsonInclude.Include.NON_NULL)
+  public void setFolderId(String folderId) {
+    this.folderId = folderId;
+  }
+
   public TemplateCreateDocumentFromTemplateRequest prefillFields(
       List<TemplateCreateDocumentFromTemplateRequestPrefillFieldsInner> prefillFields) {
 
@@ -191,7 +223,7 @@ public class TemplateCreateDocumentFromTemplateRequest implements Serializable {
 
   @Override
   public int hashCode() {
-    return Objects.hash(templateId, recipients, distributeDocument, prefillFields);
+    return Objects.hash(templateId, recipients, distributeDocument, prefillFields, folderId);
   }
 
   @Override
@@ -202,6 +234,7 @@ public class TemplateCreateDocumentFromTemplateRequest implements Serializable {
     sb.append("    recipients: ").append(toIndentedString(recipients)).append("\n");
     sb.append("    distributeDocument: ").append(toIndentedString(distributeDocument)).append("\n");
     sb.append("    prefillFields: ").append(toIndentedString(prefillFields)).append("\n");
+    sb.append("    folderId: ").append(toIndentedString(folderId)).append("\n");
     sb.append("}");
     return sb.toString();
   }

@@ -1,8 +1,10 @@
 package school.hei.haapi.model;
 
+import static jakarta.persistence.FetchType.LAZY;
 import static jakarta.persistence.GenerationType.IDENTITY;
 import static java.time.temporal.ChronoUnit.SECONDS;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -27,6 +29,8 @@ import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.SQLRestriction;
 import org.hibernate.type.SqlTypes;
+import school.hei.haapi.model.exception.BadRequestException;
+import school.hei.haapi.model.mpbs.Mpbs;
 
 @Entity
 @Table(name = "\"payment\"")
@@ -52,6 +56,11 @@ public class Payment implements Serializable {
   @JoinColumn(name = "number_id")
   private PaymentNumberSequence sequence;
 
+  @ManyToOne(fetch = LAZY)
+  @JoinColumn(name = "mpbs_id")
+  @JsonIgnore
+  private Mpbs mpbs;
+
   @Enumerated(EnumType.STRING)
   @JdbcTypeCode(SqlTypes.NAMED_ENUM)
   @Column(columnDefinition = "payment_type")
@@ -72,6 +81,25 @@ public class Payment implements Serializable {
   @ManyToOne
   @JoinColumn(name = "validated_by_id")
   private User validatedBy;
+
+  @ManyToOne
+  @JoinColumn(name = "rejected_by_id")
+  private User rejectedBy;
+
+  private Instant rejectedDatetime;
+
+  private String rejectionReason;
+
+  public Payment reject(User rejector, String reason) {
+    if (reason == null || reason.isBlank()) {
+      throw new BadRequestException("A reason is required to reject a credit payment");
+    }
+    this.status = PaymentStatus.INVALIDATE;
+    this.rejectedBy = rejector;
+    this.rejectedDatetime = Instant.now();
+    this.rejectionReason = reason;
+    return this;
+  }
 
   public Instant getCreationDatetime() {
     return creationDatetime.truncatedTo(SECONDS);

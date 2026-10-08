@@ -66,4 +66,6 @@ public class DocumensoDocument implements Serializable {
   @CreationTimestamp private Instant creationDatetime;
 
   private Instant completedDatetime;
+
+  private Instant archivedDatetime;
 }

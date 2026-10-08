@@ -25,7 +25,7 @@ public class AdvancedFeeStatsComputationTriggeredService
         Optional.ofNullable(advancedFeeStatsComputationTriggered.getBeginDatetime().toInstant(UTC));
     Optional<Instant> toValue =
         Optional.ofNullable(advancedFeeStatsComputationTriggered.getEnd().toInstant(UTC));
-    advancedFeeStatsService.updateAdvancedFeeStats(
+    advancedFeeStatsService.updateAdvancedFeeStatsWithDateRange(
         fromValue, toValue, advancedFeeStatsComputationTriggered.getCountType());
   }
 }

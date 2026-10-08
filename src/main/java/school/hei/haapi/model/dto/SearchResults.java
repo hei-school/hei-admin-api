@@ -10,7 +10,7 @@ public class SearchResults {
   private List<UserDto> students;
   private List<UserDto> teachers;
   private List<UserDto> managers;
-  private List<UserDto> organizer;
-  private List<UserDto> monitor;
-  private List<UserDto> staff;
+  private List<UserDto> organisers;
+  private List<UserDto> monitors;
+  private List<UserDto> staffMembers;
 }

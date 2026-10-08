@@ -128,6 +128,7 @@ public class FeeService {
     log.info("actual remaining amount = {}", actualRemainingAmount);
     if (actualRemainingAmount <= 0) {
       log.info("if student paid over than expected = {}", actualRemainingAmount);
+      creditService.transferFeeOverpaymentToCredit(toUpdate, toUpdate.getStudent());
       toUpdate.setRemainingAmount(0);
       log.info(
           "set remaining amount even if student paid more = {}", toUpdate.getRemainingAmount());
@@ -189,10 +190,10 @@ public class FeeService {
     return saved;
   }
 
-  public Fee updateArchiveStatus(Fee fee, ArchiveStatusEnum newStatus) {
+  public Fee updateArchiveStatus(Fee fee, ArchiveStatusEnum newStatus, String reason) {
     return switch (newStatus) {
       case ARCHIVED -> validateArchiveFee(fee);
-      case REJECTED -> rejectArchiveFee(fee);
+      case REJECTED -> rejectArchiveFee(fee, reason);
       case TO_ARCHIVE ->
           throw new BadRequestException(
               "Fee archive status can only be set to ARCHIVED or REJECTED");
@@ -206,8 +207,9 @@ public class FeeService {
     return feeRepository.save(fee);
   }
 
-  private Fee rejectArchiveFee(Fee fee) {
-    fee.rejectArchive();
+  private Fee rejectArchiveFee(Fee fee, String reason) {
+    fee.rejectArchive(reason);
+    fee.setRejectedBy(AuthProvider.getPrincipal().getUser());
     return feeRepository.save(fee);
   }
 

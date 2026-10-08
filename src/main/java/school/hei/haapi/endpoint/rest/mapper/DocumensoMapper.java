@@ -37,6 +37,7 @@ public class DocumensoMapper {
         .templateId(domain.getTemplate().getId())
         .templateTitle(domain.getTemplate().getTitle())
         .completedDatetime(domain.getCompletedDatetime())
+        .archivedDatetime(domain.getArchivedDatetime())
         .generatedById(domain.getGeneratedBy() == null ? null : domain.getGeneratedBy().getId());
   }
 }

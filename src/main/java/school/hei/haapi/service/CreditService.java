@@ -15,6 +15,7 @@ import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.Credit;
 import school.hei.haapi.model.CreditMovement;
 import school.hei.haapi.model.CreditTransaction;
+import school.hei.haapi.model.CreditTransactionType;
 import school.hei.haapi.model.Fee;
 import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.model.Payment;
@@ -32,21 +33,25 @@ public class CreditService {
   private final TransactionRepository transactionRepository;
   private final PaymentRepository paymentRepository;
 
+  public Optional<Credit> getActualCredit(String studentId) {
+    return creditRepository.findCreditByStudent_Id(studentId);
+  }
+
   public Optional<Credit> getCreditByStudentId(String studentId) {
-    var c = creditRepository.findCreditByStudent_Id(studentId);
-    if (!c.isPresent()) {
-      return c;
+    var credit = getActualCredit(studentId);
+    if (!credit.isPresent()) {
+      return credit;
     }
-    var actuelSomme = paymentRepository.sumPendingCreditPaymentsAmountByStudentId(studentId);
-    c.get().setAmount(c.get().getAmount() - actuelSomme);
-    return c;
+    var actualSum = paymentRepository.sumPendingCreditPaymentsAmountByStudentId(studentId);
+    credit.get().setAmount(credit.get().getAmount() - actualSum);
+    return credit;
   }
 
   public List<CreditTransaction> getCreditTransactionsByStudentId(
       String studentId, PageFromOne page, BoundedPageSize pageSize) {
     var pageable =
         PageRequest.of(page.getValue() - 1, pageSize.getValue(), Sort.by(DESC, "creationDatetime"));
-    var credit = getCreditByStudentId(studentId);
+    var credit = getActualCredit(studentId);
     if (credit.isEmpty()) {
       return List.of();
     }
@@ -71,7 +76,8 @@ public class CreditService {
         fee,
         null,
         fee.getTotalAmount(),
-        CreditMovement.CREDIT);
+        CreditMovement.CREDIT,
+        CreditTransactionType.FEE_ARCHIVING);
   }
 
   public void subtractStudentCreditByPayment(Payment payment) {
@@ -79,11 +85,12 @@ public class CreditService {
       return;
     }
     applyTransaction(
-        getCreditByStudentId(payment.getFee().getStudent().getId()).orElseThrow(),
+        getActualCredit(payment.getFee().getStudent().getId()).orElseThrow(),
         payment.getFee(),
         payment,
         payment.getAmount(),
-        CreditMovement.DEBIT);
+        CreditMovement.DEBIT,
+        CreditTransactionType.CREDIT_PAYMENT);
   }
 
   public void transferFeeOverpaymentToCredit(Fee fee, User student) {
@@ -100,7 +107,13 @@ public class CreditService {
       fee.setRemainingAmount(0);
       return;
     }
-    applyTransaction(getOrCreateCredit(student), fee, null, overpayment, CreditMovement.CREDIT);
+    applyTransaction(
+        getOrCreateCredit(student),
+        fee,
+        null,
+        overpayment,
+        CreditMovement.CREDIT,
+        CreditTransactionType.FEE_OVERPAYMENT);
     fee.setRemainingAmount(0);
   }
 
@@ -109,13 +122,18 @@ public class CreditService {
   }
 
   private Credit getOrCreateCredit(User student) {
-    return getCreditByStudentId(student.getId())
+    return getActualCredit(student.getId())
         .orElseGet(
             () -> Credit.builder().student(student).amount(0).creationDatetime(now()).build());
   }
 
   private void applyTransaction(
-      Credit credit, Fee fee, Payment payment, int amount, CreditMovement movement) {
+      Credit credit,
+      Fee fee,
+      Payment payment,
+      int amount,
+      CreditMovement movement,
+      CreditTransactionType type) {
     if (CreditMovement.CREDIT.equals(movement)) {
       credit.setAmount(credit.getAmount() + amount);
     } else {
@@ -128,7 +146,9 @@ public class CreditService {
             .fee(fee)
             .payment(payment)
             .amount(amount)
+            .balance(savedCredit.getAmount())
             .creditMovement(movement)
+            .type(type)
             .creationDatetime(now())
             .build();
 

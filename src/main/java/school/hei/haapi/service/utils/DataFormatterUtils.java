@@ -66,6 +66,10 @@ public class DataFormatterUtils {
     return now.isAfter(instantToCompare);
   }
 
+  public static Double parseDecimal(String value) {
+    return Double.parseDouble(value.replace(',', '.'));
+  }
+
   public static <T extends Enum<T>> T fromValue(Class<T> enumClass, String value) {
     for (T enumConstant : enumClass.getEnumConstants()) {
       if (enumConstant.name().equals(value)) {

@@ -17,6 +17,7 @@ import school.hei.haapi.repository.MpbsRepository;
 public class MpbsService {
   private final MpbsRepository mpbsRepository;
   private final FeeService feeService;
+  private final PaymentService paymentService;
 
   @Transactional
   public Mpbs saveVerifiedSuccessfulPayment(Mpbs verifiedMpbs) {
@@ -24,15 +25,37 @@ public class MpbsService {
         mpbsRepository
             .findByIdForUpdate(verifiedMpbs.getId())
             .orElseThrow(() -> new NotFoundException("Mpbs not found #" + verifiedMpbs.getId()));
-    if (!MpbsStatus.PENDING.equals(lockedMpbs.getStatus())) {
+    if (paymentService.hasPaymentFromMpbs(lockedMpbs.getId())) {
       log.info(
-          "Mpbs {} was already resolved to {} while waiting for the lock, skipping",
-          verifiedMpbs.getId(),
-          lockedMpbs.getStatus());
+          "Mpbs {} was already paid while waiting for the lock, skipping", verifiedMpbs.getId());
       return lockedMpbs;
     }
-    feeService.computeRemainingAmount(verifiedMpbs.getFee().getId(), verifiedMpbs.getAmount());
-    return save(verifiedMpbs);
+    var amountInPsp = verifiedMpbs.getAmount();
+    var feeId = verifiedMpbs.getFee().getId();
+
+    var savedMpbs = save(verifiedMpbs);
+
+    var unreconciledPayment = paymentService.findUnreconciledPaymentByFeeId(feeId);
+    if (unreconciledPayment.isPresent()) {
+      log.info(
+          "Fee {} already has a manually recorded payment {}, reconciling it with mpbs {} instead"
+              + " of debiting the fee again",
+          feeId,
+          unreconciledPayment.get().getId(),
+          savedMpbs.getId());
+      paymentService.reconcilePaymentWithMpbs(unreconciledPayment.get(), savedMpbs);
+      return savedMpbs;
+    }
+
+    feeService.computeRemainingAmount(feeId, amountInPsp);
+    paymentService.savePaymentFromMpbs(savedMpbs, amountInPsp);
+    log.info(
+        "Mpbs {} verified: payment of {} created for fee {}",
+        savedMpbs.getId(),
+        amountInPsp,
+        savedMpbs.getFee().getId());
+
+    return savedMpbs;
   }
 
   public List<Mpbs> saveAll(List<Mpbs> toSave) {

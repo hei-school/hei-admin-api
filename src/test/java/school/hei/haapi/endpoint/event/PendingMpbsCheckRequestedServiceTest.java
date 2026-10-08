@@ -77,9 +77,10 @@ class PendingMpbsCheckRequestedServiceTest extends FacadeITMockedThirdParties {
               feeId);
           jdbcTemplate.update("DELETE FROM \"mpbs_verification\" WHERE fee_id = ?", feeId);
 
+          // payment references the mpbs it was created from, so it goes before the mpbs
+          jdbcTemplate.update("DELETE FROM \"payment\" WHERE fee_id = ?", feeId);
           jdbcTemplate.update("DELETE FROM \"mpbs\" WHERE fee_id = ?", feeId);
           jdbcTemplate.update("DELETE FROM \"fee_status_history\" WHERE fee_id = ?", feeId);
-          jdbcTemplate.update("DELETE FROM \"payment\" WHERE fee_id = ?", feeId);
           jdbcTemplate.update("DELETE FROM \"fee\" WHERE id = ?", feeId);
         });
     ownedFeeIds.clear();

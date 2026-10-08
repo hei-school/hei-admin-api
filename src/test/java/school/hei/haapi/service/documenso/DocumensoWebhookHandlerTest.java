@@ -1,6 +1,7 @@
 package school.hei.haapi.service.documenso;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
@@ -11,6 +12,9 @@ import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 import java.io.File;
+import java.time.Instant;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
 import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.springframework.web.client.RestClientException;
@@ -19,7 +23,6 @@ import school.hei.haapi.model.DocumensoDocument;
 import school.hei.haapi.model.DocumensoDocumentStatus;
 import school.hei.haapi.model.FileInfo;
 import school.hei.haapi.model.exception.ApiException;
-import school.hei.haapi.model.exception.NotFoundException;
 import school.hei.haapi.repository.DocumensoDocumentRepository;
 import school.hei.haapi.repository.FileInfoRepository;
 
@@ -35,8 +38,13 @@ class DocumensoWebhookHandlerTest {
           documensoClient, documentRepository, fileInfoRepository, bucketComponent);
 
   private static DocumensoWebhookPayload payload(String event, Long documentId) {
+    return payload(event, documentId, null);
+  }
+
+  private static DocumensoWebhookPayload payload(
+      String event, Long documentId, String completedAt) {
     return new DocumensoWebhookPayload(
-        event, documentId == null ? null : new DocumensoDocumentEvent(documentId));
+        event, documentId == null ? null : new DocumensoDocumentEvent(documentId, completedAt));
   }
 
   @Test
@@ -58,14 +66,14 @@ class DocumensoWebhookHandlerTest {
   }
 
   @Test
-  void an_unknown_document_is_not_found() {
+  void an_unknown_document_is_acknowledged_without_being_archived() {
     when(documentRepository.findByDocumensoDocumentId(42L)).thenReturn(Optional.empty());
 
-    var thrown =
-        assertThrows(
-            NotFoundException.class, () -> subject.handle(payload("DOCUMENT_COMPLETED", 42L)));
-    assertEquals("Documenso document 42", thrown.getMessage());
+    subject.handle(payload("DOCUMENT_COMPLETED", 42L));
+
     verify(bucketComponent, never()).upload(any(), any());
+    verify(documentRepository, never()).save(any());
+    verifyNoInteractions(documensoClient);
   }
 
   @Test
@@ -86,12 +94,22 @@ class DocumensoWebhookHandlerTest {
     when(documensoClient.downloadSignedDocument(42L)).thenReturn(signedFile);
     when(fileInfoRepository.save(any())).thenAnswer(call -> call.getArgument(0, FileInfo.class));
 
-    subject.handle(payload("DOCUMENT_COMPLETED", 42L));
+    subject.handle(payload("DOCUMENT_COMPLETED", 42L, "2026-09-15T09:00:55.842Z"));
 
-    verify(bucketComponent).upload(signedFile, "documenso-documents/42.pdf");
+    var expectedKey =
+        "DOCUMENSO/"
+            + DateTimeFormatter.ofPattern("yyyy-MM")
+                .withZone(ZoneOffset.UTC)
+                .format(document.getArchivedDatetime())
+            + "/42.pdf";
+    verify(bucketComponent).upload(signedFile, expectedKey);
     verify(documentRepository).save(document);
     assertEquals(DocumensoDocumentStatus.COMPLETED, document.getStatus());
-    assertEquals("documenso-documents/42.pdf", document.getFileInfo().getFilePath());
+    assertEquals(expectedKey, document.getFileInfo().getFilePath());
+    assertEquals(
+        Instant.parse("2026-09-15T09:00:55.842Z"),
+        document.getCompletedDatetime(),
+        "the signature date is Documenso's, not ours");
   }
 
   @Test
@@ -109,5 +127,35 @@ class DocumensoWebhookHandlerTest {
         document.getStatus(),
         "status and completion datetime are set together");
     org.junit.jupiter.api.Assertions.assertNotNull(document.getCompletedDatetime());
+  }
+
+  @Test
+  void a_date_documenso_did_not_give_or_we_cannot_read_counts_as_none() {
+    assertNull(DocumensoWebhookHandler.parseDocumensoInstant(null));
+    assertNull(DocumensoWebhookHandler.parseDocumensoInstant("   "));
+    assertNull(DocumensoWebhookHandler.parseDocumensoInstant("15/09/2026"));
+    assertEquals(
+        Instant.parse("2026-09-15T09:00:55.842Z"),
+        DocumensoWebhookHandler.parseDocumensoInstant("2026-09-15T09:00:55.842Z"));
+  }
+
+  @Test
+  void an_unreadable_completion_date_still_archives_the_document() throws Exception {
+    var document = DocumensoDocument.builder().documensoDocumentId(42L).build();
+    var signedFile = File.createTempFile("signed", ".pdf");
+    when(documentRepository.findByDocumensoDocumentId(42L)).thenReturn(Optional.of(document));
+    when(documensoClient.downloadSignedDocument(42L)).thenReturn(signedFile);
+    when(fileInfoRepository.save(any())).thenAnswer(call -> call.getArgument(0, FileInfo.class));
+
+    subject.handle(payload("DOCUMENT_COMPLETED", 42L, "15/09/2026"));
+
+    assertEquals(
+        DocumensoDocumentStatus.COMPLETED,
+        document.getStatus(),
+        "a date we cannot read must not cost us a genuinely signed document");
+    assertEquals(
+        document.getArchivedDatetime(),
+        document.getCompletedDatetime(),
+        "with no readable signature date, the archiving date stands in");
   }
 }

@@ -6,13 +6,13 @@ import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.LATE;
 import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.UNPAID;
 import static school.hei.haapi.endpoint.rest.model.Payment.TypeEnum.CREDIT;
 import static school.hei.haapi.endpoint.rest.model.Payment.TypeEnum.MOBILE_MONEY;
-import static school.hei.haapi.model.PaymentStatus.CREATED;
 import static school.hei.haapi.model.PaymentStatus.VALIDATE;
 import static school.hei.haapi.service.utils.InstantUtils.UTC3;
 
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
@@ -99,18 +99,41 @@ public class PaymentService {
 
   @Transactional
   public Payment savePaymentFromMpbs(Mpbs verifiedMpbs, int amount) {
+    var alreadySavedPayment = paymentRepository.findByMpbsId(verifiedMpbs.getId());
+    if (alreadySavedPayment.isPresent()) {
+      log.info(
+          "Mpbs {} already produced payment {}, no new payment created",
+          verifiedMpbs.getId(),
+          alreadySavedPayment.get().getId());
+      return alreadySavedPayment.get();
+    }
     Fee correspondingFee = verifiedMpbs.getFee();
     Payment paymentFromMpbs =
         Payment.builder()
             .type(MOBILE_MONEY)
-            .status(CREATED)
+            .status(VALIDATE)
             .fee(correspondingFee)
+            .mpbs(verifiedMpbs)
             .amount(amount)
             .creationDatetime(now())
             .comment(correspondingFee.getComment())
             .build();
     eventProducer.accept(List.of(PaidFeeByMpbsNotificationBody.from(paymentFromMpbs)));
     return paymentRepository.save(paymentFromMpbs);
+  }
+
+  public boolean hasPaymentFromMpbs(String mpbsId) {
+    return paymentRepository.findByMpbsId(mpbsId).isPresent();
+  }
+
+  public Optional<Payment> findUnreconciledPaymentByFeeId(String feeId) {
+    return paymentRepository.findFirstByFee_IdAndMpbsIsNullOrderByCreationDatetimeAsc(feeId);
+  }
+
+  @Transactional
+  public Payment reconcilePaymentWithMpbs(Payment payment, Mpbs verifiedMpbs) {
+    payment.setMpbs(verifiedMpbs);
+    return paymentRepository.save(payment);
   }
 
   @Transactional

@@ -75,6 +75,17 @@ public interface FeeRepository extends JpaRepository<Fee, String> {
       @Param("status") FeeStatusEnum status);
 
   @Query(
+      """
+      select f from Fee f
+      where f.student.id = :studentId
+        and f.status = 'LATE'
+        and f.remainingAmount > 0
+        and f.isArchived = false
+      order by f.dueDatetime
+      """)
+  List<Fee> findLateFeesOfStudent(@Param("studentId") String studentId);
+
+  @Query(
       "SELECT DISTINCT f FROM Fee f "
           + "JOIN f.student u "
           + "JOIN f.statusHistories fsh "

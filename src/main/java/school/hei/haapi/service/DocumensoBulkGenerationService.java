@@ -22,7 +22,7 @@ public class DocumensoBulkGenerationService {
     if (!promotionRepository.existsById(promotionId)) {
       throw new NotFoundException("Promotion.id=" + promotionId + " not found");
     }
-    var students = userRepository.findAllStudentsByPromotionId(promotionId);
+    var students = userRepository.findAllMonthlyPayingStudentsByPromotionId(promotionId);
 
     students.forEach(
         student ->
@@ -35,7 +35,8 @@ public class DocumensoBulkGenerationService {
                         .build())));
 
     log.info(
-        "Documenso generation asked for {} students of promotion id={} on template {}",
+        "Documenso generation asked for {} monthly-paying students of promotion id={} on template"
+            + " {}",
         students.size(),
         promotionId,
         templateName);

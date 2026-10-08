@@ -38,7 +38,7 @@ public class TestAuth {
 
   public static String tokenFor(
       CasdoorAuthService casdoorAuthService, String email, User.Role role) {
-    var token = randomUUID().toString();
+    var token = randomUUID() + "." + randomUUID() + "." + randomUUID();
     when(casdoorAuthService.parseJwtToken(token)).thenReturn(casdoorUser(email, role));
     return token;
   }

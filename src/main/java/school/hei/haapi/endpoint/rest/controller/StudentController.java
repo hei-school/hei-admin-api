@@ -156,6 +156,11 @@ public class StudentController {
     return groupFlowService.saveAll(createGroupFlow).stream().map(groupFlowMapper::toRest).toList();
   }
 
+  @GetMapping("/students/{id}/group_flows")
+  public List<GroupFlow> getGroupFlowsByStudentId(@PathVariable(name = "id") String id) {
+    return groupFlowService.getByStudentId(id).stream().map(groupFlowMapper::toRest).toList();
+  }
+
   @GetMapping("/students/stats")
   public Statistics getStats() {
     return userService.getStudentsStat();

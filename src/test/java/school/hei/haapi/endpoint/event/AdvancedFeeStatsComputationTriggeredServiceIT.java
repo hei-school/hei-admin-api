@@ -28,6 +28,6 @@ class AdvancedFeeStatsComputationTriggeredServiceIT extends FacadeITMockedThirdP
             subject.accept(
                 new AdvancedFeeStatsComputationTriggered(
                     LocalDateTime.now(), LocalDateTime.now(), empty())));
-    verify(service, times(2)).updateAdvancedFeeStats(any(), any(), any());
+    verify(service, times(2)).updateAdvancedFeeStatsWithDateRange(any(), any(), any());
   }
 }

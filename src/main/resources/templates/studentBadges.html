@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8" />
+  <title>Badges étudiants</title>
+  <style>
+    @page {
+      size: 185mm 285mm;
+      margin: 0;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      font-family: Helvetica, Arial, sans-serif;
+    }
+
+    body {
+      margin: 0;
+    }
+
+    .page {
+      height: 285mm;
+      overflow: hidden;
+      page-break-after: always;
+    }
+
+    .page.last {
+      page-break-after: auto;
+    }
+
+    table {
+      border-collapse: collapse;
+      border-spacing: 0;
+      table-layout: fixed;
+    }
+
+    td {
+      padding: 0;
+      vertical-align: top;
+    }
+
+    .grid {
+      width: 185mm;
+    }
+
+    .slot {
+      width: 90mm;
+      height: 57mm;
+    }
+
+    .column-gap {
+      width: 5mm;
+    }
+
+    .badge {
+      width: 89.8mm;
+      height: 56.8mm;
+      border: 0.1mm solid #c4c7cc;
+      overflow: hidden;
+      background-color: #ffffff;
+    }
+
+    .header {
+      height: 11.5mm;
+      padding: 0 3.2mm;
+    }
+
+    .header table {
+      width: 83.4mm;
+      height: 11.5mm;
+    }
+
+    .header td {
+      vertical-align: middle;
+    }
+
+    .logo-cell {
+      width: 15mm;
+    }
+
+    .logo {
+      width: 13mm;
+      height: 7.8mm;
+    }
+
+    .school-name {
+      font-size: 7pt;
+      font-weight: bold;
+      color: #1f2a44;
+    }
+
+    .school-place {
+      font-size: 5.8pt;
+      color: #6b7280;
+      margin-top: 0.4mm;
+    }
+
+    .level-cell {
+      width: 13mm;
+      text-align: right;
+    }
+
+    .level {
+      font-size: 9.5pt;
+      font-weight: bold;
+      color: #ffffff;
+      background-color: #1f2a44;
+      border-radius: 1mm;
+      padding: 0.6mm 2.1mm;
+    }
+
+    .rule {
+      height: 0.8mm;
+      background-color: #dfa408;
+    }
+
+    .body {
+      height: 30mm;
+      padding: 3.5mm 3.2mm;
+    }
+
+    .body table {
+      width: 83.4mm;
+      height: 30mm;
+    }
+
+    .photo-cell {
+      width: 22.5mm;
+    }
+
+    .photo {
+      width: 22.5mm;
+      height: 30mm;
+    }
+
+    .photo-placeholder {
+      width: 22.1mm;
+      height: 29.6mm;
+      border: 0.2mm solid #d1d5db;
+      border-radius: 2.8mm;
+      background-color: #f3f4f6;
+      color: #9ca3af;
+      font-size: 6.5pt;
+      text-align: center;
+    }
+
+    .photo-placeholder p {
+      padding-top: 13mm;
+    }
+
+    .info-cell {
+      padding: 0 2mm 0 3.3mm;
+      vertical-align: middle;
+    }
+
+    .info {
+      max-height: 30mm;
+      overflow: hidden;
+    }
+
+    .last-name {
+      font-weight: bold;
+      color: #1f2a44;
+      word-wrap: break-word;
+      margin-bottom: 1.1mm;
+    }
+
+    .first-name {
+      font-size: 9pt;
+      color: #111827;
+      margin-bottom: 3.2mm;
+    }
+
+    .ref {
+      font-size: 9pt;
+      font-weight: bold;
+      color: #b8860b;
+    }
+
+    .qr-cell {
+      width: 20mm;
+      vertical-align: middle;
+    }
+
+    .qr {
+      width: 20mm;
+      height: 20mm;
+    }
+
+    .footer {
+      height: 7.5mm;
+      padding: 0 3.2mm;
+      background-color: #dfa408;
+    }
+
+    .footer table {
+      width: 83.4mm;
+      height: 7.5mm;
+    }
+
+    .footer td {
+      vertical-align: middle;
+      color: #ffffff;
+    }
+
+    .card-title {
+      font-size: 8pt;
+      font-weight: bold;
+    }
+
+    .academic-year {
+      font-size: 7.5pt;
+      text-align: right;
+    }
+  </style>
+</head>
+<body>
+<div class="page" th:each="page, pageStat : ${pages}" th:classappend="${pageStat.last} ? 'last'">
+  <table class="grid">
+    <col style="width: 90mm" />
+    <col style="width: 5mm" />
+    <col style="width: 90mm" />
+    <tr th:each="row : ${page}">
+      <th:block th:each="badge, badgeStat : ${row}">
+      <td class="column-gap" th:unless="${badgeStat.first}"></td>
+      <td class="slot">
+        <div class="badge">
+          <div class="header">
+            <table>
+              <tr>
+                <td class="logo-cell">
+                  <img class="logo" alt="HEI" th:src="'data:image/png;base64,' + ${logo}" />
+                </td>
+                <td>
+                  <p class="school-name">HAUTE ÉCOLE D’INFORMATIQUE</p>
+                  <p class="school-place">Madagascar</p>
+                </td>
+                <td class="level-cell">
+                  <span class="level" th:if="${badge.level != null}" th:text="${badge.level}"></span>
+                </td>
+              </tr>
+            </table>
+          </div>
+          <div class="rule"></div>
+          <div class="body">
+            <table>
+              <tr>
+                <td class="photo-cell">
+                  <img class="photo" alt="Photo" th:if="${badge.photo != null}"
+                       th:src="'data:image/jpeg;base64,' + ${badge.photo}" />
+                  <div class="photo-placeholder" th:if="${badge.photo == null}">
+                    <p>PHOTO</p>
+                  </div>
+                </td>
+                <td class="info-cell">
+                  <div class="info">
+                    <p class="last-name" th:style="'font-size: ' + ${badge.lastNameFontSize}"
+                       th:text="${badge.lastName}"></p>
+                    <p class="first-name" th:text="${badge.firstName}"></p>
+                    <p class="ref" th:text="${badge.ref}"></p>
+                  </div>
+                </td>
+                <td class="qr-cell">
+                  <img class="qr" alt="QR code" th:src="'data:image/png;base64,' + ${badge.qrCode}" />
+                </td>
+              </tr>
+            </table>
+          </div>
+          <div class="footer">
+            <table>
+              <tr>
+                <td class="card-title">CARTE D’ÉTUDIANT</td>
+                <td class="academic-year" th:text="'Année universitaire ' + ${academic_year}"></td>
+              </tr>
+            </table>
+          </div>
+        </div>
+      </td>
+      </th:block>
+    </tr>
+  </table>
+</div>
+</body>
+</html>

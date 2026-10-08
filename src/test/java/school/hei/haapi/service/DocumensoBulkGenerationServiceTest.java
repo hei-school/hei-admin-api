@@ -53,7 +53,7 @@ class DocumensoBulkGenerationServiceTest {
   void one_event_is_fired_per_student() {
     var students = List.of(aStudent(), aStudent(), aStudent());
     when(promotionRepository.existsById("promo")).thenReturn(true);
-    when(userRepository.findAllStudentsByPromotionId("promo")).thenReturn(students);
+    when(userRepository.findAllMonthlyPayingStudentsByPromotionId("promo")).thenReturn(students);
 
     assertEquals(3, subject.generateForPromotion("promo", "Fiche d'engagement", ADMIN_ID));
 
@@ -64,7 +64,8 @@ class DocumensoBulkGenerationServiceTest {
   void each_event_carries_its_own_student_and_the_template() {
     var student = aStudent();
     when(promotionRepository.existsById("promo")).thenReturn(true);
-    when(userRepository.findAllStudentsByPromotionId("promo")).thenReturn(List.of(student));
+    when(userRepository.findAllMonthlyPayingStudentsByPromotionId("promo"))
+        .thenReturn(List.of(student));
 
     subject.generateForPromotion("promo", "Fiche d'engagement", ADMIN_ID);
 
@@ -79,7 +80,7 @@ class DocumensoBulkGenerationServiceTest {
   @Test
   void an_empty_promotion_fires_nothing() {
     when(promotionRepository.existsById("promo")).thenReturn(true);
-    when(userRepository.findAllStudentsByPromotionId("promo")).thenReturn(List.of());
+    when(userRepository.findAllMonthlyPayingStudentsByPromotionId("promo")).thenReturn(List.of());
 
     assertEquals(0, subject.generateForPromotion("promo", "Fiche", ADMIN_ID));
     verify(eventProducer, never()).accept(any());

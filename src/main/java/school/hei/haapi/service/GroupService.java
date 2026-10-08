@@ -20,6 +20,7 @@ import school.hei.haapi.model.exception.NotFoundException;
 import school.hei.haapi.repository.GroupRepository;
 import school.hei.haapi.repository.dao.GroupDao;
 import school.hei.haapi.repository.dao.UserManagerDao;
+import school.hei.haapi.service.sms.StudentGroupContactSyncService;
 
 @Service
 @AllArgsConstructor
@@ -31,6 +32,7 @@ public class GroupService {
   private final GroupFlowService groupFlowService;
   private final GroupRepository groupRepository;
   private final GroupDao groupDao;
+  private final StudentGroupContactSyncService studentGroupContactSyncService;
 
   public Group findById(String groupId) {
     return repository
@@ -73,13 +75,15 @@ public class GroupService {
   }
 
   @Transactional
-  public List<Group> saveAll(List<school.hei.haapi.model.notEntity.CreateGroup> createGroups) {
+  public List<Group> saveAll(
+      List<school.hei.haapi.model.notEntity.CreateGroup> createGroups, User creator) {
     List<school.hei.haapi.model.Group> groups = new ArrayList<>();
     List<CreateGroupFlow> createGroupFlows = new ArrayList<>();
 
     for (school.hei.haapi.model.notEntity.CreateGroup createGroup : createGroups) {
       Group group = repository.save(createGroup.getGroup());
       groups.add(group);
+      studentGroupContactSyncService.createContactGroupFor(group, creator);
 
       if (createGroup.getStudents() != null) {
         for (String studentId : createGroup.getStudents()) {

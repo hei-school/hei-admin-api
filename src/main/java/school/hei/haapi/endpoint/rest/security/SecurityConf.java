@@ -42,6 +42,17 @@ import school.hei.haapi.service.MonitoringStudentService;
 @EnableWebSecurity
 public class SecurityConf {
   private static final String AUTHORIZATION_HEADER = "Authorization";
+  private static final String SMS_CONTACTS_BY_ID_PATH = "/sms-contacts/*";
+  private static final String SMS_CONTACT_GROUPS_PATH = "/sms-contact-groups";
+  private static final String SMS_CONTACT_GROUPS_BY_ID_PATH = "/sms-contact-groups/*";
+  private static final String SMS_CONTACT_GROUP_MEMBER_PATH = "/sms-contact-groups/*/members/*";
+  private static final String SMS_CAMPAIGNS_PATH = "/sms-campaigns";
+  private static final String SMS_CAMPAIGNS_BY_CONTACTS_PATH = "/sms-campaigns/by-contacts";
+  private static final String SMS_CAMPAIGNS_BY_MANUAL_NUMBERS_PATH =
+      "/sms-campaigns/by-manual-numbers";
+  private static final String SMS_CAMPAIGNS_BY_GROUPS_PATH = "/sms-campaigns/by-groups";
+  private static final String SMS_CAMPAIGNS_BY_FILE_PATH = "/sms-campaigns/by-file";
+  static final RequestMatcher PUBLIC_BADGE = new AntPathRequestMatcher("/badges/*", GET.name());
   private final CourseAssignmentService courseAssignmentService;
   private final MonitoringStudentService monitoringStudentService;
   private final AbstractUserDetailsAuthenticationProvider authProvider;
@@ -120,6 +131,8 @@ public class SecurityConf {
                     antMatcher(GET, "/students/*/work_files"),
                     antMatcher(GET, "/students/*/work_files/*"),
                     antMatcher(POST, "/students/*/group_flows"),
+                    antMatcher(GET, "/students/*/group_flows"),
+                    antMatcher(PUT, "/group_flows/*"),
                     antMatcher(GET, "/students/*/work_files"),
                     antMatcher(GET, "/students/*/work_files/*"),
                     antMatcher(POST, "/students/*/work_files/raw"),
@@ -159,6 +172,25 @@ public class SecurityConf {
                     antMatcher(GET, "/monitors/*/documenso-documents"),
                     antMatcher(GET, "/documenso-documents/*/signing-token"),
                     antMatcher(GET, "/documenso-documents/*/file-url"),
+                    antMatcher(GET, "/sms-contacts"),
+                    antMatcher(GET, SMS_CONTACTS_BY_ID_PATH),
+                    antMatcher(DELETE, SMS_CONTACTS_BY_ID_PATH),
+                    antMatcher(POST, "/sms-contacts/*/messages"),
+                    antMatcher(GET, SMS_CONTACT_GROUPS_PATH),
+                    antMatcher(POST, SMS_CONTACT_GROUPS_PATH),
+                    antMatcher(GET, SMS_CONTACT_GROUPS_BY_ID_PATH),
+                    antMatcher(PUT, SMS_CONTACT_GROUPS_BY_ID_PATH),
+                    antMatcher(DELETE, SMS_CONTACT_GROUPS_BY_ID_PATH),
+                    antMatcher(POST, SMS_CONTACT_GROUP_MEMBER_PATH),
+                    antMatcher(DELETE, SMS_CONTACT_GROUP_MEMBER_PATH),
+                    antMatcher(GET, "/sms-balance"),
+                    antMatcher(POST, SMS_CAMPAIGNS_BY_CONTACTS_PATH),
+                    antMatcher(POST, SMS_CAMPAIGNS_BY_MANUAL_NUMBERS_PATH),
+                    antMatcher(POST, SMS_CAMPAIGNS_BY_GROUPS_PATH),
+                    antMatcher(POST, SMS_CAMPAIGNS_BY_FILE_PATH),
+                    antMatcher(GET, SMS_CAMPAIGNS_PATH),
+                    antMatcher(GET, "/sms-campaigns/*"),
+                    antMatcher(GET, "/sms-campaigns/*/logs"),
                     antMatcher(PUT, "/students/*/fees/*/mpbs"),
                     antMatcher(GET, "/students/*/fees/*/mpbs"),
                     antMatcher(GET, "/students/*/fees/*/mpbs/verifications"),
@@ -198,6 +230,10 @@ public class SecurityConf {
                     antMatcher(GET, "/teachers"),
                     antMatcher(GET, "/teachers/*"),
                     antMatcher(GET, "/students/*/scholarship_certificate/raw"),
+                    antMatcher(GET, "/students/badges/raw"),
+                    antMatcher(GET, "/students/*/badge"),
+                    antMatcher(GET, "/badges/*/student"),
+                    antMatcher(PUT, "/badges/**"),
                     antMatcher(PUT, "/students/**"),
                     antMatcher(GET, "/fees/templates"),
                     antMatcher(PUT, "/fees/templates/*"),
@@ -319,7 +355,12 @@ public class SecurityConf {
                     antMatcher(GET, "/students/*/sessions/*/retake_exams"),
                     antMatcher(GET, "/retake_exam_sessions/*/retake_exam_courses"),
                     antMatcher(GET, "/retake_exam_sessions/*/retake_exam_courses/*/participants"),
+                    antMatcher(GET, "/retake_exam_sessions/*/retake_exam_participants/export"),
+                    antMatcher(
+                        GET,
+                        "/retake_exam_sessions/*/retake_exam_courses/*/retake_exam_participants/export"),
                     antMatcher(GET, "/global_search/user"),
+                    antMatcher(PUT, "/fees/advanced-stats"),
                     nonAccessibleBySuspendedUserPath)),
             AnonymousAuthenticationFilter.class)
         .addFilterAfter(
@@ -359,6 +400,7 @@ public class SecurityConf {
                             new AntPathRequestMatcher("/authentication/signin", POST.name()),
                             new AntPathRequestMatcher("/authentication/login-url", GET.name()),
                             new AntPathRequestMatcher("/documenso/webhook", POST.name()),
+                            PUBLIC_BADGE,
                             new AntPathRequestMatcher("/**", OPTIONS.toString())))
                     .permitAll()
                     .requestMatchers(GET, "/whoami")
@@ -426,6 +468,10 @@ public class SecurityConf {
                     .requestMatchers(new SelfMatcher(GET, "/students/*/work_files/*", "students"))
                     .hasAnyRole(STUDENT.getRole(), ADMIN.getRole())
                     .requestMatchers(POST, "/students/*/group_flows")
+                    .hasAnyRole(MANAGER.getRole(), ADMIN.getRole())
+                    .requestMatchers(GET, "/students/*/group_flows")
+                    .hasAnyRole(MANAGER.getRole(), ADMIN.getRole(), MONITOR.getRole())
+                    .requestMatchers(PUT, "/group_flows/*")
                     .hasAnyRole(MANAGER.getRole(), ADMIN.getRole())
                     .requestMatchers(GET, "/students/*/work_files")
                     .hasAnyRole(MANAGER.getRole(), ADMIN.getRole())
@@ -554,6 +600,8 @@ public class SecurityConf {
                     .hasAnyRole(MANAGER.getRole(), ADMIN.getRole())
                     .requestMatchers(GET, "/fees/advanced-stats")
                     .hasAnyRole(MANAGER.getRole(), ADMIN.getRole())
+                    .requestMatchers(PUT, "/fees/advanced-stats")
+                    .hasAnyRole(MANAGER.getRole(), ADMIN.getRole())
                     .requestMatchers(POST, "/fees/advanced-stats-generate")
                     .hasAnyRole(MANAGER.getRole(), ADMIN.getRole())
                     .requestMatchers(GET, "/fees/export")
@@ -673,9 +721,11 @@ public class SecurityConf {
                     .requestMatchers(GET, "/students/credit-payments")
                     .hasAnyRole(MANAGER.getRole(), ADMIN.getRole())
                     .requestMatchers(GET, "/students/{student_id}/credit")
-                    .hasAnyRole(STUDENT.getRole(), MANAGER.getRole(), ADMIN.getRole())
+                    .hasAnyRole(
+                        STUDENT.getRole(), MANAGER.getRole(), ADMIN.getRole(), MONITOR.getRole())
                     .requestMatchers(GET, "/students/{student_id}/credit-transactions")
-                    .hasAnyRole(STUDENT.getRole(), MANAGER.getRole(), ADMIN.getRole())
+                    .hasAnyRole(
+                        STUDENT.getRole(), MANAGER.getRole(), ADMIN.getRole(), MONITOR.getRole())
                     .requestMatchers(
                         new StudentMonitorMatcher(
                             GET, "/students/*", "students", monitoringStudentService))
@@ -770,6 +820,19 @@ public class SecurityConf {
                     .hasRole(MONITOR.getRole())
                     .requestMatchers(GET, "/students/*/courses/*/grades")
                     .hasAnyRole(TEACHER.getRole(), MANAGER.getRole(), ADMIN.getRole())
+                    .requestMatchers(GET, "/students/badges/raw")
+                    .hasAnyRole(MANAGER.getRole(), ADMIN.getRole())
+                    .requestMatchers(GET, "/students/*/badge")
+                    .hasAnyRole(MANAGER.getRole(), ADMIN.getRole())
+                    // badges, from the public id of their QR code
+                    .requestMatchers(GET, "/badges/*/student")
+                    .hasAnyRole(MANAGER.getRole(), ADMIN.getRole())
+                    .requestMatchers(PUT, "/badges/*/attendance")
+                    .hasRole(TEACHER.getRole())
+                    .requestMatchers(PUT, "/badges/*/revocation")
+                    .hasAnyRole(MANAGER.getRole(), ADMIN.getRole())
+                    .requestMatchers(PUT, "/badges/*/events/*/attendance")
+                    .hasRole(TEACHER.getRole())
                     // scholarship security conf
                     .requestMatchers(
                         new NonAlumniSelfMatcher(
@@ -919,6 +982,12 @@ public class SecurityConf {
                         MANAGER.getRole(), TEACHER.getRole(), ADMIN.getRole(), STUDENT.getRole())
                     .requestMatchers(
                         GET, "/retake_exam_sessions/*/retake_exam_courses/*/participants")
+                    .hasAnyRole(MANAGER.getRole(), TEACHER.getRole(), ADMIN.getRole())
+                    .requestMatchers(GET, "/retake_exam_sessions/*/retake_exam_participants/export")
+                    .hasAnyRole(MANAGER.getRole(), TEACHER.getRole(), ADMIN.getRole())
+                    .requestMatchers(
+                        GET,
+                        "/retake_exam_sessions/*/retake_exam_courses/*/retake_exam_participants/export")
                     .hasAnyRole(MANAGER.getRole(), TEACHER.getRole(), ADMIN.getRole())
                     .requestMatchers(
                         new CourseAssignmentTeacherMatcher(
@@ -1123,9 +1192,44 @@ public class SecurityConf {
                     .hasAnyRole(ADMIN.getRole(), MANAGER.getRole(), MONITOR.getRole())
                     .requestMatchers(GET, "/documenso-documents/*/file-url")
                     .hasAnyRole(ADMIN.getRole(), MANAGER.getRole(), MONITOR.getRole())
-                    //
-                    // Attendances resources
-                    //
+                    .requestMatchers(GET, "/sms-contacts")
+                    .hasAnyRole(ADMIN.getRole(), MANAGER.getRole())
+                    .requestMatchers(GET, SMS_CONTACTS_BY_ID_PATH)
+                    .hasAnyRole(ADMIN.getRole(), MANAGER.getRole())
+                    .requestMatchers(DELETE, SMS_CONTACTS_BY_ID_PATH)
+                    .hasAnyRole(ADMIN.getRole(), MANAGER.getRole())
+                    .requestMatchers(POST, "/sms-contacts/*/messages")
+                    .hasAnyRole(ADMIN.getRole(), MANAGER.getRole())
+                    .requestMatchers(GET, SMS_CONTACT_GROUPS_PATH)
+                    .hasAnyRole(ADMIN.getRole(), MANAGER.getRole())
+                    .requestMatchers(POST, SMS_CONTACT_GROUPS_PATH)
+                    .hasAnyRole(ADMIN.getRole(), MANAGER.getRole())
+                    .requestMatchers(GET, SMS_CONTACT_GROUPS_BY_ID_PATH)
+                    .hasAnyRole(ADMIN.getRole(), MANAGER.getRole())
+                    .requestMatchers(PUT, SMS_CONTACT_GROUPS_BY_ID_PATH)
+                    .hasAnyRole(ADMIN.getRole(), MANAGER.getRole())
+                    .requestMatchers(DELETE, SMS_CONTACT_GROUPS_BY_ID_PATH)
+                    .hasAnyRole(ADMIN.getRole(), MANAGER.getRole())
+                    .requestMatchers(POST, SMS_CONTACT_GROUP_MEMBER_PATH)
+                    .hasAnyRole(ADMIN.getRole(), MANAGER.getRole())
+                    .requestMatchers(DELETE, SMS_CONTACT_GROUP_MEMBER_PATH)
+                    .hasAnyRole(ADMIN.getRole(), MANAGER.getRole())
+                    .requestMatchers(GET, "/sms-balance")
+                    .hasAnyRole(ADMIN.getRole(), MANAGER.getRole())
+                    .requestMatchers(POST, SMS_CAMPAIGNS_BY_CONTACTS_PATH)
+                    .hasAnyRole(ADMIN.getRole(), MANAGER.getRole())
+                    .requestMatchers(POST, SMS_CAMPAIGNS_BY_MANUAL_NUMBERS_PATH)
+                    .hasAnyRole(ADMIN.getRole(), MANAGER.getRole())
+                    .requestMatchers(POST, SMS_CAMPAIGNS_BY_GROUPS_PATH)
+                    .hasAnyRole(ADMIN.getRole(), MANAGER.getRole())
+                    .requestMatchers(POST, SMS_CAMPAIGNS_BY_FILE_PATH)
+                    .hasAnyRole(ADMIN.getRole(), MANAGER.getRole())
+                    .requestMatchers(GET, SMS_CAMPAIGNS_PATH)
+                    .hasAnyRole(ADMIN.getRole(), MANAGER.getRole())
+                    .requestMatchers(GET, "/sms-campaigns/*")
+                    .hasAnyRole(ADMIN.getRole(), MANAGER.getRole())
+                    .requestMatchers(GET, "/sms-campaigns/*/logs")
+                    .hasAnyRole(ADMIN.getRole(), MANAGER.getRole())
                     .requestMatchers(GET, "/attendance")
                     .hasAnyRole(MANAGER.getRole(), TEACHER.getRole(), ADMIN.getRole())
                     .requestMatchers(GET, "/event/*/students/raw/xlsx")
@@ -1170,7 +1274,7 @@ public class SecurityConf {
                     .hasAnyRole(TEACHER.getRole(), MANAGER.getRole(), ADMIN.getRole())
                     .requestMatchers(PUT, "/students/*/courses")
                     .hasAnyRole(MANAGER.getRole(), ADMIN.getRole())
-                    .requestMatchers(GET, "global_search/user")
+                    .requestMatchers(GET, "/global_search/user")
                     .hasAnyRole(MANAGER.getRole(), ADMIN.getRole())
                     .requestMatchers(nonAccessibleBySuspendedUserPath)
                     .authenticated()

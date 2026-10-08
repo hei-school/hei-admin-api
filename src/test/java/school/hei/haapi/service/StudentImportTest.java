@@ -20,10 +20,12 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.MockedStatic;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -59,10 +61,19 @@ public class StudentImportTest extends FacadeITMockedThirdParties {
   private FeeTemplate monthlyTemplate;
   private FeeTemplate yearlyTemplate;
 
+  /* kept to be closed: a static mock is thread-bound, and a forgotten one breaks every later class of
+   * the fork that mocks AuthProvider too ("static mocking is already registered") */
+  private static MockedStatic<AuthProvider> authProvider;
+
   @BeforeAll
   static void setUp() {
-    mockStatic(AuthProvider.class);
+    authProvider = mockStatic(AuthProvider.class);
     when(AuthProvider.getPrincipal()).thenReturn(mockPrincipal());
+  }
+
+  @AfterAll
+  static void closeAuthProviderMock() {
+    authProvider.close();
   }
 
   @BeforeEach

@@ -12,8 +12,7 @@ import school.hei.haapi.model.dto.EventStatsDto;
 
 @Repository
 public interface EventParticipantRepository extends JpaRepository<EventParticipant, String> {
-  boolean existsByEventIdAndGroupIdAndParticipantId(
-      String eventId, String groupId, String participantId);
+  boolean existsByEventIdAndParticipantId(String eventId, String participantId);
 
   Optional<List<EventParticipant>> findAllByEventId(String eventId, Pageable pageable);
 
@@ -97,6 +96,6 @@ public interface EventParticipantRepository extends JpaRepository<EventParticipa
 """)
   EventStatsDto countEventStatsByStudentId(String studentId);
 
-  EventParticipant findEventParticipantByParticipantIdAndEventId(
+  Optional<EventParticipant> findEventParticipantByParticipantIdAndEventId(
       String participantId, String eventId);
 }

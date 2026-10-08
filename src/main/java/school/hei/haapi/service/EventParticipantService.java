@@ -64,7 +64,7 @@ public class EventParticipantService {
     users.forEach(
         user -> {
           Status userStatus = user.getStatus();
-          if (!isParticipantAlreadyInEvent(eventId, groupId, user.getId())
+          if (!isParticipantAlreadyInEvent(eventId, user.getId())
               && List.of(ENABLED, SUSPENDED).contains(userStatus)) {
             EventParticipant newEventParticipant =
                 EventParticipant.builder()
@@ -139,8 +139,7 @@ public class EventParticipantService {
     return eventParticipantRepository.countEventStatsByEventBeginBetween(from, to).toEventStats();
   }
 
-  private boolean isParticipantAlreadyInEvent(String eventId, String groupId, String userId) {
-    return eventParticipantRepository.existsByEventIdAndGroupIdAndParticipantId(
-        eventId, groupId, userId);
+  private boolean isParticipantAlreadyInEvent(String eventId, String userId) {
+    return eventParticipantRepository.existsByEventIdAndParticipantId(eventId, userId);
   }
 }

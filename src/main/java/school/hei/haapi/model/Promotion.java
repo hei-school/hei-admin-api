@@ -62,17 +62,26 @@ public class Promotion {
       throw new PromotionLevelOutOfRangeException();
     }
 
+    int yearOfStudying = yearOfStudyingAt(levelInstant);
+    if (yearOfStudying < 0 || yearOfStudying >= cycleLevel.getLevels().size()) {
+      throw new PromotionLevelOutOfRangeException(yearOfStudying);
+    }
+    return cycleLevel.getLevels().get(yearOfStudying);
+  }
+
+  /** True once all the levels of the cycle are over: its students went out of the school. */
+  public boolean isOverAt(Instant levelInstant) {
+    var levels = cycleLevel.getLevels();
+    return !levels.isEmpty() && yearOfStudyingAt(levelInstant) >= levels.size();
+  }
+
+  private int yearOfStudyingAt(Instant levelInstant) {
     int firstYear = startDatetime.atZone(ZoneId.systemDefault()).getYear();
     LocalDate date = levelInstant.atZone(ZoneId.systemDefault()).toLocalDate();
     int year = date.getYear();
     int month = date.getMonthValue();
     int scholarYear = (month >= 11) ? year : year - 1;
-    int yearOfStudying = scholarYear - firstYear;
-
-    if (yearOfStudying < 0 || yearOfStudying >= cycleLevel.getLevels().size()) {
-      throw new PromotionLevelOutOfRangeException(yearOfStudying);
-    }
-    return cycleLevel.getLevels().get(yearOfStudying);
+    return scholarYear - firstYear;
   }
 
   // TODO: Going from L1 to L2 and so on is not automatic: consider repeaters please ?
@@ -96,6 +105,27 @@ public class Promotion {
     } catch (PromotionLevelOutOfRangeException e) {
       return empty();
     }
+  }
+
+  public boolean hasLevelDuring(
+      StudentLevel level, Instant periodStart, Instant periodEnd, int referenceEntranceYear) {
+    var levels = cycleLevel.getLevels();
+    var levelIndex = levels.indexOf(level);
+    if (levelIndex < 0) {
+      return false;
+    }
+    var windowStart = academicYearStart(referenceEntranceYear + levelIndex);
+    var windowEnd = academicYearStart(referenceEntranceYear + levelIndex + 1);
+    var effectivePeriodEnd = periodEnd == null ? Instant.MAX : periodEnd;
+    return periodStart.isBefore(windowEnd) && effectivePeriodEnd.isAfter(windowStart);
+  }
+
+  public int getEntranceYear() {
+    return startDatetime.atZone(ZoneId.systemDefault()).getYear();
+  }
+
+  private static Instant academicYearStart(int scholarYear) {
+    return LocalDate.of(scholarYear, 11, 1).atStartOfDay(ZoneId.systemDefault()).toInstant();
   }
 
   public String getPromotionYearString(StudentLevel level) {

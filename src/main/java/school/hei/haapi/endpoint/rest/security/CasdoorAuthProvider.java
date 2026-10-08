@@ -61,7 +61,7 @@ public class CasdoorAuthProvider extends AbstractUserDetailsAuthenticationProvid
     try {
       casdoorUser = casdoorAuthService.parseJwtToken(bearer);
     } catch (CasdoorAuthException exception) {
-      log.error("casdoor auth exception", exception);
+      log.info("Casdoor rejected token: {}", exception.getMessage());
       throw new UsernameNotFoundException("Bad credentials");
     }
     boolean hasRole =
@@ -72,13 +72,13 @@ public class CasdoorAuthProvider extends AbstractUserDetailsAuthenticationProvid
                         && role.getOwner().equals(casdoorOrganizationName));
     if (!hasRole) {
       String email = casdoorUser.getEmail();
-      log.error("Casdoor auth exception: User with email {} doesn't have the correct role", email);
+      log.info("Casdoor auth: user with email {} doesn't have the correct role", email);
       throw new UsernameNotFoundException("Bad credentials");
     }
     try {
       return new Principal(userService.getByEmail(casdoorUser.getEmail()), bearer);
     } catch (Exception e) {
-      log.error(e.getMessage());
+      log.info("Cannot resolve user from casdoor token: {}", e.getMessage());
       throw new UsernameNotFoundException("Bad credentials");
     }
   }
@@ -89,7 +89,13 @@ public class CasdoorAuthProvider extends AbstractUserDetailsAuthenticationProvid
     if (!(tokenObject instanceof String) || !((String) tokenObject).startsWith(BEARER_PREFIX)) {
       return empty();
     }
-    return Optional.of(((String) tokenObject).substring(BEARER_PREFIX.length()).trim());
+    String token = ((String) tokenObject).substring(BEARER_PREFIX.length()).trim();
+    return isJwtShaped(token) ? Optional.of(token) : empty();
+  }
+
+  private static boolean isJwtShaped(String token) {
+    String[] parts = token.split("\\.", -1);
+    return parts.length == 3 && Arrays.stream(parts).noneMatch(String::isBlank);
   }
 
   public static CustomUserDetails getPrincipal() {

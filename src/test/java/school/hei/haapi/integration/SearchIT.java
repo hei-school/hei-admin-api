@@ -30,6 +30,7 @@ class SearchIT extends FacadeITMockedThirdParties {
   @Autowired private UserRepository userRepository;
 
   private String marker;
+  private User helene;
 
   private List<String> userIds = new ArrayList<>();
   private String adminToken;
@@ -59,6 +60,12 @@ class SearchIT extends FacadeITMockedThirdParties {
     save(markedUser("Ryo", User.Role.TEACHER));
     save(markedUser("Ryna", User.Role.STUDENT));
     save(markedUser("Bryan", User.Role.STUDENT));
+    save(markedUser("Mona", User.Role.MONITOR));
+    save(markedUser("Orly", User.Role.ORGANIZER));
+    save(markedUser("Stef", User.Role.STAFF_MEMBER));
+    helene = namedUser("Hélène", "Rakotobe", User.Role.STUDENT);
+    save(helene);
+    save(namedUser("Andre", "Randrianarisoa", User.Role.TEACHER));
 
     var admin = adminMialy();
     var manager = ManagerTestData.hasina();
@@ -74,6 +81,12 @@ class SearchIT extends FacadeITMockedThirdParties {
   private User markedUser(String firstName, User.Role role) {
     var user = FakeDataProvider.someUser(marker + firstName, role);
     user.setLastName(marker);
+    return user;
+  }
+
+  private User namedUser(String firstName, String lastName, User.Role role) {
+    var user = FakeDataProvider.someUser(marker + firstName, role);
+    user.setLastName(marker + lastName);
     return user;
   }
 
@@ -139,5 +152,41 @@ class SearchIT extends FacadeITMockedThirdParties {
     var expected = 1;
 
     assertEquals(expected, result.getManagers().size());
+  }
+
+  @Test
+  void should_return_monitors_organisers_and_staff_members_under_contract_names()
+      throws ApiException {
+    var result = new SearchApi(anApiClient(managerToken)).globalSearchUserGet(marker);
+
+    assertEquals(1, result.getMonitors().size());
+    assertEquals(1, result.getOrganisers().size());
+    assertEquals(1, result.getStaffMembers().size());
+  }
+
+  @Test
+  void global_search_ignores_accents() throws ApiException {
+    var api = new SearchApi(anApiClient(managerToken));
+
+    var withoutAccent = api.globalSearchUserGet(marker + "helene");
+    var withAccent = api.globalSearchUserGet(marker + "André");
+
+    assertEquals(1, withoutAccent.getStudents().size());
+    assertEquals(helene.getId(), withoutAccent.getStudents().get(0).getId());
+    assertEquals(1, withAccent.getTeachers().size());
+  }
+
+  @Test
+  void global_search_combines_first_name_and_last_name_in_any_order() throws ApiException {
+    var api = new SearchApi(anApiClient(managerToken));
+
+    var firstNameThenLastName = api.globalSearchUserGet(marker + "Helene  " + marker + "rakotobe");
+    var lastNameThenFirstName = api.globalSearchUserGet(marker + "Rakotobe " + marker + "hélène");
+    var wordsOfDifferentUsers = api.globalSearchUserGet(marker + "Helene " + marker + "Randria");
+
+    assertEquals(1, firstNameThenLastName.getStudents().size());
+    assertEquals(1, lastNameThenFirstName.getStudents().size());
+    assertEquals(0, wordsOfDifferentUsers.getStudents().size());
+    assertEquals(0, wordsOfDifferentUsers.getTeachers().size());
   }
 }

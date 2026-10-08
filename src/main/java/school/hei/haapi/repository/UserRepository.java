@@ -22,6 +22,11 @@ public interface UserRepository extends JpaRepository<User, String> {
 
   List<User> findAllByStatus(User.Status status);
 
+  @Query(
+      "SELECT u FROM User u WHERE u.status = :status"
+          + " AND NOT EXISTS (SELECT 1 FROM SmsContact c WHERE c.owner = u)")
+  List<User> findAllByStatusAndNoSmsContact(@Param("status") User.Status status);
+
   List<User> findAllByRoleAndStatus(Role role, User.Status status);
 
   @Query(
@@ -157,6 +162,39 @@ public interface UserRepository extends JpaRepository<User, String> {
       nativeQuery = true,
       value =
           """
+ WITH student_group_flow AS (
+     SELECT
+         gf.student_id
+     FROM
+         group_flow gf
+         INNER JOIN "group" g ON g.id = gf.group_id
+     WHERE
+         g.promotion_id = ?1
+     GROUP BY
+         gf.student_id
+     HAVING
+         SUM(CASE WHEN gf.group_flow_type = 'JOIN' THEN 1 ELSE 0 END) >
+         SUM(CASE WHEN gf.group_flow_type = 'LEAVE' THEN 1 ELSE 0 END)
+ )
+ SELECT
+     u.*
+ FROM
+     "user" u
+     INNER JOIN student_group_flow sgf ON sgf.student_id = u.id
+ WHERE
+     u.status <> 'DISABLED'
+     AND EXISTS (
+         SELECT 1 FROM "fee" f
+         WHERE f.user_id = u.id
+           AND f.frequency = 'MONTHLY'
+     );
+""")
+  List<User> findAllMonthlyPayingStudentsByPromotionId(String promotionId);
+
+  @Query(
+      nativeQuery = true,
+      value =
+          """
 		SELECT * FROM "user" u WHERE u."role" = 'STUDENT' and u.status <> 'DISABLED'
 """)
   List<User> findAllStudentNotDisabled();
@@ -202,18 +240,22 @@ public interface UserRepository extends JpaRepository<User, String> {
   StatisticsDto getStudentsStatistics();
 
   @Query(
-      """
-      SELECT u FROM User u
-      WHERE(
-             :search IS NULL
-          OR :search = ''
-          OR LOWER(u.ref) LIKE LOWER(CONCAT('%', :search, '%'))
-          OR LOWER(u.firstName) LIKE LOWER(CONCAT('%', :search, '%'))
-          OR LOWER(u.lastName) LIKE LOWER(CONCAT('%', :search, '%'))
-        )
-      ORDER BY u.lastName
-      LIMIT 25
-      """)
+      value =
+          """
+          SELECT u.* FROM "user" u
+          WHERE u.is_deleted = false
+            AND NOT EXISTS (
+              SELECT 1
+              FROM unnest(string_to_array(unaccent(lower(:search)), ' ')) AS word
+              WHERE word <> ''
+                AND strpos(
+                      unaccent(lower(concat_ws(' ', u.ref, u.first_name, u.last_name))),
+                      word) = 0
+            )
+          ORDER BY u.last_name
+          LIMIT 25
+          """,
+      nativeQuery = true)
   List<User> searchUsers(@Param("search") String search);
 
   @Query(

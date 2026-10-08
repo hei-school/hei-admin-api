@@ -18,6 +18,8 @@ import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import school.hei.haapi.endpoint.event.EventProducer;
+import school.hei.haapi.endpoint.event.model.UserUpserted;
 import school.hei.haapi.endpoint.rest.mapper.SexEnumMapper;
 import school.hei.haapi.endpoint.rest.mapper.StatusEnumMapper;
 import school.hei.haapi.endpoint.rest.model.CrupdateMonitor;
@@ -40,6 +42,7 @@ public class MonitoringStudentService {
   private SexEnumMapper sexEnumMapper;
   private StatusEnumMapper statusEnumMapper;
   private MonitoringStudentRepository monitoringStudentRepository;
+  private EventProducer eventProducer;
 
   @Transactional
   public List<User> linkMonitorFollowingStudents(String monitorId, List<String> studentsIds) {
@@ -112,6 +115,11 @@ public class MonitoringStudentService {
                       return mappedMonitor;
                     })
                 .toList());
+
+    eventProducer.accept(
+        savedMonitors.stream()
+            .map(monitor -> new UserUpserted().userId(monitor.getId()).email(monitor.getEmail()))
+            .toList());
 
     monitors.forEach(
         monitor -> {

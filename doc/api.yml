@@ -54,7 +54,9 @@ paths:
   '/groups/{id}/students':
     $ref: './operations/groups-api.yml#/operations/getStudentsByGroupId'
   '/students/{id}/group_flows':
-    $ref: './operations/groups-api.yml#/operations/moveOrDeleteStudentInGroup'
+    $ref: './operations/groups-api.yml#/operations/studentGroupFlows'
+  '/group_flows/{id}':
+    $ref: './operations/groups-api.yml#/operations/updateGroupFlow'
   # Users
   /groups/students/stats:
     $ref: './operations/users-api.yml#/operations/getGroupStats'
@@ -174,6 +176,10 @@ paths:
     $ref: './operations/retake-exam-api.yml#/operations/getRetakeExamCoursesBySessionId'
   '/retake_exam_sessions/{session_id}/retake_exam_courses/{course_id}/participants':
     $ref: './operations/retake-exam-api.yml#/operations/getRetakeExamParticipantByCourseIdAndSessionId'
+  '/retake_exam_sessions/{session_id}/retake_exam_participants/export':
+    $ref: './operations/retake-exam-api.yml#/operations/exportRetakeExamParticipantsBySessionId'
+  '/retake_exam_sessions/{session_id}/retake_exam_courses/{course_id}/retake_exam_participants/export':
+    $ref: './operations/retake-exam-api.yml#/operations/exportRetakeExamParticipantsByCourseIdAndSessionId'
   '/students/{student_id}/sessions/{session_id}/retake_exams':
     $ref: './operations/retake-exam-api.yml#/operations/getStudentRetakeExamBySession'
   # Monitoring
@@ -255,7 +261,7 @@ paths:
   /fees/advanced-stats-generate:
     $ref: './operations/paying-api.yml#/operations/generateAdvancedStats'
   /fees/advanced-stats:
-    $ref: './operations/paying-api.yml#/operations/getAdvancedFeesStats'
+    $ref: './operations/paying-api.yml#/operations/advancedFeesStats'
   /fees/export:
     $ref: './operations/paying-api.yml#/operations/exportAllFees'
   /fees/advanced-stats/export:
@@ -328,6 +334,23 @@ paths:
     $ref: './operations/files-api.yml#/operations/getUserFiles'
   '/students/{id}/scholarship_certificate/raw':
     $ref: './operations/files-api.yml#/operations/getStudentScholarshipCertificate'
+  '/students/badges/raw':
+    $ref: './operations/files-api.yml#/operations/getStudentBadges'
+  '/students/{id}/badge':
+    $ref: './operations/badges-api.yml#/operations/getStudentActiveBadge'
+  '/students/{id}/badge/revocation':
+    $ref: './operations/badges-api.yml#/operations/revokeStudentActiveBadge'
+  # Badges (from the public id of their QR code)
+  '/badges/{id}':
+    $ref: './operations/badges-api.yml#/operations/getPublicStudent'
+  '/badges/{id}/student':
+    $ref: './operations/badges-api.yml#/operations/getBadgeOwner'
+  '/badges/{id}/attendance':
+    $ref: './operations/badges-api.yml#/operations/checkBadgeAttendance'
+  '/badges/{id}/revocation':
+    $ref: './operations/badges-api.yml#/operations/revokeStudentBadge'
+  '/badges/{id}/events/{event_id}/attendance':
+    $ref: './operations/badges-api.yml#/operations/checkEventAttendanceByPublicId'
   # Comments
   /comments:
     $ref: './operations/comments-api.yml#/operations/getComments'
@@ -394,6 +417,40 @@ paths:
     $ref: './operations/documenso-api.yml#/operations/getDocumensoDocumentFileUrl'
   '/documenso-documents/{id}/signing-token':
     $ref: './operations/documenso-api.yml#/operations/getDocumensoDocumentSigningToken'
+  # Sms
+  /sms-contacts:
+    $ref: './operations/sms-api.yml#/operations/smsContacts'
+  '/sms-contacts/{id}':
+    $ref: './operations/sms-api.yml#/operations/smsContactById'
+  '/sms-contacts/{id}/messages':
+    $ref: './operations/sms-api.yml#/operations/smsContactMessages'
+  /sms-contact-groups:
+    $ref: './operations/sms-api.yml#/operations/smsContactGroups'
+  '/sms-contact-groups/{id}':
+    $ref: './operations/sms-api.yml#/operations/smsContactGroupById'
+  '/sms-contact-groups/{id}/members/{contact_id}':
+    $ref: './operations/sms-api.yml#/operations/smsContactGroupMember'
+  /sms-balance:
+    $ref: './operations/sms-api.yml#/operations/smsBalance'
+  /sms-campaigns:
+    $ref: './operations/sms-api.yml#/operations/smsCampaigns'
+  /sms-campaigns/by-contacts:
+    $ref: './operations/sms-api.yml#/operations/smsCampaignsByContacts'
+  /sms-campaigns/by-manual-numbers:
+    $ref: './operations/sms-api.yml#/operations/smsCampaignsByManualNumbers'
+  /sms-campaigns/by-groups:
+    $ref: './operations/sms-api.yml#/operations/smsCampaignsByGroups'
+  /sms-campaigns/by-file:
+    $ref: './operations/sms-api.yml#/operations/smsCampaignsByFile'
+  '/sms-campaigns/{id}':
+    $ref: './operations/sms-api.yml#/operations/smsCampaignById'
+  '/sms-campaigns/{id}/logs':
+    $ref: './operations/sms-api.yml#/operations/smsCampaignLogs'
+  # Notifications
+  /notifications:
+    $ref: './operations/notifications-api.yml#/operations/notifications'
+  '/notifications/{id}':
+    $ref: './operations/notifications-api.yml#/operations/notificationById'
 
 components:
   securitySchemes:

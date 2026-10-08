@@ -1,0 +1,58 @@
+package school.hei.haapi.repository.dao;
+
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.criteria.Expression;
+import jakarta.persistence.criteria.Predicate;
+import java.util.ArrayList;
+import java.util.List;
+import lombok.AllArgsConstructor;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Repository;
+import school.hei.haapi.model.SmsContact;
+import school.hei.haapi.model.SmsContactOwnerRole;
+
+@Repository
+@AllArgsConstructor
+public class SmsContactDao {
+  private final EntityManager entityManager;
+
+  public List<SmsContact> filterByCriteria(
+      String contactGroupId, SmsContactOwnerRole ownerRole, String search, Pageable pageable) {
+    var builder = entityManager.getCriteriaBuilder();
+    var query = builder.createQuery(SmsContact.class);
+    var root = query.from(SmsContact.class);
+    query.select(root);
+
+    List<Predicate> predicates = new ArrayList<>();
+    predicates.add(builder.isFalse(root.get("isDeleted")));
+
+    if (contactGroupId != null) {
+      var groupRoot = query.from(school.hei.haapi.model.SmsContactGroup.class);
+      predicates.add(builder.equal(groupRoot.get("id"), contactGroupId));
+      Expression<SmsContact> contactRootExpression = root;
+      predicates.add(
+          builder.isMember(contactRootExpression, groupRoot.<List<SmsContact>>get("members")));
+    }
+    if (ownerRole != null) {
+      predicates.add(builder.equal(root.get("ownerRole"), ownerRole));
+    }
+    if (search != null && !search.isBlank()) {
+      var searchPattern = "%" + search.trim().toLowerCase() + "%";
+      var ownerJoin = root.join("owner");
+      predicates.add(
+          builder.or(
+              builder.like(builder.lower(root.get("name")), searchPattern),
+              builder.like(builder.lower(root.get("phoneNumber")), searchPattern),
+              builder.like(builder.lower(ownerJoin.get("ref")), searchPattern)));
+    }
+
+    query.where(predicates.toArray(new Predicate[0]));
+    query.orderBy(builder.desc(root.get("creationDatetime")));
+
+    return entityManager
+        .createQuery(query)
+        .setFirstResult(pageable.getPageNumber() * pageable.getPageSize())
+        .setMaxResults(pageable.getPageSize())
+        .getResultList();
+  }
+}

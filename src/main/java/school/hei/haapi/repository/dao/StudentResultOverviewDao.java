@@ -36,6 +36,7 @@ public class StudentResultOverviewDao {
     }
 
     query.where(predicates.toArray(new Predicate[0]));
+    query.orderBy(builder.desc(root.get("weightedAverage")));
 
     if (pageable.isUnpaged()) {
       return entityManager.createQuery(query).getResultList();

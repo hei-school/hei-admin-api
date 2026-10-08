@@ -18,6 +18,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import school.hei.haapi.PojaGenerated;
 
 @PojaGenerated
+@SuppressWarnings("all")
 @Configuration
 @AllArgsConstructor
 public class RequestLoggerConfigurer implements WebMvcConfigurer {
@@ -27,6 +28,7 @@ public class RequestLoggerConfigurer implements WebMvcConfigurer {
   }
 
   @PojaGenerated
+  @SuppressWarnings("all")
   @AllArgsConstructor
   @Slf4j
   private static class RequestLogger implements HandlerInterceptor {
@@ -46,7 +48,12 @@ public class RequestLoggerConfigurer implements WebMvcConfigurer {
 
       String parameters =
           request.getParameterMap().entrySet().stream()
-              .map(entry -> entry.getKey() + "=" + String.join(",", entry.getValue()))
+              .map(
+                  entry ->
+                      entry.getKey()
+                          + "="
+                          + String.join(
+                              ",", entry.getValue() == null ? new String[0] : entry.getValue()))
               .collect(joining(";"));
       log.info(
           "preHandle: " + "method={}, uri={}, parameters=[{}], " + "handler={}, oldThreadName={}",
