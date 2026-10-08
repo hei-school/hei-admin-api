@@ -101,6 +101,25 @@ public class RetakeExamController {
             sessionId, courseId, studentRef, page, pageSize));
   }
 
+  @GetMapping(
+      value = "/retake_exam_sessions/{session_id}/retake_exam_participants/export",
+      produces = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+  public byte[] exportRetakeExamParticipantsBySessionId(
+      @PathVariable("session_id") String sessionId,
+      @RequestParam(value = "course_code", required = false) String courseCode) {
+    return retakeExamService.exportRetakeExamParticipants(sessionId, null, courseCode);
+  }
+
+  @GetMapping(
+      value =
+          "/retake_exam_sessions/{session_id}/retake_exam_courses/{course_id}"
+              + "/retake_exam_participants/export",
+      produces = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+  public byte[] exportRetakeExamParticipantsByCourseIdAndSessionId(
+      @PathVariable("session_id") String sessionId, @PathVariable("course_id") String courseId) {
+    return retakeExamService.exportRetakeExamParticipants(sessionId, courseId, null);
+  }
+
   @PatchMapping("/retake_exams/status")
   public List<StudentRetakeExam> updateRetakeExamsStatus(
       @RequestBody List<UpdateRetakeExamStatus> updateRetakeExamStatus) {

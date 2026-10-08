@@ -176,6 +176,10 @@ paths:
     $ref: './operations/retake-exam-api.yml#/operations/getRetakeExamCoursesBySessionId'
   '/retake_exam_sessions/{session_id}/retake_exam_courses/{course_id}/participants':
     $ref: './operations/retake-exam-api.yml#/operations/getRetakeExamParticipantByCourseIdAndSessionId'
+  '/retake_exam_sessions/{session_id}/retake_exam_participants/export':
+    $ref: './operations/retake-exam-api.yml#/operations/exportRetakeExamParticipantsBySessionId'
+  '/retake_exam_sessions/{session_id}/retake_exam_courses/{course_id}/retake_exam_participants/export':
+    $ref: './operations/retake-exam-api.yml#/operations/exportRetakeExamParticipantsByCourseIdAndSessionId'
   '/students/{student_id}/sessions/{session_id}/retake_exams':
     $ref: './operations/retake-exam-api.yml#/operations/getStudentRetakeExamBySession'
   # Monitoring

@@ -355,6 +355,10 @@ public class SecurityConf {
                     antMatcher(GET, "/students/*/sessions/*/retake_exams"),
                     antMatcher(GET, "/retake_exam_sessions/*/retake_exam_courses"),
                     antMatcher(GET, "/retake_exam_sessions/*/retake_exam_courses/*/participants"),
+                    antMatcher(GET, "/retake_exam_sessions/*/retake_exam_participants/export"),
+                    antMatcher(
+                        GET,
+                        "/retake_exam_sessions/*/retake_exam_courses/*/retake_exam_participants/export"),
                     antMatcher(GET, "/global_search/user"),
                     antMatcher(PUT, "/fees/advanced-stats"),
                     nonAccessibleBySuspendedUserPath)),
@@ -978,6 +982,12 @@ public class SecurityConf {
                         MANAGER.getRole(), TEACHER.getRole(), ADMIN.getRole(), STUDENT.getRole())
                     .requestMatchers(
                         GET, "/retake_exam_sessions/*/retake_exam_courses/*/participants")
+                    .hasAnyRole(MANAGER.getRole(), TEACHER.getRole(), ADMIN.getRole())
+                    .requestMatchers(GET, "/retake_exam_sessions/*/retake_exam_participants/export")
+                    .hasAnyRole(MANAGER.getRole(), TEACHER.getRole(), ADMIN.getRole())
+                    .requestMatchers(
+                        GET,
+                        "/retake_exam_sessions/*/retake_exam_courses/*/retake_exam_participants/export")
                     .hasAnyRole(MANAGER.getRole(), TEACHER.getRole(), ADMIN.getRole())
                     .requestMatchers(
                         new CourseAssignmentTeacherMatcher(
