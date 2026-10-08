@@ -7,6 +7,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -61,7 +62,7 @@ class StudentBadgeServiceTest {
     promotionService = mock(PromotionService.class);
     when(promotionService.getAllStudentPromotions(anyString())).thenReturn(new LinkedHashSet<>());
     studentBadgeCodeService = mock(StudentBadgeCodeService.class);
-    when(studentBadgeCodeService.createBadge(any(), any(), anyBoolean()))
+    when(studentBadgeCodeService.newBadge(any(), any(), anyBoolean()))
         .thenAnswer(
             invocation ->
                 StudentBadge.builder()
@@ -149,7 +150,49 @@ class StudentBadgeServiceTest {
 
     assertTrue(page.contains("STD26002"));
     assertFalse(page.contains("STD26001"));
-    verify(studentBadgeCodeService, never()).createBadge(eq(withBadge), any(), anyBoolean());
+    verify(studentBadgeCodeService, never()).newBadge(eq(withBadge), any(), anyBoolean());
+  }
+
+  @Test
+  void students_who_left_the_school_get_no_badge() throws Exception {
+    var left = student("student1_id", "STD26001", false);
+    left.setStatus(User.Status.DISABLED);
+    var stillThere = student("student2_id", "STD26002", false);
+    when(userService.getByGroupId(eq(GROUP_ID), any())).thenReturn(List.of(left, stillThere));
+
+    var page = textOfFirstPage(subject.generateBadges(GROUP_ID, null, "2026 - 2027"));
+
+    assertTrue(page.contains("STD26002"));
+    assertFalse(page.contains("STD26001"));
+    verify(studentBadgeCodeService, never()).newBadge(eq(left), any(), anyBoolean());
+  }
+
+  @Test
+  void badges_are_saved_all_at_once_once_their_pdf_is_ready() {
+    var students =
+        IntStream.rangeClosed(1, 3)
+            .mapToObj(i -> student("student" + i + "_id", "STD2600" + i, true))
+            .toList();
+    when(userService.getByGroupId(eq(GROUP_ID), any())).thenReturn(students);
+    when(bucketComponent.download(anyString())).thenAnswer(invocation -> aPhoto());
+
+    subject.generateBadges(GROUP_ID, null, "2026 - 2027");
+
+    verify(studentBadgeCodeService).saveBadges(argThat(badges -> badges.size() == students.size()));
+  }
+
+  @Test
+  void no_badge_is_saved_when_the_generation_fails() {
+    var students =
+        List.of(
+            student("student1_id", "STD26001", false), student("student2_id", "STD26002", false));
+    when(userService.getByGroupId(eq(GROUP_ID), any())).thenReturn(students);
+    when(studentBadgeCodeService.newBadge(eq(students.get(1)), any(), anyBoolean()))
+        .thenThrow(new IllegalStateException("database down"));
+
+    assertThrows(
+        IllegalStateException.class, () -> subject.generateBadges(GROUP_ID, null, "2026 - 2027"));
+    verify(studentBadgeCodeService, never()).saveBadges(any());
   }
 
   @Test
@@ -196,8 +239,8 @@ class StudentBadgeServiceTest {
 
     subject.generateBadges(GROUP_ID, null, "2026 - 2027");
 
-    verify(studentBadgeCodeService).createBadge(eq(graduated), any(), eq(true));
-    verify(studentBadgeCodeService).createBadge(eq(l3), any(), eq(false));
+    verify(studentBadgeCodeService).newBadge(eq(graduated), any(), eq(true));
+    verify(studentBadgeCodeService).newBadge(eq(l3), any(), eq(false));
   }
 
   @Test
