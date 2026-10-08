@@ -1,14 +1,18 @@
-# [1.181.0](https://github.com/hei-school/hei-admin-api/compare/v1.180.0...v1.181.0) (2026-10-07)
+# [1.183.0](https://github.com/hei-school/hei-admin-api/compare/v1.180.0...v1.183.0) (2026-10-08)
 
 
 ### Bug Fixes
 
+* badge QR code links to /badges/{id} ([dc427c4](https://github.com/hei-school/hei-admin-api/commit/dc427c4896beb7138c2d26fadf4ade0296545b82))
+* increase client version ([cbedd6e](https://github.com/hei-school/hei-admin-api/commit/cbedd6e740ba2a5e87b8ee3daaf2274f0a86a024))
 * retake exam and student result overview pagination ([7bd8703](https://github.com/hei-school/hei-admin-api/commit/7bd87030fbd4548db0e02bcfdcb62a9a06b8a2eb))
 
 
 ### Features
 
 * create retake exam fee auto while creating retake exam ([436ce8f](https://github.com/hei-school/hei-admin-api/commit/436ce8fb653774fc6340100fc78e41cd0d550a6b))
+* encrypted public badge with late fees, automatic attendance for teachers, no expiration after licence ([8afd902](https://github.com/hei-school/hei-admin-api/commit/8afd9020ae93eb9ffcc689e6c5748fe9ab34dde8))
+* export student retake exam per session or course ([f5a3b10](https://github.com/hei-school/hei-admin-api/commit/f5a3b10afd3d101ee66341b3667cde2f52650987))
 * public badge at /badges, nothing on revoked badges, no expiration from L3 and student situation ([a5091f9](https://github.com/hei-school/hei-admin-api/commit/a5091f9baef179ab27dc2e833b78afa16880c864))
 
 
