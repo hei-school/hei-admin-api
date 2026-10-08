@@ -20,6 +20,7 @@ import static school.hei.haapi.endpoint.rest.model.AttendanceStatus.UNCHECKED;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
@@ -59,7 +60,7 @@ class StudentBadgeCodeServiceTest {
         .thenReturn(Optional.of(badge(student, inOneYear())));
 
     assertTrue(subject.hasActiveBadge(student, YEAR));
-    assertThrows(BadRequestException.class, () -> subject.createBadge(student, YEAR, false));
+    assertThrows(BadRequestException.class, () -> subject.newBadge(student, YEAR, false));
     verify(studentBadgeRepository, never()).save(any());
   }
 
@@ -73,7 +74,7 @@ class StudentBadgeCodeServiceTest {
 
     var nextYear = AcademicYear.parse("2027 - 2028");
     assertTrue(subject.hasActiveBadge(student, nextYear));
-    assertThrows(BadRequestException.class, () -> subject.createBadge(student, nextYear, true));
+    assertThrows(BadRequestException.class, () -> subject.newBadge(student, nextYear, true));
   }
 
   @Test
@@ -81,7 +82,7 @@ class StudentBadgeCodeServiceTest {
     var student = student();
     when(studentBadgeRepository.existsByPublicId(anyString())).thenReturn(false);
 
-    var created = subject.createBadge(student, YEAR, true);
+    var created = subject.newBadge(student, YEAR, true);
 
     assertNull(created.getExpirationDatetime());
     assertTrue(created.isValidAt(Instant.parse("2040-01-01T00:00:00Z")));
@@ -102,13 +103,23 @@ class StudentBadgeCodeServiceTest {
         .thenReturn(Optional.empty());
     when(studentBadgeRepository.existsByPublicId(anyString())).thenReturn(false);
 
-    var created = subject.createBadge(student, YEAR, false);
+    var created = subject.newBadge(student, YEAR, false);
 
     assertSame(student, created.getStudent());
     assertEquals(4, UUID.fromString(created.getPublicId()).version());
     assertNotEquals(student.getId(), created.getPublicId());
     assertEquals("2026 - 2027", created.getAcademicYear());
     assertEquals(YEAR.badgeExpiration(), created.getExpirationDatetime());
+    verify(studentBadgeRepository, never()).save(any());
+  }
+
+  @Test
+  void printed_badges_are_saved_all_at_once() {
+    var badges = List.of(badge(student(), inOneYear()), badge(student(), inOneYear()));
+    when(studentBadgeRepository.saveAll(badges)).thenReturn(badges);
+
+    assertEquals(badges, subject.saveBadges(badges));
+    verify(studentBadgeRepository).saveAll(badges);
   }
 
   @Test

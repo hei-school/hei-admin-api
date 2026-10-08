@@ -19,7 +19,14 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.util.Base64;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.function.Consumer;
 import javax.imageio.ImageIO;
 import lombok.extern.slf4j.Slf4j;
@@ -35,6 +42,7 @@ public class BadgeImageProcessor {
   private static final int PHOTO_HEIGHT_IN_PIXELS = 400;
   private static final int PHOTO_CORNER_RADIUS_IN_PIXELS = 36;
   private static final int LOGO_WIDTH_IN_PIXELS = 360;
+  private static final int PARALLEL_DOWNLOADS = 6;
 
   private final BucketComponent bucketComponent;
   private final ClassPathResourceResolver classPathResourceResolver;
@@ -45,6 +53,24 @@ public class BadgeImageProcessor {
     this.bucketComponent = bucketComponent;
     this.classPathResourceResolver = classPathResourceResolver;
     ImageIO.scanForPlugins();
+  }
+
+  public Map<String, String> profilePicturesOf(List<User> students) {
+    try (var executor = Executors.newFixedThreadPool(PARALLEL_DOWNLOADS)) {
+      var photos = new LinkedHashMap<String, Future<Optional<String>>>();
+      students.forEach(
+          student -> photos.put(student.getId(), executor.submit(() -> profilePictureOf(student))));
+      var result = new HashMap<String, String>();
+      for (var photo : photos.entrySet()) {
+        result.put(photo.getKey(), photo.getValue().get().orElse(null));
+      }
+      return result;
+    } catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
+      throw new ApiException(SERVER_EXCEPTION, e);
+    } catch (ExecutionException e) {
+      throw new ApiException(SERVER_EXCEPTION, e);
+    }
   }
 
   public Optional<String> profilePictureOf(User student) {

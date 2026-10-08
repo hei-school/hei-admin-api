@@ -3,6 +3,7 @@ package school.hei.haapi.service;
 import static school.hei.haapi.endpoint.rest.model.AttendanceStatus.PRESENT;
 
 import java.time.Instant;
+import java.util.List;
 import java.util.UUID;
 import java.util.regex.Pattern;
 import lombok.AllArgsConstructor;
@@ -39,9 +40,7 @@ public class StudentBadgeCodeService {
             .existsByStudentIdAndExpirationDatetimeIsNullAndRevocationDatetimeIsNull(studentId);
   }
 
-  @Transactional
-  public StudentBadge createBadge(
-      User student, AcademicYear academicYear, boolean withoutExpiration) {
+  public StudentBadge newBadge(User student, AcademicYear academicYear, boolean withoutExpiration) {
     if (hasActiveBadge(student, academicYear)) {
       throw new BadRequestException(
           "Student #"
@@ -50,14 +49,17 @@ public class StudentBadgeCodeService {
               + academicYear.label()
               + ": remove it before printing a new one");
     }
-    var badge =
-        StudentBadge.builder()
-            .student(student)
-            .publicId(newPublicId())
-            .academicYear(academicYear.label())
-            .expirationDatetime(withoutExpiration ? null : academicYear.badgeExpiration())
-            .build();
-    return studentBadgeRepository.save(badge);
+    return StudentBadge.builder()
+        .student(student)
+        .publicId(newPublicId())
+        .academicYear(academicYear.label())
+        .expirationDatetime(withoutExpiration ? null : academicYear.badgeExpiration())
+        .build();
+  }
+
+  @Transactional
+  public List<StudentBadge> saveBadges(List<StudentBadge> badges) {
+    return studentBadgeRepository.saveAll(badges);
   }
 
   public StudentBadge getByPublicId(String publicId) {

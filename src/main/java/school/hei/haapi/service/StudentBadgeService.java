@@ -4,6 +4,7 @@ import static java.util.Comparator.comparing;
 import static java.util.Comparator.nullsLast;
 import static org.springframework.data.domain.Pageable.unpaged;
 import static school.hei.haapi.model.User.Role.STUDENT;
+import static school.hei.haapi.model.User.Status.DISABLED;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -15,6 +16,7 @@ import org.springframework.stereotype.Service;
 import org.thymeleaf.context.Context;
 import school.hei.haapi.endpoint.rest.model.StudentLevel;
 import school.hei.haapi.model.Badge;
+import school.hei.haapi.model.StudentBadge;
 import school.hei.haapi.model.User;
 import school.hei.haapi.model.exception.BadRequestException;
 import school.hei.haapi.service.utils.AcademicYear;
@@ -76,11 +78,22 @@ public class StudentBadgeService {
           "Cannot generate more than " + MAX_BADGES_PER_REQUEST + " badges at once");
     }
     var printedAcademicYear = academicYearOrCurrent(academicYear);
+    var toPrint = withoutActiveBadge(students, printedAcademicYear);
+    var photos = badgeImageProcessor.profilePicturesOf(toPrint);
+    var studentBadges = new ArrayList<StudentBadge>();
     var badges =
-        withoutActiveBadge(students, printedAcademicYear).stream()
-            .map(student -> toBadge(student, printedAcademicYear))
+        toPrint.stream()
+            .map(
+                student -> {
+                  var studentBadge = newBadge(student, printedAcademicYear);
+                  studentBadges.add(studentBadge);
+                  return toBadge(
+                      student, studentBadge, photos.get(student.getId()), printedAcademicYear);
+                })
             .toList();
-    return render(badges, printedAcademicYear);
+    var pdf = render(badges, printedAcademicYear);
+    studentBadgeCodeService.saveBadges(studentBadges);
+    return pdf;
   }
 
   public String qrCodeUrlOf(String publicId) {
@@ -104,6 +117,7 @@ public class StudentBadgeService {
     var seenIds = new HashSet<String>();
     return students.stream()
         .filter(student -> STUDENT.equals(student.getRole()))
+        .filter(student -> !DISABLED.equals(student.getStatus()))
         .filter(student -> seenIds.add(student.getId()))
         .sorted(BY_NAME)
         .toList();
@@ -133,19 +147,22 @@ public class StudentBadgeService {
     return studentsWithoutBadge;
   }
 
-  private Badge toBadge(User student, AcademicYear academicYear) {
+  private StudentBadge newBadge(User student, AcademicYear academicYear) {
+    var withoutExpiration = studentLevelResolver.keepsBadgeAfter(student, academicYear);
+    return studentBadgeCodeService.newBadge(student, academicYear, withoutExpiration);
+  }
+
+  private Badge toBadge(
+      User student, StudentBadge studentBadge, String photo, AcademicYear academicYear) {
     var lastName = nullToEmpty(student.getLastName()).toUpperCase(Locale.FRENCH);
     var level = studentLevelResolver.findLevelOf(student, academicYear);
-    var withoutExpiration = studentLevelResolver.keepsBadgeAfter(student, academicYear);
-    var publicId =
-        studentBadgeCodeService.createBadge(student, academicYear, withoutExpiration).getPublicId();
     return new Badge(
         lastName,
         nullToEmpty(student.getFirstName()),
         nullToEmpty(student.getRef()),
         level.map(StudentLevel::name).orElse(null),
-        badgeImageProcessor.profilePictureOf(student).orElse(null),
-        qrCodeGenerator.apply(qrCodeUrlOf(publicId)),
+        photo,
+        qrCodeGenerator.apply(qrCodeUrlOf(studentBadge.getPublicId())),
         BadgeLayout.lastNameFontSize(lastName));
   }
 
