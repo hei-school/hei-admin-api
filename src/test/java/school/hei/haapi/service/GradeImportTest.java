@@ -3,6 +3,7 @@ package school.hei.haapi.service;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static school.hei.haapi.integration.conf.TestFiles.getMockedFile;
@@ -11,6 +12,7 @@ import static school.hei.haapi.integration.testData.CourseAssignmentTestData.cre
 import static school.hei.haapi.integration.testData.CourseTestData.prog1;
 import static school.hei.haapi.integration.testData.CourseTestData.prog2;
 import static school.hei.haapi.integration.testData.ExamTestData.createExam;
+import static school.hei.haapi.integration.testData.GradeTestData.createGrade;
 import static school.hei.haapi.integration.testData.GroupTestData.createGroupFlow;
 import static school.hei.haapi.integration.testData.GroupTestData.g1;
 import static school.hei.haapi.integration.testData.GroupTestData.g2;
@@ -18,6 +20,7 @@ import static school.hei.haapi.integration.testData.MonitorTestData.monitorOfAxe
 import static school.hei.haapi.integration.testData.MonitorTestData.monitorOfTolojanahary;
 import static school.hei.haapi.integration.testData.StudentResultOverviewTestData.promotionH;
 import static school.hei.haapi.integration.testData.StudentTestData.axel;
+import static school.hei.haapi.integration.testData.StudentTestData.manitra;
 import static school.hei.haapi.integration.testData.StudentTestData.tolojanahary;
 import static school.hei.haapi.integration.testData.TeacherTestData.toky;
 import static school.hei.haapi.model.dto.MonitorStudentLinkDto.Status.LINKED;
@@ -36,6 +39,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import school.hei.haapi.endpoint.event.EventProducer;
 import school.hei.haapi.file.bucket.BucketComponent;
 import school.hei.haapi.integration.conf.FacadeITMockedThirdParties;
@@ -53,6 +58,7 @@ import school.hei.haapi.repository.GroupFlowRepository;
 import school.hei.haapi.repository.GroupRepository;
 import school.hei.haapi.repository.MonitoringStudentRepository;
 import school.hei.haapi.repository.UserRepository;
+import school.hei.haapi.repository.dao.GradeDao;
 
 @Slf4j
 public class GradeImportTest extends FacadeITMockedThirdParties {
@@ -63,6 +69,7 @@ public class GradeImportTest extends FacadeITMockedThirdParties {
   @MockBean private PromotionService promotionService;
   private static User studentTolojanahary;
   private static User studentAxel;
+  private static User studentManitra;
   private static User monitorOfAxel;
   private static User monitorOfTolojanahary;
   private static Course courseProg1;
@@ -94,6 +101,8 @@ public class GradeImportTest extends FacadeITMockedThirdParties {
     studentAxel.setRef("STD22033");
     studentTolojanahary = tolojanahary();
     studentTolojanahary.setRef("STD22031");
+    studentManitra = manitra();
+    studentManitra.setRef("STD22099");
     courseProg1 = prog1();
     courseProg2 = prog2();
     teacherToky = toky();
@@ -106,19 +115,20 @@ public class GradeImportTest extends FacadeITMockedThirdParties {
     studentTolojanahary.setMonitors(List.of(monitorOfTolojanahary));
     groupFlowsAxel = createGroupFlow(studentAxel, groupG1);
     groupFlowsTolojanahary = createGroupFlow(studentTolojanahary, groupG1);
+    var groupFlowsManitra = createGroupFlow(studentManitra, groupG1);
 
     exam2Prog1 = createExam(Instant.parse("2025-09-22T10:15:30Z"), assignProg1ToTokyForGroup);
 
     groupRepository.saveAll(List.of(groupG1, groupG2));
     userRepository.saveAll(List.of(monitorOfAxel, monitorOfTolojanahary));
-    userRepository.saveAll(List.of(studentAxel, studentTolojanahary));
+    userRepository.saveAll(List.of(studentAxel, studentTolojanahary, studentManitra));
     monitoringStudentRepository.saveMonitorFollowingStudents(
         monitorOfAxel.getId(), List.of(studentAxel.getId()), LINKED.toString());
     monitoringStudentRepository.saveMonitorFollowingStudents(
         monitorOfTolojanahary.getId(), List.of(studentTolojanahary.getId()), LINKED.toString());
     userRepository.saveAll(List.of(teacherToky));
     courseRepository.saveAll(List.of(courseProg1, courseProg2));
-    groupFlowRepository.saveAll(List.of(groupFlowsAxel, groupFlowsTolojanahary));
+    groupFlowRepository.saveAll(List.of(groupFlowsAxel, groupFlowsTolojanahary, groupFlowsManitra));
     courseAssignmentRepository.saveAll(
         List.of(assignProg1ToTokyForGroup, assignProg2ToTokyForGroup2));
     exam2prog1Id = examRepository.save(exam2Prog1).getId();
@@ -185,6 +195,46 @@ public class GradeImportTest extends FacadeITMockedThirdParties {
 
       assertEquals("ref", headerRow.getCell(0).getStringCellValue());
       assertEquals("score", headerRow.getCell(1).getStringCellValue());
+
+      String manitraScore = null;
+      boolean manitraRowFound = false;
+      for (int i = 1; i <= sheet.getLastRowNum(); i++) {
+        var row = sheet.getRow(i);
+        if (studentManitra.getRef().equals(row.getCell(0).getStringCellValue())) {
+          manitraRowFound = true;
+          manitraScore = row.getCell(1).getStringCellValue();
+        }
+      }
+      assertTrue(manitraRowFound);
+      assertEquals("", manitraScore);
     }
+  }
+
+  @Test
+  void getGradesByExamId_paginates_and_falls_back_to_unpaged(
+      @Autowired ExamRepository examRepository, @Autowired GradeDao gradeDao) {
+    var exam =
+        examRepository.save(
+            createExam(Instant.parse("2025-10-01T09:00:00Z"), assignProg2ToTokyForGroup2));
+    var grade1 = gradeRepository.save(createGrade(studentAxel, exam, 12.0));
+    var grade2 = gradeRepository.save(createGrade(studentTolojanahary, exam, 14.0));
+
+    var unpaged = gradeDao.getGradesByExamId(exam.getId(), Pageable.unpaged());
+    assertEquals(2, unpaged.size());
+
+    var firstPage = gradeDao.getGradesByExamId(exam.getId(), PageRequest.of(0, 1));
+    assertEquals(1, firstPage.size());
+
+    var secondPage = gradeDao.getGradesByExamId(exam.getId(), PageRequest.of(1, 1));
+    assertEquals(1, secondPage.size());
+    assertNotEquals(firstPage.get(0).getId(), secondPage.get(0).getId());
+
+    var noArgResult = gradeDao.getGradesByExamId(exam.getId());
+    assertEquals(2, noArgResult.size());
+    assertTrue(
+        noArgResult.stream()
+            .map(school.hei.haapi.model.Grade::getId)
+            .toList()
+            .containsAll(List.of(grade1.getId(), grade2.getId())));
   }
 }

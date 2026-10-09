@@ -57,6 +57,9 @@ public class SmsRecipientResolver {
     var fileOutcome = addFile(file, originalFilename, byPhoneNumber);
 
     if (byPhoneNumber.isEmpty()) {
+      if (!fileOutcome.rejectedRows().isEmpty()) {
+        throw new SmsFileRowsRejectedException(fileOutcome.rejectedRows());
+      }
       throw new BadRequestException(
           "At least one recipient source (contactGroupIds, contactIds, manualPhoneNumbers or file)"
               + " is required");
@@ -121,12 +124,13 @@ public class SmsRecipientResolver {
     }
   }
 
-  private record FileOutcome(int count, String bucketKey) {}
+  private record FileOutcome(
+      int count, String bucketKey, List<SmsFileImportRejectedRow> rejectedRows) {}
 
   private FileOutcome addFile(
       File file, String originalFilename, LinkedHashMap<String, ResolvedRecipient> byPhoneNumber) {
     if (file == null) {
-      return new FileOutcome(0, null);
+      return new FileOutcome(0, null, List.of());
     }
     try {
       var parser = new ExcelParser<>(SmsFileImportRowDto.class, SmsFileImportRowDto.getCellMap());
@@ -171,11 +175,7 @@ public class SmsRecipientResolver {
                           .reason(entry.getValue().getMessage()))
               .toList();
 
-      if (!rejectedRows.isEmpty()) {
-        throw new SmsFileRowsRejectedException(rejectedRows);
-      }
-
-      return new FileOutcome(addedCount, bucketKey);
+      return new FileOutcome(addedCount, bucketKey, rejectedRows);
     } catch (IOException e) {
       throw new BadRequestException("Fichier illisible : " + e.getMessage());
     }

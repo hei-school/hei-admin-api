@@ -137,16 +137,27 @@ class SmsRecipientResolverTest {
   }
 
   @Test
-  void a_single_invalid_file_row_blocks_the_whole_file_all_or_nothing() throws IOException {
+  void an_invalid_file_row_is_skipped_and_does_not_block_the_valid_ones() throws IOException {
     var file = xlsxWithRawFirstColumn(List.of("321111111", "not-a-number"));
+
+    var resolved = subject.resolve(null, null, null, file, "mixed.xlsx");
+
+    assertEquals(1, resolved.recipients().size());
+    assertEquals("321111111", resolved.recipients().get(0).phoneNumber());
+    assertEquals(1, resolved.fileImportCount());
+  }
+
+  @Test
+  void a_file_with_only_invalid_rows_and_no_other_source_is_rejected() throws IOException {
+    var file = xlsxWithRawFirstColumn(List.of("not-a-number"));
 
     var exception =
         assertThrows(
             SmsFileRowsRejectedException.class,
-            () -> subject.resolve(null, null, null, file, "mixed.xlsx"));
+            () -> subject.resolve(null, null, null, file, "all-invalid.xlsx"));
 
     assertEquals(1, exception.getRejectedRows().size());
-    assertEquals(1, exception.getRejectedRows().get(0).getRow());
+    assertEquals(0, exception.getRejectedRows().get(0).getRow());
   }
 
   @Test
