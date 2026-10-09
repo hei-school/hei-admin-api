@@ -1,6 +1,5 @@
 package school.hei.haapi.repository.dao;
 
-
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
