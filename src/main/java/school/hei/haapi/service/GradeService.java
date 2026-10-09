@@ -12,10 +12,8 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -473,39 +471,14 @@ public class GradeService {
   }
 
   public byte[] generateGradesTemplate(String examId) {
-    var existingGrades = gradeRepository.getGradesByExamId(examId, List.of(ENABLED, ALUMNI));
-    var gradeIds = existingGrades.stream().map(GradeDto::getId).toList();
-    var gradeHistories =
-        gradeChangeHistoryRepository.findByGradeIdsOrderedByChangeInstantAsc(gradeIds);
-    List<GradeDto> allGrades =
-        existingGrades.stream()
-            .map(
-                existing -> {
-                  var lastGradeChangeHistory =
-                      gradeHistories.stream()
-                          .filter(gradeDto -> Objects.equals(gradeDto.getRef(), existing.getRef()))
-                          .toList();
-                  if (!lastGradeChangeHistory.isEmpty()) {
-                    return lastGradeChangeHistory.getLast();
-                  }
-                  return GradeDto.builder()
-                      .id(existing.getId())
-                      .ref(existing.getRef())
-                      .score(existing.getScore())
-                      .build();
-                })
-            .toList();
-    Map<String, Double> studentScoreAndRefs = new HashMap<>();
-    for (var grade : allGrades) {
-      studentScoreAndRefs.put(grade.getRef(), grade.getScore());
-    }
     var participants = examParticipantService.getExamParticipantsGrade(examId, null, null, null);
     var rows =
         participants.stream()
             .map(
                 participant -> {
                   var ref = participant.getStudent().getRef();
-                  return new GradeTemplateRowDto(ref, studentScoreAndRefs.get(ref));
+                  var grade = participant.getGrade();
+                  return new GradeTemplateRowDto(ref, grade == null ? null : grade.getScore());
                 })
             .toList();
     XlsxCellsGenerator<GradeTemplateRowDto> xlsxCellsGenerator = new XlsxCellsGenerator<>();
