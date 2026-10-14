@@ -33,7 +33,7 @@ public class PaidFeeByMpbsFailedNotificationBody extends PojaEvent {
 
   public static PaidFeeByMpbsFailedNotificationBody from(Payment payment) {
     return PaidFeeByMpbsFailedNotificationBody.builder()
-        .amount(payment.getAmount())
+        .amount(payment.getAmount() == null ? 0 : payment.getAmount())
         .mpbsAuthor(defineMpbsAuthorEntireName(payment.getFee()))
         .mpbsAuthorEmail(payment.getFee().getStudent().getEmail())
         .feeId(payment.getFee().getId())
