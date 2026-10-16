@@ -30,7 +30,7 @@ public class BefianaClient {
   }
 
   public BefianaMessageResponse sendSingle(String to, String text, String idempotencyKey) {
-    var body = Map.of("to", to, "text", text);
+    var body = Map.of("to", toE164(to), "text", text);
     return exchange(
         BASE_PATH + MESSAGES_PATH,
         HttpMethod.POST,
@@ -44,7 +44,7 @@ public class BefianaClient {
     var body =
         Map.of(
             "recipients",
-            recipients,
+            recipients.stream().map(BefianaClient::toE164).toList(),
             "text",
             text,
             "send_at",
@@ -99,6 +99,19 @@ public class BefianaClient {
   public BefianaBalanceResponse getBalance() {
     return exchange(
         BASE_PATH + "/balance/", HttpMethod.GET, null, BefianaBalanceResponse.class, null);
+  }
+
+  /**
+   * BEFIANA v2 requires E.164 (e.g. "+261321234567"); our local numbers are stored without the
+   * leading 0 or country code (see SmsFileImportRowDto.normalizePhoneNumber). Already-E.164 numbers
+   * are left untouched.
+   */
+  public static String toE164(String localOrE164Number) {
+    if (localOrE164Number == null || localOrE164Number.startsWith("+")) {
+      return localOrE164Number;
+    }
+    var digitsOnly = localOrE164Number.replaceAll("\\D", "");
+    return digitsOnly.startsWith("261") ? "+" + digitsOnly : "+261" + digitsOnly;
   }
 
   private <T> T exchange(

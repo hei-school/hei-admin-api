@@ -69,7 +69,11 @@ public class SmsDeliveryStatusPollTriggeredService
   private void pollBatch(SmsCampaignBatch campaignBatch, List<SmsLog> localLogs) {
     var byPhoneNumber =
         localLogs.stream()
-            .collect(Collectors.toMap(SmsLog::getPhoneNumber, smsLog -> smsLog, (a, b) -> a));
+            .collect(
+                Collectors.toMap(
+                    smsLog -> BefianaClient.toE164(smsLog.getPhoneNumber()),
+                    smsLog -> smsLog,
+                    (a, b) -> a));
     String cursor = null;
     do {
       BefianaBatchMessagesPage page;

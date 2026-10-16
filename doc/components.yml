@@ -2997,16 +2997,16 @@ components:
           type: string
           format: date-time
           description: >-
-            Optional schedule time for the whole batch, forwarded as-is to BEFIANA. Must be in
-            the future. Absent means "as soon as possible" — the backend still computes and sends
-            a near-future send_at to BEFIANA internally, since BEFIANA's batch endpoint requires
-            one, but functionally this is an immediate send. Only applies to the shared-message,
-            multi-recipient portion of the campaign — a campaign that resolves to exactly one
-            recipient, or a personalized-message recipient, is always sent immediately regardless
-            of this field (BEFIANA has no scheduling for a single message in this contract).
+            Required schedule time for the whole batch, forwarded as-is to BEFIANA — the client
+            must always pick one, there is no implicit "now" default. Must be in the future. Only
+            applies to the shared-message, multi-recipient portion of the campaign — a campaign
+            that resolves to exactly one recipient, or a personalized-message recipient, is always
+            sent immediately regardless of this field (BEFIANA has no scheduling for a single
+            message in this contract), but the field is still required on every request.
       required:
         - message
         - contactIds
+        - sendAt
     CrupdateSmsCampaignByManualNumbers:
       type: object
       description: >-
@@ -3027,6 +3027,7 @@ components:
       required:
         - message
         - manualPhoneNumbers
+        - sendAt
     CrupdateSmsCampaignByGroups:
       type: object
       description: Targets one or more saved contact groups.
@@ -3045,6 +3046,7 @@ components:
       required:
         - message
         - contactGroupIds
+        - sendAt
     CrupdateSmsCampaignByFile:
       type: object
       description: >-

@@ -146,6 +146,32 @@ class BefianaClientTest {
   }
 
   @Test
+  void sendSingle_converts_a_local_number_to_e164_before_sending() {
+    when(restTemplateMock.exchange(anyString(), any(), any(), eq(BefianaMessageResponse.class)))
+        .thenReturn(ResponseEntity.ok(new BefianaMessageResponse()));
+
+    subject.sendSingle("321234567", "Hello", "idem-key-local");
+
+    var entity = captureRequestEntity("/api/sms/v2/messages/");
+    var body = (Map<String, Object>) entity.getBody();
+    assertEquals("+261321234567", body.get("to"));
+  }
+
+  @Test
+  void createBatch_converts_local_numbers_to_e164_and_leaves_e164_numbers_untouched() {
+    when(restTemplateMock.exchange(anyString(), any(), any(), eq(BefianaBatchResponse.class)))
+        .thenReturn(ResponseEntity.ok(new BefianaBatchResponse()));
+    var sendAt = Instant.parse("2030-01-15T06:00:00Z");
+
+    subject.createBatch(
+        List.of("321234567", "+261320000000"), "Hello all", sendAt, "idem-key-mixed");
+
+    var entity = captureRequestEntity("/api/sms/v2/message-batches/");
+    var body = (Map<String, Object>) entity.getBody();
+    assertEquals(List.of("+261321234567", "+261320000000"), body.get("recipients"));
+  }
+
+  @Test
   void getBalance_can_return_a_null_available_when_befiana_omits_it() {
     when(restTemplateMock.exchange(anyString(), any(), any(), eq(BefianaBalanceResponse.class)))
         .thenReturn(ResponseEntity.ok(new BefianaBalanceResponse()));

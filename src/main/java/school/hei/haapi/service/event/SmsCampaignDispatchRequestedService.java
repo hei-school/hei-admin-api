@@ -1,6 +1,5 @@
 package school.hei.haapi.service.event;
 
-import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
@@ -26,7 +25,6 @@ import school.hei.haapi.service.sms.SmsSegmentCounter;
 @AllArgsConstructor
 public class SmsCampaignDispatchRequestedService implements Consumer<SmsCampaignDispatchRequested> {
   private static final int BEFIANA_BATCH_MAX_RECIPIENTS = 1000;
-  private static final Duration ASAP_SEND_AT_BUFFER = Duration.ofMinutes(2);
 
   private final SmsCampaignRepository smsCampaignRepository;
   private final SmsLogRepository smsLogRepository;
@@ -140,10 +138,7 @@ public class SmsCampaignDispatchRequestedService implements Consumer<SmsCampaign
       return sendUnitary(sharedLogs.get(0), campaign.getMessage()) ? 1 : 0;
     }
 
-    var resolvedSendAt =
-        campaign.getSendAt() != null
-            ? campaign.getSendAt()
-            : Instant.now().plus(ASAP_SEND_AT_BUFFER);
+    var resolvedSendAt = campaign.getSendAt();
 
     var submitted = 0;
     for (var chunkStart = 0;
