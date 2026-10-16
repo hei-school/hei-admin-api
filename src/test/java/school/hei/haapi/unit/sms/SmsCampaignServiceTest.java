@@ -188,10 +188,9 @@ class SmsCampaignServiceTest {
   @Test
   void a_send_at_in_the_past_is_rejected_before_resolving_recipients() {
     var pastSendAt = Instant.now().minusSeconds(60);
+    var pastCommand = command("Hello", List.of("321111111"), pastSendAt);
 
-    assertThrows(
-        BadRequestException.class,
-        () -> subject.createCampaign(command("Hello", List.of("321111111"), pastSendAt)));
+    assertThrows(BadRequestException.class, () -> subject.createCampaign(pastCommand));
 
     verify(smsRecipientResolverMock, never()).resolve(any(), any(), any(), any(), any());
   }

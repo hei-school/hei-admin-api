@@ -16,6 +16,8 @@ import org.springframework.web.util.UriComponentsBuilder;
 @Slf4j
 public class BefianaClient {
   private static final String BASE_PATH = "/api/sms/v2";
+  private static final String MESSAGES_PATH = "/messages/";
+  private static final String MESSAGE_BATCHES_PATH = "/message-batches/";
 
   private final RestTemplate restTemplate;
   private final String baseUrl;
@@ -30,7 +32,7 @@ public class BefianaClient {
   public BefianaMessageResponse sendSingle(String to, String text, String idempotencyKey) {
     var body = Map.of("to", to, "text", text);
     return exchange(
-        BASE_PATH + "/messages/",
+        BASE_PATH + MESSAGES_PATH,
         HttpMethod.POST,
         body,
         BefianaMessageResponse.class,
@@ -48,7 +50,7 @@ public class BefianaClient {
             "send_at",
             DateTimeFormatter.ISO_INSTANT.format(sendAt));
     return exchange(
-        BASE_PATH + "/message-batches/",
+        BASE_PATH + MESSAGE_BATCHES_PATH,
         HttpMethod.POST,
         body,
         BefianaBatchResponse.class,
