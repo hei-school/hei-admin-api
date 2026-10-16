@@ -56,7 +56,8 @@ public class SmsCampaignController {
                 crupdate.getContactIds(),
                 null,
                 null,
-                null));
+                null,
+                crupdate.getSendAt()));
     return smsCampaignMapper.toLaunched(result.campaign());
   }
 
@@ -74,7 +75,8 @@ public class SmsCampaignController {
                 null,
                 crupdate.getManualPhoneNumbers(),
                 null,
-                null));
+                null,
+                crupdate.getSendAt()));
     return smsCampaignMapper.toLaunched(result.campaign());
   }
 
@@ -92,7 +94,8 @@ public class SmsCampaignController {
                 null,
                 null,
                 null,
-                null));
+                null,
+                crupdate.getSendAt()));
     return smsCampaignMapper.toLaunched(result.campaign());
   }
 
@@ -100,6 +103,7 @@ public class SmsCampaignController {
   @ResponseStatus(ACCEPTED)
   public SmsCampaignLaunched createSmsCampaignByFile(
       @RequestParam(required = false) String message,
+      @RequestParam(required = false) java.time.Instant sendAt,
       @RequestPart("file") MultipartFile file,
       @AuthenticationPrincipal Principal principal) {
     var result =
@@ -111,7 +115,8 @@ public class SmsCampaignController {
                 null,
                 null,
                 fileConverter.apply(file),
-                file.getOriginalFilename()));
+                file.getOriginalFilename(),
+                sendAt));
     return smsCampaignMapper.toLaunched(result.campaign());
   }
 

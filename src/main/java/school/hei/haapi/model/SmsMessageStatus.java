@@ -1,7 +1,18 @@
 package school.hei.haapi.model;
 
+import java.util.Locale;
+
 public enum SmsMessageStatus {
-  PENDING,
+  SCHEDULED,
+  PROCESSING,
+  ACCEPTED,
   DELIVERED,
-  FAILED
+  UNDELIVERABLE,
+  BLOCKED,
+  FAILED,
+  UNKNOWN;
+
+  public static SmsMessageStatus fromBefiana(String rawStatus) {
+    return valueOf(rawStatus.toUpperCase(Locale.ROOT));
+  }
 }

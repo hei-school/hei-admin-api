@@ -35,9 +35,9 @@ class SmsLogMapperTest {
   }
 
   @Test
-  void a_bulk_sent_log_with_a_null_status_maps_to_null_not_a_default_value() {
-    var campaign = SmsCampaign.builder().id("c1").status(SmsCampaignStatus.DELIVERED).build();
-    var bulkSentLogWithNoStatusOrCallbackDataYet =
+  void a_log_not_yet_matched_by_a_batch_poll_maps_to_null_not_a_default_value() {
+    var campaign = SmsCampaign.builder().id("c1").status(SmsCampaignStatus.PENDING).build();
+    var batchedLogNotYetMatchedByAPoll =
         SmsLog.builder()
             .id("log1")
             .campaign(campaign)
@@ -45,10 +45,10 @@ class SmsLogMapperTest {
             .recipientSource(school.hei.haapi.model.SmsRecipientSource.MANUAL_NUMBER)
             .build();
 
-    var rest = subject.toRest(bulkSentLogWithNoStatusOrCallbackDataYet);
+    var rest = subject.toRest(batchedLogNotYetMatchedByAPoll);
 
     assertNull(rest.getStatus());
-    assertNull(rest.getCallbackData());
+    assertNull(rest.getBefianaMessageId());
     assertNull(rest.getContactId());
   }
 
@@ -77,11 +77,12 @@ class SmsLogMapperTest {
             .campaign(campaign)
             .phoneNumber("321111111")
             .status(school.hei.haapi.model.SmsMessageStatus.FAILED)
-            .failureReason("BEFIANA call to /send/ failed: HTTP 400 - numéro invalide")
+            .failureReason(
+                "BEFIANA call to /api/sms/v2/messages/ failed: HTTP 400 - numéro invalide")
             .build();
 
     assertEquals(
-        "BEFIANA call to /send/ failed: HTTP 400 - numéro invalide",
+        "BEFIANA call to /api/sms/v2/messages/ failed: HTTP 400 - numéro invalide",
         subject.toRest(log).getFailureReason());
   }
 }

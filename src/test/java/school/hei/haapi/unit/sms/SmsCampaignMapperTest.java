@@ -66,6 +66,7 @@ class SmsCampaignMapperTest {
 
   @Test
   void launched_response_bundles_the_campaign_totals() {
+    var sendAt = java.time.Instant.parse("2030-01-15T06:00:00Z");
     var campaign =
         school.hei.haapi.model.SmsCampaign.builder()
             .id("campaign1")
@@ -74,6 +75,7 @@ class SmsCampaignMapperTest {
             .recipientsRejectedForBalance(1)
             .smsSegmentsEach(2)
             .creditsDebited(10)
+            .sendAt(sendAt)
             .build();
 
     var launched = subject.toLaunched(campaign);
@@ -83,7 +85,26 @@ class SmsCampaignMapperTest {
     assertEquals(1, launched.getRecipientsRejectedForBalance());
     assertEquals(2, launched.getSmsSegmentsEach());
     assertEquals(10, launched.getCreditsDebited());
+    assertEquals(sendAt, launched.getSendAt());
     assertEquals(
         school.hei.haapi.endpoint.rest.model.SmsCampaignStatus.PENDING, launched.getStatus());
+  }
+
+  @Test
+  void send_at_is_echoed_on_the_campaign_resource_and_null_when_unscheduled() {
+    var sendAt = java.time.Instant.parse("2030-01-15T06:00:00Z");
+    var scheduled =
+        school.hei.haapi.model.SmsCampaign.builder()
+            .id("campaign1")
+            .status(school.hei.haapi.model.SmsCampaignStatus.PENDING)
+            .contactGroups(java.util.List.of())
+            .contacts(java.util.List.of())
+            .manualPhoneNumbers(java.util.List.of())
+            .sendAt(sendAt)
+            .build();
+    var unscheduled = scheduled.toBuilder().sendAt(null).build();
+
+    assertEquals(sendAt, subject.toRest(scheduled).getSendAt());
+    assertNull(subject.toRest(unscheduled).getSendAt());
   }
 }
