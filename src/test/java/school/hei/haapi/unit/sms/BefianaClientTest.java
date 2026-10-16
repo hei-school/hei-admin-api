@@ -49,14 +49,14 @@ class BefianaClientTest {
   }
 
   @Test
-  void sendSingle_calls_the_v2_messages_endpoint_with_the_raw_api_key_and_idempotency_key() {
+  void sendSingle_calls_the_v2_messages_endpoint_with_a_bearer_token_and_idempotency_key() {
     when(restTemplateMock.exchange(anyString(), any(), any(), eq(BefianaMessageResponse.class)))
         .thenReturn(ResponseEntity.ok(new BefianaMessageResponse()));
 
     subject.sendSingle("+261340000000", "Hello", "idem-key-1");
 
     var entity = captureRequestEntity("/api/sms/v2/messages/");
-    assertEquals("my-api-key", entity.getHeaders().getFirst("Authorization"));
+    assertEquals("Bearer my-api-key", entity.getHeaders().getFirst("Authorization"));
     assertEquals("idem-key-1", entity.getHeaders().getFirst("Idempotency-Key"));
     var body = (Map<String, Object>) entity.getBody();
     assertEquals("+261340000000", body.get("to"));

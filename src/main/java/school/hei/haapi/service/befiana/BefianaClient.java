@@ -128,7 +128,7 @@ public class BefianaClient {
 
   private HttpHeaders headers(String idempotencyKey) {
     var headers = new HttpHeaders();
-    headers.set("Authorization", apiKey);
+    headers.set("Authorization", "Bearer " + apiKey);
     headers.setContentType(org.springframework.http.MediaType.APPLICATION_JSON);
     if (idempotencyKey != null) {
       headers.set("Idempotency-Key", idempotencyKey);
