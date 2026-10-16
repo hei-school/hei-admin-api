@@ -1,7 +1,7 @@
 package school.hei.haapi.service.befiana;
 
-import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import java.time.LocalDate;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -9,6 +9,10 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class BefianaBalanceResponse {
-  @JsonAlias({"availableBalance", "available_balance", "balance", "credit", "solde"})
-  private Integer availableBalance;
+  private Integer available;
+  private Integer reserved;
+  private Integer total;
+
+  @com.fasterxml.jackson.annotation.JsonProperty("valid_until")
+  private LocalDate validUntil;
 }

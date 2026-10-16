@@ -1,6 +1,7 @@
 package school.hei.haapi.unit.sms;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
@@ -11,6 +12,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.nio.charset.StandardCharsets;
+import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import org.junit.jupiter.api.Test;
@@ -23,9 +25,11 @@ import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestTemplate;
 import school.hei.haapi.service.befiana.BefianaBalanceResponse;
+import school.hei.haapi.service.befiana.BefianaBatchMessagesPage;
+import school.hei.haapi.service.befiana.BefianaBatchResponse;
 import school.hei.haapi.service.befiana.BefianaClient;
 import school.hei.haapi.service.befiana.BefianaException;
-import school.hei.haapi.service.befiana.BefianaSendResponse;
+import school.hei.haapi.service.befiana.BefianaMessageResponse;
 
 class BefianaClientTest {
   private final RestTemplate restTemplateMock = mock();
@@ -45,64 +49,116 @@ class BefianaClientTest {
   }
 
   @Test
-  void send_calls_the_immediate_endpoint_with_the_api_key_header() {
-    when(restTemplateMock.exchange(anyString(), any(), any(), eq(BefianaSendResponse.class)))
-        .thenReturn(ResponseEntity.ok(new BefianaSendResponse()));
+  void sendSingle_calls_the_v2_messages_endpoint_with_a_bearer_token_and_idempotency_key() {
+    when(restTemplateMock.exchange(anyString(), any(), any(), eq(BefianaMessageResponse.class)))
+        .thenReturn(ResponseEntity.ok(new BefianaMessageResponse()));
 
-    subject.send("321111111", "Hello");
+    subject.sendSingle("+261340000000", "Hello", "idem-key-1");
 
-    var entity = captureRequestEntity("/api/smsko/v1/send/");
-    assertEquals("my-api-key", entity.getHeaders().getFirst("Authorization"));
+    var entity = captureRequestEntity("/api/sms/v2/messages/");
+    assertEquals("Bearer my-api-key", entity.getHeaders().getFirst("Authorization"));
+    assertEquals("idem-key-1", entity.getHeaders().getFirst("Idempotency-Key"));
     var body = (Map<String, Object>) entity.getBody();
-    assertEquals("321111111", body.get("phone_number"));
-    assertEquals("Hello", body.get("message"));
+    assertEquals("+261340000000", body.get("to"));
+    assertEquals("Hello", body.get("text"));
     assertTrue(!body.containsKey("send_at"));
   }
 
   @Test
-  void sendBulk_posts_the_whole_number_list_and_the_shared_message() {
-    when(restTemplateMock.exchange(
-            anyString(),
-            any(),
-            any(),
-            eq(school.hei.haapi.service.befiana.BefianaSendBulkResponse.class)))
-        .thenReturn(
-            ResponseEntity.ok(new school.hei.haapi.service.befiana.BefianaSendBulkResponse()));
+  void createBatch_posts_recipients_text_and_an_iso_send_at() {
+    when(restTemplateMock.exchange(anyString(), any(), any(), eq(BefianaBatchResponse.class)))
+        .thenReturn(ResponseEntity.ok(new BefianaBatchResponse()));
+    var sendAt = Instant.parse("2030-01-15T06:00:00Z");
 
-    subject.sendBulk(List.of("321111111", "321111112"), "Hello all");
+    subject.createBatch(
+        List.of("+261340000000", "+261320000000"), "Hello all", sendAt, "idem-key-2");
 
-    var entity = captureRequestEntity("/api/smsko/v1/sendbulk/");
+    var entity = captureRequestEntity("/api/sms/v2/message-batches/");
+    assertEquals("idem-key-2", entity.getHeaders().getFirst("Idempotency-Key"));
     var body = (Map<String, Object>) entity.getBody();
-    assertEquals(List.of("321111111", "321111112"), body.get("phone_numbers"));
-    assertEquals("Hello all", body.get("message"));
-    assertTrue(body.containsKey("send_at"));
+    assertEquals(List.of("+261340000000", "+261320000000"), body.get("recipients"));
+    assertEquals("Hello all", body.get("text"));
+    assertEquals("2030-01-15T06:00:00Z", body.get("send_at"));
   }
 
   @Test
-  void getBalance_returns_zero_and_never_throws_when_the_response_matches_no_known_field() {
-    var response = new BefianaBalanceResponse(); // availableBalance left null on purpose
-    when(restTemplateMock.exchange(anyString(), any(), any(), eq(BefianaBalanceResponse.class)))
-        .thenReturn(ResponseEntity.ok(response));
+  void getMessage_calls_the_single_message_endpoint() {
+    when(restTemplateMock.exchange(anyString(), any(), any(), eq(BefianaMessageResponse.class)))
+        .thenReturn(ResponseEntity.ok(new BefianaMessageResponse()));
 
-    assertEquals(0, subject.getBalance());
+    subject.getMessage("msg-1");
+
+    verify(restTemplateMock)
+        .exchange(
+            eq("https://api.befiana.cloud/api/sms/v2/messages/msg-1/"),
+            eq(HttpMethod.GET),
+            any(),
+            eq(BefianaMessageResponse.class));
   }
 
   @Test
-  void getBalance_reads_the_confirmed_field_when_present() {
+  void getBatch_calls_the_batch_endpoint() {
+    when(restTemplateMock.exchange(anyString(), any(), any(), eq(BefianaBatchResponse.class)))
+        .thenReturn(ResponseEntity.ok(new BefianaBatchResponse()));
+
+    subject.getBatch("batch-1");
+
+    verify(restTemplateMock)
+        .exchange(
+            eq("https://api.befiana.cloud/api/sms/v2/message-batches/batch-1/"),
+            eq(HttpMethod.GET),
+            any(),
+            eq(BefianaBatchResponse.class));
+  }
+
+  @Test
+  void getBatchMessages_omits_the_cursor_param_when_null_and_includes_it_otherwise() {
+    when(restTemplateMock.exchange(
+            anyString(), eq(HttpMethod.GET), any(), eq(BefianaBatchMessagesPage.class)))
+        .thenReturn(ResponseEntity.ok(new BefianaBatchMessagesPage()));
+
+    subject.getBatchMessages("batch-1", null);
+    verify(restTemplateMock)
+        .exchange(
+            eq("https://api.befiana.cloud/api/sms/v2/message-batches/batch-1/messages/"),
+            eq(HttpMethod.GET),
+            any(),
+            eq(BefianaBatchMessagesPage.class));
+
+    subject.getBatchMessages("batch-1", "next-page-token");
+    verify(restTemplateMock)
+        .exchange(
+            eq(
+                "https://api.befiana.cloud/api/sms/v2/message-batches/batch-1/messages/?cursor=next-page-token"),
+            eq(HttpMethod.GET),
+            any(),
+            eq(BefianaBatchMessagesPage.class));
+  }
+
+  @Test
+  void getBalance_returns_the_v2_response_as_is() {
     var response = new BefianaBalanceResponse();
-    response.setAvailableBalance(320);
+    response.setAvailable(320);
     when(restTemplateMock.exchange(anyString(), any(), any(), eq(BefianaBalanceResponse.class)))
         .thenReturn(ResponseEntity.ok(response));
 
-    assertEquals(320, subject.getBalance());
+    assertEquals(320, subject.getBalance().getAvailable());
+  }
+
+  @Test
+  void getBalance_can_return_a_null_available_when_befiana_omits_it() {
+    when(restTemplateMock.exchange(anyString(), any(), any(), eq(BefianaBalanceResponse.class)))
+        .thenReturn(ResponseEntity.ok(new BefianaBalanceResponse()));
+
+    assertNull(subject.getBalance().getAvailable());
   }
 
   @Test
   void a_rest_client_error_is_wrapped_as_a_befiana_exception() {
-    when(restTemplateMock.exchange(anyString(), any(), any(), eq(BefianaSendResponse.class)))
+    when(restTemplateMock.exchange(anyString(), any(), any(), eq(BefianaMessageResponse.class)))
         .thenThrow(new HttpServerErrorException(HttpStatus.INTERNAL_SERVER_ERROR, "boom"));
 
-    assertThrows(BefianaException.class, () -> subject.send("321111111", "Hi"));
+    assertThrows(BefianaException.class, () -> subject.sendSingle("+261340000000", "Hi", "k"));
   }
 
   @Test
@@ -112,12 +168,14 @@ class BefianaClientTest {
             HttpStatus.BAD_REQUEST,
             "Bad Request",
             new org.springframework.http.HttpHeaders(),
-            "{\"message\":\"Solde insuffisant\"}".getBytes(StandardCharsets.UTF_8),
+            "{\"error\":{\"code\":\"insufficient_balance\",\"message\":\"Solde insuffisant\"}}"
+                .getBytes(StandardCharsets.UTF_8),
             StandardCharsets.UTF_8);
-    when(restTemplateMock.exchange(anyString(), any(), any(), eq(BefianaSendResponse.class)))
+    when(restTemplateMock.exchange(anyString(), any(), any(), eq(BefianaMessageResponse.class)))
         .thenThrow(httpError);
 
-    var exception = assertThrows(BefianaException.class, () -> subject.send("321111111", "Hi"));
+    var exception =
+        assertThrows(BefianaException.class, () -> subject.sendSingle("+261340000000", "Hi", "k"));
 
     assertEquals(400, exception.getHttpStatus());
     assertTrue(exception.getMessage().contains("400"));
@@ -125,37 +183,11 @@ class BefianaClientTest {
   }
 
   @Test
-  void getDeliveryStatus_sends_the_callback_data_as_a_query_param() {
+  void getBatchMessages_wraps_a_rest_client_error_as_a_befiana_exception() {
     when(restTemplateMock.exchange(
-            anyString(),
-            eq(HttpMethod.GET),
-            any(),
-            eq(school.hei.haapi.service.befiana.BefianaDeliveryStatusResponse.class)))
-        .thenReturn(
-            ResponseEntity.ok(
-                new school.hei.haapi.service.befiana.BefianaDeliveryStatusResponse()));
-
-    subject.getDeliveryStatus("befiana-20241011-cd-adc1d60");
-
-    verify(restTemplateMock)
-        .exchange(
-            eq(
-                "https://api.befiana.cloud/api/smsko/v1/get-delivery-status/?callback_data=befiana-20241011-cd-adc1d60"),
-            eq(HttpMethod.GET),
-            any(),
-            eq(school.hei.haapi.service.befiana.BefianaDeliveryStatusResponse.class));
-  }
-
-  @Test
-  void getDeliveryStatus_wraps_a_rest_client_error_as_a_befiana_exception() {
-    when(restTemplateMock.exchange(
-            anyString(),
-            eq(HttpMethod.GET),
-            any(),
-            eq(school.hei.haapi.service.befiana.BefianaDeliveryStatusResponse.class)))
+            anyString(), eq(HttpMethod.GET), any(), eq(BefianaBatchMessagesPage.class)))
         .thenThrow(new HttpServerErrorException(HttpStatus.INTERNAL_SERVER_ERROR, "boom"));
 
-    assertThrows(
-        BefianaException.class, () -> subject.getDeliveryStatus("befiana-20241011-cd-adc1d60"));
+    assertThrows(BefianaException.class, () -> subject.getBatchMessages("batch-1", null));
   }
 }

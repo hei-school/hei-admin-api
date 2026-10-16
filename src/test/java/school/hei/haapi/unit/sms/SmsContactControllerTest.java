@@ -116,6 +116,6 @@ class SmsContactControllerTest {
     verify(smsCampaignServiceMock)
         .createCampaign(
             new CreateSmsCampaignCommand(
-                principal.getUser(), "Hello", null, List.of("contact1"), null, null, null));
+                principal.getUser(), "Hello", null, List.of("contact1"), null, null, null, null));
   }
 }

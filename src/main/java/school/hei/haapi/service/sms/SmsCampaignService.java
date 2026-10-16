@@ -1,6 +1,7 @@
 package school.hei.haapi.service.sms;
 
 import java.io.File;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -18,6 +19,7 @@ import school.hei.haapi.model.SmsContact;
 import school.hei.haapi.model.SmsLog;
 import school.hei.haapi.model.SmsRecipientSource;
 import school.hei.haapi.model.User;
+import school.hei.haapi.model.exception.BadRequestException;
 import school.hei.haapi.model.exception.NotFoundException;
 import school.hei.haapi.model.exception.SmsInsufficientBalanceException;
 import school.hei.haapi.repository.SmsCampaignRepository;
@@ -50,10 +52,15 @@ public class SmsCampaignService {
       List<String> contactIds,
       List<String> manualPhoneNumbers,
       File file,
-      String originalFilename) {}
+      String originalFilename,
+      Instant sendAt) {}
 
   @Transactional
   public CreationResult createCampaign(CreateSmsCampaignCommand command) {
+    if (command.sendAt() != null && !command.sendAt().isAfter(Instant.now())) {
+      throw new BadRequestException("sendAt doit être une date future.");
+    }
+
     var resolved =
         smsRecipientResolver.resolve(
             command.contactGroupIds(),
@@ -74,7 +81,7 @@ public class SmsCampaignService {
                             : sharedSegments))
             .toList();
 
-    var availableBalance = befianaClient.getBalance();
+    var availableBalance = befianaClient.getBalance().getAvailable();
     var affordable = takeAffordable(costed, availableBalance);
 
     if (affordable.isEmpty()) {
@@ -108,6 +115,7 @@ public class SmsCampaignService {
                 .recipientCount(costed.size())
                 .recipientsRejectedForBalance(costed.size() - affordable.size())
                 .smsSegmentsEach(sharedSegments)
+                .sendAt(command.sendAt())
                 .createdBy(command.createdBy())
                 .build());
 

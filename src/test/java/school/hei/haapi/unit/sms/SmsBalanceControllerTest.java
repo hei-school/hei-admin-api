@@ -6,6 +6,7 @@ import static org.mockito.Mockito.when;
 
 import org.junit.jupiter.api.Test;
 import school.hei.haapi.endpoint.rest.controller.SmsBalanceController;
+import school.hei.haapi.service.befiana.BefianaBalanceResponse;
 import school.hei.haapi.service.befiana.BefianaClient;
 
 class SmsBalanceControllerTest {
@@ -14,10 +15,21 @@ class SmsBalanceControllerTest {
 
   @Test
   void reads_the_balance_live_from_befiana_every_call() {
-    when(befianaClientMock.getBalance()).thenReturn(320);
+    var response = new BefianaBalanceResponse();
+    response.setAvailable(320);
+    when(befianaClientMock.getBalance()).thenReturn(response);
 
     var balance = subject.getSmsBalance();
 
     assertEquals(320, balance.getAvailableBalance());
+  }
+
+  @Test
+  void a_null_available_from_befiana_is_treated_as_zero() {
+    when(befianaClientMock.getBalance()).thenReturn(new BefianaBalanceResponse());
+
+    var balance = subject.getSmsBalance();
+
+    assertEquals(0, balance.getAvailableBalance());
   }
 }

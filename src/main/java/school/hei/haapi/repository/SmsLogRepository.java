@@ -13,7 +13,9 @@ public interface SmsLogRepository extends JpaRepository<SmsLog, String> {
   List<SmsLog> findAllByCampaign_IdAndStatusOrderBySentDatetimeDesc(
       String campaignId, SmsMessageStatus status);
 
-  List<SmsLog> findAllByStatusAndCallbackDataIsNotNull(SmsMessageStatus status);
+  List<SmsLog> findAllByStatusIn(List<SmsMessageStatus> statuses);
 
   long countByCampaign_IdAndStatus(String campaignId, SmsMessageStatus status);
+
+  long countByCampaign_IdAndStatusIn(String campaignId, List<SmsMessageStatus> statuses);
 }

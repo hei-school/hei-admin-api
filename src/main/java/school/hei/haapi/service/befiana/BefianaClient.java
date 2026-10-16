@@ -1,7 +1,5 @@
 package school.hei.haapi.service.befiana;
 
-import static school.hei.haapi.service.utils.InstantUtils.UTC3;
-
 import java.time.Instant;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -17,8 +15,9 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 @Slf4j
 public class BefianaClient {
-  private static final DateTimeFormatter SEND_AT_FORMAT =
-      DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm").withZone(UTC3);
+  private static final String BASE_PATH = "/api/sms/v2";
+  private static final String MESSAGES_PATH = "/messages/";
+  private static final String MESSAGE_BATCHES_PATH = "/message-batches/";
 
   private final RestTemplate restTemplate;
   private final String baseUrl;
@@ -30,59 +29,87 @@ public class BefianaClient {
     this.apiKey = apiKey;
   }
 
-  public BefianaSendResponse send(String phoneNumber, String message) {
-    var body = Map.of("phone_number", phoneNumber, "message", message);
-    return exchange("/api/smsko/v1/send/", HttpMethod.POST, body, BefianaSendResponse.class);
+  public BefianaMessageResponse sendSingle(String to, String text, String idempotencyKey) {
+    var body = Map.of("to", to, "text", text);
+    return exchange(
+        BASE_PATH + MESSAGES_PATH,
+        HttpMethod.POST,
+        body,
+        BefianaMessageResponse.class,
+        idempotencyKey);
   }
 
-  public BefianaSendBulkResponse sendBulk(List<String> phoneNumbers, String message) {
+  public BefianaBatchResponse createBatch(
+      List<String> recipients, String text, Instant sendAt, String idempotencyKey) {
     var body =
         Map.of(
-            "phone_numbers",
-            phoneNumbers,
-            "message",
-            message,
+            "recipients",
+            recipients,
+            "text",
+            text,
             "send_at",
-            SEND_AT_FORMAT.format(Instant.now()));
+            DateTimeFormatter.ISO_INSTANT.format(sendAt));
     return exchange(
-        "/api/smsko/v1/sendbulk/", HttpMethod.POST, body, BefianaSendBulkResponse.class);
+        BASE_PATH + MESSAGE_BATCHES_PATH,
+        HttpMethod.POST,
+        body,
+        BefianaBatchResponse.class,
+        idempotencyKey);
   }
 
-  public int getBalance() {
-    var response =
-        exchange("/api/smsko/v1/balance/", HttpMethod.GET, null, BefianaBalanceResponse.class);
-    if (response.getAvailableBalance() == null) {
-      log.warn(
-          "BEFIANA /balance/ response didn't match any known field alias — see"
-              + " BefianaBalanceResponse. Treating balance as 0.");
-      return 0;
+  public BefianaMessageResponse getMessage(String messageId) {
+    return exchange(
+        BASE_PATH + MESSAGES_PATH + messageId + "/",
+        HttpMethod.GET,
+        null,
+        BefianaMessageResponse.class,
+        null);
+  }
+
+  public BefianaBatchResponse getBatch(String batchId) {
+    return exchange(
+        BASE_PATH + MESSAGE_BATCHES_PATH + batchId + "/",
+        HttpMethod.GET,
+        null,
+        BefianaBatchResponse.class,
+        null);
+  }
+
+  public BefianaBatchMessagesPage getBatchMessages(String batchId, String cursor) {
+    var uriBuilder =
+        UriComponentsBuilder.fromHttpUrl(
+            baseUrl + BASE_PATH + MESSAGE_BATCHES_PATH + batchId + MESSAGES_PATH);
+    if (cursor != null) {
+      uriBuilder.queryParam("cursor", cursor);
     }
-    return response.getAvailableBalance();
-  }
-
-  public BefianaDeliveryStatusResponse getDeliveryStatus(String callbackData) {
-    var uri =
-        UriComponentsBuilder.fromHttpUrl(baseUrl + "/api/smsko/v1/get-delivery-status/")
-            .queryParam("callback_data", callbackData)
-            .toUriString();
     try {
       var response =
           restTemplate.exchange(
-              uri,
+              uriBuilder.toUriString(),
               HttpMethod.GET,
-              new HttpEntity<>(headers()),
-              BefianaDeliveryStatusResponse.class);
+              new HttpEntity<>(headers(null)),
+              BefianaBatchMessagesPage.class);
       return response.getBody();
     } catch (RestClientException e) {
-      throw toDetailedBefianaException("BEFIANA get-delivery-status call failed", e);
+      throw toDetailedBefianaException(
+          "BEFIANA get-batch-messages call failed for batch " + batchId, e);
     }
   }
 
-  private <T> T exchange(String path, HttpMethod method, Object body, Class<T> responseType) {
+  public BefianaBalanceResponse getBalance() {
+    return exchange(
+        BASE_PATH + "/balance/", HttpMethod.GET, null, BefianaBalanceResponse.class, null);
+  }
+
+  private <T> T exchange(
+      String path, HttpMethod method, Object body, Class<T> responseType, String idempotencyKey) {
     try {
       var response =
           restTemplate.exchange(
-              baseUrl + path, method, new HttpEntity<>(body, headers()), responseType);
+              baseUrl + path,
+              method,
+              new HttpEntity<>(body, headers(idempotencyKey)),
+              responseType);
       return response.getBody();
     } catch (RestClientException e) {
       throw toDetailedBefianaException("BEFIANA call to " + path + " failed", e);
@@ -99,10 +126,13 @@ public class BefianaClient {
     return new BefianaException(context + ": " + e.getMessage(), null, e);
   }
 
-  private HttpHeaders headers() {
+  private HttpHeaders headers(String idempotencyKey) {
     var headers = new HttpHeaders();
-    headers.set("Authorization", apiKey);
+    headers.set("Authorization", "Bearer " + apiKey);
     headers.setContentType(org.springframework.http.MediaType.APPLICATION_JSON);
+    if (idempotencyKey != null) {
+      headers.set("Idempotency-Key", idempotencyKey);
+    }
     return headers;
   }
 }

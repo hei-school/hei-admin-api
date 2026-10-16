@@ -10,6 +10,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.Test;
@@ -18,12 +19,14 @@ import school.hei.haapi.endpoint.event.model.SmsCampaignDispatchRequested;
 import school.hei.haapi.model.SmsCampaignStatus;
 import school.hei.haapi.model.SmsRecipientSource;
 import school.hei.haapi.model.User;
+import school.hei.haapi.model.exception.BadRequestException;
 import school.hei.haapi.model.exception.NotFoundException;
 import school.hei.haapi.model.exception.SmsInsufficientBalanceException;
 import school.hei.haapi.repository.SmsCampaignRepository;
 import school.hei.haapi.repository.SmsContactRepository;
 import school.hei.haapi.repository.SmsLogRepository;
 import school.hei.haapi.repository.dao.SmsCampaignDao;
+import school.hei.haapi.service.befiana.BefianaBalanceResponse;
 import school.hei.haapi.service.befiana.BefianaClient;
 import school.hei.haapi.service.sms.ResolvedRecipient;
 import school.hei.haapi.service.sms.SmsCampaignService;
@@ -66,8 +69,19 @@ class SmsCampaignServiceTest {
   }
 
   private CreateSmsCampaignCommand command(String message, List<String> manualPhoneNumbers) {
+    return command(message, manualPhoneNumbers, null);
+  }
+
+  private CreateSmsCampaignCommand command(
+      String message, List<String> manualPhoneNumbers, Instant sendAt) {
     return new CreateSmsCampaignCommand(
-        createdBy, message, null, null, manualPhoneNumbers, null, null);
+        createdBy, message, null, null, manualPhoneNumbers, null, null, sendAt);
+  }
+
+  private void stubBalance(int available) {
+    var response = new BefianaBalanceResponse();
+    response.setAvailable(available);
+    when(befianaClientMock.getBalance()).thenReturn(response);
   }
 
   @Test
@@ -76,7 +90,7 @@ class SmsCampaignServiceTest {
     var recipients = numbers.stream().map(SmsCampaignServiceTest::manualNumber).toList();
     when(smsRecipientResolverMock.resolve(null, null, numbers, null, null))
         .thenReturn(resolvedWith(recipients));
-    when(befianaClientMock.getBalance()).thenReturn(10);
+    stubBalance(10);
     stubSaveAsIdentity();
 
     var result = subject.createCampaign(command("Hello", numbers));
@@ -95,7 +109,7 @@ class SmsCampaignServiceTest {
     var recipients = numbers.stream().map(SmsCampaignServiceTest::manualNumber).toList();
     when(smsRecipientResolverMock.resolve(null, null, numbers, null, null))
         .thenReturn(resolvedWith(recipients));
-    when(befianaClientMock.getBalance()).thenReturn(0);
+    stubBalance(0);
     var toCreate = command("Hello", numbers);
 
     var exception =
@@ -115,7 +129,7 @@ class SmsCampaignServiceTest {
     var recipients = numbers.stream().map(SmsCampaignServiceTest::manualNumber).toList();
     when(smsRecipientResolverMock.resolve(null, null, numbers, null, null))
         .thenReturn(resolvedWith(recipients));
-    when(befianaClientMock.getBalance()).thenReturn(2);
+    stubBalance(2);
     stubSaveAsIdentity();
 
     var result = subject.createCampaign(command("Hello", numbers));
@@ -133,7 +147,7 @@ class SmsCampaignServiceTest {
         new ResolvedRecipient("321111111", SmsRecipientSource.IMPORTED_FILE, null, longMessage);
     when(smsRecipientResolverMock.resolve(null, null, null, null, null))
         .thenReturn(resolvedWith(List.of(personalized)));
-    when(befianaClientMock.getBalance()).thenReturn(2);
+    stubBalance(2);
     stubSaveAsIdentity();
 
     var result = subject.createCampaign(command("Hi", null));
@@ -148,12 +162,37 @@ class SmsCampaignServiceTest {
     var recipients = numbers.stream().map(SmsCampaignServiceTest::manualNumber).toList();
     when(smsRecipientResolverMock.resolve(null, null, numbers, null, null))
         .thenReturn(resolvedWith(recipients));
-    when(befianaClientMock.getBalance()).thenReturn(10);
+    stubBalance(10);
     stubSaveAsIdentity();
 
     subject.createCampaign(command("Hello", numbers));
 
     verify(dispatchEventProducerMock, times(1)).accept(any());
+  }
+
+  @Test
+  void a_future_send_at_is_persisted_on_the_campaign() {
+    var numbers = List.of("321111111", "321111112");
+    var recipients = numbers.stream().map(SmsCampaignServiceTest::manualNumber).toList();
+    when(smsRecipientResolverMock.resolve(null, null, numbers, null, null))
+        .thenReturn(resolvedWith(recipients));
+    stubBalance(10);
+    stubSaveAsIdentity();
+    var sendAt = Instant.now().plusSeconds(3600);
+
+    var result = subject.createCampaign(command("Hello", numbers, sendAt));
+
+    assertEquals(sendAt, result.campaign().getSendAt());
+  }
+
+  @Test
+  void a_send_at_in_the_past_is_rejected_before_resolving_recipients() {
+    var pastSendAt = Instant.now().minusSeconds(60);
+    var pastCommand = command("Hello", List.of("321111111"), pastSendAt);
+
+    assertThrows(BadRequestException.class, () -> subject.createCampaign(pastCommand));
+
+    verify(smsRecipientResolverMock, never()).resolve(any(), any(), any(), any(), any());
   }
 
   @Test

@@ -71,7 +71,14 @@ public class SmsContactController {
     var result =
         smsCampaignService.createCampaign(
             new SmsCampaignService.CreateSmsCampaignCommand(
-                principal.getUser(), toSend.getMessage(), null, List.of(id), null, null, null));
+                principal.getUser(),
+                toSend.getMessage(),
+                null,
+                List.of(id),
+                null,
+                null,
+                null,
+                null));
     return smsCampaignMapper.toLaunched(result.campaign());
   }
 }

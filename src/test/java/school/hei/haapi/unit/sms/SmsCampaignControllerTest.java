@@ -71,8 +71,28 @@ class SmsCampaignControllerTest {
     verify(smsCampaignServiceMock)
         .createCampaign(
             new CreateSmsCampaignCommand(
-                principal.getUser(), "Hello", null, List.of("c1"), null, null, null));
+                principal.getUser(), "Hello", null, List.of("c1"), null, null, null, null));
     verify(fileConverterMock, never()).apply(any());
+  }
+
+  @Test
+  void creates_a_campaign_by_contacts_forwarding_the_requested_send_at() {
+    var result = new SmsCampaignService.CreationResult(campaignResult());
+    when(smsCampaignServiceMock.createCampaign(any(CreateSmsCampaignCommand.class)))
+        .thenReturn(result);
+    var sendAt = java.time.Instant.parse("2030-01-15T06:00:00Z");
+    var crupdate =
+        new CrupdateSmsCampaignByContacts()
+            .message("Hello")
+            .contactIds(List.of("c1"))
+            .sendAt(sendAt);
+
+    subject.createSmsCampaignByContacts(crupdate, principal);
+
+    verify(smsCampaignServiceMock)
+        .createCampaign(
+            new CreateSmsCampaignCommand(
+                principal.getUser(), "Hello", null, List.of("c1"), null, null, null, sendAt));
   }
 
   @Test
@@ -91,7 +111,7 @@ class SmsCampaignControllerTest {
     verify(smsCampaignServiceMock)
         .createCampaign(
             new CreateSmsCampaignCommand(
-                principal.getUser(), "Hello", null, null, List.of("321111111"), null, null));
+                principal.getUser(), "Hello", null, null, List.of("321111111"), null, null, null));
   }
 
   @Test
@@ -108,7 +128,7 @@ class SmsCampaignControllerTest {
     verify(smsCampaignServiceMock)
         .createCampaign(
             new CreateSmsCampaignCommand(
-                principal.getUser(), "Hello", List.of("g1"), null, null, null, null));
+                principal.getUser(), "Hello", List.of("g1"), null, null, null, null, null));
   }
 
   @Test
@@ -121,12 +141,38 @@ class SmsCampaignControllerTest {
     var convertedFile = mock(File.class);
     when(fileConverterMock.apply(multipartFile)).thenReturn(convertedFile);
 
-    subject.createSmsCampaignByFile(null, multipartFile, principal);
+    subject.createSmsCampaignByFile(null, null, multipartFile, principal);
 
     verify(smsCampaignServiceMock)
         .createCampaign(
             new CreateSmsCampaignCommand(
-                principal.getUser(), null, null, null, null, convertedFile, "numbers.xlsx"));
+                principal.getUser(), null, null, null, null, convertedFile, "numbers.xlsx", null));
+  }
+
+  @Test
+  void creates_a_campaign_from_a_file_forwarding_the_requested_send_at() {
+    var result = new SmsCampaignService.CreationResult(campaignResult());
+    when(smsCampaignServiceMock.createCampaign(any(CreateSmsCampaignCommand.class)))
+        .thenReturn(result);
+    var multipartFile =
+        new MockMultipartFile("file", "numbers.xlsx", "application/octet-stream", new byte[] {1});
+    var convertedFile = mock(File.class);
+    when(fileConverterMock.apply(multipartFile)).thenReturn(convertedFile);
+    var sendAt = java.time.Instant.parse("2030-01-15T06:00:00Z");
+
+    subject.createSmsCampaignByFile(null, sendAt, multipartFile, principal);
+
+    verify(smsCampaignServiceMock)
+        .createCampaign(
+            new CreateSmsCampaignCommand(
+                principal.getUser(),
+                null,
+                null,
+                null,
+                null,
+                convertedFile,
+                "numbers.xlsx",
+                sendAt));
   }
 
   @Test

@@ -2772,9 +2772,9 @@ components:
         availableBalance:
           type: integer
           description: >-
-            Number of SMS units currently available, read live from BEFIANA. Unit and whether this
-            reflects total or remaining quota are still to be confirmed against BEFIANA's actual
-            response.
+            Number of SMS credits currently available, read live from BEFIANA v2's GET /balance/
+            (its "available" field: total minus active reservations — expired credits cannot fund
+            a new send).
     SmsInsufficientBalanceAlert:
       description: >-
         400 body whenever the balance can't cover every recipient: still an Exception
@@ -2830,16 +2830,16 @@ components:
     SmsCampaignStatus:
       type: string
       description: >-
-        The campaign's own send lifecycle, not a delivery outcome: CREATED right after the
-        request is accepted; PENDING from the moment dispatch starts (always immediately — there
-        is no scheduling) while requests are actively being submitted to BEFIANA; DELIVERED once
-        every request has gone out successfully — meaning BEFIANA accepted and charged for it,
-        not that every recipient's phone actually received it (see
-        SmsCampaign.deliveredCount/failedCount and SmsLog.status for what is actually knowable
-        per recipient); FAILED only when the send call itself never went through for any
-        recipient at all (e.g. insufficient balance, or BEFIANA rejected the request) — see
-        SmsCampaign.failureReason. A campaign whose later chunks fail after earlier ones
-        succeeded still ends up DELIVERED, with the failures showing up in failedCount instead.
+        The campaign's own send lifecycle, not a per-recipient delivery outcome: CREATED right
+        after the request is accepted; PENDING ("en cours") from the moment the campaign's
+        batch(es)/unitary send(s) are submitted to BEFIANA, and for as long as any recipient's
+        SmsLog.status is still non-terminal (SCHEDULED/PROCESSING/ACCEPTED/UNKNOWN) — resolved by
+        the periodic BEFIANA status poll, not just for the duration of the initial dispatch call;
+        DELIVERED once every recipient has reached a terminal BEFIANA outcome with at least one
+        actually DELIVERED (see SmsCampaign.deliveredCount/failedCount and SmsLog.status for what
+        is knowable per recipient); FAILED only when the submission to BEFIANA itself never went
+        through for any recipient at all (e.g. insufficient balance, or BEFIANA rejected the
+        request) — see SmsCampaign.failureReason.
       enum:
         - CREATED
         - PENDING
@@ -2848,22 +2848,26 @@ components:
     SmsMessageStatus:
       type: string
       description: >-
-        Confirmed by a live test call: GET /get-delivery-status/?callback_data=... returns
-        {"delivery_status": "Delivered", ...} once BEFIANA has delivered the message. There is no
-        bulk equivalent, and a live /sendbulk/ test call confirmed BEFIANA returns no
-        callbackData at all for a bulk send (only recipients/sms_segments_each/balance_debited).
-        So this is null, not FAILED, for a recipient whose /sendbulk/ chunk was submitted
-        successfully — BEFIANA accepted and charged for it, we just have no way to know whether
-        it was actually delivered. It is only ever non-null for a recipient sent via an
-        individual /send/ call (see SmsLog for exactly which recipients that covers): PENDING
-        right after sending, DELIVERED once confirmed, or FAILED either from a failed
-        /get-delivery-status/ poll (provisional, unobserved so far) or because the /send/ call
-        itself errored for that recipient (e.g. a mid-campaign balance shortfall) — a real,
-        knowable failure either way.
+        BEFIANA v2's own per-message delivery status (GET /messages/{id}/ or GET
+        /message-batches/{batch_id}/messages/), tracked for every recipient regardless of whether
+        it was sent individually or as part of a batch — unlike v1, a batched recipient's status
+        is always real and up to date, refreshed by a periodic background poll.
+        SCHEDULED: admitted, waiting for its send_at. PROCESSING: submission to the carrier is
+        underway. ACCEPTED: the carrier accepted it; delivery itself is not yet confirmed.
+        DELIVERED: a delivery acknowledgment confirms the phone received it. UNDELIVERABLE: a
+        delivery acknowledgment confirms it could not be delivered. BLOCKED: rejected before
+        submission to the carrier (e.g. sender name unavailable). FAILED: a certain, confirmed
+        failure. UNKNOWN: the available information does not allow a conclusion — never shown as
+        "not sent" in the UI, and not to be treated as a failure.
       enum:
-        - PENDING
+        - SCHEDULED
+        - PROCESSING
+        - ACCEPTED
         - DELIVERED
+        - UNDELIVERABLE
+        - BLOCKED
         - FAILED
+        - UNKNOWN
     SmsRecipientSource:
       type: string
       description: Where a campaign recipient's number came from, for traceability.
@@ -2927,33 +2931,33 @@ components:
         deliveredCount:
           type: integer
           description: >-
-            How many recipients' SmsLog.status is DELIVERED so far. Only ever moves for
-            recipients sent via an individual /send/ call (a 1-recipient campaign, or a
-            personalized file row) — BEFIANA gives no callbackData at all for a /sendbulk/ chunk,
-            so a recipient sent that way can only ever be "unknown" or FAILED, never DELIVERED,
-            in this count. recipientCount − deliveredCount − failedCount is exactly the "sent via
-            /sendbulk/, no way to know" bucket.
+            How many recipients' SmsLog.status is DELIVERED so far — kept up to date by the
+            periodic BEFIANA status poll for every recipient, individual or batched alike.
         failedCount:
           type: integer
           description: >-
-            How many recipients' SmsLog.status is FAILED — either a failed /get-delivery-status/
-            poll (unitary sends only, unobserved so far) or a submission that never reached
-            BEFIANA at all (e.g. its /sendbulk/ chunk was rejected for insufficient balance
-            mid-campaign). Unlike deliveredCount, this DOES apply to bulk recipients: a rejected
-            chunk's numbers are knowably failed, even though a successfully-submitted chunk's
-            numbers are only ever "unknown", never confirmed either way.
+            How many recipients' SmsLog.status is UNDELIVERABLE, BLOCKED or FAILED — a terminal,
+            confirmed non-delivery, whether it came from BEFIANA's delivery outcome or from the
+            initial submission itself being rejected (e.g. insufficient balance mid-campaign).
+        sendAt:
+          type: string
+          format: date-time
+          description: >-
+            Requested/applied schedule time for the campaign's shared-message batch(es), echoed
+            back from the request — see CrupdateSmsCampaignByContacts.sendAt. Null for a campaign
+            that resolves to a single recipient, or one sent entirely via personalized messages,
+            since those are always sent immediately.
         smsSegmentsEach:
           type: integer
           description: >-
-            How many SMS segments the message was split into (BEFIANA's sms_segments_each) — more
-            than 1 for a message over the single-segment character limit, which multiplies the
-            credits debited per recipient accordingly. Confirmed present on the /sendbulk/
-            response; the unitary /send/ response does not return it. The pre-send balance check
-            (see createSmsCampaign) computes this itself ahead of calling BEFIANA at all, using
-            the standard GSM 03.38 rule: GSM-7 messages get 160 chars for 1 segment or 153/segment
-            beyond that, anything outside the GSM-7 alphabet (emoji, curly quotes, etc.) forces
-            the whole message to UCS-2 at 70/67 instead — assumed to match BEFIANA's own
-            counting, but not yet confirmed on a real multi-segment test call.
+            How many SMS segments the message was split into — more than 1 for a message over the
+            single-segment character limit, which multiplies the credits debited per recipient
+            accordingly. Computed by the pre-send balance check ahead of calling BEFIANA at all,
+            using the standard GSM 03.38 rule: GSM-7 messages get 160 chars for 1 segment or
+            153/segment beyond that, anything outside the GSM-7 alphabet (emoji, curly quotes,
+            etc.) forces the whole message to UCS-2 at 70/67 instead — assumed to match BEFIANA's
+            own counting (BEFIANA v2 also returns its own per-message segments count, capped at 2
+            per its contract).
         creditsDebited:
           type: integer
           description: >-
@@ -2989,6 +2993,17 @@ components:
           items:
             type: string
           description: One or more existing contacts to include. At least one is required.
+        sendAt:
+          type: string
+          format: date-time
+          description: >-
+            Optional schedule time for the whole batch, forwarded as-is to BEFIANA. Must be in
+            the future. Absent means "as soon as possible" — the backend still computes and sends
+            a near-future send_at to BEFIANA internally, since BEFIANA's batch endpoint requires
+            one, but functionally this is an immediate send. Only applies to the shared-message,
+            multi-recipient portion of the campaign — a campaign that resolves to exactly one
+            recipient, or a personalized-message recipient, is always sent immediately regardless
+            of this field (BEFIANA has no scheduling for a single message in this contract).
       required:
         - message
         - contactIds
@@ -3005,6 +3020,10 @@ components:
           items:
             type: string
           description: At least one number is required.
+        sendAt:
+          type: string
+          format: date-time
+          description: See CrupdateSmsCampaignByContacts.sendAt.
       required:
         - message
         - manualPhoneNumbers
@@ -3019,6 +3038,10 @@ components:
           items:
             type: string
           description: At least one group is required.
+        sendAt:
+          type: string
+          format: date-time
+          description: See CrupdateSmsCampaignByContacts.sendAt.
       required:
         - message
         - contactGroupIds
@@ -3063,23 +3086,23 @@ components:
           description: See SmsCampaign.recipientsRejectedForBalance — nonzero only if balance covered some but not all recipients.
         smsSegmentsEach:
           type: integer
-          description: See SmsCampaign.smsSegmentsEach. Present when the underlying call was /sendbulk/.
+          description: See SmsCampaign.smsSegmentsEach. Present when the underlying call was /message-batches/.
         creditsDebited:
           type: integer
-          description: See SmsCampaign.creditsDebited. Present when the underlying call was /sendbulk/.
+          description: See SmsCampaign.creditsDebited. Present when the underlying call was /message-batches/.
         status:
           $ref: '#/components/schemas/SmsCampaignStatus'
+        sendAt:
+          type: string
+          format: date-time
+          description: See SmsCampaign.sendAt.
     SmsLog:
       type: object
       description: >-
-        One entry per recipient. deliveredDatetime/callbackData, and status values PENDING/
-        DELIVERED, only ever apply to a recipient sent via an individual /send/ call — a
-        1-recipient campaign, the sendSmsMessageToContact shortcut, or one row of a personalized
-        file import — since a live test call confirmed BEFIANA returns no callbackData at all for
-        a /sendbulk/ chunk. status is null for a recipient whose /sendbulk/ chunk was submitted
-        successfully (unknown, not trackable — see SmsMessageStatus), but can still be FAILED for
-        one whose chunk's submission itself was rejected (e.g. balance ran out mid-campaign) —
-        that failure is known even without a callbackData.
+        One entry per recipient, individual or batched alike. status is kept current by a
+        background job polling BEFIANA (see SmsMessageStatus and getSmsCampaignLogs) — every
+        recipient is trackable in BEFIANA v2, unlike v1 where a batched send's outcome was
+        unknowable.
       properties:
         id:
           type: string
@@ -3100,19 +3123,22 @@ components:
         deliveredDatetime:
           type: string
           format: date-time
-          description: Null until a poll of callbackData confirms delivery.
-        callbackData:
+          description: >-
+            Set from BEFIANA's delivery_time once a poll observes a terminal outcome — populated
+            for DELIVERED as well as UNDELIVERABLE (BEFIANA's delivery_time marks any definitive
+            delivery acknowledgment, not only a successful one).
+        befianaMessageId:
           type: string
           description: >-
-            BEFIANA's identifier for this SMS. Checked right after sending (GET
-            /get-delivery-status/?callback_data=...) to fill in status/deliveredDatetime — see
-            SmsMessageStatus.
+            BEFIANA v2's own message UUID. Set right away for a unitary send (POST /messages/
+            response); filled in by the first status poll that matches this recipient inside its
+            batch for a batched send — see SmsMessageStatus.
         failureReason:
           type: string
           description: >-
-            Set only when status is FAILED — BEFIANA's own error detail for this recipient (or
-            this recipient's /sendbulk/ chunk, shared across every recipient in that chunk),
-            not a generic message.
+            Set when status is UNDELIVERABLE, BLOCKED or FAILED — BEFIANA's own error/outcome
+            detail for this recipient, or a shared reason across every recipient of a batch whose
+            submission itself was rejected (e.g. insufficient balance), not a generic message.
     SmsFileImportRejectedRow:
       type: object
       properties:
