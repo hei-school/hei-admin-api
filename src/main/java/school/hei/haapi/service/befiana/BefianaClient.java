@@ -59,7 +59,7 @@ public class BefianaClient {
 
   public BefianaMessageResponse getMessage(String messageId) {
     return exchange(
-        BASE_PATH + "/messages/" + messageId + "/",
+        BASE_PATH + MESSAGES_PATH + messageId + "/",
         HttpMethod.GET,
         null,
         BefianaMessageResponse.class,
@@ -68,7 +68,7 @@ public class BefianaClient {
 
   public BefianaBatchResponse getBatch(String batchId) {
     return exchange(
-        BASE_PATH + "/message-batches/" + batchId + "/",
+        BASE_PATH + MESSAGE_BATCHES_PATH + batchId + "/",
         HttpMethod.GET,
         null,
         BefianaBatchResponse.class,
@@ -78,7 +78,7 @@ public class BefianaClient {
   public BefianaBatchMessagesPage getBatchMessages(String batchId, String cursor) {
     var uriBuilder =
         UriComponentsBuilder.fromHttpUrl(
-            baseUrl + BASE_PATH + "/message-batches/" + batchId + "/messages/");
+            baseUrl + BASE_PATH + MESSAGE_BATCHES_PATH + batchId + MESSAGES_PATH);
     if (cursor != null) {
       uriBuilder.queryParam("cursor", cursor);
     }
