@@ -142,8 +142,8 @@ class SmsDeliveryStatusPollTriggeredServiceTest {
         .thenReturn(
             page(
                 null,
-                message("m1", "321111111", "delivered"),
-                message("m2", "321111112", "failed")));
+                message("m1", "+261321111111", "delivered"),
+                message("m2", "+261321111112", "failed")));
     when(smsLogRepositoryMock.countByCampaign_IdAndStatusIn(eq("campaign1"), anyList()))
         .thenReturn(0L);
     when(smsLogRepositoryMock.countByCampaign_IdAndStatus("campaign1", SmsMessageStatus.DELIVERED))
@@ -166,9 +166,9 @@ class SmsDeliveryStatusPollTriggeredServiceTest {
     var log2 = batchedPendingLog(campaign, batch, "321111112");
     when(smsLogRepositoryMock.findAllByStatusIn(NON_TERMINAL)).thenReturn(List.of(log1, log2));
     when(befianaClientMock.getBatchMessages("batch-1", null))
-        .thenReturn(page("cursor-2", message("m1", "321111111", "accepted")));
+        .thenReturn(page("cursor-2", message("m1", "+261321111111", "accepted")));
     when(befianaClientMock.getBatchMessages("batch-1", "cursor-2"))
-        .thenReturn(page(null, message("m2", "321111112", "delivered")));
+        .thenReturn(page(null, message("m2", "+261321111112", "delivered")));
     when(smsLogRepositoryMock.countByCampaign_IdAndStatusIn(eq("campaign1"), anyList()))
         .thenReturn(0L);
     when(smsLogRepositoryMock.countByCampaign_IdAndStatus("campaign1", SmsMessageStatus.DELIVERED))
@@ -193,7 +193,7 @@ class SmsDeliveryStatusPollTriggeredServiceTest {
         .thenReturn(
             page(
                 null,
-                message("m1", "321111111", "delivered"),
+                message("m1", "+261321111111", "delivered"),
                 message("m2", "unrelated-number", "delivered")));
     when(smsLogRepositoryMock.countByCampaign_IdAndStatusIn(eq("campaign1"), anyList()))
         .thenReturn(0L);
@@ -227,7 +227,7 @@ class SmsDeliveryStatusPollTriggeredServiceTest {
     when(befianaClientMock.getBatchMessages("batch-fail", null))
         .thenThrow(new BefianaException("boom", null, null));
     when(befianaClientMock.getBatchMessages("batch-ok", null))
-        .thenReturn(page(null, message("m2", "321111112", "delivered")));
+        .thenReturn(page(null, message("m2", "+261321111112", "delivered")));
     when(smsLogRepositoryMock.countByCampaign_IdAndStatusIn(eq("campaign1"), anyList()))
         .thenReturn(0L);
     when(smsLogRepositoryMock.countByCampaign_IdAndStatus("campaign1", SmsMessageStatus.DELIVERED))

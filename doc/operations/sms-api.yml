@@ -566,7 +566,7 @@ operations:
             type: string
         - name: sendAt
           in: query
-          required: false
+          required: true
           description: See CrupdateSmsCampaignByContacts.sendAt. Here too as a query parameter, same reason as message.
           schema:
             type: string

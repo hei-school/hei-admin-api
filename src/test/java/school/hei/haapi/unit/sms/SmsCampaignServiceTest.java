@@ -69,7 +69,7 @@ class SmsCampaignServiceTest {
   }
 
   private CreateSmsCampaignCommand command(String message, List<String> manualPhoneNumbers) {
-    return command(message, manualPhoneNumbers, null);
+    return command(message, manualPhoneNumbers, Instant.now().plusSeconds(3600));
   }
 
   private CreateSmsCampaignCommand command(
@@ -191,6 +191,15 @@ class SmsCampaignServiceTest {
     var pastCommand = command("Hello", List.of("321111111"), pastSendAt);
 
     assertThrows(BadRequestException.class, () -> subject.createCampaign(pastCommand));
+
+    verify(smsRecipientResolverMock, never()).resolve(any(), any(), any(), any(), any());
+  }
+
+  @Test
+  void a_missing_send_at_is_rejected_before_resolving_recipients() {
+    var noSendAtCommand = command("Hello", List.of("321111111"), null);
+
+    assertThrows(BadRequestException.class, () -> subject.createCampaign(noSendAtCommand));
 
     verify(smsRecipientResolverMock, never()).resolve(any(), any(), any(), any(), any());
   }

@@ -57,7 +57,10 @@ public class SmsCampaignService {
 
   @Transactional
   public CreationResult createCampaign(CreateSmsCampaignCommand command) {
-    if (command.sendAt() != null && !command.sendAt().isAfter(Instant.now())) {
+    if (command.sendAt() == null) {
+      throw new BadRequestException("sendAt est obligatoire.");
+    }
+    if (!command.sendAt().isAfter(Instant.now())) {
       throw new BadRequestException("sendAt doit être une date future.");
     }
 

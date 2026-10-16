@@ -13,6 +13,13 @@ public enum SmsMessageStatus {
   UNKNOWN;
 
   public static SmsMessageStatus fromBefiana(String rawStatus) {
-    return valueOf(rawStatus.toUpperCase(Locale.ROOT));
+    if (rawStatus == null) {
+      return UNKNOWN;
+    }
+    try {
+      return valueOf(rawStatus.toUpperCase(Locale.ROOT));
+    } catch (IllegalArgumentException e) {
+      return UNKNOWN;
+    }
   }
 }
