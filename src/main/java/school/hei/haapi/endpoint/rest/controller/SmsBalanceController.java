@@ -13,6 +13,8 @@ public class SmsBalanceController {
 
   @GetMapping("/sms-balance")
   public SmsBalance getSmsBalance() {
-    return new SmsBalance().availableBalance(befianaClient.getBalance());
+    var balance = befianaClient.getBalance();
+    return new SmsBalance()
+        .availableBalance(balance.getAvailable() == null ? 0 : balance.getAvailable());
   }
 }

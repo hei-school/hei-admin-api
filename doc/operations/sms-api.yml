@@ -438,12 +438,19 @@ operations:
       description: >
         Cost (recipients × segments) is checked against balance: if it can't cover even one
         recipient, it 400s and creates nothing; if it covers some, the campaign is created and
-        sent to those it can, the rest counted separately. Always sent right away — there is no
-        scheduling. Sending happens in the background: a single recipient goes through `/send/`
-        (trackable), several through `/sendbulk/` (delivery not trackable, except outright
-        BEFIANA rejections which do mark a real failure). The campaign ends up `FAILED` only if
-        no recipient was attempted at all; otherwise `DELIVERED`, with failures tracked
-        separately.
+        sent to those it can, the rest counted separately. Sending happens in the background,
+        forwarded to BEFIANA immediately once this request is received — there is no delay on our
+        side, only BEFIANA's own send_at scheduling (see CrupdateSmsCampaignByContacts.sendAt): a
+        single recipient (or a personalized-message recipient from a file import) goes through
+        BEFIANA's unitary `/messages/` endpoint and is always sent immediately; two or more
+        recipients sharing the same message go through `/message-batches/` (chunked at BEFIANA's
+        1000-recipient-per-batch limit — a campaign above that is split into several batches
+        transparently), which requires a send_at and is where sendAt applies. Every recipient's
+        real delivery status (see SmsMessageStatus) is then tracked individually and refreshed by
+        a background poll — see getSmsCampaignLogs. The campaign ends up `FAILED` only if no
+        recipient was ever successfully submitted to BEFIANA at all; `PENDING` while any recipient
+        is still unresolved; `DELIVERED` once every recipient has reached a final BEFIANA outcome
+        with at least one actually delivered.
       operationId: createSmsCampaignByContacts
       requestBody:
         required: true
@@ -557,6 +564,13 @@ operations:
             personalized (two columns) — see CrupdateSmsCampaignByFile.file.
           schema:
             type: string
+        - name: sendAt
+          in: query
+          required: true
+          description: See CrupdateSmsCampaignByContacts.sendAt. Here too as a query parameter, same reason as message.
+          schema:
+            type: string
+            format: date-time
       requestBody:
         required: true
         content:
@@ -618,10 +632,11 @@ operations:
         - Sms
       summary: List the per-recipient delivery log of an SMS campaign
       description: >
-        One entry per SMS sent: recipient, status, timestamps, BEFIANA's callbackData, and where
-        the recipient came from (contact, group, or imported file). status is filled in by a
-        background job polling GET /get-delivery-status/ one callbackData at a time — see
-        SmsMessageStatus. Most recent first.
+        One entry per SMS sent: recipient, status, timestamps, BEFIANA's own message id
+        (befianaMessageId), and where the recipient came from (contact, group, or imported file).
+        status is filled in by a background job polling BEFIANA — GET /messages/{id}/ for a
+        unitary send, GET /message-batches/{batch_id}/messages/ (matched back by phone number) for
+        a recipient sent as part of a batch — see SmsMessageStatus. Most recent first.
       operationId: getSmsCampaignLogs
       parameters:
         - name: id

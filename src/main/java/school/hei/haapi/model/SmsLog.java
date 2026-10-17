@@ -36,6 +36,10 @@ public class SmsLog implements Serializable {
   @JoinColumn(name = "campaign_id")
   private SmsCampaign campaign;
 
+  @ManyToOne
+  @JoinColumn(name = "campaign_batch_id")
+  private SmsCampaignBatch campaignBatch;
+
   private String phoneNumber;
 
   @Enumerated(STRING)
@@ -52,7 +56,8 @@ public class SmsLog implements Serializable {
 
   private Instant sentDatetime;
   private Instant deliveredDatetime;
-  private String callbackData;
+
+  private String befianaMessageId;
 
   private String personalizedMessage;
 

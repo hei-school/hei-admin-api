@@ -168,14 +168,12 @@ class MpbsVerificationTest {
         ArgumentCaptor.forClass(List.class);
     verify(eventProducerMock, times(1)).accept(argumentCaptor.capture());
     var notificationsRequestSend = argumentCaptor.getAllValues().getLast();
-    assertEquals(1, notificationsRequestSend.size());
-    assertEquals(
+    assertEquals(2, notificationsRequestSend.size());
+    var expectedNotification =
         PaidFeeByMpbsFailedNotificationBody.from(
-            school.hei.haapi.model.Payment.builder()
-                .fee(fee)
-                .amount(mpbsFailed.getAmount())
-                .build()),
-        notificationsRequestSend.getFirst());
+            school.hei.haapi.model.Payment.builder().fee(fee).amount(0).build());
+    assertEquals(expectedNotification, notificationsRequestSend.get(0));
+    assertEquals(expectedNotification, notificationsRequestSend.get(1));
   }
 
   @Test

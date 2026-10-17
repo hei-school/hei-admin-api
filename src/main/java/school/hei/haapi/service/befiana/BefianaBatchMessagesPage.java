@@ -9,16 +9,9 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class BefianaSendBulkResponse {
-  private String message;
-  private List<String> recipients;
+public class BefianaBatchMessagesPage {
+  private List<BefianaMessageResponse> results;
 
-  @JsonProperty("sms_segments_each")
-  private Integer smsSegmentsEach;
-
-  @JsonProperty("balance_debited")
-  private Integer balanceDebited;
-
-  @JsonProperty("send_at")
-  private String sendAt;
+  @JsonProperty("next_cursor")
+  private String nextCursor;
 }

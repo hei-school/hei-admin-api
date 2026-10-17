@@ -18,7 +18,7 @@ public class SmsLogMapper {
         .contactId(domain.getContact() == null ? null : domain.getContact().getId())
         .sentDatetime(domain.getSentDatetime())
         .deliveredDatetime(domain.getDeliveredDatetime())
-        .callbackData(domain.getCallbackData())
+        .befianaMessageId(domain.getBefianaMessageId())
         .failureReason(domain.getFailureReason());
   }
 

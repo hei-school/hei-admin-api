@@ -31,7 +31,7 @@ class FailedMobilePaymentNotificationTest {
   }
 
   @Test
-  void skip_mpbs_with_null_amount() {
+  void null_amount_defaults_to_zero_instead_of_being_skipped() {
     var student =
         User.builder()
             .id(faker.idNumber().toString())
@@ -39,23 +39,27 @@ class FailedMobilePaymentNotificationTest {
             .lastName(faker.name().lastName())
             .build();
     var fee = Fee.builder().comment("comment").student(student).build();
-    Mpbs badMpbs = mock();
-    when(badMpbs.getFee()).thenReturn(fee);
-    when(badMpbs.getAmount()).thenReturn(null);
+    Mpbs mpbsWithNullAmount = mock();
+    when(mpbsWithNullAmount.getFee()).thenReturn(fee);
+    when(mpbsWithNullAmount.getAmount()).thenReturn(null);
+    when(mpbsWithNullAmount.getStudent()).thenReturn(student);
     Mpbs goodMpbs = mock();
     when(goodMpbs.getFee()).thenReturn(fee);
     when(goodMpbs.getAmount()).thenReturn(10);
     when(goodMpbs.getStudent()).thenReturn(student);
 
-    assertDoesNotThrow(() -> subject.accept(List.of(badMpbs, goodMpbs)));
+    assertDoesNotThrow(() -> subject.accept(List.of(mpbsWithNullAmount, goodMpbs)));
 
     ArgumentCaptor<List<PaidFeeByMpbsFailedNotificationBody>> captor =
         ArgumentCaptor.forClass(List.class);
     verify(eventProducerMock, times(1)).accept(captor.capture());
     List<PaidFeeByMpbsFailedNotificationBody> notificationBodyCaptor = captor.getValue();
-    assertEquals(1, notificationBodyCaptor.size());
+    assertEquals(2, notificationBodyCaptor.size());
+    assertEquals(
+        PaidFeeByMpbsFailedNotificationBody.from(Payment.builder().amount(0).fee(fee).build()),
+        notificationBodyCaptor.get(0));
     assertEquals(
         PaidFeeByMpbsFailedNotificationBody.from(Payment.builder().amount(10).fee(fee).build()),
-        notificationBodyCaptor.getFirst());
+        notificationBodyCaptor.get(1));
   }
 }

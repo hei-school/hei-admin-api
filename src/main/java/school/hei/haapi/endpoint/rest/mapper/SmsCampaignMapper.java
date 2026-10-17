@@ -28,6 +28,7 @@ public class SmsCampaignMapper {
         .failedCount(domain.getFailedCount())
         .smsSegmentsEach(domain.getSmsSegmentsEach())
         .creditsDebited(domain.getCreditsDebited())
+        .sendAt(domain.getSendAt())
         .createdById(domain.getCreatedBy() == null ? null : domain.getCreatedBy().getId())
         .createdByRef(domain.getCreatedBy() == null ? null : domain.getCreatedBy().getRef())
         .createdByFirstName(
@@ -42,6 +43,7 @@ public class SmsCampaignMapper {
         .recipientsRejectedForBalance(domain.getRecipientsRejectedForBalance())
         .smsSegmentsEach(domain.getSmsSegmentsEach())
         .creditsDebited(domain.getCreditsDebited())
+        .sendAt(domain.getSendAt())
         .status(toRest(domain.getStatus()));
   }
 

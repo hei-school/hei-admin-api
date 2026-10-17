@@ -1,11 +1,23 @@
-# [1.183.0](https://github.com/hei-school/hei-admin-api/compare/v1.180.0...v1.183.0) (2026-10-08)
+## [1.184.1](https://github.com/hei-school/hei-admin-api/compare/v1.184.0...v1.184.1) (2026-10-16)
+
+
+### Bug Fixes
+
+* befiana bearer token error ([ffd8209](https://github.com/hei-school/hei-admin-api/commit/ffd8209b05d0cad16911d7d4bd410db2ec17a644))
+* befiana number format to e164 and set sendAt mandatory ([f724470](https://github.com/hei-school/hei-admin-api/commit/f724470bc8bfede84352ffa0a7b6420a7a013435))
+
+
+
+# [1.184.0](https://github.com/hei-school/hei-admin-api/compare/v1.180.0...v1.184.0) (2026-10-16)
 
 
 ### Bug Fixes
 
 * badge QR code links to /badges/{id} ([dc427c4](https://github.com/hei-school/hei-admin-api/commit/dc427c4896beb7138c2d26fadf4ade0296545b82))
+* FailedFeeByMpbsNotification npe block mailling service ([a90bda5](https://github.com/hei-school/hei-admin-api/commit/a90bda5e16cc9a28b216c09454567477ebaf8a9e))
 * increase client version ([cbedd6e](https://github.com/hei-school/hei-admin-api/commit/cbedd6e740ba2a5e87b8ee3daaf2274f0a86a024))
 * retake exam and student result overview pagination ([7bd8703](https://github.com/hei-school/hei-admin-api/commit/7bd87030fbd4548db0e02bcfdcb62a9a06b8a2eb))
+* save badges once their pdf is printed, download photos in parallel, no badge for students who left ([39c027c](https://github.com/hei-school/hei-admin-api/commit/39c027c91e913e9d2b1356a0f908535f9877c5ca))
 
 
 ### Features
@@ -13,6 +25,7 @@
 * create retake exam fee auto while creating retake exam ([436ce8f](https://github.com/hei-school/hei-admin-api/commit/436ce8fb653774fc6340100fc78e41cd0d550a6b))
 * encrypted public badge with late fees, automatic attendance for teachers, no expiration after licence ([8afd902](https://github.com/hei-school/hei-admin-api/commit/8afd9020ae93eb9ffcc689e6c5748fe9ab34dde8))
 * export student retake exam per session or course ([f5a3b10](https://github.com/hei-school/hei-admin-api/commit/f5a3b10afd3d101ee66341b3667cde2f52650987))
+* migration Sms By Befiana V1 to V2 ([035a2c4](https://github.com/hei-school/hei-admin-api/commit/035a2c4b14df723539e6c8a2194ba6d94b94c19c))
 * public badge at /badges, nothing on revoked badges, no expiration from L3 and student situation ([a5091f9](https://github.com/hei-school/hei-admin-api/commit/a5091f9baef179ab27dc2e833b78afa16880c864))
 
 
@@ -120,32 +133,6 @@
 
 * duplicate payment ([49c54a9](https://github.com/hei-school/hei-admin-api/commit/49c54a948baf24eaa187c6008ab3edd516dda470))
 * transfert create over_payment transaction ([fd0a5e4](https://github.com/hei-school/hei-admin-api/commit/fd0a5e4ee8c45ca541e9b6812f9248abb87551cd))
-
-
-
-# [1.173.0](https://github.com/hei-school/hei-admin-api/compare/v1.172.0...v1.173.0) (2026-09-17)
-
-
-### Bug Fixes
-
-* **casdoor:** handle client auth errors correctly ([42fb277](https://github.com/hei-school/hei-admin-api/commit/42fb277f6d83ac76198a4b9dac40be8f81ab8cbc))
-* **ci:** raise the gradle daemon heap so sonar can finish ([8795c64](https://github.com/hei-school/hei-admin-api/commit/8795c64820a28e228a8a77601bcaf3438ae2ba32))
-* create credit transaction for payment created by admin ([bb4b672](https://github.com/hei-school/hei-admin-api/commit/bb4b672f37cabf5ec953de8e27b0f9805122832f))
-* **documenso:** acknowledge webhooks of unknown documents ([5df8ac0](https://github.com/hei-school/hei-admin-api/commit/5df8ac0b72983266d6f4006e1f1c07bbc02df683))
-* **documenso:** download the signed pdf as bytes, not as a File ([a126b41](https://github.com/hei-school/hei-admin-api/commit/a126b41abb7849e4e8a6d6ea6a52e52be4e05732))
-* format number ([3562cea](https://github.com/hei-school/hei-admin-api/commit/3562ceafe76c37e152e7b9bf397e9b85916bbe90))
-* get student group flows at level ([a983fa8](https://github.com/hei-school/hei-admin-api/commit/a983fa8947cbd41737ecdd9dc9ad00dff751dfc4))
-* incorrect return result (instead of an unique object, it returned a list) ([384d191](https://github.com/hei-school/hei-admin-api/commit/384d1911f5149b5fddb728b97dc62e4e9c8c9ddf))
-* **promotion:** report a not-yet-started promotion as such instead of an error ([c804dc0](https://github.com/hei-school/hei-admin-api/commit/c804dc04191825172b4b3264dd13a641b7bdaf5f))
-* trigger patch release ([1c73935](https://github.com/hei-school/hei-admin-api/commit/1c73935249b4571b00bbbd5bdc52d09e78de564f))
-
-
-### Features
-
-* add reason before rejecting credit payment ([5020ee4](https://github.com/hei-school/hei-admin-api/commit/5020ee498f9ea78943ed2c69c3729cff107a164d))
-* add security rule for /fees/advanced-stats ([788e627](https://github.com/hei-school/hei-admin-api/commit/788e627ea5974d8f4c9142daa04c93678a574eb8))
-* advanced fees stats update ([4e50783](https://github.com/hei-school/hei-admin-api/commit/4e507838c87044c2fc25b7c2cf5db19d6f413602))
-* **documenso:** tell the signature date from the archiving date ([19c7e7f](https://github.com/hei-school/hei-admin-api/commit/19c7e7f9699f6d7c7eec705f3eaa599cec5d0963))
 
 
 
