@@ -15,6 +15,7 @@ import org.springframework.stereotype.Component;
 import school.hei.haapi.PojaGenerated;
 
 @PojaGenerated
+@SuppressWarnings("all")
 @Component
 public class Workers<T> implements Function<List<Callable<T>>, List<T>> {
   private final ExecutorService executorService;

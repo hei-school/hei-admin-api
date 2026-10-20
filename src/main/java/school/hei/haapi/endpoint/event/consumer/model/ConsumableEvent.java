@@ -5,6 +5,7 @@ import lombok.Getter;
 import school.hei.haapi.PojaGenerated;
 
 @PojaGenerated
+@SuppressWarnings("all")
 @AllArgsConstructor
 public class ConsumableEvent {
   @Getter private final TypedEvent event;

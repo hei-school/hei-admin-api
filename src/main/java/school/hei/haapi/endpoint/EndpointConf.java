@@ -10,6 +10,7 @@ import org.springframework.context.annotation.Primary;
 import school.hei.haapi.PojaGenerated;
 
 @PojaGenerated
+@SuppressWarnings("all")
 @Configuration
 public class EndpointConf {
   @Bean

@@ -7,6 +7,7 @@ import school.hei.haapi.PojaGenerated;
 import school.hei.haapi.repository.model.Dummy;
 
 @PojaGenerated
+@SuppressWarnings("all")
 @Repository
 public interface DummyRepository extends JpaRepository<Dummy, String> {
 
