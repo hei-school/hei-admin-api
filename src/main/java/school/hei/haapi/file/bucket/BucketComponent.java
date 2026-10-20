@@ -21,7 +21,6 @@ import software.amazon.awssdk.transfer.s3.model.UploadFileRequest;
 import software.amazon.awssdk.transfer.s3.progress.LoggingTransferListener;
 
 @PojaGenerated
-@SuppressWarnings("all")
 @Component
 @AllArgsConstructor
 public class BucketComponent {

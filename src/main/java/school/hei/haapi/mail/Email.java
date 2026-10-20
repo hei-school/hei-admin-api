@@ -6,7 +6,6 @@ import java.util.List;
 import school.hei.haapi.PojaGenerated;
 
 @PojaGenerated
-@SuppressWarnings("all")
 public record Email(
     InternetAddress to,
     List<InternetAddress> cc,

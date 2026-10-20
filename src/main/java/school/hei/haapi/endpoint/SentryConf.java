@@ -9,7 +9,6 @@ import org.springframework.context.annotation.Configuration;
 import school.hei.haapi.PojaGenerated;
 
 @PojaGenerated
-@SuppressWarnings("all")
 @Configuration
 public class SentryConf {
 

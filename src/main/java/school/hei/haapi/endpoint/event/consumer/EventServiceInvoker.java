@@ -14,7 +14,6 @@ import school.hei.haapi.PojaGenerated;
 import school.hei.haapi.endpoint.event.consumer.model.TypedEvent;
 
 @PojaGenerated
-@SuppressWarnings("all")
 @AllArgsConstructor
 @Component
 @Slf4j
