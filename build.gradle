@@ -65,7 +65,7 @@ task generateJavaClient(type: GenerateTask) {
     library = "native"
 
     groupId = 'school.hei'
-    id = 'haapi-1b5480f6-gen'
+    id = 'haapi-3d601c85-gen'
     skipValidateSpec = false
     logToStderr = true
     generateAliasAsModel = false
@@ -81,7 +81,7 @@ task generateTsClient(type: org.openapitools.generator.gradle.plugin.tasks.Gener
     ]
     additionalProperties = [
             enumPropertyNaming: "original",
-            npmName           : "@haapi-1b5480f6/typescript-client",
+            npmName           : "@haapi-3d601c85/typescript-client",
             npmVersion        : project.properties["args"] ?: "latest"
     ]
 }
@@ -252,7 +252,7 @@ testImplementation 'org.mockito:mockito-core:5.3.1'
 implementation 'com.google.zxing:core:3.5.3'
 implementation 'com.google.zxing:javase:3.5.3'
 implementation 'com.twelvemonkeys.imageio:imageio-webp:3.12.0'
-implementation 'school.hei:haapi-1b5480f6-gen:latest'
+implementation 'school.hei:haapi-3d601c85-gen:latest'
 
     
 
