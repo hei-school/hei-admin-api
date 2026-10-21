@@ -61,49 +61,49 @@ components:
         type: array
         items:
           $ref: '#/components/schemas/CorStatus'
-    ReclamationStatuses:
-      name: reclamation_status
+    ComplaintStatuses:
+      name: complaint_status
       in: query
       style: form
       explode: true
       required: false
-      description: Filter by reclamation actual status
+      description: Filter by complaint actual status
       schema:
         type: array
         items:
-          $ref: '#/components/schemas/ReclamationStatus'
-    ReclamationTypes:
-      name: reclamation_type
+          $ref: '#/components/schemas/ComplaintStatus'
+    ComplaintTypes:
+      name: complaint_type
       in: query
       style: form
       explode: true
       required: false
-      description: Filter by reclamation type
+      description: Filter by complaint type
       schema:
         type: array
         items:
-          $ref: '#/components/schemas/ReclamationType'
-    ReclamationManagerId:
+          $ref: '#/components/schemas/ComplaintType'
+    ComplaintManagerId:
       name: manager_id
       in: query
       required: false
-      description: Filter by the manager originally routed to the reclamation's type
+      description: Filter by the manager originally routed to the complaint's type
       schema:
         type: string
-    ReclamationAssigneeId:
+    ComplaintAssigneeId:
       name: assignee_id
       in: query
       required: false
-      description: Filter by a user currently assigned to the reclamation
+      description: Filter by a user currently assigned to the complaint
       schema:
         type: string
-    ReclamationTypeFilter:
+    ComplaintTypeFilter:
       name: type
       in: query
       required: true
-      description: The reclamation type to look up
+      description: The complaint type to look up
       schema:
-        $ref: '#/components/schemas/ReclamationType'
+        $ref: '#/components/schemas/ComplaintType'
     StudentRef:
       name: student_ref
       in: query
@@ -161,8 +161,8 @@ components:
       required: true
       schema:
         type: string
-    PathReclamationId:
-      name: reclamation_id
+    PathComplaintId:
+      name: complaint_id
       in: path
       required: true
       schema:
@@ -2229,40 +2229,40 @@ components:
         - CANCELED
         - LEAVE
         - NO_SHOW
-    ReclamationType:
+    ComplaintType:
       type: string
       enum:
         - ACADEMIC
         - FINANCIAL
-    ReclamationStatus:
+    ComplaintStatus:
       type: string
       enum:
         - CREATED
         - IN_PROGRESS
         - RESOLVED
         - REJECTED
-    CrupdateReclamation:
+    CrupdateComplaint:
       type: object
       properties:
         type:
-          $ref: '#/components/schemas/ReclamationType'
+          $ref: '#/components/schemas/ComplaintType'
         title:
           type: string
         description:
           type: string
-    Reclamation:
+    Complaint:
       type: object
       properties:
         id:
           type: string
         type:
-          $ref: '#/components/schemas/ReclamationType'
+          $ref: '#/components/schemas/ComplaintType'
         title:
           type: string
         description:
           type: string
         status:
-          $ref: '#/components/schemas/ReclamationStatus'
+          $ref: '#/components/schemas/ComplaintStatus'
         student:
           $ref: '#/components/schemas/UserIdentifier'
         assignees:
@@ -2272,44 +2272,44 @@ components:
         created_at:
           type: string
           format: date-time
-    UpdateReclamationAssignees:
+    UpdateComplaintAssignees:
       type: object
       properties:
         user_ids:
           type: array
           items:
             type: string
-    UpdateReclamationStatus:
+    UpdateComplaintStatus:
       type: object
       properties:
         status:
-          $ref: '#/components/schemas/ReclamationStatus'
+          $ref: '#/components/schemas/ComplaintStatus'
         comment:
           type: string
-    ReclamationStatusHistory:
+    ComplaintStatusHistory:
       type: object
       properties:
         status:
-          $ref: '#/components/schemas/ReclamationStatus'
+          $ref: '#/components/schemas/ComplaintStatus'
         changed_by:
           $ref: '#/components/schemas/UserIdentifier'
         datetime:
           type: string
           format: date-time
-    CrupdateReclamationRouting:
+    CrupdateComplaintRouting:
       type: object
       properties:
         type:
-          $ref: '#/components/schemas/ReclamationType'
+          $ref: '#/components/schemas/ComplaintType'
         manager_id:
           type: string
-    ReclamationRouting:
+    ComplaintRouting:
       type: object
       properties:
         id:
           type: string
         type:
-          $ref: '#/components/schemas/ReclamationType'
+          $ref: '#/components/schemas/ComplaintType'
         manager:
           $ref: '#/components/schemas/UserIdentifier'
         creation_datetime:
