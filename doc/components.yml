@@ -61,6 +61,49 @@ components:
         type: array
         items:
           $ref: '#/components/schemas/CorStatus'
+    ReclamationStatuses:
+      name: reclamation_status
+      in: query
+      style: form
+      explode: true
+      required: false
+      description: Filter by reclamation actual status
+      schema:
+        type: array
+        items:
+          $ref: '#/components/schemas/ReclamationStatus'
+    ReclamationTypes:
+      name: reclamation_type
+      in: query
+      style: form
+      explode: true
+      required: false
+      description: Filter by reclamation type
+      schema:
+        type: array
+        items:
+          $ref: '#/components/schemas/ReclamationType'
+    ReclamationManagerId:
+      name: manager_id
+      in: query
+      required: false
+      description: Filter by the manager originally routed to the reclamation's type
+      schema:
+        type: string
+    ReclamationAssigneeId:
+      name: assignee_id
+      in: query
+      required: false
+      description: Filter by a user currently assigned to the reclamation
+      schema:
+        type: string
+    ReclamationTypeFilter:
+      name: type
+      in: query
+      required: true
+      description: The reclamation type to look up
+      schema:
+        $ref: '#/components/schemas/ReclamationType'
     StudentRef:
       name: student_ref
       in: query
@@ -114,6 +157,12 @@ components:
         type: string
     PathCorId:
       name: cor_id
+      in: path
+      required: true
+      schema:
+        type: string
+    PathReclamationId:
+      name: reclamation_id
       in: path
       required: true
       schema:
@@ -2180,6 +2229,92 @@ components:
         - CANCELED
         - LEAVE
         - NO_SHOW
+    ReclamationType:
+      type: string
+      enum:
+        - ACADEMIC
+        - FINANCIAL
+    ReclamationStatus:
+      type: string
+      enum:
+        - CREATED
+        - IN_PROGRESS
+        - RESOLVED
+        - REJECTED
+    CrupdateReclamation:
+      type: object
+      properties:
+        type:
+          $ref: '#/components/schemas/ReclamationType'
+        title:
+          type: string
+        description:
+          type: string
+    Reclamation:
+      type: object
+      properties:
+        id:
+          type: string
+        type:
+          $ref: '#/components/schemas/ReclamationType'
+        title:
+          type: string
+        description:
+          type: string
+        status:
+          $ref: '#/components/schemas/ReclamationStatus'
+        student:
+          $ref: '#/components/schemas/UserIdentifier'
+        assignees:
+          type: array
+          items:
+            $ref: '#/components/schemas/UserIdentifier'
+        created_at:
+          type: string
+          format: date-time
+    UpdateReclamationAssignees:
+      type: object
+      properties:
+        user_ids:
+          type: array
+          items:
+            type: string
+    UpdateReclamationStatus:
+      type: object
+      properties:
+        status:
+          $ref: '#/components/schemas/ReclamationStatus'
+        comment:
+          type: string
+    ReclamationStatusHistory:
+      type: object
+      properties:
+        status:
+          $ref: '#/components/schemas/ReclamationStatus'
+        changed_by:
+          $ref: '#/components/schemas/UserIdentifier'
+        datetime:
+          type: string
+          format: date-time
+    CrupdateReclamationRouting:
+      type: object
+      properties:
+        type:
+          $ref: '#/components/schemas/ReclamationType'
+        manager_id:
+          type: string
+    ReclamationRouting:
+      type: object
+      properties:
+        id:
+          type: string
+        type:
+          $ref: '#/components/schemas/ReclamationType'
+        manager:
+          $ref: '#/components/schemas/UserIdentifier'
+        creation_datetime:
+          type: string
+          format: date-time
     UpdateLettersStatus:
       type: object
       properties:

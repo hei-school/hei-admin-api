@@ -1,0 +1,293 @@
+operations:
+  reclamations:
+    get:
+      tags:
+        - Reclamation
+      operationId: getReclamations
+      summary: Get all reclamations
+      parameters:
+        - $ref: '../components.yml#/components/parameters/Page'
+        - $ref: '../components.yml#/components/parameters/PageSize'
+        - $ref: '../components.yml#/components/parameters/DatetimeFromFilter'
+        - $ref: '../components.yml#/components/parameters/DatetimeToFilter'
+        - $ref: '../components.yml#/components/parameters/ReclamationTypes'
+        - $ref: '../components.yml#/components/parameters/ReclamationStatuses'
+        - $ref: '../components.yml#/components/parameters/ReclamationManagerId'
+        - $ref: '../components.yml#/components/parameters/ReclamationAssigneeId'
+      responses:
+        '200':
+          description: List of reclamations
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '../components.yml#/components/schemas/Reclamation'
+        '400':
+          $ref: '../components.yml#/components/responses/400'
+        '403':
+          $ref: '../components.yml#/components/responses/403'
+        '404':
+          $ref: '../components.yml#/components/responses/404'
+        '429':
+          $ref: '../components.yml#/components/responses/429'
+        '500':
+          $ref: '../components.yml#/components/responses/500'
+    post:
+      tags:
+        - Reclamation
+      operationId: createReclamation
+      summary: Create a reclamation as the current student
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '../components.yml#/components/schemas/CrupdateReclamation'
+      responses:
+        '200':
+          description: The created reclamation
+          content:
+            application/json:
+              schema:
+                $ref: '../components.yml#/components/schemas/Reclamation'
+        '400':
+          $ref: '../components.yml#/components/responses/400'
+        '403':
+          $ref: '../components.yml#/components/responses/403'
+        '404':
+          $ref: '../components.yml#/components/responses/404'
+        '429':
+          $ref: '../components.yml#/components/responses/429'
+        '500':
+          $ref: '../components.yml#/components/responses/500'
+  reclamationById:
+    get:
+      tags:
+        - Reclamation
+      operationId: getReclamationById
+      summary: Get a reclamation by id
+      parameters:
+        - $ref: '../components.yml#/components/parameters/PathReclamationId'
+      responses:
+        '200':
+          description: The reclamation with the corresponding id
+          content:
+            application/json:
+              schema:
+                $ref: '../components.yml#/components/schemas/Reclamation'
+        '400':
+          $ref: '../components.yml#/components/responses/400'
+        '403':
+          $ref: '../components.yml#/components/responses/403'
+        '404':
+          $ref: '../components.yml#/components/responses/404'
+        '429':
+          $ref: '../components.yml#/components/responses/429'
+        '500':
+          $ref: '../components.yml#/components/responses/500'
+  reclamationAssignees:
+    put:
+      tags:
+        - Reclamation
+      operationId: addReclamationAssignees
+      summary: Add one or more assignees to a reclamation, keeping the existing ones
+      parameters:
+        - $ref: '../components.yml#/components/parameters/PathReclamationId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '../components.yml#/components/schemas/UpdateReclamationAssignees'
+      responses:
+        '200':
+          description: The reclamation with its updated assignees
+          content:
+            application/json:
+              schema:
+                $ref: '../components.yml#/components/schemas/Reclamation'
+        '400':
+          $ref: '../components.yml#/components/responses/400'
+        '403':
+          $ref: '../components.yml#/components/responses/403'
+        '404':
+          $ref: '../components.yml#/components/responses/404'
+        '429':
+          $ref: '../components.yml#/components/responses/429'
+        '500':
+          $ref: '../components.yml#/components/responses/500'
+  reclamationStatus:
+    put:
+      tags:
+        - Reclamation
+      operationId: updateReclamationStatus
+      summary: Change the status of a reclamation
+      parameters:
+        - $ref: '../components.yml#/components/parameters/PathReclamationId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '../components.yml#/components/schemas/UpdateReclamationStatus'
+      responses:
+        '200':
+          description: The reclamation with its updated status
+          content:
+            application/json:
+              schema:
+                $ref: '../components.yml#/components/schemas/Reclamation'
+        '400':
+          $ref: '../components.yml#/components/responses/400'
+        '403':
+          $ref: '../components.yml#/components/responses/403'
+        '404':
+          $ref: '../components.yml#/components/responses/404'
+        '429':
+          $ref: '../components.yml#/components/responses/429'
+        '500':
+          $ref: '../components.yml#/components/responses/500'
+  reclamationHistory:
+    get:
+      tags:
+        - Reclamation
+      operationId: getReclamationStatusHistory
+      summary: Get the status history of a reclamation
+      parameters:
+        - $ref: '../components.yml#/components/parameters/PathReclamationId'
+        - $ref: '../components.yml#/components/parameters/Page'
+        - $ref: '../components.yml#/components/parameters/PageSize'
+        - $ref: '../components.yml#/components/parameters/DatetimeFromFilter'
+        - $ref: '../components.yml#/components/parameters/DatetimeToFilter'
+      responses:
+        '200':
+          description: Status history for the reclamation, most recent first
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '../components.yml#/components/schemas/ReclamationStatusHistory'
+        '400':
+          $ref: '../components.yml#/components/responses/400'
+        '403':
+          $ref: '../components.yml#/components/responses/403'
+        '404':
+          $ref: '../components.yml#/components/responses/404'
+        '429':
+          $ref: '../components.yml#/components/responses/429'
+        '500':
+          $ref: '../components.yml#/components/responses/500'
+  studentReclamations:
+    get:
+      tags:
+        - Reclamation
+        - User
+      operationId: getStudentReclamations
+      summary: Get all reclamations for the given student_id
+      parameters:
+        - $ref: '../components.yml#/components/parameters/PathStudentId'
+        - $ref: '../components.yml#/components/parameters/Page'
+        - $ref: '../components.yml#/components/parameters/PageSize'
+      responses:
+        '200':
+          description: List of reclamations for the given student_id
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '../components.yml#/components/schemas/Reclamation'
+        '400':
+          $ref: '../components.yml#/components/responses/400'
+        '403':
+          $ref: '../components.yml#/components/responses/403'
+        '404':
+          $ref: '../components.yml#/components/responses/404'
+        '429':
+          $ref: '../components.yml#/components/responses/429'
+        '500':
+          $ref: '../components.yml#/components/responses/500'
+  reclamationRoutings:
+    get:
+      tags:
+        - Reclamation
+      operationId: getReclamationRoutings
+      summary: Get the history of reclamation routing assignments
+      parameters:
+        - $ref: '../components.yml#/components/parameters/Page'
+        - $ref: '../components.yml#/components/parameters/PageSize'
+        - $ref: '../components.yml#/components/parameters/ReclamationTypes'
+      responses:
+        '200':
+          description: List of reclamation routing assignments, most recent first
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '../components.yml#/components/schemas/ReclamationRouting'
+        '400':
+          $ref: '../components.yml#/components/responses/400'
+        '403':
+          $ref: '../components.yml#/components/responses/403'
+        '404':
+          $ref: '../components.yml#/components/responses/404'
+        '429':
+          $ref: '../components.yml#/components/responses/429'
+        '500':
+          $ref: '../components.yml#/components/responses/500'
+    post:
+      tags:
+        - Reclamation
+      operationId: createReclamationRouting
+      summary: Designate the manager responsible for a reclamation type
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '../components.yml#/components/schemas/CrupdateReclamationRouting'
+      responses:
+        '200':
+          description: The created reclamation routing assignment
+          content:
+            application/json:
+              schema:
+                $ref: '../components.yml#/components/schemas/ReclamationRouting'
+        '400':
+          $ref: '../components.yml#/components/responses/400'
+        '403':
+          $ref: '../components.yml#/components/responses/403'
+        '404':
+          $ref: '../components.yml#/components/responses/404'
+        '429':
+          $ref: '../components.yml#/components/responses/429'
+        '500':
+          $ref: '../components.yml#/components/responses/500'
+  lastReclamationRouting:
+    get:
+      tags:
+        - Reclamation
+      operationId: getLastReclamationRouting
+      summary: Get the manager currently responsible for a reclamation type
+      parameters:
+        - $ref: '../components.yml#/components/parameters/ReclamationTypeFilter'
+      responses:
+        '200':
+          description: The current reclamation routing assignment for the given type
+          content:
+            application/json:
+              schema:
+                $ref: '../components.yml#/components/schemas/ReclamationRouting'
+        '400':
+          $ref: '../components.yml#/components/responses/400'
+        '403':
+          $ref: '../components.yml#/components/responses/403'
+        '404':
+          $ref: '../components.yml#/components/responses/404'
+        '429':
+          $ref: '../components.yml#/components/responses/429'
+        '500':
+          $ref: '../components.yml#/components/responses/500'
