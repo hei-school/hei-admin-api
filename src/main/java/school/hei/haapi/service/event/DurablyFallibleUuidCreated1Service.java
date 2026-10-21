@@ -11,7 +11,6 @@ import school.hei.haapi.PojaGenerated;
 import school.hei.haapi.endpoint.event.model.DurablyFallibleUuidCreated1;
 
 @PojaGenerated
-@SuppressWarnings("all")
 @Service
 @AllArgsConstructor
 @Slf4j

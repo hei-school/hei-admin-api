@@ -30,7 +30,6 @@ import software.amazon.awssdk.services.ses.model.RawMessage;
 import software.amazon.awssdk.services.ses.model.SendRawEmailRequest;
 
 @PojaGenerated
-@SuppressWarnings("all")
 @Component
 @AllArgsConstructor
 public class Mailer implements Consumer<Email> {
