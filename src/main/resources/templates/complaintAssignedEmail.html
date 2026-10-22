@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <title>Réclamation transmise</title>
+    <style type="text/css">
+        body { font-family: Arial, Helvetica, sans-serif; font-size: 16px; color: #000; margin: 20px; line-height: 1.45; }
+        .container { width: 780px; margin: 0; padding: 20px 30px; }
+        p { margin: 18px 0; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <p>Bonjour,</p>
+    <p th:if="${wasAutoRouted}">Une nouvelle réclamation déposée par <strong th:text="${studentName}">Étudiant</strong> vous a été assignée.</p>
+    <p th:unless="${wasAutoRouted}">Une réclamation déposée par <strong th:text="${studentName}">Étudiant</strong> vous a été transmise.</p>
+    <p><strong>Objet :</strong> <span th:text="${title}">Titre</span></p>
+    <p><strong>Description :</strong><br/><span th:text="${description}">Description</span></p>
+    <p>Merci de la consulter dans HEI Admin.</p>
+</div>
+</body>
+</html>
