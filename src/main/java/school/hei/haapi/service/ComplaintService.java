@@ -4,10 +4,12 @@ import static school.hei.haapi.model.ComplaintStatus.CREATED;
 import static school.hei.haapi.model.ComplaintStatus.IN_PROGRESS;
 import static school.hei.haapi.model.ComplaintStatus.REJECTED;
 import static school.hei.haapi.model.ComplaintStatus.RESOLVED;
-import static school.hei.haapi.model.exception.ApiException.ExceptionType.CLIENT_EXCEPTION;
 
+import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import school.hei.haapi.endpoint.event.EventProducer;
@@ -18,11 +20,12 @@ import school.hei.haapi.model.ComplaintAssignee;
 import school.hei.haapi.model.ComplaintStatus;
 import school.hei.haapi.model.ComplaintType;
 import school.hei.haapi.model.User;
-import school.hei.haapi.model.exception.ApiException;
+import school.hei.haapi.model.exception.BadRequestException;
 import school.hei.haapi.model.exception.NotFoundException;
 import school.hei.haapi.repository.ComplaintAssigneeRepository;
 import school.hei.haapi.repository.ComplaintRepository;
 import school.hei.haapi.repository.UserRepository;
+import school.hei.haapi.repository.dao.ComplaintDao;
 
 @Service
 @AllArgsConstructor
@@ -32,6 +35,7 @@ public class ComplaintService {
   private final UserRepository userRepository;
   private final ComplaintRoutingService complaintRoutingService;
   private final ComplaintStatusHistoryService complaintStatusHistoryService;
+  private final ComplaintDao complaintDao;
   private final EventProducer<ComplaintEmailNotificationRequested> emailEventProducer;
   private final EventProducer<ComplaintSmsNotificationRequested> smsEventProducer;
 
@@ -39,6 +43,21 @@ public class ComplaintService {
     return complaintRepository
         .findById(id)
         .orElseThrow(() -> new NotFoundException("Complaint with id #%s not found".formatted(id)));
+  }
+
+  public List<Complaint> getComplaints(
+      List<ComplaintType> types,
+      List<ComplaintStatus> statuses,
+      String managerId,
+      String assigneeId,
+      Instant from,
+      Instant to,
+      Pageable pageable) {
+    return complaintDao.findByCriteria(types, statuses, managerId, assigneeId, from, to, pageable);
+  }
+
+  public List<Complaint> getStudentComplaints(String studentId, Pageable pageable) {
+    return complaintRepository.findAllByStudent_IdOrderByCreatedAtDesc(studentId, pageable);
   }
 
   @Transactional
@@ -56,8 +75,14 @@ public class ComplaintService {
 
     complaintStatusHistoryService.save(complaint, CREATED, "Réclamation envoyée.", student);
 
-    complaintAssigneeRepository.save(
-        ComplaintAssignee.builder().complaint(complaint).user(manager).assignedBy(null).build());
+    var savedAssignee =
+        complaintAssigneeRepository.save(
+            ComplaintAssignee.builder()
+                .complaint(complaint)
+                .user(manager)
+                .assignedBy(null)
+                .build());
+    addAssigneeInMemory(complaint, savedAssignee);
 
     emailEventProducer.accept(
         List.of(
@@ -82,8 +107,14 @@ public class ComplaintService {
               .findById(userId)
               .orElseThrow(
                   () -> new NotFoundException("User with id #%s not found".formatted(userId)));
-      complaintAssigneeRepository.save(
-          ComplaintAssignee.builder().complaint(complaint).user(user).assignedBy(actor).build());
+      var savedAssignee =
+          complaintAssigneeRepository.save(
+              ComplaintAssignee.builder()
+                  .complaint(complaint)
+                  .user(user)
+                  .assignedBy(actor)
+                  .build());
+      addAssigneeInMemory(complaint, savedAssignee);
 
       emailEventProducer.accept(
           List.of(
@@ -146,8 +177,7 @@ public class ComplaintService {
             || (from == IN_PROGRESS && to == RESOLVED)
             || (from == CREATED && to == REJECTED);
     if (!isValid) {
-      throw new ApiException(
-          CLIENT_EXCEPTION, "Cannot move a complaint from %s to %s".formatted(from, to));
+      throw new BadRequestException("Cannot move a complaint from %s to %s".formatted(from, to));
     }
   }
 
@@ -156,14 +186,20 @@ public class ComplaintService {
       return comment;
     }
     if (newStatus == REJECTED) {
-      throw new ApiException(CLIENT_EXCEPTION, "A reason is required to reject a complaint");
+      throw new BadRequestException("A reason is required to reject a complaint");
     }
     return switch (newStatus) {
       case IN_PROGRESS -> "Votre réclamation est en cours de traitement.";
       case RESOLVED -> "Votre réclamation a été résolue.";
       default ->
-          throw new ApiException(
-              CLIENT_EXCEPTION, "No default message for status %s".formatted(newStatus));
+          throw new BadRequestException("No default message for status %s".formatted(newStatus));
     };
+  }
+
+  private void addAssigneeInMemory(Complaint complaint, ComplaintAssignee assignee) {
+    if (complaint.getAssignees() == null) {
+      complaint.setAssignees(new ArrayList<>());
+    }
+    complaint.getAssignees().add(assignee);
   }
 }

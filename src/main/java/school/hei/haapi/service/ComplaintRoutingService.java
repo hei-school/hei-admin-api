@@ -1,6 +1,8 @@
 package school.hei.haapi.service;
 
+import java.util.List;
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import school.hei.haapi.model.ComplaintRouting;
 import school.hei.haapi.model.ComplaintType;
@@ -25,5 +27,12 @@ public class ComplaintRoutingService {
             () ->
                 new NotFoundException(
                     "No manager is routed for complaint type #%s".formatted(type)));
+  }
+
+  public List<ComplaintRouting> getComplaintRoutings(List<ComplaintType> types, Pageable pageable) {
+    if (types == null || types.isEmpty()) {
+      return complaintRoutingRepository.findAllByOrderByCreationDatetimeDesc(pageable);
+    }
+    return complaintRoutingRepository.findByTypeInOrderByCreationDatetimeDesc(types, pageable);
   }
 }

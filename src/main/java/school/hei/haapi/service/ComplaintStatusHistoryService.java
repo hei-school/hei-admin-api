@@ -1,19 +1,22 @@
 package school.hei.haapi.service;
 
+import java.time.Instant;
 import java.util.List;
 import lombok.AllArgsConstructor;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import school.hei.haapi.model.Complaint;
 import school.hei.haapi.model.ComplaintStatus;
 import school.hei.haapi.model.ComplaintStatusHistory;
 import school.hei.haapi.model.User;
 import school.hei.haapi.repository.ComplaintStatusHistoryRepository;
+import school.hei.haapi.repository.dao.ComplaintStatusHistoryDao;
 
 @Service
 @AllArgsConstructor
 public class ComplaintStatusHistoryService {
   private final ComplaintStatusHistoryRepository complaintStatusHistoryRepository;
+  private final ComplaintStatusHistoryDao complaintStatusHistoryDao;
 
   public ComplaintStatusHistory save(
       Complaint complaint, ComplaintStatus status, String comment, User changedBy) {
@@ -26,7 +29,8 @@ public class ComplaintStatusHistoryService {
             .build());
   }
 
-  public List<ComplaintStatusHistory> getHistory(String complaintId, Sort sort) {
-    return complaintStatusHistoryRepository.findByComplaintIdOrderByDatetime(complaintId, sort);
+  public List<ComplaintStatusHistory> getHistory(
+      String complaintId, Instant from, Instant to, Pageable pageable) {
+    return complaintStatusHistoryDao.findByCriteria(complaintId, from, to, pageable);
   }
 }
