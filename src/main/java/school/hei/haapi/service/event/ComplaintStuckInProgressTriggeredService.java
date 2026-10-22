@@ -22,11 +22,6 @@ import school.hei.haapi.repository.ComplaintStatusHistoryRepository;
 import school.hei.haapi.service.befiana.BefianaClient;
 import school.hei.haapi.service.befiana.BefianaException;
 
-/**
- * Scans every complaint stuck in IN_PROGRESS for more than 3 days and reminds the student once
- * (sets {@code reminderSentAt} so a later tick of this same scan skips it). Never published from
- * this repo — see {@link ComplaintStuckInProgressTriggered}.
- */
 @Slf4j
 @Service
 @AllArgsConstructor

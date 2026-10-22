@@ -6,11 +6,6 @@ import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
-/**
- * Consumed only — never published from this repo. Meant to be put on the event bus by an external
- * scheduled rule (see UpdateFeesStatusToLateTriggered / SendUnpaidFeesReminderTriggered for the
- * same convention).
- */
 @EqualsAndHashCode
 @Builder
 @ToString

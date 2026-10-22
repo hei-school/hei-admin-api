@@ -43,7 +43,6 @@ public class ComplaintAssignee {
   @JoinColumn(name = "user_id")
   private User user;
 
-  /** Null means the manager was assigned automatically by the routing lookup, not by a person. */
   @ManyToOne
   @JoinColumn(name = "assigned_by_id")
   private User assignedBy;

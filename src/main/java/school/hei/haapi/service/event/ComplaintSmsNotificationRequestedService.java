@@ -12,12 +12,6 @@ import school.hei.haapi.service.ComplaintService;
 import school.hei.haapi.service.befiana.BefianaClient;
 import school.hei.haapi.service.befiana.BefianaException;
 
-/**
- * Same derivation as {@link ComplaintEmailNotificationRequestedService}: recipient == the
- * complaint's student means the text is the latest status-history comment (that row always matches
- * the complaint's current status, whether IN_PROGRESS or just closed); any other recipient is
- * someone newly handling the complaint.
- */
 @Slf4j
 @Service
 @AllArgsConstructor

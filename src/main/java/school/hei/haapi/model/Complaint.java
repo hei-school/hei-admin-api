@@ -64,7 +64,6 @@ public class Complaint {
 
   @EqualsAndHashCode.Exclude @CreationTimestamp private Instant createdAt;
 
-  /** Set once the 3-day "stuck in progress" reminder has fired, to avoid sending it twice. */
   @EqualsAndHashCode.Exclude private Instant reminderSentAt;
 
   @EqualsAndHashCode.Exclude

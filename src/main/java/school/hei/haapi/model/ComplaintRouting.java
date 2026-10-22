@@ -20,7 +20,6 @@ import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.JdbcTypeCode;
 
-/** Insert-only: a new row is appended every time a manager is (re)designated, never updated. */
 @Entity
 @Table(name = "\"complaint_routing\"")
 @Getter

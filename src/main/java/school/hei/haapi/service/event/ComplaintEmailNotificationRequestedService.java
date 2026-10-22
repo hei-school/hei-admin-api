@@ -19,13 +19,6 @@ import school.hei.haapi.repository.ComplaintAssigneeRepository;
 import school.hei.haapi.repository.UserRepository;
 import school.hei.haapi.service.ComplaintService;
 
-/**
- * One event, two possible notifications, told apart by comparing the recipient to the complaint's
- * own state rather than by a redundant "kind" field: the student is only ever notified by email
- * when the complaint closes, so recipient == student means "closed"; any other recipient is someone
- * handling the complaint (the auto-routed manager or a transmitted assignee — told apart via that
- * ComplaintAssignee row's assignedBy).
- */
 @Slf4j
 @Service
 @AllArgsConstructor
