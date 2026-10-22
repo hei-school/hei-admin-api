@@ -12,12 +12,12 @@ public final class BadgeLayout {
 
   private static final List<FontSize> LAST_NAME_FONT_SIZES =
       List.of(
-          new FontSize(14, "10pt"),
-          new FontSize(16, "8.5pt"),
-          new FontSize(18, "8pt"),
-          new FontSize(20, "7.5pt"),
-          new FontSize(22, "7pt"));
-  private static final String SMALLEST_LAST_NAME_FONT_SIZE = "6pt";
+          new FontSize(14, "9.8pt"),
+          new FontSize(16, "8.3pt"),
+          new FontSize(18, "7.8pt"),
+          new FontSize(20, "7.3pt"),
+          new FontSize(22, "6.9pt"));
+  private static final String SMALLEST_LAST_NAME_FONT_SIZE = "5.9pt";
 
   private BadgeLayout() {}
 

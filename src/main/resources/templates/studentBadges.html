@@ -5,7 +5,7 @@
   <title>Badges étudiants</title>
   <style>
     @page {
-      size: 185mm 285mm;
+      size: 181mm 280mm;
       margin: 0;
     }
 
@@ -20,7 +20,7 @@
     }
 
     .page {
-      height: 285mm;
+      height: 280mm;
       overflow: hidden;
       page-break-after: always;
     }
@@ -41,12 +41,12 @@
     }
 
     .grid {
-      width: 185mm;
+      width: 181mm;
     }
 
     .slot {
-      width: 90mm;
-      height: 57mm;
+      width: 88mm;
+      height: 56mm;
     }
 
     .column-gap {
@@ -54,21 +54,21 @@
     }
 
     .badge {
-      width: 89.8mm;
-      height: 56.8mm;
+      width: 87.8mm;
+      height: 55.8mm;
       border: 0.1mm solid #c4c7cc;
       overflow: hidden;
       background-color: #ffffff;
     }
 
     .header {
-      height: 11.5mm;
-      padding: 0 3.2mm;
+      height: 11.3mm;
+      padding: 0 3.1mm;
     }
 
     .header table {
-      width: 83.4mm;
-      height: 11.5mm;
+      width: 81.6mm;
+      height: 11.3mm;
     }
 
     .header td {
@@ -76,33 +76,33 @@
     }
 
     .logo-cell {
-      width: 15mm;
+      width: 14.7mm;
     }
 
     .logo {
-      width: 13mm;
-      height: 7.8mm;
+      width: 12.7mm;
+      height: 7.6mm;
     }
 
     .school-name {
-      font-size: 7pt;
+      font-size: 6.9pt;
       font-weight: bold;
       color: #1f2a44;
     }
 
     .school-place {
-      font-size: 5.8pt;
+      font-size: 5.7pt;
       color: #6b7280;
       margin-top: 0.4mm;
     }
 
     .level-cell {
-      width: 13mm;
+      width: 12.7mm;
       text-align: right;
     }
 
     .level {
-      font-size: 9.5pt;
+      font-size: 9.3pt;
       font-weight: bold;
       color: #ffffff;
       background-color: #1f2a44;
@@ -116,46 +116,46 @@
     }
 
     .body {
-      height: 30mm;
-      padding: 3.5mm 3.2mm;
+      height: 29.4mm;
+      padding: 3.4mm 3.1mm;
     }
 
     .body table {
-      width: 83.4mm;
-      height: 30mm;
+      width: 81.6mm;
+      height: 29.4mm;
     }
 
     .photo-cell {
-      width: 22.5mm;
+      width: 22.1mm;
     }
 
     .photo {
-      width: 22.5mm;
-      height: 30mm;
+      width: 22.1mm;
+      height: 29.4mm;
     }
 
     .photo-placeholder {
-      width: 22.1mm;
-      height: 29.6mm;
+      width: 21.7mm;
+      height: 29mm;
       border: 0.2mm solid #d1d5db;
       border-radius: 2.8mm;
       background-color: #f3f4f6;
       color: #9ca3af;
-      font-size: 6.5pt;
+      font-size: 6.4pt;
       text-align: center;
     }
 
     .photo-placeholder p {
-      padding-top: 13mm;
+      padding-top: 12.7mm;
     }
 
     .info-cell {
-      padding: 0 2mm 0 3.3mm;
+      padding: 0 2mm 0 3.2mm;
       vertical-align: middle;
     }
 
     .info {
-      max-height: 30mm;
+      max-height: 29.4mm;
       overflow: hidden;
     }
 
@@ -167,35 +167,35 @@
     }
 
     .first-name {
-      font-size: 9pt;
+      font-size: 8.8pt;
       color: #111827;
-      margin-bottom: 3.2mm;
+      margin-bottom: 3.1mm;
     }
 
     .ref {
-      font-size: 9pt;
+      font-size: 8.8pt;
       font-weight: bold;
       color: #b8860b;
     }
 
     .qr-cell {
-      width: 20mm;
+      width: 19.6mm;
       vertical-align: middle;
     }
 
     .qr {
-      width: 20mm;
-      height: 20mm;
+      width: 19.6mm;
+      height: 19.6mm;
     }
 
     .footer {
       height: 7.5mm;
-      padding: 0 3.2mm;
+      padding: 0 3.1mm;
       background-color: #dfa408;
     }
 
     .footer table {
-      width: 83.4mm;
+      width: 81.6mm;
       height: 7.5mm;
     }
 
@@ -205,12 +205,12 @@
     }
 
     .card-title {
-      font-size: 8pt;
+      font-size: 7.8pt;
       font-weight: bold;
     }
 
     .academic-year {
-      font-size: 7.5pt;
+      font-size: 7.3pt;
       text-align: right;
     }
   </style>
@@ -218,9 +218,9 @@
 <body>
 <div class="page" th:each="page, pageStat : ${pages}" th:classappend="${pageStat.last} ? 'last'">
   <table class="grid">
-    <col style="width: 90mm" />
+    <col style="width: 88mm" />
     <col style="width: 5mm" />
-    <col style="width: 90mm" />
+    <col style="width: 88mm" />
     <tr th:each="row : ${page}">
       <th:block th:each="badge, badgeStat : ${row}">
       <td class="column-gap" th:unless="${badgeStat.first}"></td>

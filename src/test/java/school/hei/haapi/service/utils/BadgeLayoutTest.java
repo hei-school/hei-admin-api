@@ -25,12 +25,12 @@ class BadgeLayoutTest {
 
   @Test
   void long_last_names_use_smaller_font() {
-    assertEquals("10pt", BadgeLayout.lastNameFontSize("RAKOTOARIVELO"));
-    assertEquals("8.5pt", BadgeLayout.lastNameFontSize("RANDRIANARIVELO"));
-    assertEquals("8pt", BadgeLayout.lastNameFontSize("ANDRIAMANOHINIAINA"));
-    assertEquals("7.5pt", BadgeLayout.lastNameFontSize("ANDRIAMPARANIMAHEFA"));
-    assertEquals("7pt", BadgeLayout.lastNameFontSize("RANDRIANARIVELONDRAZAF"));
-    assertEquals("6pt", BadgeLayout.lastNameFontSize("RANDRIANARIVELONDRAZAFINDRAKOTO"));
-    assertEquals("10pt", BadgeLayout.lastNameFontSize("RAKOTO ANDRIAMANANA"));
+    assertEquals("9.8pt", BadgeLayout.lastNameFontSize("RAKOTOARIVELO"));
+    assertEquals("8.3pt", BadgeLayout.lastNameFontSize("RANDRIANARIVELO"));
+    assertEquals("7.8pt", BadgeLayout.lastNameFontSize("ANDRIAMANOHINIAINA"));
+    assertEquals("7.3pt", BadgeLayout.lastNameFontSize("ANDRIAMPARANIMAHEFA"));
+    assertEquals("6.9pt", BadgeLayout.lastNameFontSize("RANDRIANARIVELONDRAZAF"));
+    assertEquals("5.9pt", BadgeLayout.lastNameFontSize("RANDRIANARIVELONDRAZAFINDRAKOTO"));
+    assertEquals("9.8pt", BadgeLayout.lastNameFontSize("RAKOTO ANDRIAMANANA"));
   }
 }

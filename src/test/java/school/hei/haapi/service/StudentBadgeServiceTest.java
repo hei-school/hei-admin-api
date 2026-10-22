@@ -243,6 +243,24 @@ class StudentBadgeServiceTest {
     verify(studentBadgeCodeService).newBadge(eq(l3), any(), eq(false));
   }
 
+  // Fixed: badges of 88 x 56 mm, 2 columns 5 mm apart and 5 rows, without page margin.
+  @Test
+  void page_holds_badges_of_88_by_56_mm_without_margin() throws Exception {
+    when(userService.getByRoleAndIds(List.of(STUDENT), List.of("student1_id")))
+        .thenReturn(List.of(student("student1_id", "STD26001", false)));
+
+    var pageSize =
+        new PdfReader(subject.generateBadges(null, List.of("student1_id"), "2026 - 2027"))
+            .getPageSize(1);
+
+    assertEquals(millimeters(2 * 88 + 5), pageSize.getWidth(), 0.1);
+    assertEquals(millimeters(5 * 56), pageSize.getHeight(), 0.1);
+  }
+
+  private static float millimeters(float millimeters) {
+    return millimeters / 25.4f * 72;
+  }
+
   @Test
   void qr_code_links_to_badge_page_of_public_id_never_to_student_id() {
     assertEquals(
