@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <title>Réclamation mise à jour</title>
+    <style type="text/css">
+        body { font-family: Arial, Helvetica, sans-serif; font-size: 16px; color: #000; margin: 20px; line-height: 1.45; }
+        .container { width: 780px; margin: 0; padding: 20px 30px; }
+        p { margin: 18px 0; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <p>Bonjour,</p>
+    <p>Votre réclamation « <span th:text="${title}">Titre</span> » a été mise à jour :</p>
+    <p th:text="${message}">Message</p>
+</div>
+</body>
+</html>
