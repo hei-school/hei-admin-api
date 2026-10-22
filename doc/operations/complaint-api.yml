@@ -122,7 +122,11 @@ operations:
       tags:
         - Complaint
       operationId: updateComplaintStatus
-      summary: Change the status of a complaint
+      summary: Change the status of a complaint, recording a message the student will see
+      description: >-
+        Allowed transitions: CREATED -> IN_PROGRESS, IN_PROGRESS -> RESOLVED,
+        CREATED -> REJECTED. REJECTED is only reachable directly from
+        CREATED, never from IN_PROGRESS.
       parameters:
         - $ref: '../components.yml#/components/parameters/PathComplaintId'
       requestBody:
