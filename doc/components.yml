@@ -2286,11 +2286,18 @@ components:
           $ref: '#/components/schemas/ComplaintStatus'
         comment:
           type: string
+          description: >-
+            Message shown to the student for this transition. Optional for
+            IN_PROGRESS and RESOLVED, where the server fills a default
+            message when omitted. Required when status is REJECTED.
     ComplaintStatusHistory:
       type: object
       properties:
         status:
           $ref: '#/components/schemas/ComplaintStatus'
+        comment:
+          type: string
+          description: Message shown to the student for this transition
         changed_by:
           $ref: '#/components/schemas/UserIdentifier'
         datetime:
