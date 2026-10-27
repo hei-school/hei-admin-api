@@ -402,6 +402,22 @@ paths:
     $ref: './operations/cor-api.yml#/operations/commentCorById'
   '/students/{student_id}/cors':
     $ref: './operations/cor-api.yml#/operations/studentsCors'
+  /complaints:
+    $ref: './operations/complaint-api.yml#/operations/complaints'
+  '/complaints/{complaint_id}':
+    $ref: './operations/complaint-api.yml#/operations/complaintById'
+  '/complaints/{complaint_id}/assignees':
+    $ref: './operations/complaint-api.yml#/operations/complaintAssignees'
+  '/complaints/{complaint_id}/status':
+    $ref: './operations/complaint-api.yml#/operations/complaintStatus'
+  '/complaints/{complaint_id}/history':
+    $ref: './operations/complaint-api.yml#/operations/complaintHistory'
+  '/students/{student_id}/complaints':
+    $ref: './operations/complaint-api.yml#/operations/studentComplaints'
+  /complaint-routings:
+    $ref: './operations/complaint-api.yml#/operations/complaintRoutings'
+  /complaint-routings/last:
+    $ref: './operations/complaint-api.yml#/operations/lastComplaintRouting'
   # Documenso
   /documenso-templates:
     $ref: './operations/documenso-api.yml#/operations/documensoTemplates'

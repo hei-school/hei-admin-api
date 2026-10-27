@@ -61,6 +61,49 @@ components:
         type: array
         items:
           $ref: '#/components/schemas/CorStatus'
+    ComplaintStatuses:
+      name: complaint_status
+      in: query
+      style: form
+      explode: true
+      required: false
+      description: Filter by complaint actual status
+      schema:
+        type: array
+        items:
+          $ref: '#/components/schemas/ComplaintStatus'
+    ComplaintTypes:
+      name: complaint_type
+      in: query
+      style: form
+      explode: true
+      required: false
+      description: Filter by complaint type
+      schema:
+        type: array
+        items:
+          $ref: '#/components/schemas/ComplaintType'
+    ComplaintManagerId:
+      name: manager_id
+      in: query
+      required: false
+      description: Filter by the manager originally routed to the complaint's type
+      schema:
+        type: string
+    ComplaintAssigneeId:
+      name: assignee_id
+      in: query
+      required: false
+      description: Filter by a user currently assigned to the complaint
+      schema:
+        type: string
+    ComplaintTypeFilter:
+      name: type
+      in: query
+      required: true
+      description: The complaint type to look up
+      schema:
+        $ref: '#/components/schemas/ComplaintType'
     StudentRef:
       name: student_ref
       in: query
@@ -114,6 +157,12 @@ components:
         type: string
     PathCorId:
       name: cor_id
+      in: path
+      required: true
+      schema:
+        type: string
+    PathComplaintId:
+      name: complaint_id
       in: path
       required: true
       schema:
@@ -2180,6 +2229,99 @@ components:
         - CANCELED
         - LEAVE
         - NO_SHOW
+    ComplaintType:
+      type: string
+      enum:
+        - ACADEMIC
+        - FINANCIAL
+    ComplaintStatus:
+      type: string
+      enum:
+        - CREATED
+        - IN_PROGRESS
+        - RESOLVED
+        - REJECTED
+    CrupdateComplaint:
+      type: object
+      properties:
+        type:
+          $ref: '#/components/schemas/ComplaintType'
+        title:
+          type: string
+        description:
+          type: string
+    Complaint:
+      type: object
+      properties:
+        id:
+          type: string
+        type:
+          $ref: '#/components/schemas/ComplaintType'
+        title:
+          type: string
+        description:
+          type: string
+        status:
+          $ref: '#/components/schemas/ComplaintStatus'
+        student:
+          $ref: '#/components/schemas/UserIdentifier'
+        assignees:
+          type: array
+          items:
+            $ref: '#/components/schemas/UserIdentifier'
+        created_at:
+          type: string
+          format: date-time
+    UpdateComplaintAssignees:
+      type: object
+      properties:
+        user_ids:
+          type: array
+          items:
+            type: string
+    UpdateComplaintStatus:
+      type: object
+      properties:
+        status:
+          $ref: '#/components/schemas/ComplaintStatus'
+        comment:
+          type: string
+          description: >-
+            Message shown to the student for this transition. Optional for
+            IN_PROGRESS and RESOLVED, where the server fills a default
+            message when omitted. Required when status is REJECTED.
+    ComplaintStatusHistory:
+      type: object
+      properties:
+        status:
+          $ref: '#/components/schemas/ComplaintStatus'
+        comment:
+          type: string
+          description: Message shown to the student for this transition
+        changed_by:
+          $ref: '#/components/schemas/UserIdentifier'
+        datetime:
+          type: string
+          format: date-time
+    CrupdateComplaintRouting:
+      type: object
+      properties:
+        type:
+          $ref: '#/components/schemas/ComplaintType'
+        manager_id:
+          type: string
+    ComplaintRouting:
+      type: object
+      properties:
+        id:
+          type: string
+        type:
+          $ref: '#/components/schemas/ComplaintType'
+        manager:
+          $ref: '#/components/schemas/UserIdentifier'
+        creation_datetime:
+          type: string
+          format: date-time
     UpdateLettersStatus:
       type: object
       properties:
