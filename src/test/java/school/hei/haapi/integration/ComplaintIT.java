@@ -329,6 +329,106 @@ class ComplaintIT extends FacadeITMockedThirdParties {
                     .managerId(manager.getId())));
   }
 
+  @Test
+  void student_create_complaint_without_title_ko() {
+    var api = new ComplaintApi(anApiClient(axelToken));
+    var dto = new CrupdateComplaint().type(ComplaintType.ACADEMIC).description("Description");
+
+    assertBadRequestException("Title is mandatory", () -> api.createComplaint(dto));
+  }
+
+  @Test
+  void student_create_complaint_without_description_ko() {
+    var api = new ComplaintApi(anApiClient(axelToken));
+    var dto = new CrupdateComplaint().type(ComplaintType.ACADEMIC).title("Titre");
+
+    assertBadRequestException("Description is mandatory", () -> api.createComplaint(dto));
+  }
+
+  @Test
+  void manager_add_assignees_without_user_ids_ko() throws ApiException {
+    var studentApi = new ComplaintApi(anApiClient(axelToken));
+    var complaint =
+        studentApi.createComplaint(
+            new CrupdateComplaint()
+                .type(ComplaintType.ACADEMIC)
+                .title("Titre")
+                .description("Description"));
+
+    var managerApi = new ComplaintApi(anApiClient(managerToken));
+    assertBadRequestException(
+        "At least one user id is mandatory",
+        () ->
+            managerApi.addComplaintAssignees(
+                complaint.getId(), new UpdateComplaintAssignees().userIds(List.of())));
+  }
+
+  @Test
+  void manager_add_nonexistent_assignee_ko() throws ApiException {
+    var studentApi = new ComplaintApi(anApiClient(axelToken));
+    var complaint =
+        studentApi.createComplaint(
+            new CrupdateComplaint()
+                .type(ComplaintType.ACADEMIC)
+                .title("Titre")
+                .description("Description"));
+
+    var managerApi = new ComplaintApi(anApiClient(managerToken));
+    assertThrowsApiException(
+        "{\"type\":\"404 NOT_FOUND\",\"message\":\"User with id #unknown-user not found\"}",
+        () ->
+            managerApi.addComplaintAssignees(
+                complaint.getId(),
+                new UpdateComplaintAssignees().userIds(List.of("unknown-user"))));
+  }
+
+  @Test
+  void manager_update_status_without_status_ko() throws ApiException {
+    var studentApi = new ComplaintApi(anApiClient(axelToken));
+    var complaint =
+        studentApi.createComplaint(
+            new CrupdateComplaint()
+                .type(ComplaintType.ACADEMIC)
+                .title("Titre")
+                .description("Description"));
+
+    var managerApi = new ComplaintApi(anApiClient(managerToken));
+    assertBadRequestException(
+        "Status is mandatory",
+        () -> managerApi.updateComplaintStatus(complaint.getId(), new UpdateComplaintStatus()));
+  }
+
+  @Test
+  void student_get_own_complaint_history_ok() throws ApiException {
+    var studentApi = new ComplaintApi(anApiClient(axelToken));
+    var complaint =
+        studentApi.createComplaint(
+            new CrupdateComplaint()
+                .type(ComplaintType.ACADEMIC)
+                .title("Titre")
+                .description("Description"));
+
+    var history = studentApi.getComplaintStatusHistory(complaint.getId(), null, null, null, null);
+
+    assertEquals(1, history.size());
+    assertEquals(ComplaintStatus.CREATED, history.getFirst().getStatus());
+  }
+
+  @Test
+  void student_get_other_student_complaint_history_ko() throws ApiException {
+    var axelApi = new ComplaintApi(anApiClient(axelToken));
+    var complaint =
+        axelApi.createComplaint(
+            new CrupdateComplaint()
+                .type(ComplaintType.ACADEMIC)
+                .title("Titre")
+                .description("Description"));
+
+    var tolotraApi = new ComplaintApi(anApiClient(tolotraToken));
+    assertThrowsForbiddenException(
+        () -> tolotraApi.getComplaintStatusHistory(complaint.getId(), null, null, null, null));
+  }
+
   private ApiClient anApiClient(String token) {
     return TestUtils.anApiClient(token, localPort);
   }

@@ -16,6 +16,7 @@ import school.hei.haapi.endpoint.event.model.ComplaintStuckInProgressTriggered;
 import school.hei.haapi.mail.Email;
 import school.hei.haapi.mail.Mailer;
 import school.hei.haapi.model.Complaint;
+import school.hei.haapi.model.ComplaintStatus;
 import school.hei.haapi.model.ComplaintStatusHistory;
 import school.hei.haapi.repository.ComplaintRepository;
 import school.hei.haapi.repository.ComplaintStatusHistoryRepository;
@@ -37,7 +38,9 @@ public class ComplaintStuckInProgressTriggeredService
   @Override
   public void accept(ComplaintStuckInProgressTriggered event) {
     var threshold = Instant.now().minus(STUCK_THRESHOLD);
-    var stuckHistories = complaintStatusHistoryRepository.findStuckInProgressSince(threshold);
+    var stuckHistories =
+        complaintStatusHistoryRepository.findStuckInProgressSince(
+            ComplaintStatus.IN_PROGRESS, threshold);
 
     stuckHistories.stream().map(ComplaintStatusHistory::getComplaint).forEach(this::remind);
   }
