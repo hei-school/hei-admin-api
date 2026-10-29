@@ -150,22 +150,6 @@ Resources:
         EventBridgeParameters:
           DetailType: 'school.hei.haapi.endpoint.event.model.AdvancedFeeStatsComputationTriggered'
           Source: 'school.hei.haapi.event1'
-  ComplaintStuckInProgressScheduler:
-    Type: AWS::Scheduler::Schedule
-    Properties:
-      Description: Scheduler that reminds students and staff about complaints stuck IN_PROGRESS for too long
-      FlexibleTimeWindow:
-        Mode: "OFF"
-      Name: !Join [ '', [ !Ref Env, -ComplaintStuckInProgressScheduler ] ]
-      ScheduleExpression: "cron(0 6 * * ? *)" # Every day at 06:00
-      Target:
-        Arn: !Sub '{{resolve:ssm:/haapi/${Env}/eventbridge/bus-arn}}'
-        RoleArn: !GetAtt ScheduledEventExecutionRole.Arn
-        DeadLetterConfig:
-          Arn: !Sub '{{resolve:ssm:/haapi/${Env}/1/sqs/dead-letter-queue-arn}}'
-        EventBridgeParameters:
-          DetailType: 'school.hei.haapi.endpoint.event.model.ComplaintStuckInProgressTriggered'
-          Source: 'school.hei.haapi.event1'
   ScheduledEventExecutionRole:
     Type: AWS::IAM::Role
     Properties:
