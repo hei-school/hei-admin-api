@@ -16,6 +16,7 @@ import school.hei.haapi.model.ComplaintStatusHistory;
 @Repository
 @AllArgsConstructor
 public class ComplaintStatusHistoryDao {
+  private static final String DATETIME_FIELD = "datetime";
   private final EntityManager entityManager;
 
   public List<ComplaintStatusHistory> findByCriteria(
@@ -28,15 +29,15 @@ public class ComplaintStatusHistoryDao {
     predicates.add(builder.equal(root.get("complaint").get("id"), complaintId));
 
     if (from != null) {
-      predicates.add(builder.greaterThanOrEqualTo(root.get("datetime"), from));
+      predicates.add(builder.greaterThanOrEqualTo(root.get(DATETIME_FIELD), from));
     }
 
     if (to != null) {
-      predicates.add(builder.lessThanOrEqualTo(root.get("datetime"), to));
+      predicates.add(builder.lessThanOrEqualTo(root.get(DATETIME_FIELD), to));
     }
 
     query.where(predicates.toArray(new Predicate[0]));
-    query.orderBy(builder.desc(root.get("datetime")));
+    query.orderBy(builder.desc(root.get(DATETIME_FIELD)));
 
     if (pageable.isUnpaged()) {
       return entityManager.createQuery(query).getResultList();

@@ -18,6 +18,7 @@ import school.hei.haapi.model.ComplaintType;
 @Repository
 @AllArgsConstructor
 public class ComplaintDao {
+  private static final String CREATED_AT_FIELD = "createdAt";
   private final EntityManager entityManager;
 
   public List<Complaint> findByCriteria(
@@ -43,11 +44,11 @@ public class ComplaintDao {
     }
 
     if (from != null) {
-      predicates.add(builder.greaterThanOrEqualTo(root.get("createdAt"), from));
+      predicates.add(builder.greaterThanOrEqualTo(root.get(CREATED_AT_FIELD), from));
     }
 
     if (to != null) {
-      predicates.add(builder.lessThanOrEqualTo(root.get("createdAt"), to));
+      predicates.add(builder.lessThanOrEqualTo(root.get(CREATED_AT_FIELD), to));
     }
 
     if (managerId != null && !managerId.isEmpty()) {
@@ -62,7 +63,7 @@ public class ComplaintDao {
     }
 
     query.distinct(true).where(predicates.toArray(new Predicate[0]));
-    query.orderBy(builder.desc(root.get("createdAt")));
+    query.orderBy(builder.desc(root.get(CREATED_AT_FIELD)));
 
     if (pageable.isUnpaged()) {
       return entityManager.createQuery(query).getResultList();

@@ -48,7 +48,7 @@ class FileUtilsTest {
   @Test
   void shouldHandleBinaryFiles() throws IOException {
     var fileName = "test.bin";
-    byte[] binaryContent = new byte[] {0x01, 0x02, 0x03, 0x04};
+    byte[] binaryContent = {0x01, 0x02, 0x03, 0x04};
     var testFile = createBinaryTestFile(fileName, binaryContent);
 
     var multipartFile = FileUtils.multipartFileFromFile(testFile);

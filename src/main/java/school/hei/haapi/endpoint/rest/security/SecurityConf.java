@@ -53,6 +53,11 @@ public class SecurityConf {
       "/sms-campaigns/by-manual-numbers";
   private static final String SMS_CAMPAIGNS_BY_GROUPS_PATH = "/sms-campaigns/by-groups";
   private static final String SMS_CAMPAIGNS_BY_FILE_PATH = "/sms-campaigns/by-file";
+  private static final String COMPLAINTS_PATH = "/complaints";
+  private static final String COMPLAINTS_BY_ID_PATH = "/complaints/*";
+  private static final String COMPLAINTS_HISTORY_PATH = "/complaints/*/history";
+  private static final String STUDENTS_COMPLAINTS_PATH = "/students/*/complaints";
+  private static final String COMPLAINT_ROUTINGS_PATH = "/complaint-routings";
   static final RequestMatcher PUBLIC_BADGE = new AntPathRequestMatcher("/badges/*", GET.name());
   private final CourseAssignmentService courseAssignmentService;
   private final MonitoringStudentService monitoringStudentService;
@@ -168,15 +173,15 @@ public class SecurityConf {
                     antMatcher(POST, "/cors/*/comment"),
                     antMatcher(GET, "/students/*/cors"),
                     antMatcher(PUT, "/students/*/cors"),
-                    antMatcher(GET, "/complaints"),
-                    antMatcher(POST, "/complaints"),
-                    antMatcher(GET, "/complaints/*"),
+                    antMatcher(GET, COMPLAINTS_PATH),
+                    antMatcher(POST, COMPLAINTS_PATH),
+                    antMatcher(GET, COMPLAINTS_BY_ID_PATH),
                     antMatcher(PUT, "/complaints/*/assignees"),
                     antMatcher(PUT, "/complaints/*/status"),
-                    antMatcher(GET, "/complaints/*/history"),
-                    antMatcher(GET, "/students/*/complaints"),
-                    antMatcher(GET, "/complaint-routings"),
-                    antMatcher(POST, "/complaint-routings"),
+                    antMatcher(GET, COMPLAINTS_HISTORY_PATH),
+                    antMatcher(GET, STUDENTS_COMPLAINTS_PATH),
+                    antMatcher(GET, COMPLAINT_ROUTINGS_PATH),
+                    antMatcher(POST, COMPLAINT_ROUTINGS_PATH),
                     antMatcher(GET, "/complaint-routings/last"),
                     antMatcher(POST, "/documenso-templates/sync"),
                     antMatcher(GET, "/documenso-templates"),
@@ -1187,15 +1192,15 @@ public class SecurityConf {
                     .hasAnyRole(TEACHER.getRole(), MANAGER.getRole(), ADMIN.getRole())
                     .requestMatchers(PUT, "/students/*/cors")
                     .hasAnyRole(MANAGER.getRole(), ADMIN.getRole())
-                    .requestMatchers(POST, "/complaints")
+                    .requestMatchers(POST, COMPLAINTS_PATH)
                     .hasAnyRole(STUDENT.getRole())
-                    .requestMatchers(GET, "/complaints")
+                    .requestMatchers(GET, COMPLAINTS_PATH)
                     .hasAnyRole(ADMIN.getRole(), MANAGER.getRole(), STAFF_MEMBER.getRole())
                     .requestMatchers(
                         new StudentComplaintMatcher(
-                            GET, "/complaints/*", "complaints", complaintRepository))
+                            GET, COMPLAINTS_BY_ID_PATH, "complaints", complaintRepository))
                     .hasAnyRole(STUDENT.getRole())
-                    .requestMatchers(GET, "/complaints/*")
+                    .requestMatchers(GET, COMPLAINTS_BY_ID_PATH)
                     .hasAnyRole(ADMIN.getRole(), MANAGER.getRole(), STAFF_MEMBER.getRole())
                     .requestMatchers(PUT, "/complaints/*/assignees")
                     .hasAnyRole(ADMIN.getRole(), MANAGER.getRole())
@@ -1203,17 +1208,17 @@ public class SecurityConf {
                     .hasAnyRole(ADMIN.getRole(), MANAGER.getRole(), STAFF_MEMBER.getRole())
                     .requestMatchers(
                         new StudentComplaintMatcher(
-                            GET, "/complaints/*/history", "complaints", complaintRepository))
+                            GET, COMPLAINTS_HISTORY_PATH, "complaints", complaintRepository))
                     .hasAnyRole(STUDENT.getRole())
-                    .requestMatchers(GET, "/complaints/*/history")
+                    .requestMatchers(GET, COMPLAINTS_HISTORY_PATH)
                     .hasAnyRole(ADMIN.getRole(), MANAGER.getRole(), STAFF_MEMBER.getRole())
-                    .requestMatchers(new SelfMatcher(GET, "/students/*/complaints", "students"))
+                    .requestMatchers(new SelfMatcher(GET, STUDENTS_COMPLAINTS_PATH, "students"))
                     .hasAnyRole(STUDENT.getRole())
-                    .requestMatchers(GET, "/students/*/complaints")
+                    .requestMatchers(GET, STUDENTS_COMPLAINTS_PATH)
                     .hasAnyRole(ADMIN.getRole(), MANAGER.getRole(), STAFF_MEMBER.getRole())
-                    .requestMatchers(GET, "/complaint-routings")
+                    .requestMatchers(GET, COMPLAINT_ROUTINGS_PATH)
                     .hasAnyRole(ADMIN.getRole(), MANAGER.getRole())
-                    .requestMatchers(POST, "/complaint-routings")
+                    .requestMatchers(POST, COMPLAINT_ROUTINGS_PATH)
                     .hasAnyRole(ADMIN.getRole())
                     .requestMatchers(GET, "/complaint-routings/last")
                     .hasAnyRole(ADMIN.getRole(), MANAGER.getRole(), STAFF_MEMBER.getRole())
