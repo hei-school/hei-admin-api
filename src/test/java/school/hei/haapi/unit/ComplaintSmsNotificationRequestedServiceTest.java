@@ -118,14 +118,12 @@ class ComplaintSmsNotificationRequestedServiceTest extends FacadeITMockedThirdPa
     complaintRoutingService.create(ComplaintType.ACADEMIC, manager);
     var complaint =
         complaintService.create(ComplaintType.ACADEMIC, "Titre", "Description", student);
+    var event =
+        ComplaintSmsNotificationRequested.builder()
+            .complaintId(complaint.getId())
+            .userId("unknown-user-id")
+            .build();
 
-    assertThrows(
-        NotFoundException.class,
-        () ->
-            subject.accept(
-                ComplaintSmsNotificationRequested.builder()
-                    .complaintId(complaint.getId())
-                    .userId("unknown-user-id")
-                    .build()));
+    assertThrows(NotFoundException.class, () -> subject.accept(event));
   }
 }
