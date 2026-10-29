@@ -33,6 +33,7 @@ import org.springframework.security.web.util.matcher.OrRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.web.servlet.HandlerExceptionResolver;
 import school.hei.haapi.model.exception.ForbiddenException;
+import school.hei.haapi.repository.ComplaintRepository;
 import school.hei.haapi.repository.CorRepository;
 import school.hei.haapi.service.CourseAssignmentService;
 import school.hei.haapi.service.MonitoringStudentService;
@@ -52,12 +53,18 @@ public class SecurityConf {
       "/sms-campaigns/by-manual-numbers";
   private static final String SMS_CAMPAIGNS_BY_GROUPS_PATH = "/sms-campaigns/by-groups";
   private static final String SMS_CAMPAIGNS_BY_FILE_PATH = "/sms-campaigns/by-file";
+  private static final String COMPLAINTS_PATH = "/complaints";
+  private static final String COMPLAINTS_BY_ID_PATH = "/complaints/*";
+  private static final String COMPLAINTS_HISTORY_PATH = "/complaints/*/history";
+  private static final String STUDENTS_COMPLAINTS_PATH = "/students/*/complaints";
+  private static final String COMPLAINT_ROUTINGS_PATH = "/complaint-routings";
   static final RequestMatcher PUBLIC_BADGE = new AntPathRequestMatcher("/badges/*", GET.name());
   private final CourseAssignmentService courseAssignmentService;
   private final MonitoringStudentService monitoringStudentService;
   private final AbstractUserDetailsAuthenticationProvider authProvider;
   private final HandlerExceptionResolver exceptionResolver;
   private final CorRepository corRepository;
+  private final ComplaintRepository complaintRepository;
   private final FeesOnlyFilter feesOnlyFilter;
 
   public SecurityConf(
@@ -66,12 +73,14 @@ public class SecurityConf {
       CourseAssignmentService courseAssignmentService,
       MonitoringStudentService monitoringStudentService,
       CorRepository corRepository,
+      ComplaintRepository complaintRepository,
       FeesOnlyFilter feesOnlyFilter) {
     this.authProvider = authProvider;
     this.exceptionResolver = exceptionResolver;
     this.courseAssignmentService = courseAssignmentService;
     this.monitoringStudentService = monitoringStudentService;
     this.corRepository = corRepository;
+    this.complaintRepository = complaintRepository;
     this.feesOnlyFilter = feesOnlyFilter;
   }
 
@@ -164,6 +173,16 @@ public class SecurityConf {
                     antMatcher(POST, "/cors/*/comment"),
                     antMatcher(GET, "/students/*/cors"),
                     antMatcher(PUT, "/students/*/cors"),
+                    antMatcher(GET, COMPLAINTS_PATH),
+                    antMatcher(POST, COMPLAINTS_PATH),
+                    antMatcher(GET, COMPLAINTS_BY_ID_PATH),
+                    antMatcher(PUT, "/complaints/*/assignees"),
+                    antMatcher(PUT, "/complaints/*/status"),
+                    antMatcher(GET, COMPLAINTS_HISTORY_PATH),
+                    antMatcher(GET, STUDENTS_COMPLAINTS_PATH),
+                    antMatcher(GET, COMPLAINT_ROUTINGS_PATH),
+                    antMatcher(POST, COMPLAINT_ROUTINGS_PATH),
+                    antMatcher(GET, "/complaint-routings/last"),
                     antMatcher(POST, "/documenso-templates/sync"),
                     antMatcher(GET, "/documenso-templates"),
                     antMatcher(POST, "/documenso-documents"),
@@ -1173,6 +1192,36 @@ public class SecurityConf {
                     .hasAnyRole(TEACHER.getRole(), MANAGER.getRole(), ADMIN.getRole())
                     .requestMatchers(PUT, "/students/*/cors")
                     .hasAnyRole(MANAGER.getRole(), ADMIN.getRole())
+                    .requestMatchers(POST, COMPLAINTS_PATH)
+                    .hasAnyRole(STUDENT.getRole())
+                    .requestMatchers(GET, COMPLAINTS_PATH)
+                    .hasAnyRole(ADMIN.getRole(), MANAGER.getRole(), STAFF_MEMBER.getRole())
+                    .requestMatchers(
+                        new StudentComplaintMatcher(
+                            GET, COMPLAINTS_BY_ID_PATH, "complaints", complaintRepository))
+                    .hasAnyRole(STUDENT.getRole())
+                    .requestMatchers(GET, COMPLAINTS_BY_ID_PATH)
+                    .hasAnyRole(ADMIN.getRole(), MANAGER.getRole(), STAFF_MEMBER.getRole())
+                    .requestMatchers(PUT, "/complaints/*/assignees")
+                    .hasAnyRole(ADMIN.getRole(), MANAGER.getRole())
+                    .requestMatchers(PUT, "/complaints/*/status")
+                    .hasAnyRole(ADMIN.getRole(), MANAGER.getRole(), STAFF_MEMBER.getRole())
+                    .requestMatchers(
+                        new StudentComplaintMatcher(
+                            GET, COMPLAINTS_HISTORY_PATH, "complaints", complaintRepository))
+                    .hasAnyRole(STUDENT.getRole())
+                    .requestMatchers(GET, COMPLAINTS_HISTORY_PATH)
+                    .hasAnyRole(ADMIN.getRole(), MANAGER.getRole(), STAFF_MEMBER.getRole())
+                    .requestMatchers(new SelfMatcher(GET, STUDENTS_COMPLAINTS_PATH, "students"))
+                    .hasAnyRole(STUDENT.getRole())
+                    .requestMatchers(GET, STUDENTS_COMPLAINTS_PATH)
+                    .hasAnyRole(ADMIN.getRole(), MANAGER.getRole(), STAFF_MEMBER.getRole())
+                    .requestMatchers(GET, COMPLAINT_ROUTINGS_PATH)
+                    .hasAnyRole(ADMIN.getRole(), MANAGER.getRole())
+                    .requestMatchers(POST, COMPLAINT_ROUTINGS_PATH)
+                    .hasAnyRole(ADMIN.getRole())
+                    .requestMatchers(GET, "/complaint-routings/last")
+                    .hasAnyRole(ADMIN.getRole(), MANAGER.getRole(), STAFF_MEMBER.getRole())
                     .requestMatchers(POST, "/documenso-templates/sync")
                     .hasAnyRole(ADMIN.getRole())
                     .requestMatchers(GET, "/documenso-templates")
