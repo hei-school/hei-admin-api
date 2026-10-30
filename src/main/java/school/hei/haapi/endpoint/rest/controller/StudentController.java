@@ -7,6 +7,7 @@ import java.time.Instant;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.Sort;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -27,6 +28,7 @@ import school.hei.haapi.endpoint.rest.model.CreateStatusCheck;
 import school.hei.haapi.endpoint.rest.model.CrupdateStudent;
 import school.hei.haapi.endpoint.rest.model.EnableStatus;
 import school.hei.haapi.endpoint.rest.model.GroupFlow;
+import school.hei.haapi.endpoint.rest.model.OrderDirection;
 import school.hei.haapi.endpoint.rest.model.ResultOverviewStatus;
 import school.hei.haapi.endpoint.rest.model.Sex;
 import school.hei.haapi.endpoint.rest.model.Statistics;
@@ -105,7 +107,11 @@ public class StudentController {
       @RequestParam(name = "sex", required = false) Sex sex,
       @RequestParam(name = "work_study_status", required = false) WorkStudyStatus workStatus,
       @RequestParam(name = "commitment_begin_date", required = false) Instant commitmentBeginDate,
-      @RequestParam(name = "exclude_groups", required = false) List<String> excludeGroupIds) {
+      @RequestParam(name = "exclude_groups", required = false) List<String> excludeGroupIds,
+      @RequestParam(name = "entrance_datetime_from", required = false) Instant entranceDatetimeFrom,
+      @RequestParam(name = "entrance_datetime_to", required = false) Instant entranceDatetimeTo,
+      @RequestParam(name = "entrance_datetime_order", required = false)
+          OrderDirection entranceDatetimeOrder) {
     User.Sex domainSex = sexEnumMapper.toDomainSexEnum(sex);
     User.Status domainStatus = statusEnumMapper.toDomainStatus(status);
     return userService
@@ -121,7 +127,12 @@ public class StudentController {
             domainSex,
             workStatus,
             commitmentBeginDate,
-            excludeGroupIds)
+            excludeGroupIds,
+            entranceDatetimeFrom,
+            entranceDatetimeTo,
+            entranceDatetimeOrder == null
+                ? null
+                : Sort.Direction.fromString(entranceDatetimeOrder.toString()))
         .stream()
         .map(userMapper::toRestStudent)
         .toList();
