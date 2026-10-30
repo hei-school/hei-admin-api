@@ -1,3 +1,18 @@
+# [1.185.0](https://github.com/hei-school/hei-admin-api/compare/v1.184.1...v1.185.0) (2026-10-30)
+
+
+### Bug Fixes
+
+* badges fixed at 88 x 56 mm, without page margin ([cd36371](https://github.com/hei-school/hei-admin-api/commit/cd3637128bb36316c0f8456d08f5cc91a0aa8eb3))
+
+
+### Features
+
+* add another status for complaint ([d97c9b8](https://github.com/hei-school/hei-admin-api/commit/d97c9b864c80561d37e8cf387884915f2363e57a))
+* reclamation system ([9d097e1](https://github.com/hei-school/hei-admin-api/commit/9d097e11aa280698fa16ac2ee3771a702e8d24ff))
+
+
+
 ## [1.184.1](https://github.com/hei-school/hei-admin-api/compare/v1.184.0...v1.184.1) (2026-10-16)
 
 
@@ -123,16 +138,6 @@
 ### Features
 
 * SmsBefiana integration ([f503b30](https://github.com/hei-school/hei-admin-api/commit/f503b30cfad326cf6a5a28536cff3bbee7c4b2f7))
-
-
-
-## [1.173.1](https://github.com/hei-school/hei-admin-api/compare/v1.173.0...v1.173.1) (2026-09-18)
-
-
-### Bug Fixes
-
-* duplicate payment ([49c54a9](https://github.com/hei-school/hei-admin-api/commit/49c54a948baf24eaa187c6008ab3edd516dda470))
-* transfert create over_payment transaction ([fd0a5e4](https://github.com/hei-school/hei-admin-api/commit/fd0a5e4ee8c45ca541e9b6812f9248abb87551cd))
 
 
 
