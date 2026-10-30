@@ -1,5 +1,6 @@
 package school.hei.haapi.service;
 
+import static school.hei.haapi.model.ComplaintStatus.ASSIGNED;
 import static school.hei.haapi.model.ComplaintStatus.CREATED;
 import static school.hei.haapi.model.ComplaintStatus.IN_PROGRESS;
 import static school.hei.haapi.model.ComplaintStatus.REJECTED;
@@ -97,6 +98,7 @@ public class ComplaintService {
   @Transactional
   public Complaint addAssignees(String complaintId, List<String> userIds, User actor) {
     var complaint = getById(complaintId);
+    var anyAdded = false;
 
     for (var userId : userIds) {
       if (complaintAssigneeRepository.existsByComplaint_IdAndUser_Id(complaintId, userId)) {
@@ -115,6 +117,7 @@ public class ComplaintService {
                   .assignedBy(actor)
                   .build());
       addAssigneeInMemory(complaint, savedAssignee);
+      anyAdded = true;
 
       emailEventProducer.accept(
           List.of(
@@ -128,6 +131,13 @@ public class ComplaintService {
                   .complaintId(complaintId)
                   .userId(userId)
                   .build()));
+    }
+
+    if (anyAdded && complaint.getStatus() == CREATED) {
+      complaint.setStatus(ASSIGNED);
+      complaintRepository.save(complaint);
+      complaintStatusHistoryService.save(
+          complaint, ASSIGNED, "Réclamation transmise à un responsable supplémentaire.", actor);
     }
 
     return getById(complaintId);
@@ -174,8 +184,10 @@ public class ComplaintService {
   private void assertValidTransition(ComplaintStatus from, ComplaintStatus to) {
     var isValid =
         (from == CREATED && to == IN_PROGRESS)
+            || (from == ASSIGNED && to == IN_PROGRESS)
             || (from == IN_PROGRESS && to == RESOLVED)
-            || (from == CREATED && to == REJECTED);
+            || (from == CREATED && to == REJECTED)
+            || (from == ASSIGNED && to == REJECTED);
     if (!isValid) {
       throw new BadRequestException("Cannot move a complaint from %s to %s".formatted(from, to));
     }

@@ -80,6 +80,7 @@ public class ComplaintMapper {
     if (domain == null) return null;
     return switch (domain) {
       case CREATED -> ComplaintStatus.CREATED;
+      case ASSIGNED -> ComplaintStatus.ASSIGNED;
       case IN_PROGRESS -> ComplaintStatus.IN_PROGRESS;
       case RESOLVED -> ComplaintStatus.RESOLVED;
       case REJECTED -> ComplaintStatus.REJECTED;
@@ -90,6 +91,7 @@ public class ComplaintMapper {
     if (rest == null) return null;
     return switch (rest) {
       case CREATED -> school.hei.haapi.model.ComplaintStatus.CREATED;
+      case ASSIGNED -> school.hei.haapi.model.ComplaintStatus.ASSIGNED;
       case IN_PROGRESS -> school.hei.haapi.model.ComplaintStatus.IN_PROGRESS;
       case RESOLVED -> school.hei.haapi.model.ComplaintStatus.RESOLVED;
       case REJECTED -> school.hei.haapi.model.ComplaintStatus.REJECTED;

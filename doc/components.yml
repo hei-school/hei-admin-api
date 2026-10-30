@@ -2238,6 +2238,7 @@ components:
       type: string
       enum:
         - CREATED
+        - ASSIGNED
         - IN_PROGRESS
         - RESOLVED
         - REJECTED
