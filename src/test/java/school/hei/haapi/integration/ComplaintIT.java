@@ -198,6 +198,92 @@ class ComplaintIT extends FacadeITMockedThirdParties {
   }
 
   @Test
+  void manager_add_assignees_moves_created_to_assigned_ok() throws ApiException {
+    var studentApi = new ComplaintApi(anApiClient(axelToken));
+    var complaint =
+        studentApi.createComplaint(
+            new CrupdateComplaint()
+                .type(ComplaintType.ACADEMIC)
+                .title("Titre")
+                .description("Description"));
+
+    var managerApi = new ComplaintApi(anApiClient(managerToken));
+    var updated =
+        managerApi.addComplaintAssignees(
+            complaint.getId(), new UpdateComplaintAssignees().userIds(List.of(admin.getId())));
+
+    assertEquals(ComplaintStatus.ASSIGNED, updated.getStatus());
+
+    var history = managerApi.getComplaintStatusHistory(complaint.getId(), null, null, null, null);
+    assertEquals(2, history.size());
+    assertEquals(ComplaintStatus.ASSIGNED, history.getFirst().getStatus());
+  }
+
+  @Test
+  void manager_add_assignees_does_not_change_status_once_in_progress_ok() throws ApiException {
+    var studentApi = new ComplaintApi(anApiClient(axelToken));
+    var complaint =
+        studentApi.createComplaint(
+            new CrupdateComplaint()
+                .type(ComplaintType.ACADEMIC)
+                .title("Titre")
+                .description("Description"));
+
+    var managerApi = new ComplaintApi(anApiClient(managerToken));
+    managerApi.updateComplaintStatus(
+        complaint.getId(), new UpdateComplaintStatus().status(ComplaintStatus.IN_PROGRESS));
+
+    var updated =
+        managerApi.addComplaintAssignees(
+            complaint.getId(), new UpdateComplaintAssignees().userIds(List.of(admin.getId())));
+
+    assertEquals(ComplaintStatus.IN_PROGRESS, updated.getStatus());
+  }
+
+  @Test
+  void manager_moves_assigned_complaint_to_in_progress_ok() throws ApiException {
+    var studentApi = new ComplaintApi(anApiClient(axelToken));
+    var complaint =
+        studentApi.createComplaint(
+            new CrupdateComplaint()
+                .type(ComplaintType.ACADEMIC)
+                .title("Titre")
+                .description("Description"));
+
+    var managerApi = new ComplaintApi(anApiClient(managerToken));
+    managerApi.addComplaintAssignees(
+        complaint.getId(), new UpdateComplaintAssignees().userIds(List.of(admin.getId())));
+
+    var inProgress =
+        managerApi.updateComplaintStatus(
+            complaint.getId(), new UpdateComplaintStatus().status(ComplaintStatus.IN_PROGRESS));
+
+    assertEquals(ComplaintStatus.IN_PROGRESS, inProgress.getStatus());
+  }
+
+  @Test
+  void manager_rejects_assigned_complaint_with_comment_ok() throws ApiException {
+    var studentApi = new ComplaintApi(anApiClient(axelToken));
+    var complaint =
+        studentApi.createComplaint(
+            new CrupdateComplaint()
+                .type(ComplaintType.ACADEMIC)
+                .title("Titre")
+                .description("Description"));
+
+    var managerApi = new ComplaintApi(anApiClient(managerToken));
+    managerApi.addComplaintAssignees(
+        complaint.getId(), new UpdateComplaintAssignees().userIds(List.of(admin.getId())));
+
+    var rejected =
+        managerApi.updateComplaintStatus(
+            complaint.getId(),
+            new UpdateComplaintStatus().status(ComplaintStatus.REJECTED).comment("Non fondée."));
+
+    assertEquals(ComplaintStatus.REJECTED, rejected.getStatus());
+  }
+
+  @Test
   void manager_update_status_in_progress_then_resolved_ok() throws ApiException {
     var studentApi = new ComplaintApi(anApiClient(axelToken));
     var complaint =
