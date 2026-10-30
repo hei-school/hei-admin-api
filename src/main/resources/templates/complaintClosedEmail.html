@@ -13,8 +13,9 @@
 <body>
 <div class="container">
     <p>Bonjour,</p>
-    <p>Votre réclamation « <span th:text="${title}">Titre</span> » a été mise à jour :</p>
+    <p>Votre réclamation « <span th:text="${title}">Titre</span> » a été mise à jour le <span th:text="${date}">Date</span> :</p>
     <p th:text="${message}">Message</p>
+    <p><strong>Description :</strong><br/><span th:text="${description}">Description</span></p>
     <p class="signature">Cordialement,</p>
 </div>
 </body>

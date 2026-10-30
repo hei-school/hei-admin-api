@@ -4,17 +4,24 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import static school.hei.haapi.integration.conf.ApiAssertions.assertBadRequestException;
 import static school.hei.haapi.integration.conf.ApiAssertions.assertThrowsApiException;
 import static school.hei.haapi.integration.conf.ApiAssertions.assertThrowsForbiddenException;
 import static school.hei.haapi.integration.conf.FakeDataProvider.someStudent;
 import static school.hei.haapi.integration.conf.FakeDataProvider.someUser;
 import static school.hei.haapi.integration.conf.TestAuth.tokenFor;
+import static school.hei.haapi.integration.conf.TestFiles.uploadComplaintAttachment;
 import static school.hei.haapi.model.User.Role.ADMIN;
 import static school.hei.haapi.model.User.Role.MANAGER;
+import static school.hei.haapi.model.User.Role.TEACHER;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import java.io.IOException;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -26,6 +33,7 @@ import school.hei.haapi.endpoint.event.model.ComplaintSmsNotificationRequested;
 import school.hei.haapi.endpoint.rest.api.ComplaintApi;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
+import school.hei.haapi.endpoint.rest.model.ComplaintAttachment;
 import school.hei.haapi.endpoint.rest.model.ComplaintStatus;
 import school.hei.haapi.endpoint.rest.model.ComplaintType;
 import school.hei.haapi.endpoint.rest.model.CrupdateComplaint;
@@ -41,6 +49,7 @@ import school.hei.haapi.service.ComplaintRoutingService;
 class ComplaintIT extends FacadeITMockedThirdParties {
   @Autowired private UserRepository userRepository;
   @Autowired private ComplaintRoutingService complaintRoutingService;
+  @Autowired private ObjectMapper objectMapper;
   @MockBean private EventProducer<ComplaintEmailNotificationRequested> emailEventProducerMock;
   @MockBean private EventProducer<ComplaintSmsNotificationRequested> smsEventProducerMock;
 
@@ -48,10 +57,14 @@ class ComplaintIT extends FacadeITMockedThirdParties {
   private User tolotra;
   private User manager;
   private User admin;
+  private User teacher;
+  private User otherTeacher;
   private String axelToken;
   private String tolotraToken;
   private String managerToken;
   private String adminToken;
+  private String teacherToken;
+  private String otherTeacherToken;
 
   @BeforeEach
   void setUp() {
@@ -59,6 +72,8 @@ class ComplaintIT extends FacadeITMockedThirdParties {
     tolotra = userRepository.save(someStudent("tolotra"));
     manager = userRepository.save(someUser("manager", MANAGER));
     admin = userRepository.save(someUser("admin", ADMIN));
+    teacher = userRepository.save(someUser("teacher", TEACHER));
+    otherTeacher = userRepository.save(someUser("other-teacher", TEACHER));
 
     complaintRoutingService.create(school.hei.haapi.model.ComplaintType.ACADEMIC, manager);
 
@@ -66,6 +81,8 @@ class ComplaintIT extends FacadeITMockedThirdParties {
     tolotraToken = tokenFor(casdoorAuthServiceMock, tolotra);
     managerToken = tokenFor(casdoorAuthServiceMock, manager);
     adminToken = tokenFor(casdoorAuthServiceMock, admin);
+    teacherToken = tokenFor(casdoorAuthServiceMock, teacher);
+    otherTeacherToken = tokenFor(casdoorAuthServiceMock, otherTeacher);
   }
 
   @Test
@@ -195,6 +212,8 @@ class ComplaintIT extends FacadeITMockedThirdParties {
 
     assertEquals(2, updated.getAssignees().size());
     assertTrue(updated.getAssignees().stream().anyMatch(u -> u.getId().equals(admin.getId())));
+    // one email on creation (to the routed manager), two on assignment (new assignee + student)
+    verify(emailEventProducerMock, times(3)).accept(anyList());
   }
 
   @Test
@@ -513,6 +532,133 @@ class ComplaintIT extends FacadeITMockedThirdParties {
     var tolotraApi = new ComplaintApi(anApiClient(tolotraToken));
     assertThrowsForbiddenException(
         () -> tolotraApi.getComplaintStatusHistory(complaint.getId(), null, null, null, null));
+  }
+
+  @Test
+  void student_upload_and_list_attachment_ok()
+      throws ApiException, IOException, InterruptedException {
+    when(fileService.getPresignedUrl(anyString(), anyLong()))
+        .thenReturn("https://s3.example.com/preuve");
+    var studentApi = new ComplaintApi(anApiClient(axelToken));
+    var complaint =
+        studentApi.createComplaint(
+            new CrupdateComplaint()
+                .type(ComplaintType.ACADEMIC)
+                .title("Titre")
+                .description("Description"));
+
+    var response = uploadComplaintAttachment(localPort, axelToken, complaint.getId(), "preuve");
+    assertEquals(200, response.statusCode());
+    var uploaded = objectMapper.readValue(response.body(), ComplaintAttachment.class);
+    assertEquals("preuve", uploaded.getFileName());
+    assertNotNull(uploaded.getFileUrl());
+
+    var managerApi = new ComplaintApi(anApiClient(managerToken));
+    var attachments = managerApi.getComplaintAttachments(complaint.getId());
+    assertEquals(1, attachments.size());
+    assertEquals(uploaded.getId(), attachments.getFirst().getId());
+
+    var fetched = managerApi.getComplaintById(complaint.getId());
+    assertEquals(1, fetched.getAttachments().size());
+  }
+
+  @Test
+  void student_upload_attachment_to_other_student_complaint_ko()
+      throws ApiException, IOException, InterruptedException {
+    var axelApi = new ComplaintApi(anApiClient(axelToken));
+    var complaint =
+        axelApi.createComplaint(
+            new CrupdateComplaint()
+                .type(ComplaintType.ACADEMIC)
+                .title("Titre")
+                .description("Description"));
+
+    var response = uploadComplaintAttachment(localPort, tolotraToken, complaint.getId(), "preuve");
+    assertEquals(403, response.statusCode());
+  }
+
+  @Test
+  void assigned_teacher_can_read_and_progress_complaint_ok() throws ApiException {
+    var studentApi = new ComplaintApi(anApiClient(axelToken));
+    var complaint =
+        studentApi.createComplaint(
+            new CrupdateComplaint()
+                .type(ComplaintType.ACADEMIC)
+                .title("Titre")
+                .description("Description"));
+
+    var managerApi = new ComplaintApi(anApiClient(managerToken));
+    managerApi.addComplaintAssignees(
+        complaint.getId(), new UpdateComplaintAssignees().userIds(List.of(teacher.getId())));
+
+    var teacherApi = new ComplaintApi(anApiClient(teacherToken));
+    var fetched = teacherApi.getComplaintById(complaint.getId());
+    assertEquals(complaint.getId(), fetched.getId());
+
+    var history = teacherApi.getComplaintStatusHistory(complaint.getId(), null, null, null, null);
+    assertTrue(history.size() >= 1);
+
+    var inProgress =
+        teacherApi.updateComplaintStatus(
+            complaint.getId(), new UpdateComplaintStatus().status(ComplaintStatus.IN_PROGRESS));
+    assertEquals(ComplaintStatus.IN_PROGRESS, inProgress.getStatus());
+  }
+
+  @Test
+  void unassigned_teacher_cannot_read_complaint_ko() throws ApiException {
+    var studentApi = new ComplaintApi(anApiClient(axelToken));
+    var complaint =
+        studentApi.createComplaint(
+            new CrupdateComplaint()
+                .type(ComplaintType.ACADEMIC)
+                .title("Titre")
+                .description("Description"));
+
+    var managerApi = new ComplaintApi(anApiClient(managerToken));
+    managerApi.addComplaintAssignees(
+        complaint.getId(), new UpdateComplaintAssignees().userIds(List.of(teacher.getId())));
+
+    var otherTeacherApi = new ComplaintApi(anApiClient(otherTeacherToken));
+    assertThrowsForbiddenException(() -> otherTeacherApi.getComplaintById(complaint.getId()));
+    assertThrowsForbiddenException(
+        () ->
+            otherTeacherApi.updateComplaintStatus(
+                complaint.getId(),
+                new UpdateComplaintStatus().status(ComplaintStatus.IN_PROGRESS)));
+  }
+
+  @Test
+  void teacher_list_complaints_is_scoped_to_own_assignments_ok() throws ApiException {
+    var studentApi = new ComplaintApi(anApiClient(axelToken));
+    var ownComplaint =
+        studentApi.createComplaint(
+            new CrupdateComplaint()
+                .type(ComplaintType.ACADEMIC)
+                .title("Titre")
+                .description("Description"));
+    var otherComplaint =
+        studentApi.createComplaint(
+            new CrupdateComplaint()
+                .type(ComplaintType.ACADEMIC)
+                .title("Autre titre")
+                .description("Autre description"));
+
+    var managerApi = new ComplaintApi(anApiClient(managerToken));
+    managerApi.addComplaintAssignees(
+        ownComplaint.getId(), new UpdateComplaintAssignees().userIds(List.of(teacher.getId())));
+    managerApi.addComplaintAssignees(
+        otherComplaint.getId(),
+        new UpdateComplaintAssignees().userIds(List.of(otherTeacher.getId())));
+
+    var teacherApi = new ComplaintApi(anApiClient(teacherToken));
+    var visible = teacherApi.getComplaints(null, null, null, null, null, null, null, null);
+
+    assertTrue(
+        visible.stream()
+            .allMatch(
+                c -> c.getAssignees().stream().anyMatch(a -> a.getId().equals(teacher.getId()))));
+    assertTrue(visible.stream().anyMatch(c -> c.getId().equals(ownComplaint.getId())));
+    assertTrue(visible.stream().noneMatch(c -> c.getId().equals(otherComplaint.getId())));
   }
 
   private ApiClient anApiClient(String token) {

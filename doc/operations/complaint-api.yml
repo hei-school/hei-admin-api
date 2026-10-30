@@ -221,6 +221,72 @@ operations:
           $ref: '../components.yml#/components/responses/429'
         '500':
           $ref: '../components.yml#/components/responses/500'
+  complaintAttachments:
+    get:
+      tags:
+        - Complaint
+      operationId: getComplaintAttachments
+      summary: Get the images attached to a complaint
+      parameters:
+        - $ref: '../components.yml#/components/parameters/PathComplaintId'
+      responses:
+        '200':
+          description: Attachments of the complaint
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '../components.yml#/components/schemas/ComplaintAttachment'
+        '400':
+          $ref: '../components.yml#/components/responses/400'
+        '403':
+          $ref: '../components.yml#/components/responses/403'
+        '404':
+          $ref: '../components.yml#/components/responses/404'
+        '429':
+          $ref: '../components.yml#/components/responses/429'
+        '500':
+          $ref: '../components.yml#/components/responses/500'
+  uploadComplaintAttachment:
+    post:
+      tags:
+        - Complaint
+      operationId: uploadComplaintAttachment
+      summary: Attach an image to a complaint
+      description: >-
+        Accepts a single image file. To attach several images, call this
+        endpoint once per image.
+      parameters:
+        - $ref: '../components.yml#/components/parameters/PathComplaintId'
+        - name: filename
+          required: true
+          schema:
+            type: string
+          in: query
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '../components.yml#/components/schemas/UploadFile'
+      responses:
+        '200':
+          description: The uploaded attachment
+          content:
+            application/json:
+              schema:
+                $ref: '../components.yml#/components/schemas/ComplaintAttachment'
+        '400':
+          $ref: '../components.yml#/components/responses/400'
+        '403':
+          $ref: '../components.yml#/components/responses/403'
+        '404':
+          $ref: '../components.yml#/components/responses/404'
+        '429':
+          $ref: '../components.yml#/components/responses/429'
+        '500':
+          $ref: '../components.yml#/components/responses/500'
   complaintRoutings:
     get:
       tags:
