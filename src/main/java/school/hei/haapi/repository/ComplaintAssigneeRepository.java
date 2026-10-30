@@ -10,4 +10,6 @@ public interface ComplaintAssigneeRepository extends JpaRepository<ComplaintAssi
   boolean existsByComplaint_IdAndUser_Id(String complaintId, String userId);
 
   Optional<ComplaintAssignee> findByComplaint_IdAndUser_Id(String complaintId, String userId);
+
+  Optional<ComplaintAssignee> findTopByComplaint_IdOrderByAssignedAtDesc(String complaintId);
 }

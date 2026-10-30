@@ -24,6 +24,10 @@ public class ComplaintEmailNotificationRequested extends PojaEvent {
   @JsonProperty("user_id")
   private String userId;
 
+  // true: this is an "assigned to a responsible" notice to the student, independent of status
+  @JsonProperty("notify_assignment")
+  private boolean notifyAssignment;
+
   @Override
   public Duration maxConsumerDuration() {
     return Duration.ofMinutes(1);

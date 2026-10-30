@@ -133,7 +133,9 @@ public class OrganizerIT extends FacadeITMockedThirdParties {
 
     assertThrowsForbiddenException(() -> api.getStudentById(studentAxel.getId()));
     assertThrowsForbiddenException(
-        () -> api.getStudents(1, 20, null, null, null, null, null, null, null, null, null));
+        () ->
+            api.getStudents(
+                1, 20, null, null, null, null, null, null, null, null, null, null, null, null));
   }
 
   @Test

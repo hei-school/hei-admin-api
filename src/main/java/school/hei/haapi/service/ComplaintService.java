@@ -6,6 +6,7 @@ import static school.hei.haapi.model.ComplaintStatus.IN_PROGRESS;
 import static school.hei.haapi.model.ComplaintStatus.REJECTED;
 import static school.hei.haapi.model.ComplaintStatus.RESOLVED;
 
+import java.io.File;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
@@ -13,32 +14,39 @@ import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 import school.hei.haapi.endpoint.event.EventProducer;
 import school.hei.haapi.endpoint.event.model.ComplaintEmailNotificationRequested;
 import school.hei.haapi.endpoint.event.model.ComplaintSmsNotificationRequested;
 import school.hei.haapi.model.Complaint;
 import school.hei.haapi.model.ComplaintAssignee;
+import school.hei.haapi.model.ComplaintAttachment;
 import school.hei.haapi.model.ComplaintStatus;
 import school.hei.haapi.model.ComplaintType;
 import school.hei.haapi.model.User;
 import school.hei.haapi.model.exception.BadRequestException;
 import school.hei.haapi.model.exception.NotFoundException;
 import school.hei.haapi.repository.ComplaintAssigneeRepository;
+import school.hei.haapi.repository.ComplaintAttachmentRepository;
 import school.hei.haapi.repository.ComplaintRepository;
 import school.hei.haapi.repository.UserRepository;
 import school.hei.haapi.repository.dao.ComplaintDao;
+import school.hei.haapi.service.aws.FileService;
 
 @Service
 @AllArgsConstructor
 public class ComplaintService {
   private final ComplaintRepository complaintRepository;
   private final ComplaintAssigneeRepository complaintAssigneeRepository;
+  private final ComplaintAttachmentRepository complaintAttachmentRepository;
   private final UserRepository userRepository;
   private final ComplaintRoutingService complaintRoutingService;
   private final ComplaintStatusHistoryService complaintStatusHistoryService;
   private final ComplaintDao complaintDao;
   private final EventProducer<ComplaintEmailNotificationRequested> emailEventProducer;
   private final EventProducer<ComplaintSmsNotificationRequested> smsEventProducer;
+  private final FileService fileService;
+  private final MultipartFileConverter multipartFileConverter;
 
   public Complaint getById(String id) {
     return complaintRepository
@@ -140,6 +148,23 @@ public class ComplaintService {
           complaint, ASSIGNED, "Réclamation transmise à un responsable supplémentaire.", actor);
     }
 
+    if (anyAdded) {
+      var studentId = complaint.getStudent().getId();
+      emailEventProducer.accept(
+          List.of(
+              ComplaintEmailNotificationRequested.builder()
+                  .complaintId(complaintId)
+                  .userId(studentId)
+                  .notifyAssignment(true)
+                  .build()));
+      smsEventProducer.accept(
+          List.of(
+              ComplaintSmsNotificationRequested.builder()
+                  .complaintId(complaintId)
+                  .userId(studentId)
+                  .build()));
+    }
+
     return getById(complaintId);
   }
 
@@ -156,14 +181,7 @@ public class ComplaintService {
     complaintRepository.save(complaint);
     complaintStatusHistoryService.save(complaint, newStatus, resolvedComment, actor);
 
-    if (newStatus == IN_PROGRESS) {
-      smsEventProducer.accept(
-          List.of(
-              ComplaintSmsNotificationRequested.builder()
-                  .complaintId(complaintId)
-                  .userId(studentId)
-                  .build()));
-    } else if (newStatus == RESOLVED || newStatus == REJECTED) {
+    if (newStatus == IN_PROGRESS || newStatus == RESOLVED || newStatus == REJECTED) {
       emailEventProducer.accept(
           List.of(
               ComplaintEmailNotificationRequested.builder()
@@ -213,5 +231,35 @@ public class ComplaintService {
       complaint.setAssignees(new ArrayList<>());
     }
     complaint.getAssignees().add(assignee);
+  }
+
+  @Transactional
+  public ComplaintAttachment uploadAttachment(
+      String complaintId, String fileName, MultipartFile fileToUpload, User uploadedBy) {
+    var complaint = getById(complaintId);
+    var contentType = fileToUpload.getContentType();
+    if (contentType == null || !contentType.startsWith("image/")) {
+      throw new BadRequestException("Only image files can be attached to a complaint");
+    }
+
+    var filePath =
+        "COMPLAINT/%s/%s".formatted(complaintId, fileName)
+            + fileService.getFileExtension(fileToUpload);
+    File file = multipartFileConverter.apply(fileToUpload);
+    fileService.uploadObjectToS3Bucket(filePath, file);
+
+    return complaintAttachmentRepository.save(
+        ComplaintAttachment.builder()
+            .complaint(complaint)
+            .fileName(fileName)
+            .filePath(filePath)
+            .uploadedBy(uploadedBy)
+            .build());
+  }
+
+  public List<ComplaintAttachment> getAttachments(String complaintId) {
+    getById(complaintId);
+    return complaintAttachmentRepository.findAllByComplaint_IdOrderByCreationDatetimeAsc(
+        complaintId);
   }
 }

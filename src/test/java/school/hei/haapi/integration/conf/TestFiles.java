@@ -99,6 +99,51 @@ public class TestFiles {
     return client.send(request, HttpResponse.BodyHandlers.ofInputStream());
   }
 
+  public static HttpResponse<InputStream> uploadComplaintAttachment(
+      Integer serverPort, String token, String complaintId, String filename)
+      throws IOException, InterruptedException {
+    var client = HttpClient.newHttpClient();
+
+    var basePath = "http://localhost:" + serverPort;
+
+    var boundary = "---------------------------" + System.currentTimeMillis();
+    var contentTypeHeader = "multipart/form-data; boundary=" + boundary;
+
+    var file = getMockedFile("img", ".png");
+
+    var requestBodyPrefix =
+        "--"
+            + boundary
+            + CRLF
+            + "Content-Disposition: form-data; name=\"file_to_upload\"; filename=\""
+            + file.getName()
+            + "\""
+            + CRLF
+            + "Content-Type: image/png"
+            + CRLF
+            + CRLF;
+    byte[] fileBytes = Files.readAllBytes(Paths.get(file.getPath()));
+    var requestBodySuffix = CRLF + "--" + boundary + "--" + CRLF;
+
+    byte[] requestBody =
+        Bytes.concat(requestBodyPrefix.getBytes(), fileBytes, requestBodySuffix.getBytes());
+    var uriComponentsBuilder =
+        UriComponentsBuilder.fromUri(
+            URI.create(
+                basePath
+                    + String.format(
+                        "/complaints/%s/attachments/raw?filename=%s", complaintId, filename)));
+    var request =
+        HttpRequest.newBuilder()
+            .uri(uriComponentsBuilder.build().toUri())
+            .header("Content-Type", contentTypeHeader)
+            .header("Authorization", "Bearer " + token)
+            .POST(HttpRequest.BodyPublishers.ofByteArray(requestBody))
+            .build();
+
+    return client.send(request, HttpResponse.BodyHandlers.ofInputStream());
+  }
+
   public static HttpResponse<InputStream> uploadLetter(
       Integer serverPort,
       String token,

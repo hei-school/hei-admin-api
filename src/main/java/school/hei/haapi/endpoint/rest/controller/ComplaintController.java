@@ -1,5 +1,7 @@
 package school.hei.haapi.endpoint.rest.controller;
 
+import static org.springframework.http.MediaType.MULTIPART_FORM_DATA_VALUE;
+
 import java.time.Instant;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -9,10 +11,13 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 import school.hei.haapi.endpoint.rest.mapper.ComplaintMapper;
 import school.hei.haapi.endpoint.rest.mapper.ComplaintRoutingMapper;
 import school.hei.haapi.endpoint.rest.model.Complaint;
+import school.hei.haapi.endpoint.rest.model.ComplaintAttachment;
 import school.hei.haapi.endpoint.rest.model.ComplaintRouting;
 import school.hei.haapi.endpoint.rest.model.ComplaintStatus;
 import school.hei.haapi.endpoint.rest.model.ComplaintStatusHistory;
@@ -25,6 +30,7 @@ import school.hei.haapi.endpoint.rest.security.AuthProvider;
 import school.hei.haapi.endpoint.rest.validator.ComplaintValidator;
 import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.PageFromOne;
+import school.hei.haapi.model.User;
 import school.hei.haapi.model.pagination.PaginationFromPageAndPageSize;
 import school.hei.haapi.service.ComplaintRoutingService;
 import school.hei.haapi.service.ComplaintService;
@@ -55,12 +61,16 @@ public class ComplaintController {
           List<ComplaintStatus> statuses,
       @RequestParam(name = "manager_id", required = false) String managerId,
       @RequestParam(name = "assignee_id", required = false) String assigneeId) {
+    var principal = AuthProvider.getPrincipal();
+    // a teacher only ever sees complaints assigned to them, whatever filter they pass
+    var effectiveAssigneeId =
+        principal.getUser().getRole() == User.Role.TEACHER ? principal.getUserId() : assigneeId;
     return complaintMapper.toRest(
         complaintService.getComplaints(
             complaintMapper.toDomainTypes(types),
             complaintMapper.toDomainStatuses(statuses),
             managerId,
-            assigneeId,
+            effectiveAssigneeId,
             from,
             to,
             paginationFromPageAndPageSize.apply(page, pageSize)));
@@ -150,5 +160,23 @@ public class ComplaintController {
   public ComplaintRouting getLastComplaintRouting(@RequestParam ComplaintType type) {
     return complaintRoutingMapper.toRest(
         complaintRoutingService.getLast(complaintMapper.toDomainType(type)));
+  }
+
+  @PostMapping(
+      value = "/complaints/{complaint_id}/attachments/raw",
+      consumes = MULTIPART_FORM_DATA_VALUE)
+  public ComplaintAttachment uploadComplaintAttachment(
+      @PathVariable(name = "complaint_id") String complaintId,
+      @RequestParam(name = "filename") String fileName,
+      @RequestPart(name = "file_to_upload") MultipartFile fileToUpload) {
+    var actor = AuthProvider.getPrincipal().getUser();
+    return complaintMapper.toRest(
+        complaintService.uploadAttachment(complaintId, fileName, fileToUpload, actor));
+  }
+
+  @GetMapping("/complaints/{complaint_id}/attachments")
+  public List<ComplaintAttachment> getComplaintAttachments(
+      @PathVariable(name = "complaint_id") String complaintId) {
+    return complaintMapper.toRestAttachments(complaintService.getAttachments(complaintId));
   }
 }

@@ -44,7 +44,9 @@ public class GroupFlowValidator implements Consumer<GroupFlow> {
                 null,
                 null,
                 null,
-                List.of(groupFlow.getGroup().getId()))
+                List.of(groupFlow.getGroup().getId()),
+                null,
+                null)
             .stream()
             .map(user -> user)
             .collect(Collectors.toSet());
