@@ -292,7 +292,8 @@ public class UserService {
       BoundedPageSize pageSize) {
     var pageable = PageRequest.of(page.getValue() - 1, pageSize.getValue(), Sort.by(ASC, "ref"));
     return userManagerDao.findByCriteria(
-        role, ref, firstName, lastName, pageable, null, null, null, null, null, null, null, null);
+        role, ref, firstName, lastName, pageable, null, null, null, null, null, null, null, null,
+        null, null);
   }
 
   public List<User> getByCriteria(
@@ -307,7 +308,8 @@ public class UserService {
     var pageable = PageRequest.of(page.getValue() - 1, pageSize.getValue(), Sort.by(ASC, "ref"));
 
     return userManagerDao.findByCriteria(
-        role, ref, firstName, lastName, pageable, status, sex, null, null, null, null, null, null);
+        role, ref, firstName, lastName, pageable, status, sex, null, null, null, null, null, null,
+        null, null);
   }
 
   public List<User> getByLinkedCourse(
@@ -322,10 +324,17 @@ public class UserService {
       User.Sex sex,
       WorkStudyStatus workStatus,
       Instant commitmentBeginDate,
-      List<String> excludeGroupIds) {
+      List<String> excludeGroupIds,
+      Instant entranceDatetimeFrom,
+      Instant entranceDatetimeTo,
+      Sort.Direction entranceDatetimeOrder) {
     log.info("Page = {}", page.getValue());
     log.info("PageSize = {}", pageSize.getValue());
-    var pageable = PageRequest.of(page.getValue() - 1, pageSize.getValue(), Sort.by(ASC, "ref"));
+    var sort =
+        entranceDatetimeOrder == null
+            ? Sort.by(ASC, "ref")
+            : Sort.by(entranceDatetimeOrder, "entranceDatetime");
+    var pageable = PageRequest.of(page.getValue() - 1, pageSize.getValue(), sort);
     return userManagerDao.findByCriteria(
         role,
         ref,
@@ -339,7 +348,9 @@ public class UserService {
         courseId,
         now(),
         excludeGroupIds,
-        null);
+        null,
+        entranceDatetimeFrom,
+        entranceDatetimeTo);
   }
 
   public List<User> getByGroupId(String groupId, Pageable pageable) {
@@ -348,7 +359,8 @@ public class UserService {
 
   public List<User> getByGroupIds(Collection<String> groupIds, Pageable pageable) {
     return userManagerDao.findByCriteria(
-        null, null, null, null, pageable, null, null, null, null, null, null, null, groupIds);
+        null, null, null, null, pageable, null, null, null, null, null, null, null, groupIds, null,
+        null);
   }
 
   public List<User> getByStudentRefAndGroupIds(
@@ -366,7 +378,9 @@ public class UserService {
         null,
         null,
         null,
-        groupIds);
+        groupIds,
+        null,
+        null);
   }
 
   public byte[] generateStudentsGroup(String groupId) {
@@ -451,6 +465,8 @@ public class UserService {
             courseId,
             now(),
             excludeGroupIds,
+            null,
+            null,
             null);
     return userXlsxCellsGenerator.apply(students, List.of("firstName", "lastName", "email", "sex"));
   }

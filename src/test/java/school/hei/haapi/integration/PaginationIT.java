@@ -130,11 +130,17 @@ class PaginationIT extends FacadeITMockedThirdParties {
     int pageSize = 4;
 
     var page1 =
-        api.getStudents(1, pageSize, refPrefix, null, null, null, null, null, null, null, null);
+        api.getStudents(
+            1, pageSize, refPrefix, null, null, null, null, null, null, null, null, null, null,
+            null);
     var page2 =
-        api.getStudents(2, pageSize, refPrefix, null, null, null, null, null, null, null, null);
+        api.getStudents(
+            2, pageSize, refPrefix, null, null, null, null, null, null, null, null, null, null,
+            null);
     var page10000 =
-        api.getStudents(10000, pageSize, refPrefix, null, null, null, null, null, null, null, null);
+        api.getStudents(
+            10000, pageSize, refPrefix, null, null, null, null, null, null, null, null, null, null,
+            null);
 
     assertEquals(pageSize, page1.size());
     assertEquals(pageSize, page2.size());
@@ -182,10 +188,14 @@ class PaginationIT extends FacadeITMockedThirdParties {
 
     assertThrowsApiException(
         "{\"type\":\"400 BAD_REQUEST\",\"message\":\"page value must be >= 1\"}",
-        () -> api.getStudents(0, 20, null, null, null, null, null, null, null, null, null));
+        () ->
+            api.getStudents(
+                0, 20, null, null, null, null, null, null, null, null, null, null, null, null));
     assertThrowsApiException(
         "{\"type\":\"400 BAD_REQUEST\",\"message\":\"page size must be <500\"}",
-        () -> api.getStudents(1, 1000, null, null, null, null, null, null, null, null, null));
+        () ->
+            api.getStudents(
+                1, 1000, null, null, null, null, null, null, null, null, null, null, null, null));
   }
 
   private static boolean isBefore(String a, String b) {
