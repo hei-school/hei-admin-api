@@ -30,6 +30,43 @@ operations:
           $ref: '../components.yml#/components/responses/429'
         '500':
           $ref: '../components.yml#/components/responses/500'
+  generateYearlyResultsRankingXlsx:
+    get:
+      tags:
+        - Promotions
+      summary: Get the ranked yearly results of the promotion's students at a given level, as a xlsx file
+      operationId: generateYearlyResultsRankingXlsx
+      parameters:
+        - name: promotion_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: level
+          in: query
+          required: true
+          description: Student level to rank (L1, L2, L3, M1 or M2)
+          schema:
+            $ref: '../components.yml#/components/schemas/StudentLevel'
+      responses:
+        '200':
+          description: Ranked yearly results in a xlsx file
+          content:
+            application/xlsx:
+              schema:
+                type: string
+                format: byte
+                example: XLSX VERSION
+        '400':
+          $ref: '../components.yml#/components/responses/400'
+        '403':
+          $ref: '../components.yml#/components/responses/403'
+        '404':
+          $ref: '../components.yml#/components/responses/404'
+        '429':
+          $ref: '../components.yml#/components/responses/429'
+        '500':
+          $ref: '../components.yml#/components/responses/500'
   promotions:
     get:
       tags:
