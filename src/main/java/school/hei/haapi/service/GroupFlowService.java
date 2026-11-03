@@ -169,6 +169,12 @@ public class GroupFlowService {
         .collect(Collectors.toSet());
   }
 
+  public List<Group> findGroupsOfPromotionAtLevel(Promotion promotion, StudentLevel level) {
+    return promotion.getGroups().stream()
+        .filter(group -> assignedLevelsOf(group).contains(level))
+        .toList();
+  }
+
   private boolean isAtLevel(
       GroupFlowPeriod groupFlowPeriod, StudentLevel level, ReferenceCalendar calendar) {
     return calendar

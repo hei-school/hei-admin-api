@@ -12,11 +12,13 @@ import org.springframework.web.bind.annotation.RestController;
 import school.hei.haapi.endpoint.rest.mapper.PromotionMapper;
 import school.hei.haapi.endpoint.rest.model.CrupdatePromotion;
 import school.hei.haapi.endpoint.rest.model.Promotion;
+import school.hei.haapi.endpoint.rest.model.StudentLevel;
 import school.hei.haapi.endpoint.rest.model.UpdatePromotionSGroup;
 import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.service.PromotionService;
 import school.hei.haapi.service.UserService;
+import school.hei.haapi.service.YearlyResultService;
 
 @AllArgsConstructor
 @RestController
@@ -24,6 +26,7 @@ public class PromotionController {
   private final UserService userService;
   private final PromotionService promotionService;
   private final PromotionMapper promotionMapper;
+  private final YearlyResultService yearlyResultService;
 
   @GetMapping("/promotions")
   public List<Promotion> getPromotions(
@@ -66,5 +69,14 @@ public class PromotionController {
   public byte[] generateStudentsPromotionInXlsx(
       @PathVariable(name = "promotion_id") String promotionId) {
     return userService.generateStudentsInPromotionXlsx(promotionId);
+  }
+
+  @GetMapping(
+      value = "/promotions/{promotion_id}/yearly_results/raw/xlsx",
+      produces = "application/vnd.ms-excel")
+  public byte[] generateYearlyResultsRankingXlsx(
+      @PathVariable(name = "promotion_id") String promotionId,
+      @RequestParam(name = "level") StudentLevel level) {
+    return yearlyResultService.generateYearlyResultsRankingXlsx(promotionId, level);
   }
 }
