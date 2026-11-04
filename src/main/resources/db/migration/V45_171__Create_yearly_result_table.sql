@@ -1,7 +1,7 @@
 create table if not exists "yearly_result"(
     id varchar constraint yearly_result_pk primary key default uuid_generate_v4(),
     student_id varchar references "user"(id) not null,
-    group_id varchar references "group"(id) not null,
+    group_id varchar references "group"(id),
     level student_level not null,
     weighted_average double precision,
     obtained_credits double precision,
