@@ -5,6 +5,7 @@ import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.toMap;
 import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.LATE;
 import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.UNPAID;
+import static school.hei.haapi.model.User.Status.DISABLED;
 
 import java.time.Instant;
 import java.util.List;
@@ -60,6 +61,10 @@ public class FeeCreationTaskService {
   public List<Fee> createFees(FeeCreationTask task) {
     var student = userService.findByRef(task.getStudentRef());
     var feeTemplate = task.getJob().getFeeTemplate();
+    if (DISABLED.equals(student.getStatus())) {
+      throw new BadRequestException(
+          "Cannot create fees for student ref=" + task.getStudentRef() + " who left school");
+    }
     if (feeRepository.existsByStudentIdAndFeeTemplateId(student.getId(), feeTemplate.getId())) {
       throw new BadRequestException(
           "Fees were already created for student ref="

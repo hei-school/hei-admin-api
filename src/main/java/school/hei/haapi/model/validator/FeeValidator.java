@@ -1,5 +1,7 @@
 package school.hei.haapi.model.validator;
 
+import static school.hei.haapi.model.User.Status.DISABLED;
+
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -21,6 +23,9 @@ public class FeeValidator implements Consumer<Fee> {
     Set<String> violationMessages = new HashSet<>();
     if (fee.getStudent() == null) {
       violationMessages.add("Student is mandatory");
+    } else if (DISABLED.equals(fee.getStudent().getStatus())) {
+      violationMessages.add(
+          "Cannot create fee for student ref=" + fee.getStudent().getRef() + " who left school");
     }
     if (fee.getDueDatetime() == null) {
       violationMessages.add("Due datetime is mandatory");
