@@ -155,6 +155,16 @@ public class FeeService {
     return deletedFee;
   }
 
+  @Transactional
+  public void disableUnpaidFeesOfStudent(User student) {
+    if (!DISABLED.equals(student.getStatus())) {
+      return;
+    }
+    int disabledFeesCount = feeRepository.softDeleteUnpaidFeesOfStudent(student.getId());
+    log.info(
+        "{} unpaid fees disabled for left student ref={}", disabledFeesCount, student.getRef());
+  }
+
   public Fee getById(String id) {
     var loggedFee =
         updateFeeStatus(
@@ -316,6 +326,9 @@ public class FeeService {
   @Transactional
   public List<Fee> saveFromPaymentFrequency(
       User user, PaymentFrequency frequency, Instant firstDueDatetime) {
+    if (DISABLED.equals(user.getStatus())) {
+      return List.of();
+    }
 
     List<Fee> feesToSave =
         switch (frequency) {
