@@ -6,6 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import school.hei.haapi.endpoint.event.model.StudentResultOverviewUpserted;
 import school.hei.haapi.service.StudentResultOverviewService;
+import school.hei.haapi.service.YearlyResultService;
 
 @Slf4j
 @Service
@@ -13,6 +14,7 @@ import school.hei.haapi.service.StudentResultOverviewService;
 public class StudentResultOverviewUpsertedService
     implements Consumer<StudentResultOverviewUpserted> {
   private final StudentResultOverviewService studentResultOverviewService;
+  private final YearlyResultService yearlyResultService;
 
   @Override
   public void accept(StudentResultOverviewUpserted event) {
@@ -25,5 +27,12 @@ public class StudentResultOverviewUpsertedService
             .formatted(studentsResultOverviewsToSave.size()));
     studentResultOverviewService.saveAll(studentsResultOverviewsToSave);
     log.info("End crupdate StudentsResultoverviews");
+
+    log.info("Beggin crupdate YearlyResults");
+    var yearlyResultsToSave =
+        yearlyResultService.getYearlyResultsToCrupdate(event.getPromotionId());
+    log.info("The number YearlyResults found is : {%s}".formatted(yearlyResultsToSave.size()));
+    yearlyResultService.saveAll(yearlyResultsToSave);
+    log.info("End crupdate YearlyResults");
   }
 }
