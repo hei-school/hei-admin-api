@@ -1,6 +1,9 @@
 package school.hei.haapi.service;
 
 import static school.hei.haapi.endpoint.rest.model.ResultOverviewStatus.NOT_STARTED;
+import static school.hei.haapi.endpoint.rest.model.StudentLevel.L3;
+import static school.hei.haapi.endpoint.rest.model.StudentLevel.M2;
+import static school.hei.haapi.model.CycleLevel.BACHELOR;
 
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -101,7 +104,13 @@ public class YearlyResultService {
     try {
       currentLevel = currentPromotion.getLevelAt(Instant.now());
     } catch (PromotionLevelOutOfRangeException e) {
-      return List.of();
+      currentLevel = currentPromotion.getCycleLevel() == BACHELOR ? L3 : M2;
+      log.warn(
+          "Promotion {} level out of range for student {}, defaulting to level {}",
+          currentPromotion.getId(),
+          student.getId(),
+          currentLevel,
+          e);
     }
     var cycleLevels = currentPromotion.getCycleLevel().getLevels();
     var currentIndex = cycleLevels.indexOf(currentLevel);
