@@ -74,9 +74,9 @@ public class PromotionController {
   @GetMapping(
       value = "/promotions/{promotion_id}/yearly_results/raw/xlsx",
       produces = "application/vnd.ms-excel")
-  public byte[] generateYearlyResultsRankingXlsx(
+  public byte[] generateYearlyResultsXlsx(
       @PathVariable(name = "promotion_id") String promotionId,
       @RequestParam(name = "level") StudentLevel level) {
-    return yearlyResultService.generateYearlyResultsRankingXlsx(promotionId, level);
+    return yearlyResultService.generateYearlyResultsXlsx(promotionId, level);
   }
 }

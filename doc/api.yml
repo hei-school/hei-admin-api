@@ -240,7 +240,7 @@ paths:
   '/promotions/{id}/groups':
     $ref: './operations/promotions-api.yml#/operations/updatePromotionGroups'
   '/promotions/{promotion_id}/yearly_results/raw/xlsx':
-    $ref: './operations/promotions-api.yml#/operations/generateYearlyResultsRankingXlsx'
+    $ref: './operations/promotions-api.yml#/operations/generateYearlyResultsXlsx'
   # Paying
   /delay_penalty_change:
     $ref: './operations/paying-api.yml#/operations/createDelayPenaltyChange'

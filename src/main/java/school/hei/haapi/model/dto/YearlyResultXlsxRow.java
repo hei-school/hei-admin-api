@@ -2,8 +2,7 @@ package school.hei.haapi.model.dto;
 
 import java.math.BigDecimal;
 
-public record YearlyResultRankingXlsxRow(
-    int rank,
+public record YearlyResultXlsxRow(
     String ref,
     BigDecimal weightedAverage,
     BigDecimal obtainedCredits,

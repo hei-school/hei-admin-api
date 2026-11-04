@@ -36,7 +36,6 @@ public class YearlyResult {
   @JoinColumn(name = "student_id", nullable = false)
   private User student;
 
-  /** Null when the level was validated outside HEI, before the student joined us. */
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "group_id")
   private Group group;

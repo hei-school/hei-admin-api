@@ -46,7 +46,7 @@ class YearlyResultServiceTest {
     return Group.builder().id(id).ref(ref).promotion(promotion).build();
   }
 
-  private static YearlyResult rankedYearlyResult(String ref, String groupRef, BigDecimal average) {
+  private static YearlyResult studentYearlyResult(String ref, String groupRef, BigDecimal average) {
     return YearlyResult.builder()
         .student(User.builder().ref(ref).build())
         .group(Group.builder().id("g-" + ref).ref(groupRef).build())
@@ -59,8 +59,7 @@ class YearlyResultServiceTest {
   }
 
   @Test
-  void generate_ranking_xlsx_gives_tied_students_the_same_rank_and_skips_the_next_one()
-      throws Exception {
+  void generate_xlsx_lists_students_in_the_order_returned_by_the_repository() throws Exception {
     var promotion = Promotion.builder().id("promo1").build();
     var group = Group.builder().id("g1").ref("K2").build();
     when(promotionService.getPromotionById("promo1")).thenReturn(promotion);
@@ -69,34 +68,24 @@ class YearlyResultServiceTest {
             List.of("g1"), L1))
         .thenReturn(
             List.of(
-                rankedYearlyResult("STD1", "K2", BigDecimal.valueOf(18)),
-                rankedYearlyResult("STD2", "K2", BigDecimal.valueOf(15)),
-                rankedYearlyResult("STD3", "K2", BigDecimal.valueOf(15)),
-                rankedYearlyResult("STD4", "K2", BigDecimal.valueOf(12))));
+                studentYearlyResult("STD1", "K2", BigDecimal.valueOf(18)),
+                studentYearlyResult("STD2", "K2", BigDecimal.valueOf(15)),
+                studentYearlyResult("STD3", "K2", BigDecimal.valueOf(12))));
 
-    var xlsx = subject.generateYearlyResultsRankingXlsx("promo1", L1);
+    var xlsx = subject.generateYearlyResultsXlsx("promo1", L1);
 
     try (var workbook = new XSSFWorkbook(new ByteArrayInputStream(xlsx))) {
       var sheet = workbook.getSheetAt(0);
       var header = sheet.getRow(0);
-      assertEquals("rank", header.getCell(0).getStringCellValue());
-      assertEquals("ref", header.getCell(1).getStringCellValue());
-      assertEquals("weightedAverage", header.getCell(2).getStringCellValue());
-      assertEquals("obtainedCredits", header.getCell(3).getStringCellValue());
-      assertEquals("totalCredits", header.getCell(4).getStringCellValue());
-      assertEquals("groupe", header.getCell(5).getStringCellValue());
+      assertEquals("ref", header.getCell(0).getStringCellValue());
+      assertEquals("weightedAverage", header.getCell(1).getStringCellValue());
+      assertEquals("obtainedCredits", header.getCell(2).getStringCellValue());
+      assertEquals("totalCredits", header.getCell(3).getStringCellValue());
+      assertEquals("groupe", header.getCell(4).getStringCellValue());
 
-      assertEquals("1", sheet.getRow(1).getCell(0).getStringCellValue());
-      assertEquals("STD1", sheet.getRow(1).getCell(1).getStringCellValue());
-
-      assertEquals("2", sheet.getRow(2).getCell(0).getStringCellValue());
-      assertEquals("STD2", sheet.getRow(2).getCell(1).getStringCellValue());
-
-      assertEquals("2", sheet.getRow(3).getCell(0).getStringCellValue());
-      assertEquals("STD3", sheet.getRow(3).getCell(1).getStringCellValue());
-
-      assertEquals("4", sheet.getRow(4).getCell(0).getStringCellValue());
-      assertEquals("STD4", sheet.getRow(4).getCell(1).getStringCellValue());
+      assertEquals("STD1", sheet.getRow(1).getCell(0).getStringCellValue());
+      assertEquals("STD2", sheet.getRow(2).getCell(0).getStringCellValue());
+      assertEquals("STD3", sheet.getRow(3).getCell(0).getStringCellValue());
     }
   }
 

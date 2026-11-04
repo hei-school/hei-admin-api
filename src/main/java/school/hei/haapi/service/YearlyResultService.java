@@ -4,7 +4,6 @@ import static school.hei.haapi.endpoint.rest.model.ResultOverviewStatus.NOT_STAR
 
 import java.math.BigDecimal;
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -18,7 +17,7 @@ import school.hei.haapi.model.Group;
 import school.hei.haapi.model.ResultOverviewStatus;
 import school.hei.haapi.model.User;
 import school.hei.haapi.model.YearlyResult;
-import school.hei.haapi.model.dto.YearlyResultRankingXlsxRow;
+import school.hei.haapi.model.dto.YearlyResultXlsxRow;
 import school.hei.haapi.model.promotion.PromotionLevelOutOfRangeException;
 import school.hei.haapi.repository.UserRepository;
 import school.hei.haapi.repository.YearlyResultRepository;
@@ -58,57 +57,30 @@ public class YearlyResultService {
     return yearlyResultRepository.saveAll(yearlyResults);
   }
 
-  public byte[] generateYearlyResultsRankingXlsx(String promotionId, StudentLevel level) {
+  public byte[] generateYearlyResultsXlsx(String promotionId, StudentLevel level) {
     var promotion = promotionService.getPromotionById(promotionId);
     var groupIds =
         groupFlowService.findGroupsOfPromotionAtLevel(promotion, level).stream()
             .map(Group::getId)
             .toList();
-    var rankedYearlyResults =
+    var yearlyResults =
         yearlyResultRepository.findAllByGroupIdsAndLevelOrderByWeightedAverageDesc(groupIds, level);
 
-    var rows = toRankedRows(rankedYearlyResults);
-    XlsxCellsGenerator<YearlyResultRankingXlsxRow> xlsxCellsGenerator = new XlsxCellsGenerator<>();
+    var rows = yearlyResults.stream().map(this::toRow).toList();
+    XlsxCellsGenerator<YearlyResultXlsxRow> xlsxCellsGenerator = new XlsxCellsGenerator<>();
     return xlsxCellsGenerator.apply(
-        rows,
-        List.of("rank", "ref", "weightedAverage", "obtainedCredits", "totalCredits", "groupe"));
+        rows, List.of("ref", "weightedAverage", "obtainedCredits", "totalCredits", "groupe"));
   }
 
-  private List<YearlyResultRankingXlsxRow> toRankedRows(List<YearlyResult> rankedYearlyResults) {
-    var rows = new ArrayList<YearlyResultRankingXlsxRow>();
-    var rank = 0;
-    BigDecimal previousAverage = null;
-    for (var i = 0; i < rankedYearlyResults.size(); i++) {
-      var yearlyResult = rankedYearlyResults.get(i);
-      var currentAverage = yearlyResult.getWeightedAverage();
-      if (i == 0 || !sameAverage(previousAverage, currentAverage)) {
-        rank = i + 1;
-      }
-      previousAverage = currentAverage;
-      rows.add(
-          new YearlyResultRankingXlsxRow(
-              rank,
-              yearlyResult.getStudent().getRef(),
-              currentAverage,
-              yearlyResult.getObtainedCredits(),
-              yearlyResult.getTotalCredits(),
-              yearlyResult.getGroup() == null ? "" : yearlyResult.getGroup().getRef()));
-    }
-    return rows;
+  private YearlyResultXlsxRow toRow(YearlyResult yearlyResult) {
+    return new YearlyResultXlsxRow(
+        yearlyResult.getStudent().getRef(),
+        yearlyResult.getWeightedAverage(),
+        yearlyResult.getObtainedCredits(),
+        yearlyResult.getTotalCredits(),
+        yearlyResult.getGroup() == null ? "" : yearlyResult.getGroup().getRef());
   }
 
-  private boolean sameAverage(BigDecimal a, BigDecimal b) {
-    if (a == null || b == null) {
-      return a == b;
-    }
-    return a.compareTo(b) == 0;
-  }
-
-  /**
-   * Every level up to the student's current one in their current promotion's cycle (e.g. current L2
-   * -> [L1, L2]), so a level never started with us still gets a row instead of being silently
-   * missing.
-   */
   private List<YearlyResult> buildYearlyResultsForStudent(
       User student, Map<String, YearlyResult> existingByStudentIdAndLevel) {
     var levelsUpToCurrent = levelsUpToCurrentOf(student);
@@ -150,48 +122,63 @@ public class YearlyResultService {
     var groupFlowPeriods =
         groupFlowService.findStudentLatestGroupFlowPeriodsAtLevel(student.getId(), level);
     var group = groupFlowPeriods.isEmpty() ? null : groupFlowPeriods.getFirst().group();
-    var existingId = existingByStudentIdAndLevel.get(keyOf(student.getId(), level));
-    var existingEntityId = existingId != null ? existingId.getId() : null;
+    var existingEntity = existingByStudentIdAndLevel.get(keyOf(student.getId(), level));
+    var existingId = existingEntity != null ? existingEntity.getId() : null;
+    var notStarted = NOT_STARTED.equals(yearlyResult.getStatus());
 
-    if (NOT_STARTED.equals(yearlyResult.getStatus()) && group == null) {
-      // The student never attended this level with us (e.g. did their L1 elsewhere before
-      // joining us in L2): the level is assumed validated elsewhere, not a gap in our data.
-      return YearlyResult.builder()
-          .id(existingEntityId)
-          .student(student)
-          .group(null)
-          .level(level)
-          .weightedAverage(EXTERNAL_LEVEL_WEIGHTED_AVERAGE)
-          .obtainedCredits(EXTERNAL_LEVEL_CREDITS)
-          .totalCredits(EXTERNAL_LEVEL_CREDITS)
-          .status(ResultOverviewStatus.VALIDATED)
-          .build();
+    if (notStarted && group == null) {
+      return toYearlyResult(
+          existingId,
+          student,
+          null,
+          level,
+          EXTERNAL_LEVEL_WEIGHTED_AVERAGE,
+          EXTERNAL_LEVEL_CREDITS,
+          EXTERNAL_LEVEL_CREDITS,
+          ResultOverviewStatus.VALIDATED);
     }
 
-    if (NOT_STARTED.equals(yearlyResult.getStatus())) {
-      // The student does have a group at this level with us, it's genuinely not started yet
-      // (typically their current level): keep the real status and total credits, zero the rest.
-      return YearlyResult.builder()
-          .id(existingEntityId)
-          .student(student)
-          .group(group)
-          .level(level)
-          .weightedAverage(BigDecimal.ZERO)
-          .obtainedCredits(BigDecimal.ZERO)
-          .totalCredits(yearlyResult.getTotalCredits())
-          .status(ResultOverviewStatus.NOT_STARTED)
-          .build();
+    if (notStarted) {
+      return toYearlyResult(
+          existingId,
+          student,
+          group,
+          level,
+          BigDecimal.ZERO,
+          BigDecimal.ZERO,
+          yearlyResult.getTotalCredits(),
+          ResultOverviewStatus.NOT_STARTED);
     }
 
+    return toYearlyResult(
+        existingId,
+        student,
+        group,
+        level,
+        yearlyResult.getWeightedAverage(),
+        yearlyResult.getObtainedCredits(),
+        yearlyResult.getTotalCredits(),
+        ResultOverviewStatus.valueOf(yearlyResult.getStatus().toString()));
+  }
+
+  private YearlyResult toYearlyResult(
+      String existingId,
+      User student,
+      Group group,
+      StudentLevel level,
+      BigDecimal weightedAverage,
+      BigDecimal obtainedCredits,
+      BigDecimal totalCredits,
+      ResultOverviewStatus status) {
     return YearlyResult.builder()
-        .id(existingEntityId)
+        .id(existingId)
         .student(student)
         .group(group)
         .level(level)
-        .weightedAverage(yearlyResult.getWeightedAverage())
-        .obtainedCredits(yearlyResult.getObtainedCredits())
-        .totalCredits(yearlyResult.getTotalCredits())
-        .status(ResultOverviewStatus.valueOf(yearlyResult.getStatus().toString()))
+        .weightedAverage(weightedAverage)
+        .obtainedCredits(obtainedCredits)
+        .totalCredits(totalCredits)
+        .status(status)
         .build();
   }
 
