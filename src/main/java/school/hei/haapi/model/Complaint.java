@@ -76,6 +76,11 @@ public class Complaint {
   @OneToMany(mappedBy = "complaint", fetch = EAGER)
   private List<ComplaintStatusHistory> statusHistory;
 
+  @EqualsAndHashCode.Exclude
+  @ToString.Exclude
+  @OneToMany(mappedBy = "complaint", fetch = EAGER)
+  private List<ComplaintAttachment> attachments;
+
   public Optional<User> getRoutedManager() {
     if (assignees == null) {
       return Optional.empty();

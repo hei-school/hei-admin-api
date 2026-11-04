@@ -4,15 +4,20 @@ import java.util.List;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 import school.hei.haapi.endpoint.rest.model.Complaint;
+import school.hei.haapi.endpoint.rest.model.ComplaintAttachment;
 import school.hei.haapi.endpoint.rest.model.ComplaintStatus;
 import school.hei.haapi.endpoint.rest.model.ComplaintStatusHistory;
 import school.hei.haapi.endpoint.rest.model.ComplaintType;
 import school.hei.haapi.endpoint.rest.model.UserIdentifier;
+import school.hei.haapi.service.aws.FileService;
 
 @Component
 @AllArgsConstructor
 public class ComplaintMapper {
+  private static final long ONE_DAY_DURATION_AS_LONG = 84600L;
+
   private final UserMapper userMapper;
+  private final FileService fileService;
 
   public Complaint toRest(school.hei.haapi.model.Complaint complaint) {
     return new Complaint()
@@ -23,7 +28,28 @@ public class ComplaintMapper {
         .status(toRestStatus(complaint.getStatus()))
         .student(userMapper.toIdentifier(complaint.getStudent()))
         .assignees(toRestAssignees(complaint))
+        .attachments(toRestAttachments(complaint.getAttachments()))
         .createdAt(complaint.getCreatedAt());
+  }
+
+  public ComplaintAttachment toRest(school.hei.haapi.model.ComplaintAttachment attachment) {
+    return new ComplaintAttachment()
+        .id(attachment.getId())
+        .fileName(attachment.getFileName())
+        .fileUrl(fileService.getPresignedUrl(attachment.getFilePath(), ONE_DAY_DURATION_AS_LONG))
+        .uploadedBy(
+            attachment.getUploadedBy() != null
+                ? userMapper.toIdentifier(attachment.getUploadedBy())
+                : null)
+        .creationDatetime(attachment.getCreationDatetime());
+  }
+
+  public List<ComplaintAttachment> toRestAttachments(
+      List<school.hei.haapi.model.ComplaintAttachment> attachments) {
+    if (attachments == null) {
+      return List.of();
+    }
+    return attachments.stream().map(this::toRest).toList();
   }
 
   public List<Complaint> toRest(List<school.hei.haapi.model.Complaint> complaints) {

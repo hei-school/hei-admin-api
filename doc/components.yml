@@ -2270,7 +2270,25 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/UserIdentifier'
+        attachments:
+          type: array
+          items:
+            $ref: '#/components/schemas/ComplaintAttachment'
         created_at:
+          type: string
+          format: date-time
+    ComplaintAttachment:
+      type: object
+      properties:
+        id:
+          type: string
+        file_name:
+          type: string
+        file_url:
+          type: string
+        uploaded_by:
+          $ref: '#/components/schemas/UserIdentifier'
+        creation_datetime:
           type: string
           format: date-time
     UpdateComplaintAssignees:

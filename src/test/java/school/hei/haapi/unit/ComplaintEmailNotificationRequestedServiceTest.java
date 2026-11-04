@@ -86,6 +86,54 @@ class ComplaintEmailNotificationRequestedServiceTest extends FacadeITMockedThird
 
   @Test
   @Transactional
+  void notifies_student_when_complaint_is_assigned_ok() {
+    var student = userRepository.save(someStudent("email-student-assignment"));
+    var manager = userRepository.save(someUser("email-manager-assignment", MANAGER));
+    var otherManager = userRepository.save(someUser("email-manager-assignment-2", MANAGER));
+    complaintRoutingService.create(ComplaintType.ACADEMIC, manager);
+    var complaint =
+        complaintService.create(ComplaintType.ACADEMIC, "Titre", "Description", student);
+    complaintService.addAssignees(complaint.getId(), List.of(otherManager.getId()), manager);
+
+    subject.accept(
+        ComplaintEmailNotificationRequested.builder()
+            .complaintId(complaint.getId())
+            .userId(student.getId())
+            .notifyAssignment(true)
+            .build());
+
+    var emailCaptor = ArgumentCaptor.forClass(Email.class);
+    verify(mailerMock, times(1)).accept(emailCaptor.capture());
+    assertEquals(
+        "[Réclamation] Votre réclamation a été transmise à un responsable",
+        emailCaptor.getValue().subject());
+  }
+
+  @Test
+  @Transactional
+  void notifies_student_on_in_progress_ok() {
+    var student = userRepository.save(someStudent("email-student-in-progress"));
+    var manager = userRepository.save(someUser("email-manager-in-progress", MANAGER));
+    complaintRoutingService.create(ComplaintType.ACADEMIC, manager);
+    var complaint =
+        complaintService.create(ComplaintType.ACADEMIC, "Titre", "Description", student);
+    complaintService.changeStatus(complaint.getId(), IN_PROGRESS, null, manager);
+
+    subject.accept(
+        ComplaintEmailNotificationRequested.builder()
+            .complaintId(complaint.getId())
+            .userId(student.getId())
+            .build());
+
+    var emailCaptor = ArgumentCaptor.forClass(Email.class);
+    verify(mailerMock, times(1)).accept(emailCaptor.capture());
+    assertEquals(
+        "[Réclamation] Votre réclamation est en cours de traitement",
+        emailCaptor.getValue().subject());
+  }
+
+  @Test
+  @Transactional
   void notifies_student_on_rejection_with_comment_ok() {
     var student = userRepository.save(someStudent("email-student-3"));
     var manager = userRepository.save(someUser("email-manager-4", MANAGER));

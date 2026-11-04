@@ -57,22 +57,22 @@ public class Promotion {
   private List<Group> groups;
 
   // TODO: take into account that yearly result plays the most significant role getLevelAt too.
-  public StudentLevel getLevelAt(Instant levelInstant) throws PromotionLevelOutOfRangeException {
-    if (cycleLevel.getLevels().isEmpty()) {
-      throw new PromotionLevelOutOfRangeException();
-    }
-
-    int yearOfStudying = yearOfStudyingAt(levelInstant);
-    if (yearOfStudying < 0 || yearOfStudying >= cycleLevel.getLevels().size()) {
-      throw new PromotionLevelOutOfRangeException(yearOfStudying);
-    }
-    return cycleLevel.getLevels().get(yearOfStudying);
-  }
 
   /** True once all the levels of the cycle are over: its students went out of the school. */
   public boolean isOverAt(Instant levelInstant) {
     var levels = cycleLevel.getLevels();
     return !levels.isEmpty() && yearOfStudyingAt(levelInstant) >= levels.size();
+  }
+
+  public StudentLevel getLevelAt(Instant levelInstant) throws PromotionLevelOutOfRangeException {
+    if (cycleLevel.getLevels().isEmpty()) {
+      throw new PromotionLevelOutOfRangeException();
+    }
+    int yearOfStudying = yearOfStudyingAt(levelInstant);
+    if (yearOfStudying < 0 || yearOfStudying >= cycleLevel.getLevels().size()) {
+      throw new PromotionLevelOutOfRangeException(yearOfStudying);
+    }
+    return cycleLevel.getLevels().get(yearOfStudying);
   }
 
   private int yearOfStudyingAt(Instant levelInstant) {
