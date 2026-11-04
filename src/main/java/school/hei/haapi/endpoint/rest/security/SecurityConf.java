@@ -331,6 +331,7 @@ public class SecurityConf {
                     antMatcher(GET, "/students/*/comments"),
                     antMatcher(POST, "/students/*/comments"),
                     antMatcher(GET, "/students/result_overviews"),
+                    antMatcher(GET, "/students/result_overviews/raw/xlsx"),
                     antMatcher(GET, "/events/students/*/stats"),
                     antMatcher(PUT, "/events"),
                     antMatcher(GET, "/events/stats"),
@@ -343,6 +344,7 @@ public class SecurityConf {
                     antMatcher(PUT, "/promotions"),
                     antMatcher(GET, "/promotions/*"),
                     antMatcher(GET, "/promotions/*/students"),
+                    antMatcher(GET, "/promotions/*/yearly_results/raw/xlsx"),
                     antMatcher(PUT, "/promotions/*/groups"),
                     antMatcher(GET, "/attendance"),
                     antMatcher(GET, "/event/*/students/raw/xlsx"),
@@ -1073,6 +1075,8 @@ public class SecurityConf {
                     .hasAnyRole(MANAGER.getRole(), TEACHER.getRole(), ADMIN.getRole())
                     .requestMatchers(GET, "/students/result_overviews")
                     .hasAnyRole(MANAGER.getRole(), TEACHER.getRole(), ADMIN.getRole())
+                    .requestMatchers(GET, "/students/result_overviews/raw/xlsx")
+                    .hasAnyRole(ADMIN.getRole(), MANAGER.getRole())
                     //
                     // Staff resources
                     //
@@ -1176,6 +1180,8 @@ public class SecurityConf {
                         MANAGER.getRole(), TEACHER.getRole(), STUDENT.getRole(), ADMIN.getRole())
                     .requestMatchers(GET, "/promotions/*/students")
                     .hasAnyRole(MANAGER.getRole(), TEACHER.getRole(), ADMIN.getRole())
+                    .requestMatchers(GET, "/promotions/*/yearly_results/raw/xlsx")
+                    .hasAnyRole(ADMIN.getRole(), MANAGER.getRole())
                     .requestMatchers(PUT, "/promotions/*/groups")
                     .hasAnyRole(MANAGER.getRole(), ADMIN.getRole())
                     .requestMatchers(GET, "/cors")
