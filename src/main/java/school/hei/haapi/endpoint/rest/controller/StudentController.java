@@ -229,4 +229,15 @@ public class StudentController {
         page,
         pageSize);
   }
+
+  @GetMapping(value = "/students/result_overviews/raw/xlsx", produces = "application/vnd.ms-excel")
+  public byte[] generateStudentResultOverviewsXlsx(
+      @RequestParam(name = "promotion_id") String promotionId,
+      @RequestParam(name = "status", required = false) ResultOverviewStatus status) {
+    return studentResultOverviewService.generateStudentResultOverviewsXlsx(
+        promotionId,
+        status == null
+            ? null
+            : school.hei.haapi.model.ResultOverviewStatus.valueOf(status.toString()));
+  }
 }

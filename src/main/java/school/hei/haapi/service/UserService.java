@@ -99,7 +99,9 @@ public class UserService {
   @Transactional
   public User updateUser(User user, String userId) {
     var toUpdate = refreshUserById(userId, user);
-    return userRepository.save(toUpdate);
+    var savedUser = userRepository.save(toUpdate);
+    feeService.disableUnpaidFeesOfStudent(savedUser);
+    return savedUser;
   }
 
   @Transactional
@@ -158,6 +160,7 @@ public class UserService {
     // TODO: do not nullify profile picture here
     var savedUsers = userRepository.saveAll(users);
     eventProducer.accept(users.stream().map(this::toUserUpsertedEvent).toList());
+    savedUsers.forEach(feeService::disableUnpaidFeesOfStudent);
     return savedUsers;
   }
 
@@ -168,6 +171,7 @@ public class UserService {
     userValidator.accept(users);
     var savedUsers = userRepository.saveAll(users);
     eventProducer.accept(users.stream().map(this::toUserUpsertedEvent).toList());
+    savedUsers.forEach(feeService::disableUnpaidFeesOfStudent);
 
     // TODO: handle existing users exception when creating fees automatically
     for (Map.Entry<User, PaymentFrequency> entry : userPaymentFrequencyMap.entrySet()) {

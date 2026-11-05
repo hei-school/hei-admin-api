@@ -27,7 +27,6 @@ public class PromotionDao {
     CriteriaBuilder builder = entityManager.getCriteriaBuilder();
     CriteriaQuery<Promotion> query = builder.createQuery(Promotion.class);
     Root<Promotion> root = query.from(Promotion.class);
-    Join<Promotion, Group> join = root.join("groups", LEFT);
 
     List<Predicate> predicates = new ArrayList<>();
 
@@ -46,15 +45,15 @@ public class PromotionDao {
     }
 
     if (groupRef != null) {
+      Join<Promotion, Group> join = root.join("groups", LEFT);
+      query.distinct(true);
       predicates.add(
           builder.or(
               builder.like(builder.lower(join.get("ref")), "%" + groupRef + "%"),
               builder.like(join.get("ref"), "%" + groupRef + "%")));
     }
 
-    if (!predicates.isEmpty()) {
-      query.where(predicates.toArray(new Predicate[0])).distinct(true);
-    }
+    query.where(predicates.toArray(new Predicate[0]));
 
     query.orderBy(QueryUtils.toOrders(pageable.getSort(), root, builder));
 

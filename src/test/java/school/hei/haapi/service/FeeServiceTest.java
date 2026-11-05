@@ -432,6 +432,34 @@ class FeeServiceTest {
         BadRequestException.class, () -> subject.updateArchiveStatus(initial, ARCHIVED, null));
   }
 
+  @Test
+  void disable_unpaid_fees_of_left_student_ok() {
+    clearInvocations(feeRepository);
+    var leftStudent = User.builder().id(STUDENT1_ID).status(User.Status.DISABLED).build();
+
+    subject.disableUnpaidFeesOfStudent(leftStudent);
+
+    verify(feeRepository).softDeleteUnpaidFeesOfStudent(STUDENT1_ID);
+  }
+
+  @Test
+  void unpaid_fees_of_enabled_student_are_kept() {
+    clearInvocations(feeRepository);
+    var enabledStudent = User.builder().id(STUDENT1_ID).status(User.Status.ENABLED).build();
+
+    subject.disableUnpaidFeesOfStudent(enabledStudent);
+
+    verify(feeRepository, never()).softDeleteUnpaidFeesOfStudent(any());
+  }
+
+  @Test
+  void create_fee_for_left_student_ko() {
+    var fee = mockFee();
+    fee.setStudent(User.builder().id(STUDENT1_ID).status(User.Status.DISABLED).build());
+
+    assertThrows(BadRequestException.class, () -> subject.saveAll(List.of(fee)));
+  }
+
   private static User mockUser() {
     return User.builder().id(STUDENT1_ID).build();
   }

@@ -13,6 +13,7 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import school.hei.haapi.endpoint.rest.mapper.StudentResultOverviewMapper;
 import school.hei.haapi.endpoint.rest.model.StudentLevel;
@@ -22,11 +23,13 @@ import school.hei.haapi.model.Promotion;
 import school.hei.haapi.model.ResultOverviewStatus;
 import school.hei.haapi.model.StudentResultOverview;
 import school.hei.haapi.model.User;
+import school.hei.haapi.model.dto.StudentResultOverviewXlsxRow;
 import school.hei.haapi.model.pagination.PaginationFromPageAndPageSize;
 import school.hei.haapi.model.promotion.PromotionLevelOutOfRangeException;
 import school.hei.haapi.repository.StudentResultOverviewRepository;
 import school.hei.haapi.repository.UserRepository;
 import school.hei.haapi.repository.dao.StudentResultOverviewDao;
+import school.hei.haapi.service.utils.XlsxCellsGenerator;
 
 @Slf4j
 @Service
@@ -151,5 +154,25 @@ public class StudentResultOverviewService {
 
   public List<StudentResultOverview> saveAll(List<StudentResultOverview> studentResultOverviews) {
     return studentResultOverviewRepository.saveAll(studentResultOverviews);
+  }
+
+  public byte[] generateStudentResultOverviewsXlsx(
+      String promotionId, ResultOverviewStatus status) {
+    var overviews =
+        studentResultOverviewDao.filterByCriteria(promotionId, status, Pageable.unpaged());
+    var rows = overviews.stream().map(StudentResultOverviewXlsxRow::from).toList();
+    XlsxCellsGenerator<StudentResultOverviewXlsxRow> xlsxCellsGenerator =
+        new XlsxCellsGenerator<>();
+    return xlsxCellsGenerator.apply(
+        rows,
+        List.of(
+            "ref",
+            "firstName",
+            "lastName",
+            "weightedAverage",
+            "obtainedCredits",
+            "totalCredits",
+            "status",
+            "graduationPromotion"));
   }
 }

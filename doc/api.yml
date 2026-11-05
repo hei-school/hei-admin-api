@@ -76,6 +76,8 @@ paths:
     $ref: './operations/users-api.yml#/operations/importStudents'
   /students/result_overviews:
     $ref: './operations/users-api.yml#/operations/getStudentsResultOverviewsByStatus'
+  /students/result_overviews/raw/xlsx:
+    $ref: './operations/users-api.yml#/operations/generateStudentResultOverviewsXlsx'
   '/monitors/{id}':
     $ref: './operations/users-api.yml#/operations/monitorsById'
   /monitors:
@@ -237,6 +239,8 @@ paths:
     $ref: './operations/promotions-api.yml#/operations/getStudentsByPromotion'
   '/promotions/{id}/groups':
     $ref: './operations/promotions-api.yml#/operations/updatePromotionGroups'
+  '/promotions/{promotion_id}/yearly_results/raw/xlsx':
+    $ref: './operations/promotions-api.yml#/operations/generateYearlyResultsRankingXlsx'
   # Paying
   /delay_penalty_change:
     $ref: './operations/paying-api.yml#/operations/createDelayPenaltyChange'

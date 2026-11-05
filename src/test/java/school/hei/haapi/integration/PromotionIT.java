@@ -173,6 +173,20 @@ public class PromotionIT extends FacadeITMockedThirdParties {
   }
 
   @Test
+  void a_page_holds_page_size_promotions_whatever_their_groups() throws ApiException {
+    movableGroup.setPromotion(promotionWithGroup);
+    movableGroup = groupRepository.save(movableGroup);
+    var api = apiAs(managerToken);
+
+    var firstPage = api.getPromotions(1, 2, null, null, null);
+    var secondPage = api.getPromotions(2, 2, null, null, null);
+
+    assertEquals(2, firstPage.size(), "groups of a promotion must not eat the page slots");
+    assertEquals(2, idsOf(firstPage).stream().distinct().count());
+    assertTrue(idsOf(secondPage).stream().noneMatch(idsOf(firstPage)::contains));
+  }
+
+  @Test
   void a_promotion_carries_the_level_its_students_are_sitting() throws ApiException {
     var promotions = apiAs(managerToken).getPromotions(1, 250, null, null, null);
 

@@ -4,6 +4,7 @@ import java.time.Instant;
 import java.util.List;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -109,6 +110,16 @@ public interface FeeRepository extends JpaRepository<Fee, String> {
   List<Fee> findAllByDueDatetimeBetween(Instant from, Instant to);
 
   List<Fee> findFeesByStudent_Id(String studentId);
+
+  @Modifying
+  @Query(
+      """
+      update Fee f set f.isDeleted = true
+      where f.student.id = :studentId
+        and f.status in ('UNPAID', 'LATE')
+        and f.isDeleted = false
+      """)
+  int softDeleteUnpaidFeesOfStudent(@Param("studentId") String studentId);
 
   @Query(
       """

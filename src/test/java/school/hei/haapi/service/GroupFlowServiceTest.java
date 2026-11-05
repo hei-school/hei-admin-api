@@ -461,6 +461,21 @@ class GroupFlowServiceTest {
   }
 
   @Test
+  void finds_only_the_groups_of_the_promotion_assigned_to_the_requested_level() {
+    var k2 = k2();
+    var k3 = k3();
+    groupHasAssignmentsAtLevels(k2, L1, L2);
+    groupHasAssignmentsAtLevels(k3, L2);
+    var promotion = Promotion.builder().id("promo").groups(List.of(k2, k3)).build();
+
+    var groupsAtL1 = subject.findGroupsOfPromotionAtLevel(promotion, L1);
+    var groupsAtL2 = subject.findGroupsOfPromotionAtLevel(promotion, L2);
+
+    assertEquals(List.of(k2), groupsAtL1);
+    assertEquals(List.of(k2, k3), groupsAtL2);
+  }
+
+  @Test
   void keeps_a_stint_at_the_requested_level_when_the_group_has_no_promotion() {
     var student = User.builder().id("student").build();
     var groupWithoutPromotion = Group.builder().id("no-promo").ref("G1").build();

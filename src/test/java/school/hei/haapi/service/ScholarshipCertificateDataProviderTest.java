@@ -36,7 +36,8 @@ class ScholarshipCertificateDataProviderTest extends FacadeITMockedThirdParties 
 
   @Test
   void get_academic_year_ok() {
-    int actualYear = 2025;
+    var today = LocalDate.now(ZoneOffset.ofHours(3));
+    int actualYear = today.getMonthValue() >= 11 ? today.getYear() : today.getYear() - 1;
     var licenseFirstYear = instantOf(actualYear, 11, 1);
     var licenseSecondYear = instantOf(actualYear - 1, 11, 1);
     var licenseThirdYear = instantOf(actualYear - 2, 11, 1);

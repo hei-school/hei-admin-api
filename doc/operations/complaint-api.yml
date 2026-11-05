@@ -92,6 +92,11 @@ operations:
         - Complaint
       operationId: addComplaintAssignees
       summary: Add one or more assignees to a complaint, keeping the existing ones
+      description: >-
+        If the complaint is still CREATED, adding an assignee automatically
+        moves it to ASSIGNED: it has been transmitted to a responsible party
+        but nobody has started working on it yet. The status only becomes
+        IN_PROGRESS once someone explicitly starts treating it.
       parameters:
         - $ref: '../components.yml#/components/parameters/PathComplaintId'
       requestBody:
@@ -124,9 +129,12 @@ operations:
       operationId: updateComplaintStatus
       summary: Change the status of a complaint, recording a message the student will see
       description: >-
-        Allowed transitions: CREATED -> IN_PROGRESS, IN_PROGRESS -> RESOLVED,
-        CREATED -> REJECTED. REJECTED is only reachable directly from
-        CREATED, never from IN_PROGRESS.
+        Allowed transitions: CREATED -> IN_PROGRESS, ASSIGNED -> IN_PROGRESS,
+        IN_PROGRESS -> RESOLVED, CREATED -> REJECTED, ASSIGNED -> REJECTED.
+        REJECTED is only reachable from CREATED or ASSIGNED, never from
+        IN_PROGRESS. ASSIGNED itself cannot be set through this endpoint: it
+        is set automatically when an assignee is added to a CREATED
+        complaint.
       parameters:
         - $ref: '../components.yml#/components/parameters/PathComplaintId'
       requestBody:
