@@ -54,7 +54,9 @@ public class UserManagerDao {
       String courseId,
       Instant commitmentComparison,
       Collection<String> excludeGroupIds,
-      Collection<String> includeGroupIds) {
+      Collection<String> includeGroupIds,
+      Instant entranceDatetimeFrom,
+      Instant entranceDatetimeTo) {
     CriteriaBuilder builder = entityManager.getCriteriaBuilder();
     CriteriaQuery<User> query = builder.createQuery(User.class);
     Root<User> root = query.from(User.class);
@@ -167,6 +169,20 @@ public class UserManagerDao {
               builder.or(
                   builder.like(builder.lower(root.get("lastName")), "%" + lastName + "%"),
                   builder.like(root.get("lastName"), "%" + lastName + "%")));
+    }
+
+    if (entranceDatetimeFrom != null) {
+      predicate =
+          builder.and(
+              predicate,
+              builder.greaterThanOrEqualTo(root.get("entranceDatetime"), entranceDatetimeFrom));
+    }
+
+    if (entranceDatetimeTo != null) {
+      predicate =
+          builder.and(
+              predicate,
+              builder.lessThanOrEqualTo(root.get("entranceDatetime"), entranceDatetimeTo));
     }
 
     if (pageable.isUnpaged()) {

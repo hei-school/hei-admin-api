@@ -70,7 +70,9 @@ public class GroupService {
             null,
             null,
             null,
-            List.of(groupId));
+            List.of(groupId),
+            null,
+            null);
     return students.size();
   }
 
