@@ -1,3 +1,19 @@
+# [1.187.0](https://github.com/hei-school/hei-admin-api/compare/v1.185.0...v1.187.0) (2026-11-06)
+
+
+### Bug Fixes
+
+* filter student by entry datetime and order desc  ([b594b5d](https://github.com/hei-school/hei-admin-api/commit/b594b5dc21a869995c105295b76bb3f5a3f60b3c))
+* promotions page cut short by group join ([d59c8d9](https://github.com/hei-school/hei-admin-api/commit/d59c8d9a4c580a7ec124aea4f71484923ef9a35d))
+
+
+### Features
+
+* disable unpaid fees of left students ([bddd932](https://github.com/hei-school/hei-admin-api/commit/bddd93216dd00b792a8cccab7f4d14785eabeb06))
+* export student result overviews and student yearly result ([ea67326](https://github.com/hei-school/hei-admin-api/commit/ea67326215d6787bbd1475d83e0bc0005dba0559))
+
+
+
 # [1.185.0](https://github.com/hei-school/hei-admin-api/compare/v1.184.1...v1.185.0) (2026-10-30)
 
 
@@ -122,22 +138,6 @@
 ### Features
 
 * file generated fiches by year and level ([3de781e](https://github.com/hei-school/hei-admin-api/commit/3de781e7a4ab3d9da28676105b850da88960e852))
-
-
-
-# [1.174.0](https://github.com/hei-school/hei-admin-api/compare/v1.173.1...v1.174.0) (2026-09-24)
-
-
-### Bug Fixes
-
-* allow user search without accents ([be290b0](https://github.com/hei-school/hei-admin-api/commit/be290b05d991abb7b690a3d6ecc9052e8c5b3e4b))
-* duplicate payment and repeated verification ([3d3961f](https://github.com/hei-school/hei-admin-api/commit/3d3961f03837b5791091a07f485b96ec8cf8d469))
-* send sms compaign ([cf8c7db](https://github.com/hei-school/hei-admin-api/commit/cf8c7dbd3f62380c57dfc2299e9d5c5704e5cce3))
-
-
-### Features
-
-* SmsBefiana integration ([f503b30](https://github.com/hei-school/hei-admin-api/commit/f503b30cfad326cf6a5a28536cff3bbee7c4b2f7))
 
 
 
