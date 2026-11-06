@@ -4,6 +4,7 @@ import static java.time.Instant.now;
 import static org.apache.poi.ss.usermodel.Row.MissingCellPolicy.CREATE_NULL_AS_BLANK;
 import static org.springframework.data.domain.Pageable.unpaged;
 import static org.springframework.data.domain.Sort.Direction.ASC;
+import static org.springframework.data.domain.Sort.Direction.DESC;
 import static school.hei.haapi.model.User.Role.STUDENT;
 import static school.hei.haapi.model.User.Role.TEACHER;
 import static school.hei.haapi.model.User.Status.ENABLED;
@@ -326,14 +327,10 @@ public class UserService {
       Instant commitmentBeginDate,
       List<String> excludeGroupIds,
       Instant entranceDatetimeFrom,
-      Instant entranceDatetimeTo,
-      Sort.Direction entranceDatetimeOrder) {
+      Instant entranceDatetimeTo) {
     log.info("Page = {}", page.getValue());
     log.info("PageSize = {}", pageSize.getValue());
-    var sort =
-        entranceDatetimeOrder == null
-            ? Sort.by(ASC, "ref")
-            : Sort.by(entranceDatetimeOrder, "entranceDatetime");
+    var sort = Sort.by(DESC, "entranceDatetime").and(Sort.by(ASC, "ref"));
     var pageable = PageRequest.of(page.getValue() - 1, pageSize.getValue(), sort);
     return userManagerDao.findByCriteria(
         role,
