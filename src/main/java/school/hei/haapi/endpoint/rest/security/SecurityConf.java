@@ -331,6 +331,8 @@ public class SecurityConf {
                     antMatcher(GET, "/students/*/comments"),
                     antMatcher(POST, "/students/*/comments"),
                     antMatcher(GET, "/students/result_overviews"),
+                    antMatcher(GET, "/students/result_overviews/raw/xlsx"),
+                    antMatcher(GET, "/promotions/*/yearly_results/raw/xlsx"),
                     antMatcher(GET, "/events/students/*/stats"),
                     antMatcher(PUT, "/events"),
                     antMatcher(GET, "/events/stats"),
@@ -1073,6 +1075,10 @@ public class SecurityConf {
                     .hasAnyRole(MANAGER.getRole(), TEACHER.getRole(), ADMIN.getRole())
                     .requestMatchers(GET, "/students/result_overviews")
                     .hasAnyRole(MANAGER.getRole(), TEACHER.getRole(), ADMIN.getRole())
+                    .requestMatchers(GET, "/students/result_overviews/raw/xlsx")
+                    .hasAnyRole(MANAGER.getRole(), ADMIN.getRole())
+                    .requestMatchers(GET, "/promotions/*/yearly_results/raw/xlsx")
+                    .hasAnyRole(MANAGER.getRole(), ADMIN.getRole())
                     //
                     // Staff resources
                     //
