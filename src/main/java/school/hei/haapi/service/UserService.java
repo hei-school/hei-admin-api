@@ -327,13 +327,10 @@ public class UserService {
       Instant commitmentBeginDate,
       List<String> excludeGroupIds,
       Instant entranceDatetimeFrom,
-      Instant entranceDatetimeTo,
-      Sort.Direction entranceDatetimeOrder) {
+      Instant entranceDatetimeTo) {
     log.info("Page = {}", page.getValue());
     log.info("PageSize = {}", pageSize.getValue());
-    var sort =
-        Sort.by(entranceDatetimeOrder == null ? DESC : entranceDatetimeOrder, "entranceDatetime")
-            .and(Sort.by(ASC, "ref"));
+    var sort = Sort.by(DESC, "entranceDatetime").and(Sort.by(ASC, "ref"));
     var pageable = PageRequest.of(page.getValue() - 1, pageSize.getValue(), sort);
     return userManagerDao.findByCriteria(
         role,

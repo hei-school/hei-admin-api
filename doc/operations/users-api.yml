@@ -271,15 +271,9 @@ operations:
           schema:
             type: string
             format: date-time
-        - name: entrance_datetime_order
-          required: false
-          in: query
-          description: Sort students by their HEI entrance date. Defaults to descending (most recent first).
-          schema:
-            $ref: '../components.yml#/components/schemas/OrderDirection'
       responses:
         '200':
-          description: List of students, ordered by entrance datetime descending by default, or ascending/descending when entrance_datetime_order is provided.
+          description: List of students, ordered by entrance datetime descending (most recent first).
           content:
             application/json:
               schema:
