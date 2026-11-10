@@ -164,10 +164,6 @@ public class GradeService {
     return savedGrades;
   }
 
-  /**
-   * Defers the event until the surrounding transaction actually commits, so the consumer never
-   * recomputes student results from grades that aren't visible in the database yet.
-   */
   private void publishStudentResultOverviewUpsertedAfterCommit(String promotionId) {
     if (!TransactionSynchronizationManager.isSynchronizationActive()) {
       eventProducer.accept(List.of(new StudentResultOverviewUpserted(promotionId)));

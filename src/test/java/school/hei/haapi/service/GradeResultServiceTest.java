@@ -816,7 +816,6 @@ class GradeResultServiceTest {
     return User.builder().id(id).build();
   }
 
-  /** A promotion start date making {@code getLevelAt(now())} resolve to the given level index. */
   private static Instant startOfScholarYearsAgo(int yearsAgo) {
     var today = LocalDate.now();
     int currentScholarYear = today.getMonthValue() >= 11 ? today.getYear() : today.getYear() - 1;
