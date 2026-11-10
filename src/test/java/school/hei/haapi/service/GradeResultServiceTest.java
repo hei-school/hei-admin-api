@@ -38,6 +38,9 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
 import java.time.Duration;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -447,7 +450,9 @@ class GradeResultServiceTest {
     when(student1.getLastName()).thenReturn(STUDENT1_LAST_NAME);
     when(student1.getRef()).thenReturn(STUDENT1_REF);
     when(student1.getSpecializationFieldString()).thenReturn(STUDENT1_SPECIALIZATION_FIELD_STRING);
-    when(student1.findCurrentGroup()).thenReturn(Optional.of(group()));
+    when(student1.findCurrentGroup()).thenReturn(Optional.of(student1Group()));
+    when(student2.findCurrentGroup()).thenReturn(Optional.of(group()));
+    when(student3.findCurrentGroup()).thenReturn(Optional.of(group()));
     doReturn(List.of(groupFlow())).when(student1).getGroupFlows();
     doReturn(List.of(groupFlow())).when(student2).getGroupFlows();
     doReturn(List.of(groupFlow())).when(student3).getGroupFlows();
@@ -811,12 +816,29 @@ class GradeResultServiceTest {
     return User.builder().id(id).build();
   }
 
+  private static Instant startOfScholarYearsAgo(int yearsAgo) {
+    var today = LocalDate.now();
+    int currentScholarYear = today.getMonthValue() >= 11 ? today.getYear() : today.getYear() - 1;
+    return LocalDate.of(currentScholarYear - yearsAgo, 11, 1)
+        .atStartOfDay(ZoneId.systemDefault())
+        .toInstant();
+  }
+
   private static Promotion mockPromotion() {
     return Promotion.builder()
         .ref("prom1")
         .cycleLevel(BACHELOR)
         .name("Promotion de test")
-        .startDatetime(now())
+        .startDatetime(startOfScholarYearsAgo(0))
+        .build();
+  }
+
+  private static Promotion student1Promotion() {
+    return Promotion.builder()
+        .ref("prom1-student1")
+        .cycleLevel(BACHELOR)
+        .name("Promotion de test - étudiant 1")
+        .startDatetime(startOfScholarYearsAgo(2))
         .build();
   }
 
@@ -824,9 +846,14 @@ class GradeResultServiceTest {
   private static final String GROUP_NAME = "Groupe test";
   private static final String GROUP_REF = "GRP_TST";
   private static final String BAD_GROUP_ID = "bad-test-grp";
+  private static final String STUDENT1_GROUP_ID = "test-grp-student1";
 
   private static Group mockGroup(Promotion promotion, String groupId) {
     return Group.builder().id(groupId).name(GROUP_NAME).ref(GROUP_REF).promotion(promotion).build();
+  }
+
+  private static Group student1Group() {
+    return mockGroup(student1Promotion(), STUDENT1_GROUP_ID);
   }
 
   private static Grade mockGrade(Exam exam, double score) {

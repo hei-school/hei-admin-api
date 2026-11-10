@@ -3,7 +3,6 @@ package school.hei.haapi.service;
 import static school.hei.haapi.endpoint.rest.model.ResultOverviewStatus.NOT_STARTED;
 
 import java.math.BigDecimal;
-import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -18,9 +17,9 @@ import school.hei.haapi.model.ResultOverviewStatus;
 import school.hei.haapi.model.User;
 import school.hei.haapi.model.YearlyResult;
 import school.hei.haapi.model.dto.YearlyResultXlsxRow;
-import school.hei.haapi.model.promotion.PromotionLevelOutOfRangeException;
 import school.hei.haapi.repository.UserRepository;
 import school.hei.haapi.repository.YearlyResultRepository;
+import school.hei.haapi.service.utils.StudentLevelUtils;
 import school.hei.haapi.service.utils.XlsxCellsGenerator;
 
 @Slf4j
@@ -83,32 +82,13 @@ public class YearlyResultService {
 
   private List<YearlyResult> buildYearlyResultsForStudent(
       User student, Map<String, YearlyResult> existingByStudentIdAndLevel) {
-    var levelsUpToCurrent = levelsUpToCurrentOf(student);
+    var levelsUpToCurrent = StudentLevelUtils.levelsUpToCurrentOf(student);
     return levelsUpToCurrent.stream()
         .map(
             level ->
                 buildYearlyResultForStudentAtLevel(student, level, existingByStudentIdAndLevel))
         .filter(Objects::nonNull)
         .toList();
-  }
-
-  private List<StudentLevel> levelsUpToCurrentOf(User student) {
-    var currentPromotion = student.findCurrentGroup().map(Group::getPromotion).orElse(null);
-    if (currentPromotion == null) {
-      return List.of();
-    }
-    StudentLevel currentLevel;
-    try {
-      currentLevel = currentPromotion.getLevelAt(Instant.now());
-    } catch (PromotionLevelOutOfRangeException e) {
-      return List.of();
-    }
-    var cycleLevels = currentPromotion.getCycleLevel().getLevels();
-    var currentIndex = cycleLevels.indexOf(currentLevel);
-    if (currentIndex < 0) {
-      return List.of();
-    }
-    return cycleLevels.subList(0, currentIndex + 1);
   }
 
   private YearlyResult buildYearlyResultForStudentAtLevel(
