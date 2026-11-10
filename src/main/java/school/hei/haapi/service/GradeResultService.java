@@ -42,6 +42,7 @@ import school.hei.haapi.model.FileInfo;
 import school.hei.haapi.model.YearlyResultGenerationRequest;
 import school.hei.haapi.model.exception.BadRequestException;
 import school.hei.haapi.model.exception.CoursesCreditSumZero;
+import school.hei.haapi.service.utils.StudentLevelUtils;
 
 @Service
 @AllArgsConstructor
@@ -88,9 +89,15 @@ public class GradeResultService {
   }
 
   public ResultSummary getStudentResultSummary(String studentId) {
+    var student = userService.getById(studentId);
+    var levelsUpToCurrent = StudentLevelUtils.levelsUpToCurrentOf(student);
     List<YearlyResult> yearlyResults =
         Arrays.stream(StudentLevel.values())
-            .map(level -> findLeveledYearlyResultByStudentId(level, studentId))
+            .map(
+                level ->
+                    levelsUpToCurrent.contains(level)
+                        ? findLeveledYearlyResultByStudentId(level, studentId)
+                        : Optional.of(new YearlyResult().level(level).status(NOT_STARTED)))
             .filter(Optional::isPresent)
             .map(Optional::get)
             .toList();

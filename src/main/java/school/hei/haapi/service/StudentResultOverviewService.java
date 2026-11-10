@@ -12,7 +12,6 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import lombok.AllArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import school.hei.haapi.endpoint.rest.mapper.StudentResultOverviewMapper;
@@ -31,7 +30,6 @@ import school.hei.haapi.repository.UserRepository;
 import school.hei.haapi.repository.dao.StudentResultOverviewDao;
 import school.hei.haapi.service.utils.XlsxCellsGenerator;
 
-@Slf4j
 @Service
 @AllArgsConstructor
 public class StudentResultOverviewService {
@@ -67,8 +65,6 @@ public class StudentResultOverviewService {
             student -> {
               var existingOverview = existingOverviewsByStudentId.get(student.getId());
               var resultSummary = gradeResultService.getStudentResultSummary(student.getId());
-              log.info(
-                  "The student with id: {} result summary is: {}", student.getId(), resultSummary);
               var graduationPromotion =
                   getStudentGraduationPromotion(
                       ResultOverviewStatus.valueOf(resultSummary.getStatus().toString()),

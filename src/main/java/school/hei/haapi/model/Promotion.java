@@ -107,6 +107,15 @@ public class Promotion {
     }
   }
 
+  public List<StudentLevel> getLevelsUpToAndIncluding(StudentLevel level) {
+    var cycleLevels = this.getCycleLevel().getLevels();
+    var levelIndex = cycleLevels.indexOf(level);
+    if (levelIndex < 0) {
+      return List.of();
+    }
+    return cycleLevels.subList(0, levelIndex + 1);
+  }
+
   public boolean hasLevelDuring(
       StudentLevel level, Instant periodStart, Instant periodEnd, int referenceEntranceYear) {
     var levels = cycleLevel.getLevels();
