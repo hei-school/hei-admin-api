@@ -22,6 +22,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.ss.usermodel.Cell;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 import school.hei.haapi.endpoint.event.EventProducer;
 import school.hei.haapi.endpoint.event.model.StudentResultOverviewUpserted;
 import school.hei.haapi.endpoint.rest.mapper.GradeMapper;
@@ -138,8 +140,10 @@ public class GradeService {
     if (!promotions.isEmpty()) {
       promotionId = promotions.getLast().getId();
     }
-    eventProducer.accept(List.of(new StudentResultOverviewUpserted(promotionId)));
-    return gradeRepository.saveAll(grades.stream().map(this::checkGradeToCreate).toList());
+    var savedGrades =
+        gradeRepository.saveAll(grades.stream().map(this::checkGradeToCreate).toList());
+    publishStudentResultOverviewUpsertedAfterCommit(promotionId);
+    return savedGrades;
   }
 
   @Transactional
@@ -154,8 +158,24 @@ public class GradeService {
       promotionId = promotions.getLast().getId();
     }
 
-    eventProducer.accept(List.of(new StudentResultOverviewUpserted(promotionId)));
-    return gradeRepository.saveAll(grades.stream().map(this::checkGradeToUpdate).toList());
+    var savedGrades =
+        gradeRepository.saveAll(grades.stream().map(this::checkGradeToUpdate).toList());
+    publishStudentResultOverviewUpsertedAfterCommit(promotionId);
+    return savedGrades;
+  }
+
+  private void publishStudentResultOverviewUpsertedAfterCommit(String promotionId) {
+    if (!TransactionSynchronizationManager.isSynchronizationActive()) {
+      eventProducer.accept(List.of(new StudentResultOverviewUpserted(promotionId)));
+      return;
+    }
+    TransactionSynchronizationManager.registerSynchronization(
+        new TransactionSynchronization() {
+          @Override
+          public void afterCommit() {
+            eventProducer.accept(List.of(new StudentResultOverviewUpserted(promotionId)));
+          }
+        });
   }
 
   public List<Grade> getGradesByRetakeExam(RetakeExam retakeExam) {
