@@ -27,7 +27,6 @@ import java.util.Optional;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import school.hei.haapi.endpoint.event.EventProducer;
 import school.hei.haapi.endpoint.event.model.YearlyResultTranscriptGeneration;
 import school.hei.haapi.endpoint.rest.model.CourseResult;
@@ -40,6 +39,7 @@ import school.hei.haapi.endpoint.rest.model.YearlyResultGenerationTranscript;
 import school.hei.haapi.endpoint.rest.security.AuthProvider;
 import school.hei.haapi.file.bucket.BucketComponent;
 import school.hei.haapi.model.FileInfo;
+import school.hei.haapi.model.User;
 import school.hei.haapi.model.YearlyResultGenerationRequest;
 import school.hei.haapi.model.exception.BadRequestException;
 import school.hei.haapi.model.exception.CoursesCreditSumZero;
@@ -89,9 +89,12 @@ public class GradeResultService {
     }
   }
 
-  @Transactional(readOnly = true)
   public ResultSummary getStudentResultSummary(String studentId) {
-    var student = userService.getById(studentId);
+    return getStudentResultSummaryOf(userService.getByIdWithGroupFlow(studentId));
+  }
+
+  public ResultSummary getStudentResultSummaryOf(User student) {
+    var studentId = student.getId();
     var levelsUpToCurrent = StudentLevelUtils.levelsUpToCurrentOf(student);
     var canRestrictToCurrentLevel = !levelsUpToCurrent.isEmpty();
     List<YearlyResult> yearlyResults =

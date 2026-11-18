@@ -540,6 +540,10 @@ class GradeResultServiceTest {
     when(userService.getById(STUDENT2_ID)).thenReturn(student2);
     when(userService.getById(STUDENT3_ID)).thenReturn(student3);
     when(userService.getById(BAD_STUDENT_ID)).thenReturn(badStudent);
+    when(userService.getByIdWithGroupFlow(STUDENT1_ID)).thenReturn(student1);
+    when(userService.getByIdWithGroupFlow(STUDENT2_ID)).thenReturn(student2);
+    when(userService.getByIdWithGroupFlow(STUDENT3_ID)).thenReturn(student3);
+    when(userService.getByIdWithGroupFlow(BAD_STUDENT_ID)).thenReturn(badStudent);
     when(student1.findGroupAt(any())).thenReturn(Optional.of(group()));
     when(student2.findGroupAt(any())).thenReturn(Optional.of(group()));
     when(student3.findGroupAt(any())).thenReturn(Optional.of(group()));

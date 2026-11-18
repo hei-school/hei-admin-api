@@ -137,6 +137,12 @@ public class UserService {
         .orElseThrow(() -> new NotFoundException("User with id: " + userId + " not found"));
   }
 
+  public User getByIdWithGroupFlow(String userId) {
+    return userRepository
+        .findByIdWithGroupFlow(userId)
+        .orElseThrow(() -> new NotFoundException("User with id: " + userId + " not found"));
+  }
+
   public List<User> findAllByRefIn(List<String> userRefs) {
     return userRepository.findAllByRefIn(userRefs);
   }
