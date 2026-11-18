@@ -105,7 +105,9 @@ public class StudentController {
       @RequestParam(name = "sex", required = false) Sex sex,
       @RequestParam(name = "work_study_status", required = false) WorkStudyStatus workStatus,
       @RequestParam(name = "commitment_begin_date", required = false) Instant commitmentBeginDate,
-      @RequestParam(name = "exclude_groups", required = false) List<String> excludeGroupIds) {
+      @RequestParam(name = "exclude_groups", required = false) List<String> excludeGroupIds,
+      @RequestParam(name = "entrance_datetime_from", required = false) Instant entranceDatetimeFrom,
+      @RequestParam(name = "entrance_datetime_to", required = false) Instant entranceDatetimeTo) {
     User.Sex domainSex = sexEnumMapper.toDomainSexEnum(sex);
     User.Status domainStatus = statusEnumMapper.toDomainStatus(status);
     return userService
@@ -121,7 +123,9 @@ public class StudentController {
             domainSex,
             workStatus,
             commitmentBeginDate,
-            excludeGroupIds)
+            excludeGroupIds,
+            entranceDatetimeFrom,
+            entranceDatetimeTo)
         .stream()
         .map(userMapper::toRestStudent)
         .toList();

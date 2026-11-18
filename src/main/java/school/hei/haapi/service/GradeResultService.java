@@ -39,9 +39,11 @@ import school.hei.haapi.endpoint.rest.model.YearlyResultGenerationTranscript;
 import school.hei.haapi.endpoint.rest.security.AuthProvider;
 import school.hei.haapi.file.bucket.BucketComponent;
 import school.hei.haapi.model.FileInfo;
+import school.hei.haapi.model.User;
 import school.hei.haapi.model.YearlyResultGenerationRequest;
 import school.hei.haapi.model.exception.BadRequestException;
 import school.hei.haapi.model.exception.CoursesCreditSumZero;
+import school.hei.haapi.service.utils.StudentLevelUtils;
 
 @Service
 @AllArgsConstructor
@@ -88,9 +90,20 @@ public class GradeResultService {
   }
 
   public ResultSummary getStudentResultSummary(String studentId) {
+    return getStudentResultSummaryOf(userService.getByIdWithGroupFlow(studentId));
+  }
+
+  public ResultSummary getStudentResultSummaryOf(User student) {
+    var studentId = student.getId();
+    var levelsUpToCurrent = StudentLevelUtils.levelsUpToCurrentOf(student);
+    var canRestrictToCurrentLevel = !levelsUpToCurrent.isEmpty();
     List<YearlyResult> yearlyResults =
         Arrays.stream(StudentLevel.values())
-            .map(level -> findLeveledYearlyResultByStudentId(level, studentId))
+            .map(
+                level ->
+                    !canRestrictToCurrentLevel || levelsUpToCurrent.contains(level)
+                        ? findLeveledYearlyResultByStudentId(level, studentId)
+                        : Optional.of(new YearlyResult().level(level).status(NOT_STARTED)))
             .filter(Optional::isPresent)
             .map(Optional::get)
             .toList();

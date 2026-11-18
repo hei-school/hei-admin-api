@@ -270,4 +270,15 @@ public interface UserRepository extends JpaRepository<User, String> {
         AND (:promotionId IS NULL OR p.id = :promotionId)
       """)
   List<User> findAllStudentNotDisabledWithGroupFlow(String promotionId);
+
+  @Query(
+      """
+      SELECT DISTINCT u
+      FROM User u
+      LEFT JOIN FETCH u.groupFlows gf
+      LEFT JOIN FETCH gf.group g
+      LEFT JOIN FETCH g.promotion p
+      WHERE u.id = :studentId
+      """)
+  Optional<User> findByIdWithGroupFlow(String studentId);
 }

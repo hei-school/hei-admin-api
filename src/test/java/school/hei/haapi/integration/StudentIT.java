@@ -140,6 +140,16 @@ public class StudentIT extends FacadeITMockedThirdParties {
 
   private User aStudent(
       String firstName, String lastName, String refSuffix, User.Status status, User.Sex sex) {
+    return aStudent(firstName, lastName, refSuffix, status, sex, DUE_DATETIME);
+  }
+
+  private User aStudent(
+      String firstName,
+      String lastName,
+      String refSuffix,
+      User.Status status,
+      User.Sex sex,
+      Instant entranceDatetime) {
     return User.builder()
         .id(randomUUID().toString())
         .firstName(firstName)
@@ -150,7 +160,7 @@ public class StudentIT extends FacadeITMockedThirdParties {
         .status(status)
         .sex(sex)
         .birthDate(LocalDate.parse("2000-01-01"))
-        .entranceDatetime(DUE_DATETIME)
+        .entranceDatetime(entranceDatetime)
         .address("Adr 1")
         .nic("")
         .birthPlace("")
@@ -249,7 +259,8 @@ public class StudentIT extends FacadeITMockedThirdParties {
   /** Only the students of this test, whatever else the database holds. */
   private List<Student> ownStudents(UsersApi api, EnableStatus status, Sex sex)
       throws ApiException {
-    return api.getStudents(1, 200, refPrefix, null, null, null, status, sex, null, null, null);
+    return api.getStudents(
+        1, 200, refPrefix, null, null, null, status, sex, null, null, null, null, null);
   }
 
   private static List<String> idsOf(List<Student> students) {
@@ -428,7 +439,9 @@ public class StudentIT extends FacadeITMockedThirdParties {
 
     assertThrowsForbiddenException(() -> api.getStudentById(enabledStudentInOtherGroup.getId()));
     assertThrowsForbiddenException(
-        () -> api.getStudents(1, 20, null, null, null, null, null, null, null, null, null));
+        () ->
+            api.getStudents(
+                1, 20, null, null, null, null, null, null, null, null, null, null, null));
   }
 
   @Test
@@ -464,7 +477,8 @@ public class StudentIT extends FacadeITMockedThirdParties {
   void manager_read_by_work_status_ok() throws ApiException {
     var actual =
         apiAs(managerToken)
-            .getStudents(1, 200, refPrefix, null, null, null, null, null, WORKING, null, null);
+            .getStudents(
+                1, 200, refPrefix, null, null, null, null, null, WORKING, null, null, null, null);
 
     assertEquals(1, actual.size());
     assertEquals(enabledWorkingStudent.getId(), actual.getFirst().getId());
@@ -507,7 +521,19 @@ public class StudentIT extends FacadeITMockedThirdParties {
     var actual =
         apiAs(managerToken)
             .getStudents(
-                1, 200, refPrefix, null, null, null, null, null, null, COMMITMENT_BEGIN, null);
+                1,
+                200,
+                refPrefix,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                COMMITMENT_BEGIN,
+                null,
+                null,
+                null);
 
     assertEquals(1, actual.size());
     assertEquals(enabledWorkingStudent.getId(), actual.getFirst().getId());
@@ -529,6 +555,8 @@ public class StudentIT extends FacadeITMockedThirdParties {
                 null,
                 null,
                 null,
+                null,
+                null,
                 null);
 
     assertEquals(1, actual.size());
@@ -543,6 +571,8 @@ public class StudentIT extends FacadeITMockedThirdParties {
                 1,
                 200,
                 enabledWorkingStudent.getRef().toLowerCase(),
+                null,
+                null,
                 null,
                 null,
                 null,
@@ -571,6 +601,8 @@ public class StudentIT extends FacadeITMockedThirdParties {
                 null,
                 null,
                 null,
+                null,
+                null,
                 null);
 
     assertEquals(1, actual.size());
@@ -581,7 +613,20 @@ public class StudentIT extends FacadeITMockedThirdParties {
   void manager_read_by_last_name_ok() throws ApiException {
     var actual =
         apiAs(managerToken)
-            .getStudents(1, 200, refPrefix, null, "Disabled", null, null, null, null, null, null);
+            .getStudents(
+                1,
+                200,
+                refPrefix,
+                null,
+                "Disabled",
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null);
 
     // both disabled students share the "Disabled" first name; the filter is on the last name
     assertTrue(
@@ -599,6 +644,8 @@ public class StudentIT extends FacadeITMockedThirdParties {
                 enabledWorkingStudent.getRef(),
                 null,
                 "a name that does not exist",
+                null,
+                null,
                 null,
                 null,
                 null,
@@ -677,10 +724,79 @@ public class StudentIT extends FacadeITMockedThirdParties {
                 null,
                 null,
                 null,
-                List.of(groupOne.getId()));
+                List.of(groupOne.getId()),
+                null,
+                null);
 
     assertFalse(idsOf(students).contains(enabledWorkingStudent.getId()));
     assertTrue(idsOf(students).contains(enabledStudentInOtherGroup.getId()));
+  }
+
+  @Test
+  void manager_read_students_filtered_by_entrance_datetime_interval_ok() throws ApiException {
+    var earlyStudent =
+        userRepository.save(
+            aStudent(
+                "Early",
+                "Entrant",
+                "6",
+                User.Status.ENABLED,
+                User.Sex.M,
+                Instant.parse("2018-01-01T00:00:00.00Z")));
+    createdUserIds.add(earlyStudent.getId());
+
+    var actual =
+        apiAs(managerToken)
+            .getStudents(
+                1,
+                200,
+                refPrefix,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                Instant.parse("2020-01-01T00:00:00.00Z"),
+                null);
+
+    assertFalse(idsOf(actual).contains(earlyStudent.getId()));
+    assertTrue(idsOf(actual).contains(enabledWorkingStudent.getId()));
+  }
+
+  @Test
+  void manager_read_students_ordered_by_entrance_datetime_desc_ok() throws ApiException {
+    var oldestStudent =
+        userRepository.save(
+            aStudent(
+                "Oldest",
+                "Entrant",
+                "7",
+                User.Status.ENABLED,
+                User.Sex.M,
+                Instant.parse("2019-01-01T00:00:00.00Z")));
+    var newestStudent =
+        userRepository.save(
+            aStudent(
+                "Newest",
+                "Entrant",
+                "8",
+                User.Status.ENABLED,
+                User.Sex.M,
+                Instant.parse("2023-01-01T00:00:00.00Z")));
+    createdUserIds.add(oldestStudent.getId());
+    createdUserIds.add(newestStudent.getId());
+
+    var actual =
+        apiAs(managerToken)
+            .getStudents(
+                1, 200, refPrefix, null, null, null, null, null, null, null, null, null, null);
+
+    var ids = idsOf(actual);
+    assertTrue(ids.indexOf(newestStudent.getId()) < ids.indexOf(enabledWorkingStudent.getId()));
+    assertTrue(ids.indexOf(enabledWorkingStudent.getId()) < ids.indexOf(oldestStudent.getId()));
   }
 
   @Test
@@ -773,9 +889,12 @@ public class StudentIT extends FacadeITMockedThirdParties {
   void stats_are_exact() throws ApiException {
     var api = apiAs(managerToken);
 
-    var women = api.getStudents(1, 500, null, null, null, null, null, F, null, null, null);
-    var men = api.getStudents(1, 500, null, null, null, null, null, M, null, null, null);
-    var total = api.getStudents(1, 500, null, null, null, null, null, null, null, null, null);
+    var women =
+        api.getStudents(1, 500, null, null, null, null, null, F, null, null, null, null, null);
+    var men =
+        api.getStudents(1, 500, null, null, null, null, null, M, null, null, null, null, null);
+    var total =
+        api.getStudents(1, 500, null, null, null, null, null, null, null, null, null, null, null);
 
     var statistics = api.getStats();
 

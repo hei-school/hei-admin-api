@@ -257,9 +257,23 @@ operations:
             type: array
             items:
               type: string
+        - name: entrance_datetime_from
+          required: false
+          in: query
+          description: Filter students whose HEI entrance date is on or after this date
+          schema:
+            type: string
+            format: date-time
+        - name: entrance_datetime_to
+          required: false
+          in: query
+          description: Filter students whose HEI entrance date is on or before this date
+          schema:
+            type: string
+            format: date-time
       responses:
         '200':
-          description: List of students, ordered by ref.
+          description: List of students, ordered by entrance datetime descending (most recent first).
           content:
             application/json:
               schema:

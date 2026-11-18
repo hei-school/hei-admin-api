@@ -4,6 +4,7 @@ import static java.time.Instant.now;
 import static org.apache.poi.ss.usermodel.Row.MissingCellPolicy.CREATE_NULL_AS_BLANK;
 import static org.springframework.data.domain.Pageable.unpaged;
 import static org.springframework.data.domain.Sort.Direction.ASC;
+import static org.springframework.data.domain.Sort.Direction.DESC;
 import static school.hei.haapi.model.User.Role.STUDENT;
 import static school.hei.haapi.model.User.Role.TEACHER;
 import static school.hei.haapi.model.User.Status.ENABLED;
@@ -78,6 +79,7 @@ public class UserService {
   private final XlsxCellsGenerator<EventParticipant> eventParticipantXlsxCellsGenerator;
   private final BucketComponent bucketComponent;
   private static final String STUDENT_XLSX_IMPORT_BUCKET_KEY = "/STUDENT_XLSX_IMPORT/";
+  private static final String NOT_FOUND = " not found";
 
   @Transactional
   public void uploadUserProfilePicture(MultipartFile profilePictureAsMultipartFile, String userId) {
@@ -134,7 +136,13 @@ public class UserService {
   public User getById(String userId) {
     return userRepository
         .findById(userId)
-        .orElseThrow(() -> new NotFoundException("User with id: " + userId + " not found"));
+        .orElseThrow(() -> new NotFoundException("User with id: " + userId + NOT_FOUND));
+  }
+
+  public User getByIdWithGroupFlow(String userId) {
+    return userRepository
+        .findByIdWithGroupFlow(userId)
+        .orElseThrow(() -> new NotFoundException("User with id: " + userId + NOT_FOUND));
   }
 
   public List<User> findAllByRefIn(List<String> userRefs) {
@@ -145,7 +153,7 @@ public class UserService {
   public User findByRef(String userRef) {
     return userRepository
         .findByRef(userRef)
-        .orElseThrow(() -> new NotFoundException("User with ref: " + userRef + " not found"));
+        .orElseThrow(() -> new NotFoundException("User with ref: " + userRef + NOT_FOUND));
   }
 
   public User getByEmail(String email) {
@@ -292,7 +300,8 @@ public class UserService {
       BoundedPageSize pageSize) {
     var pageable = PageRequest.of(page.getValue() - 1, pageSize.getValue(), Sort.by(ASC, "ref"));
     return userManagerDao.findByCriteria(
-        role, ref, firstName, lastName, pageable, null, null, null, null, null, null, null, null);
+        role, ref, firstName, lastName, pageable, null, null, null, null, null, null, null, null,
+        null, null);
   }
 
   public List<User> getByCriteria(
@@ -307,7 +316,8 @@ public class UserService {
     var pageable = PageRequest.of(page.getValue() - 1, pageSize.getValue(), Sort.by(ASC, "ref"));
 
     return userManagerDao.findByCriteria(
-        role, ref, firstName, lastName, pageable, status, sex, null, null, null, null, null, null);
+        role, ref, firstName, lastName, pageable, status, sex, null, null, null, null, null, null,
+        null, null);
   }
 
   public List<User> getByLinkedCourse(
@@ -322,10 +332,13 @@ public class UserService {
       User.Sex sex,
       WorkStudyStatus workStatus,
       Instant commitmentBeginDate,
-      List<String> excludeGroupIds) {
+      List<String> excludeGroupIds,
+      Instant entranceDatetimeFrom,
+      Instant entranceDatetimeTo) {
     log.info("Page = {}", page.getValue());
     log.info("PageSize = {}", pageSize.getValue());
-    var pageable = PageRequest.of(page.getValue() - 1, pageSize.getValue(), Sort.by(ASC, "ref"));
+    var sort = Sort.by(DESC, "entranceDatetime").and(Sort.by(ASC, "ref"));
+    var pageable = PageRequest.of(page.getValue() - 1, pageSize.getValue(), sort);
     return userManagerDao.findByCriteria(
         role,
         ref,
@@ -339,7 +352,9 @@ public class UserService {
         courseId,
         now(),
         excludeGroupIds,
-        null);
+        null,
+        entranceDatetimeFrom,
+        entranceDatetimeTo);
   }
 
   public List<User> getByGroupId(String groupId, Pageable pageable) {
@@ -348,7 +363,8 @@ public class UserService {
 
   public List<User> getByGroupIds(Collection<String> groupIds, Pageable pageable) {
     return userManagerDao.findByCriteria(
-        null, null, null, null, pageable, null, null, null, null, null, null, null, groupIds);
+        null, null, null, null, pageable, null, null, null, null, null, null, null, groupIds, null,
+        null);
   }
 
   public List<User> getByStudentRefAndGroupIds(
@@ -366,7 +382,9 @@ public class UserService {
         null,
         null,
         null,
-        groupIds);
+        groupIds,
+        null,
+        null);
   }
 
   public byte[] generateStudentsGroup(String groupId) {
@@ -451,6 +469,8 @@ public class UserService {
             courseId,
             now(),
             excludeGroupIds,
+            null,
+            null,
             null);
     return userXlsxCellsGenerator.apply(students, List.of("firstName", "lastName", "email", "sex"));
   }
