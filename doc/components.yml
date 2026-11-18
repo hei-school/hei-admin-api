@@ -237,6 +237,9 @@ components:
             - ORGANIZER
         bearer:
           type: string
+        lms_tmp_password:
+          type: string
+          nullable: true
     UserIdentifier:
       type: object
       properties:

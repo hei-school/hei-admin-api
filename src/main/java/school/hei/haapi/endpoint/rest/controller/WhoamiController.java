@@ -15,6 +15,7 @@ public class WhoamiController {
     whoami.setId(principal.getUserId());
     whoami.setBearer(principal.getBearer());
     whoami.setRole(Whoami.RoleEnum.fromValue(principal.getRole()));
+    whoami.setLmsTmpPassword(principal.getUser().getLmsTmpPassword());
     return whoami;
   }
 }

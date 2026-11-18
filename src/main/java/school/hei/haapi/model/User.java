@@ -121,6 +121,10 @@ public class User implements Serializable {
 
   private Long documensoUserId;
 
+  // Set only by migration: never overwritten by JPA updates (e.g. bulk crupdate of students)
+  @Column(updatable = false)
+  private String lmsTmpPassword;
+
   // RELATION (TEACHER): Course Assignment
   @OneToMany(fetch = FetchType.LAZY, mappedBy = "mainTeacher")
   @ToString.Exclude

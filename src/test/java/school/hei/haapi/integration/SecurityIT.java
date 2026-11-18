@@ -33,6 +33,7 @@ import org.mockito.Mock;
 import org.mockito.MockedStatic;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.web.util.matcher.RequestMatcher;
@@ -57,6 +58,7 @@ class SecurityIT extends FacadeITMockedThirdParties {
   @Mock private FilterChain filterChain;
   @InjectMocks private AlumniStudentFilter filter;
   @Autowired private UserRepository userRepository;
+  @Autowired private JdbcTemplate jdbcTemplate;
 
   private User studentAxel;
   private User monitorAxel;
@@ -124,11 +126,37 @@ class SecurityIT extends FacadeITMockedThirdParties {
   }
 
   private static Whoami aWhoami(User user, String bearer, Whoami.RoleEnum role) {
+    return aWhoami(user, bearer, role, null);
+  }
+
+  private static Whoami aWhoami(
+      User user, String bearer, Whoami.RoleEnum role, String lmsTmpPassword) {
     var whoami = new Whoami();
     whoami.setId(user.getId());
     whoami.setBearer(bearer);
     whoami.setRole(role);
+    whoami.setLmsTmpPassword(lmsTmpPassword);
     return whoami;
+  }
+
+  @Test
+  void student_read_whoami_with_lms_tmp_password_ok() throws ApiException {
+    var lmsTmpPassword = "Ab3!xYz9";
+    jdbcTemplate.update(
+        "update \"user\" set lms_tmp_password = ? where id = ?",
+        lmsTmpPassword,
+        studentAxel.getId());
+
+    var actual = new SecurityApi(anApiClient(axelToken)).whoami();
+
+    assertEquals(aWhoami(studentAxel, axelToken, Whoami.RoleEnum.STUDENT, lmsTmpPassword), actual);
+  }
+
+  @Test
+  void student_without_lms_tmp_password_whoami_returns_null_ok() throws ApiException {
+    var actual = new SecurityApi(anApiClient(axelToken)).whoami();
+
+    assertEquals(aWhoami(studentAxel, axelToken, Whoami.RoleEnum.STUDENT, null), actual);
   }
 
   @Test
