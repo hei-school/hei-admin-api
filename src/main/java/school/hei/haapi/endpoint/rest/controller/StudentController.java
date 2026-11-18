@@ -7,7 +7,6 @@ import java.time.Instant;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
-import org.springframework.data.domain.Sort;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -28,7 +27,6 @@ import school.hei.haapi.endpoint.rest.model.CreateStatusCheck;
 import school.hei.haapi.endpoint.rest.model.CrupdateStudent;
 import school.hei.haapi.endpoint.rest.model.EnableStatus;
 import school.hei.haapi.endpoint.rest.model.GroupFlow;
-import school.hei.haapi.endpoint.rest.model.OrderDirection;
 import school.hei.haapi.endpoint.rest.model.ResultOverviewStatus;
 import school.hei.haapi.endpoint.rest.model.Sex;
 import school.hei.haapi.endpoint.rest.model.Statistics;
@@ -109,9 +107,7 @@ public class StudentController {
       @RequestParam(name = "commitment_begin_date", required = false) Instant commitmentBeginDate,
       @RequestParam(name = "exclude_groups", required = false) List<String> excludeGroupIds,
       @RequestParam(name = "entrance_datetime_from", required = false) Instant entranceDatetimeFrom,
-      @RequestParam(name = "entrance_datetime_to", required = false) Instant entranceDatetimeTo,
-      @RequestParam(name = "entrance_datetime_order", required = false)
-          OrderDirection entranceDatetimeOrder) {
+      @RequestParam(name = "entrance_datetime_to", required = false) Instant entranceDatetimeTo) {
     User.Sex domainSex = sexEnumMapper.toDomainSexEnum(sex);
     User.Status domainStatus = statusEnumMapper.toDomainStatus(status);
     return userService
@@ -129,10 +125,7 @@ public class StudentController {
             commitmentBeginDate,
             excludeGroupIds,
             entranceDatetimeFrom,
-            entranceDatetimeTo,
-            entranceDatetimeOrder == null
-                ? null
-                : Sort.Direction.fromString(entranceDatetimeOrder.toString()))
+            entranceDatetimeTo)
         .stream()
         .map(userMapper::toRestStudent)
         .toList();

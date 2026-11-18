@@ -68,7 +68,6 @@ import school.hei.haapi.endpoint.rest.client.ApiException;
 import school.hei.haapi.endpoint.rest.model.Coordinates;
 import school.hei.haapi.endpoint.rest.model.CrupdateStudent;
 import school.hei.haapi.endpoint.rest.model.EnableStatus;
-import school.hei.haapi.endpoint.rest.model.OrderDirection;
 import school.hei.haapi.endpoint.rest.model.Sex;
 import school.hei.haapi.endpoint.rest.model.Student;
 import school.hei.haapi.integration.conf.ApiAssertions;
@@ -261,7 +260,7 @@ public class StudentIT extends FacadeITMockedThirdParties {
   private List<Student> ownStudents(UsersApi api, EnableStatus status, Sex sex)
       throws ApiException {
     return api.getStudents(
-        1, 200, refPrefix, null, null, null, status, sex, null, null, null, null, null, null);
+        1, 200, refPrefix, null, null, null, status, sex, null, null, null, null, null);
   }
 
   private static List<String> idsOf(List<Student> students) {
@@ -442,7 +441,7 @@ public class StudentIT extends FacadeITMockedThirdParties {
     assertThrowsForbiddenException(
         () ->
             api.getStudents(
-                1, 20, null, null, null, null, null, null, null, null, null, null, null, null));
+                1, 20, null, null, null, null, null, null, null, null, null, null, null));
   }
 
   @Test
@@ -479,8 +478,7 @@ public class StudentIT extends FacadeITMockedThirdParties {
     var actual =
         apiAs(managerToken)
             .getStudents(
-                1, 200, refPrefix, null, null, null, null, null, WORKING, null, null, null, null,
-                null);
+                1, 200, refPrefix, null, null, null, null, null, WORKING, null, null, null, null);
 
     assertEquals(1, actual.size());
     assertEquals(enabledWorkingStudent.getId(), actual.getFirst().getId());
@@ -535,7 +533,6 @@ public class StudentIT extends FacadeITMockedThirdParties {
                 COMMITMENT_BEGIN,
                 null,
                 null,
-                null,
                 null);
 
     assertEquals(1, actual.size());
@@ -560,7 +557,6 @@ public class StudentIT extends FacadeITMockedThirdParties {
                 null,
                 null,
                 null,
-                null,
                 null);
 
     assertEquals(1, actual.size());
@@ -575,7 +571,6 @@ public class StudentIT extends FacadeITMockedThirdParties {
                 1,
                 200,
                 enabledWorkingStudent.getRef().toLowerCase(),
-                null,
                 null,
                 null,
                 null,
@@ -608,7 +603,6 @@ public class StudentIT extends FacadeITMockedThirdParties {
                 null,
                 null,
                 null,
-                null,
                 null);
 
     assertEquals(1, actual.size());
@@ -625,7 +619,6 @@ public class StudentIT extends FacadeITMockedThirdParties {
                 refPrefix,
                 null,
                 "Disabled",
-                null,
                 null,
                 null,
                 null,
@@ -651,7 +644,6 @@ public class StudentIT extends FacadeITMockedThirdParties {
                 enabledWorkingStudent.getRef(),
                 null,
                 "a name that does not exist",
-                null,
                 null,
                 null,
                 null,
@@ -734,7 +726,6 @@ public class StudentIT extends FacadeITMockedThirdParties {
                 null,
                 List.of(groupOne.getId()),
                 null,
-                null,
                 null);
 
     assertFalse(idsOf(students).contains(enabledWorkingStudent.getId()));
@@ -769,7 +760,6 @@ public class StudentIT extends FacadeITMockedThirdParties {
                 null,
                 null,
                 Instant.parse("2020-01-01T00:00:00.00Z"),
-                null,
                 null);
 
     assertFalse(idsOf(actual).contains(earlyStudent.getId()));
@@ -802,20 +792,7 @@ public class StudentIT extends FacadeITMockedThirdParties {
     var actual =
         apiAs(managerToken)
             .getStudents(
-                1,
-                200,
-                refPrefix,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                OrderDirection.DESC);
+                1, 200, refPrefix, null, null, null, null, null, null, null, null, null, null);
 
     var ids = idsOf(actual);
     assertTrue(ids.indexOf(newestStudent.getId()) < ids.indexOf(enabledWorkingStudent.getId()));
@@ -913,14 +890,11 @@ public class StudentIT extends FacadeITMockedThirdParties {
     var api = apiAs(managerToken);
 
     var women =
-        api.getStudents(
-            1, 500, null, null, null, null, null, F, null, null, null, null, null, null);
+        api.getStudents(1, 500, null, null, null, null, null, F, null, null, null, null, null);
     var men =
-        api.getStudents(
-            1, 500, null, null, null, null, null, M, null, null, null, null, null, null);
+        api.getStudents(1, 500, null, null, null, null, null, M, null, null, null, null, null);
     var total =
-        api.getStudents(
-            1, 500, null, null, null, null, null, null, null, null, null, null, null, null);
+        api.getStudents(1, 500, null, null, null, null, null, null, null, null, null, null, null);
 
     var statistics = api.getStats();
 
