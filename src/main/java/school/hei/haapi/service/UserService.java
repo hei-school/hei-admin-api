@@ -78,6 +78,7 @@ public class UserService {
   private final XlsxCellsGenerator<EventParticipant> eventParticipantXlsxCellsGenerator;
   private final BucketComponent bucketComponent;
   private static final String STUDENT_XLSX_IMPORT_BUCKET_KEY = "/STUDENT_XLSX_IMPORT/";
+  private static final String NOT_FOUND = " not found";
 
   @Transactional
   public void uploadUserProfilePicture(MultipartFile profilePictureAsMultipartFile, String userId) {
@@ -134,13 +135,13 @@ public class UserService {
   public User getById(String userId) {
     return userRepository
         .findById(userId)
-        .orElseThrow(() -> new NotFoundException("User with id: " + userId + " not found"));
+        .orElseThrow(() -> new NotFoundException("User with id: " + userId + NOT_FOUND));
   }
 
   public User getByIdWithGroupFlow(String userId) {
     return userRepository
         .findByIdWithGroupFlow(userId)
-        .orElseThrow(() -> new NotFoundException("User with id: " + userId + " not found"));
+        .orElseThrow(() -> new NotFoundException("User with id: " + userId + NOT_FOUND));
   }
 
   public List<User> findAllByRefIn(List<String> userRefs) {
@@ -151,7 +152,7 @@ public class UserService {
   public User findByRef(String userRef) {
     return userRepository
         .findByRef(userRef)
-        .orElseThrow(() -> new NotFoundException("User with ref: " + userRef + " not found"));
+        .orElseThrow(() -> new NotFoundException("User with ref: " + userRef + NOT_FOUND));
   }
 
   public User getByEmail(String email) {
