@@ -1,3 +1,13 @@
+## [1.187.1](https://github.com/hei-school/hei-admin-api/compare/v1.187.0...v1.187.1) (2026-11-18)
+
+
+### Bug Fixes
+
+* students list sorted by entrance_datetime desc with no client-facing param ([9184c5b](https://github.com/hei-school/hei-admin-api/commit/9184c5b73550581355944b9c5d4e742cf318fa48))
+* yearly result generation ([02f02c6](https://github.com/hei-school/hei-admin-api/commit/02f02c6e4762ac077e65e2f14b2f8cc0bc7e4b73))
+
+
+
 # [1.187.0](https://github.com/hei-school/hei-admin-api/compare/v1.185.0...v1.187.0) (2026-11-06)
 
 
@@ -129,15 +139,6 @@
 ### Features
 
 * documenso folders ([1cb2d07](https://github.com/hei-school/hei-admin-api/commit/1cb2d07f46f062e6c98c787b9c029460ff321450))
-
-
-
-# [1.175.0](https://github.com/hei-school/hei-admin-api/compare/v1.174.0...v1.175.0) (2026-09-24)
-
-
-### Features
-
-* file generated fiches by year and level ([3de781e](https://github.com/hei-school/hei-admin-api/commit/3de781e7a4ab3d9da28676105b850da88960e852))
 
 
 
