@@ -27,6 +27,7 @@ import java.util.Optional;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import school.hei.haapi.endpoint.event.EventProducer;
 import school.hei.haapi.endpoint.event.model.YearlyResultTranscriptGeneration;
 import school.hei.haapi.endpoint.rest.model.CourseResult;
@@ -88,14 +89,16 @@ public class GradeResultService {
     }
   }
 
+  @Transactional(readOnly = true)
   public ResultSummary getStudentResultSummary(String studentId) {
     var student = userService.getById(studentId);
     var levelsUpToCurrent = StudentLevelUtils.levelsUpToCurrentOf(student);
+    var canRestrictToCurrentLevel = !levelsUpToCurrent.isEmpty();
     List<YearlyResult> yearlyResults =
         Arrays.stream(StudentLevel.values())
             .map(
                 level ->
-                    levelsUpToCurrent.contains(level)
+                    !canRestrictToCurrentLevel || levelsUpToCurrent.contains(level)
                         ? findLeveledYearlyResultByStudentId(level, studentId)
                         : Optional.of(new YearlyResult().level(level).status(NOT_STARTED)))
             .filter(Optional::isPresent)
