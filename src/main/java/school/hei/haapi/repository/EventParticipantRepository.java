@@ -98,4 +98,7 @@ public interface EventParticipantRepository extends JpaRepository<EventParticipa
 
   Optional<EventParticipant> findEventParticipantByParticipantIdAndEventId(
       String participantId, String eventId);
+
+  List<EventParticipant> findAllByParticipantIdAndGroupIdAndEventBeginDatetimeAfter(
+      String participantId, String groupId, Instant from);
 }

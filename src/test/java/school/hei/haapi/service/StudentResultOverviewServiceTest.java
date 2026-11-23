@@ -124,8 +124,16 @@ class StudentResultOverviewServiceTest {
 
   @Test
   void saveAll_skips_an_overview_that_fails_to_persist_but_saves_the_rest() {
-    var overview1 = StudentResultOverview.builder().id("ov1").build();
-    var overview2 = StudentResultOverview.builder().id("ov2").build();
+    var overview1 =
+        StudentResultOverview.builder()
+            .id("ov1")
+            .student(User.builder().id("std1").build())
+            .build();
+    var overview2 =
+        StudentResultOverview.builder()
+            .id("ov2")
+            .student(User.builder().id("std2").build())
+            .build();
     when(resultPersistenceService.saveStudentResultOverview(overview1)).thenReturn(overview1);
     when(resultPersistenceService.saveStudentResultOverview(overview2))
         .thenThrow(new RuntimeException("db fail"));

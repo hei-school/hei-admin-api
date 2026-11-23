@@ -7,7 +7,6 @@ import static school.hei.haapi.model.CycleLevel.BACHELOR;
 import static school.hei.haapi.model.ResultOverviewStatus.VALIDATED;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -170,18 +169,22 @@ public class StudentResultOverviewService {
   }
 
   public List<StudentResultOverview> saveAll(List<StudentResultOverview> studentResultOverviews) {
-    var saved = new ArrayList<StudentResultOverview>();
-    for (var overview : studentResultOverviews) {
-      try {
-        saved.add(resultPersistenceService.saveStudentResultOverview(overview));
-      } catch (Exception e) {
-        log.error(
-            "Failed to save StudentResultOverview for student {}, skipping",
-            overview.getStudent() != null ? overview.getStudent().getId() : "unknown",
-            e);
-      }
+    return studentResultOverviews.stream()
+        .map(this::saveOneSafely)
+        .filter(Objects::nonNull)
+        .toList();
+  }
+
+  private StudentResultOverview saveOneSafely(StudentResultOverview overview) {
+    try {
+      return resultPersistenceService.saveStudentResultOverview(overview);
+    } catch (Exception e) {
+      log.error(
+          "Failed to save StudentResultOverview for student {}, skipping",
+          overview.getStudent() != null ? overview.getStudent().getId() : "unknown",
+          e);
+      return null;
     }
-    return saved;
   }
 
   public byte[] generateStudentResultOverviewsXlsx(

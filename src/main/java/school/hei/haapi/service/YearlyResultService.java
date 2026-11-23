@@ -3,7 +3,6 @@ package school.hei.haapi.service;
 import static school.hei.haapi.endpoint.rest.model.ResultOverviewStatus.NOT_STARTED;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -66,19 +65,20 @@ public class YearlyResultService {
   }
 
   public List<YearlyResult> saveAll(List<YearlyResult> yearlyResults) {
-    var saved = new ArrayList<YearlyResult>();
-    for (var yearlyResult : yearlyResults) {
-      try {
-        saved.add(resultPersistenceService.saveYearlyResult(yearlyResult));
-      } catch (Exception e) {
-        log.error(
-            "Failed to save YearlyResult for student {} at level {}, skipping",
-            yearlyResult.getStudent() != null ? yearlyResult.getStudent().getId() : "unknown",
-            yearlyResult.getLevel(),
-            e);
-      }
+    return yearlyResults.stream().map(this::saveOneSafely).filter(Objects::nonNull).toList();
+  }
+
+  private YearlyResult saveOneSafely(YearlyResult yearlyResult) {
+    try {
+      return resultPersistenceService.saveYearlyResult(yearlyResult);
+    } catch (Exception e) {
+      log.error(
+          "Failed to save YearlyResult for student {} at level {}, skipping",
+          yearlyResult.getStudent() != null ? yearlyResult.getStudent().getId() : "unknown",
+          yearlyResult.getLevel(),
+          e);
+      return null;
     }
-    return saved;
   }
 
   public byte[] generateYearlyResultsXlsx(String promotionId, StudentLevel level) {

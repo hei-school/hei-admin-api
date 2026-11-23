@@ -42,6 +42,7 @@ public class GroupFlowService {
   private final GroupFlowMapper mapper;
   private final CourseAssignmentRepository courseAssignmentRepository;
   private final StudentGroupContactSyncService studentGroupContactSyncService;
+  private final EventParticipantGroupSyncService eventParticipantGroupSyncService;
 
   private void logger(GroupFlow studentGroupFlow) {
     log.info(
@@ -78,6 +79,7 @@ public class GroupFlowService {
     logger(groupFlowToSave);
     var saved = repository.save(groupFlowToSave);
     studentGroupContactSyncService.syncMembership(saved);
+    syncEventParticipants(saved);
     return saved;
   }
 
@@ -92,7 +94,18 @@ public class GroupFlowService {
     groupFlowsToSave.forEach(this::logger);
     var saved = repository.saveAll(groupFlowsToSave);
     studentGroupContactSyncService.syncMembership(saved);
+    saved.forEach(this::syncEventParticipants);
     return saved;
+  }
+
+  private void syncEventParticipants(GroupFlow groupFlow) {
+    if (JOIN.equals(groupFlow.getGroupFlowType())) {
+      eventParticipantGroupSyncService.addStudentToFutureEventsOfGroup(
+          groupFlow.getStudent(), groupFlow.getGroup());
+    } else {
+      eventParticipantGroupSyncService.removeStudentFromFutureEventsOfGroup(
+          groupFlow.getStudent(), groupFlow.getGroup());
+    }
   }
 
   public List<GroupFlow> getByStudentId(String studentId) {
