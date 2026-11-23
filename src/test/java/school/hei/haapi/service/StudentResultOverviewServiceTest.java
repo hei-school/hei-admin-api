@@ -29,6 +29,7 @@ class StudentResultOverviewServiceTest {
   private final PromotionService promotionService = mock();
   private final UserRepository userRepository = mock();
   private final GradeResultService gradeResultService = mock();
+  private final ResultPersistenceService resultPersistenceService = mock();
   private final StudentResultOverviewService subject =
       new StudentResultOverviewService(
           paginationFromPageAndPageSize,
@@ -37,7 +38,8 @@ class StudentResultOverviewServiceTest {
           studentResultOverviewRepository,
           promotionService,
           userRepository,
-          gradeResultService);
+          gradeResultService,
+          resultPersistenceService);
 
   @Test
   void generates_an_xlsx_with_one_row_per_overview_matching_the_criteria() throws Exception {

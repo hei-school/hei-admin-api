@@ -34,13 +34,15 @@ class YearlyResultServiceTest {
   private final PromotionService promotionService = mock();
   private final GroupFlowService groupFlowService = mock();
   private final GradeResultService gradeResultService = mock();
+  private final ResultPersistenceService resultPersistenceService = mock();
   private final YearlyResultService subject =
       new YearlyResultService(
           yearlyResultRepository,
           userRepository,
           promotionService,
           groupFlowService,
-          gradeResultService);
+          gradeResultService,
+          resultPersistenceService);
 
   private static Group group(String id, String ref, Promotion promotion) {
     return Group.builder().id(id).ref(ref).promotion(promotion).build();

@@ -3,11 +3,13 @@ package school.hei.haapi.service;
 import static school.hei.haapi.endpoint.rest.model.ResultOverviewStatus.NOT_STARTED;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -34,6 +36,7 @@ public class YearlyResultService {
   private final PromotionService promotionService;
   private final GroupFlowService groupFlowService;
   private final GradeResultService gradeResultService;
+  private final ResultPersistenceService resultPersistenceService;
 
   public List<YearlyResult> getYearlyResultsToCrupdate(String promotionId) {
     var students = userRepository.findAllStudentNotDisabledWithGroupFlow(promotionId);
@@ -48,12 +51,34 @@ public class YearlyResultService {
 
     return students.stream()
         .flatMap(
-            student -> buildYearlyResultsForStudent(student, existingByStudentIdAndLevel).stream())
+            student -> buildYearlyResultsForStudentSafely(student, existingByStudentIdAndLevel))
         .toList();
   }
 
+  private Stream<YearlyResult> buildYearlyResultsForStudentSafely(
+      User student, Map<String, YearlyResult> existingByStudentIdAndLevel) {
+    try {
+      return buildYearlyResultsForStudent(student, existingByStudentIdAndLevel).stream();
+    } catch (Exception e) {
+      log.error("Failed to compute YearlyResults for student {}, skipping", student.getId(), e);
+      return Stream.empty();
+    }
+  }
+
   public List<YearlyResult> saveAll(List<YearlyResult> yearlyResults) {
-    return yearlyResultRepository.saveAll(yearlyResults);
+    var saved = new ArrayList<YearlyResult>();
+    for (var yearlyResult : yearlyResults) {
+      try {
+        saved.add(resultPersistenceService.saveYearlyResult(yearlyResult));
+      } catch (Exception e) {
+        log.error(
+            "Failed to save YearlyResult for student {} at level {}, skipping",
+            yearlyResult.getStudent() != null ? yearlyResult.getStudent().getId() : "unknown",
+            yearlyResult.getLevel(),
+            e);
+      }
+    }
+    return saved;
   }
 
   public byte[] generateYearlyResultsXlsx(String promotionId, StudentLevel level) {
