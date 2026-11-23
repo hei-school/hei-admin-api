@@ -262,4 +262,46 @@ class YearlyResultServiceTest {
     assertEquals(1, toSave.size());
     assertEquals("existing-id", toSave.getFirst().getId());
   }
+
+  @Test
+  void crupdate_skips_a_student_whose_level_computation_fails_but_keeps_the_others() {
+    var goodStudent = studentCurrentlyAt(new StudentLevelSetup(L1));
+    var promotion = goodStudent.findCurrentGroup().orElseThrow().getPromotion();
+    var badStudent = mock(User.class);
+    when(badStudent.getId()).thenReturn("student2");
+    when(badStudent.findCurrentGroup())
+        .thenReturn(Optional.of(group("current-group", "K2", promotion)));
+    when(userRepository.findAllStudentNotDisabledWithGroupFlow("promo1"))
+        .thenReturn(List.of(goodStudent, badStudent));
+    when(yearlyResultRepository.findAllByStudent_IdIn(List.of("student1", "student2")))
+        .thenReturn(List.of());
+    when(gradeResultService.findLeveledYearlyResultByStudentId(L1, "student1"))
+        .thenReturn(
+            Optional.of(
+                new school.hei.haapi.endpoint.rest.model.YearlyResult()
+                    .level(L1)
+                    .status(
+                        school.hei.haapi.endpoint.rest.model.ResultOverviewStatus.NOT_STARTED)));
+    when(groupFlowService.findStudentLatestGroupFlowPeriodsAtLevel("student1", L1))
+        .thenReturn(List.of());
+    when(gradeResultService.findLeveledYearlyResultByStudentId(L1, "student2"))
+        .thenThrow(new RuntimeException("boom"));
+
+    var toSave = subject.getYearlyResultsToCrupdate("promo1");
+
+    assertEquals(1, toSave.size());
+    assertEquals(goodStudent, toSave.getFirst().getStudent());
+  }
+
+  @Test
+  void saveAll_skips_a_yearly_result_that_fails_to_persist_but_saves_the_rest() {
+    var yr1 = YearlyResult.builder().id("yr1").level(L1).build();
+    var yr2 = YearlyResult.builder().id("yr2").level(L2).build();
+    when(resultPersistenceService.saveYearlyResult(yr1)).thenReturn(yr1);
+    when(resultPersistenceService.saveYearlyResult(yr2)).thenThrow(new RuntimeException("db fail"));
+
+    var saved = subject.saveAll(List.of(yr1, yr2));
+
+    assertEquals(List.of(yr1), saved);
+  }
 }
