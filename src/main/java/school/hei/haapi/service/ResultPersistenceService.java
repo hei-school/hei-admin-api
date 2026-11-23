@@ -9,11 +9,6 @@ import school.hei.haapi.model.YearlyResult;
 import school.hei.haapi.repository.StudentResultOverviewRepository;
 import school.hei.haapi.repository.YearlyResultRepository;
 
-/**
- * Persists one student's result at a time, each in its own transaction, so that a single bad record
- * (e.g. inconsistent group flow history) does not roll back the whole crupdate batch for every
- * other student.
- */
 @Service
 @AllArgsConstructor
 public class ResultPersistenceService {
