@@ -1,17 +1,21 @@
 package school.hei.haapi.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static school.hei.haapi.model.ResultOverviewStatus.VALIDATED;
 
 import java.io.ByteArrayInputStream;
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.util.List;
+import java.util.Optional;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.junit.jupiter.api.Test;
 import org.springframework.data.domain.Pageable;
 import school.hei.haapi.endpoint.rest.mapper.StudentResultOverviewMapper;
+import school.hei.haapi.model.Group;
 import school.hei.haapi.model.Promotion;
 import school.hei.haapi.model.StudentResultOverview;
 import school.hei.haapi.model.User;
@@ -29,6 +33,7 @@ class StudentResultOverviewServiceTest {
   private final PromotionService promotionService = mock();
   private final UserRepository userRepository = mock();
   private final GradeResultService gradeResultService = mock();
+  private final ResultPersistenceService resultPersistenceService = mock();
   private final StudentResultOverviewService subject =
       new StudentResultOverviewService(
           paginationFromPageAndPageSize,
@@ -37,7 +42,8 @@ class StudentResultOverviewServiceTest {
           studentResultOverviewRepository,
           promotionService,
           userRepository,
-          gradeResultService);
+          gradeResultService,
+          resultPersistenceService);
 
   @Test
   void generates_an_xlsx_with_one_row_per_overview_matching_the_criteria() throws Exception {
@@ -76,5 +82,56 @@ class StudentResultOverviewServiceTest {
       assertEquals(VALIDATED.toString(), row.getCell(6).getStringCellValue());
       assertEquals("Promo 2025", row.getCell(7).getStringCellValue());
     }
+  }
+
+  @Test
+  void crupdate_skips_a_student_whose_computation_fails_but_keeps_the_others() {
+    var promotion = mock(Promotion.class);
+    when(promotion.getLevelAt(any(Instant.class)))
+        .thenReturn(school.hei.haapi.endpoint.rest.model.StudentLevel.L1);
+    var group = Group.builder().id("g1").promotion(promotion).build();
+
+    var goodStudent = mock(User.class);
+    when(goodStudent.getId()).thenReturn("good");
+    when(goodStudent.findCurrentGroup()).thenReturn(Optional.of(group));
+
+    var badStudent = mock(User.class);
+    when(badStudent.getId()).thenReturn("bad");
+
+    when(userRepository.findAllStudentNotDisabledWithGroupFlow("promo1"))
+        .thenReturn(List.of(goodStudent, badStudent));
+    when(studentResultOverviewRepository.findAllByStudentIdIn(List.of("good", "bad")))
+        .thenReturn(List.of());
+    when(promotionService.getPromotions(null, null, null, null, null))
+        .thenReturn(List.of(promotion));
+
+    when(gradeResultService.getStudentResultSummaryOf(goodStudent))
+        .thenReturn(
+            new school.hei.haapi.endpoint.rest.model.ResultSummary()
+                .status(school.hei.haapi.endpoint.rest.model.ResultOverviewStatus.NOT_STARTED)
+                .obtainedCredits(BigDecimal.ZERO)
+                .totalCredits(BigDecimal.ZERO));
+    when(gradeResultService.getStudentResultSummaryOf(badStudent))
+        .thenThrow(new RuntimeException("boom"));
+
+    var toCrupdate = subject.getStudentResultOverviewsToCrupdate("promo1");
+
+    assertEquals(1, toCrupdate.size());
+    var overview = toCrupdate.getFirst();
+    assertEquals(goodStudent, overview.getStudent());
+    assertEquals(0, BigDecimal.ZERO.compareTo(overview.getWeightedAverage()));
+  }
+
+  @Test
+  void saveAll_skips_an_overview_that_fails_to_persist_but_saves_the_rest() {
+    var overview1 = StudentResultOverview.builder().id("ov1").build();
+    var overview2 = StudentResultOverview.builder().id("ov2").build();
+    when(resultPersistenceService.saveStudentResultOverview(overview1)).thenReturn(overview1);
+    when(resultPersistenceService.saveStudentResultOverview(overview2))
+        .thenThrow(new RuntimeException("db fail"));
+
+    var saved = subject.saveAll(List.of(overview1, overview2));
+
+    assertEquals(List.of(overview1), saved);
   }
 }
