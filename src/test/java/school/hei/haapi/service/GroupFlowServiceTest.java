@@ -40,7 +40,6 @@ class GroupFlowServiceTest {
   private final GroupRepository groupRepository = mock();
   private final UserRepository userRepository = mock();
   private final StudentGroupContactSyncService studentGroupContactSyncService = mock();
-  private final EventParticipantGroupSyncService eventParticipantGroupSyncService = mock();
   private final GroupFlowService subject =
       new GroupFlowService(
           groupFlowRepository,
@@ -49,8 +48,7 @@ class GroupFlowServiceTest {
           mock(GroupFlowValidator.class),
           mock(GroupFlowMapper.class),
           courseAssignmentRepository,
-          studentGroupContactSyncService,
-          eventParticipantGroupSyncService);
+          studentGroupContactSyncService);
 
   @Test
   void save_syncs_the_contact_group_membership_for_the_saved_flow() {
@@ -68,40 +66,6 @@ class GroupFlowServiceTest {
                 .moveType(CreateGroupFlow.MoveTypeEnum.JOIN));
 
     verify(studentGroupContactSyncService).syncMembership(saved);
-  }
-
-  @Test
-  void save_adds_student_to_future_events_of_the_joined_group() {
-    var student = User.builder().id("student1").build();
-    var group = Group.builder().id("g1").ref("K2").build();
-    when(userRepository.findById("student1")).thenReturn(Optional.of(student));
-    when(groupRepository.findById("g1")).thenReturn(Optional.of(group));
-    when(groupFlowRepository.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
-
-    subject.save(
-        new CreateGroupFlow()
-            .studentId("student1")
-            .groupId("g1")
-            .moveType(CreateGroupFlow.MoveTypeEnum.JOIN));
-
-    verify(eventParticipantGroupSyncService).addStudentToFutureEventsOfGroup(student, group);
-  }
-
-  @Test
-  void save_removes_student_from_future_events_of_the_left_group() {
-    var student = User.builder().id("student1").build();
-    var group = Group.builder().id("g1").ref("K2").build();
-    when(userRepository.findById("student1")).thenReturn(Optional.of(student));
-    when(groupRepository.findById("g1")).thenReturn(Optional.of(group));
-    when(groupFlowRepository.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
-
-    subject.save(
-        new CreateGroupFlow()
-            .studentId("student1")
-            .groupId("g1")
-            .moveType(CreateGroupFlow.MoveTypeEnum.LEAVE));
-
-    verify(eventParticipantGroupSyncService).removeStudentFromFutureEventsOfGroup(student, group);
   }
 
   @Test
