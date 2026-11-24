@@ -17,11 +17,11 @@ public class ResultPersistenceService {
 
   @Transactional(propagation = Propagation.REQUIRES_NEW)
   public StudentResultOverview saveStudentResultOverview(StudentResultOverview overview) {
-    return studentResultOverviewRepository.save(overview);
+    return studentResultOverviewRepository.saveAndFlush(overview);
   }
 
   @Transactional(propagation = Propagation.REQUIRES_NEW)
   public YearlyResult saveYearlyResult(YearlyResult yearlyResult) {
-    return yearlyResultRepository.save(yearlyResult);
+    return yearlyResultRepository.saveAndFlush(yearlyResult);
   }
 }

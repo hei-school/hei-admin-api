@@ -1,8 +1,8 @@
 package school.hei.haapi.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import org.junit.jupiter.api.Test;
@@ -18,24 +18,36 @@ class ResultPersistenceServiceTest {
       new ResultPersistenceService(studentResultOverviewRepository, yearlyResultRepository);
 
   @Test
-  void saveStudentResultOverview_delegates_to_the_repository() {
+  void saves_a_student_result_overview() {
     var overview = StudentResultOverview.builder().id("ov1").build();
-    when(studentResultOverviewRepository.save(overview)).thenReturn(overview);
+    when(studentResultOverviewRepository.saveAndFlush(overview)).thenReturn(overview);
 
-    var saved = subject.saveStudentResultOverview(overview);
-
-    assertEquals(overview, saved);
-    verify(studentResultOverviewRepository).save(overview);
+    assertEquals(overview, subject.saveStudentResultOverview(overview));
   }
 
   @Test
-  void saveYearlyResult_delegates_to_the_repository() {
+  void propagates_the_failure_when_a_student_result_overview_cannot_be_persisted() {
+    var overview = StudentResultOverview.builder().id("ov1").build();
+    when(studentResultOverviewRepository.saveAndFlush(overview))
+        .thenThrow(new RuntimeException("constraint violation"));
+
+    assertThrows(RuntimeException.class, () -> subject.saveStudentResultOverview(overview));
+  }
+
+  @Test
+  void saves_a_yearly_result() {
     var yearlyResult = YearlyResult.builder().id("yr1").build();
-    when(yearlyResultRepository.save(yearlyResult)).thenReturn(yearlyResult);
+    when(yearlyResultRepository.saveAndFlush(yearlyResult)).thenReturn(yearlyResult);
 
-    var saved = subject.saveYearlyResult(yearlyResult);
+    assertEquals(yearlyResult, subject.saveYearlyResult(yearlyResult));
+  }
 
-    assertEquals(yearlyResult, saved);
-    verify(yearlyResultRepository).save(yearlyResult);
+  @Test
+  void propagates_the_failure_when_a_yearly_result_cannot_be_persisted() {
+    var yearlyResult = YearlyResult.builder().id("yr1").build();
+    when(yearlyResultRepository.saveAndFlush(yearlyResult))
+        .thenThrow(new RuntimeException("constraint violation"));
+
+    assertThrows(RuntimeException.class, () -> subject.saveYearlyResult(yearlyResult));
   }
 }

@@ -4,7 +4,6 @@ import java.util.function.Consumer;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import school.hei.haapi.endpoint.event.model.StudentResultOverviewUpserted;
 import school.hei.haapi.service.StudentResultOverviewService;
 import school.hei.haapi.service.YearlyResultService;
@@ -18,7 +17,6 @@ public class StudentResultOverviewUpsertedService
   private final YearlyResultService yearlyResultService;
 
   @Override
-  @Transactional
   public void accept(StudentResultOverviewUpserted event) {
     log.info("Beggin crupdate StudentsResultoverviews");
     log.info("Get all studentsResultOverviews");

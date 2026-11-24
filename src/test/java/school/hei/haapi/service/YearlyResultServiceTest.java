@@ -15,6 +15,8 @@ import static school.hei.haapi.model.ResultOverviewStatus.VALIDATED;
 import java.io.ByteArrayInputStream;
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -303,5 +305,72 @@ class YearlyResultServiceTest {
     var saved = subject.saveAll(List.of(yr1, yr2));
 
     assertEquals(List.of(yr1), saved);
+  }
+
+  @Test
+  void crupdate_handles_more_than_200_students_skipping_only_the_ones_that_fail() {
+    var promotion = mock(Promotion.class);
+    when(promotion.getLevelAt(any(Instant.class))).thenReturn(L1);
+    when(promotion.getCycleLevel()).thenReturn(CycleLevel.BACHELOR);
+    var group = group("g1", "K2", promotion);
+
+    var total = 250;
+    var students = new ArrayList<User>();
+    var failingIds = new HashSet<String>();
+    for (int i = 0; i < total; i++) {
+      var id = "student" + i;
+      var student = mock(User.class);
+      when(student.getId()).thenReturn(id);
+      when(student.findCurrentGroup()).thenReturn(Optional.of(group));
+      students.add(student);
+      if (i % 10 == 0) {
+        failingIds.add(id);
+        when(gradeResultService.findLeveledYearlyResultByStudentId(L1, id))
+            .thenThrow(new RuntimeException("boom-" + id));
+      } else {
+        when(gradeResultService.findLeveledYearlyResultByStudentId(L1, id))
+            .thenReturn(
+                Optional.of(
+                    new school.hei.haapi.endpoint.rest.model.YearlyResult()
+                        .level(L1)
+                        .status(
+                            school.hei.haapi.endpoint.rest.model.ResultOverviewStatus
+                                .NOT_STARTED)));
+        when(groupFlowService.findStudentLatestGroupFlowPeriodsAtLevel(id, L1))
+            .thenReturn(List.of());
+      }
+    }
+
+    when(userRepository.findAllStudentNotDisabledWithGroupFlow("promo1")).thenReturn(students);
+    when(yearlyResultRepository.findAllByStudent_IdIn(any())).thenReturn(List.of());
+
+    var toSave = subject.getYearlyResultsToCrupdate("promo1");
+
+    assertEquals(total - failingIds.size(), toSave.size());
+    assertTrue(toSave.stream().map(r -> r.getStudent().getId()).noneMatch(failingIds::contains));
+  }
+
+  @Test
+  void saveAll_handles_more_than_200_yearly_results_skipping_only_the_ones_that_fail_to_persist() {
+    var total = 250;
+    var yearlyResults = new ArrayList<YearlyResult>();
+    var failingIds = new HashSet<String>();
+    for (int i = 0; i < total; i++) {
+      var id = "yr" + i;
+      var yr = YearlyResult.builder().id(id).level(L1).build();
+      yearlyResults.add(yr);
+      if (i % 7 == 0) {
+        failingIds.add(id);
+        when(resultPersistenceService.saveYearlyResult(yr))
+            .thenThrow(new RuntimeException("db fail " + id));
+      } else {
+        when(resultPersistenceService.saveYearlyResult(yr)).thenReturn(yr);
+      }
+    }
+
+    var saved = subject.saveAll(yearlyResults);
+
+    assertEquals(total - failingIds.size(), saved.size());
+    assertTrue(saved.stream().map(YearlyResult::getId).noneMatch(failingIds::contains));
   }
 }
