@@ -15,13 +15,17 @@ public final class StudentLevelUtils {
     if (currentPromotion == null) {
       return List.of();
     }
+    var cycleLevels = currentPromotion.getCycleLevel().getLevels();
+    var now = Instant.now();
+    if (currentPromotion.isOverAt(now)) {
+      return cycleLevels;
+    }
     StudentLevel currentLevel;
     try {
-      currentLevel = currentPromotion.getLevelAt(Instant.now());
+      currentLevel = currentPromotion.getLevelAt(now);
     } catch (PromotionLevelOutOfRangeException e) {
       return List.of();
     }
-    var cycleLevels = currentPromotion.getCycleLevel().getLevels();
     var currentIndex = cycleLevels.indexOf(currentLevel);
     if (currentIndex < 0) {
       return List.of();
