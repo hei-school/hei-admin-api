@@ -15,6 +15,8 @@ import static school.hei.haapi.model.ResultOverviewStatus.VALIDATED;
 import java.io.ByteArrayInputStream;
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -34,13 +36,15 @@ class YearlyResultServiceTest {
   private final PromotionService promotionService = mock();
   private final GroupFlowService groupFlowService = mock();
   private final GradeResultService gradeResultService = mock();
+  private final ResultPersistenceService resultPersistenceService = mock();
   private final YearlyResultService subject =
       new YearlyResultService(
           yearlyResultRepository,
           userRepository,
           promotionService,
           groupFlowService,
-          gradeResultService);
+          gradeResultService,
+          resultPersistenceService);
 
   private static Group group(String id, String ref, Promotion promotion) {
     return Group.builder().id(id).ref(ref).promotion(promotion).build();
@@ -259,5 +263,114 @@ class YearlyResultServiceTest {
 
     assertEquals(1, toSave.size());
     assertEquals("existing-id", toSave.getFirst().getId());
+  }
+
+  @Test
+  void crupdate_skips_a_student_whose_level_computation_fails_but_keeps_the_others() {
+    var goodStudent = studentCurrentlyAt(new StudentLevelSetup(L1));
+    var promotion = goodStudent.findCurrentGroup().orElseThrow().getPromotion();
+    var badStudent = mock(User.class);
+    when(badStudent.getId()).thenReturn("student2");
+    when(badStudent.findCurrentGroup())
+        .thenReturn(Optional.of(group("current-group", "K2", promotion)));
+    when(userRepository.findAllStudentNotDisabledWithGroupFlow("promo1"))
+        .thenReturn(List.of(goodStudent, badStudent));
+    when(yearlyResultRepository.findAllByStudent_IdIn(List.of("student1", "student2")))
+        .thenReturn(List.of());
+    when(gradeResultService.findLeveledYearlyResultByStudentId(L1, "student1"))
+        .thenReturn(
+            Optional.of(
+                new school.hei.haapi.endpoint.rest.model.YearlyResult()
+                    .level(L1)
+                    .status(
+                        school.hei.haapi.endpoint.rest.model.ResultOverviewStatus.NOT_STARTED)));
+    when(groupFlowService.findStudentLatestGroupFlowPeriodsAtLevel("student1", L1))
+        .thenReturn(List.of());
+    when(gradeResultService.findLeveledYearlyResultByStudentId(L1, "student2"))
+        .thenThrow(new RuntimeException("boom"));
+
+    var toSave = subject.getYearlyResultsToCrupdate("promo1");
+
+    assertEquals(1, toSave.size());
+    assertEquals(goodStudent, toSave.getFirst().getStudent());
+  }
+
+  @Test
+  void saveAll_skips_a_yearly_result_that_fails_to_persist_but_saves_the_rest() {
+    var yr1 = YearlyResult.builder().id("yr1").level(L1).build();
+    var yr2 = YearlyResult.builder().id("yr2").level(L2).build();
+    when(resultPersistenceService.saveYearlyResult(yr1)).thenReturn(yr1);
+    when(resultPersistenceService.saveYearlyResult(yr2)).thenThrow(new RuntimeException("db fail"));
+
+    var saved = subject.saveAll(List.of(yr1, yr2));
+
+    assertEquals(List.of(yr1), saved);
+  }
+
+  @Test
+  void crupdate_handles_more_than_200_students_skipping_only_the_ones_that_fail() {
+    var promotion = mock(Promotion.class);
+    when(promotion.getLevelAt(any(Instant.class))).thenReturn(L1);
+    when(promotion.getCycleLevel()).thenReturn(CycleLevel.BACHELOR);
+    var group = group("g1", "K2", promotion);
+
+    var total = 250;
+    var students = new ArrayList<User>();
+    var failingIds = new HashSet<String>();
+    for (int i = 0; i < total; i++) {
+      var id = "student" + i;
+      var student = mock(User.class);
+      when(student.getId()).thenReturn(id);
+      when(student.findCurrentGroup()).thenReturn(Optional.of(group));
+      students.add(student);
+      if (i % 10 == 0) {
+        failingIds.add(id);
+        when(gradeResultService.findLeveledYearlyResultByStudentId(L1, id))
+            .thenThrow(new RuntimeException("boom-" + id));
+      } else {
+        when(gradeResultService.findLeveledYearlyResultByStudentId(L1, id))
+            .thenReturn(
+                Optional.of(
+                    new school.hei.haapi.endpoint.rest.model.YearlyResult()
+                        .level(L1)
+                        .status(
+                            school.hei.haapi.endpoint.rest.model.ResultOverviewStatus
+                                .NOT_STARTED)));
+        when(groupFlowService.findStudentLatestGroupFlowPeriodsAtLevel(id, L1))
+            .thenReturn(List.of());
+      }
+    }
+
+    when(userRepository.findAllStudentNotDisabledWithGroupFlow("promo1")).thenReturn(students);
+    when(yearlyResultRepository.findAllByStudent_IdIn(any())).thenReturn(List.of());
+
+    var toSave = subject.getYearlyResultsToCrupdate("promo1");
+
+    assertEquals(total - failingIds.size(), toSave.size());
+    assertTrue(toSave.stream().map(r -> r.getStudent().getId()).noneMatch(failingIds::contains));
+  }
+
+  @Test
+  void saveAll_handles_more_than_200_yearly_results_skipping_only_the_ones_that_fail_to_persist() {
+    var total = 250;
+    var yearlyResults = new ArrayList<YearlyResult>();
+    var failingIds = new HashSet<String>();
+    for (int i = 0; i < total; i++) {
+      var id = "yr" + i;
+      var yr = YearlyResult.builder().id(id).level(L1).build();
+      yearlyResults.add(yr);
+      if (i % 7 == 0) {
+        failingIds.add(id);
+        when(resultPersistenceService.saveYearlyResult(yr))
+            .thenThrow(new RuntimeException("db fail " + id));
+      } else {
+        when(resultPersistenceService.saveYearlyResult(yr)).thenReturn(yr);
+      }
+    }
+
+    var saved = subject.saveAll(yearlyResults);
+
+    assertEquals(total - failingIds.size(), saved.size());
+    assertTrue(saved.stream().map(YearlyResult::getId).noneMatch(failingIds::contains));
   }
 }

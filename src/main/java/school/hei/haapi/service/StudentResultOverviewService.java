@@ -6,12 +6,16 @@ import static school.hei.haapi.endpoint.rest.model.StudentLevel.M2;
 import static school.hei.haapi.model.CycleLevel.BACHELOR;
 import static school.hei.haapi.model.ResultOverviewStatus.VALIDATED;
 
+import java.math.BigDecimal;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import school.hei.haapi.endpoint.rest.mapper.StudentResultOverviewMapper;
@@ -30,6 +34,7 @@ import school.hei.haapi.repository.UserRepository;
 import school.hei.haapi.repository.dao.StudentResultOverviewDao;
 import school.hei.haapi.service.utils.XlsxCellsGenerator;
 
+@Slf4j
 @Service
 @AllArgsConstructor
 public class StudentResultOverviewService {
@@ -40,6 +45,7 @@ public class StudentResultOverviewService {
   private final PromotionService promotionService;
   private final UserRepository userRepository;
   private final GradeResultService gradeResultService;
+  private final ResultPersistenceService resultPersistenceService;
 
   public List<school.hei.haapi.endpoint.rest.model.StudentResultOverview> getStudentResultOverviews(
       String promotionId,
@@ -62,26 +68,40 @@ public class StudentResultOverviewService {
             .collect(Collectors.toMap(sro -> sro.getStudent().getId(), Function.identity()));
     return students.stream()
         .map(
-            student -> {
-              var existingOverview = existingOverviewsByStudentId.get(student.getId());
-              var resultSummary = gradeResultService.getStudentResultSummaryOf(student);
-              var graduationPromotion =
-                  getStudentGraduationPromotion(
-                      ResultOverviewStatus.valueOf(resultSummary.getStatus().toString()),
-                      promotions,
-                      existingOverview,
-                      student);
-              return StudentResultOverview.builder()
-                  .id(existingOverview != null ? existingOverview.getId() : null)
-                  .student(student)
-                  .graduationPromotion(graduationPromotion)
-                  .obtainedCredits(resultSummary.getObtainedCredits())
-                  .weightedAverage(resultSummary.getWeightedAverage())
-                  .status(ResultOverviewStatus.valueOf(resultSummary.getStatus().toString()))
-                  .totalCredits(resultSummary.getTotalCredits())
-                  .build();
-            })
+            student ->
+                buildStudentResultOverview(student, promotions, existingOverviewsByStudentId))
+        .filter(Objects::nonNull)
         .toList();
+  }
+
+  private StudentResultOverview buildStudentResultOverview(
+      User student,
+      List<Promotion> promotions,
+      Map<String, StudentResultOverview> existingOverviewsByStudentId) {
+    try {
+      var existingOverview = existingOverviewsByStudentId.get(student.getId());
+      var resultSummary = gradeResultService.getStudentResultSummaryOf(student);
+      var graduationPromotion =
+          getStudentGraduationPromotion(
+              ResultOverviewStatus.valueOf(resultSummary.getStatus().toString()),
+              promotions,
+              existingOverview,
+              student);
+      return StudentResultOverview.builder()
+          .id(existingOverview != null ? existingOverview.getId() : null)
+          .student(student)
+          .graduationPromotion(graduationPromotion)
+          .obtainedCredits(resultSummary.getObtainedCredits())
+          .weightedAverage(
+              Optional.ofNullable(resultSummary.getWeightedAverage()).orElse(BigDecimal.ZERO))
+          .status(ResultOverviewStatus.valueOf(resultSummary.getStatus().toString()))
+          .totalCredits(resultSummary.getTotalCredits())
+          .build();
+    } catch (Exception e) {
+      log.error(
+          "Failed to compute StudentResultOverview for student {}, skipping", student.getId(), e);
+      return null;
+    }
   }
 
   public Promotion getStudentGraduationPromotion(
@@ -149,7 +169,22 @@ public class StudentResultOverviewService {
   }
 
   public List<StudentResultOverview> saveAll(List<StudentResultOverview> studentResultOverviews) {
-    return studentResultOverviewRepository.saveAll(studentResultOverviews);
+    return studentResultOverviews.stream()
+        .map(this::saveOneSafely)
+        .filter(Objects::nonNull)
+        .toList();
+  }
+
+  private StudentResultOverview saveOneSafely(StudentResultOverview overview) {
+    try {
+      return resultPersistenceService.saveStudentResultOverview(overview);
+    } catch (Exception e) {
+      log.error(
+          "Failed to save StudentResultOverview for student {}, skipping",
+          overview.getStudent() != null ? overview.getStudent().getId() : "unknown",
+          e);
+      return null;
+    }
   }
 
   public byte[] generateStudentResultOverviewsXlsx(
