@@ -23,6 +23,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authentication.dao.AbstractUserDetailsAuthenticationProvider;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -33,6 +34,7 @@ import org.springframework.security.web.util.matcher.OrRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.web.servlet.HandlerExceptionResolver;
 import school.hei.haapi.model.exception.ForbiddenException;
+import school.hei.haapi.repository.ComplaintAssigneeRepository;
 import school.hei.haapi.repository.ComplaintRepository;
 import school.hei.haapi.repository.CorRepository;
 import school.hei.haapi.service.CourseAssignmentService;
@@ -55,9 +57,11 @@ public class SecurityConf {
   private static final String SMS_CAMPAIGNS_BY_FILE_PATH = "/sms-campaigns/by-file";
   private static final String COMPLAINTS_PATH = "/complaints";
   private static final String COMPLAINTS_BY_ID_PATH = "/complaints/*";
+  private static final String COMPLAINTS_STATUS_PATH = "/complaints/*/status";
   private static final String COMPLAINTS_HISTORY_PATH = "/complaints/*/history";
   private static final String STUDENTS_COMPLAINTS_PATH = "/students/*/complaints";
   private static final String COMPLAINT_ROUTINGS_PATH = "/complaint-routings";
+  private static final String COMPLAINTS_STRING_BEFORE_ID = "complaints";
   static final RequestMatcher PUBLIC_BADGE = new AntPathRequestMatcher("/badges/*", GET.name());
   private final CourseAssignmentService courseAssignmentService;
   private final MonitoringStudentService monitoringStudentService;
@@ -65,6 +69,7 @@ public class SecurityConf {
   private final HandlerExceptionResolver exceptionResolver;
   private final CorRepository corRepository;
   private final ComplaintRepository complaintRepository;
+  private final ComplaintAssigneeRepository complaintAssigneeRepository;
   private final FeesOnlyFilter feesOnlyFilter;
 
   public SecurityConf(
@@ -74,6 +79,7 @@ public class SecurityConf {
       MonitoringStudentService monitoringStudentService,
       CorRepository corRepository,
       ComplaintRepository complaintRepository,
+      ComplaintAssigneeRepository complaintAssigneeRepository,
       FeesOnlyFilter feesOnlyFilter) {
     this.authProvider = authProvider;
     this.exceptionResolver = exceptionResolver;
@@ -81,6 +87,7 @@ public class SecurityConf {
     this.monitoringStudentService = monitoringStudentService;
     this.corRepository = corRepository;
     this.complaintRepository = complaintRepository;
+    this.complaintAssigneeRepository = complaintAssigneeRepository;
     this.feesOnlyFilter = feesOnlyFilter;
   }
 
@@ -177,7 +184,7 @@ public class SecurityConf {
                     antMatcher(POST, COMPLAINTS_PATH),
                     antMatcher(GET, COMPLAINTS_BY_ID_PATH),
                     antMatcher(PUT, "/complaints/*/assignees"),
-                    antMatcher(PUT, "/complaints/*/status"),
+                    antMatcher(PUT, COMPLAINTS_STATUS_PATH),
                     antMatcher(GET, COMPLAINTS_HISTORY_PATH),
                     antMatcher(GET, STUDENTS_COMPLAINTS_PATH),
                     antMatcher(GET, COMPLAINT_ROUTINGS_PATH),
@@ -1201,21 +1208,52 @@ public class SecurityConf {
                     .requestMatchers(POST, COMPLAINTS_PATH)
                     .hasAnyRole(STUDENT.getRole())
                     .requestMatchers(GET, COMPLAINTS_PATH)
-                    .hasAnyRole(ADMIN.getRole(), MANAGER.getRole(), STAFF_MEMBER.getRole())
+                    .hasAnyRole(
+                        ADMIN.getRole(),
+                        MANAGER.getRole(),
+                        STAFF_MEMBER.getRole(),
+                        TEACHER.getRole())
                     .requestMatchers(
                         new StudentComplaintMatcher(
-                            GET, COMPLAINTS_BY_ID_PATH, "complaints", complaintRepository))
+                            GET,
+                            COMPLAINTS_BY_ID_PATH,
+                            COMPLAINTS_STRING_BEFORE_ID,
+                            complaintRepository))
                     .hasAnyRole(STUDENT.getRole())
+                    .requestMatchers(
+                        new AssigneeComplaintMatcher(
+                            GET,
+                            COMPLAINTS_BY_ID_PATH,
+                            COMPLAINTS_STRING_BEFORE_ID,
+                            complaintAssigneeRepository))
+                    .hasAnyRole(TEACHER.getRole())
                     .requestMatchers(GET, COMPLAINTS_BY_ID_PATH)
                     .hasAnyRole(ADMIN.getRole(), MANAGER.getRole(), STAFF_MEMBER.getRole())
                     .requestMatchers(PUT, "/complaints/*/assignees")
                     .hasAnyRole(ADMIN.getRole(), MANAGER.getRole())
-                    .requestMatchers(PUT, "/complaints/*/status")
+                    .requestMatchers(
+                        new AssigneeComplaintMatcher(
+                            PUT,
+                            COMPLAINTS_STATUS_PATH,
+                            COMPLAINTS_STRING_BEFORE_ID,
+                            complaintAssigneeRepository))
+                    .hasAnyRole(TEACHER.getRole())
+                    .requestMatchers(PUT, COMPLAINTS_STATUS_PATH)
                     .hasAnyRole(ADMIN.getRole(), MANAGER.getRole(), STAFF_MEMBER.getRole())
                     .requestMatchers(
                         new StudentComplaintMatcher(
-                            GET, COMPLAINTS_HISTORY_PATH, "complaints", complaintRepository))
+                            GET,
+                            COMPLAINTS_HISTORY_PATH,
+                            COMPLAINTS_STRING_BEFORE_ID,
+                            complaintRepository))
                     .hasAnyRole(STUDENT.getRole())
+                    .requestMatchers(
+                        new AssigneeComplaintMatcher(
+                            GET,
+                            COMPLAINTS_HISTORY_PATH,
+                            COMPLAINTS_STRING_BEFORE_ID,
+                            complaintAssigneeRepository))
+                    .hasAnyRole(TEACHER.getRole())
                     .requestMatchers(GET, COMPLAINTS_HISTORY_PATH)
                     .hasAnyRole(ADMIN.getRole(), MANAGER.getRole(), STAFF_MEMBER.getRole())
                     .requestMatchers(new SelfMatcher(GET, STUDENTS_COMPLAINTS_PATH, "students"))
@@ -1335,12 +1373,11 @@ public class SecurityConf {
                     .authenticated()
                     .requestMatchers("/**")
                     .denyAll())
-
+        .cors(Customizer.withDefaults())
         // disable superfluous protections
         // Eg if all clients are non-browser then no csrf
         // https://docs.spring.io/spring-security/site/docs/3.2.0.CI-SNAPSHOT/reference/html/csrf.html,
         // Sec 13.3
-        .cors(AbstractHttpConfigurer::disable)
         .csrf(AbstractHttpConfigurer::disable)
         .formLogin(AbstractHttpConfigurer::disable)
         .logout(AbstractHttpConfigurer::disable);

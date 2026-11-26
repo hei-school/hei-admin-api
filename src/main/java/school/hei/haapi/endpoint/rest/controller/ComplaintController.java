@@ -25,6 +25,7 @@ import school.hei.haapi.endpoint.rest.security.AuthProvider;
 import school.hei.haapi.endpoint.rest.validator.ComplaintValidator;
 import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.PageFromOne;
+import school.hei.haapi.model.User;
 import school.hei.haapi.model.pagination.PaginationFromPageAndPageSize;
 import school.hei.haapi.service.ComplaintRoutingService;
 import school.hei.haapi.service.ComplaintService;
@@ -55,12 +56,15 @@ public class ComplaintController {
           List<ComplaintStatus> statuses,
       @RequestParam(name = "manager_id", required = false) String managerId,
       @RequestParam(name = "assignee_id", required = false) String assigneeId) {
+    var principal = AuthProvider.getPrincipal();
+    var effectiveAssigneeId =
+        principal.getUser().getRole() == User.Role.TEACHER ? principal.getUserId() : assigneeId;
     return complaintMapper.toRest(
         complaintService.getComplaints(
             complaintMapper.toDomainTypes(types),
             complaintMapper.toDomainStatuses(statuses),
             managerId,
-            assigneeId,
+            effectiveAssigneeId,
             from,
             to,
             paginationFromPageAndPageSize.apply(page, pageSize)));

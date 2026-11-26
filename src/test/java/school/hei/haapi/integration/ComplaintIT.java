@@ -14,6 +14,7 @@ import static school.hei.haapi.integration.conf.FakeDataProvider.someUser;
 import static school.hei.haapi.integration.conf.TestAuth.tokenFor;
 import static school.hei.haapi.model.User.Role.ADMIN;
 import static school.hei.haapi.model.User.Role.MANAGER;
+import static school.hei.haapi.model.User.Role.TEACHER;
 
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
@@ -48,10 +49,12 @@ class ComplaintIT extends FacadeITMockedThirdParties {
   private User tolotra;
   private User manager;
   private User admin;
+  private User teacher;
   private String axelToken;
   private String tolotraToken;
   private String managerToken;
   private String adminToken;
+  private String teacherToken;
 
   @BeforeEach
   void setUp() {
@@ -59,6 +62,7 @@ class ComplaintIT extends FacadeITMockedThirdParties {
     tolotra = userRepository.save(someStudent("tolotra"));
     manager = userRepository.save(someUser("manager", MANAGER));
     admin = userRepository.save(someUser("admin", ADMIN));
+    teacher = userRepository.save(someUser("teacher", TEACHER));
 
     complaintRoutingService.create(school.hei.haapi.model.ComplaintType.ACADEMIC, manager);
 
@@ -66,6 +70,7 @@ class ComplaintIT extends FacadeITMockedThirdParties {
     tolotraToken = tokenFor(casdoorAuthServiceMock, tolotra);
     managerToken = tokenFor(casdoorAuthServiceMock, manager);
     adminToken = tokenFor(casdoorAuthServiceMock, admin);
+    teacherToken = tokenFor(casdoorAuthServiceMock, teacher);
   }
 
   @Test
@@ -281,6 +286,111 @@ class ComplaintIT extends FacadeITMockedThirdParties {
             new UpdateComplaintStatus().status(ComplaintStatus.REJECTED).comment("Non fondée."));
 
     assertEquals(ComplaintStatus.REJECTED, rejected.getStatus());
+  }
+
+  @Test
+  void teacher_sees_only_assigned_complaints_in_list_ok() throws ApiException {
+    var studentApi = new ComplaintApi(anApiClient(axelToken));
+    var assignedToTeacher =
+        studentApi.createComplaint(
+            new CrupdateComplaint()
+                .type(ComplaintType.ACADEMIC)
+                .title("Assignée au teacher")
+                .description("Description"));
+    var notAssignedToTeacher =
+        studentApi.createComplaint(
+            new CrupdateComplaint()
+                .type(ComplaintType.ACADEMIC)
+                .title("Pas assignée au teacher")
+                .description("Description"));
+
+    var managerApi = new ComplaintApi(anApiClient(managerToken));
+    managerApi.addComplaintAssignees(
+        assignedToTeacher.getId(),
+        new UpdateComplaintAssignees().userIds(List.of(teacher.getId())));
+
+    var teacherApi = new ComplaintApi(anApiClient(teacherToken));
+    var teacherComplaints =
+        teacherApi.getComplaints(null, null, null, null, null, null, null, null);
+
+    assertTrue(
+        teacherComplaints.stream().anyMatch(c -> c.getId().equals(assignedToTeacher.getId())));
+    assertTrue(
+        teacherComplaints.stream().noneMatch(c -> c.getId().equals(notAssignedToTeacher.getId())));
+  }
+
+  @Test
+  void teacher_can_get_assigned_complaint_by_id_ok() throws ApiException {
+    var studentApi = new ComplaintApi(anApiClient(axelToken));
+    var complaint =
+        studentApi.createComplaint(
+            new CrupdateComplaint()
+                .type(ComplaintType.ACADEMIC)
+                .title("Titre")
+                .description("Description"));
+
+    var managerApi = new ComplaintApi(anApiClient(managerToken));
+    managerApi.addComplaintAssignees(
+        complaint.getId(), new UpdateComplaintAssignees().userIds(List.of(teacher.getId())));
+
+    var teacherApi = new ComplaintApi(anApiClient(teacherToken));
+    var fetched = teacherApi.getComplaintById(complaint.getId());
+
+    assertEquals(complaint.getId(), fetched.getId());
+  }
+
+  @Test
+  void teacher_cannot_get_unassigned_complaint_by_id_ko() throws ApiException {
+    var studentApi = new ComplaintApi(anApiClient(axelToken));
+    var complaint =
+        studentApi.createComplaint(
+            new CrupdateComplaint()
+                .type(ComplaintType.ACADEMIC)
+                .title("Titre")
+                .description("Description"));
+
+    var teacherApi = new ComplaintApi(anApiClient(teacherToken));
+    assertThrowsForbiddenException(() -> teacherApi.getComplaintById(complaint.getId()));
+  }
+
+  @Test
+  void teacher_can_update_status_of_assigned_complaint_ok() throws ApiException {
+    var studentApi = new ComplaintApi(anApiClient(axelToken));
+    var complaint =
+        studentApi.createComplaint(
+            new CrupdateComplaint()
+                .type(ComplaintType.ACADEMIC)
+                .title("Titre")
+                .description("Description"));
+
+    var managerApi = new ComplaintApi(anApiClient(managerToken));
+    managerApi.addComplaintAssignees(
+        complaint.getId(), new UpdateComplaintAssignees().userIds(List.of(teacher.getId())));
+
+    var teacherApi = new ComplaintApi(anApiClient(teacherToken));
+    var inProgress =
+        teacherApi.updateComplaintStatus(
+            complaint.getId(), new UpdateComplaintStatus().status(ComplaintStatus.IN_PROGRESS));
+
+    assertEquals(ComplaintStatus.IN_PROGRESS, inProgress.getStatus());
+  }
+
+  @Test
+  void teacher_cannot_update_status_of_unassigned_complaint_ko() throws ApiException {
+    var studentApi = new ComplaintApi(anApiClient(axelToken));
+    var complaint =
+        studentApi.createComplaint(
+            new CrupdateComplaint()
+                .type(ComplaintType.ACADEMIC)
+                .title("Titre")
+                .description("Description"));
+
+    var teacherApi = new ComplaintApi(anApiClient(teacherToken));
+    assertThrowsForbiddenException(
+        () ->
+            teacherApi.updateComplaintStatus(
+                complaint.getId(),
+                new UpdateComplaintStatus().status(ComplaintStatus.IN_PROGRESS)));
   }
 
   @Test
