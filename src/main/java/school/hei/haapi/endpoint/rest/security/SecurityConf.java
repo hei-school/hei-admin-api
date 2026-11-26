@@ -34,6 +34,7 @@ import org.springframework.security.web.util.matcher.OrRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.web.servlet.HandlerExceptionResolver;
 import school.hei.haapi.model.exception.ForbiddenException;
+import school.hei.haapi.repository.ComplaintAssigneeRepository;
 import school.hei.haapi.repository.ComplaintRepository;
 import school.hei.haapi.repository.CorRepository;
 import school.hei.haapi.service.CourseAssignmentService;
@@ -66,6 +67,7 @@ public class SecurityConf {
   private final HandlerExceptionResolver exceptionResolver;
   private final CorRepository corRepository;
   private final ComplaintRepository complaintRepository;
+  private final ComplaintAssigneeRepository complaintAssigneeRepository;
   private final FeesOnlyFilter feesOnlyFilter;
 
   public SecurityConf(
@@ -75,6 +77,7 @@ public class SecurityConf {
       MonitoringStudentService monitoringStudentService,
       CorRepository corRepository,
       ComplaintRepository complaintRepository,
+      ComplaintAssigneeRepository complaintAssigneeRepository,
       FeesOnlyFilter feesOnlyFilter) {
     this.authProvider = authProvider;
     this.exceptionResolver = exceptionResolver;
@@ -82,6 +85,7 @@ public class SecurityConf {
     this.monitoringStudentService = monitoringStudentService;
     this.corRepository = corRepository;
     this.complaintRepository = complaintRepository;
+    this.complaintAssigneeRepository = complaintAssigneeRepository;
     this.feesOnlyFilter = feesOnlyFilter;
   }
 
@@ -1202,21 +1206,40 @@ public class SecurityConf {
                     .requestMatchers(POST, COMPLAINTS_PATH)
                     .hasAnyRole(STUDENT.getRole())
                     .requestMatchers(GET, COMPLAINTS_PATH)
-                    .hasAnyRole(ADMIN.getRole(), MANAGER.getRole(), STAFF_MEMBER.getRole())
+                    .hasAnyRole(
+                        ADMIN.getRole(),
+                        MANAGER.getRole(),
+                        STAFF_MEMBER.getRole(),
+                        TEACHER.getRole())
                     .requestMatchers(
                         new StudentComplaintMatcher(
                             GET, COMPLAINTS_BY_ID_PATH, "complaints", complaintRepository))
                     .hasAnyRole(STUDENT.getRole())
+                    .requestMatchers(
+                        new AssigneeComplaintMatcher(
+                            GET, COMPLAINTS_BY_ID_PATH, "complaints", complaintAssigneeRepository))
+                    .hasAnyRole(TEACHER.getRole())
                     .requestMatchers(GET, COMPLAINTS_BY_ID_PATH)
                     .hasAnyRole(ADMIN.getRole(), MANAGER.getRole(), STAFF_MEMBER.getRole())
                     .requestMatchers(PUT, "/complaints/*/assignees")
                     .hasAnyRole(ADMIN.getRole(), MANAGER.getRole())
+                    .requestMatchers(
+                        new AssigneeComplaintMatcher(
+                            PUT, "/complaints/*/status", "complaints", complaintAssigneeRepository))
+                    .hasAnyRole(TEACHER.getRole())
                     .requestMatchers(PUT, "/complaints/*/status")
                     .hasAnyRole(ADMIN.getRole(), MANAGER.getRole(), STAFF_MEMBER.getRole())
                     .requestMatchers(
                         new StudentComplaintMatcher(
                             GET, COMPLAINTS_HISTORY_PATH, "complaints", complaintRepository))
                     .hasAnyRole(STUDENT.getRole())
+                    .requestMatchers(
+                        new AssigneeComplaintMatcher(
+                            GET,
+                            COMPLAINTS_HISTORY_PATH,
+                            "complaints",
+                            complaintAssigneeRepository))
+                    .hasAnyRole(TEACHER.getRole())
                     .requestMatchers(GET, COMPLAINTS_HISTORY_PATH)
                     .hasAnyRole(ADMIN.getRole(), MANAGER.getRole(), STAFF_MEMBER.getRole())
                     .requestMatchers(new SelfMatcher(GET, STUDENTS_COMPLAINTS_PATH, "students"))
@@ -1336,12 +1359,6 @@ public class SecurityConf {
                     .authenticated()
                     .requestMatchers("/**")
                     .denyAll())
-
-        // note(cors): must stay enabled so that rejected requests (401/403) also carry
-        // Access-Control-Allow-Origin, picked up from CorsConfigurer via
-        // HandlerMappingIntrospector.
-        // Otherwise browsers report a misleading "blocked by CORS policy" error instead of the
-        // real auth failure.
         .cors(Customizer.withDefaults())
         // disable superfluous protections
         // Eg if all clients are non-browser then no csrf
