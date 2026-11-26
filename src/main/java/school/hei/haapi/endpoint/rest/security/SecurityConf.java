@@ -23,6 +23,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authentication.dao.AbstractUserDetailsAuthenticationProvider;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -1336,11 +1337,16 @@ public class SecurityConf {
                     .requestMatchers("/**")
                     .denyAll())
 
+        // note(cors): must stay enabled so that rejected requests (401/403) also carry
+        // Access-Control-Allow-Origin, picked up from CorsConfigurer via
+        // HandlerMappingIntrospector.
+        // Otherwise browsers report a misleading "blocked by CORS policy" error instead of the
+        // real auth failure.
+        .cors(Customizer.withDefaults())
         // disable superfluous protections
         // Eg if all clients are non-browser then no csrf
         // https://docs.spring.io/spring-security/site/docs/3.2.0.CI-SNAPSHOT/reference/html/csrf.html,
         // Sec 13.3
-        .cors(AbstractHttpConfigurer::disable)
         .csrf(AbstractHttpConfigurer::disable)
         .formLogin(AbstractHttpConfigurer::disable)
         .logout(AbstractHttpConfigurer::disable);
