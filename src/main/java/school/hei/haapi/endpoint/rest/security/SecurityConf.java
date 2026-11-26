@@ -57,9 +57,11 @@ public class SecurityConf {
   private static final String SMS_CAMPAIGNS_BY_FILE_PATH = "/sms-campaigns/by-file";
   private static final String COMPLAINTS_PATH = "/complaints";
   private static final String COMPLAINTS_BY_ID_PATH = "/complaints/*";
+  private static final String COMPLAINTS_STATUS_PATH = "/complaints/*/status";
   private static final String COMPLAINTS_HISTORY_PATH = "/complaints/*/history";
   private static final String STUDENTS_COMPLAINTS_PATH = "/students/*/complaints";
   private static final String COMPLAINT_ROUTINGS_PATH = "/complaint-routings";
+  private static final String COMPLAINTS_STRING_BEFORE_ID = "complaints";
   static final RequestMatcher PUBLIC_BADGE = new AntPathRequestMatcher("/badges/*", GET.name());
   private final CourseAssignmentService courseAssignmentService;
   private final MonitoringStudentService monitoringStudentService;
@@ -182,7 +184,7 @@ public class SecurityConf {
                     antMatcher(POST, COMPLAINTS_PATH),
                     antMatcher(GET, COMPLAINTS_BY_ID_PATH),
                     antMatcher(PUT, "/complaints/*/assignees"),
-                    antMatcher(PUT, "/complaints/*/status"),
+                    antMatcher(PUT, COMPLAINTS_STATUS_PATH),
                     antMatcher(GET, COMPLAINTS_HISTORY_PATH),
                     antMatcher(GET, STUDENTS_COMPLAINTS_PATH),
                     antMatcher(GET, COMPLAINT_ROUTINGS_PATH),
@@ -1213,11 +1215,17 @@ public class SecurityConf {
                         TEACHER.getRole())
                     .requestMatchers(
                         new StudentComplaintMatcher(
-                            GET, COMPLAINTS_BY_ID_PATH, "complaints", complaintRepository))
+                            GET,
+                            COMPLAINTS_BY_ID_PATH,
+                            COMPLAINTS_STRING_BEFORE_ID,
+                            complaintRepository))
                     .hasAnyRole(STUDENT.getRole())
                     .requestMatchers(
                         new AssigneeComplaintMatcher(
-                            GET, COMPLAINTS_BY_ID_PATH, "complaints", complaintAssigneeRepository))
+                            GET,
+                            COMPLAINTS_BY_ID_PATH,
+                            COMPLAINTS_STRING_BEFORE_ID,
+                            complaintAssigneeRepository))
                     .hasAnyRole(TEACHER.getRole())
                     .requestMatchers(GET, COMPLAINTS_BY_ID_PATH)
                     .hasAnyRole(ADMIN.getRole(), MANAGER.getRole(), STAFF_MEMBER.getRole())
@@ -1225,19 +1233,25 @@ public class SecurityConf {
                     .hasAnyRole(ADMIN.getRole(), MANAGER.getRole())
                     .requestMatchers(
                         new AssigneeComplaintMatcher(
-                            PUT, "/complaints/*/status", "complaints", complaintAssigneeRepository))
+                            PUT,
+                            COMPLAINTS_STATUS_PATH,
+                            COMPLAINTS_STRING_BEFORE_ID,
+                            complaintAssigneeRepository))
                     .hasAnyRole(TEACHER.getRole())
-                    .requestMatchers(PUT, "/complaints/*/status")
+                    .requestMatchers(PUT, COMPLAINTS_STATUS_PATH)
                     .hasAnyRole(ADMIN.getRole(), MANAGER.getRole(), STAFF_MEMBER.getRole())
                     .requestMatchers(
                         new StudentComplaintMatcher(
-                            GET, COMPLAINTS_HISTORY_PATH, "complaints", complaintRepository))
+                            GET,
+                            COMPLAINTS_HISTORY_PATH,
+                            COMPLAINTS_STRING_BEFORE_ID,
+                            complaintRepository))
                     .hasAnyRole(STUDENT.getRole())
                     .requestMatchers(
                         new AssigneeComplaintMatcher(
                             GET,
                             COMPLAINTS_HISTORY_PATH,
-                            "complaints",
+                            COMPLAINTS_STRING_BEFORE_ID,
                             complaintAssigneeRepository))
                     .hasAnyRole(TEACHER.getRole())
                     .requestMatchers(GET, COMPLAINTS_HISTORY_PATH)
