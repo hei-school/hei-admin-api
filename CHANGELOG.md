@@ -1,3 +1,13 @@
+## [1.187.2](https://github.com/hei-school/hei-admin-api/compare/v1.187.1...v1.187.2) (2026-11-27)
+
+
+### Bug Fixes
+
+* compute yearly results for every level once a promotion's cycle is over ([47e080b](https://github.com/hei-school/hei-admin-api/commit/47e080bcc52ddaa504bef4d26b2bb7ba28c2ec39))
+* ignore student with yearly result null ([1593685](https://github.com/hei-school/hei-admin-api/commit/1593685315fc403669b47a1665a1b53f7463f9a9))
+
+
+
 ## [1.187.1](https://github.com/hei-school/hei-admin-api/compare/v1.187.0...v1.187.1) (2026-11-18)
 
 
@@ -125,20 +135,6 @@
 ### Features
 
 * create group contact automatically while creating a student group ([82c34dd](https://github.com/hei-school/hei-admin-api/commit/82c34dd4f23dda38d34432f3adfe0afaaecfea9d))
-
-
-
-# [1.176.0](https://github.com/hei-school/hei-admin-api/compare/v1.175.0...v1.176.0) (2026-09-25)
-
-
-### Bug Fixes
-
-* remove unused status and send sms by file ([d33ab00](https://github.com/hei-school/hei-admin-api/commit/d33ab0008a4458ac9ae419ef8447d335dab54ba1))
-
-
-### Features
-
-* documenso folders ([1cb2d07](https://github.com/hei-school/hei-admin-api/commit/1cb2d07f46f062e6c98c787b9c029460ff321450))
 
 
 
