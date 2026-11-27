@@ -42,7 +42,6 @@ public class TestMocks {
     when(fileService.getPresignedUrl(user.getRef(), 180L)).thenReturn(user.getRef());
   }
 
-  /** Stubs presigning for any key, for flows (like complaint attachments) not keyed by user ref. */
   public static void setUpS3Service(FileService fileService) {
     when(fileService.getPresignedUrl(any(), any())).thenReturn("https://bucket.example.com/signed");
   }

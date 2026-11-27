@@ -62,6 +62,10 @@ public class Complaint {
   @JoinColumn(name = "student_id", updatable = false)
   private User student;
 
+  @ManyToOne
+  @JoinColumn(name = "created_by_id", updatable = false)
+  private User createdBy;
+
   @EqualsAndHashCode.Exclude @CreationTimestamp private Instant createdAt;
 
   @EqualsAndHashCode.Exclude private Instant reminderSentAt;

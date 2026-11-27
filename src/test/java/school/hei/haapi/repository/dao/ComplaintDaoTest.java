@@ -50,9 +50,11 @@ class ComplaintDaoTest extends FacadeITMockedThirdParties {
     complaintRoutingService.create(ComplaintType.ACADEMIC, manager);
     complaintRoutingService.create(ComplaintType.FINANCIAL, manager);
     var academic =
-        complaintService.create(ComplaintType.ACADEMIC, "Titre academique", "Description", student);
+        complaintService.create(
+            ComplaintType.ACADEMIC, "Titre academique", "Description", null, student);
     var financial =
-        complaintService.create(ComplaintType.FINANCIAL, "Titre financier", "Description", student);
+        complaintService.create(
+            ComplaintType.FINANCIAL, "Titre financier", "Description", null, student);
 
     var found =
         subject.findByCriteria(
@@ -68,9 +70,10 @@ class ComplaintDaoTest extends FacadeITMockedThirdParties {
     var student = userRepository.save(someStudent("dao-student-2"));
     var manager = userRepository.save(someUser("dao-manager-2", MANAGER));
     complaintRoutingService.create(ComplaintType.ACADEMIC, manager);
-    var created = complaintService.create(ComplaintType.ACADEMIC, "Titre", "Description", student);
+    var created =
+        complaintService.create(ComplaintType.ACADEMIC, "Titre", "Description", null, student);
     var inProgress =
-        complaintService.create(ComplaintType.ACADEMIC, "Titre 2", "Description", student);
+        complaintService.create(ComplaintType.ACADEMIC, "Titre 2", "Description", null, student);
     complaintService.changeStatus(inProgress.getId(), IN_PROGRESS, null, manager);
 
     var found =
@@ -89,7 +92,7 @@ class ComplaintDaoTest extends FacadeITMockedThirdParties {
     var staff = userRepository.save(someUser("dao-staff-3", STAFF_MEMBER));
     complaintRoutingService.create(ComplaintType.ACADEMIC, manager);
     var complaint =
-        complaintService.create(ComplaintType.ACADEMIC, "Titre", "Description", student);
+        complaintService.create(ComplaintType.ACADEMIC, "Titre", "Description", null, student);
     complaintService.addAssignees(complaint.getId(), List.of(staff.getId()), manager);
 
     var foundByManager =
@@ -109,7 +112,7 @@ class ComplaintDaoTest extends FacadeITMockedThirdParties {
     var staff = userRepository.save(someUser("dao-staff-4", STAFF_MEMBER));
     complaintRoutingService.create(ComplaintType.ACADEMIC, manager);
     var complaint =
-        complaintService.create(ComplaintType.ACADEMIC, "Titre", "Description", student);
+        complaintService.create(ComplaintType.ACADEMIC, "Titre", "Description", null, student);
     complaintService.addAssignees(complaint.getId(), List.of(staff.getId()), manager);
 
     var foundByStaffAsAssignee =
@@ -125,9 +128,11 @@ class ComplaintDaoTest extends FacadeITMockedThirdParties {
     var manager = userRepository.save(someUser("dao-manager-5", MANAGER));
     complaintRoutingService.create(ComplaintType.ACADEMIC, manager);
     var recent =
-        complaintService.create(ComplaintType.ACADEMIC, "Titre récent", "Description", student);
+        complaintService.create(
+            ComplaintType.ACADEMIC, "Titre récent", "Description", null, student);
     var old =
-        complaintService.create(ComplaintType.ACADEMIC, "Titre ancien", "Description", student);
+        complaintService.create(
+            ComplaintType.ACADEMIC, "Titre ancien", "Description", null, student);
     backdateCreatedAt(old.getId(), Instant.now().minus(30, ChronoUnit.DAYS));
 
     var found =
@@ -150,8 +155,8 @@ class ComplaintDaoTest extends FacadeITMockedThirdParties {
     var student = userRepository.save(someStudent("dao-student-6"));
     var manager = userRepository.save(someUser("dao-manager-6", MANAGER));
     complaintRoutingService.create(ComplaintType.ACADEMIC, manager);
-    complaintService.create(ComplaintType.ACADEMIC, "Titre 1", "Description", student);
-    complaintService.create(ComplaintType.ACADEMIC, "Titre 2", "Description", student);
+    complaintService.create(ComplaintType.ACADEMIC, "Titre 1", "Description", null, student);
+    complaintService.create(ComplaintType.ACADEMIC, "Titre 2", "Description", null, student);
 
     var firstPage =
         subject.findByCriteria(null, null, null, null, null, null, PageRequest.of(0, 1));

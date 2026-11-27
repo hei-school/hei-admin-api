@@ -48,7 +48,7 @@ class ComplaintEmailNotificationRequestedServiceTest extends FacadeITMockedThird
     var manager = userRepository.save(someUser("email-manager-1", MANAGER));
     complaintRoutingService.create(ComplaintType.ACADEMIC, manager);
     var complaint =
-        complaintService.create(ComplaintType.ACADEMIC, "Titre", "Description", student);
+        complaintService.create(ComplaintType.ACADEMIC, "Titre", "Description", null, student);
 
     subject.accept(
         ComplaintEmailNotificationRequested.builder()
@@ -69,7 +69,7 @@ class ComplaintEmailNotificationRequestedServiceTest extends FacadeITMockedThird
     var otherManager = userRepository.save(someUser("email-manager-3", MANAGER));
     complaintRoutingService.create(ComplaintType.FINANCIAL, manager);
     var complaint =
-        complaintService.create(ComplaintType.FINANCIAL, "Titre", "Description", student);
+        complaintService.create(ComplaintType.FINANCIAL, "Titre", "Description", null, student);
     complaintService.addAssignees(complaint.getId(), List.of(otherManager.getId()), manager);
 
     subject.accept(
@@ -91,7 +91,7 @@ class ComplaintEmailNotificationRequestedServiceTest extends FacadeITMockedThird
     var manager = userRepository.save(someUser("email-manager-4", MANAGER));
     complaintRoutingService.create(ComplaintType.ACADEMIC, manager);
     var complaint =
-        complaintService.create(ComplaintType.ACADEMIC, "Titre", "Description", student);
+        complaintService.create(ComplaintType.ACADEMIC, "Titre", "Description", null, student);
     complaintService.changeStatus(complaint.getId(), REJECTED, "Non recevable", manager);
 
     subject.accept(
@@ -112,7 +112,7 @@ class ComplaintEmailNotificationRequestedServiceTest extends FacadeITMockedThird
     var manager = userRepository.save(someUser("email-manager-5", MANAGER));
     complaintRoutingService.create(ComplaintType.ACADEMIC, manager);
     var complaint =
-        complaintService.create(ComplaintType.ACADEMIC, "Titre", "Description", student);
+        complaintService.create(ComplaintType.ACADEMIC, "Titre", "Description", null, student);
     complaintService.changeStatus(complaint.getId(), IN_PROGRESS, null, manager);
     complaintService.changeStatus(complaint.getId(), RESOLVED, null, manager);
 
@@ -134,7 +134,7 @@ class ComplaintEmailNotificationRequestedServiceTest extends FacadeITMockedThird
     var manager = userRepository.save(someUser("email-manager-6", MANAGER));
     complaintRoutingService.create(ComplaintType.ACADEMIC, manager);
     var complaint =
-        complaintService.create(ComplaintType.ACADEMIC, "Titre", "Description", student);
+        complaintService.create(ComplaintType.ACADEMIC, "Titre", "Description", null, student);
     var event =
         ComplaintEmailNotificationRequested.builder()
             .complaintId(complaint.getId())

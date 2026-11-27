@@ -99,10 +99,6 @@ public class TestFiles {
     return client.send(request, HttpResponse.BodyHandlers.ofInputStream());
   }
 
-  /**
-   * Posts a real fixture file (so Apache Tika sniffs a genuine content type) as a complaint
-   * attachment, exactly as a browser would send a multipart/form-data upload.
-   */
   public static HttpResponse<InputStream> uploadComplaintAttachment(
       Integer serverPort,
       String token,

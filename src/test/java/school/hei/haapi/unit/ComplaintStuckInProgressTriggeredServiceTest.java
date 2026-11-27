@@ -53,7 +53,7 @@ class ComplaintStuckInProgressTriggeredServiceTest extends FacadeITMockedThirdPa
     var manager = userRepository.save(someUser("stuck-manager", MANAGER));
     complaintRoutingService.create(ComplaintType.ACADEMIC, manager);
     var complaint =
-        complaintService.create(ComplaintType.ACADEMIC, "Titre", "Description", student);
+        complaintService.create(ComplaintType.ACADEMIC, "Titre", "Description", null, student);
     complaintService.changeStatus(complaint.getId(), IN_PROGRESS, null, manager);
     backdateLastInProgressHistoryEntry(complaint.getId(), Instant.now().minus(4, ChronoUnit.DAYS));
 
@@ -71,7 +71,7 @@ class ComplaintStuckInProgressTriggeredServiceTest extends FacadeITMockedThirdPa
     var manager = userRepository.save(someUser("fresh-manager", MANAGER));
     complaintRoutingService.create(ComplaintType.FINANCIAL, manager);
     var complaint =
-        complaintService.create(ComplaintType.FINANCIAL, "Titre", "Description", student);
+        complaintService.create(ComplaintType.FINANCIAL, "Titre", "Description", null, student);
     complaintService.changeStatus(complaint.getId(), IN_PROGRESS, null, manager);
 
     subject.accept(new ComplaintStuckInProgressTriggered());

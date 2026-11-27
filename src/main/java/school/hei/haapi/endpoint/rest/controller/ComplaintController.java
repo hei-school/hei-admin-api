@@ -82,13 +82,14 @@ public class ComplaintController {
   @PostMapping("/complaints")
   public Complaint createComplaint(@RequestBody CrupdateComplaint dto) {
     validator.validateCreate(dto);
-    var student = AuthProvider.getPrincipal().getUser();
+    var actor = AuthProvider.getPrincipal().getUser();
     return complaintMapper.toRest(
         complaintService.create(
             complaintMapper.toDomainType(dto.getType()),
             dto.getTitle(),
             dto.getDescription(),
-            student));
+            dto.getStudentId(),
+            actor));
   }
 
   @GetMapping("/complaints/{complaint_id}")

@@ -47,9 +47,9 @@ class ComplaintStatusHistoryDaoTest extends FacadeITMockedThirdParties {
     var manager = userRepository.save(someUser("history-manager-1", MANAGER));
     complaintRoutingService.create(ComplaintType.ACADEMIC, manager);
     var complaintA =
-        complaintService.create(ComplaintType.ACADEMIC, "Titre A", "Description", student);
+        complaintService.create(ComplaintType.ACADEMIC, "Titre A", "Description", null, student);
     var complaintB =
-        complaintService.create(ComplaintType.ACADEMIC, "Titre B", "Description", student);
+        complaintService.create(ComplaintType.ACADEMIC, "Titre B", "Description", null, student);
 
     var found = subject.findByCriteria(complaintA.getId(), null, null, Pageable.unpaged());
 
@@ -64,7 +64,7 @@ class ComplaintStatusHistoryDaoTest extends FacadeITMockedThirdParties {
     var manager = userRepository.save(someUser("history-manager-2", MANAGER));
     complaintRoutingService.create(ComplaintType.ACADEMIC, manager);
     var complaint =
-        complaintService.create(ComplaintType.ACADEMIC, "Titre", "Description", student);
+        complaintService.create(ComplaintType.ACADEMIC, "Titre", "Description", null, student);
     backdateCreatedHistoryEntry(complaint.getId(), Instant.now().minus(30, ChronoUnit.DAYS));
     complaintService.changeStatus(complaint.getId(), IN_PROGRESS, null, manager);
 
@@ -86,7 +86,7 @@ class ComplaintStatusHistoryDaoTest extends FacadeITMockedThirdParties {
     var manager = userRepository.save(someUser("history-manager-3", MANAGER));
     complaintRoutingService.create(ComplaintType.ACADEMIC, manager);
     var complaint =
-        complaintService.create(ComplaintType.ACADEMIC, "Titre", "Description", student);
+        complaintService.create(ComplaintType.ACADEMIC, "Titre", "Description", null, student);
     complaintService.changeStatus(complaint.getId(), IN_PROGRESS, null, manager);
     complaintService.changeStatus(complaint.getId(), RESOLVED, null, manager);
 

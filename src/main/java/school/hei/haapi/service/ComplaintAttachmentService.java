@@ -23,8 +23,6 @@ import school.hei.haapi.service.aws.FileService;
 @Service
 @AllArgsConstructor
 public class ComplaintAttachmentService {
-  // the only types a "supporting image or PDF" claim is accepted for, checked against the file's
-  // sniffed content below, never against its declared name or content-type header
   private static final Set<String> ALLOWED_CONTENT_TYPES =
       Set.of("image/jpeg", "image/png", "image/webp", "application/pdf");
 
@@ -47,8 +45,6 @@ public class ComplaintAttachmentService {
     Complaint complaint = getComplaint(complaintId);
 
     File file = multipartFileConverter.apply(fileToUpload);
-    // sniffed from the actual bytes (Apache Tika), not trusted from the client-declared filename
-    // or content-type header: this is what catches a renamed executable or script
     MediaType detectedType = fileTyper.apply(file);
     String contentType = detectedType.getType() + "/" + detectedType.getSubtype();
     if (!ALLOWED_CONTENT_TYPES.contains(contentType)) {
@@ -57,8 +53,6 @@ public class ComplaintAttachmentService {
               .formatted(contentType));
     }
 
-    // the storage key is never built from the user-supplied file name, so it cannot be abused for
-    // path traversal; the display name is only ever kept in the file_name column
     String storageKey =
         "COMPLAINT/%s/%s%s".formatted(complaintId, UUID.randomUUID(), extensionFor(contentType));
     fileService.uploadObjectToS3Bucket(storageKey, file);

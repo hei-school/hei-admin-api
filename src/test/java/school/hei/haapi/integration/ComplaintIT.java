@@ -2,6 +2,7 @@ package school.hei.haapi.integration;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.Mockito.times;
@@ -16,7 +17,9 @@ import static school.hei.haapi.integration.conf.TestFiles.uploadComplaintAttachm
 import static school.hei.haapi.integration.conf.TestMocks.setUpS3Service;
 import static school.hei.haapi.model.User.Role.ADMIN;
 import static school.hei.haapi.model.User.Role.MANAGER;
+import static school.hei.haapi.model.User.Role.MONITOR;
 import static school.hei.haapi.model.User.Role.TEACHER;
+import static school.hei.haapi.model.dto.MonitorStudentLinkDto.Status.LINKED;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
@@ -43,11 +46,13 @@ import school.hei.haapi.integration.conf.FacadeITMockedThirdParties;
 import school.hei.haapi.integration.conf.TestFiles;
 import school.hei.haapi.integration.conf.TestUtils;
 import school.hei.haapi.model.User;
+import school.hei.haapi.repository.MonitoringStudentRepository;
 import school.hei.haapi.repository.UserRepository;
 import school.hei.haapi.service.ComplaintRoutingService;
 
 class ComplaintIT extends FacadeITMockedThirdParties {
   @Autowired private UserRepository userRepository;
+  @Autowired private MonitoringStudentRepository monitoringStudentRepository;
   @Autowired private ComplaintRoutingService complaintRoutingService;
   @Autowired private ObjectMapper objectMapper;
   @MockBean private EventProducer<ComplaintEmailNotificationRequested> emailEventProducerMock;
@@ -58,11 +63,15 @@ class ComplaintIT extends FacadeITMockedThirdParties {
   private User manager;
   private User admin;
   private User teacher;
+  private User monitorOfAxel;
+  private User unlinkedMonitor;
   private String axelToken;
   private String tolotraToken;
   private String managerToken;
   private String adminToken;
   private String teacherToken;
+  private String monitorOfAxelToken;
+  private String unlinkedMonitorToken;
 
   @BeforeEach
   void setUp() {
@@ -71,6 +80,10 @@ class ComplaintIT extends FacadeITMockedThirdParties {
     manager = userRepository.save(someUser("manager", MANAGER));
     admin = userRepository.save(someUser("admin", ADMIN));
     teacher = userRepository.save(someUser("teacher", TEACHER));
+    monitorOfAxel = userRepository.save(someUser("monitor-of-axel", MONITOR));
+    unlinkedMonitor = userRepository.save(someUser("unlinked-monitor", MONITOR));
+    monitoringStudentRepository.saveMonitorFollowingStudents(
+        monitorOfAxel.getId(), List.of(axel.getId()), LINKED.toString());
 
     complaintRoutingService.create(school.hei.haapi.model.ComplaintType.ACADEMIC, manager);
 
@@ -79,6 +92,8 @@ class ComplaintIT extends FacadeITMockedThirdParties {
     managerToken = tokenFor(casdoorAuthServiceMock, manager);
     adminToken = tokenFor(casdoorAuthServiceMock, admin);
     teacherToken = tokenFor(casdoorAuthServiceMock, teacher);
+    monitorOfAxelToken = tokenFor(casdoorAuthServiceMock, monitorOfAxel);
+    unlinkedMonitorToken = tokenFor(casdoorAuthServiceMock, unlinkedMonitor);
 
     setUpS3Service(fileService);
   }
@@ -98,6 +113,7 @@ class ComplaintIT extends FacadeITMockedThirdParties {
     assertEquals(ComplaintType.ACADEMIC, created.getType());
     assertEquals(ComplaintStatus.CREATED, created.getStatus());
     assertEquals(axel.getId(), created.getStudent().getId());
+    assertEquals(axel.getId(), created.getCreatedBy().getId());
     assertEquals(1, created.getAssignees().size());
     assertEquals(manager.getId(), created.getAssignees().getFirst().getId());
 
@@ -698,8 +714,6 @@ class ComplaintIT extends FacadeITMockedThirdParties {
                 .title("Titre")
                 .description("Description"));
 
-    // the file is really an xlsx but is passed off as a png: the server must detect the real
-    // content and reject it, not trust the declared name or content-type
     var response =
         uploadComplaintAttachment(
             localPort,
@@ -724,7 +738,7 @@ class ComplaintIT extends FacadeITMockedThirdParties {
                 .description("Description"));
 
     var tolotraApi = new ComplaintApi(anApiClient(tolotraToken));
-    var imgFile = TestFiles.getMockedFile("img", ".png");
+    var imgFile = TestFiles.getMockedFile("test", ".pdf");
     assertThrowsForbiddenException(
         () -> tolotraApi.uploadComplaintAttachment(complaint.getId(), "intrusion", imgFile));
     assertThrowsForbiddenException(() -> tolotraApi.getComplaintAttachments(complaint.getId()));
@@ -766,9 +780,95 @@ class ComplaintIT extends FacadeITMockedThirdParties {
                 .description("Description"));
 
     var teacherApi = new ComplaintApi(anApiClient(teacherToken));
-    var imgFile = TestFiles.getMockedFile("img", ".png");
+    var imgFile = TestFiles.getMockedFile("test", ".pdf");
     assertThrowsForbiddenException(
         () -> teacherApi.uploadComplaintAttachment(complaint.getId(), "intrusion", imgFile));
+  }
+
+  @Test
+  void monitor_create_complaint_for_linked_student_ok() throws ApiException {
+    var monitorApi = new ComplaintApi(anApiClient(monitorOfAxelToken));
+    var dto =
+        new CrupdateComplaint()
+            .type(ComplaintType.ACADEMIC)
+            .title("Facture erronée")
+            .description("Le montant facturé ne correspond pas à l'échéancier.")
+            .studentId(axel.getId());
+
+    var created = monitorApi.createComplaint(dto);
+
+    assertEquals(axel.getId(), created.getStudent().getId());
+    assertEquals(monitorOfAxel.getId(), created.getCreatedBy().getId());
+  }
+
+  @Test
+  void monitor_create_complaint_without_student_id_ko() {
+    var monitorApi = new ComplaintApi(anApiClient(monitorOfAxelToken));
+    var dto =
+        new CrupdateComplaint()
+            .type(ComplaintType.FINANCIAL)
+            .title("Titre")
+            .description("Description");
+
+    assertBadRequestException(
+        "student_id is mandatory when a monitor creates a complaint",
+        () -> monitorApi.createComplaint(dto));
+  }
+
+  @Test
+  void monitor_cannot_create_complaint_for_unlinked_student_ko() {
+    var monitorApi = new ComplaintApi(anApiClient(unlinkedMonitorToken));
+    var dto =
+        new CrupdateComplaint()
+            .type(ComplaintType.FINANCIAL)
+            .title("Titre")
+            .description("Description")
+            .studentId(axel.getId());
+
+    var exception = assertThrows(ApiException.class, () -> monitorApi.createComplaint(dto));
+    assertEquals(HttpStatus.FORBIDDEN.value(), exception.getCode());
+  }
+
+  @Test
+  void monitor_of_linked_student_can_read_complaint_fully_ok() throws ApiException {
+    var studentApi = new ComplaintApi(anApiClient(axelToken));
+    var complaint =
+        studentApi.createComplaint(
+            new CrupdateComplaint()
+                .type(ComplaintType.ACADEMIC)
+                .title("Titre")
+                .description("Description"));
+
+    var monitorApi = new ComplaintApi(anApiClient(monitorOfAxelToken));
+    var fetched = monitorApi.getComplaintById(complaint.getId());
+    assertEquals(complaint.getId(), fetched.getId());
+
+    var history = monitorApi.getComplaintStatusHistory(complaint.getId(), null, null, null, null);
+    assertEquals(1, history.size());
+
+    var attachments = monitorApi.getComplaintAttachments(complaint.getId());
+    assertEquals(0, attachments.size());
+
+    var ownComplaints = monitorApi.getStudentComplaints(axel.getId(), null, null);
+    assertTrue(ownComplaints.stream().anyMatch(c -> c.getId().equals(complaint.getId())));
+  }
+
+  @Test
+  void unlinked_monitor_cannot_read_complaint_ko() throws ApiException {
+    var studentApi = new ComplaintApi(anApiClient(axelToken));
+    var complaint =
+        studentApi.createComplaint(
+            new CrupdateComplaint()
+                .type(ComplaintType.ACADEMIC)
+                .title("Titre")
+                .description("Description"));
+
+    var monitorApi = new ComplaintApi(anApiClient(unlinkedMonitorToken));
+    assertThrowsForbiddenException(() -> monitorApi.getComplaintById(complaint.getId()));
+    assertThrowsForbiddenException(
+        () -> monitorApi.getComplaintStatusHistory(complaint.getId(), null, null, null, null));
+    assertThrowsForbiddenException(() -> monitorApi.getComplaintAttachments(complaint.getId()));
+    assertThrowsForbiddenException(() -> monitorApi.getStudentComplaints(axel.getId(), null, null));
   }
 
   private ApiClient anApiClient(String token) {

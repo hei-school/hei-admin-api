@@ -37,7 +37,11 @@ operations:
       tags:
         - Complaint
       operationId: createComplaint
-      summary: Create a complaint as the current student
+      summary: Create a complaint, as the current student or on behalf of a linked student
+      description: >-
+        A student always creates the complaint for themselves. A monitor must
+        pass student_id, and may only use a student they are linked to
+        (status LINKED); otherwise the request is rejected.
       requestBody:
         required: true
         content:
