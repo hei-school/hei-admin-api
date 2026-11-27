@@ -99,6 +99,60 @@ public class TestFiles {
     return client.send(request, HttpResponse.BodyHandlers.ofInputStream());
   }
 
+  /**
+   * Posts a real fixture file (so Apache Tika sniffs a genuine content type) as a complaint
+   * attachment, exactly as a browser would send a multipart/form-data upload.
+   */
+  public static HttpResponse<InputStream> uploadComplaintAttachment(
+      Integer serverPort,
+      String token,
+      String complaintId,
+      String filename,
+      String fixtureName,
+      String fixtureExtension,
+      String declaredContentType)
+      throws IOException, InterruptedException {
+    var client = HttpClient.newHttpClient();
+
+    var basePath = "http://localhost:" + serverPort;
+
+    var boundary = "---------------------------" + System.currentTimeMillis();
+    var contentTypeHeader = "multipart/form-data; boundary=" + boundary;
+
+    var file = getMockedFile(fixtureName, fixtureExtension);
+
+    var requestBodyPrefix =
+        "--"
+            + boundary
+            + CRLF
+            + "Content-Disposition: form-data; name=\"file_to_upload\"; filename=\""
+            + file.getName()
+            + "\""
+            + CRLF
+            + "Content-Type: "
+            + declaredContentType
+            + CRLF
+            + CRLF;
+    byte[] fileBytes = Files.readAllBytes(Paths.get(file.getPath()));
+    var requestBodySuffix = CRLF + "--" + boundary + "--" + CRLF;
+
+    byte[] requestBody =
+        Bytes.concat(requestBodyPrefix.getBytes(), fileBytes, requestBodySuffix.getBytes());
+    var uriComponentsBuilder =
+        UriComponentsBuilder.fromUri(
+                URI.create(basePath + String.format("/complaints/%s/attachments/raw", complaintId)))
+            .queryParam("filename", filename);
+    var request =
+        HttpRequest.newBuilder()
+            .uri(uriComponentsBuilder.build().toUri())
+            .header("Content-Type", contentTypeHeader)
+            .header("Authorization", "Bearer " + token)
+            .POST(HttpRequest.BodyPublishers.ofByteArray(requestBody))
+            .build();
+
+    return client.send(request, HttpResponse.BodyHandlers.ofInputStream());
+  }
+
   public static HttpResponse<InputStream> uploadLetter(
       Integer serverPort,
       String token,

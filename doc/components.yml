@@ -2304,6 +2304,26 @@ components:
         datetime:
           type: string
           format: date-time
+    ComplaintAttachment:
+      type: object
+      properties:
+        id:
+          type: string
+        file_name:
+          type: string
+        content_type:
+          type: string
+          description: >-
+            The actual, server-detected content type of the file (sniffed
+            from its bytes), not the type the client claimed
+        file_url:
+          type: string
+          description: Presigned, time-limited URL to download the file
+        uploaded_by:
+          $ref: '#/components/schemas/UserIdentifier'
+        created_at:
+          type: string
+          format: date-time
     CrupdateComplaintRouting:
       type: object
       properties:

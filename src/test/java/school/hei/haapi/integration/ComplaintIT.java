@@ -12,21 +12,27 @@ import static school.hei.haapi.integration.conf.ApiAssertions.assertThrowsForbid
 import static school.hei.haapi.integration.conf.FakeDataProvider.someStudent;
 import static school.hei.haapi.integration.conf.FakeDataProvider.someUser;
 import static school.hei.haapi.integration.conf.TestAuth.tokenFor;
+import static school.hei.haapi.integration.conf.TestFiles.uploadComplaintAttachment;
+import static school.hei.haapi.integration.conf.TestMocks.setUpS3Service;
 import static school.hei.haapi.model.User.Role.ADMIN;
 import static school.hei.haapi.model.User.Role.MANAGER;
 import static school.hei.haapi.model.User.Role.TEACHER;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import java.io.IOException;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.HttpStatus;
 import school.hei.haapi.endpoint.event.EventProducer;
 import school.hei.haapi.endpoint.event.model.ComplaintEmailNotificationRequested;
 import school.hei.haapi.endpoint.event.model.ComplaintSmsNotificationRequested;
 import school.hei.haapi.endpoint.rest.api.ComplaintApi;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
+import school.hei.haapi.endpoint.rest.model.ComplaintAttachment;
 import school.hei.haapi.endpoint.rest.model.ComplaintStatus;
 import school.hei.haapi.endpoint.rest.model.ComplaintType;
 import school.hei.haapi.endpoint.rest.model.CrupdateComplaint;
@@ -34,6 +40,7 @@ import school.hei.haapi.endpoint.rest.model.CrupdateComplaintRouting;
 import school.hei.haapi.endpoint.rest.model.UpdateComplaintAssignees;
 import school.hei.haapi.endpoint.rest.model.UpdateComplaintStatus;
 import school.hei.haapi.integration.conf.FacadeITMockedThirdParties;
+import school.hei.haapi.integration.conf.TestFiles;
 import school.hei.haapi.integration.conf.TestUtils;
 import school.hei.haapi.model.User;
 import school.hei.haapi.repository.UserRepository;
@@ -42,6 +49,7 @@ import school.hei.haapi.service.ComplaintRoutingService;
 class ComplaintIT extends FacadeITMockedThirdParties {
   @Autowired private UserRepository userRepository;
   @Autowired private ComplaintRoutingService complaintRoutingService;
+  @Autowired private ObjectMapper objectMapper;
   @MockBean private EventProducer<ComplaintEmailNotificationRequested> emailEventProducerMock;
   @MockBean private EventProducer<ComplaintSmsNotificationRequested> smsEventProducerMock;
 
@@ -71,6 +79,8 @@ class ComplaintIT extends FacadeITMockedThirdParties {
     managerToken = tokenFor(casdoorAuthServiceMock, manager);
     adminToken = tokenFor(casdoorAuthServiceMock, admin);
     teacherToken = tokenFor(casdoorAuthServiceMock, teacher);
+
+    setUpS3Service(fileService);
   }
 
   @Test
@@ -623,6 +633,142 @@ class ComplaintIT extends FacadeITMockedThirdParties {
     var tolotraApi = new ComplaintApi(anApiClient(tolotraToken));
     assertThrowsForbiddenException(
         () -> tolotraApi.getComplaintStatusHistory(complaint.getId(), null, null, null, null));
+  }
+
+  @Test
+  void student_upload_image_attachment_ok() throws ApiException, IOException, InterruptedException {
+    var studentApi = new ComplaintApi(anApiClient(axelToken));
+    var complaint =
+        studentApi.createComplaint(
+            new CrupdateComplaint()
+                .type(ComplaintType.ACADEMIC)
+                .title("Titre")
+                .description("Description"));
+
+    var response =
+        uploadComplaintAttachment(
+            localPort, axelToken, complaint.getId(), "capture-decran", "img", ".png", "image/png");
+    var attachment = objectMapper.readValue(response.body(), ComplaintAttachment.class);
+
+    assertEquals(HttpStatus.OK.value(), response.statusCode());
+    assertNotNull(attachment.getId());
+    assertEquals("capture-decran", attachment.getFileName());
+    assertEquals("image/png", attachment.getContentType());
+    assertNotNull(attachment.getFileUrl());
+    assertEquals(axel.getId(), attachment.getUploadedBy().getId());
+
+    var attachments = studentApi.getComplaintAttachments(complaint.getId());
+    assertEquals(1, attachments.size());
+    assertEquals(attachment.getId(), attachments.getFirst().getId());
+  }
+
+  @Test
+  void student_upload_pdf_attachment_ok() throws ApiException, IOException, InterruptedException {
+    var studentApi = new ComplaintApi(anApiClient(axelToken));
+    var complaint =
+        studentApi.createComplaint(
+            new CrupdateComplaint()
+                .type(ComplaintType.ACADEMIC)
+                .title("Titre")
+                .description("Description"));
+
+    var response =
+        uploadComplaintAttachment(
+            localPort,
+            axelToken,
+            complaint.getId(),
+            "justificatif",
+            "test",
+            ".pdf",
+            "application/pdf");
+    var attachment = objectMapper.readValue(response.body(), ComplaintAttachment.class);
+
+    assertEquals(HttpStatus.OK.value(), response.statusCode());
+    assertEquals("application/pdf", attachment.getContentType());
+  }
+
+  @Test
+  void upload_attachment_rejects_disallowed_file_type_ko()
+      throws ApiException, IOException, InterruptedException {
+    var studentApi = new ComplaintApi(anApiClient(axelToken));
+    var complaint =
+        studentApi.createComplaint(
+            new CrupdateComplaint()
+                .type(ComplaintType.ACADEMIC)
+                .title("Titre")
+                .description("Description"));
+
+    // the file is really an xlsx but is passed off as a png: the server must detect the real
+    // content and reject it, not trust the declared name or content-type
+    var response =
+        uploadComplaintAttachment(
+            localPort,
+            axelToken,
+            complaint.getId(),
+            "disguised",
+            "dummy-excel",
+            ".xlsx",
+            "image/png");
+
+    assertEquals(HttpStatus.BAD_REQUEST.value(), response.statusCode());
+  }
+
+  @Test
+  void student_cannot_upload_attachment_to_other_student_complaint_ko() throws ApiException {
+    var studentApi = new ComplaintApi(anApiClient(axelToken));
+    var complaint =
+        studentApi.createComplaint(
+            new CrupdateComplaint()
+                .type(ComplaintType.ACADEMIC)
+                .title("Titre")
+                .description("Description"));
+
+    var tolotraApi = new ComplaintApi(anApiClient(tolotraToken));
+    var imgFile = TestFiles.getMockedFile("img", ".png");
+    assertThrowsForbiddenException(
+        () -> tolotraApi.uploadComplaintAttachment(complaint.getId(), "intrusion", imgFile));
+    assertThrowsForbiddenException(() -> tolotraApi.getComplaintAttachments(complaint.getId()));
+  }
+
+  @Test
+  void teacher_assigned_can_upload_and_list_attachments_ok()
+      throws ApiException, IOException, InterruptedException {
+    var studentApi = new ComplaintApi(anApiClient(axelToken));
+    var complaint =
+        studentApi.createComplaint(
+            new CrupdateComplaint()
+                .type(ComplaintType.ACADEMIC)
+                .title("Titre")
+                .description("Description"));
+
+    var managerApi = new ComplaintApi(anApiClient(managerToken));
+    managerApi.addComplaintAssignees(
+        complaint.getId(), new UpdateComplaintAssignees().userIds(List.of(teacher.getId())));
+
+    var response =
+        uploadComplaintAttachment(
+            localPort, teacherToken, complaint.getId(), "reponse", "img", ".png", "image/png");
+    assertEquals(HttpStatus.OK.value(), response.statusCode());
+
+    var teacherApi = new ComplaintApi(anApiClient(teacherToken));
+    var attachments = teacherApi.getComplaintAttachments(complaint.getId());
+    assertEquals(1, attachments.size());
+  }
+
+  @Test
+  void teacher_cannot_upload_attachment_to_unassigned_complaint_ko() throws ApiException {
+    var studentApi = new ComplaintApi(anApiClient(axelToken));
+    var complaint =
+        studentApi.createComplaint(
+            new CrupdateComplaint()
+                .type(ComplaintType.ACADEMIC)
+                .title("Titre")
+                .description("Description"));
+
+    var teacherApi = new ComplaintApi(anApiClient(teacherToken));
+    var imgFile = TestFiles.getMockedFile("img", ".png");
+    assertThrowsForbiddenException(
+        () -> teacherApi.uploadComplaintAttachment(complaint.getId(), "intrusion", imgFile));
   }
 
   private ApiClient anApiClient(String token) {

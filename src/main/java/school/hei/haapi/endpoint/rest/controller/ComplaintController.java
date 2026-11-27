@@ -1,5 +1,7 @@
 package school.hei.haapi.endpoint.rest.controller;
 
+import static org.springframework.http.MediaType.MULTIPART_FORM_DATA_VALUE;
+
 import java.time.Instant;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -9,10 +11,14 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
+import school.hei.haapi.endpoint.rest.mapper.ComplaintAttachmentMapper;
 import school.hei.haapi.endpoint.rest.mapper.ComplaintMapper;
 import school.hei.haapi.endpoint.rest.mapper.ComplaintRoutingMapper;
 import school.hei.haapi.endpoint.rest.model.Complaint;
+import school.hei.haapi.endpoint.rest.model.ComplaintAttachment;
 import school.hei.haapi.endpoint.rest.model.ComplaintRouting;
 import school.hei.haapi.endpoint.rest.model.ComplaintStatus;
 import school.hei.haapi.endpoint.rest.model.ComplaintStatusHistory;
@@ -27,6 +33,7 @@ import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.model.User;
 import school.hei.haapi.model.pagination.PaginationFromPageAndPageSize;
+import school.hei.haapi.service.ComplaintAttachmentService;
 import school.hei.haapi.service.ComplaintRoutingService;
 import school.hei.haapi.service.ComplaintService;
 import school.hei.haapi.service.ComplaintStatusHistoryService;
@@ -38,8 +45,10 @@ public class ComplaintController {
   private final ComplaintService complaintService;
   private final ComplaintRoutingService complaintRoutingService;
   private final ComplaintStatusHistoryService complaintStatusHistoryService;
+  private final ComplaintAttachmentService complaintAttachmentService;
   private final ComplaintMapper complaintMapper;
   private final ComplaintRoutingMapper complaintRoutingMapper;
+  private final ComplaintAttachmentMapper complaintAttachmentMapper;
   private final ComplaintValidator validator;
   private final UserService userService;
   private final PaginationFromPageAndPageSize paginationFromPageAndPageSize;
@@ -154,5 +163,24 @@ public class ComplaintController {
   public ComplaintRouting getLastComplaintRouting(@RequestParam ComplaintType type) {
     return complaintRoutingMapper.toRest(
         complaintRoutingService.getLast(complaintMapper.toDomainType(type)));
+  }
+
+  @GetMapping("/complaints/{complaint_id}/attachments")
+  public List<ComplaintAttachment> getComplaintAttachments(
+      @PathVariable(name = "complaint_id") String complaintId) {
+    return complaintAttachmentMapper.toRest(
+        complaintAttachmentService.getByComplaintId(complaintId));
+  }
+
+  @PostMapping(
+      value = "/complaints/{complaint_id}/attachments/raw",
+      consumes = MULTIPART_FORM_DATA_VALUE)
+  public ComplaintAttachment uploadComplaintAttachment(
+      @PathVariable(name = "complaint_id") String complaintId,
+      @RequestParam(name = "filename") String fileName,
+      @RequestPart(name = "file_to_upload") MultipartFile fileToUpload) {
+    var actor = AuthProvider.getPrincipal().getUser();
+    return complaintAttachmentMapper.toRest(
+        complaintAttachmentService.upload(complaintId, fileName, fileToUpload, actor));
   }
 }
