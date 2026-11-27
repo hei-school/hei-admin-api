@@ -51,7 +51,7 @@ class ComplaintSmsNotificationRequestedServiceTest extends FacadeITMockedThirdPa
     var manager = userRepository.save(someUser("sms-manager-1", MANAGER));
     complaintRoutingService.create(ComplaintType.ACADEMIC, manager);
     var complaint =
-        complaintService.create(ComplaintType.ACADEMIC, "Titre", "Description", student);
+        complaintService.create(ComplaintType.ACADEMIC, "Titre", "Description", null, student);
     complaintService.changeStatus(complaint.getId(), IN_PROGRESS, null, manager);
     entityManager.clear();
 
@@ -75,7 +75,7 @@ class ComplaintSmsNotificationRequestedServiceTest extends FacadeITMockedThirdPa
     var manager = userRepository.save(someUser("sms-manager-2", MANAGER));
     complaintRoutingService.create(ComplaintType.FINANCIAL, manager);
     var complaint =
-        complaintService.create(ComplaintType.FINANCIAL, "Titre", "Description", student);
+        complaintService.create(ComplaintType.FINANCIAL, "Titre", "Description", null, student);
 
     subject.accept(
         ComplaintSmsNotificationRequested.builder()
@@ -97,7 +97,7 @@ class ComplaintSmsNotificationRequestedServiceTest extends FacadeITMockedThirdPa
     var manager = userRepository.save(someUser("sms-manager-3", MANAGER));
     complaintRoutingService.create(ComplaintType.ACADEMIC, manager);
     var complaint =
-        complaintService.create(ComplaintType.ACADEMIC, "Titre", "Description", student);
+        complaintService.create(ComplaintType.ACADEMIC, "Titre", "Description", null, student);
     when(befianaClientMock.sendSingle(any(), any(), any()))
         .thenThrow(new BefianaException("boom", 500, new RuntimeException()));
 
@@ -117,7 +117,7 @@ class ComplaintSmsNotificationRequestedServiceTest extends FacadeITMockedThirdPa
     var manager = userRepository.save(someUser("sms-manager-4", MANAGER));
     complaintRoutingService.create(ComplaintType.ACADEMIC, manager);
     var complaint =
-        complaintService.create(ComplaintType.ACADEMIC, "Titre", "Description", student);
+        complaintService.create(ComplaintType.ACADEMIC, "Titre", "Description", null, student);
     var event =
         ComplaintSmsNotificationRequested.builder()
             .complaintId(complaint.getId())

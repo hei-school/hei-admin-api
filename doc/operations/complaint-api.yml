@@ -37,7 +37,11 @@ operations:
       tags:
         - Complaint
       operationId: createComplaint
-      summary: Create a complaint as the current student
+      summary: Create a complaint, as the current student or on behalf of a linked student
+      description: >-
+        A student always creates the complaint for themselves. A monitor must
+        pass student_id, and may only use a student they are linked to
+        (status LINKED); otherwise the request is rejected.
       requestBody:
         required: true
         content:
@@ -268,6 +272,76 @@ operations:
             application/json:
               schema:
                 $ref: '../components.yml#/components/schemas/ComplaintRouting'
+        '400':
+          $ref: '../components.yml#/components/responses/400'
+        '403':
+          $ref: '../components.yml#/components/responses/403'
+        '404':
+          $ref: '../components.yml#/components/responses/404'
+        '429':
+          $ref: '../components.yml#/components/responses/429'
+        '500':
+          $ref: '../components.yml#/components/responses/500'
+  complaintAttachments:
+    get:
+      tags:
+        - Complaint
+      operationId: getComplaintAttachments
+      summary: Get the attachments of a complaint
+      description: >-
+        Images or PDF files uploaded as supporting evidence for the
+        complaint's description.
+      parameters:
+        - $ref: '../components.yml#/components/parameters/PathComplaintId'
+      responses:
+        '200':
+          description: List of attachments for the complaint, most recent first
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '../components.yml#/components/schemas/ComplaintAttachment'
+        '400':
+          $ref: '../components.yml#/components/responses/400'
+        '403':
+          $ref: '../components.yml#/components/responses/403'
+        '404':
+          $ref: '../components.yml#/components/responses/404'
+        '429':
+          $ref: '../components.yml#/components/responses/429'
+        '500':
+          $ref: '../components.yml#/components/responses/500'
+  uploadComplaintAttachment:
+    post:
+      tags:
+        - Complaint
+      operationId: uploadComplaintAttachment
+      summary: Attach an image or a PDF file as supporting evidence for a complaint
+      description: >-
+        Only JPEG, PNG, WEBP images and PDF files are accepted. The file's
+        actual content is inspected server-side; the declared file name or
+        content type is never trusted.
+      parameters:
+        - $ref: '../components.yml#/components/parameters/PathComplaintId'
+        - name: filename
+          required: true
+          schema:
+            type: string
+          in: query
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '../components.yml#/components/schemas/UploadFile'
+      responses:
+        '200':
+          description: The uploaded attachment
+          content:
+            application/json:
+              schema:
+                $ref: '../components.yml#/components/schemas/ComplaintAttachment'
         '400':
           $ref: '../components.yml#/components/responses/400'
         '403':

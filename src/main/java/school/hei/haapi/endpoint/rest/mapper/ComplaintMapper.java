@@ -22,6 +22,7 @@ public class ComplaintMapper {
         .description(complaint.getDescription())
         .status(toRestStatus(complaint.getStatus()))
         .student(userMapper.toIdentifier(complaint.getStudent()))
+        .createdBy(userMapper.toIdentifier(complaint.getCreatedBy()))
         .assignees(toRestAssignees(complaint))
         .createdAt(complaint.getCreatedAt());
   }

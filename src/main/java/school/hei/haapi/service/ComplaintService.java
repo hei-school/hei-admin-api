@@ -22,6 +22,7 @@ import school.hei.haapi.model.ComplaintStatus;
 import school.hei.haapi.model.ComplaintType;
 import school.hei.haapi.model.User;
 import school.hei.haapi.model.exception.BadRequestException;
+import school.hei.haapi.model.exception.ForbiddenException;
 import school.hei.haapi.model.exception.NotFoundException;
 import school.hei.haapi.repository.ComplaintAssigneeRepository;
 import school.hei.haapi.repository.ComplaintRepository;
@@ -37,6 +38,7 @@ public class ComplaintService {
   private final ComplaintRoutingService complaintRoutingService;
   private final ComplaintStatusHistoryService complaintStatusHistoryService;
   private final ComplaintDao complaintDao;
+  private final MonitoringStudentService monitoringStudentService;
   private final EventProducer<ComplaintEmailNotificationRequested> emailEventProducer;
   private final EventProducer<ComplaintSmsNotificationRequested> smsEventProducer;
 
@@ -62,7 +64,9 @@ public class ComplaintService {
   }
 
   @Transactional
-  public Complaint create(ComplaintType type, String title, String description, User student) {
+  public Complaint create(
+      ComplaintType type, String title, String description, String requestedStudentId, User actor) {
+    var student = resolveSubject(requestedStudentId, actor);
     var manager = complaintRoutingService.getLast(type).getManager();
 
     var complaint =
@@ -72,6 +76,7 @@ public class ComplaintService {
                 .title(title)
                 .description(description)
                 .student(student)
+                .createdBy(actor)
                 .build());
 
     complaintStatusHistoryService.save(complaint, CREATED, "Réclamation envoyée.", student);
@@ -206,6 +211,28 @@ public class ComplaintService {
       default ->
           throw new BadRequestException("No default message for status %s".formatted(newStatus));
     };
+  }
+
+  private User resolveSubject(String requestedStudentId, User actor) {
+    if (actor.getRole() == User.Role.STUDENT) {
+      return actor;
+    }
+    if (requestedStudentId == null || requestedStudentId.isBlank()) {
+      throw new BadRequestException("student_id is mandatory when a monitor creates a complaint");
+    }
+    var student =
+        userRepository
+            .findById(requestedStudentId)
+            .orElseThrow(
+                () ->
+                    new NotFoundException(
+                        "Student with id #%s not found".formatted(requestedStudentId)));
+    var linkedMonitorIds = monitoringStudentService.getMonitorIdsByStudentId(requestedStudentId);
+    if (!linkedMonitorIds.contains(actor.getId())) {
+      throw new ForbiddenException(
+          "Monitor #%s is not linked to student #%s".formatted(actor.getId(), requestedStudentId));
+    }
+    return student;
   }
 
   private void addAssigneeInMemory(Complaint complaint, ComplaintAssignee assignee) {

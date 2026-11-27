@@ -59,6 +59,8 @@ public class SecurityConf {
   private static final String COMPLAINTS_BY_ID_PATH = "/complaints/*";
   private static final String COMPLAINTS_STATUS_PATH = "/complaints/*/status";
   private static final String COMPLAINTS_HISTORY_PATH = "/complaints/*/history";
+  private static final String COMPLAINTS_ATTACHMENTS_PATH = "/complaints/*/attachments";
+  private static final String COMPLAINTS_ATTACHMENTS_RAW_PATH = "/complaints/*/attachments/raw";
   private static final String STUDENTS_COMPLAINTS_PATH = "/students/*/complaints";
   private static final String COMPLAINT_ROUTINGS_PATH = "/complaint-routings";
   private static final String COMPLAINTS_STRING_BEFORE_ID = "complaints";
@@ -186,6 +188,8 @@ public class SecurityConf {
                     antMatcher(PUT, "/complaints/*/assignees"),
                     antMatcher(PUT, COMPLAINTS_STATUS_PATH),
                     antMatcher(GET, COMPLAINTS_HISTORY_PATH),
+                    antMatcher(GET, COMPLAINTS_ATTACHMENTS_PATH),
+                    antMatcher(POST, COMPLAINTS_ATTACHMENTS_RAW_PATH),
                     antMatcher(GET, STUDENTS_COMPLAINTS_PATH),
                     antMatcher(GET, COMPLAINT_ROUTINGS_PATH),
                     antMatcher(POST, COMPLAINT_ROUTINGS_PATH),
@@ -1206,7 +1210,7 @@ public class SecurityConf {
                     .requestMatchers(PUT, "/students/*/cors")
                     .hasAnyRole(MANAGER.getRole(), ADMIN.getRole())
                     .requestMatchers(POST, COMPLAINTS_PATH)
-                    .hasAnyRole(STUDENT.getRole())
+                    .hasAnyRole(STUDENT.getRole(), MONITOR.getRole())
                     .requestMatchers(GET, COMPLAINTS_PATH)
                     .hasAnyRole(
                         ADMIN.getRole(),
@@ -1227,6 +1231,14 @@ public class SecurityConf {
                             COMPLAINTS_STRING_BEFORE_ID,
                             complaintAssigneeRepository))
                     .hasAnyRole(TEACHER.getRole())
+                    .requestMatchers(
+                        new MonitorComplaintMatcher(
+                            GET,
+                            COMPLAINTS_BY_ID_PATH,
+                            COMPLAINTS_STRING_BEFORE_ID,
+                            complaintRepository,
+                            monitoringStudentService))
+                    .hasAnyRole(MONITOR.getRole())
                     .requestMatchers(GET, COMPLAINTS_BY_ID_PATH)
                     .hasAnyRole(ADMIN.getRole(), MANAGER.getRole(), STAFF_MEMBER.getRole())
                     .requestMatchers(PUT, "/complaints/*/assignees")
@@ -1254,10 +1266,70 @@ public class SecurityConf {
                             COMPLAINTS_STRING_BEFORE_ID,
                             complaintAssigneeRepository))
                     .hasAnyRole(TEACHER.getRole())
+                    .requestMatchers(
+                        new MonitorComplaintMatcher(
+                            GET,
+                            COMPLAINTS_HISTORY_PATH,
+                            COMPLAINTS_STRING_BEFORE_ID,
+                            complaintRepository,
+                            monitoringStudentService))
+                    .hasAnyRole(MONITOR.getRole())
                     .requestMatchers(GET, COMPLAINTS_HISTORY_PATH)
+                    .hasAnyRole(ADMIN.getRole(), MANAGER.getRole(), STAFF_MEMBER.getRole())
+                    .requestMatchers(
+                        new StudentComplaintMatcher(
+                            GET,
+                            COMPLAINTS_ATTACHMENTS_PATH,
+                            COMPLAINTS_STRING_BEFORE_ID,
+                            complaintRepository))
+                    .hasAnyRole(STUDENT.getRole())
+                    .requestMatchers(
+                        new AssigneeComplaintMatcher(
+                            GET,
+                            COMPLAINTS_ATTACHMENTS_PATH,
+                            COMPLAINTS_STRING_BEFORE_ID,
+                            complaintAssigneeRepository))
+                    .hasAnyRole(TEACHER.getRole())
+                    .requestMatchers(
+                        new MonitorComplaintMatcher(
+                            GET,
+                            COMPLAINTS_ATTACHMENTS_PATH,
+                            COMPLAINTS_STRING_BEFORE_ID,
+                            complaintRepository,
+                            monitoringStudentService))
+                    .hasAnyRole(MONITOR.getRole())
+                    .requestMatchers(GET, COMPLAINTS_ATTACHMENTS_PATH)
+                    .hasAnyRole(ADMIN.getRole(), MANAGER.getRole(), STAFF_MEMBER.getRole())
+                    .requestMatchers(
+                        new StudentComplaintMatcher(
+                            POST,
+                            COMPLAINTS_ATTACHMENTS_RAW_PATH,
+                            COMPLAINTS_STRING_BEFORE_ID,
+                            complaintRepository))
+                    .hasAnyRole(STUDENT.getRole())
+                    .requestMatchers(
+                        new AssigneeComplaintMatcher(
+                            POST,
+                            COMPLAINTS_ATTACHMENTS_RAW_PATH,
+                            COMPLAINTS_STRING_BEFORE_ID,
+                            complaintAssigneeRepository))
+                    .hasAnyRole(TEACHER.getRole())
+                    .requestMatchers(
+                        new MonitorComplaintMatcher(
+                            POST,
+                            COMPLAINTS_ATTACHMENTS_RAW_PATH,
+                            COMPLAINTS_STRING_BEFORE_ID,
+                            complaintRepository,
+                            monitoringStudentService))
+                    .hasAnyRole(MONITOR.getRole())
+                    .requestMatchers(POST, COMPLAINTS_ATTACHMENTS_RAW_PATH)
                     .hasAnyRole(ADMIN.getRole(), MANAGER.getRole(), STAFF_MEMBER.getRole())
                     .requestMatchers(new SelfMatcher(GET, STUDENTS_COMPLAINTS_PATH, "students"))
                     .hasAnyRole(STUDENT.getRole())
+                    .requestMatchers(
+                        new StudentMonitorMatcher(
+                            GET, STUDENTS_COMPLAINTS_PATH, "students", monitoringStudentService))
+                    .hasAnyRole(MONITOR.getRole())
                     .requestMatchers(GET, STUDENTS_COMPLAINTS_PATH)
                     .hasAnyRole(ADMIN.getRole(), MANAGER.getRole(), STAFF_MEMBER.getRole())
                     .requestMatchers(GET, COMPLAINT_ROUTINGS_PATH)

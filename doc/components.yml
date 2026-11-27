@@ -2251,6 +2251,12 @@ components:
           type: string
         description:
           type: string
+        student_id:
+          type: string
+          description: >-
+            Mandatory when the caller is a MONITOR creating the complaint on
+            behalf of a student they are linked to; ignored when the caller
+            is the STUDENT themselves (they are always the subject).
     Complaint:
       type: object
       properties:
@@ -2266,6 +2272,12 @@ components:
           $ref: '#/components/schemas/ComplaintStatus'
         student:
           $ref: '#/components/schemas/UserIdentifier'
+        created_by:
+          allOf:
+            - $ref: '#/components/schemas/UserIdentifier'
+          description: >-
+            Who actually filed the complaint: the student themselves, or the
+            monitor who filed it on the student's behalf.
         assignees:
           type: array
           items:
@@ -2302,6 +2314,26 @@ components:
         changed_by:
           $ref: '#/components/schemas/UserIdentifier'
         datetime:
+          type: string
+          format: date-time
+    ComplaintAttachment:
+      type: object
+      properties:
+        id:
+          type: string
+        file_name:
+          type: string
+        content_type:
+          type: string
+          description: >-
+            The actual, server-detected content type of the file (sniffed
+            from its bytes), not the type the client claimed
+        file_url:
+          type: string
+          description: Presigned, time-limited URL to download the file
+        uploaded_by:
+          $ref: '#/components/schemas/UserIdentifier'
+        created_at:
           type: string
           format: date-time
     CrupdateComplaintRouting:

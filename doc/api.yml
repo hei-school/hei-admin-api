@@ -418,6 +418,10 @@ paths:
     $ref: './operations/complaint-api.yml#/operations/complaintHistory'
   '/students/{student_id}/complaints':
     $ref: './operations/complaint-api.yml#/operations/studentComplaints'
+  '/complaints/{complaint_id}/attachments':
+    $ref: './operations/complaint-api.yml#/operations/complaintAttachments'
+  '/complaints/{complaint_id}/attachments/raw':
+    $ref: './operations/complaint-api.yml#/operations/uploadComplaintAttachment'
   /complaint-routings:
     $ref: './operations/complaint-api.yml#/operations/complaintRoutings'
   /complaint-routings/last:
