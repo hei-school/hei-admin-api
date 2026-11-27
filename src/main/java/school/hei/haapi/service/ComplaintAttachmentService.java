@@ -53,8 +53,8 @@ public class ComplaintAttachmentService {
               .formatted(contentType));
     }
 
-    String storageKey =
-        "COMPLAINT/%s/%s%s".formatted(complaintId, UUID.randomUUID(), extensionFor(contentType));
+    String extension = "." + contentType.split("/")[1];
+    String storageKey = "COMPLAINT/%s/%s%s".formatted(complaintId, UUID.randomUUID(), extension);
     fileService.uploadObjectToS3Bucket(storageKey, file);
 
     var attachment =
@@ -73,15 +73,5 @@ public class ComplaintAttachmentService {
         .findById(complaintId)
         .orElseThrow(
             () -> new NotFoundException("Complaint with id #%s not found".formatted(complaintId)));
-  }
-
-  private static String extensionFor(String contentType) {
-    return switch (contentType) {
-      case "image/jpeg" -> ".jpg";
-      case "image/png" -> ".png";
-      case "image/webp" -> ".webp";
-      case "application/pdf" -> ".pdf";
-      default -> throw new BadRequestException("Unsupported file type: " + contentType);
-    };
   }
 }
